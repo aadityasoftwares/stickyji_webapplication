@@ -1,0 +1,386 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: var(--app-toast-z-index, 1400);
+    display: block;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.app-toast-region {
+    --app-toast-enter-x: 0px;
+    --app-toast-enter-y: -12px;
+
+    position: absolute;
+    display: flex;
+    width: min(390px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    gap: 12px;
+    flex-direction: column;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.app-toast-region-top-left,
+.app-toast-region-top-right,
+.app-toast-region-top-center {
+    top: max(16px, env(safe-area-inset-top));
+}
+
+.app-toast-region-bottom-left,
+.app-toast-region-bottom-right,
+.app-toast-region-bottom-center {
+    bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.app-toast-region-top-left,
+.app-toast-region-bottom-left {
+    --app-toast-enter-x: -18px;
+    --app-toast-enter-y: 0px;
+    left: max(16px, env(safe-area-inset-left));
+}
+
+.app-toast-region-top-right,
+.app-toast-region-bottom-right {
+    --app-toast-enter-x: 18px;
+    --app-toast-enter-y: 0px;
+    right: max(16px, env(safe-area-inset-right));
+}
+
+.app-toast-region-top-center,
+.app-toast-region-bottom-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.app-toast-region-bottom-left,
+.app-toast-region-bottom-right,
+.app-toast-region-bottom-center {
+    flex-direction: column-reverse;
+}
+
+.app-toast {
+    --app-toast-surface: #{$paper};
+    --app-toast-ink: #{$text-primary};
+    --app-toast-accent: #{$primary};
+    --app-toast-border: #{rgba($text-primary, 0.14)};
+    --app-toast-fold: #{$paper-dark};
+
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    width: 100%;
+    min-height: 82px;
+    box-sizing: border-box;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 17px 14px 14px;
+    overflow: hidden;
+    color: var(--app-toast-ink);
+    background: var(--app-toast-surface);
+    border: 1px solid var(--app-toast-border);
+    border-radius: 11px 11px 11px 3px;
+    box-shadow:
+        0 3px 0 rgba($text-primary, 0.07),
+        0 12px 30px rgba($text-primary, 0.13);
+    font-family: $font-body;
+    pointer-events: auto;
+    transform-origin: top center;
+    animation: app-toast-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.app-toast::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 15px 15px;
+    border-color: transparent transparent var(--app-toast-fold) transparent;
+    pointer-events: none;
+}
+
+.app-toast:hover,
+.app-toast:focus-within {
+    box-shadow:
+        0 4px 0 rgba($text-primary, 0.08),
+        0 17px 38px rgba($text-primary, 0.16);
+    transform: translateY(-1px);
+}
+
+.app-toast:focus-visible {
+    outline: 3px solid rgba($accent, 0.28);
+    outline-offset: 3px;
+}
+
+.app-toast-tape {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    z-index: 2;
+    width: 72px;
+    height: 13px;
+    background: rgba($paper, 0.68);
+    border-inline: 1px solid rgba($text-primary, 0.06);
+    box-shadow: 0 1px 2px rgba($text-primary, 0.05);
+    transform: translateX(-50%) rotate(-1deg);
+    pointer-events: none;
+}
+
+.app-toast-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    color: var(--app-toast-accent);
+    background: rgba($paper, 0.56);
+    border: 1px solid rgba($text-primary, 0.1);
+    border-radius: 8px 8px 8px 3px;
+    box-shadow: 1px 2px 0 rgba($text-primary, 0.07);
+    transform: rotate(-2deg);
+}
+
+.app-toast-content {
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.app-toast-title {
+    display: block;
+    margin: 0 0 3px;
+    color: $heading;
+    font: 780 14px/1.25 $font-heading;
+    letter-spacing: -0.015em;
+}
+
+.app-toast-message {
+    margin: 0;
+    color: $text-secondary;
+    font: 540 12px/1.45 $font-body;
+    overflow-wrap: anywhere;
+}
+
+.app-toast-action,
+.app-toast-close {
+    appearance: none;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    font-family: $font-body;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-toast-action {
+    position: relative;
+    margin-top: 9px;
+    padding: 0 0 2px;
+    color: var(--app-toast-accent);
+    border-bottom: 1px dashed currentColor;
+    font: 800 11px/1.2 $font-body;
+}
+
+.app-toast-action:hover {
+    border-bottom-style: solid;
+}
+
+.app-toast-action:focus-visible,
+.app-toast-close:focus-visible {
+    outline: 2px solid var(--app-toast-accent);
+    outline-offset: 3px;
+}
+
+.app-toast-close {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    margin: -5px -5px 0 0;
+    place-items: center;
+    color: $text-secondary;
+    border-radius: 7px;
+    transition: color 150ms ease, background-color 150ms ease;
+}
+
+.app-toast-close:hover {
+    color: $text-primary;
+    background: rgba($paper, 0.52);
+}
+
+.app-toast-progress {
+    position: absolute;
+    right: 15px;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    height: 3px;
+    overflow: hidden;
+    background: rgba($text-primary, 0.08);
+}
+
+.app-toast-progress-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--app-toast-accent);
+    transform-origin: left center;
+    animation-name: app-toast-countdown;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.app-toast-paused .app-toast-progress-bar {
+    animation-play-state: paused;
+}
+
+/* Semantic sticky-note surfaces */
+
+.app-toast-neutral {
+    --app-toast-surface: #{$paper};
+    --app-toast-accent: #{$primary};
+    --app-toast-fold: #{$paper-dark};
+}
+
+.app-toast-success,
+.app-toast-noteGreen {
+    --app-toast-surface: #{$note-green};
+    --app-toast-accent: #286b34;
+    --app-toast-border: #{rgba(#286b34, 0.18)};
+    --app-toast-fold: #c8e8c2;
+}
+
+.app-toast-warning {
+    --app-toast-surface: #{$note-orange};
+    --app-toast-accent: #8e3f0a;
+    --app-toast-border: #{rgba(#8e3f0a, 0.18)};
+    --app-toast-fold: #f2cca4;
+}
+
+.app-toast-danger {
+    --app-toast-surface: #{$note-red};
+    --app-toast-accent: #9f2424;
+    --app-toast-border: #{rgba(#9f2424, 0.18)};
+    --app-toast-fold: #edbbbb;
+}
+
+.app-toast-info,
+.app-toast-noteBlue {
+    --app-toast-surface: #{$note-blue};
+    --app-toast-accent: #245f8a;
+    --app-toast-border: #{rgba(#245f8a, 0.18)};
+    --app-toast-fold: #c3dced;
+}
+
+.app-toast-noteYellow {
+    --app-toast-surface: #{$note-yellow};
+    --app-toast-accent: #725400;
+    --app-toast-border: #{rgba(#725400, 0.18)};
+    --app-toast-fold: #eee296;
+}
+
+.app-toast-notePink {
+    --app-toast-surface: #{$note-pink};
+    --app-toast-accent: #9b2957;
+    --app-toast-border: #{rgba(#9b2957, 0.18)};
+    --app-toast-fold: #e9bdd0;
+}
+
+.app-toast-notePurple {
+    --app-toast-surface: #{$note-purple};
+    --app-toast-accent: #67408c;
+    --app-toast-border: #{rgba(#67408c, 0.18)};
+    --app-toast-fold: #d8cae9;
+}
+
+@keyframes app-toast-enter {
+    from {
+        opacity: 0;
+        transform: translate(var(--app-toast-enter-x), var(--app-toast-enter-y)) rotate(-1deg) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0) scale(1);
+    }
+}
+
+@keyframes app-toast-countdown {
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .app-toast-region {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-height: calc(100dvh - 24px);
+        transform: none;
+    }
+
+    .app-toast-region-top-left,
+    .app-toast-region-top-right,
+    .app-toast-region-top-center {
+        top: max(12px, env(safe-area-inset-top));
+        bottom: auto;
+    }
+
+    .app-toast-region-bottom-left,
+    .app-toast-region-bottom-right,
+    .app-toast-region-bottom-center {
+        top: auto;
+        bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .app-toast {
+        min-height: 76px;
+        gap: 10px;
+        padding: 16px 12px 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-toast,
+    .app-toast-close {
+        animation: none;
+        transition: none;
+    }
+
+    .app-toast-progress-bar {
+        animation: none;
+        transform: scaleX(1);
+    }
+}
+
+@media (forced-colors: active) {
+
+    .app-toast,
+    .app-toast-icon {
+        color: CanvasText;
+        background: Canvas;
+        border: 1px solid CanvasText;
+        box-shadow: none;
+    }
+
+    .app-toast::after,
+    .app-toast-tape,
+    .app-toast-progress {
+        display: none;
+    }
+
+    .app-toast-action {
+        color: LinkText;
+    }
+}

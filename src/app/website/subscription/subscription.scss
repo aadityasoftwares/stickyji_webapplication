@@ -1,0 +1,477 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+}
+
+.subscription {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(43px, 4.8vw, 67px) 0 clamp(52px, 5.4vw, 77px);
+    color: $text-primary;
+    background: $app-bg;
+    border-bottom: 1px solid $border;
+}
+
+.subscription-shell {
+    width: min(1200px, calc(100% - 64px));
+    margin-inline: auto;
+}
+
+.section-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 880px;
+    margin-inline: auto;
+    text-align: center;
+}
+
+.section-heading h2 {
+    max-width: 860px;
+    margin: 22px 0 18px;
+    color: $heading;
+    font: 790 clamp(40px, 5.4vw, 68px)/1 $font-heading;
+    letter-spacing: -0.06em;
+}
+
+.section-heading h2 span {
+    position: relative;
+    display: inline-block;
+    padding: 2px 13px 8px;
+    background: $note-green;
+    border: 1px solid rgba($text-primary, 0.09);
+    box-shadow: 6px 6px 0 rgba($text-primary, 0.07);
+    transform: rotate(-1deg);
+}
+
+.section-heading h2 span::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 58px;
+    height: 16px;
+    background: rgba($paper, 0.76);
+    border-inline: 1px solid rgba($text-primary, 0.08);
+    transform: translateX(-50%) rotate(2deg);
+}
+
+.section-heading p {
+    max-width: 690px;
+    margin: 0;
+    color: $text-secondary;
+    font: 500 clamp(16px, 1.5vw, 19px)/1.65 $font-body;
+}
+
+.billing-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.billing-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding: 5px;
+    background: $paper-dark;
+    border: 1px solid $border;
+    border-radius: 13px;
+    box-shadow: 3px 4px 0 rgba($text-primary, 0.05);
+    transform: rotate(-0.4deg);
+}
+
+.billing-toggle button {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    justify-content: center;
+    min-width: 136px;
+    min-height: 42px;
+    padding: 8px 13px;
+    color: $text-secondary;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font: 750 12px/1 $font-body;
+    cursor: pointer;
+}
+
+.billing-toggle button:hover {
+    color: $text-primary;
+}
+
+.billing-toggle button.is-active {
+    color: $text-primary;
+    background: $paper;
+    border-color: rgba($text-primary, 0.12);
+    box-shadow: 2px 2px 0 rgba($text-primary, 0.06);
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 2.5vw, 28px);
+    align-items: stretch;
+    padding-top: 25px;
+}
+
+.plan-wrap {
+    position: relative;
+    min-width: 0;
+    transition: transform 180ms ease;
+}
+
+.plan-wrap:nth-child(1) {
+    transform: rotate(-0.6deg);
+}
+
+.plan-wrap:nth-child(3) {
+    transform: rotate(0.6deg);
+}
+
+.plan-wrap:hover {
+    z-index: 3;
+    transform: translateY(-5px) rotate(0);
+}
+
+.plan-wrap.is-featured {
+    z-index: 2;
+    transform: translateY(-16px);
+}
+
+.plan-wrap.is-featured:hover {
+    transform: translateY(-21px);
+}
+
+.featured-tape {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    z-index: 5;
+    width: 84px;
+    height: 28px;
+    background: rgba($paper, 0.78);
+    border-inline: 1px solid rgba($text-primary, 0.08);
+    transform: translateX(-50%) rotate(-1deg);
+}
+
+.featured-badge {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 5;
+}
+
+.plan-description {
+    min-height: 64px;
+    margin: 0;
+    color: $text-secondary;
+    font: 500 12px/1.55 $font-body;
+}
+
+.plan-price {
+    display: flex;
+    align-items: flex-end;
+    min-height: 78px;
+    margin-top: 17px;
+}
+
+.currency {
+    align-self: flex-start;
+    margin: 9px 3px 0 0;
+    color: $text-secondary;
+    font: 750 16px/1 $font-body;
+}
+
+.plan-price>strong {
+    font: 820 clamp(48px, 5vw, 66px)/0.9 $font-heading;
+    letter-spacing: -0.07em;
+}
+
+.price-period {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 5px 9px;
+}
+
+.price-period small {
+    color: $text-secondary;
+    font: 650 9px/1 $font-body;
+}
+
+.billing-note {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 28px;
+    margin-top: 9px;
+    color: $text-light;
+    font: 650 9px/1.2 $font-body;
+}
+
+.team-preview {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 9px 10px;
+    background: rgba($paper, 0.55);
+    border: 1px solid rgba($text-primary, 0.08);
+    border-radius: 9px;
+}
+
+.team-avatars {
+    display: flex;
+    padding-left: 7px;
+}
+
+.team-avatars app-avatar {
+    margin-left: -7px;
+}
+
+.team-preview>span:last-child {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: $text-secondary;
+    font: 700 8px/1 $font-body;
+}
+
+.feature-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.feature-list li {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    color: $text-secondary;
+    font: 650 11px/1.35 $font-body;
+}
+
+.feature-icon {
+    display: grid;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    color: $success;
+    background: rgba($paper, 0.62);
+    border: 1px solid rgba($text-primary, 0.08);
+    border-radius: 50%;
+}
+
+.feature-list li.is-unavailable {
+    opacity: 0.46;
+}
+
+.feature-list li.is-unavailable .feature-icon {
+    color: $text-light;
+}
+
+.plan-footer {
+    display: grid;
+    width: 100%;
+    gap: 10px;
+    text-align: center;
+}
+
+.plan-footer>small {
+    color: $text-light;
+    font: 600 8px/1.3 $font-body;
+}
+
+.pricing-receipt,
+.receipt-title,
+.receipt-promises,
+.receipt-promises span {
+    display: flex;
+    align-items: center;
+}
+
+.pricing-receipt {
+    gap: 28px;
+    justify-content: space-between;
+    margin-top: clamp(38px, 5vw, 62px);
+    padding: 20px 22px;
+    background: $paper;
+    border: 1px dashed $border;
+    border-radius: 13px;
+    box-shadow: 5px 6px 0 rgba($text-primary, 0.05);
+}
+
+.receipt-title {
+    gap: 11px;
+}
+
+.receipt-title>span:first-child {
+    display: grid;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    color: $success;
+    background: $note-green;
+    border: 1px solid rgba($text-primary, 0.1);
+    border-radius: 10px 10px 10px 3px;
+    transform: rotate(-3deg);
+}
+
+.receipt-title>span:last-child {
+    display: grid;
+    gap: 3px;
+}
+
+.receipt-title strong {
+    font: 760 13px/1.2 $font-heading;
+}
+
+.receipt-title small {
+    color: $text-secondary;
+    font: 550 9px/1.3 $font-body;
+}
+
+.receipt-promises {
+    flex-wrap: wrap;
+    gap: 9px 16px;
+    justify-content: flex-end;
+}
+
+.receipt-promises span {
+    gap: 5px;
+    color: $text-secondary;
+    font: 700 9px/1 $font-body;
+}
+
+.receipt-promises app-icon {
+    color: $success;
+}
+
+@media (max-width: 1000px) {
+    .subscription-shell {
+        width: min(100% - 40px, 790px);
+    }
+
+    .plans-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .plan-wrap.is-featured {
+        transform: translateY(-12px);
+    }
+
+    .plan-wrap:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        width: min(100%, calc(50% - 9px));
+        justify-self: center;
+    }
+
+    .pricing-receipt {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .receipt-promises {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 680px) {
+    .subscription-shell {
+        width: min(100% - 28px, 560px);
+    }
+
+    .section-heading h2 {
+        font-size: clamp(38px, 11vw, 54px);
+    }
+
+    .billing-toggle {
+        width: 100%;
+        max-width: 380px;
+    }
+
+    .billing-toggle button {
+        min-width: 0;
+        padding-inline: 8px;
+    }
+
+    .billing-toggle app-badge {
+        display: none;
+    }
+
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding-top: 8px;
+    }
+
+    .plan-wrap,
+    .plan-wrap:nth-child(1),
+    .plan-wrap:nth-child(3),
+    .plan-wrap.is-featured,
+    .plan-wrap.is-featured:hover,
+    .plan-wrap:hover {
+        transform: none;
+    }
+
+    .plan-wrap:last-child:nth-child(odd) {
+        grid-column: auto;
+        width: 100%;
+    }
+
+    .featured-tape {
+        top: -8px;
+    }
+
+    .plan-description {
+        min-height: 0;
+    }
+
+    .pricing-receipt {
+        padding: 18px 16px;
+    }
+}
+
+@media (max-width: 430px) {
+    .billing-toggle button {
+        font-size: 11px;
+    }
+
+    .team-preview {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .receipt-promises {
+        display: grid;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .plan-wrap,
+    .billing-toggle button {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+
+    .subscription,
+    .billing-toggle,
+    .pricing-receipt {
+        color: CanvasText;
+        background: Canvas;
+        border-color: CanvasText;
+    }
+}

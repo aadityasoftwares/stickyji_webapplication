@@ -1,0 +1,161 @@
+<main id="signin-main" class="sign-in-page">
+    <section class="auth-stage" aria-labelledby="sign-in-title">
+        <article class="auth-card">
+            <span class="card-tape" aria-hidden="true"></span>
+
+            <header class="auth-topbar">
+                <a class="brand-link" [attr.href]="brandHref" [attr.aria-label]="brandName + ' home'">
+                    @if (logoSrc) {
+                    <img class="brand-logo" [src]="logoSrc" [alt]="logoAlt || brandName" />
+                    } @else {
+                    <span class="brand-mark" aria-hidden="true">
+                        <span class="brand-note"><app-icon [icon]="LucideSparkles" size="sm" /></span>
+                    </span>
+                    <strong>{{ brandName }}</strong>
+                    }
+                </a>
+
+                <a class="back-home" [attr.href]="brandHref">
+                    <app-icon [icon]="LucideArrowLeft" size="xs" />
+                    <span>Back</span>
+                </a>
+            </header>
+
+            <div class="auth-content">
+                <header class="login-heading">
+                    <span class="handwritten-kicker">Welcome back!</span>
+                    <h1 id="sign-in-title">Sign in to your workspace</h1>
+                    <p>Enter your details and continue where you left off.</p>
+                </header>
+
+                <form class="sign-in-form" [formGroup]="signInForm" (ngSubmit)="submit()" novalidate>
+                    @if (serverError) {
+                    <div class="form-alert" role="alert">
+                        <app-icon [icon]="LucideShieldCheck" size="sm" />
+                        <span>{{ serverError }}</span>
+                    </div>
+                    }
+
+                    <div class="auth-field">
+                        <label class="handwritten-label" for="sign-in-email">Email</label>
+                        <app-input inputId="sign-in-email" name="email" type="email" label="Email address"
+                            labelMode="hidden" placeholder="you@example.com" autocomplete="email" variant="noteBlue"
+                            appearance="underlined" shape="square" size="md" [leadingIcon]="LucideMail"
+                            [required]="true" [fullWidth]="true" [disabled]="loading" [formControl]="emailControl"
+                            [status]="emailError ? 'danger' : 'default'" [errorText]="emailError" />
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="handwritten-label" for="sign-in-password">Password</label>
+                        <app-input inputId="sign-in-password" name="password" type="password" label="Password"
+                            labelMode="hidden" placeholder="Enter your password" autocomplete="current-password"
+                            variant="noteBlue" appearance="underlined" shape="square" size="md"
+                            [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
+                            [fullWidth]="true" [disabled]="loading" [formControl]="passwordControl"
+                            [status]="passwordError ? 'danger' : 'default'" [errorText]="passwordError" />
+                    </div>
+
+                    <div class="form-options">
+                        <app-checkbox inputId="remember-workspace" label="Keep me signed in" variant="primary" size="sm"
+                            formControlName="rememberMe" />
+
+                        <app-button label="Forgot password?" variant="link" size="sm" type="button"
+                            (buttonClick)="forgotPasswordClick.emit()" />
+                    </div>
+
+                    <app-button label="Sign in" loadingText="Signing in…" variant="primary" size="lg" type="submit"
+                        [fullWidth]="true" [hasIcon]="true" iconPosition="right" [loading]="loading">
+                        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                    </app-button>
+
+                    @if (showGoogleSignIn) {
+                    <app-divider label="or" [hasLabel]="true" variant="neutral" lineStyle="solid" spacing="xs" />
+
+                    <app-button label="Continue with Google" variant="outline" size="md" type="button"
+                        [fullWidth]="true" [hasIcon]="true" iconPosition="left" [disabled]="loading"
+                        (buttonClick)="googleSignIn.emit()">
+                        <span button-icon-left class="google-mark" aria-hidden="true">G</span>
+                    </app-button>
+                    }
+                </form>
+
+                <div class="create-account-row">
+                    <span>Don’t have an account?</span>
+                    <app-button label="Create one for free" variant="link" size="sm" type="button"
+                        (buttonClick)="createAccountClick.emit()" />
+                </div>
+            </div>
+
+            <footer class="auth-footer">
+                <app-icon [icon]="LucideShieldCheck" size="xs" />
+                <span>Secure sign-in · Your notes remain private</span>
+            </footer>
+        </article>
+
+        <aside class="kanban-panel" aria-label="Sticky notes Kanban preview">
+            <div class="kanban-copy">
+                <span class="handwritten-kicker">A calmer way to move work</span>
+                <h2>From loose thought to lovely done.</h2>
+                <p>Capture it, move it forward, and keep the whole day visible.</p>
+            </div>
+
+            <div class="kanban-board" aria-hidden="true">
+                <section class="kanban-column">
+                    <header class="column-heading">
+                        <span><app-icon [icon]="LucideLightbulb" size="xs" /> To do</span>
+                        <app-badge label="2" variant="noteYellow" size="xs" shape="pill" />
+                    </header>
+
+                    <app-sticky-card variant="noteYellow" appearance="flat" shape="note" size="sm" [fullWidth]="true"
+                        [minHeight]="135" [padding]="15" eyebrow="IDEA" cardTitle="Plan the launch story">
+                        <p>Collect the three points people should remember.</p>
+                        <div card-footer class="note-meta">
+                            <span><app-icon [icon]="LucideCalendarDays" size="xs" /> Today</span>
+                        </div>
+                    </app-sticky-card>
+
+                    <app-sticky-card variant="notePink" appearance="flat" shape="note" size="sm" [fullWidth]="true"
+                        [minHeight]="112" [padding]="15" eyebrow="QUICK NOTE" cardTitle="Reply to Sara">
+                        <div card-footer class="note-meta">
+                            <span><app-icon [icon]="LucideUsersRound" size="xs" /> Shared</span>
+                        </div>
+                    </app-sticky-card>
+                </section>
+
+                <section class="kanban-column is-active">
+                    <header class="column-heading">
+                        <span><app-icon [icon]="LucideClock3" size="xs" /> In progress</span>
+                        <app-badge label="1" variant="noteBlue" size="xs" shape="pill" />
+                    </header>
+
+                    <app-sticky-card variant="noteBlue" appearance="flat" shape="note" size="sm" [fullWidth]="true"
+                        [minHeight]="158" [padding]="15" eyebrow="FOCUS" cardTitle="Polish mobile flow">
+                        <p>Keep the important action within one comfortable reach.</p>
+                        <div card-footer class="note-meta note-progress">
+                            <span><app-icon [icon]="LucideCircle" size="xs" /> 2 of 4</span>
+                            <span class="progress-dots"><i></i><i></i><i></i><i></i></span>
+                        </div>
+                    </app-sticky-card>
+                </section>
+
+                <section class="kanban-column">
+                    <header class="column-heading">
+                        <span><app-icon [icon]="LucideCheckCircle2" size="xs" /> Done</span>
+                        <app-badge label="1" variant="noteGreen" size="xs" shape="pill" />
+                    </header>
+
+                    <app-sticky-card variant="noteGreen" appearance="flat" shape="note" size="sm" [fullWidth]="true"
+                        [minHeight]="135" [padding]="15" eyebrow="DONE" cardTitle="Choose the final colors">
+                        <p>Warm paper, clear ink, and just enough personality.</p>
+                        <div card-footer class="note-meta is-complete">
+                            <span><app-icon [icon]="LucideCheckCircle2" size="xs" /> Completed</span>
+                        </div>
+                    </app-sticky-card>
+                </section>
+            </div>
+
+            <p class="kanban-footnote"><app-icon [icon]="LucideSparkles" size="xs" /> Your notes stay exactly where you
+                leave them.</p>
+        </aside>
+    </section>
+</main>

@@ -1,1 +1,234 @@
-/* You can add global styles to this file, and also import other style files */
+@use './app/styles/variables' as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    color-scheme: light;
+
+    --app-font-heading: #{$font-heading};
+    --app-font-body: #{$font-body};
+    --app-font-note: #{$font-note};
+    --app-font-mono: #{$font-mono};
+
+    --app-background: #{$app-bg};
+    --app-page-background: #{$page-bg};
+    --app-paper: #{$paper};
+    --app-paper-muted: #{$paper-dark};
+
+    --app-text: #{$text-primary};
+    --app-text-muted: #{$text-secondary};
+    --app-text-light: #{$text-light};
+
+    --app-border: #{$border};
+    --app-border-light: #{$border-light};
+
+    --app-focus-color: #{$accent};
+    --app-focus-ring: 0 0 0 3px rgba(217, 119, 6, 0.22);
+
+    --app-content-width: 1280px;
+    --app-page-padding: clamp(16px, 3vw, 32px);
+    --app-header-height: 72px;
+
+    font-family: var(--app-font-body);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================
+   Document foundation
+   ========================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 320px;
+    min-height: 100%;
+    background: $app-bg;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+    color: $text-primary;
+    background: $app-bg;
+    font-family: $font-body;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+app-root {
+    display: block;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+main {
+    display: block;
+}
+
+/* ==========================================================
+   Typography
+   ========================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+    margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: $heading;
+    font-family: $font-heading;
+    font-weight: 720;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+}
+
+h4,
+h5,
+h6 {
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 5vw, 4.75rem);
+}
+
+h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+h3 {
+    font-size: clamp(1.625rem, 3vw, 2.5rem);
+}
+
+h4 {
+    font-size: clamp(1.375rem, 2vw, 2rem);
+}
+
+h5 {
+    font-size: 1.25rem;
+}
+
+h6 {
+    font-size: 1.0625rem;
+}
+
+p {
+    color: inherit;
+    text-wrap: pretty;
+}
+
+@media (max-width: 767.98px) {
+    :root {
+        --app-header-height: 64px;
+    }
+
+    body {
+        font-size: 15px;
+    }
+
+    .app-page {
+        padding: 16px;
+    }
+}
+
+/* ==========================================================
+   Accessibility and user preferences
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@media (forced-colors: active) {
+    :root {
+        --app-focus-color: Highlight;
+    }
+
+    body,
+    .app-surface {
+        color: CanvasText;
+        background: Canvas;
+    }
+
+    .app-surface {
+        border-color: CanvasText;
+    }
+}
+
+/* ==========================================================
+   Print
+   ========================================================== */
+
+@media print {
+
+    *,
+    *::before,
+    *::after {
+        color: #000000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    html,
+    body {
+        min-height: auto;
+        overflow: visible;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    img,
+    tr {
+        break-inside: avoid;
+    }
+
+    .no-print,
+    [data-no-print] {
+        display: none !important;
+    }
+}

@@ -1,0 +1,8 @@
+<div class="app-tooltip-panel" [ngClass]="panelClasses" [id]="id" role="tooltip" [style.left.px]="left"
+    [style.top.px]="top" [style.max-width.px]="maxWidth">
+    <span class="app-tooltip-text">{{ text }}</span>
+
+    @if (showArrow) {
+    <span class="app-tooltip-arrow" aria-hidden="true"></span>
+    }
+</div>

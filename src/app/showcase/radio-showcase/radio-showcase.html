@@ -1,0 +1,280 @@
+<main class="radio-showcase">
+    <header class="showcase-hero">
+        <div>
+            <span class="showcase-eyebrow">Sticky Notes design system</span>
+            <h1>Radio component</h1>
+            <p>
+                Accessible single-choice controls for preferences, note colors,
+                layouts, visibility, reminders, and other mutually exclusive options.
+            </p>
+        </div>
+
+        <div class="hero-note" aria-hidden="true">
+            <strong>Choose one</strong>
+            <app-radio name="hero-choice" label="Sticky" value="sticky" variant="noteYellow" size="lg" [checked]="true"
+                [readonly]="true" />
+            <app-radio name="hero-choice" label="Simple" value="simple" variant="noteBlue" size="lg"
+                [readonly]="true" />
+        </div>
+    </header>
+
+    <section class="showcase-section">
+        <div class="component-heading">
+            <span class="component-kicker">Component anatomy</span>
+            <h2>Variants</h2>
+            <p>Every radio uses the same accessible native input beneath its themed visual control.</p>
+        </div>
+
+        <app-divider label="Semantic variants" variant="strong" labelAlign="start" spacing="lg" [decorative]="false" />
+
+        <div class="radio-grid">
+            @for (item of semanticVariants; track item.variant; let index = $index) {
+            <app-radio name="semantic-variant" [label]="item.label" [value]="item.variant" [variant]="item.variant"
+                [checked]="index === 0" />
+            }
+        </div>
+
+        <app-divider label="Sticky-note variants" variant="noteYellow" labelAlign="start" spacing="lg"
+            [decorative]="false" />
+
+        <div class="radio-grid">
+            @for (item of noteVariants; track item.variant; let index = $index) {
+            <app-radio name="note-variant" [label]="item.label" [value]="item.variant" [variant]="item.variant"
+                [checked]="index === 0" />
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section two-column-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">02</span>
+                <div>
+                    <h2>Sizes</h2>
+                    <p>Four presets for different layout densities.</p>
+                </div>
+            </div>
+
+            <div class="vertical-stack">
+                @for (item of sizes; track item.size; let index = $index) {
+                <app-radio name="size-example" [label]="item.label" [value]="item.size" [size]="item.size"
+                    variant="noteBlue" [checked]="index === 2" />
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">03</span>
+                <div>
+                    <h2>Label positions</h2>
+                    <p>Place the text before or after the radio control.</p>
+                </div>
+            </div>
+
+            <div class="vertical-stack">
+                <app-radio name="label-position" label="Control before label" value="right" variant="notePink"
+                    labelPosition="right" [checked]="true" />
+                <app-radio name="label-position" label="Control after label" value="left" variant="notePurple"
+                    labelPosition="left" />
+                <app-radio name="full-width" label="Full-width radio"
+                    description="Descriptions remain aligned and readable across the available space." value="full"
+                    variant="noteGreen" [fullWidth]="true" [checked]="true" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">04</span>
+            <div>
+                <h2>States and descriptions</h2>
+                <p>Selected, unselected, required, invalid, readonly, and disabled examples.</p>
+            </div>
+        </div>
+
+        <div class="state-grid">
+            <app-radio name="state-selected" label="Selected" description="This choice is currently active."
+                value="selected" variant="primary" [checked]="true" />
+            <app-radio name="state-unselected" label="Unselected" description="This choice is available."
+                value="unselected" variant="secondary" />
+            <app-radio name="state-required" label="Required choice"
+                description="The asterisk communicates that a choice is required." value="required" variant="warning"
+                [required]="true" />
+            <app-radio name="state-invalid" label="Invalid choice"
+                description="Use this styling after group validation fails." value="invalid" variant="danger"
+                [required]="true" [invalid]="true" />
+            <app-radio name="state-readonly" label="Readonly" description="Focusable, but cannot be changed."
+                value="readonly" variant="noteYellow" [checked]="true" [readonly]="true" />
+            <app-radio name="state-disabled" label="Disabled" description="This choice is unavailable." value="disabled"
+                variant="secondary" [disabled]="true" />
+            <app-radio name="state-disabled-selected" label="Disabled and selected"
+                description="The saved selection remains visible." value="disabled-selected" variant="success"
+                [checked]="true" [disabled]="true" />
+            <app-radio name="state-custom-label" value="projected" variant="info" [checked]="true"
+                ariaLabel="Custom projected label">
+                Projected label content
+            </app-radio>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">05</span>
+            <div>
+                <h2>Local value selection</h2>
+                <p>The parent owns one value while the radios coordinate through a shared name.</p>
+            </div>
+        </div>
+
+        <div class="local-selection-layout">
+            <div class="choice-list">
+                <app-radio name="local-note-tone" label="Classic yellow" description="Warm and familiar." value="yellow"
+                    variant="noteYellow" [checked]="selectedTone === 'yellow'" (selected)="selectTone($event)" />
+                <app-radio name="local-note-tone" label="Calm blue" description="Good for meeting notes." value="blue"
+                    variant="noteBlue" [checked]="selectedTone === 'blue'" (selected)="selectTone($event)" />
+                <app-radio name="local-note-tone" label="Playful pink" description="Useful for personal ideas."
+                    value="pink" variant="notePink" [checked]="selectedTone === 'pink'"
+                    (selected)="selectTone($event)" />
+                <app-radio name="local-note-tone" label="Focused green" description="Great for completed work."
+                    value="green" variant="noteGreen" [checked]="selectedTone === 'green'"
+                    (selected)="selectTone($event)" />
+            </div>
+
+            <div class="selection-result" [class.selection-result-yellow]="selectedTone === 'yellow'"
+                [class.selection-result-blue]="selectedTone === 'blue'"
+                [class.selection-result-pink]="selectedTone === 'pink'"
+                [class.selection-result-green]="selectedTone === 'green'">
+                <span>Selected value</span>
+                <strong>{{ selectedTone }}</strong>
+                <code>selectedTone: '{{ selectedTone }}'</code>
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">06</span>
+            <div>
+                <h2>Reactive forms</h2>
+                <p>Each group writes its selected option into one Angular FormControl.</p>
+            </div>
+        </div>
+
+        <form class="settings-form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+            <fieldset>
+                <legend>Default view</legend>
+                <app-radio name="settings-view" label="Grid" description="Show notes as cards." value="grid"
+                    variant="noteYellow" formControlName="view" />
+                <app-radio name="settings-view" label="List" description="Use a compact vertical list." value="list"
+                    variant="noteBlue" formControlName="view" />
+                <app-radio name="settings-view" label="Timeline" description="Arrange notes by activity."
+                    value="timeline" variant="notePurple" formControlName="view" />
+            </fieldset>
+
+            <fieldset>
+                <legend>Reminder frequency</legend>
+                <app-radio name="settings-reminder" label="Never" value="never" variant="secondary"
+                    formControlName="reminder" />
+                <app-radio name="settings-reminder" label="Daily" value="daily" variant="noteOrange"
+                    formControlName="reminder" />
+                <app-radio name="settings-reminder" label="Weekly" value="weekly" variant="noteGreen"
+                    formControlName="reminder" />
+            </fieldset>
+
+            <fieldset>
+                <legend>Default visibility</legend>
+                <app-radio name="settings-visibility" label="Private" value="private" variant="notePink"
+                    formControlName="visibility" />
+                <app-radio name="settings-visibility" label="Workspace" value="workspace" variant="noteBlue"
+                    formControlName="visibility" />
+                <app-radio name="settings-visibility" label="Public link" value="public" variant="success"
+                    formControlName="visibility" />
+            </fieldset>
+
+            <fieldset class="required-group">
+                <legend>Export format <span aria-hidden="true">*</span></legend>
+                <app-radio name="settings-export" label="PDF" value="pdf" variant="danger"
+                    formControlName="requiredChoice" [required]="true"
+                    [invalid]="settingsForm.controls.requiredChoice.invalid && settingsForm.controls.requiredChoice.touched" />
+                <app-radio name="settings-export" label="Plain text" value="text" variant="danger"
+                    formControlName="requiredChoice" [required]="true"
+                    [invalid]="settingsForm.controls.requiredChoice.invalid && settingsForm.controls.requiredChoice.touched" />
+            </fieldset>
+
+            <div class="form-footer">
+                <button type="submit" class="save-button">Save preferences</button>
+                <p role="status">{{ formMessage() }}</p>
+            </div>
+        </form>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">07</span>
+            <div>
+                <h2>Object values and compareWith</h2>
+                <p>API objects can be compared by stable IDs instead of object reference.</p>
+            </div>
+        </div>
+
+        <form class="workspace-form" [formGroup]="workspaceForm">
+            @for (workspace of workspaces; track workspace.id) {
+            <app-radio name="workspace-object" [label]="workspace.name" [description]="workspace.description"
+                [value]="workspace" [variant]="workspace.tone" [compareWith]="compareWorkspace"
+                formControlName="workspace" />
+            }
+        </form>
+
+        <p class="object-result">
+            Selected workspace:
+            <strong>{{ workspaceForm.controls.workspace.value?.name || 'None' }}</strong>
+        </p>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">08</span>
+            <div>
+                <h2>Choice-card pattern</h2>
+                <p>Place full-width radios inside themed cards while preserving native behavior.</p>
+            </div>
+        </div>
+
+        <div class="priority-grid">
+            <article class="priority-card priority-low" [class.priority-card-selected]="selectedPriority === 'low'">
+                <app-radio name="priority-card" label="Low priority" description="Ideas and tasks without a deadline."
+                    value="low" variant="noteGreen" [checked]="selectedPriority === 'low'" [fullWidth]="true"
+                    (selected)="selectPriority($event)" />
+                <span>Whenever you have time</span>
+            </article>
+
+            <article class="priority-card priority-normal"
+                [class.priority-card-selected]="selectedPriority === 'normal'">
+                <app-radio name="priority-card" label="Normal priority"
+                    description="Regular work planned for this week." value="normal" variant="noteYellow"
+                    [checked]="selectedPriority === 'normal'" [fullWidth]="true" (selected)="selectPriority($event)" />
+                <span>Complete this week</span>
+            </article>
+
+            <article class="priority-card priority-urgent"
+                [class.priority-card-selected]="selectedPriority === 'urgent'">
+                <app-radio name="priority-card" label="Urgent" description="Time-sensitive work needing attention."
+                    value="urgent" variant="noteRed" [checked]="selectedPriority === 'urgent'" [fullWidth]="true"
+                    (selected)="selectPriority($event)" />
+                <span>Handle today</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="showcase-section keyboard-note">
+        <span class="keyboard-mark">⌨</span>
+        <div>
+            <h2>Keyboard behavior</h2>
+            <p>
+                Tab enters a radio group. Arrow keys move between options that share the same
+                <code>name</code>. Space selects the focused option.
+            </p>
+        </div>
+    </section>
+</main>

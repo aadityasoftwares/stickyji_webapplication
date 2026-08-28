@@ -1,0 +1,41 @@
+<label class="app-label" [ngClass]="labelClasses" [attr.for]="htmlFor" [attr.id]="labelId"
+    [attr.aria-label]="accessibleLabel" [attr.title]="title" [style.max-width.px]="maxWidth">
+    <span class="app-label-main">
+        <span class="app-label-identity">
+            @if (icon && iconPosition === 'left') {
+            <span class="app-label-icon" aria-hidden="true">
+                <app-icon [icon]="icon" size="inherit" />
+            </span>
+            }
+
+            <span class="app-label-text">
+                @if (text) {
+                {{ text }}
+                } @else {
+                <ng-content></ng-content>
+                }
+            </span>
+
+            @if (required) {
+            <span class="app-label-required" aria-hidden="true">*</span>
+            <span class="app-label-visually-hidden-text">{{ requiredText }}</span>
+            } @else if (showOptional) {
+            <span class="app-label-optional">({{ optionalText }})</span>
+            }
+
+            @if (icon && iconPosition === 'right') {
+            <span class="app-label-icon" aria-hidden="true">
+                <app-icon [icon]="icon" size="inherit" />
+            </span>
+            }
+        </span>
+
+        @if (hint) {
+        <span class="app-label-hint">{{ hint }}</span>
+        }
+    </span>
+
+    @if (description) {
+    <span class="app-label-description">{{ description }}</span>
+    }
+</label>

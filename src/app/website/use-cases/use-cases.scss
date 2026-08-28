@@ -1,0 +1,542 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+}
+
+.use-cases {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(43px, 4.8vw, 67px) 0 clamp(52px, 5.4vw, 77px);
+    color: $text-primary;
+    background: $app-bg;
+    border-bottom: 1px solid $border;
+}
+
+.use-cases-shell {
+    width: min(1200px, calc(100% - 64px));
+    margin-inline: auto;
+}
+
+.section-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 850px;
+    margin-inline: auto;
+    text-align: center;
+}
+
+.section-heading h2 {
+    max-width: 780px;
+    margin: 22px 0 18px;
+    color: $heading;
+    font: 790 clamp(40px, 5.4vw, 68px)/1 $font-heading;
+    letter-spacing: -0.06em;
+}
+
+.section-heading h2 span {
+    position: relative;
+    display: inline-block;
+    padding: 2px 12px 7px;
+    background: $note-blue;
+    border: 1px solid rgba($text-primary, 0.08);
+    box-shadow: 6px 6px 0 rgba($text-primary, 0.07);
+    transform: rotate(1deg);
+}
+
+.section-heading h2 span::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 58px;
+    height: 16px;
+    background: rgba($paper, 0.75);
+    border-inline: 1px solid rgba($text-primary, 0.08);
+    transform: translateX(-50%) rotate(-2deg);
+}
+
+.section-heading p {
+    max-width: 700px;
+    margin: 0;
+    color: $text-secondary;
+    font: 500 clamp(16px, 1.5vw, 19px)/1.65 $font-body;
+}
+
+.persona-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+    margin-bottom: -1px;
+    padding-inline: 22px;
+}
+
+.persona-tab {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 20px;
+    gap: 9px;
+    align-items: center;
+    min-height: 73px;
+    padding: 11px 10px;
+    color: $text-secondary;
+    background: $paper-dark;
+    border: 1px solid $border;
+    border-bottom-color: rgba($text-primary, 0.12);
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    transform-origin: bottom;
+    transition: min-height 160ms ease, color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.persona-tab:nth-child(2) {
+    transform: rotate(0.7deg);
+}
+
+.persona-tab:nth-child(4) {
+    transform: rotate(-0.7deg);
+}
+
+.persona-tab[data-persona='student'] {
+    background: rgba($note-yellow, 0.65);
+}
+
+.persona-tab[data-persona='professional'] {
+    background: rgba($note-blue, 0.62);
+}
+
+.persona-tab[data-persona='creator'] {
+    background: rgba($note-pink, 0.6);
+}
+
+.persona-tab[data-persona='life'] {
+    background: rgba($note-green, 0.62);
+}
+
+.persona-tab[data-persona='team'] {
+    background: rgba($note-purple, 0.62);
+}
+
+.persona-tab:hover,
+.persona-tab.is-active {
+    min-height: 82px;
+    color: $text-primary;
+    transform: translateY(0) rotate(0);
+}
+
+.persona-tab.is-active {
+    z-index: 2;
+    border-bottom-color: $paper;
+    background: $paper;
+    box-shadow: 0 -5px 12px rgba($text-primary, 0.05);
+}
+
+.persona-icon {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    color: $text-primary;
+    background: rgba($paper, 0.7);
+    border: 1px solid rgba($text-primary, 0.1);
+    border-radius: 9px 9px 9px 3px;
+}
+
+.persona-tab-copy {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    text-align: left;
+}
+
+.persona-tab-copy small {
+    color: $text-light;
+    font: 850 7px/1 $font-body;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.persona-tab-copy strong {
+    overflow: hidden;
+    font: 750 11px/1.2 $font-body;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.persona-check {
+    display: grid;
+    width: 19px;
+    height: 19px;
+    place-items: center;
+    color: $paper;
+    background: $success;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.7);
+}
+
+.persona-tab.is-active .persona-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.persona-board {
+    position: relative;
+    padding: clamp(22px, 4vw, 42px);
+    background: $paper;
+    border: 1px solid rgba($text-primary, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba($text-primary, 0.12), 12px 14px 0 rgba($note-purple, 0.26);
+}
+
+.board-pin {
+    position: absolute;
+    top: 14px;
+    width: 11px;
+    height: 11px;
+    background: $accent;
+    border: 2px solid $paper;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba($text-primary, 0.25);
+}
+
+.board-pin-left {
+    left: 16px;
+}
+
+.board-pin-right {
+    right: 16px;
+}
+
+.board-header,
+.board-owner,
+.board-status,
+.main-note-footer,
+.small-note>span,
+.quote-note,
+.section-footer,
+.section-footer>div {
+    display: flex;
+    align-items: center;
+}
+
+.board-header {
+    gap: 20px;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed $border;
+}
+
+.board-owner {
+    gap: 12px;
+}
+
+.board-owner>span {
+    display: grid;
+    gap: 5px;
+}
+
+.board-owner strong {
+    font: 760 16px/1.2 $font-heading;
+    letter-spacing: -0.02em;
+}
+
+.board-status {
+    gap: 7px;
+    color: $text-light;
+    font: 750 9px/1 $font-body;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.board-status>span {
+    width: 7px;
+    height: 7px;
+    background: $success;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba($success, 0.1);
+}
+
+.board-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 235px;
+    gap: 16px;
+    align-items: start;
+    padding-top: 24px;
+    animation: board-enter 220ms ease-out;
+}
+
+.main-persona-note {
+    min-width: 0;
+}
+
+.persona-description {
+    margin: 0;
+    color: $text-secondary;
+    font: 500 12px/1.55 $font-body;
+}
+
+.persona-task-list {
+    display: grid;
+    gap: 7px;
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba($paper, 0.57);
+    border: 1px solid rgba($text-primary, 0.08);
+    border-radius: 11px;
+}
+
+.persona-task-list app-checkbox {
+    display: block;
+    padding: 7px 8px;
+    background: rgba($paper, 0.64);
+    border-radius: 8px;
+}
+
+.main-note-footer {
+    width: 100%;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.main-note-footer>span {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: $text-secondary;
+    font: 750 8px/1 $font-body;
+}
+
+.side-notes {
+    display: grid;
+    gap: 12px;
+}
+
+.small-note,
+.quote-note {
+    padding: 16px;
+    border: 1px solid rgba($text-primary, 0.12);
+    box-shadow: 3px 4px 0 rgba($text-primary, 0.06);
+}
+
+.small-note {
+    display: grid;
+    gap: 13px;
+    min-height: 145px;
+    border-radius: 7px 7px 15px 7px;
+}
+
+.reminder-note {
+    background: $note-pink;
+    transform: rotate(1deg);
+}
+
+.outcome-note {
+    position: relative;
+    background: rgba($note-green, 0.72);
+    transform: rotate(-0.7deg);
+}
+
+.small-note p {
+    margin: 0;
+    color: $text-secondary;
+    font: 650 11px/1.5 $font-body;
+}
+
+.small-note>span {
+    gap: 5px;
+    align-self: end;
+    color: $text-light;
+    font: 750 8px/1 $font-body;
+}
+
+.outcome-check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: grid !important;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    color: $paper !important;
+    background: $success;
+    border-radius: 50%;
+}
+
+.quote-note {
+    gap: 10px;
+    background: $paper-dark;
+    border-radius: 10px;
+}
+
+.quote-note blockquote {
+    margin: 0;
+    color: $text-secondary;
+    font: 650 9px/1.45 $font-body;
+}
+
+.section-footer {
+    gap: 24px;
+    justify-content: space-between;
+    margin-top: clamp(42px, 5vw, 66px);
+}
+
+.section-footer>div {
+    gap: 12px;
+}
+
+.section-footer>div>span:last-child {
+    display: grid;
+    gap: 3px;
+}
+
+.footer-spark {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    background: $note-button-yellow;
+    border: 1px solid rgba($text-primary, 0.12);
+    border-radius: 10px 10px 10px 3px;
+    transform: rotate(-3deg);
+}
+
+.section-footer strong {
+    font: 760 14px/1.2 $font-heading;
+}
+
+.section-footer small {
+    color: $text-secondary;
+    font: 550 10px/1.3 $font-body;
+}
+
+@keyframes board-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 980px) {
+    .use-cases-shell {
+        width: min(100% - 40px, 780px);
+    }
+
+    .persona-tabs {
+        grid-template-columns: repeat(5, 165px);
+        overflow-x: auto;
+        padding: 8px 4px 0;
+        scrollbar-width: none;
+        scroll-snap-type: x mandatory;
+    }
+
+    .persona-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .persona-tab {
+        scroll-snap-align: start;
+    }
+
+    .board-content {
+        grid-template-columns: minmax(0, 1fr) 210px;
+    }
+}
+
+@media (max-width: 720px) {
+    .use-cases-shell {
+        width: min(100% - 28px, 580px);
+    }
+
+    .section-heading h2 {
+        font-size: clamp(38px, 11vw, 54px);
+    }
+
+    .persona-board {
+        padding: 24px 16px;
+        border-radius: 15px;
+        box-shadow: 8px 9px 0 rgba($note-purple, 0.25);
+    }
+
+    .board-content {
+        grid-template-columns: 1fr;
+    }
+
+    .side-notes {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .quote-note {
+        grid-column: 1 / -1;
+    }
+
+    .section-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .section-footer app-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 460px) {
+    .board-header {
+        align-items: flex-start;
+    }
+
+    .board-status {
+        display: none;
+    }
+
+    .board-owner strong {
+        font-size: 14px;
+    }
+
+    .side-notes {
+        grid-template-columns: 1fr;
+    }
+
+    .quote-note {
+        grid-column: auto;
+    }
+
+    .main-note-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .section-footer>div {
+        align-items: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .persona-tab,
+    .persona-check,
+    .board-content {
+        animation: none;
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+
+    .use-cases,
+    .persona-tab,
+    .persona-board,
+    .small-note,
+    .quote-note {
+        color: CanvasText;
+        background: Canvas;
+        border-color: CanvasText;
+    }
+}

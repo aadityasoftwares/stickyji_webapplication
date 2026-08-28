@@ -1,0 +1,112 @@
+<section class="card-showcase">
+    <div class="showcase-intro">
+        <p class="showcase-kicker">Common component</p>
+        <h1>Cards for every kind of note</h1>
+        <p>One API for content cards, dashboard metrics, selectable items, media cards, and sticky notes.</p>
+    </div>
+
+    <section class="showcase-section">
+        <h2>Real usage</h2>
+
+        <div class="showcase-grid showcase-grid-featured">
+            <app-sticky-card eyebrow="Workspace" cardTitle="Product launch notes" subtitle="Updated 8 minutes ago"
+                variant="default" appearance="elevated" shape="rounded" [headerDivider]="true" [footerDivider]="true">
+                <span card-icon aria-hidden="true">✦</span>
+
+                <app-button card-header-action variant="ghost" size="sm" label="•••" ariaLabel="More card actions"
+                    [minWidth]="36"></app-button>
+
+                <p class="card-copy">
+                    Keep research, decisions, and follow-ups together without losing the handmade sticky-note feel.
+                </p>
+
+                <div class="tag-row">
+                    <span class="tag">Research</span>
+                    <span class="tag">Launch</span>
+                    <span class="tag">3 tasks</span>
+                </div>
+
+                <div card-footer>
+                    <app-button variant="ghost" size="sm" label="Archive"></app-button>
+                    <app-button variant="primary" size="sm" label="Open note"></app-button>
+                </div>
+            </app-sticky-card>
+
+            <app-sticky-card cardTitle="Visual reference" subtitle="Horizontal media layout" variant="paper"
+                appearance="outlined" layout="horizontal" [mediaWidth]="190">
+                <div card-media class="sample-media" aria-label="Abstract paper preview">
+                    <span>IDEAS</span>
+                </div>
+
+                <p class="card-copy">
+                    Use <code>layout="horizontal"</code> for files, people, products, or compact preview cards.
+                </p>
+            </app-sticky-card>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <h2>Selectable cards</h2>
+
+        <div class="showcase-grid showcase-grid-selectable">
+            @for (item of ['yellow', 'blue', 'pink']; track item) {
+            <app-sticky-card [variant]="item === 'yellow' ? 'noteYellow' : item === 'blue' ? 'noteBlue' : 'notePink'"
+                shape="note" appearance="elevated" size="sm" [clickable]="true" [selected]="selectedCard === item"
+                [cardTitle]="displayName(item) + ' notes'" subtitle="Click or press Enter to select"
+                (cardClick)="selectCard(item)">
+                <p class="card-copy">A keyboard-accessible selection surface with a visible selected state.</p>
+            </app-sticky-card>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <h2>Color variants</h2>
+
+        <div class="showcase-grid showcase-grid-compact">
+            @for (variant of variants; track variant) {
+            <app-sticky-card [variant]="variant" appearance="flat" shape="soft" size="xs"
+                [cardTitle]="displayName(variant)" subtitle="Card variant" [hoverable]="true">
+                <p class="mini-copy">Theme-safe surface and readable foreground.</p>
+            </app-sticky-card>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <h2>Shape variants</h2>
+
+        <div class="showcase-grid showcase-grid-compact">
+            @for (shape of shapes; track shape; let index = $index) {
+            <app-sticky-card [shape]="shape" [variant]="index % 2 === 0 ? 'paper' : 'noteYellow'" appearance="elevated"
+                size="xs" [cardTitle]="displayName(shape)" subtitle="Shape option">
+                <p class="mini-copy">Combine any shape with any color and appearance.</p>
+            </app-sticky-card>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <h2>System states</h2>
+
+        <div class="showcase-grid showcase-grid-compact">
+            <app-sticky-card cardTitle="Loading card" subtitle="Content is temporarily unavailable" [loading]="true">
+                <p class="mini-copy">Loading overlay</p>
+            </app-sticky-card>
+
+            <app-sticky-card cardTitle="Disabled card" subtitle="This action is unavailable" [clickable]="true"
+                [disabled]="true">
+                <p class="mini-copy">Disabled interaction</p>
+            </app-sticky-card>
+
+            <app-sticky-card cardTitle="Scrollable body" subtitle="Header and footer remain visible"
+                [bodyScrollable]="true" [bodyMaxHeight]="90" [footerDivider]="true">
+                <p class="mini-copy long-copy">
+                    Long content can scroll inside the card. This is useful for activity logs, compact task lists, and
+                    small dashboard panels where the page itself should remain stable.
+                </p>
+                <div card-footer>Fixed footer area</div>
+            </app-sticky-card>
+        </div>
+    </section>
+</section>

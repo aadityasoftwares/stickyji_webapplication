@@ -1,0 +1,487 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+/* Local pastel surfaces avoid the later saturated note variable overrides. */
+$card-note-yellow: #fff3a6;
+$card-note-orange: #ffd7a3;
+$card-note-pink: #ffcfe1;
+$card-note-red: #ffc9c6;
+$card-note-green: #d5f2c8;
+$card-note-blue: #cdeaff;
+$card-note-purple: #e4d2fa;
+$card-note-brown: #9b6b49;
+
+:host {
+    display: block;
+    max-width: 100%;
+}
+
+:host.app-card-host-full {
+    width: 100%;
+}
+
+@mixin card-palette($background, $border-color, $text-color) {
+    --app-card-background: #{$background};
+    --app-card-border: #{$border-color};
+    --app-card-color: #{$text-color};
+    --app-card-muted: #{rgba($text-color, 0.67)};
+    --app-card-divider: #{rgba($text-color, 0.14)};
+}
+
+.app-card {
+    --app-card-padding: 20px;
+    --app-card-radius: 16px;
+    --app-card-min-height: 100px;
+    --app-card-media-width: 220px;
+    --app-card-body-max-height: none;
+    --app-card-background: #{$paper};
+    --app-card-border: #{$border};
+    --app-card-color: #{$text-primary};
+    --app-card-muted: #{$text-secondary};
+    --app-card-divider: #{rgba($text-primary, 0.13)};
+
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: var(--app-card-min-height);
+    overflow: hidden;
+    color: var(--app-card-color);
+    background-color: var(--app-card-background);
+    border: 1px solid var(--app-card-border);
+    border-radius: var(--app-card-radius);
+    font-family: $font-body;
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease,
+        filter 180ms ease,
+        opacity 180ms ease;
+}
+
+.app-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.18;
+    background-image:
+        radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.55) 0 0.7px, transparent 0.9px),
+        radial-gradient(circle at 72% 68%, rgba(17, 17, 17, 0.1) 0 0.65px, transparent 0.9px);
+    background-size: 13px 13px, 17px 17px;
+}
+
+.app-card-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.app-card-header,
+.app-card-body,
+.app-card-footer {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    padding-right: var(--app-card-padding);
+    padding-left: var(--app-card-padding);
+}
+
+.app-card-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    padding-top: var(--app-card-padding);
+    padding-bottom: 12px;
+}
+
+.app-card-header:not(:has(.app-card-header-icon:not(:empty), .app-card-eyebrow:not(:empty), .app-card-title:not(:empty), .app-card-subtitle:not(:empty), .app-card-header-action:not(:empty))) {
+    display: none;
+}
+
+.app-card-header-icon:empty,
+.app-card-eyebrow:empty,
+.app-card-title:empty,
+.app-card-subtitle:empty,
+.app-card-header-action:empty,
+.app-card-footer:empty,
+.app-card-media:empty {
+    display: none;
+}
+
+.app-card-header-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.38);
+    border: 1px solid var(--app-card-divider);
+    border-radius: 12px;
+}
+
+.app-card-heading {
+    min-width: 0;
+}
+
+.app-card-eyebrow {
+    margin-bottom: 3px;
+    color: var(--app-card-muted);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.app-card-title {
+    color: inherit;
+    font-family: $font-heading;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.app-card-subtitle {
+    margin-top: 4px;
+    color: var(--app-card-muted);
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.app-card-header-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.app-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-top: 8px;
+    padding-bottom: var(--app-card-padding);
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.app-card-body-scrollable .app-card-body {
+    max-height: var(--app-card-body-max-height);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.app-card-body-flush .app-card-body {
+    padding: 0;
+}
+
+.app-card-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 12px;
+    padding-bottom: var(--app-card-padding);
+}
+
+.app-card-header-divider .app-card-header {
+    border-bottom: 1px solid var(--app-card-divider);
+}
+
+.app-card-header-divider .app-card-body {
+    padding-top: var(--app-card-padding);
+}
+
+.app-card-footer-divider .app-card-footer {
+    border-top: 1px solid var(--app-card-divider);
+}
+
+.app-card-footer-divider .app-card-body {
+    padding-bottom: 12px;
+}
+
+.app-card-media {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+:host ::ng-deep .app-card-media>img,
+:host ::ng-deep .app-card-media>video,
+:host ::ng-deep .app-card-media>[card-media] {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Layout */
+.app-card-layout-vertical {
+    flex-direction: column;
+}
+
+.app-card-layout-vertical .app-card-media {
+    width: 100%;
+    aspect-ratio: 16 / 8;
+}
+
+.app-card-layout-horizontal {
+    flex-direction: row;
+}
+
+.app-card-layout-horizontal .app-card-media {
+    width: min(var(--app-card-media-width), 42%);
+}
+
+/* Sizes */
+.app-card-size-xs .app-card-title {
+    font-size: 18px;
+}
+
+.app-card-size-sm .app-card-title {
+    font-size: 21px;
+}
+
+.app-card-size-lg .app-card-title {
+    font-size: 27px;
+}
+
+.app-card-size-xl .app-card-title {
+    font-size: 30px;
+}
+
+.app-card-size-xs .app-card-header {
+    gap: 8px;
+    padding-bottom: 8px;
+}
+
+.app-card-size-xs .app-card-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+}
+
+.app-card-size-xl .app-card-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+}
+
+/* Color variants */
+.app-card-default {
+    @include card-palette($paper, $border, $text-primary);
+}
+
+.app-card-paper {
+    @include card-palette($page-bg, $border-light, $text-primary);
+}
+
+.app-card-glass {
+    @include card-palette(rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.56), $text-primary);
+    backdrop-filter: blur(16px) saturate(125%);
+}
+
+.app-card-dark {
+    @include card-palette(#191919, #343434, #ffffff);
+}
+
+.app-card-noteYellow {
+    @include card-palette($card-note-yellow, color.adjust($card-note-yellow, $lightness: -15%), #302b14);
+}
+
+.app-card-noteOrange {
+    @include card-palette($card-note-orange, color.adjust($card-note-orange, $lightness: -15%), #352719);
+}
+
+.app-card-notePink {
+    @include card-palette($card-note-pink, color.adjust($card-note-pink, $lightness: -15%), #37242b);
+}
+
+.app-card-noteRed {
+    @include card-palette($card-note-red, color.adjust($card-note-red, $lightness: -15%), #3d2423);
+}
+
+.app-card-noteGreen {
+    @include card-palette($card-note-green, color.adjust($card-note-green, $lightness: -15%), #21311d);
+}
+
+.app-card-noteBlue {
+    @include card-palette($card-note-blue, color.adjust($card-note-blue, $lightness: -15%), #1c2d38);
+}
+
+.app-card-notePurple {
+    @include card-palette($card-note-purple, color.adjust($card-note-purple, $lightness: -15%), #30243e);
+}
+
+.app-card-noteBrown {
+    @include card-palette($card-note-brown, color.adjust($card-note-brown, $lightness: -10%), #ffffff);
+}
+
+/* Appearance */
+.app-card-appearance-elevated {
+    border-color: color-mix(in srgb, var(--app-card-border) 76%, transparent);
+}
+
+.app-card-appearance-outlined {
+    box-shadow: none !important;
+    border-width: 2px;
+}
+
+.app-card-appearance-flat {
+    box-shadow: none !important;
+    border-color: transparent;
+}
+
+/* Shadow */
+.app-card-shadow-none {
+    box-shadow: none;
+}
+
+.app-card-shadow-sm {
+    box-shadow: $shadow-sm;
+}
+
+.app-card-shadow-md {
+    box-shadow: $shadow;
+}
+
+.app-card-shadow-lg {
+    box-shadow: $shadow-lg;
+}
+
+/* Shape */
+.app-card-shape-square {
+    border-radius: 0;
+}
+
+.app-card-shape-note {
+    border-radius: 4px 8px 5px 3px;
+    transform: rotate(-0.35deg);
+}
+
+.app-card-shape-cut {
+    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+}
+
+.app-card-shape-ticket {
+    clip-path: polygon(0 0, 100% 0, 100% 40%, calc(100% - 10px) 50%, 100% 60%, 100% 100%, 0 100%, 0 60%, 10px 50%, 0 40%);
+}
+
+.app-card-shape-folded {
+    clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 34px, 100% 100%, 0 100%);
+}
+
+.app-card-shape-folded::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    pointer-events: none;
+    background: linear-gradient(225deg, rgba(17, 17, 17, 0.18) 0 49%, rgba(255, 255, 255, 0.45) 50% 100%);
+}
+
+/* Interaction */
+.app-card-clickable {
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-card-hoverable:hover:not(.app-card-disabled) {
+    transform: translateY(-3px) rotate(0deg);
+    box-shadow: $shadow-lg;
+    border-color: color-mix(in srgb, var(--app-card-border) 70%, $primary);
+}
+
+.app-card-clickable:active:not(.app-card-disabled) {
+    transform: translateY(-1px) scale(0.995);
+}
+
+.app-card:focus-visible {
+    outline: 3px solid rgba($accent, 0.35);
+    outline-offset: 4px;
+}
+
+.app-card-selected {
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.2), $shadow;
+}
+
+.app-card-disabled {
+    opacity: 0.55;
+    filter: grayscale(0.18);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Loading */
+.app-card-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--app-card-background) 72%, transparent);
+    backdrop-filter: blur(2px);
+}
+
+.app-card-spinner {
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    border: 3px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: app-card-spin 0.75s linear infinite;
+}
+
+@keyframes app-card-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 640px) {
+    .app-card-layout-horizontal {
+        flex-direction: column;
+    }
+
+    .app-card-layout-horizontal .app-card-media {
+        width: 100%;
+        aspect-ratio: 16 / 8;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-card {
+        transition: none;
+    }
+
+    .app-card-spinner {
+        animation-duration: 1.2s;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-card {
+        border: 1px solid CanvasText;
+    }
+
+    .app-card-selected {
+        outline: 3px solid Highlight;
+    }
+}

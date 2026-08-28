@@ -1,0 +1,30 @@
+<span class="app-badge" [ngClass]="badgeClasses" [style.max-width.px]="maxWidth" [attr.role]="role"
+    [attr.aria-label]="accessibleLabel" [attr.aria-disabled]="disabled ? 'true' : null" [attr.title]="title">
+    @if (dot) {
+    <span class="app-badge-dot" [class.app-badge-dot-pulse]="dotPulse" aria-hidden="true"></span>
+    }
+
+    @if (icon && iconPosition === 'left') {
+    <span class="app-badge-icon" aria-hidden="true">
+        <app-icon [icon]="icon" size="inherit" />
+    </span>
+    }
+
+    <span class="app-badge-label">
+        <ng-content></ng-content>
+        {{ displayText }}
+    </span>
+
+    @if (icon && iconPosition === 'right') {
+    <span class="app-badge-icon" aria-hidden="true">
+        <app-icon [icon]="icon" size="inherit" />
+    </span>
+    }
+
+    @if (removable) {
+    <button type="button" class="app-badge-remove" [disabled]="disabled"
+        [attr.aria-label]="removeAriaLabel + (displayText ? ' ' + displayText : '')" (click)="remove($event)">
+        <app-icon [icon]="removeIcon" size="inherit" />
+    </button>
+    }
+</span>

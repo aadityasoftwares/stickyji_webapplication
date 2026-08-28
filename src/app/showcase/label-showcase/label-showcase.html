@@ -1,0 +1,239 @@
+<main class="label-showcase">
+    <header class="showcase-hero">
+        <div>
+            <span class="showcase-eyebrow">Sticky Notes design system</span>
+            <h1>Label component</h1>
+            <p>
+                Accessible labels for inputs, filters, settings, note metadata,
+                validation states, and compact form layouts.
+            </p>
+        </div>
+
+        <div class="hero-example">
+            <app-label forId="hero-title" text="Note title" size="lg" variant="noteYellow" [required]="true"
+                [icon]="icons.stickyNote" hint="Give your note a memorable title." />
+            <input id="hero-title" type="text" value="Product launch ideas" aria-describedby="hero-title-message" />
+        </div>
+    </header>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">01</span>
+            <div>
+                <h2>Semantic variants</h2>
+                <p>General-purpose label colors for application states.</p>
+            </div>
+        </div>
+
+        <div class="label-grid">
+            @for (item of semanticVariants; track item.value) {
+            <div class="label-spec">
+                <app-label [text]="item.label" [variant]="item.value" [icon]="icons.tag" />
+                <span>{{ item.value }}</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section note-section">
+        <div class="section-heading">
+            <span class="section-number">02</span>
+            <div>
+                <h2>Sticky-note variants</h2>
+                <p>Labels aligned with every reusable note color.</p>
+            </div>
+        </div>
+
+        <div class="label-grid">
+            @for (item of noteVariants; track item.value) {
+            <div class="label-spec">
+                <app-label [text]="item.label" [variant]="item.value" [icon]="icons.stickyNote" />
+                <span>{{ item.value }}</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section split-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">03</span>
+                <div>
+                    <h2>Sizes</h2>
+                    <p>Four sizes for dense and spacious forms.</p>
+                </div>
+            </div>
+
+            <div class="stack-examples">
+                @for (item of sizes; track item.value) {
+                <app-label [text]="item.label" [size]="item.value" [icon]="icons.hash" />
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">04</span>
+                <div>
+                    <h2>Weights</h2>
+                    <p>Choose emphasis without changing semantics.</p>
+                </div>
+            </div>
+
+            <div class="stack-examples">
+                <app-label text="Medium weight" weight="medium" [icon]="icons.tag" />
+                <app-label text="Semibold weight" weight="semibold" [icon]="icons.tag" />
+                <app-label text="Bold weight" weight="bold" [icon]="icons.tag" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">05</span>
+            <div>
+                <h2>Required and optional fields</h2>
+                <p>Visual indicators supplement—not replace—native input validation.</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-field">
+                <app-label forId="full-name" text="Full name" [required]="true" [icon]="icons.user"
+                    hint="Use the name shown on your account." />
+                <input id="full-name" type="text" placeholder="Aaditya Panchal" required
+                    aria-describedby="full-name-message" />
+            </div>
+
+            <div class="form-field">
+                <app-label forId="nickname" text="Nickname" [optional]="true" [icon]="icons.at"
+                    hint="Visible only to your workspace." />
+                <input id="nickname" type="text" placeholder="Aadi" aria-describedby="nickname-message" />
+            </div>
+
+            <div class="form-field">
+                <app-label forId="private-note" text="Private note" optionalText="Not shared" [optional]="true"
+                    [icon]="icons.lock" />
+                <input id="private-note" type="text" placeholder="Only you can see this" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">06</span>
+            <div>
+                <h2>Messages and validation</h2>
+                <p>Error takes priority over success, and success takes priority over hint.</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-field">
+                <app-label forId="email-demo" text="Email address" [required]="true" [icon]="icons.mail"
+                    hint="We use this for sharing notifications." />
+                <input id="email-demo" type="email" placeholder="you@example.com" [value]="emailValue()"
+                    [class.input-error]="emailError" [class.input-success]="emailSuccess"
+                    [attr.aria-invalid]="emailError ? 'true' : null" aria-describedby="email-demo-message"
+                    (input)="updateEmail($event)" (blur)="emailTouched.set(true)" />
+            </div>
+
+            <div class="form-field">
+                <app-label forId="valid-title" text="Note title" [icon]="icons.check"
+                    success="This title is available." />
+                <input id="valid-title" class="input-success" type="text" value="Weekly goals"
+                    aria-describedby="valid-title-message" />
+            </div>
+
+            <div class="form-field">
+                <app-label forId="invalid-folder" text="Folder name" [icon]="icons.folder"
+                    error="A folder with this name already exists." />
+                <input id="invalid-folder" class="input-error" type="text" value="Personal" aria-invalid="true"
+                    aria-describedby="invalid-folder-message" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">07</span>
+            <div>
+                <h2>Icons and alignment</h2>
+                <p>Place Lucide icons on either side and align labels to match your layout.</p>
+            </div>
+        </div>
+
+        <div class="alignment-grid">
+            <div>
+                <app-label text="Icon on left" [icon]="icons.palette" iconPosition="left" variant="notePurple" />
+            </div>
+            <div>
+                <app-label text="Centered label" [icon]="icons.stickyNote" align="center" variant="noteYellow" />
+            </div>
+            <div>
+                <app-label text="Icon on right" [icon]="icons.calendar" iconPosition="right" align="end"
+                    variant="noteBlue" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">08</span>
+            <div>
+                <h2>States and constraints</h2>
+                <p>Disabled, inline, wrapping, and truncated labels.</p>
+            </div>
+        </div>
+
+        <div class="constraint-grid">
+            <app-label text="Disabled field" [disabled]="true" [icon]="icons.lock" />
+            <app-label text="Optional inline label" [optional]="true" hint="Displayed on the same line." />
+            <app-label text="A very long label that will be truncated inside its maximum width" [wrap]="false"
+                [maxWidth]="230" title="A very long label that will be truncated inside its maximum width" />
+            <app-label [maxWidth]="260" [variant]="'neutral'">
+                Projected label content
+            </app-label>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">09</span>
+            <div>
+                <h2>Sticky Notes form pattern</h2>
+                <p>A realistic form using the common label component.</p>
+            </div>
+        </div>
+
+        <form class="note-form" (submit)="$event.preventDefault()">
+            <div class="form-field form-field-wide">
+                <app-label forId="note-name" text="Note title" size="md" variant="noteYellow" [required]="true"
+                    [icon]="icons.stickyNote" />
+                <input id="note-name" type="text" placeholder="What should we remember?" required />
+            </div>
+
+            <div class="form-field">
+                <app-label forId="note-category" text="Category" variant="notePurple" [icon]="icons.tag" />
+                <select id="note-category">
+                    <option>Personal</option>
+                    <option>Work</option>
+                    <option>Ideas</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <app-label forId="note-date" text="Reminder" variant="noteBlue" [optional]="true"
+                    [icon]="icons.calendar" />
+                <input id="note-date" type="date" />
+            </div>
+
+            <div class="form-field form-field-wide">
+                <app-label forId="note-content" text="Note" size="md" [required]="true"
+                    hint="You can edit this later." />
+                <textarea id="note-content" rows="5" placeholder="Start writing your note..." required
+                    aria-describedby="note-content-message"></textarea>
+            </div>
+        </form>
+    </section>
+</main>

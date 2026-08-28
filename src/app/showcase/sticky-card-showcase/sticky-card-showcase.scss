@@ -1,0 +1,151 @@
+@use '../../styles/variables.scss' as *;
+
+:host {
+    display: block;
+    min-height: 100%;
+    color: $text-primary;
+    background: $app-bg;
+}
+
+.card-showcase {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+}
+
+.showcase-intro {
+    max-width: 720px;
+    margin-bottom: 42px;
+}
+
+.showcase-kicker {
+    margin: 0 0 6px;
+    color: $accent;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+    margin-top: 0;
+}
+
+h1,
+h2 {
+    color: $heading;
+    font-family: $font-heading;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 0.98;
+}
+
+h2 {
+    margin-bottom: 16px;
+    font-size: 28px;
+}
+
+.showcase-intro>p:last-child {
+    color: $text-secondary;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.showcase-section+.showcase-section {
+    margin-top: 42px;
+}
+
+.showcase-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.showcase-grid-featured {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.showcase-grid-selectable {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.showcase-grid-compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.card-copy,
+.mini-copy {
+    margin-bottom: 0;
+}
+
+.mini-copy {
+    color: inherit;
+    opacity: 0.78;
+    font-size: 13px;
+}
+
+.long-copy {
+    min-height: 160px;
+}
+
+.tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 18px;
+}
+
+.tag {
+    padding: 4px 9px;
+    color: $text-secondary;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid $border-light;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sample-media {
+    display: grid !important;
+    place-items: center;
+    min-height: 230px;
+    color: #302b14;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent),
+        #ffe976;
+    font-family: $font-heading;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    transform: rotate(-1deg);
+}
+
+code {
+    padding: 2px 5px;
+    background: rgba(17, 17, 17, 0.07);
+    border-radius: 5px;
+    font-family: $font-mono;
+    font-size: 0.86em;
+}
+
+@media (max-width: 980px) {
+    .showcase-grid-compact {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .card-showcase {
+        padding: 28px 16px 48px;
+    }
+
+    .showcase-grid-featured,
+    .showcase-grid-selectable,
+    .showcase-grid-compact {
+        grid-template-columns: 1fr;
+    }
+}

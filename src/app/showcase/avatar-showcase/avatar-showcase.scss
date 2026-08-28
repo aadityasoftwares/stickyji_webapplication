@@ -1,0 +1,355 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+    min-height: 100%;
+    color: $text-primary;
+    background: $app-bg;
+    font-family: $font-body;
+}
+
+.avatar-showcase {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 72px;
+}
+
+.showcase-hero,
+.showcase-section {
+    border: 1px solid $border;
+    background: rgba($paper, 0.94);
+    box-shadow: $shadow-sm;
+}
+
+.showcase-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(24px, 5vw, 48px);
+    border-radius: $radius-lg;
+    overflow: hidden;
+}
+
+.showcase-hero::after {
+    content: '';
+    position: absolute;
+    right: -55px;
+    bottom: -85px;
+    width: 230px;
+    height: 230px;
+    border-radius: 42% 58% 60% 40%;
+    background: $note-button-yellow;
+    opacity: 0.55;
+    transform: rotate(-12deg);
+}
+
+.showcase-eyebrow,
+.section-number {
+    display: inline-flex;
+    color: $secondary;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.showcase-hero h1,
+.section-heading h2,
+.interactive-example h2 {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-weight: 700;
+}
+
+.showcase-hero h1 {
+    margin-top: 8px;
+    font-size: clamp(38px, 6vw, 60px);
+    line-height: 0.98;
+}
+
+.showcase-hero p {
+    max-width: 650px;
+    margin: 16px 0 0;
+    color: $text-secondary;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.hero-avatar {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    transform: rotate(4deg);
+}
+
+.showcase-section {
+    margin-top: 20px;
+    padding: clamp(22px, 4vw, 36px);
+    border-radius: $radius-md;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.section-number {
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 25px;
+    border-radius: 999px;
+    color: #5b4600;
+    background: $note-button-yellow;
+}
+
+.section-heading h2,
+.interactive-example h2 {
+    font-size: 30px;
+    line-height: 1.1;
+}
+
+.section-heading p,
+.interactive-example p {
+    margin: 6px 0 0;
+    color: $text-secondary;
+    line-height: 1.55;
+}
+
+.example-grid,
+.pattern-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.example-grid-content {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.example-card,
+.pattern-card {
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.example-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 16px;
+}
+
+.example-card div,
+.profile-copy,
+.pattern-heading div,
+.assignee-row div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+}
+
+.example-card strong,
+.pattern-card strong {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.example-card span,
+.pattern-card span {
+    color: $text-secondary;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.event-message {
+    margin: 16px 0 0;
+    padding: 10px 14px;
+    border-left: 3px solid $accent;
+    border-radius: 0 $radius-xs $radius-xs 0;
+    color: $text-secondary;
+    background: $paper-dark;
+    font-size: 13px;
+}
+
+.avatar-spec-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.avatar-spec-row-bottom {
+    align-items: flex-end;
+}
+
+.avatar-spec-item {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 72px;
+}
+
+.avatar-spec-item>span {
+    color: $text-secondary;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.split-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+}
+
+.compact-row {
+    gap: 28px;
+}
+
+.pattern-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pattern-card {
+    min-width: 0;
+    padding: 18px;
+}
+
+.profile-card,
+.pattern-heading,
+.assignee-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-copy {
+    flex: 1 1 auto;
+}
+
+.pattern-heading {
+    margin-bottom: 18px;
+}
+
+.avatar-group {
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+}
+
+.avatar-group app-avatar {
+    margin-left: -8px;
+    transition: transform 160ms ease;
+}
+
+.avatar-group app-avatar:hover {
+    position: relative;
+    z-index: 2;
+    transform: translateY(-3px);
+}
+
+.assignee-card {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.1)),
+        $note-button-yellow;
+}
+
+.interactive-example {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.interactive-example .section-number {
+    margin-bottom: 10px;
+}
+
+.status-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 8px 18px 8px 9px;
+    border: 1px solid $border;
+    border-radius: 999px;
+    color: $text-primary;
+    background: $paper;
+    box-shadow: $shadow-sm;
+    font: 700 14px/1 $font-body;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.status-control:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow;
+}
+
+.status-control:focus-visible {
+    outline: 3px solid rgba($accent, 0.28);
+    outline-offset: 3px;
+}
+
+@media (max-width: 980px) {
+
+    .example-grid-content,
+    .pattern-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .split-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .avatar-showcase {
+        width: min(100% - 20px, 1180px);
+        padding: 20px 0 48px;
+    }
+
+    .showcase-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero-avatar {
+        align-self: flex-end;
+    }
+
+    .example-grid-content,
+    .pattern-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .interactive-example {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .status-control {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .avatar-group app-avatar,
+    .status-control {
+        transition: none;
+    }
+}

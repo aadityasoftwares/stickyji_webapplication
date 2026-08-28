@@ -1,0 +1,198 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: block;
+    max-width: 100%;
+}
+
+.app-divider {
+    --app-divider-color: #{$border};
+    --app-divider-thickness: 1px;
+    --app-divider-length: 100%;
+    --app-divider-spacing: 16px;
+    --app-divider-inset: 0px;
+
+    box-sizing: border-box;
+    color: $text-secondary;
+    font-family: $font-body;
+}
+
+.app-divider-horizontal {
+    display: flex;
+    align-items: center;
+    width: var(--app-divider-length);
+    max-width: 100%;
+    min-width: 0;
+    margin-block: var(--app-divider-spacing);
+    padding-inline: var(--app-divider-inset);
+}
+
+.app-divider-vertical {
+    display: inline-flex;
+    align-items: stretch;
+    width: var(--app-divider-thickness);
+    height: var(--app-divider-length);
+    min-height: 1px;
+    margin-inline: var(--app-divider-spacing);
+    padding-block: var(--app-divider-inset);
+    vertical-align: middle;
+}
+
+:host:has(.app-divider-vertical) {
+    display: inline-flex;
+    align-self: stretch;
+    width: max-content;
+    max-height: 100%;
+}
+
+.app-divider-line {
+    display: block;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    border-color: var(--app-divider-color);
+}
+
+.app-divider-horizontal .app-divider-line {
+    flex: 1 1 auto;
+    width: 100%;
+    border-top-width: var(--app-divider-thickness);
+    border-top-style: solid;
+}
+
+.app-divider-vertical .app-divider-line {
+    flex: 1 1 auto;
+    height: 100%;
+    border-left-width: var(--app-divider-thickness);
+    border-left-style: solid;
+}
+
+.app-divider-dashed.app-divider-horizontal .app-divider-line {
+    border-top-style: dashed;
+}
+
+.app-divider-dashed.app-divider-vertical .app-divider-line {
+    border-left-style: dashed;
+}
+
+.app-divider-dotted.app-divider-horizontal .app-divider-line {
+    border-top-style: dotted;
+}
+
+.app-divider-dotted.app-divider-vertical .app-divider-line {
+    border-left-style: dotted;
+}
+
+.app-divider-label {
+    flex: 0 0 auto;
+    max-width: min(70%, 420px);
+    padding-inline: 12px;
+    overflow: hidden;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.app-divider-label-start .app-divider-line:first-child {
+    flex: 0 0 24px;
+}
+
+.app-divider-label-end .app-divider-line:last-child {
+    flex: 0 0 24px;
+}
+
+/* Variants */
+
+.app-divider-neutral {
+    --app-divider-color: #{$border};
+}
+
+.app-divider-strong {
+    --app-divider-color: #{$text-secondary};
+}
+
+.app-divider-primary {
+    --app-divider-color: #{$primary};
+    color: $primary;
+}
+
+.app-divider-accent {
+    --app-divider-color: #{$accent};
+    color: $accent;
+}
+
+.app-divider-success {
+    --app-divider-color: #{$success};
+    color: $success;
+}
+
+.app-divider-warning {
+    --app-divider-color: #{$warning};
+    color: $warning;
+}
+
+.app-divider-danger {
+    --app-divider-color: #{$danger};
+    color: $danger;
+}
+
+.app-divider-info {
+    --app-divider-color: #{$info};
+    color: $info;
+}
+
+.app-divider-noteYellow {
+    --app-divider-color: #{$note-button-yellow};
+    color: #725400;
+}
+
+.app-divider-noteOrange {
+    --app-divider-color: #{$note-button-orange};
+    color: #8e3f0a;
+}
+
+.app-divider-notePink {
+    --app-divider-color: #{$note-button-pink};
+    color: #9b2957;
+}
+
+.app-divider-noteRed {
+    --app-divider-color: #{$note-button-red};
+    color: #9f2424;
+}
+
+.app-divider-noteGreen {
+    --app-divider-color: #{$note-button-green};
+    color: #286b34;
+}
+
+.app-divider-noteBlue {
+    --app-divider-color: #{$note-button-blue};
+    color: #245f8a;
+}
+
+.app-divider-notePurple {
+    --app-divider-color: #{$note-button-purple};
+    color: #67408c;
+}
+
+.app-divider-noteBrown {
+    --app-divider-color: #{$note-button-brown};
+    color: $note-button-brown;
+}
+
+.app-divider-noteBlack {
+    --app-divider-color: #{$note-black};
+    color: $note-black;
+}
+
+@media (forced-colors: active) {
+    .app-divider {
+        --app-divider-color: CanvasText;
+    }
+}

@@ -1,0 +1,148 @@
+<div class="app-input-wrapper" [ngClass]="wrapperClasses"
+    [style.width]="isFullWidth ? '100%' : width !== undefined ? width + 'px' : null" [style.max-width.px]="maxWidth"
+    [style.--app-input-height]="inputHeight + 'px'" [style.--app-input-padding-x]="inputPaddingX + 'px'"
+    [style.--app-input-radius]="inputRadius + 'px'" [style.--app-input-resize]="resize">
+    @if (decoration === 'tape') {
+    <span class="app-input-tape app-input-tape-left" aria-hidden="true"></span>
+    <span class="app-input-tape app-input-tape-right" aria-hidden="true"></span>
+    }
+
+    @if (label && labelMode === 'top') {
+    <div class="app-input-label-row">
+        <label class="app-input-label" [for]="resolvedId">
+            {{ label }}
+
+            @if (required) {
+            <span class="app-input-required" aria-hidden="true">*</span>
+            <span class="app-input-visually-hidden">{{ requiredText }}</span>
+            } @else if (optional) {
+            <span class="app-input-optional">({{ optionalText }})</span>
+            }
+        </label>
+
+        @if (labelHint) {
+        <span class="app-input-label-hint">{{ labelHint }}</span>
+        }
+    </div>
+
+    @if (labelDescription) {
+    <div class="app-input-label-description">{{ labelDescription }}</div>
+    }
+    }
+
+    @if (label && labelMode === 'hidden') {
+    <label class="app-input-visually-hidden" [for]="resolvedId">{{ label }}</label>
+    }
+
+    <div class="app-input-control-shell">
+        @if (leadingIcon) {
+        <span class="app-input-leading-icon" aria-hidden="true">
+            <app-icon [icon]="leadingIcon" [size]="iconSize" [tone]="leadingIconTone" />
+        </span>
+        } @else {
+        <span class="app-input-leading-icon app-input-projected-icon" aria-hidden="true">
+            <ng-content select="[input-leading-icon]"></ng-content>
+        </span>
+        }
+
+        @if (prefixText) {
+        <span class="app-input-affix app-input-prefix">{{ prefixText }}</span>
+        } @else {
+        <span class="app-input-affix app-input-prefix">
+            <ng-content select="[input-prefix]"></ng-content>
+        </span>
+        }
+
+        @if (multiline) {
+        <textarea #nativeControl class="app-input-control app-input-textarea" [id]="resolvedId" [name]="name || ''"
+            [value]="value ?? ''" [rows]="rows"
+            [attr.placeholder]="labelMode === 'floating' ? (placeholder || ' ') : placeholder"
+            [attr.autocomplete]="autocomplete" [attr.inputmode]="inputMode" [attr.minlength]="minLength"
+            [attr.maxlength]="maxLength" [attr.pattern]="pattern"
+            [attr.aria-label]="ariaLabel || (labelMode === 'hidden' ? label : null)"
+            [attr.aria-describedby]="describedBy" [attr.aria-invalid]="effectiveStatus === 'danger' ? 'true' : null"
+            [attr.aria-required]="required ? 'true' : null" [required]="required" [readOnly]="readonly"
+            [disabled]="isDisabled" [spellcheck]="spellcheck" (input)="handleInput($event)"
+            (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)"></textarea>
+        } @else {
+        <input #nativeControl class="app-input-control" [id]="resolvedId" [type]="currentType" [name]="name || ''"
+            [value]="value ?? ''" [attr.placeholder]="labelMode === 'floating' ? (placeholder || ' ') : placeholder"
+            [attr.autocomplete]="autocomplete" [attr.inputmode]="inputMode" [attr.min]="min" [attr.max]="max"
+            [attr.step]="step" [attr.minlength]="minLength" [attr.maxlength]="maxLength" [attr.pattern]="pattern"
+            [attr.list]="list" [attr.aria-label]="ariaLabel || (labelMode === 'hidden' ? label : null)"
+            [attr.aria-describedby]="describedBy" [attr.aria-invalid]="effectiveStatus === 'danger' ? 'true' : null"
+            [attr.aria-required]="required ? 'true' : null" [required]="required" [readOnly]="readonly"
+            [disabled]="isDisabled" [spellcheck]="spellcheck" (input)="handleInput($event)"
+            (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)" />
+        }
+
+        @if (label && labelMode === 'floating') {
+        <label class="app-input-floating-label" [for]="resolvedId">
+            {{ label }}
+
+            @if (required) {
+            <span class="app-input-required" aria-hidden="true">*</span>
+            } @else if (optional) {
+            <span class="app-input-optional">({{ optionalText }})</span>
+            }
+        </label>
+        }
+
+        @if (showClearButton) {
+        <button type="button" class="app-input-action" aria-label="Clear input" title="Clear"
+            (mousedown)="$event.preventDefault()" (click)="clear($event)">
+            <app-icon [icon]="clearIcon" size="sm" />
+        </button>
+        }
+
+        @if (showPasswordButton) {
+        <button type="button" class="app-input-action" [attr.aria-label]="passwordButtonLabel"
+            [attr.title]="passwordButtonLabel" [attr.aria-pressed]="passwordVisible"
+            (mousedown)="$event.preventDefault()" (click)="togglePassword($event)">
+            <app-icon [icon]="passwordIcon" size="sm" />
+        </button>
+        }
+
+        @if (loading) {
+        <span class="app-input-spinner" aria-hidden="true">
+            <app-icon [icon]="loadingIcon" size="sm" />
+        </span>
+        } @else if (statusIcon) {
+        <span class="app-input-status-icon" aria-hidden="true">
+            <app-icon [icon]="statusIcon" size="sm" [tone]="statusIconTone" />
+        </span>
+        }
+
+        @if (trailingIcon) {
+        <span class="app-input-trailing-icon" aria-hidden="true">
+            <app-icon [icon]="trailingIcon" [size]="iconSize" [tone]="trailingIconTone" />
+        </span>
+        } @else {
+        <span class="app-input-trailing-icon app-input-projected-icon" aria-hidden="true">
+            <ng-content select="[input-trailing-icon]"></ng-content>
+        </span>
+        }
+
+        @if (suffixText) {
+        <span class="app-input-affix app-input-suffix">{{ suffixText }}</span>
+        } @else {
+        <span class="app-input-affix app-input-suffix">
+            <ng-content select="[input-suffix]"></ng-content>
+        </span>
+        }
+    </div>
+
+    @if (displayedMessage || (showCounter && maxLength)) {
+    <div class="app-input-support-row">
+        <div class="app-input-message" [id]="messageId" [attr.role]="effectiveStatus === 'danger' ? 'alert' : null">
+            {{ displayedMessage }}
+        </div>
+
+        @if (showCounter && maxLength) {
+        <div class="app-input-counter" [id]="counterId" aria-live="polite">
+            {{ valueLength }}/{{ maxLength }}
+        </div>
+        }
+    </div>
+    }
+</div>

@@ -1,0 +1,362 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.app-badge {
+    --app-badge-height: 24px;
+    --app-badge-icon-size: 14px;
+    --app-badge-dot-size: 6px;
+    --app-badge-padding-x: 9px;
+    --app-badge-gap: 5px;
+
+    position: relative;
+    isolation: isolate;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: var(--app-badge-gap);
+
+    min-width: 0;
+    height: var(--app-badge-height);
+
+    box-sizing: border-box;
+    padding: 0 var(--app-badge-padding-x);
+
+    color: $text-primary;
+    background: $paper-dark;
+    border: 1px solid $border;
+
+    font-family: $font-body;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.015em;
+    white-space: nowrap;
+
+    vertical-align: middle;
+
+    transition:
+        color 160ms ease,
+        background-color 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.app-badge::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.22),
+            rgba(255, 255, 255, 0));
+
+    pointer-events: none;
+}
+
+/* Sizes */
+
+.app-badge-xs {
+    --app-badge-height: 18px;
+    --app-badge-icon-size: 10px;
+    --app-badge-dot-size: 5px;
+    --app-badge-padding-x: 6px;
+    --app-badge-gap: 4px;
+
+    font-size: 9px;
+}
+
+.app-badge-sm {
+    --app-badge-height: 24px;
+    --app-badge-icon-size: 13px;
+    --app-badge-dot-size: 6px;
+    --app-badge-padding-x: 9px;
+
+    font-size: 11px;
+}
+
+.app-badge-md {
+    --app-badge-height: 28px;
+    --app-badge-icon-size: 15px;
+    --app-badge-dot-size: 7px;
+    --app-badge-padding-x: 11px;
+    --app-badge-gap: 6px;
+
+    font-size: 12px;
+}
+
+.app-badge-lg {
+    --app-badge-height: 34px;
+    --app-badge-icon-size: 18px;
+    --app-badge-dot-size: 8px;
+    --app-badge-padding-x: 14px;
+    --app-badge-gap: 7px;
+
+    font-size: 14px;
+}
+
+/* Shapes */
+
+.app-badge-square {
+    border-radius: 4px;
+}
+
+.app-badge-rounded {
+    border-radius: 8px;
+}
+
+.app-badge-pill {
+    border-radius: 9999px;
+}
+
+/* Variants */
+
+.app-badge-neutral {
+    color: $text-secondary;
+    background-color: $paper-dark;
+    border-color: $border;
+}
+
+.app-badge-primary {
+    color: #ffffff;
+    background-color: $primary;
+    border-color: #000000;
+}
+
+.app-badge-secondary {
+    color: $btn-secondary-text;
+    background-color: $btn-secondary-bg;
+    border-color: $btn-secondary-border;
+}
+
+.app-badge-accent {
+    color: #ffffff;
+    background-color: $button-accent-bg;
+    border-color: rgba(97, 47, 5, 0.32);
+}
+
+.app-badge-success {
+    color: #ffffff;
+    background-color: $button-success-bg;
+    border-color: rgba(8, 70, 32, 0.35);
+}
+
+.app-badge-warning {
+    color: #ffffff;
+    background-color: $button-warning-bg;
+    border-color: rgba(97, 47, 5, 0.35);
+}
+
+.app-badge-danger {
+    color: #ffffff;
+    background-color: $button-danger-bg;
+    border-color: rgba(91, 16, 16, 0.35);
+}
+
+.app-badge-info {
+    color: #ffffff;
+    background-color: $button-info-bg;
+    border-color: rgba(16, 43, 114, 0.35);
+}
+
+.app-badge-outline {
+    color: $text-primary;
+    background-color: rgba($paper, 0.78);
+    border-color: $border;
+}
+
+.app-badge-noteYellow {
+    color: #614900;
+    background-color: $note-button-yellow;
+    border-color: rgba(97, 73, 0, 0.22);
+}
+
+.app-badge-noteOrange {
+    color: #713407;
+    background-color: $note-button-orange;
+    border-color: rgba(113, 52, 7, 0.22);
+}
+
+.app-badge-notePink {
+    color: #7e2247;
+    background-color: $note-button-pink;
+    border-color: rgba(126, 34, 71, 0.22);
+}
+
+.app-badge-noteRed {
+    color: #822020;
+    background-color: $note-button-red;
+    border-color: rgba(130, 32, 32, 0.22);
+}
+
+.app-badge-noteGreen {
+    color: #245f31;
+    background-color: $note-button-green;
+    border-color: rgba(36, 95, 49, 0.22);
+}
+
+.app-badge-noteBlue {
+    color: #205576;
+    background-color: $note-button-blue;
+    border-color: rgba(32, 85, 118, 0.22);
+}
+
+.app-badge-notePurple {
+    color: #5c367d;
+    background-color: $note-button-purple;
+    border-color: rgba(92, 54, 125, 0.22);
+}
+
+.app-badge-noteBrown {
+    color: #ffffff;
+    background-color: $note-button-brown;
+    border-color: rgba(60, 33, 16, 0.35);
+}
+
+.app-badge-noteBlack {
+    color: #ffffff;
+    background-color: $note-button-black;
+    border-color: #000000;
+}
+
+/* Content */
+
+.app-badge-label {
+    display: inline-block;
+
+    min-width: 0;
+    max-width: 100%;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 var(--app-badge-icon-size);
+
+    width: var(--app-badge-icon-size);
+    height: var(--app-badge-icon-size);
+}
+
+.app-badge-dot {
+    position: relative;
+
+    display: inline-block;
+    flex: 0 0 var(--app-badge-dot-size);
+
+    width: var(--app-badge-dot-size);
+    height: var(--app-badge-dot-size);
+
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.app-badge-dot-pulse::after {
+    content: '';
+
+    position: absolute;
+    inset: -3px;
+
+    border: 1px solid currentColor;
+    border-radius: 50%;
+
+    animation: app-badge-pulse 1.4s ease-out infinite;
+}
+
+.app-badge-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 calc(var(--app-badge-icon-size) + 4px);
+
+    width: calc(var(--app-badge-icon-size) + 4px);
+    height: calc(var(--app-badge-icon-size) + 4px);
+
+    margin-right: -4px;
+    padding: 2px;
+
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    outline: none;
+
+    cursor: pointer;
+    opacity: 0.72;
+
+    transition:
+        background-color 150ms ease,
+        opacity 150ms ease,
+        transform 150ms ease;
+}
+
+.app-badge-remove:hover:not(:disabled) {
+    background-color: rgba(17, 17, 17, 0.1);
+    opacity: 1;
+}
+
+.app-badge-remove:active:not(:disabled) {
+    transform: scale(0.9);
+}
+
+.app-badge-remove:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+}
+
+.app-badge-disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.16);
+    opacity: 0.52;
+}
+
+.app-badge-remove:disabled {
+    cursor: not-allowed;
+}
+
+@keyframes app-badge-pulse {
+    0% {
+        opacity: 0.7;
+        transform: scale(0.65);
+    }
+
+    75%,
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-badge,
+    .app-badge-remove,
+    .app-badge-dot-pulse::after {
+        transition: none;
+        animation: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-badge {
+        color: ButtonText;
+        background: ButtonFace;
+        border-color: ButtonText;
+    }
+}

@@ -1,0 +1,129 @@
+<section id="reviews" class="reviews" aria-labelledby="reviews-title">
+    <div class="reviews-shell">
+        <header class="section-heading">
+            <app-badge label="Notes worth pinning" variant="notePink" size="md" shape="pill" [icon]="LucideSparkles" />
+
+            <h2 id="reviews-title">
+                A wall of
+                <span>small wins.</span>
+            </h2>
+
+            <p>
+                The best productivity stories are rarely about doing more. They are about remembering less, seeing
+                clearly, and ending the day with fewer open loops.
+            </p>
+        </header>
+
+        <app-divider label="What calmer days sound like" [hasLabel]="true" variant="notePink" lineStyle="dashed"
+            spacing="xl" />
+
+        <div class="review-wall">
+            <aside class="review-index" role="tablist" aria-label="Choose a user review">
+                @for (review of reviews; track review.id; let reviewIndex = $index) {
+                <button class="review-index-card" [class.is-active]="selectedReviewId === review.id"
+                    [attr.data-variant]="review.noteVariant" type="button" role="tab" [id]="'review-tab-' + review.id"
+                    [attr.aria-selected]="selectedReviewId === review.id" aria-controls="featured-review"
+                    [attr.tabindex]="selectedReviewId === review.id ? 0 : -1" (click)="selectReview(review)"
+                    (keydown)="onReviewKeydown($event, reviewIndex)">
+                    <app-avatar [name]="review.name" [initials]="review.initials" size="sm" [tone]="review.avatarTone"
+                        [elevated]="selectedReviewId === review.id" />
+
+                    <span class="index-copy">
+                        <strong>{{ review.name }}</strong>
+                        <small>{{ review.usedFor }}</small>
+                    </span>
+
+                    <span class="index-pin" aria-hidden="true"></span>
+                </button>
+                }
+            </aside>
+
+            <div class="featured-wrap">
+                <span class="featured-tape" aria-hidden="true"></span>
+                <span class="featured-paper" aria-hidden="true"></span>
+
+                <app-sticky-card id="featured-review" class="featured-review" role="tabpanel"
+                    [attr.aria-labelledby]="'review-tab-' + selectedReviewId" [variant]="activeReview.noteVariant"
+                    appearance="flat" shape="note" size="lg" [fullWidth]="true" [minHeight]="440" [padding]="32"
+                    [eyebrow]="activeReview.audience.toUpperCase()" [cardTitle]="activeReview.headline">
+                    <div class="review-rating" [attr.aria-label]="activeReview.rating + ' out of 5 stars'">
+                        @for (star of stars; track star) {
+                        <app-icon [icon]="LucideStar" size="sm" [class.is-filled]="star <= activeReview.rating" />
+                        }
+                    </div>
+
+                    <blockquote>{{ activeReview.quote }}</blockquote>
+
+                    <div class="review-result">
+                        <span class="result-icon"><app-icon [icon]="LucideCheckCircle2" size="sm" /></span>
+                        <span><small>THE SMALL WIN</small><strong>{{ activeReview.result }}</strong></span>
+                    </div>
+
+                    <div card-footer class="review-author">
+                        <span class="author-identity">
+                            <app-avatar [name]="activeReview.name" [initials]="activeReview.initials" size="lg"
+                                [tone]="activeReview.avatarTone" status="online" [elevated]="true" />
+                            <span><strong>{{ activeReview.name }}</strong><small>{{ activeReview.role }}</small></span>
+                        </span>
+
+                        <app-badge [label]="activeReview.usedFor" [variant]="activeReview.noteVariant" size="sm"
+                            shape="pill" />
+                    </div>
+                </app-sticky-card>
+
+                <div class="review-controls" aria-label="Review navigation">
+                    <button type="button" aria-label="Previous review" (click)="showPreviousReview()">
+                        <app-icon [icon]="LucideChevronLeft" size="sm" />
+                    </button>
+
+                    <span><strong>{{ activeIndex + 1 }}</strong> / {{ reviews.length }}</span>
+
+                    <button type="button" aria-label="Next review" (click)="showNextReview()">
+                        <app-icon [icon]="LucideChevronRight" size="sm" />
+                    </button>
+                </div>
+            </div>
+
+            <aside class="margin-reviews" aria-label="More user reviews">
+                <app-label text="MORE FROM THE WALL" variant="neutral" appearance="plain" size="xs" weight="bold" />
+
+                @for (review of sideReviews; track review.id; let sideIndex = $index) {
+                <button class="margin-review" [class.margin-review-tilted]="sideIndex === 1" type="button"
+                    [attr.data-variant]="review.noteVariant" (click)="selectReview(review)">
+                    <span class="margin-quote"><app-icon [icon]="LucideQuote" size="sm" /></span>
+                    <p>{{ review.headline }}</p>
+                    <span class="margin-author">
+                        <app-avatar [name]="review.name" [initials]="review.initials" size="xs"
+                            [tone]="review.avatarTone" />
+                        <span><strong>{{ review.name }}</strong><small>{{ review.role }}</small></span>
+                    </span>
+                </button>
+                }
+
+                <div class="repeated-words">
+                    <app-label text="WORDS WE KEEP HEARING" variant="noteYellow" appearance="tape" size="xs"
+                        weight="bold" />
+                    <div><span>clearer</span><span>lighter</span><span>visible</span><span>done</span></div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="section-footer">
+            <div class="community-proof">
+                <span class="avatar-stack" aria-label="MyStickyNotes community">
+                    @for (review of reviews.slice(0, 4); track review.id) {
+                    <app-avatar [name]="review.name" [initials]="review.initials" size="md" [tone]="review.avatarTone"
+                        [elevated]="true" />
+                    }
+                </span>
+                <span><strong>Different lives. The same sense of relief.</strong><small>Use your real customer reviews
+                        in the component input.</small></span>
+            </div>
+
+            <app-button label="Read more stories" variant="primary" size="lg" [hasIcon]="true" iconPosition="right"
+                (buttonClick)="storiesClick.emit()">
+                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+            </app-button>
+        </footer>
+    </div>
+</section>

@@ -1,0 +1,246 @@
+<main class="badge-showcase">
+    <header class="showcase-hero">
+        <div>
+            <span class="showcase-eyebrow">Sticky Notes design system</span>
+            <h1>Badge component</h1>
+            <p>
+                Reusable labels for note colors, statuses, counts, filters,
+                categories, permissions, and compact metadata.
+            </p>
+        </div>
+
+        <div class="hero-badges" aria-label="Badge examples">
+            <app-badge label="Pinned" variant="noteYellow" size="lg" [icon]="icons.stickyNote" />
+            <app-badge label="Shared" variant="noteBlue" size="md" [icon]="icons.users" />
+            <app-badge label="Saved" variant="success" size="sm" [icon]="icons.check" />
+        </div>
+    </header>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">01</span>
+            <div>
+                <h2>Standard variants</h2>
+                <p>Semantic variants for general application states and metadata.</p>
+            </div>
+        </div>
+
+        <div class="badge-row">
+            @for (item of standardVariants; track item.value) {
+            <div class="badge-spec">
+                <app-badge [label]="item.label" [variant]="item.value" [icon]="$any(item.icon)" />
+                <span>{{ item.value }}</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section note-section">
+        <div class="section-heading">
+            <span class="section-number">02</span>
+            <div>
+                <h2>Sticky-note variants</h2>
+                <p>The complete paper-inspired palette used by notes and buttons.</p>
+            </div>
+        </div>
+
+        <div class="badge-row">
+            @for (item of noteVariants; track item.value) {
+            <div class="badge-spec">
+                <app-badge [label]="item.label" [variant]="item.value" [icon]="$any(item.icon)" />
+                <span>{{ item.value }}</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section split-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">03</span>
+                <div>
+                    <h2>Sizes</h2>
+                    <p>Four compact presets.</p>
+                </div>
+            </div>
+
+            <div class="badge-row badge-row-bottom">
+                @for (item of sizes; track item.value) {
+                <div class="badge-spec">
+                    <app-badge [label]="item.label" variant="noteYellow" [size]="item.value"
+                        [icon]="icons.stickyNote" />
+                    <span>{{ item.value }}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">04</span>
+                <div>
+                    <h2>Shapes</h2>
+                    <p>Square, rounded, and pill silhouettes.</p>
+                </div>
+            </div>
+
+            <div class="badge-row">
+                @for (item of shapes; track item.value) {
+                <div class="badge-spec">
+                    <app-badge [label]="item.label" variant="notePurple" size="md" [shape]="item.value" />
+                    <span>{{ item.value }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">05</span>
+            <div>
+                <h2>Icons and dots</h2>
+                <p>Use icons for meaning and dots for compact status indicators.</p>
+            </div>
+        </div>
+
+        <div class="badge-row">
+            <app-badge label="Icon left" variant="primary" [icon]="icons.star" />
+            <app-badge label="Icon right" variant="accent" [icon]="icons.sparkles" iconPosition="right" />
+            <app-badge label="Online" variant="success" [dot]="true" role="status" />
+            <app-badge label="Syncing" variant="info" [dot]="true" [dotPulse]="true" role="status" />
+            <app-badge label="Attention" variant="warning" [dot]="true" role="status" />
+            <app-badge label="Unavailable" variant="danger" [dot]="true" role="status" />
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">06</span>
+            <div>
+                <h2>Counts</h2>
+                <p>Counts are normalized and capped using <code>maxCount</code>.</p>
+            </div>
+        </div>
+
+        <div class="count-demo">
+            <div>
+                <span>Notifications</span>
+                <app-badge [count]="3" variant="danger" ariaLabel="3 notifications" />
+            </div>
+            <div>
+                <span>Shared notes</span>
+                <app-badge [count]="18" variant="info" [icon]="icons.users" ariaLabel="18 shared notes" />
+            </div>
+            <div>
+                <span>Maximum count</span>
+                <app-badge [count]="145" [maxCount]="99" variant="primary" ariaLabel="More than 99 items" />
+            </div>
+            <div>
+                <span>Custom maximum</span>
+                <app-badge [count]="28" [maxCount]="9" variant="noteYellow" ariaLabel="More than 9 notes" />
+            </div>
+            <div>
+                <span>Negative input</span>
+                <app-badge [count]="-4" variant="neutral" ariaLabel="0 items" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading section-heading-actions">
+            <div class="heading-copy">
+                <span class="section-number">07</span>
+                <div>
+                    <h2>Removable filters</h2>
+                    <p>Each close action emits the native mouse event.</p>
+                </div>
+            </div>
+
+            <button type="button" class="reset-button" (click)="resetFilters()">
+                Reset filters
+            </button>
+        </div>
+
+        <div class="badge-row filter-row">
+            @for (filter of filters(); track filter.id) {
+            <app-badge [label]="filter.label" [variant]="filter.variant" [removable]="true"
+                [removeAriaLabel]="'Remove ' + filter.label + ' filter'" (removed)="removeFilter(filter)" />
+            } @empty {
+            <span class="empty-message">No active filters.</span>
+            }
+        </div>
+
+        <p class="event-message" role="status">{{ lastAction() }}</p>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">08</span>
+            <div>
+                <h2>States and constraints</h2>
+                <p>Disabled removal, maximum width, truncation, and explicit roles.</p>
+            </div>
+        </div>
+
+        <div class="badge-row">
+            <app-badge label="Disabled" variant="neutral" [disabled]="true" />
+            <app-badge label="Cannot remove" variant="noteRed" [removable]="true" [disabled]="true" />
+            <app-badge label="A very long category name that should be truncated" variant="noteBlue" [maxWidth]="180"
+                title="A very long category name that should be truncated" />
+            <app-badge label="Draft note" variant="warning" role="status" ariaLabel="Note status: Draft" />
+            <app-badge label="Product ideas" variant="notePurple" role="note" />
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">09</span>
+            <div>
+                <h2>Application patterns</h2>
+                <p>Typical combinations for Sticky Notes cards and navigation.</p>
+            </div>
+        </div>
+
+        <div class="pattern-grid">
+            <article class="note-preview note-yellow">
+                <div class="note-heading">
+                    <app-badge label="Pinned" variant="noteYellow" [icon]="icons.stickyNote" />
+                    <app-badge label="High priority" variant="danger" size="xs" [dot]="true" />
+                </div>
+                <h3>Prepare design review</h3>
+                <p>Check the final component states before tomorrow’s release.</p>
+                <footer>
+                    <app-badge label="Design" variant="notePurple" size="xs" />
+                    <app-badge [count]="4" variant="neutral" size="xs" ariaLabel="4 comments" />
+                </footer>
+            </article>
+
+            <article class="note-preview note-blue">
+                <div class="note-heading">
+                    <app-badge label="Shared" variant="noteBlue" [icon]="icons.users" />
+                    <app-badge label="Synced" variant="success" size="xs" [dot]="true" role="status" />
+                </div>
+                <h3>Team meeting notes</h3>
+                <p>Decisions, owners, and follow-up actions from the weekly sync.</p>
+                <footer>
+                    <app-badge label="Team" variant="noteGreen" size="xs" />
+                    <app-badge [count]="12" variant="info" size="xs" ariaLabel="12 collaborators" />
+                </footer>
+            </article>
+
+            <article class="note-preview note-pink">
+                <div class="note-heading">
+                    <app-badge label="Personal" variant="notePink" [icon]="icons.star" />
+                    <app-badge label="Due today" variant="warning" size="xs" />
+                </div>
+                <h3>Evening checklist</h3>
+                <p>Small personal tasks to finish before closing the day.</p>
+                <footer>
+                    <app-badge label="Checklist" variant="outline" size="xs" [icon]="icons.check" />
+                    <app-badge [count]="7" [maxCount]="5" variant="notePink" size="xs" ariaLabel="More than 5 tasks" />
+                </footer>
+            </article>
+        </div>
+    </section>
+</main>

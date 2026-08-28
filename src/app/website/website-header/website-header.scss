@@ -1,0 +1,404 @@
+@use '../../styles/variables' as *;
+
+:host {
+    position: sticky;
+    top: 0;
+    z-index: $z-header;
+    display: block;
+    width: 100%;
+}
+
+.app-site-header {
+    position: relative;
+    color: $text-primary;
+    background: rgba($paper, 0.94);
+    border-bottom: 1px solid rgba($text-primary, 0.1);
+    box-shadow: 0 4px 20px rgba($text-primary, 0.05);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.header-container {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    gap: clamp(18px, 3vw, 42px);
+    align-items: center;
+    width: min(1280px, calc(100% - 48px));
+    min-height: var(--app-header-height, 72px);
+    margin-inline: auto;
+}
+
+.header-brand {
+    display: inline-flex;
+    gap: 11px;
+    align-items: center;
+    justify-self: start;
+    min-width: 0;
+    color: $text-primary;
+    text-decoration: none;
+}
+
+.brand-mark {
+    position: relative;
+    display: grid;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba($text-primary, 0.12);
+    border-radius: 7px 7px 7px 2px;
+}
+
+.brand-mark::before {
+    background: $note-button-blue;
+    transform: translate(-4px, 3px) rotate(-8deg);
+}
+
+.brand-mark::after {
+    background: $note-button-pink;
+    transform: translate(4px, 2px) rotate(7deg);
+}
+
+.brand-mark-note {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 31px;
+    height: 31px;
+    place-items: center;
+    color: $note-button-dark-text;
+    background: $note-button-yellow;
+    border: 1px solid rgba($text-primary, 0.16);
+    border-radius: 7px 7px 7px 2px;
+    box-shadow: 2px 3px 0 rgba($text-primary, 0.12);
+    transform: rotate(-2deg);
+    transition: transform 180ms ease;
+}
+
+.header-brand:hover .brand-mark-note {
+    transform: translateY(-2px) rotate(2deg);
+}
+
+.brand-copy {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+
+.brand-copy strong {
+    overflow: hidden;
+    font: 800 clamp(17px, 1.6vw, 21px)/1 $font-heading;
+    letter-spacing: -0.04em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.desktop-navigation {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link {
+    position: relative;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 10px 11px;
+    color: $text-secondary;
+    border-radius: 9px;
+    font: 700 13px/1 $font-body;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    right: 11px;
+    bottom: 4px;
+    left: 11px;
+    height: 3px;
+    background: $note-button-yellow;
+    border-radius: 99px;
+    opacity: 0;
+    transform: scaleX(0.4) rotate(-1deg);
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+    color: $text-primary;
+    background: rgba($note-yellow, 0.32);
+}
+
+.nav-link:hover::after,
+.nav-link.is-active::after {
+    opacity: 1;
+    transform: scaleX(1) rotate(-1deg);
+}
+
+.nav-link:active {
+    transform: translateY(1px);
+}
+
+.desktop-actions {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    justify-self: end;
+}
+
+.mobile-menu-button {
+    display: none;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    place-items: center;
+    color: $text-primary;
+    background: $note-button-yellow;
+    border: 1px solid rgba($text-primary, 0.18);
+    border-radius: 9px 9px 9px 3px;
+    box-shadow: 2px 3px 0 rgba($text-primary, 0.12);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.mobile-menu-button:active {
+    box-shadow: 1px 1px 0 rgba($text-primary, 0.12);
+    transform: translateY(2px);
+}
+
+.mobile-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    max-height: calc(100dvh - var(--app-header-height, 72px));
+    padding: 14px max(20px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    overflow-y: auto;
+    background: $paper;
+    border-bottom: 1px solid $border;
+    box-shadow: 0 22px 40px rgba($text-primary, 0.14);
+    animation: mobile-panel-in 180ms ease-out;
+}
+
+.mobile-navigation {
+    display: grid;
+    gap: 6px;
+    width: min(100%, 560px);
+    margin-inline: auto;
+}
+
+.mobile-nav-link {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 10px 12px;
+    color: $text-primary;
+    background: $paper-dark;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font: 750 14px/1.2 $font-body;
+    text-decoration: none;
+}
+
+.mobile-nav-link:nth-child(3n + 2) {
+    background: rgba($note-blue, 0.42);
+}
+
+.mobile-nav-link:nth-child(3n + 3) {
+    background: rgba($note-pink, 0.35);
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.is-active {
+    border-color: rgba($text-primary, 0.15);
+    transform: translateX(3px);
+}
+
+.mobile-link-end {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: $text-light;
+}
+
+.mobile-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: min(100%, 560px);
+    margin: 14px auto 0;
+    padding-top: 14px;
+    border-top: 1px dashed $border;
+}
+
+.mobile-reassurance {
+    display: block;
+    width: min(100%, 560px);
+    margin: 12px auto 0;
+}
+
+.menu-backdrop {
+    position: fixed;
+    inset: var(--app-header-height, 72px) 0 0;
+    z-index: 2;
+    padding: 0;
+    background: rgba($text-primary, 0.26);
+    border: 0;
+    animation: backdrop-in 180ms ease-out;
+}
+
+@keyframes mobile-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes backdrop-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 1080px) {
+    .header-container {
+        width: min(100% - 36px, 1180px);
+        gap: 16px;
+    }
+
+    .nav-link {
+        padding-inline: 8px;
+        font-size: 12px;
+    }
+
+    .brand-copy app-badge {
+        display: none;
+    }
+}
+
+@media (max-width: 860px) {
+    .header-container {
+        grid-template-columns: minmax(0, 1fr) auto;
+        width: min(100% - 28px, 760px);
+        min-height: 64px;
+    }
+
+    .desktop-navigation,
+    .desktop-actions {
+        display: none;
+    }
+
+    .mobile-menu-button {
+        display: grid;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        width: calc(100% - 24px);
+    }
+
+    .brand-mark {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .brand-mark-note {
+        width: 28px;
+        height: 28px;
+    }
+
+    .brand-copy strong {
+        max-width: 190px;
+        font-size: 17px;
+    }
+
+    .mobile-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 360px) {
+    .brand-copy strong {
+        max-width: 150px;
+        font-size: 15px;
+    }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+    .mobile-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
+        gap: 14px;
+    }
+
+    .mobile-actions {
+        grid-template-columns: 1fr;
+        align-self: start;
+        margin-top: 0;
+        padding: 0 0 0 14px;
+        border-top: 0;
+        border-left: 1px dashed $border;
+    }
+
+    .mobile-reassurance {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .brand-mark-note,
+    .nav-link,
+    .nav-link::after,
+    .mobile-menu-button,
+    .mobile-nav-link,
+    .mobile-panel,
+    .menu-backdrop {
+        animation: none;
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+
+    .app-site-header,
+    .mobile-panel,
+    .mobile-nav-link,
+    .mobile-menu-button {
+        color: CanvasText;
+        background: Canvas;
+        border-color: CanvasText;
+    }
+
+    .menu-backdrop {
+        background: transparent;
+    }
+}

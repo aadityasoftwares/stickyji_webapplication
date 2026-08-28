@@ -1,0 +1,60 @@
+<label class="app-switch" [ngClass]="switchClasses" [attr.for]="resolvedInputId" [attr.title]="title">
+    @if ((label || description) && labelPosition === 'left') {
+    <span class="app-switch-content">
+        @if (label) {
+        <span class="app-switch-label-text">
+            {{ label }}
+            @if (required) {
+            <span class="app-switch-required" aria-hidden="true">*</span>
+            }
+        </span>
+        }
+
+        @if (description) {
+        <span class="app-switch-description" [id]="descriptionId">{{ description }}</span>
+        }
+    </span>
+    }
+
+    <span class="app-switch-control">
+        <input class="app-switch-input" type="checkbox" role="switch" [id]="resolvedInputId" [name]="name"
+            [value]="value" [checked]="checked" [disabled]="isDisabled" [required]="required"
+            [attr.aria-label]="accessibleLabel" [attr.aria-describedby]="resolvedDescribedBy"
+            [attr.aria-readonly]="readonly ? 'true' : null" [attr.aria-invalid]="invalid ? 'true' : null"
+            [attr.aria-busy]="loading ? 'true' : null" (change)="handleChange($event)" (click)="handleClick($event)"
+            (blur)="handleBlur()" />
+
+        <span class="app-switch-track" aria-hidden="true">
+            <span class="app-switch-thumb">
+                @if (loading) {
+                <span class="app-switch-spinner"></span>
+                } @else if (checked && onIcon) {
+                <span class="app-switch-icon">
+                    <app-icon [icon]="onIcon" size="inherit" />
+                </span>
+                } @else if (!checked && offIcon) {
+                <span class="app-switch-icon">
+                    <app-icon [icon]="offIcon" size="inherit" />
+                </span>
+                }
+            </span>
+        </span>
+    </span>
+
+    @if ((label || description) && labelPosition === 'right') {
+    <span class="app-switch-content">
+        @if (label) {
+        <span class="app-switch-label-text">
+            {{ label }}
+            @if (required) {
+            <span class="app-switch-required" aria-hidden="true">*</span>
+            }
+        </span>
+        }
+
+        @if (description) {
+        <span class="app-switch-description" [id]="descriptionId">{{ description }}</span>
+        }
+    </span>
+    }
+</label>

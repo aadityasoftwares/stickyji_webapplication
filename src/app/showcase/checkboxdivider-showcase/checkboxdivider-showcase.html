@@ -1,0 +1,331 @@
+<main class="component-showcase">
+    <header class="showcase-hero">
+        <div>
+            <span class="showcase-eyebrow">Sticky Notes design system</span>
+            <h1>Checkbox & Divider</h1>
+            <p>
+                Accessible selection controls and flexible content separators designed
+                for forms, settings, note lists, filters, and compact application layouts.
+            </p>
+        </div>
+
+        <div class="hero-note" aria-hidden="true">
+            <app-checkbox label="Ready to reuse" variant="noteYellow" size="lg" [checked]="true" [readonly]="true" />
+            <app-divider variant="noteYellow" spacing="sm" />
+            <span>Forms · Lists · Settings</span>
+        </div>
+    </header>
+
+    <!-- Checkbox examples -->
+
+    <section class="showcase-section">
+        <div class="component-heading">
+            <span class="component-kicker">Component 01</span>
+            <h2>Checkbox</h2>
+            <p>Native semantics with two-way binding and Angular Forms support.</p>
+        </div>
+
+        <app-divider label="Semantic variants" variant="strong" labelAlign="start" spacing="lg" [decorative]="false" />
+
+        <div class="checkbox-grid">
+            @for (item of semanticCheckboxes; track item.variant; let index = $index) {
+            <app-checkbox [label]="item.label" [variant]="item.variant" [checked]="index % 2 === 0" />
+            }
+        </div>
+
+        <app-divider label="Sticky-note variants" variant="noteYellow" labelAlign="start" spacing="lg"
+            [decorative]="false" />
+
+        <div class="checkbox-grid">
+            @for (item of noteCheckboxes; track item.variant; let index = $index) {
+            <app-checkbox [label]="item.label" [variant]="item.variant" [checked]="index % 2 === 0" />
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section two-column-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">02</span>
+                <div>
+                    <h2>Sizes</h2>
+                    <p>Four presets for dense and spacious layouts.</p>
+                </div>
+            </div>
+
+            <div class="vertical-examples">
+                @for (item of checkboxSizes; track item.size) {
+                <app-checkbox [label]="item.label" [size]="item.size" variant="noteBlue" [checked]="true" />
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">03</span>
+                <div>
+                    <h2>Label positions</h2>
+                    <p>Text can sit on either side of the control.</p>
+                </div>
+            </div>
+
+            <div class="vertical-examples">
+                <app-checkbox label="Control before label" labelPosition="right" variant="notePink" [checked]="true" />
+                <app-checkbox label="Control after label" labelPosition="left" variant="notePurple" [checked]="true" />
+                <app-checkbox label="Full-width setting" description="The description remains aligned with its label."
+                    variant="noteGreen" [fullWidth]="true" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">04</span>
+            <div>
+                <h2>States and descriptions</h2>
+                <p>Checked, unchecked, mixed, readonly, disabled, required, and invalid states.</p>
+            </div>
+        </div>
+
+        <div class="state-grid">
+            <app-checkbox label="Checked" description="This option is currently enabled." variant="primary"
+                [checked]="true" />
+            <app-checkbox label="Unchecked" description="This option is available but disabled by the user."
+                variant="secondary" />
+            <app-checkbox label="Mixed selection" description="Some nested items are selected." variant="info"
+                [indeterminate]="true" />
+            <app-checkbox label="Readonly" description="Visible and focusable, but cannot be changed."
+                variant="noteYellow" [checked]="true" [readonly]="true" />
+            <app-checkbox label="Disabled" description="This option is unavailable." variant="secondary"
+                [disabled]="true" />
+            <app-checkbox label="Disabled and checked" description="Its saved state is still visible." variant="success"
+                [checked]="true" [disabled]="true" />
+            <app-checkbox label="Required option" description="The asterisk communicates a required choice."
+                variant="warning" [required]="true" />
+            <app-checkbox label="Invalid option" description="Use after validation has failed." variant="danger"
+                [required]="true" [invalid]="true" />
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">05</span>
+            <div>
+                <h2>Indeterminate list selection</h2>
+                <p>The parent checkbox reflects selection across child notes.</p>
+            </div>
+        </div>
+
+        <div class="selection-card">
+            <app-checkbox label="Select all notes" description="Select or clear the full visible list."
+                variant="primary" [checked]="allNotesSelected()" [indeterminate]="someNotesSelected()"
+                (checkedChange)="toggleAllNotes($event)" />
+
+            <app-divider spacing="sm" />
+
+            <div class="note-selection-list">
+                <app-checkbox label="Prepare design review" variant="noteYellow" [checked]="selectedNotes()[0]"
+                    (checkedChange)="toggleNote(0, $event)" />
+                <app-checkbox label="Team meeting notes" variant="noteBlue" [checked]="selectedNotes()[1]"
+                    (checkedChange)="toggleNote(1, $event)" />
+                <app-checkbox label="Evening checklist" variant="notePink" [checked]="selectedNotes()[2]"
+                    (checkedChange)="toggleNote(2, $event)" />
+                <app-checkbox label="Product ideas" variant="notePurple" [checked]="selectedNotes()[3]"
+                    (checkedChange)="toggleNote(3, $event)" />
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">06</span>
+            <div>
+                <h2>Binding patterns</h2>
+                <p>Use two-way checked binding for local state or ControlValueAccessor for forms.</p>
+            </div>
+        </div>
+
+        <div class="binding-grid">
+            <article class="binding-card">
+                <span class="card-label">Two-way binding</span>
+                <app-checkbox label="Pin note" description="Bound with [(checked)]." variant="noteYellow"
+                    [(checked)]="pinned" />
+                <app-checkbox label="Archive note" description="A second independent property." variant="noteBrown"
+                    [(checked)]="archived" />
+                <code>pinned: {{ pinned }} · archived: {{ archived }}</code>
+            </article>
+
+            <form class="binding-card settings-form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+                <span class="card-label">Reactive form</span>
+
+                <app-checkbox label="Allow sharing" description="Other workspace members can open this note."
+                    variant="noteBlue" formControlName="allowSharing" />
+
+                <app-checkbox label="Email updates" description="Receive a message when the note changes."
+                    variant="notePink" formControlName="emailUpdates" />
+
+                <app-checkbox label="Show presence" description="Display when collaborators are online."
+                    variant="noteGreen" formControlName="showPresence" />
+
+                <app-divider spacing="sm" />
+
+                <app-checkbox label="I accept the workspace terms" variant="primary" formControlName="terms"
+                    [required]="true"
+                    [invalid]="settingsForm.controls.terms.invalid && settingsForm.controls.terms.touched" />
+
+                <button type="submit" class="save-button">Save settings</button>
+                <p class="form-message" role="status">{{ formMessage() }}</p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Divider examples -->
+
+    <section class="showcase-section divider-intro">
+        <div class="component-heading">
+            <span class="component-kicker">Component 02</span>
+            <h2>Divider</h2>
+            <p>Flexible separators for structure without adding heavy visual containers.</p>
+        </div>
+
+        <div class="divider-variant-list">
+            @for (item of dividerVariants; track item.variant) {
+            <app-divider [label]="item.label" [variant]="item.variant" labelAlign="start" spacing="sm"
+                [decorative]="false" />
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section two-column-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">08</span>
+                <div>
+                    <h2>Line styles</h2>
+                    <p>Solid, dashed, and dotted treatments.</p>
+                </div>
+            </div>
+
+            <div class="divider-demo-stack">
+                <app-divider label="Solid" variant="primary" lineStyle="solid" spacing="sm" />
+                <app-divider label="Dashed" variant="noteBlue" lineStyle="dashed" spacing="sm" />
+                <app-divider label="Dotted" variant="notePink" lineStyle="dotted" spacing="sm" />
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">09</span>
+                <div>
+                    <h2>Label alignment</h2>
+                    <p>Anchor labels to the start, center, or end.</p>
+                </div>
+            </div>
+
+            <div class="divider-demo-stack">
+                @for (alignment of labelAlignments; track alignment) {
+                <app-divider [label]="alignment" variant="notePurple" [labelAlign]="alignment" spacing="sm" />
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">10</span>
+            <div>
+                <h2>Thickness, inset, and spacing</h2>
+                <p>Fine-tune dividers for page sections, cards, and dense menus.</p>
+            </div>
+        </div>
+
+        <div class="divider-control-grid">
+            <article>
+                <span>1px · no inset</span>
+                <app-divider variant="neutral" spacing="sm" />
+            </article>
+            <article>
+                <span>2px · medium inset</span>
+                <app-divider variant="noteYellow" [thickness]="2" inset="md" spacing="sm" />
+            </article>
+            <article>
+                <span>3px · large inset</span>
+                <app-divider variant="accent" [thickness]="3" inset="lg" spacing="sm" />
+            </article>
+            <article>
+                <span>Custom 220px length</span>
+                <app-divider variant="noteGreen" [length]="220" [thickness]="2" spacing="sm" />
+            </article>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">11</span>
+            <div>
+                <h2>Vertical dividers</h2>
+                <p>Useful between toolbar groups, metadata, and adjacent panels.</p>
+            </div>
+        </div>
+
+        <div class="vertical-divider-demo">
+            <div>
+                <strong>12</strong>
+                <span>Pinned</span>
+            </div>
+
+            <app-divider orientation="vertical" variant="noteYellow" [length]="64" spacing="lg" [thickness]="2" />
+
+            <div>
+                <strong>28</strong>
+                <span>Shared</span>
+            </div>
+
+            <app-divider orientation="vertical" variant="noteBlue" lineStyle="dashed" [length]="64" spacing="lg"
+                [thickness]="2" />
+
+            <div>
+                <strong>7</strong>
+                <span>Archived</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">12</span>
+            <div>
+                <h2>Sticky Notes settings pattern</h2>
+                <p>A realistic card combining both reusable components.</p>
+            </div>
+        </div>
+
+        <article class="preferences-card">
+            <header>
+                <div>
+                    <span>Board preferences</span>
+                    <h3>Daily notes</h3>
+                </div>
+                <span class="paper-chip">Auto-saved</span>
+            </header>
+
+            <app-divider label="Appearance" variant="noteYellow" labelAlign="start" [decorative]="false" />
+
+            <div class="preference-list">
+                <app-checkbox label="Use paper texture" description="Adds a subtle grain to note surfaces."
+                    variant="noteYellow" [checked]="true" />
+                <app-checkbox label="Show note shadows" description="Makes notes easier to separate visually."
+                    variant="noteOrange" [checked]="true" />
+            </div>
+
+            <app-divider label="Collaboration" variant="noteBlue" labelAlign="start" [decorative]="false" />
+
+            <div class="preference-list">
+                <app-checkbox label="Show collaborator presence" description="Display online, away, and busy states."
+                    variant="noteBlue" [checked]="true" />
+                <app-checkbox label="Allow reactions" description="People can react to this board's notes."
+                    variant="notePink" />
+            </div>
+        </article>
+    </section>
+</main>

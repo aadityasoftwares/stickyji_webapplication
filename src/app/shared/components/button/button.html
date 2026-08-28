@@ -1,0 +1,75 @@
+<div class="app-button-wrapper" [ngClass]="wrapperClasses" [style.width]="isFullWidth ? '100%' : null"
+    [style.max-width.px]="maxWidth" [style.--app-button-height]="buttonHeight + 'px'" [style.--app-button-min-width]="
+    buttonMinWidth !== null
+      ? buttonMinWidth + 'px'
+      : null
+  " [style.--app-button-padding-x]="buttonPaddingX + 'px'" [style.--app-button-padding-y]="buttonPaddingY + 'px'"
+    [style.--app-button-icon-size]="buttonIconSize + 'px'" [style.--app-button-split-width]="splitButtonWidth + 'px'">
+    <button class="app-button app-button-main" [ngClass]="buttonClasses" [id]="buttonId || null" [type]="type"
+        [attr.name]="name" [attr.value]="value" [attr.form]="form" [attr.title]="buttonTitle"
+        [attr.aria-label]="accessibleLabel" [attr.aria-describedby]="ariaDescribedBy"
+        [attr.aria-controls]="ariaControls" [attr.aria-expanded]="ariaExpandedValue"
+        [attr.aria-pressed]="ariaPressedValue" [attr.aria-busy]="ariaBusy" [disabled]="isDisabled"
+        (click)="onButtonClick($event)">
+        @if (loading) {
+        <span class="app-button-spinner" aria-hidden="true"></span>
+
+        @if (loadingText && !iconOnly) {
+        <span class="app-button-label">
+            {{ loadingText }}
+        </span>
+        } @else {
+        <span class="app-button-visually-hidden">
+            Loading
+        </span>
+        }
+        } @else {
+        @if (
+        hasIcon &&
+        !iconOnly &&
+        iconPosition === 'left'
+        ) {
+        <span class="app-button-icon" aria-hidden="true">
+            <ng-content select="[button-icon-left]"></ng-content>
+        </span>
+        }
+
+        @if (!iconOnly) {
+        <span class="app-button-label">
+            @if (label) {
+            {{ label }}
+            } @else {
+            <ng-content></ng-content>
+            }
+        </span>
+        }
+
+        @if (
+        hasIcon &&
+        !iconOnly &&
+        iconPosition === 'right'
+        ) {
+        <span class="app-button-icon" aria-hidden="true">
+            <ng-content select="[button-icon-right]"></ng-content>
+        </span>
+        }
+
+        @if (iconOnly) {
+        <span class="app-button-icon app-button-icon-only-content" aria-hidden="true">
+            <ng-content select="[button-icon]"></ng-content>
+        </span>
+        }
+        }
+    </button>
+
+    @if (split) {
+    <button type="button" class="app-button app-button-split-action" [ngClass]="splitButtonClasses"
+        [attr.title]="splitAriaLabel" [attr.aria-label]="splitAriaLabel" [attr.aria-busy]="ariaBusy"
+        [attr.aria-controls]="splitControls" [attr.aria-expanded]="splitExpandedValue" aria-haspopup="menu"
+        [disabled]="isDisabled" (click)="onSplitClick($event)">
+        <span class="app-button-split-icon" aria-hidden="true">
+            <ng-content select="[button-split-icon]"></ng-content>
+        </span>
+    </button>
+    }
+</div>

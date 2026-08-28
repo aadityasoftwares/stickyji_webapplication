@@ -1,0 +1,267 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+    min-height: 100vh;
+    background: $app-bg;
+}
+
+.button-demo {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 64px;
+}
+
+.demo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    margin-bottom: 28px;
+    padding: 26px 28px;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.88),
+            rgba($paper, 0.9));
+
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+
+    box-shadow: $shadow;
+}
+
+.demo-eyebrow {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: $accent;
+
+    font-family: $font-body;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.demo-header h1 {
+    margin: 0;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.demo-header p {
+    margin: 10px 0 0;
+
+    color: $text-secondary;
+
+    font-family: $font-body;
+    font-size: 15px;
+}
+
+.demo-section {
+    position: relative;
+
+    margin-top: 18px;
+    padding: 24px;
+
+    background: $paper;
+
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+
+    box-shadow: $shadow-sm;
+}
+
+.section-heading {
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: 25px;
+    line-height: 1.1;
+}
+
+.section-heading p {
+    margin: 6px 0 0;
+
+    color: $text-secondary;
+
+    font-family: $font-body;
+    font-size: 13px;
+}
+
+.button-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 16px;
+}
+
+.button-row-align-end {
+    align-items: flex-end;
+}
+
+.button-column {
+    display: flex;
+    flex-direction: column;
+
+    width: min(100%, 520px);
+
+    gap: 14px;
+}
+
+.demo-split-menu {
+    display: flex;
+    flex-direction: column;
+
+    width: 220px;
+
+    margin-top: 10px;
+    padding: 6px;
+
+    background: $paper;
+
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+
+    box-shadow: $shadow;
+}
+
+.demo-split-menu button {
+    padding: 10px 12px;
+
+    color: $text-primary;
+    background: transparent;
+
+    border: 0;
+    border-radius: $radius-xs;
+
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.demo-split-menu button:hover {
+    background: $sidebar-hover;
+}
+
+.tape-demo-section {
+    overflow: visible;
+}
+
+.demo-section-badge {
+    display: inline-flex;
+
+    margin-bottom: 8px;
+    padding: 5px 9px;
+
+    color: #205576;
+    background: #abd9fa;
+
+    border: 1px solid rgba(32, 85, 118, 0.18);
+    border-radius: 9999px;
+
+    font-family: $font-body;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tape-demo-group {
+    padding: 20px 0;
+
+    border-top: 1px dashed $border;
+}
+
+.tape-demo-group:first-of-type {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.demo-subtitle {
+    margin: 0 0 16px;
+
+    color: $text-secondary;
+
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tape-button-row {
+    padding: 8px 7px;
+}
+
+.tape-login-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 130px;
+    padding: 24px;
+
+    background: $note-button-yellow;
+
+    border: 1px solid rgba(97, 73, 0, 0.18);
+    border-radius: $radius-sm;
+
+    box-shadow:
+        0 2px 0 rgba(94, 79, 57, 0.12),
+        0 7px 16px rgba(46, 38, 25, 0.09);
+}
+
+.tape-full-width {
+    width: min(100%, 600px);
+    padding: 8px 7px;
+}
+
+@media (max-width: 576px) {
+    .tape-login-preview {
+        min-height: 110px;
+        padding: 20px 14px;
+    }
+
+    .tape-button-row {
+        gap: 18px;
+    }
+}
+
+@media (max-width: 640px) {
+    .button-demo {
+        width: min(100% - 20px, 1180px);
+        padding: 20px 0 40px;
+    }
+
+    .demo-header {
+        padding: 20px;
+    }
+
+    .demo-section {
+        padding: 18px;
+    }
+
+    .button-row {
+        gap: 12px;
+    }
+}

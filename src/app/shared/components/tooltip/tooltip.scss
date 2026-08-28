@@ -1,0 +1,271 @@
+@use '../../../styles/variables' as *;
+
+app-tooltip-panel {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: $z-toast + 10;
+    display: block;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.app-tooltip-panel {
+    --app-tooltip-bg: #{$primary};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #000000;
+
+    position: fixed;
+    isolation: isolate;
+    box-sizing: border-box;
+    width: max-content;
+    min-width: 44px;
+    padding: 8px 11px;
+    border: 1px solid var(--app-tooltip-border);
+    border-radius: 8px;
+    color: var(--app-tooltip-color);
+    background: var(--app-tooltip-bg);
+    box-shadow:
+        0 2px 0 rgba(17, 17, 17, 0.13),
+        0 8px 20px rgba(17, 17, 17, 0.18);
+    font-family: $font-body;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(2px) scale(0.97);
+    transform-origin: center;
+    transition:
+        opacity 120ms ease,
+        transform 120ms ease,
+        visibility 120ms ease;
+}
+
+.app-tooltip-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0.2;
+    background-image:
+        radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.55) 0, transparent 1px),
+        radial-gradient(circle at 75% 70%, rgba(17, 17, 17, 0.13) 0, transparent 1px);
+    background-size: 11px 11px, 13px 13px;
+    pointer-events: none;
+}
+
+.app-tooltip-ready {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.app-tooltip-text {
+    position: relative;
+    z-index: 1;
+}
+
+.app-tooltip-arrow {
+    position: absolute;
+    z-index: -1;
+    width: 9px;
+    height: 9px;
+    background: var(--app-tooltip-bg);
+    transform: rotate(45deg);
+}
+
+/* Sizes */
+
+.app-tooltip-sm {
+    max-width: 220px;
+    padding: 6px 9px;
+    border-radius: 7px;
+    font-size: 11px;
+}
+
+.app-tooltip-lg {
+    padding: 10px 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Tones */
+
+.app-tooltip-dark,
+.app-tooltip-primary {
+    --app-tooltip-bg: #{$primary};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #000000;
+}
+
+.app-tooltip-paper {
+    --app-tooltip-bg: #{$paper};
+    --app-tooltip-color: #{$text-primary};
+    --app-tooltip-border: #{$border};
+}
+
+.app-tooltip-accent {
+    --app-tooltip-bg: #{$accent};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #b45309;
+}
+
+.app-tooltip-success {
+    --app-tooltip-bg: #{$success};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #15803d;
+}
+
+.app-tooltip-warning {
+    --app-tooltip-bg: #{$warning};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #b45309;
+}
+
+.app-tooltip-danger {
+    --app-tooltip-bg: #{$danger};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #b91c1c;
+}
+
+.app-tooltip-info {
+    --app-tooltip-bg: #{$info};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #1d4ed8;
+}
+
+.app-tooltip-noteYellow {
+    --app-tooltip-bg: #{$note-button-yellow};
+    --app-tooltip-color: #302b14;
+    --app-tooltip-border: #d4b939;
+}
+
+.app-tooltip-noteOrange {
+    --app-tooltip-bg: #{$note-button-orange};
+    --app-tooltip-color: #713407;
+    --app-tooltip-border: #d99d4c;
+}
+
+.app-tooltip-notePink {
+    --app-tooltip-bg: #{$note-button-pink};
+    --app-tooltip-color: #7e2247;
+    --app-tooltip-border: #db82a6;
+}
+
+.app-tooltip-noteRed {
+    --app-tooltip-bg: #{$note-button-red};
+    --app-tooltip-color: #822020;
+    --app-tooltip-border: #dc7773;
+}
+
+.app-tooltip-noteGreen {
+    --app-tooltip-bg: #{$note-button-green};
+    --app-tooltip-color: #245f31;
+    --app-tooltip-border: #87bf70;
+}
+
+.app-tooltip-noteBlue {
+    --app-tooltip-bg: #{$note-button-blue};
+    --app-tooltip-color: #205576;
+    --app-tooltip-border: #75afd7;
+}
+
+.app-tooltip-notePurple {
+    --app-tooltip-bg: #{$note-button-purple};
+    --app-tooltip-color: #5c367d;
+    --app-tooltip-border: #a98bd0;
+}
+
+.app-tooltip-noteBrown {
+    --app-tooltip-bg: #{$note-button-brown};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #684129;
+}
+
+.app-tooltip-noteBlack {
+    --app-tooltip-bg: #{$note-black};
+    --app-tooltip-color: #ffffff;
+    --app-tooltip-border: #000000;
+}
+
+/* Arrow placement */
+
+.app-tooltip-placement-top .app-tooltip-arrow,
+.app-tooltip-placement-top-start .app-tooltip-arrow,
+.app-tooltip-placement-top-end .app-tooltip-arrow {
+    bottom: -5px;
+}
+
+.app-tooltip-placement-bottom .app-tooltip-arrow,
+.app-tooltip-placement-bottom-start .app-tooltip-arrow,
+.app-tooltip-placement-bottom-end .app-tooltip-arrow {
+    top: -5px;
+}
+
+.app-tooltip-placement-top .app-tooltip-arrow,
+.app-tooltip-placement-bottom .app-tooltip-arrow {
+    left: 50%;
+    margin-left: -4px;
+}
+
+.app-tooltip-placement-top-start .app-tooltip-arrow,
+.app-tooltip-placement-bottom-start .app-tooltip-arrow {
+    left: 15px;
+}
+
+.app-tooltip-placement-top-end .app-tooltip-arrow,
+.app-tooltip-placement-bottom-end .app-tooltip-arrow {
+    right: 15px;
+}
+
+.app-tooltip-placement-left .app-tooltip-arrow,
+.app-tooltip-placement-left-start .app-tooltip-arrow,
+.app-tooltip-placement-left-end .app-tooltip-arrow {
+    right: -5px;
+}
+
+.app-tooltip-placement-right .app-tooltip-arrow,
+.app-tooltip-placement-right-start .app-tooltip-arrow,
+.app-tooltip-placement-right-end .app-tooltip-arrow {
+    left: -5px;
+}
+
+.app-tooltip-placement-left .app-tooltip-arrow,
+.app-tooltip-placement-right .app-tooltip-arrow {
+    top: 50%;
+    margin-top: -4px;
+}
+
+.app-tooltip-placement-left-start .app-tooltip-arrow,
+.app-tooltip-placement-right-start .app-tooltip-arrow {
+    top: 13px;
+}
+
+.app-tooltip-placement-left-end .app-tooltip-arrow,
+.app-tooltip-placement-right-end .app-tooltip-arrow {
+    bottom: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-tooltip-panel {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-tooltip-panel {
+        border-color: ButtonText;
+        color: CanvasText;
+        background: Canvas;
+    }
+
+    .app-tooltip-arrow {
+        background: Canvas;
+    }
+}

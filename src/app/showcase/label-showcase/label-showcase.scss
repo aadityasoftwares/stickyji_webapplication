@@ -1,0 +1,324 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+    min-height: 100%;
+    color: $text-primary;
+    background: $app-bg;
+    font-family: $font-body;
+}
+
+.label-showcase {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 72px;
+}
+
+.showcase-hero,
+.showcase-section {
+    border: 1px solid $border;
+    background: rgba($paper, 0.95);
+    box-shadow: $shadow-sm;
+}
+
+.showcase-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+    align-items: center;
+    gap: 40px;
+    padding: clamp(24px, 5vw, 48px);
+    border-radius: $radius-lg;
+    overflow: hidden;
+}
+
+.showcase-hero::after {
+    content: '';
+    position: absolute;
+    right: -75px;
+    bottom: -110px;
+    width: 270px;
+    height: 230px;
+    background: $note-button-yellow;
+    opacity: 0.38;
+    transform: rotate(-8deg);
+}
+
+.showcase-eyebrow,
+.section-number {
+    display: inline-flex;
+    color: $secondary;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.showcase-hero h1,
+.section-heading h2 {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-weight: 700;
+}
+
+.showcase-hero h1 {
+    margin-top: 8px;
+    font-size: clamp(38px, 6vw, 60px);
+    line-height: 0.98;
+}
+
+.showcase-hero p {
+    max-width: 650px;
+    margin: 16px 0 0;
+    color: $text-secondary;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.hero-example {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 22px;
+    border: 1px solid rgba(94, 79, 57, 0.12);
+    border-radius: $radius-sm;
+    background: $note-button-yellow;
+    box-shadow: 0 8px 20px rgba(46, 38, 25, 0.13);
+    transform: rotate(1.5deg);
+}
+
+.showcase-section {
+    margin-top: 20px;
+    padding: clamp(22px, 4vw, 36px);
+    border-radius: $radius-md;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.section-number {
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 25px;
+    border-radius: 999px;
+    color: #5b4600;
+    background: $note-button-yellow;
+}
+
+.section-heading h2 {
+    font-size: 30px;
+    line-height: 1.1;
+}
+
+.section-heading p {
+    margin: 6px 0 0;
+    color: $text-secondary;
+    line-height: 1.55;
+}
+
+.label-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.label-spec,
+.constraint-grid>app-label {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.label-spec {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label-spec>span {
+    color: $text-light;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.note-section {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.82)),
+        $note-button-yellow;
+}
+
+.split-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 42px;
+}
+
+.stack-examples {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-grid,
+.note-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field-wide {
+    grid-column: 1 / -1;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1px solid $border;
+    border-radius: $radius-xs;
+    outline: none;
+    color: $text-primary;
+    background: $paper;
+    font: 500 14px/1.4 $font-body;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+input,
+select {
+    min-height: 42px;
+    padding: 9px 12px;
+}
+
+textarea {
+    resize: vertical;
+    padding: 12px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.15);
+}
+
+.input-error {
+    border-color: $danger;
+}
+
+.input-success {
+    border-color: $success;
+}
+
+.alignment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.alignment-grid>div {
+    padding: 16px;
+    border: 1px dashed $border;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.alignment-grid>div:nth-child(2) {
+    text-align: center;
+}
+
+.alignment-grid>div:nth-child(3) {
+    text-align: right;
+}
+
+.constraint-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.note-form {
+    padding: clamp(18px, 4vw, 32px);
+    border: 1px solid rgba(94, 79, 57, 0.12);
+    border-radius: 4px $radius-sm $radius-sm 4px;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+        $note-button-yellow;
+    box-shadow:
+        0 2px 0 rgba(94, 79, 57, 0.12),
+        0 10px 24px rgba(46, 38, 25, 0.11);
+}
+
+@media (max-width: 920px) {
+    .showcase-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-example {
+        max-width: 440px;
+    }
+
+    .label-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-grid,
+    .note-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .label-showcase {
+        width: min(100% - 20px, 1180px);
+        padding: 20px 0 48px;
+    }
+
+    .split-section,
+    .form-grid,
+    .note-form,
+    .alignment-grid,
+    .constraint-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-field-wide {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 460px) {
+    .label-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    input,
+    select,
+    textarea {
+        transition: none;
+    }
+}

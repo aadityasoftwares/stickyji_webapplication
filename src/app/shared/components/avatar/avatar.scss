@@ -1,0 +1,264 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: max-content;
+    height: max-content;
+    line-height: 0;
+    vertical-align: middle;
+}
+
+.app-avatar {
+    --app-avatar-size: 40px;
+
+    position: relative;
+    isolation: isolate;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 var(--app-avatar-size);
+
+    width: var(--app-avatar-size);
+    height: var(--app-avatar-size);
+
+    box-sizing: border-box;
+    overflow: visible;
+
+    color: $text-primary;
+    background: $paper-dark;
+
+    font-family: $font-body;
+    line-height: 1;
+    user-select: none;
+
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+.app-avatar::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.25),
+            rgba(255, 255, 255, 0) 55%);
+
+    pointer-events: none;
+}
+
+.app-avatar-bordered {
+    border: 2px solid $paper;
+    outline: 1px solid rgba($border, 0.95);
+}
+
+.app-avatar-elevated {
+    box-shadow:
+        0 2px 0 rgba(94, 79, 57, 0.14),
+        0 5px 12px rgba(46, 38, 25, 0.13);
+}
+
+/* Shapes */
+
+.app-avatar-circle {
+    border-radius: 50%;
+}
+
+.app-avatar-rounded {
+    border-radius: 28%;
+}
+
+.app-avatar-square {
+    border-radius: 6px;
+}
+
+/* Sizes and typography */
+
+.app-avatar-size-xs {
+    font-size: 9px;
+}
+
+.app-avatar-size-sm {
+    font-size: 11px;
+}
+
+.app-avatar-size-md,
+.app-avatar-size-custom {
+    font-size: 13px;
+}
+
+.app-avatar-size-lg {
+    font-size: 15px;
+}
+
+.app-avatar-size-xl {
+    font-size: 20px;
+}
+
+.app-avatar-size-2xl {
+    font-size: 25px;
+}
+
+/* Tone palette */
+
+.app-avatar-tone-neutral {
+    color: $text-primary;
+    background: $paper-dark;
+}
+
+.app-avatar-tone-primary {
+    color: #ffffff;
+    background: $primary;
+}
+
+.app-avatar-tone-yellow {
+    color: #614900;
+    background: $note-button-yellow;
+}
+
+.app-avatar-tone-orange {
+    color: #713407;
+    background: $note-button-orange;
+}
+
+.app-avatar-tone-pink {
+    color: #7e2247;
+    background: $note-button-pink;
+}
+
+.app-avatar-tone-red {
+    color: #822020;
+    background: $note-button-red;
+}
+
+.app-avatar-tone-green {
+    color: #245f31;
+    background: $note-button-green;
+}
+
+.app-avatar-tone-blue {
+    color: #205576;
+    background: $note-button-blue;
+}
+
+.app-avatar-tone-purple {
+    color: #5c367d;
+    background: $note-button-purple;
+}
+
+.app-avatar-tone-brown {
+    color: #ffffff;
+    background: $note-button-brown;
+}
+
+.app-avatar-tone-black {
+    color: #ffffff;
+    background: $note-button-black;
+}
+
+/* Image and fallback content */
+
+.app-avatar-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    object-fit: cover;
+}
+
+.app-avatar-initials {
+    position: relative;
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    max-width: 78%;
+
+    overflow: hidden;
+
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.app-avatar-icon {
+    position: relative;
+    z-index: 2;
+
+    display: inline-flex;
+
+    width: 48%;
+    height: 48%;
+}
+
+/* Presence status */
+
+.app-avatar-status {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    z-index: 4;
+
+    width: clamp(7px, calc(var(--app-avatar-size) * 0.26), 15px);
+    height: clamp(7px, calc(var(--app-avatar-size) * 0.26), 15px);
+
+    box-sizing: border-box;
+
+    border: 2px solid $paper;
+    border-radius: 50%;
+
+    box-shadow: 0 1px 3px rgba(17, 17, 17, 0.18);
+}
+
+.app-avatar-status-online {
+    background: $button-success-bg;
+}
+
+.app-avatar-status-offline {
+    background: $text-light;
+}
+
+.app-avatar-status-away {
+    background: $button-warning-bg;
+}
+
+.app-avatar-status-busy {
+    background: $button-danger-bg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-avatar {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-avatar {
+        border-color: ButtonText;
+        outline-color: ButtonText;
+    }
+
+    .app-avatar-status {
+        border-color: Canvas;
+    }
+}

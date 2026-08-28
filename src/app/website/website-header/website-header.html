@@ -1,0 +1,84 @@
+<header class="app-site-header">
+    <div class="header-container">
+        <a class="header-brand" [attr.href]="brandHref" (click)="onBrandClick()"
+            [attr.aria-label]="brandName + ' home'">
+            <span class="brand-mark" aria-hidden="true">
+                <span class="brand-mark-note">
+                    <app-icon [icon]="LucideSparkles" size="sm" />
+                </span>
+            </span>
+
+            <span class="brand-copy">
+                <strong>{{ brandName }}</strong>
+                @if (showProductBadge && productBadge) {
+                <app-badge [label]="productBadge" variant="noteYellow" size="xs" shape="pill" />
+                }
+            </span>
+        </a>
+
+        <nav class="desktop-navigation" aria-label="Primary navigation">
+            @for (item of navItems; track item.href) {
+            <a class="nav-link" [class.is-active]="item.active" [attr.href]="item.href"
+                [attr.target]="item.external ? '_blank' : null"
+                [attr.rel]="item.external ? 'noopener noreferrer' : null"
+                [attr.aria-current]="item.active ? 'page' : null" (click)="onNavSelected(item)">
+                <span>{{ item.label }}</span>
+                @if (item.badge) {
+                <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
+                }
+            </a>
+            }
+        </nav>
+
+        <div class="desktop-actions">
+            <app-button [label]="signInLabel" variant="outline" size="md" (buttonClick)="onSignIn()" />
+
+            <app-button [label]="primaryActionLabel" variant="primary" size="md" [hasIcon]="true" iconPosition="right"
+                (buttonClick)="onPrimaryAction()">
+                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+            </app-button>
+        </div>
+
+        <button class="mobile-menu-button" type="button" aria-controls="mobile-navigation"
+            [attr.aria-expanded]="mobileMenuOpen" (click)="toggleMobileMenu()">
+            <app-icon [icon]="mobileMenuOpen ? LucideX : LucideMenu" size="md" />
+            <app-label [text]="mobileMenuOpen ? 'Close navigation' : 'Open navigation'" [visuallyHidden]="true" />
+        </button>
+    </div>
+
+    @if (mobileMenuOpen) {
+    <div id="mobile-navigation" class="mobile-panel">
+        <nav class="mobile-navigation" aria-label="Mobile navigation">
+            @for (item of navItems; track item.href) {
+            <a class="mobile-nav-link" [class.is-active]="item.active" [attr.href]="item.href"
+                [attr.target]="item.external ? '_blank' : null"
+                [attr.rel]="item.external ? 'noopener noreferrer' : null"
+                [attr.aria-current]="item.active ? 'page' : null" (click)="onNavSelected(item)">
+                <span>{{ item.label }}</span>
+                <span class="mobile-link-end">
+                    @if (item.badge) {
+                    <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
+                    }
+                    <app-icon [icon]="LucideArrowRight" size="sm" />
+                </span>
+            </a>
+            }
+        </nav>
+
+        <div class="mobile-actions">
+            <app-button [label]="signInLabel" variant="outline" size="lg" [fullWidth]="true"
+                (buttonClick)="onSignIn()" />
+
+            <app-button [label]="primaryActionLabel" variant="primary" size="lg" [fullWidth]="true" [hasIcon]="true"
+                iconPosition="right" (buttonClick)="onPrimaryAction()">
+                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+            </app-button>
+        </div>
+
+        <app-label class="mobile-reassurance" [text]="reassuranceText" [icon]="LucideCheck" variant="noteGreen"
+            appearance="soft" size="sm" weight="semibold" align="center" [fullWidth]="true" />
+    </div>
+
+    <button class="menu-backdrop" type="button" aria-label="Close navigation" (click)="closeMobileMenu()"></button>
+    }
+</header>

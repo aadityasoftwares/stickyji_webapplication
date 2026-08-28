@@ -1,0 +1,223 @@
+<main class="avatar-showcase">
+    <header class="showcase-hero">
+        <div>
+            <span class="showcase-eyebrow">Sticky Notes design system</span>
+            <h1>Avatar component</h1>
+            <p>
+                Reusable identity visuals for profiles, collaborators, activity feeds,
+                assignees, navigation, and presence.
+            </p>
+        </div>
+
+        <div class="hero-avatar" aria-hidden="true">
+            <app-avatar name="Sticky Notes Team" initials="SN" size="2xl" tone="yellow" shape="rounded"
+                [bordered]="false" [elevated]="true" [decorative]="true" />
+        </div>
+    </header>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">01</span>
+            <div>
+                <h2>Content and fallbacks</h2>
+                <p>Images gracefully fall back to a Lucide icon or generated initials.</p>
+            </div>
+        </div>
+
+        <div class="example-grid example-grid-content">
+            <article class="example-card">
+                <app-avatar [src]="profileImage" name="Aaditya Panchal" alt="Aaditya Panchal" size="xl" status="online"
+                    [elevated]="true" (imageLoad)="handleImageLoad()" (imageError)="handleImageError()" />
+                <div>
+                    <strong>Profile image</strong>
+                    <span>With online presence</span>
+                </div>
+            </article>
+
+            <article class="example-card">
+                <app-avatar name="Maya Patel" size="xl" tone="pink" status="away" [elevated]="true" />
+                <div>
+                    <strong>Generated initials</strong>
+                    <span>First and last name</span>
+                </div>
+            </article>
+
+            <article class="example-card">
+                <app-avatar name="Workspace assistant" size="xl" tone="blue" [fallbackIcon]="icons.bot"
+                    [elevated]="true" />
+                <div>
+                    <strong>Lucide fallback</strong>
+                    <span>Useful for bots and system users</span>
+                </div>
+            </article>
+
+            <article class="example-card">
+                <app-avatar [src]="brokenImage" name="Broken Image" initials="BI" size="xl" tone="orange"
+                    [elevated]="true" (imageError)="handleImageError()" />
+                <div>
+                    <strong>Error fallback</strong>
+                    <span>Bad image becomes initials</span>
+                </div>
+            </article>
+        </div>
+
+        <p class="event-message" role="status">{{ lastImageEvent() }}</p>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">02</span>
+            <div>
+                <h2>Sizes</h2>
+                <p>Six presets plus any numeric pixel value.</p>
+            </div>
+        </div>
+
+        <div class="avatar-spec-row avatar-spec-row-bottom">
+            @for (item of sizes; track item.value) {
+            <div class="avatar-spec-item">
+                <app-avatar name="Aaditya Panchal" [size]="item.value" tone="yellow" [elevated]="true" />
+                <span>{{ item.label }}</span>
+            </div>
+            }
+
+            <div class="avatar-spec-item">
+                <app-avatar name="Custom Size" [size]="72" tone="blue" [elevated]="true" />
+                <span>Custom · 72px</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">03</span>
+            <div>
+                <h2>Sticky-note tones</h2>
+                <p>Every tone is aligned with the shared paper palette.</p>
+            </div>
+        </div>
+
+        <div class="avatar-spec-row">
+            @for (item of tones; track item.tone) {
+            <div class="avatar-spec-item">
+                <app-avatar [name]="item.label + ' avatar'" [initials]="item.initials" size="lg" [tone]="item.tone"
+                    [elevated]="true" />
+                <span>{{ item.label }}</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <section class="showcase-section split-section">
+        <div>
+            <div class="section-heading">
+                <span class="section-number">04</span>
+                <div>
+                    <h2>Shapes</h2>
+                    <p>Choose a silhouette based on context.</p>
+                </div>
+            </div>
+
+            <div class="avatar-spec-row compact-row">
+                @for (item of shapes; track item.value) {
+                <div class="avatar-spec-item">
+                    <app-avatar name="Aaditya Panchal" size="xl" tone="purple" [shape]="item.value" [elevated]="true" />
+                    <span>{{ item.label }}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">
+                <span class="section-number">05</span>
+                <div>
+                    <h2>Presence</h2>
+                    <p>Status is included in the accessible label.</p>
+                </div>
+            </div>
+
+            <div class="avatar-spec-row compact-row">
+                @for (item of statuses; track item.status) {
+                <div class="avatar-spec-item">
+                    <app-avatar [name]="item.label + ' user'" size="lg" [tone]="item.tone" [status]="item.status" />
+                    <span>{{ item.label }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+        <div class="section-heading">
+            <span class="section-number">06</span>
+            <div>
+                <h2>Real application patterns</h2>
+                <p>Examples for profile navigation, collaboration, and assignees.</p>
+            </div>
+        </div>
+
+        <div class="pattern-grid">
+            <article class="pattern-card profile-card">
+                <app-avatar [src]="profileImage" name="Aaditya Panchal" size="lg" [elevated]="true" />
+                <div class="profile-copy">
+                    <strong>Aaditya Panchal</strong>
+                    <span>Workspace owner</span>
+                </div>
+                <app-avatar name="Verified account" size="sm" tone="green" [fallbackIcon]="icons.shield"
+                    [bordered]="false" />
+            </article>
+
+            <article class="pattern-card">
+                <div class="pattern-heading">
+                    <app-avatar name="Collaborators" size="sm" tone="blue" [fallbackIcon]="icons.users"
+                        [bordered]="false" />
+                    <div>
+                        <strong>Note collaborators</strong>
+                        <span>4 people editing</span>
+                    </div>
+                </div>
+
+                <div class="avatar-group" aria-label="Note collaborators">
+                    <app-avatar [src]="profileImage" name="Aaditya Panchal" size="md" [decorative]="true" />
+                    <app-avatar [src]="secondProfileImage" name="Maya Patel" size="md" [decorative]="true" />
+                    <app-avatar name="Ravi Shah" size="md" tone="green" [decorative]="true" />
+                    <app-avatar initials="+1" name="One more collaborator" size="md" tone="neutral"
+                        [decorative]="true" />
+                </div>
+            </article>
+
+            <article class="pattern-card assignee-card">
+                <div class="pattern-heading">
+                    <app-avatar name="Task assignee" size="sm" tone="orange" [fallbackIcon]="icons.user"
+                        [bordered]="false" />
+                    <div>
+                        <strong>Assigned to</strong>
+                        <span>Design review</span>
+                    </div>
+                </div>
+
+                <div class="assignee-row">
+                    <app-avatar name="Neha Desai" size="lg" tone="orange" status="away" [elevated]="true" />
+                    <div>
+                        <strong>Neha Desai</strong>
+                        <span>Due tomorrow</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="showcase-section interactive-example">
+        <div>
+            <span class="section-number">07</span>
+            <h2>Interactive status</h2>
+            <p>Current status: <strong>{{ liveStatus() }}</strong></p>
+        </div>
+
+        <button type="button" class="status-control" (click)="cycleStatus()">
+            <app-avatar name="Interactive user" size="lg" tone="blue" [status]="liveStatus()" />
+            <span>Cycle presence</span>
+        </button>
+    </section>
+</main>

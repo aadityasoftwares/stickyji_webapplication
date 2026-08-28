@@ -1,0 +1,322 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+:host.app-checkbox-host-full {
+    display: flex;
+    width: 100%;
+}
+
+.app-checkbox {
+    --app-checkbox-size: 20px;
+    --app-checkbox-color: #{$primary};
+    --app-checkbox-mark: #ffffff;
+
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+    margin: 0;
+    color: $text-primary;
+    font-family: $font-body;
+    line-height: 1.35;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-checkbox-full {
+    width: 100%;
+}
+
+.app-checkbox-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    border: 0;
+    white-space: nowrap;
+}
+
+.app-checkbox-control {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 var(--app-checkbox-size);
+    width: var(--app-checkbox-size);
+    height: var(--app-checkbox-size);
+    box-sizing: border-box;
+    margin-top: 1px;
+    overflow: hidden;
+    border: 1.5px solid $border;
+    border-radius: 6px;
+    color: var(--app-checkbox-mark);
+    background: $paper;
+    box-shadow:
+        0 1px 0 rgba(94, 79, 57, 0.08),
+        inset 0 1px 1px rgba(17, 17, 17, 0.025);
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        transform 150ms ease;
+}
+
+.app-checkbox-control::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), transparent 58%);
+    pointer-events: none;
+}
+
+.app-checkbox:hover:not(.app-checkbox-disabled):not(.app-checkbox-readonly) .app-checkbox-control {
+    border-color: var(--app-checkbox-color);
+    box-shadow:
+        0 2px 0 rgba(94, 79, 57, 0.1),
+        0 4px 8px rgba(46, 38, 25, 0.08);
+    transform: translateY(-1px);
+}
+
+.app-checkbox-native:focus-visible+.app-checkbox-control {
+    outline: 3px solid rgba($accent, 0.28);
+    outline-offset: 3px;
+}
+
+.app-checkbox-native:checked+.app-checkbox-control,
+.app-checkbox-native:indeterminate+.app-checkbox-control {
+    border-color: var(--app-checkbox-color);
+    background-color: var(--app-checkbox-color);
+    box-shadow:
+        0 2px 0 rgba(17, 17, 17, 0.13),
+        0 4px 9px rgba(46, 38, 25, 0.1);
+}
+
+.app-checkbox-checkmark {
+    position: relative;
+    z-index: 1;
+    width: 27%;
+    height: 52%;
+    margin-top: -8%;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    opacity: 0;
+    transform: rotate(45deg) scale(0.65);
+    transition: opacity 120ms ease, transform 150ms ease;
+}
+
+.app-checkbox-native:checked+.app-checkbox-control .app-checkbox-checkmark {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+}
+
+.app-checkbox-indeterminate-mark {
+    position: absolute;
+    z-index: 1;
+    width: 52%;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0;
+    transform: scaleX(0.55);
+    transition: opacity 120ms ease, transform 150ms ease;
+}
+
+.app-checkbox-native:indeterminate+.app-checkbox-control .app-checkbox-indeterminate-mark {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.app-checkbox-content {
+    display: inline-flex;
+    align-items: flex-start;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.app-checkbox-label {
+    color: inherit;
+    font-weight: 700;
+}
+
+.app-checkbox-description {
+    color: $text-secondary;
+    font-size: 0.88em;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.app-checkbox-required {
+    margin-left: 3px;
+    color: $danger;
+}
+
+.app-checkbox-label-left .app-checkbox-content {
+    order: 1;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.app-checkbox-label-left .app-checkbox-control {
+    order: 2;
+}
+
+/* Sizes */
+
+.app-checkbox-xs {
+    --app-checkbox-size: 14px;
+    gap: 7px;
+    font-size: 11px;
+}
+
+.app-checkbox-xs .app-checkbox-control {
+    border-radius: 4px;
+}
+
+.app-checkbox-sm {
+    --app-checkbox-size: 17px;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.app-checkbox-md {
+    --app-checkbox-size: 20px;
+    font-size: 14px;
+}
+
+.app-checkbox-lg {
+    --app-checkbox-size: 24px;
+    gap: 12px;
+    font-size: 16px;
+}
+
+/* Semantic variants */
+
+.app-checkbox-primary {
+    --app-checkbox-color: #{$primary};
+}
+
+.app-checkbox-secondary {
+    --app-checkbox-color: #{$secondary};
+}
+
+.app-checkbox-accent {
+    --app-checkbox-color: #{$accent};
+}
+
+.app-checkbox-success {
+    --app-checkbox-color: #{$success};
+}
+
+.app-checkbox-warning {
+    --app-checkbox-color: #{$warning};
+}
+
+.app-checkbox-danger {
+    --app-checkbox-color: #{$danger};
+}
+
+.app-checkbox-info {
+    --app-checkbox-color: #{$info};
+}
+
+/* Sticky-note variants */
+
+.app-checkbox-noteYellow {
+    --app-checkbox-color: #{$note-button-yellow};
+    --app-checkbox-mark: #302b14;
+}
+
+.app-checkbox-noteOrange {
+    --app-checkbox-color: #{$note-button-orange};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-notePink {
+    --app-checkbox-color: #{$note-button-pink};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-noteRed {
+    --app-checkbox-color: #{$note-button-red};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-noteGreen {
+    --app-checkbox-color: #{$note-button-green};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-noteBlue {
+    --app-checkbox-color: #{$note-button-blue};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-notePurple {
+    --app-checkbox-color: #{$note-button-purple};
+    --app-checkbox-mark: #29251f;
+}
+
+.app-checkbox-noteBrown {
+    --app-checkbox-color: #{$note-button-brown};
+}
+
+.app-checkbox-noteBlack {
+    --app-checkbox-color: #{$note-black};
+}
+
+/* States */
+
+.app-checkbox-invalid .app-checkbox-control {
+    border-color: $danger;
+}
+
+.app-checkbox-invalid .app-checkbox-label {
+    color: $danger;
+}
+
+.app-checkbox-readonly {
+    cursor: default;
+}
+
+.app-checkbox-disabled {
+    opacity: 0.52;
+    cursor: not-allowed;
+}
+
+.app-checkbox-disabled .app-checkbox-control {
+    box-shadow: none;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-checkbox-control,
+    .app-checkbox-checkmark,
+    .app-checkbox-indeterminate-mark {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-checkbox-control {
+        border-color: ButtonText;
+    }
+
+    .app-checkbox-native:checked+.app-checkbox-control,
+    .app-checkbox-native:indeterminate+.app-checkbox-control {
+        color: HighlightText;
+        background: Highlight;
+    }
+}

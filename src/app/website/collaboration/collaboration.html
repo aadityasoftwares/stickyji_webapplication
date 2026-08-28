@@ -1,0 +1,185 @@
+<section id="collaboration" class="collaboration" aria-labelledby="collaboration-title">
+    <div class="collaboration-shell">
+        <div class="section-copy">
+            <app-badge label="A shared space that stays human" variant="notePurple" size="md" shape="pill"
+                [icon]="LucideUsersRound" />
+
+            <h2 id="collaboration-title">
+                One owner.
+                <span>One shared wall.</span>
+                Everyone moving together.
+            </h2>
+
+            <p class="section-description">
+                Create a workspace, invite the right people, and give every teammate a clear place to contribute—while
+                the owner keeps access and structure under control.
+            </p>
+
+            <app-divider label="How the room works" [hasLabel]="true" variant="notePurple" lineStyle="dashed"
+                spacing="lg" />
+
+            <div class="collaboration-steps">
+                <article>
+                    <span class="step-icon step-owner"><app-icon [icon]="LucideCrown" size="sm" /></span>
+                    <span><small>01 · OWNER</small><strong>Create the workspace</strong>
+                        <p>Name the room, choose access,
+                            and keep the final controls.</p>
+                    </span>
+                </article>
+
+                <article>
+                    <span class="step-icon step-invite"><app-icon [icon]="LucideUserPlus" size="sm" /></span>
+                    <span><small>02 · INVITE</small><strong>Bring in the right people</strong>
+                        <p>Add Editors or Viewers
+                            without opening the whole workspace.</p>
+                    </span>
+                </article>
+
+                <article>
+                    <span class="step-icon step-together"><app-icon [icon]="LucideSparkles" size="sm" /></span>
+                    <span><small>03 · TOGETHER</small><strong>Share visible progress</strong>
+                        <p>Assign, mention, comment,
+                            and move notes without status-meeting noise.</p>
+                    </span>
+                </article>
+            </div>
+
+            <div class="copy-actions">
+                <app-button label="Invite your team" variant="primary" size="lg" [hasIcon]="true" iconPosition="right"
+                    (buttonClick)="inviteClick.emit()">
+                    <app-icon button-icon-right [icon]="LucideUserPlus" size="inherit" />
+                </app-button>
+
+                <app-button label="See a shared workspace" variant="outline" size="lg" [hasIcon]="true"
+                    iconPosition="right" (buttonClick)="workspaceClick.emit()">
+                    <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <div class="workspace-wrap">
+            <span class="workspace-paper workspace-paper-one" aria-hidden="true"></span>
+            <span class="workspace-paper workspace-paper-two" aria-hidden="true"></span>
+            <span class="workspace-tape" aria-hidden="true"></span>
+
+            <div class="workspace-demo">
+                <header class="workspace-header">
+                    <div class="workspace-identity">
+                        <span class="workspace-mark"><app-icon [icon]="LucideUsersRound" size="sm" /></span>
+                        <span>
+                            <app-label text="SHARED WORKSPACE" variant="notePurple" appearance="plain" size="xs"
+                                weight="bold" />
+                            <strong>{{ workspaceName }}</strong>
+                        </span>
+                    </div>
+
+                    <app-badge label="Owner controlled" variant="noteYellow" size="sm" shape="pill"
+                        [icon]="LucideShieldCheck" />
+                </header>
+
+                <div class="member-rail" role="tablist" aria-label="Workspace members">
+                    @for (member of members; track member.id; let memberIndex = $index) {
+                    <button class="member-tab" [class.is-active]="selectedMemberId === member.id" type="button"
+                        role="tab" [id]="'member-tab-' + member.id"
+                        [attr.aria-selected]="selectedMemberId === member.id" aria-controls="member-workspace-panel"
+                        [attr.tabindex]="selectedMemberId === member.id ? 0 : -1" (click)="selectMember(member)"
+                        (keydown)="onMemberKeydown($event, memberIndex)">
+                        <span class="member-avatar-wrap">
+                            <app-avatar [name]="member.name" [initials]="member.initials" size="md"
+                                [tone]="member.avatarTone" [status]="member.status" [elevated]="true" />
+                            @if (member.isOwner) {
+                            <span class="owner-crown" aria-label="Workspace owner"><app-icon [icon]="LucideCrown"
+                                    size="xs" /></span>
+                            }
+                        </span>
+                        <span class="member-tab-copy"><strong>{{ member.name }}</strong><small>{{ member.role
+                                }}</small></span>
+                    </button>
+                    }
+
+                    <button class="invite-seat" type="button" aria-label="Invite another workspace member"
+                        (click)="inviteClick.emit()">
+                        <app-icon [icon]="LucideUserPlus" size="sm" />
+                    </button>
+                </div>
+
+                <div id="member-workspace-panel" class="workspace-content" role="tabpanel"
+                    [attr.aria-labelledby]="'member-tab-' + selectedMemberId">
+                    <app-sticky-card class="shared-note" [variant]="activeMember.noteVariant" appearance="flat"
+                        shape="note" size="md" [fullWidth]="true" [minHeight]="350" [padding]="22" [hoverable]="true"
+                        eyebrow="SHARED LAUNCH NOTE" [cardTitle]="activeMember.currentNote">
+                        <p class="shared-note-copy">
+                            Everyone sees the same note. The selected member shows who is contributing and what they
+                            can change.
+                        </p>
+
+                        <div class="shared-task-list" aria-label="Shared workspace checklist">
+                            @for (task of sharedTasks; track task.label; let taskIndex = $index) {
+                            @let assignee = getMemberById(task.assigneeId);
+                            <div class="shared-task" [class.is-selected-member]="assignee.id === activeMember.id">
+                                <app-checkbox [inputId]="'shared-task-' + taskIndex" [label]="task.label"
+                                    variant="notePurple" size="sm" [checked]="taskChecks[taskIndex]"
+                                    (checkedChange)="updateTask(taskIndex, $event)" />
+                                <app-avatar [name]="assignee.name" [initials]="assignee.initials" size="xs"
+                                    [tone]="assignee.avatarTone" />
+                            </div>
+                            }
+                        </div>
+
+                        <div card-footer class="shared-note-footer">
+                            <span class="collaborator-stack" aria-label="Workspace collaborators">
+                                @for (member of members.slice(0, 4); track member.id) {
+                                <app-avatar [name]="member.name" [initials]="member.initials" size="sm"
+                                    [tone]="member.avatarTone" />
+                                }
+                            </span>
+                            <app-badge [label]="completedTaskCount + ' of ' + sharedTasks.length + ' moving'"
+                                variant="outline" size="xs" shape="pill" />
+                        </div>
+                    </app-sticky-card>
+
+                    <aside class="member-slip">
+                        <span class="slip-pin" aria-hidden="true"></span>
+
+                        <div class="member-slip-head">
+                            <app-avatar [name]="activeMember.name" [initials]="activeMember.initials" size="lg"
+                                [tone]="activeMember.avatarTone" [status]="activeMember.status" [elevated]="true" />
+                            <span><strong>{{ activeMember.name }}</strong><app-badge [label]="activeMember.role"
+                                    [variant]="activeMember.noteVariant" size="xs" shape="pill" /></span>
+                        </div>
+
+                        <app-divider spacing="sm" lineStyle="dashed" />
+
+                        <div class="activity-note">
+                            <span><app-icon [icon]="LucideActivity" size="sm" /></span>
+                            <span><small>LATEST ACTIVITY</small><strong>{{ activeMember.activity }}</strong><em>{{
+                                    activeMember.activityTime }}</em></span>
+                        </div>
+
+                        <div class="permission-note">
+                            <span><app-icon [icon]="activeMember.role === 'Viewer' ? LucideEye : LucidePencilLine"
+                                    size="sm" /></span>
+                            <span><small>{{ activeMember.role.toUpperCase() }} ACCESS</small><strong>{{
+                                    activeMember.permissionSummary }}</strong></span>
+                        </div>
+
+                        <div class="comment-note">
+                            <app-icon [icon]="LucideMessageCircle" size="xs" />
+                            Mention teammates directly on the note.
+                        </div>
+                    </aside>
+                </div>
+
+                <footer class="role-legend" aria-label="Workspace role permissions">
+                    <span><i class="legend-owner"><app-icon [icon]="LucideCrown" size="xs" /></i><strong>Owner</strong>
+                        controls the room</span>
+                    <span><i class="legend-editor"><app-icon [icon]="LucidePencilLine"
+                                size="xs" /></i><strong>Editors</strong>
+                        move the work</span>
+                    <span><i class="legend-viewer"><app-icon [icon]="LucideEye" size="xs" /></i><strong>Viewers</strong>
+                        follow progress</span>
+                </footer>
+            </div>
+        </div>
+    </div>
+</section>

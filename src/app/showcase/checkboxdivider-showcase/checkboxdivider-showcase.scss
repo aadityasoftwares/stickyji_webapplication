@@ -1,0 +1,404 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+    min-height: 100%;
+    color: $text-primary;
+    background: $app-bg;
+    font-family: $font-body;
+}
+
+.component-showcase {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 72px;
+}
+
+.showcase-hero,
+.showcase-section {
+    border: 1px solid $border;
+    background: rgba($paper, 0.95);
+    box-shadow: $shadow-sm;
+}
+
+.showcase-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    padding: clamp(24px, 5vw, 48px);
+    border-radius: $radius-lg;
+    overflow: hidden;
+}
+
+.showcase-hero::after {
+    content: '';
+    position: absolute;
+    right: -48px;
+    bottom: -68px;
+    width: 245px;
+    height: 175px;
+    background: $note-button-blue;
+    opacity: 0.32;
+    transform: rotate(-8deg);
+}
+
+.showcase-eyebrow,
+.component-kicker,
+.section-number,
+.card-label {
+    display: inline-flex;
+    color: $secondary;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.showcase-hero h1,
+.component-heading h2,
+.section-heading h2,
+.preferences-card h3 {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-weight: 700;
+}
+
+.showcase-hero h1 {
+    margin-top: 8px;
+    font-size: clamp(38px, 6vw, 60px);
+    line-height: 0.98;
+}
+
+.showcase-hero p {
+    max-width: 680px;
+    margin: 16px 0 0;
+    color: $text-secondary;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.hero-note {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 230px;
+    padding: 22px;
+    border: 1px solid rgba(94, 79, 57, 0.13);
+    border-radius: 3px $radius-sm $radius-sm 3px;
+    background: $note-button-yellow;
+    box-shadow:
+        0 2px 0 rgba(94, 79, 57, 0.12),
+        0 10px 24px rgba(46, 38, 25, 0.13);
+    transform: rotate(2deg);
+}
+
+.hero-note>span {
+    color: rgba($text-primary, 0.72);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.showcase-section {
+    margin-top: 20px;
+    padding: clamp(22px, 4vw, 36px);
+    border-radius: $radius-md;
+}
+
+.component-heading {
+    margin-bottom: 12px;
+}
+
+.component-heading h2 {
+    margin-top: 5px;
+    font-size: 42px;
+    line-height: 1;
+}
+
+.component-heading p,
+.section-heading p {
+    margin: 7px 0 0;
+    color: $text-secondary;
+    line-height: 1.55;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.section-number {
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 25px;
+    border-radius: 999px;
+    color: #5b4600;
+    background: $note-button-yellow;
+}
+
+.section-heading h2 {
+    font-size: 30px;
+    line-height: 1.1;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px 24px;
+}
+
+.two-column-section,
+.binding-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 42px;
+}
+
+.vertical-examples,
+.note-selection-list,
+.preference-list,
+.divider-demo-stack {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.state-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.state-grid app-checkbox {
+    padding: 16px;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.selection-card,
+.binding-card,
+.preferences-card {
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.selection-card {
+    max-width: 620px;
+    padding: 22px;
+}
+
+.binding-card {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+    padding: 22px;
+}
+
+.binding-card code {
+    padding: 10px 12px;
+    border-radius: $radius-xs;
+    color: $text-secondary;
+    background: $paper-dark;
+    font-family: $font-mono;
+    font-size: 12px;
+    white-space: normal;
+}
+
+.save-button {
+    min-height: 40px;
+    padding: 9px 18px;
+    border: 1px solid $primary;
+    border-radius: 10px;
+    color: #ffffff;
+    background: $primary;
+    box-shadow:
+        0 2px 0 #000000,
+        0 5px 12px rgba(17, 17, 17, 0.15);
+    font: 800 14px/1 $font-body;
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.save-button:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 3px 0 #000000,
+        0 8px 16px rgba(17, 17, 17, 0.18);
+}
+
+.save-button:focus-visible {
+    outline: 3px solid rgba($accent, 0.28);
+    outline-offset: 3px;
+}
+
+.form-message {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.divider-intro {
+    position: relative;
+    overflow: hidden;
+}
+
+.divider-intro::after {
+    content: '';
+    position: absolute;
+    right: -45px;
+    top: -45px;
+    width: 130px;
+    height: 130px;
+    border-radius: 24%;
+    background: $note-button-pink;
+    opacity: 0.22;
+    transform: rotate(15deg);
+}
+
+.divider-variant-list {
+    position: relative;
+    z-index: 1;
+}
+
+.divider-control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.divider-control-grid article {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.divider-control-grid article>span {
+    color: $text-secondary;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.vertical-divider-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    padding: 20px;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    background: $paper-light;
+}
+
+.vertical-divider-demo>div {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 90px;
+}
+
+.vertical-divider-demo strong {
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 34px;
+}
+
+.vertical-divider-demo span {
+    color: $text-secondary;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.preferences-card {
+    max-width: 720px;
+    padding: clamp(20px, 4vw, 32px);
+    box-shadow: $shadow-sm;
+}
+
+.preferences-card>header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.preferences-card>header span:first-child {
+    color: $text-light;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.preferences-card h3 {
+    margin-top: 4px;
+    font-size: 32px;
+}
+
+.paper-chip {
+    padding: 6px 10px;
+    border: 1px solid rgba(94, 79, 57, 0.12);
+    border-radius: 999px;
+    color: #286b34;
+    background: $note-button-green;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+@media (max-width: 920px) {
+    .checkbox-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .two-column-section,
+    .binding-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .component-showcase {
+        width: min(100% - 20px, 1180px);
+        padding: 20px 0 48px;
+    }
+
+    .showcase-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero-note {
+        align-self: stretch;
+        flex-basis: auto;
+    }
+
+    .checkbox-grid,
+    .state-grid,
+    .divider-control-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vertical-divider-demo {
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .save-button {
+        transition: none;
+    }
+}

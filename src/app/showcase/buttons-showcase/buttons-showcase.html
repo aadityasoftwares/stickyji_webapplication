@@ -1,0 +1,549 @@
+<div class="button-demo">
+    <header class="demo-header">
+        <div>
+            <span class="demo-eyebrow">Sticky Notes design system</span>
+            <h1>Reusable Buttons</h1>
+            <p>
+                The original tactile buttons and the torn-tape appearance live in the
+                same component. Use <code>appearance="standard"</code> or
+                <code>appearance="tape"</code> without losing any variant.
+            </p>
+        </div>
+
+        <app-icon [icon]="icons.stickyNote" size="2xl" surface="noteYellow" shape="rounded" ariaLabel="Sticky Notes" />
+    </header>
+
+    <!-- ======================================================= -->
+    <!-- ORIGINAL / STANDARD APPEARANCE -->
+    <!-- ======================================================= -->
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <span class="demo-section-badge">Original appearance</span>
+            <h2>Standard variants</h2>
+            <p>Your existing buttons remain unchanged and continue to be the default.</p>
+        </div>
+
+        <div class="button-row">
+            <app-button label="Primary" appearance="standard" variant="primary" [hasIcon]="true"
+                (buttonClick)="createNote()">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+
+            <app-button label="Secondary" appearance="standard" variant="secondary" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.layers" size="inherit" />
+            </app-button>
+
+            <app-button label="Accent" appearance="standard" variant="accent" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.sparkles" size="inherit" />
+            </app-button>
+
+            <app-button label="Success" appearance="standard" variant="success" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.check" size="inherit" />
+            </app-button>
+
+            <app-button label="Warning" appearance="standard" variant="warning" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
+            </app-button>
+
+            <app-button label="Danger" appearance="standard" variant="danger" [hasIcon]="true"
+                (buttonClick)="deleteNote()">
+                <app-icon button-icon-left [icon]="icons.trash" size="inherit" />
+            </app-button>
+
+            <app-button label="Information" appearance="standard" variant="info" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.info" size="inherit" />
+            </app-button>
+
+            <app-button label="Outline" appearance="standard" variant="outline" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.pencil" size="inherit" />
+            </app-button>
+
+            <app-button label="Ghost" appearance="standard" variant="ghost" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.settings" size="inherit" />
+            </app-button>
+
+            <app-button label="View details" appearance="standard" variant="link" iconPosition="right" [hasIcon]="true">
+                <app-icon button-icon-right [icon]="icons.arrowRight" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard sticky-note variants</h2>
+            <p>The softer note palette with the original tactile button shape.</p>
+        </div>
+
+        <div class="button-row">
+            <app-button label="Yellow" appearance="standard" variant="noteYellow" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.stickyNote" size="inherit" />
+            </app-button>
+
+            <app-button label="Orange" appearance="standard" variant="noteOrange" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.flame" size="inherit" />
+            </app-button>
+
+            <app-button label="Pink" appearance="standard" variant="notePink" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.heart" size="inherit" />
+            </app-button>
+
+            <app-button label="Red" appearance="standard" variant="noteRed" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
+            </app-button>
+
+            <app-button label="Green" appearance="standard" variant="noteGreen" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.leaf" size="inherit" />
+            </app-button>
+
+            <app-button label="Blue" appearance="standard" variant="noteBlue" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.cloud" size="inherit" />
+            </app-button>
+
+            <app-button label="Purple" appearance="standard" variant="notePurple" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.palette" size="inherit" />
+            </app-button>
+
+            <app-button label="Brown" appearance="standard" variant="noteBrown" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.archive" size="inherit" />
+            </app-button>
+
+            <app-button label="Black" appearance="standard" variant="noteBlack" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.stickyNote" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard sizes</h2>
+            <p>All component sizes using the original appearance.</p>
+        </div>
+
+        <div class="button-row button-row-align-end">
+            <app-button label="Extra small" appearance="standard" size="xs" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+            <app-button label="Small" appearance="standard" size="sm" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+            <app-button label="Medium" appearance="standard" size="md" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+            <app-button label="Large" appearance="standard" size="lg" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+            <app-button label="Extra large" appearance="standard" size="xl" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard icon-only buttons</h2>
+            <p>Compact toolbar actions with accessible labels and titles.</p>
+        </div>
+
+        <div class="button-row">
+            <app-button appearance="standard" variant="primary" [iconOnly]="true" ariaLabel="Create note"
+                title="Create note" (buttonClick)="createNote()">
+                <app-icon button-icon [icon]="icons.plus" size="inherit" />
+            </app-button>
+
+            <app-button appearance="standard" variant="secondary" [iconOnly]="true" ariaLabel="Edit note"
+                title="Edit note">
+                <app-icon button-icon [icon]="icons.pencil" size="inherit" />
+            </app-button>
+
+            <app-button appearance="standard" variant="danger" [iconOnly]="true" ariaLabel="Delete note"
+                title="Delete note" (buttonClick)="deleteNote()">
+                <app-icon button-icon [icon]="icons.trash" size="inherit" />
+            </app-button>
+
+            <app-button appearance="standard" variant="ghost" [iconOnly]="true" ariaLabel="Favorite note"
+                title="Favorite note" [ariaPressed]="isFavorite" (buttonClick)="toggleFavorite()">
+                <app-icon button-icon [icon]="icons.heart" size="inherit"
+                    [fill]="isFavorite ? 'currentColor' : 'none'" />
+            </app-button>
+
+            <app-button appearance="standard" variant="ghost" [iconOnly]="true" ariaLabel="More actions"
+                title="More actions">
+                <app-icon button-icon [icon]="icons.ellipsis" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard application states</h2>
+            <p>Rounded, loading, disabled, and application-action examples.</p>
+        </div>
+
+        <div class="button-row">
+            <app-button label="Create note" appearance="standard" variant="primary" [rounded]="true" [hasIcon]="true"
+                (buttonClick)="createNote()">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+            </app-button>
+
+            <app-button label="Upgrade to Pro" appearance="standard" variant="accent" [rounded]="true" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.sparkles" size="inherit" />
+            </app-button>
+
+            <app-button label="Save changes" appearance="standard" variant="success" loadingText="Saving..."
+                [loading]="isSaving" [hasIcon]="true" (buttonClick)="saveNote()">
+                <app-icon button-icon-left [icon]="icons.save" size="inherit" />
+            </app-button>
+
+            <app-button label="Locked" appearance="standard" variant="secondary" [disabled]="true" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.lock" size="inherit" />
+            </app-button>
+
+            <app-button label="Delete note" appearance="standard" variant="danger" [disabled]="true" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.trash" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard split buttons</h2>
+            <p>Primary action plus a separately accessible menu trigger.</p>
+        </div>
+
+        <div class="button-row">
+            <app-button label="Create note" appearance="standard" variant="primary" [split]="true" [hasIcon]="true"
+                splitAriaLabel="Choose note type" [splitExpanded]="splitMenuOpen" splitControls="note-action-menu"
+                (buttonClick)="createNote()" (splitClick)="toggleSplitMenu()">
+                <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+                <app-icon button-split-icon [icon]="icons.chevronDown" size="inherit" />
+            </app-button>
+
+            <app-button label="Download" appearance="standard" variant="secondary" [split]="true" [hasIcon]="true"
+                splitAriaLabel="Choose download format">
+                <app-icon button-icon-left [icon]="icons.download" size="inherit" />
+                <app-icon button-split-icon [icon]="icons.chevronDown" size="inherit" />
+            </app-button>
+        </div>
+
+        @if (splitMenuOpen) {
+        <div id="note-action-menu" class="demo-split-menu" role="menu">
+            <button type="button" role="menuitem">Create text note</button>
+            <button type="button" role="menuitem">Create checklist</button>
+            <button type="button" role="menuitem">Create shared note</button>
+        </div>
+        }
+    </section>
+
+    <section class="demo-section">
+        <div class="section-heading">
+            <h2>Standard full-width buttons</h2>
+            <p>Responsive actions for forms, cards, and mobile layouts.</p>
+        </div>
+
+        <div class="button-column">
+            <app-button label="Log in" appearance="standard" variant="primary" width="full" size="lg" [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.login" size="inherit" />
+            </app-button>
+
+            <app-button label="Invite team members" appearance="standard" variant="accent" width="full" size="lg"
+                [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.users" size="inherit" />
+            </app-button>
+
+            <app-button label="Create folder" appearance="standard" variant="outline" width="full" size="lg"
+                [hasIcon]="true">
+                <app-icon button-icon-left [icon]="icons.folderPlus" size="inherit" />
+            </app-button>
+        </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- TAPE APPEARANCE -->
+    <!-- ======================================================= -->
+
+    <section class="demo-section tape-demo-section">
+        <div class="section-heading">
+            <span class="demo-section-badge">
+                New appearance
+            </span>
+
+            <h2>Tape buttons</h2>
+
+            <p>
+                Every button color can use the reusable torn-tape
+                appearance.
+            </p>
+        </div>
+
+        <!-- Standard semantic tape variants -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Standard variants
+            </h3>
+
+            <div class="button-row tape-button-row">
+                <app-button label="Primary" appearance="tape" variant="primary" [hasIcon]="true"
+                    (buttonClick)="createNote()">
+                    <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+                </app-button>
+
+                <app-button label="Secondary" appearance="tape" variant="secondary" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.layers" size="inherit" />
+                </app-button>
+
+                <app-button label="Accent" appearance="tape" variant="accent" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.sparkles" size="inherit" />
+                </app-button>
+
+                <app-button label="Success" appearance="tape" variant="success" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.check" size="inherit" />
+                </app-button>
+
+                <app-button label="Warning" appearance="tape" variant="warning" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
+                </app-button>
+
+                <app-button label="Danger" appearance="tape" variant="danger" [hasIcon]="true"
+                    (buttonClick)="deleteNote()">
+                    <app-icon button-icon-left [icon]="icons.trash" size="inherit" />
+                </app-button>
+
+                <app-button label="Information" appearance="tape" variant="info" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.info" size="inherit" />
+                </app-button>
+
+                <app-button label="Outline" appearance="tape" variant="outline" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pencil" size="inherit" />
+                </app-button>
+
+                <app-button label="Ghost" appearance="tape" variant="ghost" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.settings" size="inherit" />
+                </app-button>
+
+                <app-button label="View details" appearance="tape" variant="link" iconPosition="right" [hasIcon]="true">
+                    <app-icon button-icon-right [icon]="icons.arrowRight" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Sticky-note tape variants -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Sticky-note variants
+            </h3>
+
+            <div class="button-row tape-button-row">
+                <app-button label="Yellow" appearance="tape" variant="noteYellow" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.stickyNote" size="inherit" />
+                </app-button>
+
+                <app-button label="Orange" appearance="tape" variant="noteOrange" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.flame" size="inherit" />
+                </app-button>
+
+                <app-button label="Pink" appearance="tape" variant="notePink" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.heart" size="inherit" />
+                </app-button>
+
+                <app-button label="Red" appearance="tape" variant="noteRed" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
+                </app-button>
+
+                <app-button label="Green" appearance="tape" variant="noteGreen" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.leaf" size="inherit" />
+                </app-button>
+
+                <app-button label="Blue" appearance="tape" variant="noteBlue" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.cloud" size="inherit" />
+                </app-button>
+
+                <app-button label="Purple" appearance="tape" variant="notePurple" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.palette" size="inherit" />
+                </app-button>
+
+                <app-button label="Brown" appearance="tape" variant="noteBrown" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.archive" size="inherit" />
+                </app-button>
+
+                <app-button label="Black" appearance="tape" variant="noteBlack" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.stickyNote" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Tape button sizes -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Tape sizes
+            </h3>
+
+            <div class="button-row button-row-align-end tape-button-row">
+                <app-button label="XS" appearance="tape" variant="noteYellow" size="xs" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+
+                <app-button label="Small" appearance="tape" variant="noteOrange" size="sm" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+
+                <app-button label="Medium" appearance="tape" variant="info" size="md" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+
+                <app-button label="Large" appearance="tape" variant="success" size="lg" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+
+                <app-button label="Extra Large" appearance="tape" variant="notePink" size="xl" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Login design -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Login button example
+            </h3>
+
+            <div class="tape-login-preview">
+                <app-button label="Pin Me In" loadingText="Pinning..." appearance="tape" variant="info" size="lg"
+                    type="button" [minWidth]="210" [hasIcon]="true" [loading]="isPinning" (buttonClick)="pinMeIn()">
+                    <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Tape states -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Application states
+            </h3>
+
+            <div class="button-row tape-button-row">
+                <app-button label="Save Note" appearance="tape" variant="primary" [hasIcon]="true"
+                    (buttonClick)="saveNote()">
+                    <app-icon button-icon-left [icon]="icons.save" size="inherit" />
+                </app-button>
+
+                <app-button label="Favorite" appearance="tape" variant="notePink" [hasIcon]="true"
+                    [ariaPressed]="isFavorite" (buttonClick)="toggleFavorite()">
+                    <app-icon button-icon-left [icon]="icons.heart" size="inherit" [fill]="
+            isFavorite
+              ? 'currentColor'
+              : 'none'
+          " />
+                </app-button>
+
+                <app-button label="Locked" appearance="tape" variant="secondary" [hasIcon]="true" [disabled]="true">
+                    <app-icon button-icon-left [icon]="icons.lock" size="inherit" />
+                </app-button>
+
+                <app-button label="Delete" appearance="tape" variant="danger" [hasIcon]="true" [disabled]="true">
+                    <app-icon button-icon-left [icon]="icons.trash" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Tape icon-only buttons -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Icon-only tape buttons
+            </h3>
+
+            <div class="button-row tape-button-row">
+                <app-button appearance="tape" variant="primary" size="sm" [iconOnly]="true" ariaLabel="Create note"
+                    title="Create note" (buttonClick)="createNote()">
+                    <app-icon button-icon [icon]="icons.plus" size="inherit" />
+                </app-button>
+
+                <app-button appearance="tape" variant="noteYellow" size="sm" [iconOnly]="true" ariaLabel="Pin note"
+                    title="Pin note">
+                    <app-icon button-icon [icon]="icons.pin" size="inherit" />
+                </app-button>
+
+                <app-button appearance="tape" variant="notePink" size="sm" [iconOnly]="true" ariaLabel="Favorite note"
+                    title="Favorite note">
+                    <app-icon button-icon [icon]="icons.heart" size="inherit" />
+                </app-button>
+
+                <app-button appearance="tape" variant="danger" size="sm" [iconOnly]="true" ariaLabel="Delete note"
+                    title="Delete note" (buttonClick)="deleteNote()">
+                    <app-icon button-icon [icon]="icons.trash" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Tape split buttons -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Split tape buttons
+            </h3>
+
+            <div class="button-row tape-button-row">
+                <app-button label="Create Note" appearance="tape" variant="info" [hasIcon]="true" [split]="true"
+                    [splitExpanded]="tapeSplitMenuOpen" splitControls="tape-note-menu"
+                    splitAriaLabel="Open tape note options" (buttonClick)="createNote()"
+                    (splitClick)="toggleTapeSplitMenu()">
+                    <app-icon button-icon-left [icon]="icons.plus" size="inherit" />
+
+                    <app-icon button-split-icon [icon]="icons.chevronDown" size="inherit" [rotate]="
+            tapeSplitMenuOpen
+              ? 180
+              : 0
+          " />
+                </app-button>
+
+                <app-button label="Download" appearance="tape" variant="noteYellow" [hasIcon]="true" [split]="true"
+                    splitAriaLabel="Open download options">
+                    <app-icon button-icon-left [icon]="icons.download" size="inherit" />
+
+                    <app-icon button-split-icon [icon]="icons.chevronDown" size="inherit" />
+                </app-button>
+            </div>
+
+            @if (tapeSplitMenuOpen) {
+            <div id="tape-note-menu" class="demo-split-menu" role="menu">
+                <button type="button" role="menuitem">
+                    Create yellow note
+                </button>
+
+                <button type="button" role="menuitem">
+                    Create blue note
+                </button>
+
+                <button type="button" role="menuitem">
+                    Create pink note
+                </button>
+            </div>
+            }
+        </div>
+
+        <!-- Full-width tape -->
+
+        <div class="tape-demo-group">
+            <h3 class="demo-subtitle">
+                Full-width tape buttons
+            </h3>
+
+            <div class="button-column tape-full-width">
+                <app-button label="Pin Me In" appearance="tape" variant="info" width="full" size="lg" [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.login" size="inherit" />
+                </app-button>
+
+                <app-button label="Create New Note" appearance="tape" variant="noteYellow" width="full" size="lg"
+                    [hasIcon]="true">
+                    <app-icon button-icon-left [icon]="icons.stickyNote" size="inherit" />
+                </app-button>
+            </div>
+        </div>
+    </section>
+</div>

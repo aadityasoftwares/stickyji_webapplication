@@ -1,0 +1,401 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+:host.app-label-host-full {
+    display: flex;
+    width: 100%;
+}
+
+.app-label {
+    --app-label-icon-size: 17px;
+    --app-label-ink: #{$text-primary};
+    --app-label-soft-surface: #{$paper-dark};
+    --app-label-tape-surface: #{$paper-dark};
+    --app-label-border: #{$border};
+    --app-label-on-surface: var(--app-label-ink);
+
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 4px;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0;
+    color: var(--app-label-ink);
+    font-family: $font-body;
+    line-height: 1.35;
+    cursor: pointer;
+    transition:
+        color 150ms ease,
+        background-color 150ms ease,
+        border-color 150ms ease,
+        opacity 150ms ease,
+        transform 150ms ease;
+}
+
+.app-label-full {
+    width: 100%;
+}
+
+.app-label-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.app-label-identity {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    gap: 6px;
+}
+
+.app-label-text {
+    min-width: 0;
+}
+
+.app-label-icon {
+    display: inline-flex;
+    flex: 0 0 var(--app-label-icon-size);
+    width: var(--app-label-icon-size);
+    height: var(--app-label-icon-size);
+    line-height: 0;
+}
+
+.app-label-required {
+    flex: 0 0 auto;
+    margin-left: -3px;
+    color: $danger;
+    font-size: 1.05em;
+    font-weight: 800;
+}
+
+.app-label-optional,
+.app-label-hint,
+.app-label-description {
+    color: $text-secondary;
+    font-weight: 500;
+}
+
+.app-label-optional {
+    flex: 0 0 auto;
+    font-size: 0.82em;
+}
+
+.app-label-hint {
+    flex: 0 0 auto;
+    font-size: 0.82em;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.app-label-description {
+    display: block;
+    font-size: 0.86em;
+    line-height: 1.45;
+}
+
+/* Sizes */
+
+.app-label-xs {
+    --app-label-icon-size: 13px;
+    gap: 2px;
+    font-size: 11px;
+}
+
+.app-label-sm {
+    --app-label-icon-size: 15px;
+    gap: 3px;
+    font-size: 12px;
+}
+
+.app-label-md {
+    --app-label-icon-size: 17px;
+    font-size: 14px;
+}
+
+.app-label-lg {
+    --app-label-icon-size: 20px;
+    gap: 5px;
+    font-size: 16px;
+}
+
+/* Weights */
+
+.app-label-weight-regular {
+    font-weight: 400;
+}
+
+.app-label-weight-medium {
+    font-weight: 500;
+}
+
+.app-label-weight-semibold {
+    font-weight: 700;
+}
+
+.app-label-weight-bold {
+    font-weight: 800;
+}
+
+/* Alignment */
+
+.app-label-align-start {
+    text-align: left;
+}
+
+.app-label-align-center {
+    text-align: center;
+}
+
+.app-label-align-center .app-label-main,
+.app-label-align-center .app-label-identity {
+    justify-content: center;
+}
+
+.app-label-align-end {
+    text-align: right;
+}
+
+.app-label-align-end .app-label-main,
+.app-label-align-end .app-label-identity {
+    justify-content: flex-end;
+}
+
+/* Appearances */
+
+.app-label-plain {
+    background: transparent;
+}
+
+.app-label-soft {
+    padding: 7px 10px;
+    border: 1px solid var(--app-label-border);
+    border-radius: 8px;
+    color: var(--app-label-ink);
+    background: var(--app-label-soft-surface);
+}
+
+.app-label-tape {
+    z-index: 0;
+    padding: 8px 16px;
+    border: 0;
+    color: var(--app-label-on-surface);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 62%),
+        var(--app-label-tape-surface);
+    clip-path: polygon(0 10%, 3% 5%, 1% 22%, 4% 34%, 1% 49%, 3% 64%, 0 82%,
+            4% 96%, 15% 93%, 28% 98%, 42% 94%, 57% 99%, 72% 94%,
+            86% 98%, 97% 94%, 100% 84%, 97% 67%, 100% 52%, 97% 35%,
+            100% 16%, 96% 4%, 82% 7%, 67% 2%, 52% 6%, 36% 1%, 19% 6%);
+    filter: drop-shadow(0 2px 2px rgba(46, 38, 25, 0.13));
+}
+
+.app-label-tape .app-label-optional,
+.app-label-tape .app-label-hint,
+.app-label-tape .app-label-description {
+    color: currentColor;
+    opacity: 0.72;
+}
+
+/* Variants */
+
+.app-label-neutral {
+    --app-label-ink: #{$text-primary};
+    --app-label-soft-surface: #{$paper-dark};
+    --app-label-tape-surface: #{$paper-dark};
+    --app-label-border: #{$border};
+    --app-label-on-surface: #{$text-primary};
+}
+
+.app-label-primary {
+    --app-label-ink: #{$primary};
+    --app-label-soft-surface: #{rgba($primary, 0.075)};
+    --app-label-tape-surface: #{$primary};
+    --app-label-border: #{rgba($primary, 0.18)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-secondary {
+    --app-label-ink: #{$secondary};
+    --app-label-soft-surface: #{$sidebar-hover};
+    --app-label-tape-surface: #{$secondary};
+    --app-label-border: #{$border};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-accent {
+    --app-label-ink: #{$accent};
+    --app-label-soft-surface: #{rgba($accent, 0.1)};
+    --app-label-tape-surface: #{$accent};
+    --app-label-border: #{rgba($accent, 0.22)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-success {
+    --app-label-ink: #{$success};
+    --app-label-soft-surface: #{rgba($success, 0.09)};
+    --app-label-tape-surface: #{$success};
+    --app-label-border: #{rgba($success, 0.22)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-warning {
+    --app-label-ink: #{$warning};
+    --app-label-soft-surface: #{rgba($warning, 0.1)};
+    --app-label-tape-surface: #{$warning};
+    --app-label-border: #{rgba($warning, 0.22)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-danger {
+    --app-label-ink: #{$danger};
+    --app-label-soft-surface: #{rgba($danger, 0.085)};
+    --app-label-tape-surface: #{$danger};
+    --app-label-border: #{rgba($danger, 0.2)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-info {
+    --app-label-ink: #{$info};
+    --app-label-soft-surface: #{rgba($info, 0.085)};
+    --app-label-tape-surface: #{$info};
+    --app-label-border: #{rgba($info, 0.2)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-noteYellow {
+    --app-label-ink: #725400;
+    --app-label-soft-surface: #{$note-button-yellow};
+    --app-label-tape-surface: #{$note-button-yellow};
+    --app-label-border: rgba(114, 84, 0, 0.2);
+    --app-label-on-surface: #302b14;
+}
+
+.app-label-noteOrange {
+    --app-label-ink: #8e3f0a;
+    --app-label-soft-surface: #{$note-button-orange};
+    --app-label-tape-surface: #{$note-button-orange};
+    --app-label-border: rgba(142, 63, 10, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-notePink {
+    --app-label-ink: #9b2957;
+    --app-label-soft-surface: #{$note-button-pink};
+    --app-label-tape-surface: #{$note-button-pink};
+    --app-label-border: rgba(155, 41, 87, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-noteRed {
+    --app-label-ink: #9f2424;
+    --app-label-soft-surface: #{$note-button-red};
+    --app-label-tape-surface: #{$note-button-red};
+    --app-label-border: rgba(159, 36, 36, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-noteGreen {
+    --app-label-ink: #286b34;
+    --app-label-soft-surface: #{$note-button-green};
+    --app-label-tape-surface: #{$note-button-green};
+    --app-label-border: rgba(40, 107, 52, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-noteBlue {
+    --app-label-ink: #245f8a;
+    --app-label-soft-surface: #{$note-button-blue};
+    --app-label-tape-surface: #{$note-button-blue};
+    --app-label-border: rgba(36, 95, 138, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-notePurple {
+    --app-label-ink: #67408c;
+    --app-label-soft-surface: #{$note-button-purple};
+    --app-label-tape-surface: #{$note-button-purple};
+    --app-label-border: rgba(103, 64, 140, 0.2);
+    --app-label-on-surface: #29251f;
+}
+
+.app-label-noteBrown {
+    --app-label-ink: #{$note-button-brown};
+    --app-label-soft-surface: #{rgba($note-button-brown, 0.12)};
+    --app-label-tape-surface: #{$note-button-brown};
+    --app-label-border: #{rgba($note-button-brown, 0.25)};
+    --app-label-on-surface: #ffffff;
+}
+
+.app-label-noteBlack {
+    --app-label-ink: #{$note-black};
+    --app-label-soft-surface: #{rgba($note-black, 0.07)};
+    --app-label-tape-surface: #{$note-black};
+    --app-label-border: #{rgba($note-black, 0.18)};
+    --app-label-on-surface: #ffffff;
+}
+
+/* States and text behavior */
+
+.app-label-invalid {
+    --app-label-ink: #{$danger};
+    --app-label-border: #{$danger};
+}
+
+.app-label-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.app-label-nowrap,
+.app-label-nowrap .app-label-text {
+    white-space: nowrap;
+}
+
+.app-label-truncate .app-label-text,
+.app-label-truncate .app-label-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-label-visually-hidden,
+.app-label-visually-hidden-text {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-label {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+
+    .app-label-soft,
+    .app-label-tape {
+        border: 1px solid ButtonText;
+        color: ButtonText;
+        background: Canvas;
+        clip-path: none;
+        filter: none;
+    }
+}
