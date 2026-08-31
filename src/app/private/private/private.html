@@ -1,0 +1,23 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()" [class.mobile-sidebar-open]="mobileSidebarOpen()">
+    <app-sidebar class="shell-sidebar" [collapsed]="sidebarCollapsed()" [mobileOpen]="mobileSidebarOpen()"
+        [workspaceName]="activeWorkspaceName()" [workspaceId]="activeWorkspaceId()" [workspaces]="sidebarWorkspaces()"
+        [loadingWorkspaces]="loadingWorkspaces()" (collapsedChange)="setSidebarCollapsed($event)"
+        (mobileClosed)="closeMobileSidebar()" (createNote)="createNote()" (createSpace)="createSpace()"
+        (itemSelected)="onItemSelected($event)" (workspaceClick)="openWorkspaces()"
+        (workspaceChange)="onWorkspaceChange($event)" (profileClick)="openProfile()">
+    </app-sidebar>
+
+    <button class="sidebar-scrim" type="button" tabindex="-1" aria-label="Close navigation"
+        [attr.aria-hidden]="!mobileSidebarOpen()" (click)="closeMobileSidebar()"></button>
+
+    <section class="shell-main">
+        <!-- <app-topbar [pageTitle]="pageTitle()" (menuClick)="openMobileSidebar()" (searchChange)="searchNotes($event)"
+            (createNote)="createNote()" (notificationsClick)="openNotifications()" (profileClick)="openProfile()" /> -->
+
+        <main id="main-content" class="app-content" tabindex="-1">
+            <router-outlet />
+        </main>
+    </section>
+</div>

@@ -1,0 +1,349 @@
+<section class="kanban-page" aria-labelledby="kanban-title">
+    <main class="board-workspace">
+        <header class="board-heading">
+            <div class="board-heading-copy">
+                <h2 id="kanban-title">{{ heading }}</h2>
+                <p>{{ description }}</p>
+            </div>
+
+            <div class="board-heading-actions">
+                <app-badge class="active-notes-badge" [label]="activeNoteCount() + ' active notes'" variant="outline"
+                    size="md" shape="pill" [ariaLabel]="activeNoteCount() + ' active notes'" />
+
+                <a class="subscription-button" [href]="subscriptionUrl"
+                    aria-label="Subscribe to Pro and remove advertisements" (click)="subscribeRequested.emit()">
+                    <small>No ads. More space.</small>
+                    <span>Subscribe to Pro</span>
+                </a>
+
+                <app-button class="top-add-note" label="Add note" variant="noteYellow" appearance="tape" size="md"
+                    (buttonClick)="openComposer('todo')" />
+            </div>
+        </header>
+
+        <nav class="folder-bar" aria-label="Note folders">
+            <div class="folder-tabs">
+                @for (folder of folders(); track folder.id) {
+                <button class="folder-tab" type="button" [class.is-active]="activeFolder() === folder.id"
+                    [attr.aria-pressed]="activeFolder() === folder.id" (click)="selectFolder(folder)">
+                    <span class="folder-tab-icon" aria-hidden="true"></span>
+                    <span>{{ folder.label }}</span>
+                    <small>{{ folderCount(folder.id) }}</small>
+                </button>
+                }
+            </div>
+
+            <div class="folder-create-control">
+                @if (folderComposerOpen()) {
+                <div class="folder-composer">
+                    <app-label for="new-folder-name" text="Folder name" [visuallyHidden]="true" />
+
+                    <input id="new-folder-name" type="text" maxlength="32" autofocus placeholder="Folder name"
+                        [value]="draftFolderName" (input)="updateFolderDraft($event)"
+                        (keydown.enter)="addFolder(); $event.preventDefault()"
+                        (keydown.escape)="closeFolderComposer()" />
+
+                    <button class="folder-composer-action save" type="button" aria-label="Create folder"
+                        title="Create folder" [disabled]="!draftFolderName.trim()" (click)="addFolder()">
+                        <app-icon [icon]="LucideCheck" size="xs" />
+                    </button>
+
+                    <button class="folder-composer-action cancel" type="button" aria-label="Cancel new folder"
+                        title="Cancel" (click)="closeFolderComposer()">
+                        <app-icon [icon]="LucideX" size="xs" />
+                    </button>
+                </div>
+                } @else {
+                <button class="new-folder-button" type="button" (click)="openFolderComposer()">
+                    <span aria-hidden="true">＋</span>
+                    New folder
+                </button>
+                }
+            </div>
+        </nav>
+
+        <div class="kanban-columns" aria-label="Kanban board">
+            @for (column of columns; track column.id) {
+            <section class="kanban-column" [style.--column-accent]="column.accent"
+                [attr.aria-labelledby]="column.id + '-heading'">
+                <header class="column-header">
+                    <div class="column-title">
+                        <span class="column-dot" aria-hidden="true"></span>
+
+                        <h3 [id]="column.id + '-heading'">
+                            {{ column.label }}
+                        </h3>
+
+                        <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs" shape="pill"
+                            [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
+                    </div>
+
+                    <span class="today-label">
+                        @if (isCompletedColumn(column.id)) {
+                        Today
+                        }
+                    </span>
+
+                    <button class="column-add" type="button" [attr.aria-label]="'Add note to ' + column.label"
+                        [attr.title]="'Add note to ' + column.label" (click)="openComposer(column.id)">
+                        <app-icon [icon]="LucidePlus" size="sm" />
+                    </button>
+                </header>
+
+                @if (composerColumn() === column.id) {
+                <div class="note-composer">
+                    <app-label [for]="'new-note-' + column.id" text="Note title" [visuallyHidden]="true" />
+
+                    <input [id]="'new-note-' + column.id" type="text" maxlength="120" autofocus
+                        placeholder="What needs to happen?" [value]="draftTitle" (input)="updateDraft($event)"
+                        (keydown.enter)="addNote(column.id); $event.preventDefault()"
+                        (keydown.escape)="closeComposer()" />
+
+                    <div class="composer-actions">
+                        <app-button label="Add note" variant="primary" size="sm" (buttonClick)="addNote(column.id)" />
+
+                        <app-button label="Cancel" variant="secondary" size="sm" (buttonClick)="closeComposer()" />
+                    </div>
+                </div>
+                }
+
+                <div class="column-notes" cdkDropList [id]="column.id + '-drop-list'"
+                    [cdkDropListData]="visibleNotesFor(column.id)"
+                    [cdkDropListConnectedTo]="columnDropListIds(column.id)"
+                    (cdkDropListDropped)="dropNote($event, column.id)">
+                    @for (note of visibleNotesFor(column.id); track note.id) {
+                    <app-sticky-card class="note-card" cdkDrag [cdkDragData]="note"
+                        [class.note-card-compact]="note.compact" [variant]="note.tone" appearance="elevated"
+                        shape="square" size="sm" shadow="sm" [fullWidth]="true" [padding]="note.compact ? 14 : 17"
+                        [minHeight]="note.compact ? 94 : 138" [hoverable]="true" cdkDragBoundary=".kanban-columns">
+                        <article class="note-content" [attr.aria-labelledby]="note.id + '-title'">
+                            <header class="note-header">
+                                <app-badge [label]="note.eyebrow" variant="outline" size="xs" shape="rounded" />
+
+                                <div class="note-move-actions">
+                                    <button class="drag-handle" type="button" cdkDragHandle
+                                        aria-label="Drag to reorder or move note" title="Drag note">
+                                        <app-icon [icon]="LucideGripVertical" size="xs" />
+                                    </button>
+
+                                    @if (canMoveBackward(note)) {
+                                    <button type="button" aria-label="Move note backward" title="Move backward"
+                                        (click)="moveBackward(note)">
+                                        <app-icon [icon]="LucideArrowLeft" size="xs" />
+                                    </button>
+                                    }
+
+                                    @if (canMoveForward(note)) {
+                                    <button type="button" aria-label="Move note forward" title="Move forward"
+                                        (click)="moveForward(note)">
+                                        <app-icon [icon]="LucideArrowRight" size="xs" />
+                                    </button>
+                                    }
+                                </div>
+                            </header>
+
+                            <h4 [id]="note.id + '-title'">
+                                {{ note.title }}
+                            </h4>
+
+                            @if (note.description) {
+                            <p class="note-description">
+                                @if (isNoteCompleted(note)) {
+                                <span class="complete-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideCheck" size="sm" />
+                                </span>
+                                }
+
+                                <span>{{ note.description }}</span>
+                            </p>
+                            }
+
+                            @if (note.checklist?.length) {
+                            <div class="note-checklist" aria-label="Checklist">
+                                @for (item of note.checklist; track item.id) {
+                                <app-checkbox [label]="item.label" [checked]="item.checked"
+                                    [variant]="column.checkboxVariant" size="sm" (checkedChange)="
+                                        toggleChecklist(
+                                            note.id,
+                                            item.id,
+                                            $event
+                                        )
+                                    " />
+                                }
+                            </div>
+                            }
+
+                            @if (note.progress !== undefined) {
+                            <div class="note-progress" role="progressbar" [attr.aria-label]="note.title + ' progress'"
+                                aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="note.progress">
+                                <span class="note-progress-track" aria-hidden="true">
+                                    <span [style.width.%]="note.progress"></span>
+                                </span>
+
+                                <small>{{ note.progress }}%</small>
+                            </div>
+                            }
+
+                            @if (
+                            !note.compact ||
+                            note.tag ||
+                            note.dueLabel ||
+                            note.timeEstimate ||
+                            note.assignees?.length
+                            ) {
+                            <app-divider spacing="xs" variant="neutral" />
+
+                            <footer class="note-footer">
+                                <div class="note-meta">
+                                    @if (note.dueLabel) {
+                                    <span>
+                                        <app-icon [icon]="LucideCalendarDays" size="xs" />
+                                        {{ note.dueLabel }}
+                                    </span>
+                                    }
+
+                                    @if (note.timeEstimate) {
+                                    <span>
+                                        <app-icon [icon]="LucideClock3" size="xs" />
+                                        {{ note.timeEstimate }}
+                                    </span>
+                                    }
+
+                                    @if (
+                                    isNoteCompleted(note) &&
+                                    !note.description
+                                    ) {
+                                    <span class="done-meta">
+                                        <app-icon [icon]="LucideCheckCircle2" size="xs" />
+                                        Completed
+                                    </span>
+                                    }
+                                </div>
+
+                                @if (note.assignees?.length) {
+                                <div class="assignee-stack" aria-label="Assigned people">
+                                    @for (
+                                    assignee of note.assignees;
+                                    track assignee.name
+                                    ) {
+                                    <app-avatar [src]="assignee.avatarUrl" [name]="assignee.name" [initials]="
+                                            assignee.initials ?? ''
+                                        " size="xs" shape="circle" [tone]="assignee.tone" [bordered]="true"
+                                        [decorative]="false" />
+                                    }
+
+                                    @if (note.extraAssigneeCount) {
+                                    <app-badge [label]="
+                                            '+' + note.extraAssigneeCount
+                                        " variant="outline" size="xs" shape="pill" [ariaLabel]="
+                                            note.extraAssigneeCount +
+                                            ' more people'
+                                        " />
+                                    }
+                                </div>
+                                }
+
+                                @if (note.tag) {
+                                <app-badge [label]="note.tag" [variant]="
+                                        note.tagVariant ?? 'outline'
+                                    " size="sm" shape="pill" />
+                                }
+                            </footer>
+                            }
+                        </article>
+
+                        <div class="note-drag-preview" *cdkDragPreview>
+                            <strong>{{ note.title }}</strong>
+                            <small>{{ column.label }}</small>
+                        </div>
+
+                        <div class="note-drag-placeholder" *cdkDragPlaceholder></div>
+                    </app-sticky-card>
+                    } @empty {
+                    <button class="empty-column" type="button" (click)="openComposer(column.id)">
+                        <app-icon [icon]="LucidePlus" size="sm" />
+                        <span>Add the first note</span>
+                    </button>
+                    }
+                </div>
+            </section>
+            }
+        </div>
+    </main>
+
+    <aside class="board-sidebar" aria-label="Board summary and advertisement">
+        <section class="today-card">
+            <header class="today-card-header">
+                <div>
+                    <h3>Today</h3>
+                    <time [attr.datetime]="todayIso">
+                        {{ todayLabel }}
+                    </time>
+                </div>
+
+                <span class="today-calendar-icon" aria-hidden="true">
+                    <app-icon [icon]="LucideCalendarDays" size="sm" />
+                </span>
+            </header>
+
+            <div class="completion-summary">
+                <div class="completion-ring" role="progressbar" aria-label="Completed notes" aria-valuemin="0"
+                    aria-valuemax="100" [attr.aria-valuenow]="completionPercentage()"
+                    [style.--completion]="completionPercentage() + '%'">
+                    <div class="completion-ring-content">
+                        <strong>
+                            {{ completedNoteCount() }}
+                            <small>/{{ totalNoteCount() }}</small>
+                        </strong>
+                        <span>Done</span>
+                    </div>
+                </div>
+
+                <div class="completion-statistics">
+                    <div>
+                        <span class="stat-dot completed"></span>
+                        <strong>{{ completedNoteCount() }}</strong>
+                        <small>Completed</small>
+                    </div>
+
+                    <div>
+                        <span class="stat-dot remaining"></span>
+                        <strong>{{ remainingNoteCount() }}</strong>
+                        <small>Remaining</small>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="today-message">
+                <app-icon [icon]="LucideCheckCircle2" size="sm" />
+                <span>Keep going! You’re on track.</span>
+            </footer>
+        </section>
+
+        @if (showAdvertisement) {
+        <section class="advertisement-panel" aria-label="Advertisement">
+            <p class="advertisement-label">Advertisement</p>
+
+            <div class="advertisement-slot">
+                @if (adsenseClient && adsenseSlot) {
+                <ins class="adsbygoogle" [attr.data-ad-client]="adsenseClient" [attr.data-ad-slot]="adsenseSlot"
+                    data-ad-format="rectangle" data-full-width-responsive="true"></ins>
+                } @else {
+                <div class="advertisement-placeholder">
+                    <span class="advertisement-mark">AD</span>
+
+                    <div>
+                        <strong>Advertisement space</strong>
+                        <small>Your responsive Google AdSense unit will appear here.</small>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <a class="remove-ads-button" [href]="subscriptionUrl" (click)="subscribeRequested.emit()">
+                Remove ads with Pro
+            </a>
+        </section>
+        }
+    </aside>
+</section>

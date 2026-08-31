@@ -1,0 +1,78 @@
+<header class="topbar">
+    <div class="topbar-leading">
+        <button class="icon-button menu-button" type="button" aria-label="Open navigation" (click)="menuClick.emit()">
+            <app-icon [icon]="LucideMenu" size="sm" />
+        </button>
+
+        <div class="title-block">
+            <span class="breadcrumb">
+                <span>{{ workspaceLabel }}</span>
+                <span aria-hidden="true">/</span>
+            </span>
+            <h1>{{ pageTitle }}</h1>
+        </div>
+    </div>
+
+    <div class="search-wrap" [class.is-mobile-open]="mobileSearchOpen">
+        <label class="search-box">
+            <app-icon class="search-leading-icon" [icon]="LucideSearch" size="sm" aria-hidden="true" />
+            <input #searchInput type="search" autocomplete="off" placeholder="Search notes and tasks"
+                aria-label="Search notes and tasks" (input)="onSearch($event)" />
+
+            @if (searchQuery) {
+            <button class="search-clear" type="button" aria-label="Clear search" (click)="clearSearch()">
+                <app-icon [icon]="LucideX" size="xs" />
+            </button>
+            } @else {
+            <kbd>Ctrl K</kbd>
+            }
+        </label>
+
+        <button class="mobile-search-close" type="button" aria-label="Close search" (click)="closeSearch()">
+            Cancel
+        </button>
+    </div>
+
+    <div class="topbar-actions">
+        <span class="save-status" role="status">
+            <span class="save-icon" aria-hidden="true">
+                <app-icon [icon]="LucideCheck" size="xs" />
+            </span>
+            <span>{{ syncMessage }}</span>
+        </span>
+
+        <button class="icon-button search-trigger" type="button" aria-label="Open search" (click)="openSearch()">
+            <app-icon [icon]="LucideSearch" size="sm" />
+        </button>
+
+        <div class="desktop-create">
+            <app-button label="New note" variant="primary" size="sm" [hasIcon]="true" iconPosition="left"
+                (buttonClick)="createNote.emit()">
+                <app-icon button-icon-left [icon]="LucidePlus" size="inherit" />
+            </app-button>
+        </div>
+
+        <button class="icon-button mobile-create" type="button" aria-label="Create new note"
+            (click)="createNote.emit()">
+            <app-icon [icon]="LucidePlus" size="sm" />
+        </button>
+
+        <span class="action-divider" aria-hidden="true"></span>
+
+        <button class="icon-button notification-button" type="button" aria-label="Open notifications"
+            (click)="notificationsClick.emit()">
+            <app-icon [icon]="LucideBell" size="sm" />
+            @if (notificationCount > 0) {
+            <app-badge class="notification-badge" [label]="notificationCount > 9 ? '9+' : notificationCount.toString()"
+                variant="noteYellow" size="xs" shape="pill" />
+            }
+        </button>
+
+        <button class="profile-button" type="button" (click)="profileClick.emit()"
+            [attr.aria-label]="'Open profile for ' + userName">
+            <span class="profile-avatar" aria-hidden="true">{{ userName.charAt(0).toUpperCase() }}</span>
+            <span class="profile-name">{{ userName }}</span>
+            <app-icon class="profile-arrow" [icon]="LucideChevronDown" size="xs" aria-hidden="true" />
+        </button>
+    </div>
+</header>

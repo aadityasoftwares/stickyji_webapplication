@@ -1,0 +1,629 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+:host.app-select-host-full {
+    display: block;
+    width: 100%;
+}
+
+.app-select {
+    position: relative;
+    width: auto;
+    color: $text-primary;
+    font-family: $font-body;
+}
+
+.app-select-full {
+    width: 100%;
+}
+
+.app-select-label {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 7px;
+    color: $text-primary;
+    font-size: 0.8rem;
+    font-weight: 750;
+}
+
+.app-select-label span {
+    color: $danger;
+}
+
+.app-select-control {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.app-select-trigger {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 72px 0 13px;
+    color: $text-primary;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: $paper;
+    border: 1px solid $border;
+    border-radius: $radius-xs;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(46, 38, 25, 0.05);
+    transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.app-select-trigger:hover:not(:disabled) {
+    border-color: color.adjust($border, $lightness: -10%);
+    background: $page-bg;
+}
+
+.app-select-open .app-select-trigger,
+.app-select-trigger:focus-visible {
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.16);
+}
+
+.app-select-error .app-select-trigger {
+    border-color: $danger;
+}
+
+.app-select-trigger:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+}
+
+.app-select-filled .app-select-trigger {
+    background: $paper-dark;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.app-select-paper .app-select-trigger {
+    background: $page-bg;
+}
+
+.app-select-workspace .app-select-trigger {
+    min-height: 56px;
+    height: auto;
+    padding: 8px 50px 8px 9px;
+    background: linear-gradient(145deg, $paper 0%, $page-bg 100%);
+    border-color: $border-light;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(46, 38, 25, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.app-select-workspace .app-select-trigger:hover:not(:disabled) {
+    background: $paper;
+    border-color: color.adjust($border, $lightness: -7%);
+    box-shadow: 0 7px 18px rgba(46, 38, 25, 0.1);
+    transform: translateY(-1px);
+}
+
+.app-select-workspace.app-select-open .app-select-trigger,
+.app-select-workspace .app-select-trigger:focus-visible {
+    border-color: rgba($accent, 0.62);
+    box-shadow: 0 0 0 3px rgba($accent, 0.1), 0 8px 22px rgba(46, 38, 25, 0.11);
+}
+
+.app-select-sm .app-select-trigger {
+    height: 36px;
+    font-size: 0.78rem;
+}
+
+.app-select-md .app-select-trigger {
+    height: 42px;
+    font-size: 0.85rem;
+}
+
+.app-select-lg .app-select-trigger {
+    height: 48px;
+    font-size: 0.92rem;
+}
+
+.app-select-value {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.app-select-value.is-placeholder {
+    color: $text-light;
+}
+
+.app-select-value>span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-select-identity-icon {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    color: $heading;
+    font-family: $font-note;
+    font-size: 1.15rem;
+    font-weight: 800;
+    background: $note-yellow;
+    border: 1px solid color.adjust($note-yellow, $lightness: -14%);
+    border-radius: 11px;
+    box-shadow: 0 2px 0 rgba($text-primary, 0.1);
+}
+
+.app-select-identity-avatar {
+    flex: 0 0 auto;
+}
+
+.app-select-identity-copy {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+}
+
+.app-select-identity-copy small {
+    color: $text-light;
+    font-size: 0.54rem;
+    font-weight: 850;
+    letter-spacing: 0.075em;
+    line-height: 1.15;
+    text-transform: uppercase;
+}
+
+.app-select-identity-copy strong {
+    overflow: hidden;
+    color: $heading;
+    font-size: 0.81rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-select-identity-copy>span {
+    overflow: hidden;
+    color: $text-light;
+    font-size: 0.61rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-select-actions {
+    position: absolute;
+    top: 0;
+    right: 7px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 1px;
+    pointer-events: none;
+}
+
+.app-select-clear {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    place-items: center;
+    color: $text-light;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    pointer-events: auto;
+}
+
+.app-select-clear:hover {
+    color: $danger;
+    background: rgba($danger, 0.08);
+}
+
+.app-select-chevron {
+    display: grid;
+    width: 28px;
+    place-items: center;
+    color: $text-secondary;
+    transition: transform 160ms ease;
+}
+
+.app-select-open .app-select-chevron {
+    transform: rotate(180deg);
+}
+
+.app-select-workspace .app-select-chevron {
+    width: 30px;
+    height: 30px;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.76);
+    border: 1px solid $border-light;
+    border-radius: 9px;
+}
+
+.app-select-chips {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 5px;
+    overflow: hidden;
+}
+
+.app-select-chip {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 25px;
+    gap: 5px;
+    padding: 0 8px;
+    color: $text-primary;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: $note-yellow;
+    border: 1px solid color.adjust($note-yellow, $lightness: -12%);
+    border-radius: 7px;
+    white-space: nowrap;
+}
+
+.app-select-chip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-select-chip-remove {
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.58;
+}
+
+.app-select-chip-remove:hover {
+    opacity: 1;
+}
+
+.app-select-count {
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.app-select-dropdown {
+    position: absolute;
+    z-index: 1000;
+    right: 0;
+    left: 0;
+    min-width: 240px;
+    overflow: hidden;
+    background: $paper;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    box-shadow: 0 16px 40px rgba(46, 38, 25, 0.16);
+    animation: select-enter 130ms ease-out;
+}
+
+.app-select-workspace .app-select-dropdown {
+    min-width: 285px;
+    border-radius: 15px;
+    box-shadow: 0 22px 54px rgba(46, 38, 25, 0.2);
+}
+
+.app-select-dropdown-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 14px 11px;
+}
+
+.app-select-dropdown-heading-copy {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
+
+.app-select-dropdown-header strong {
+    color: $heading;
+    font-size: 0.84rem;
+    font-weight: 850;
+}
+
+.app-select-dropdown-header small {
+    color: $text-light;
+    font-size: 0.65rem;
+    line-height: 1.35;
+}
+
+.app-select-dropdown.open-bottom {
+    top: calc(100% + 7px);
+    transform-origin: top;
+}
+
+.app-select-dropdown.open-top {
+    bottom: calc(100% + 7px);
+    transform-origin: bottom;
+}
+
+.app-select-search {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    color: $text-light;
+}
+
+.app-select-workspace .app-select-search {
+    margin: 8px;
+    padding: 0 10px;
+    background: $page-bg;
+    border: 1px solid $border-light;
+    border-radius: 10px;
+}
+
+.app-select-search input {
+    width: 100%;
+    height: 32px;
+    padding: 0;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.8rem;
+    background: transparent;
+    border: 0;
+    outline: 0;
+}
+
+.app-select-search input::-webkit-search-cancel-button {
+    display: none;
+}
+
+.app-select-search button {
+    display: grid;
+    width: 27px;
+    height: 27px;
+    padding: 0;
+    place-items: center;
+    color: $text-light;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+}
+
+.app-select-search button:hover {
+    color: $text-primary;
+    background: $paper-dark;
+}
+
+.app-select-options {
+    max-height: 292px;
+    padding: 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba($text-primary, 0.2) transparent;
+}
+
+.app-select-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 9px 5px;
+    color: $text-light;
+    font-size: 0.63rem;
+    font-weight: 850;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.app-select-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    gap: 10px;
+    padding: 8px 9px;
+    color: $text-primary;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+}
+
+.app-select-option:hover:not(:disabled),
+.app-select-option.is-active {
+    background: $paper-dark;
+}
+
+.app-select-option.is-selected {
+    background: rgba($note-yellow, 0.48);
+}
+
+.app-select-workspace .app-select-option {
+    min-height: 58px;
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+}
+
+.app-select-workspace .app-select-option:hover:not(:disabled),
+.app-select-workspace .app-select-option.is-active {
+    background: $page-bg;
+    border-color: $border-light;
+}
+
+.app-select-workspace .app-select-option.is-selected {
+    background: rgba($note-yellow, 0.34);
+    border-color: color.adjust($note-yellow, $lightness: -12%);
+}
+
+.app-select-workspace .app-select-option-icon {
+    width: 38px;
+    height: 38px;
+    color: $heading;
+    background: $paper-dark;
+    border-radius: 10px;
+}
+
+.app-select-workspace .app-select-option.is-selected .app-select-option-icon {
+    background: $note-yellow;
+}
+
+.app-select-workspace .app-select-option-copy strong {
+    font-size: 0.81rem;
+}
+
+.app-select-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.app-select-option-icon {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    color: $text-secondary;
+    background: $page-bg;
+    border: 1px solid $border-light;
+    border-radius: 8px;
+}
+
+.app-select-option-copy {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.app-select-option-copy strong {
+    overflow: hidden;
+    font-size: 0.79rem;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-select-option-copy small {
+    overflow: hidden;
+    color: $text-light;
+    font-size: 0.67rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-select-check {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    color: $success;
+    opacity: 0;
+}
+
+.app-select-check.is-visible {
+    opacity: 1;
+}
+
+.app-select-option-end {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 25px;
+    gap: 5px;
+}
+
+.app-select-option-avatar {
+    align-self: center;
+}
+
+.app-select-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 92px;
+    gap: 9px;
+    padding: 18px;
+    color: $text-light;
+    font-size: 0.76rem;
+    text-align: center;
+}
+
+.app-select-message {
+    margin: 6px 2px 0;
+    color: $text-light;
+    font-size: 0.7rem;
+    line-height: 1.35;
+}
+
+.app-select-message.is-error {
+    color: $danger;
+}
+
+.app-select-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba($text-primary, 0.16);
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: select-spin 700ms linear infinite;
+}
+
+@keyframes select-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes select-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-select-dropdown,
+    .app-select-chevron,
+    .app-select-spinner {
+        animation: none;
+        transition: none;
+    }
+}
+
+.app-select-leading-icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    place-items: center;
+    color: $text-light;
+}
+
+.app-select-open .app-select-leading-icon,
+.app-select-trigger:hover .app-select-leading-icon {
+    color: $text-primary;
+}

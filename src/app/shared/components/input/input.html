@@ -11,10 +11,11 @@
     <div class="app-input-label-row">
         <label class="app-input-label" [for]="resolvedId">
             {{ label }}
-
             @if (required) {
             <span class="app-input-required" aria-hidden="true">*</span>
-            <span class="app-input-visually-hidden">{{ requiredText }}</span>
+            <span class="app-input-visually-hidden">
+                {{ requiredText }}
+            </span>
             } @else if (optional) {
             <span class="app-input-optional">({{ optionalText }})</span>
             }
@@ -26,12 +27,16 @@
     </div>
 
     @if (labelDescription) {
-    <div class="app-input-label-description">{{ labelDescription }}</div>
+    <div class="app-input-label-description">
+        {{ labelDescription }}
+    </div>
     }
     }
 
     @if (label && labelMode === 'hidden') {
-    <label class="app-input-visually-hidden" [for]="resolvedId">{{ label }}</label>
+    <label class="app-input-visually-hidden" [for]="resolvedId">
+        {{ label }}
+    </label>
     }
 
     <div class="app-input-control-shell">
@@ -41,15 +46,17 @@
         </span>
         } @else {
         <span class="app-input-leading-icon app-input-projected-icon" aria-hidden="true">
-            <ng-content select="[input-leading-icon]"></ng-content>
+            <ng-content select="[input-leading-icon]" />
         </span>
         }
 
         @if (prefixText) {
-        <span class="app-input-affix app-input-prefix">{{ prefixText }}</span>
+        <span class="app-input-affix app-input-prefix">
+            {{ prefixText }}
+        </span>
         } @else {
         <span class="app-input-affix app-input-prefix">
-            <ng-content select="[input-prefix]"></ng-content>
+            <ng-content select="[input-prefix]" />
         </span>
         }
 
@@ -79,7 +86,6 @@
         @if (label && labelMode === 'floating') {
         <label class="app-input-floating-label" [for]="resolvedId">
             {{ label }}
-
             @if (required) {
             <span class="app-input-required" aria-hidden="true">*</span>
             } @else if (optional) {
@@ -119,27 +125,30 @@
         </span>
         } @else {
         <span class="app-input-trailing-icon app-input-projected-icon" aria-hidden="true">
-            <ng-content select="[input-trailing-icon]"></ng-content>
+            <ng-content select="[input-trailing-icon]" />
         </span>
         }
 
         @if (suffixText) {
-        <span class="app-input-affix app-input-suffix">{{ suffixText }}</span>
+        <span class="app-input-affix app-input-suffix">
+            {{ suffixText }}
+        </span>
         } @else {
         <span class="app-input-affix app-input-suffix">
-            <ng-content select="[input-suffix]"></ng-content>
+            <ng-content select="[input-suffix]" />
         </span>
         }
     </div>
 
     @if (displayedMessage || (showCounter && maxLength)) {
     <div class="app-input-support-row">
-        <div class="app-input-message" [id]="messageId" [attr.role]="effectiveStatus === 'danger' ? 'alert' : null">
+        <div class="app-input-message" [attr.id]="messageId"
+            [attr.role]="effectiveStatus === 'danger' ? 'alert' : null">
             {{ displayedMessage }}
         </div>
 
         @if (showCounter && maxLength) {
-        <div class="app-input-counter" [id]="counterId" aria-live="polite">
+        <div class="app-input-counter" [attr.id]="counterId" aria-live="polite">
             {{ valueLength }}/{{ maxLength }}
         </div>
         }

@@ -1,1 +1,220 @@
-<p>select works!</p>
+<div class="app-select" [ngClass]="[
+        'app-select-' + size,
+        'app-select-' + variant,
+        fullWidth ? 'app-select-full' : '',
+        isOpen ? 'app-select-open' : '',
+        disabled ? 'app-select-disabled' : '',
+        error ? 'app-select-error' : ''
+    ]">
+    @if (label) {
+    <label class="app-select-label" [for]="selectId">
+        {{ label }}
+        @if (required) {
+        <span aria-hidden="true">*</span>
+        }
+    </label>
+    }
+
+    <div class="app-select-control">
+        <button #trigger class="app-select-trigger" [id]="selectId" type="button" role="combobox" [attr.name]="name"
+            [attr.aria-label]="ariaLabel || label || placeholder" [attr.aria-controls]="listboxId"
+            [attr.aria-expanded]="isOpen" [attr.aria-describedby]="describedBy"
+            [attr.aria-invalid]="error ? 'true' : null" [attr.aria-required]="required" [disabled]="disabled"
+            (click)="toggle()" (keydown)="onTriggerKeydown($event)">
+            @if (
+            iconLeft &&
+            variant !== 'workspace' &&
+            !selectedOptions[0]?.avatar &&
+            !selectedOptions[0]?.icon
+            ) {
+            <span class="app-select-leading-icon" aria-hidden="true">
+                <app-icon [icon]="iconLeft" size="sm" />
+            </span>
+            }
+
+            <span class="app-select-value" [class.is-placeholder]="!hasValue">
+                @if (!hasValue) {
+                {{ loading ? loadingText : placeholder }}
+                } @else if (multiple) {
+                <span class="app-select-chips">
+                    @for (
+                    option of selectedOptions.slice(0, maxVisibleSelections);
+                    track option.value
+                    ) {
+                    <span class="app-select-chip">
+                        {{ option.label }}
+                        <span class="app-select-chip-remove" role="button" tabindex="-1"
+                            [attr.aria-label]="'Remove ' + option.label"
+                            (click)="removeSelection(option, $event)">×</span>
+                    </span>
+                    }
+
+                    @if (showSelectedCount && hiddenSelectionCount) {
+                    <app-badge class="app-select-count" [label]="'+' + hiddenSelectionCount" variant="neutral" size="xs"
+                        shape="pill" [ariaLabel]="hiddenSelectionCount + ' more selected'" />
+                    }
+                </span>
+                } @else if (variant === 'workspace') {
+                <app-avatar class="app-select-identity-avatar" [src]="selectedOptions[0]?.avatar?.src"
+                    [alt]="selectedOptions[0]?.avatar?.alt ?? ''"
+                    [name]="selectedOptions[0]?.avatar?.name ?? selectedOptions[0]?.label ?? ''"
+                    [initials]="selectedOptions[0]?.avatar?.initials ?? ''" [fallbackIcon]="selectedOptions[0]?.icon"
+                    [size]="36" [shape]="selectedOptions[0]?.avatar?.shape ?? 'rounded'"
+                    [tone]="selectedOptions[0]?.avatar?.tone ?? 'yellow'"
+                    [status]="selectedOptions[0]?.avatar?.status ?? 'none'"
+                    [bordered]="selectedOptions[0]?.avatar?.bordered ?? true"
+                    [elevated]="selectedOptions[0]?.avatar?.elevated ?? false" [decorative]="true" />
+
+                <span class="app-select-identity-copy">
+                    @if (eyebrow) {
+                    <small>{{ eyebrow }}</small>
+                    }
+                    <strong>{{ selectedOptions[0]?.label }}</strong>
+                    @if (selectedOptions[0]?.description) {
+                    <span>{{ selectedOptions[0]?.description }}</span>
+                    }
+                </span>
+                } @else {
+                @if (selectedOptions[0]?.avatar) {
+                <app-avatar [src]="selectedOptions[0]?.avatar?.src" [alt]="selectedOptions[0]?.avatar?.alt ?? ''"
+                    [name]="selectedOptions[0]?.avatar?.name ?? selectedOptions[0]?.label ?? ''"
+                    [initials]="selectedOptions[0]?.avatar?.initials ?? ''" [fallbackIcon]="selectedOptions[0]?.icon"
+                    size="sm" [shape]="selectedOptions[0]?.avatar?.shape ?? 'circle'"
+                    [tone]="selectedOptions[0]?.avatar?.tone ?? 'neutral'"
+                    [status]="selectedOptions[0]?.avatar?.status ?? 'none'"
+                    [bordered]="selectedOptions[0]?.avatar?.bordered ?? true" [decorative]="true" />
+                } @else if (selectedOptions[0]?.icon) {
+                <app-icon [icon]="selectedOptions[0]!.icon!" size="sm" />
+                }
+
+                <span>{{ selectedOptions[0]?.label }}</span>
+                }
+            </span>
+        </button>
+
+        <div class="app-select-actions">
+            @if (loading) {
+            <span class="app-select-spinner" aria-hidden="true"></span>
+            } @else if (clearable && hasValue && !disabled) {
+            <button class="app-select-clear" type="button" aria-label="Clear selection" title="Clear selection"
+                (click)="clear($event)">
+                <app-icon [icon]="LucideX" size="xs" />
+            </button>
+            }
+
+            <span class="app-select-chevron" aria-hidden="true">
+                <app-icon [icon]="LucideChevronDown" size="sm" />
+            </span>
+        </div>
+    </div>
+
+    @if (isOpen) {
+    <div class="app-select-dropdown" [class.open-top]="resolvedPlacement === 'top'"
+        [class.open-bottom]="resolvedPlacement === 'bottom'" (keydown)="onPanelKeydown($event)">
+        @if (dropdownTitle || dropdownDescription) {
+        <header class="app-select-dropdown-header">
+            <span class="app-select-dropdown-heading-copy">
+                @if (dropdownTitle) {
+                <strong>{{ dropdownTitle }}</strong>
+                }
+                @if (dropdownDescription) {
+                <small>{{ dropdownDescription }}</small>
+                }
+            </span>
+
+            <app-badge [label]="filteredOptions.length.toString()" variant="outline" size="xs" shape="pill"
+                [ariaLabel]="filteredOptions.length + ' available options'" />
+        </header>
+        <app-divider spacing="none" variant="neutral" />
+        }
+
+        @if (searchable) {
+        <div class="app-select-search">
+            <app-icon [icon]="LucideSearch" size="sm" />
+            <input #searchInput type="search" autocomplete="off" [placeholder]="searchPlaceholder" [value]="searchTerm"
+                (input)="updateSearch($event)" />
+
+            @if (searchTerm) {
+            <button type="button" aria-label="Clear search" (click)="clearSearch()">
+                <app-icon [icon]="LucideX" size="xs" />
+            </button>
+            }
+        </div>
+        <app-divider spacing="xs" variant="neutral" />
+        }
+
+        <div class="app-select-options" [id]="listboxId" role="listbox"
+            [attr.aria-multiselectable]="multiple ? 'true' : null">
+            @if (loading) {
+            <div class="app-select-state">
+                <span class="app-select-spinner"></span>
+                {{ loadingText }}
+            </div>
+            } @else {
+            @for (
+            option of filteredOptions;
+            track option.value;
+            let index = $index
+            ) {
+            @if (isFirstInGroup(index)) {
+            @if (index > 0) {
+            <app-divider spacing="xs" variant="neutral" />
+            }
+
+            <div class="app-select-group">
+                <span>{{ option.group }}</span>
+                <app-badge [label]="groupCount(option.group).toString()" variant="neutral" size="xs" shape="pill"
+                    [ariaLabel]="groupCount(option.group) + ' options in ' + (option.group ?? 'group')" />
+            </div>
+            }
+
+            <button class="app-select-option" type="button" role="option" [class.is-active]="activeIndex === index"
+                [class.is-selected]="isSelected(option)" [disabled]="option.disabled"
+                [attr.aria-selected]="isSelected(option)" (mouseenter)="activeIndex = index"
+                (click)="selectOption(option)">
+                @if (option.avatar || variant === 'workspace') {
+                <app-avatar class="app-select-option-avatar" [src]="option.avatar?.src" [alt]="option.avatar?.alt ?? ''"
+                    [name]="option.avatar?.name ?? option.label" [initials]="option.avatar?.initials ?? ''"
+                    [fallbackIcon]="option.icon" [size]="variant === 'workspace' ? 38 : 32"
+                    [shape]="option.avatar?.shape ?? (variant === 'workspace' ? 'rounded' : 'circle')"
+                    [tone]="option.avatar?.tone ?? (variant === 'workspace' ? 'yellow' : 'neutral')"
+                    [status]="option.avatar?.status ?? 'none'" [bordered]="option.avatar?.bordered ?? true"
+                    [elevated]="option.avatar?.elevated ?? false" [decorative]="true" />
+                } @else if (option.icon) {
+                <span class="app-select-option-icon">
+                    <app-icon [icon]="option.icon" size="sm" />
+                </span>
+                }
+
+                <span class="app-select-option-copy">
+                    <strong>{{ option.label }}</strong>
+                    @if (option.description) {
+                    <small>{{ option.description }}</small>
+                    }
+                </span>
+
+                <span class="app-select-option-end">
+                    @if (option.badgeLabel || option.badgeDot) {
+                    <app-badge [label]="option.badgeLabel ?? ''" [variant]="option.badgeVariant ?? 'outline'" size="xs"
+                        shape="pill" [dot]="option.badgeDot ?? false" />
+                    }
+
+                    <span class="app-select-check" [class.is-visible]="isSelected(option)" aria-hidden="true">
+                        <app-icon [icon]="LucideCheck" size="sm" />
+                    </span>
+                </span>
+            </button>
+            } @empty {
+            <div class="app-select-state">{{ emptyText }}</div>
+            }
+            }
+        </div>
+    </div>
+    }
+
+    @if (error || hint) {
+    <p class="app-select-message" [id]="messageId" [class.is-error]="error">
+        {{ error || hint }}
+    </p>
+    }
+</div>

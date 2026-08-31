@@ -1,0 +1,777 @@
+@use '../../styles/variables' as *;
+
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.sidebar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+
+    box-sizing: border-box;
+    color: $text-primary;
+    background: $paper;
+    border-right: 1px solid $border;
+}
+
+.brand-row {
+    display: flex;
+    align-items: center;
+    flex: 0 0 var(--app-shell-topbar-height, 68px);
+    min-width: 0;
+    padding: 0 18px;
+    border-bottom: 1px solid $border-light;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    color: $heading;
+    text-decoration: none;
+}
+
+.brand-mark {
+    position: relative;
+    display: block;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    overflow: hidden;
+    background: $note-yellow;
+    border: 1px solid rgba(17, 17, 17, 0.16);
+    border-radius: 11px 11px 13px 11px;
+    box-shadow: 0 2px 0 rgba(17, 17, 17, 0.12);
+    transform: rotate(-2deg);
+
+    &::after {
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 11px;
+        height: 11px;
+        content: '';
+        background: linear-gradient(135deg, #e6d56e 49%, $paper 50%);
+        border-top: 1px solid rgba(17, 17, 17, 0.08);
+        border-left: 1px solid rgba(17, 17, 17, 0.08);
+    }
+}
+
+.brand-line {
+    position: absolute;
+    left: 9px;
+    height: 2px;
+    background: $heading;
+    border-radius: 99px;
+}
+
+.brand-line-one {
+    top: 11px;
+    width: 19px;
+}
+
+.brand-line-two {
+    top: 17px;
+    width: 19px;
+}
+
+.brand-line-three {
+    top: 23px;
+    width: 12px;
+}
+
+.brand-copy {
+    display: grid;
+    min-width: 0;
+    margin-left: 11px;
+
+    strong {
+        overflow: hidden;
+        font-family: $font-note;
+        font-size: 1.52rem;
+        font-weight: 700;
+        line-height: 1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    small {
+        margin-top: 2px;
+        color: $text-light;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.055em;
+        white-space: nowrap;
+    }
+}
+
+.mobile-close {
+    display: none;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    margin-left: auto;
+    place-items: center;
+    color: $text-secondary;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+
+    &:hover {
+        color: $text-primary;
+        background: $paper-dark;
+    }
+}
+
+.workspace-switcher {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: 0;
+    margin: 14px 14px 0;
+    padding: 8px;
+    color: $text-primary;
+    text-align: left;
+    cursor: pointer;
+    background: $page-bg;
+    border: 1px solid $border-light;
+    border-radius: 12px;
+    transition: background-color 160ms ease, border-color 160ms ease;
+
+    &:hover {
+        background: $paper-dark;
+        border-color: $border;
+    }
+}
+
+.workspace-avatar {
+    display: grid;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    font-family: $font-note;
+    font-size: 1.15rem;
+    font-weight: 700;
+    background: $note-green;
+    border: 1px solid rgba(17, 17, 17, 0.1);
+    border-radius: 9px;
+}
+
+.workspace-copy {
+    display: grid;
+    min-width: 0;
+    margin-left: 9px;
+
+    small {
+        color: $text-light;
+        font-size: 0.62rem;
+        font-weight: 700;
+    }
+
+    strong {
+        overflow: hidden;
+        font-size: 0.8rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.workspace-chevron {
+    margin-left: auto;
+    color: $text-light;
+}
+
+/* Workspace selector — aligned to the same grid as navigation */
+
+.workspace-select-shell {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    margin: 12px 14px 14px;
+}
+
+.workspace-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+:host ::ng-deep .workspace-select {
+    &.app-select-host-full {
+        display: block;
+        width: 100%;
+    }
+
+    .app-select,
+    .app-select-control,
+    .app-select-trigger {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .app-select-workspace .app-select-trigger {
+        min-height: 56px;
+        padding: 7px 46px 7px 7px;
+        border-radius: 13px;
+    }
+
+    .app-select-identity-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .app-select-actions {
+        right: 8px;
+    }
+
+    .app-select-workspace .app-select-dropdown {
+        right: auto;
+        left: 0;
+        width: 100%;
+        min-width: 292px;
+    }
+}
+
+.new-note-action {
+    flex: 0 0 auto;
+    padding: 12px 14px 8px;
+
+    app-button {
+        display: block;
+        width: 100%;
+    }
+}
+
+.new-note-compact {
+    display: none;
+    width: 46px;
+    height: 46px;
+    margin: auto;
+    place-items: center;
+    color: $btn-primary-text;
+    cursor: pointer;
+    background: $btn-primary-bg;
+    border: 1px solid $btn-primary-bg;
+    border-radius: 12px;
+    box-shadow: $button-shadow-dark;
+
+    &:hover {
+        background: $btn-primary-hover;
+    }
+}
+
+.sidebar-navigation {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 2px 10px 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: $border transparent;
+}
+
+.nav-group+.nav-group {
+    margin-top: 20px;
+}
+
+.group-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 28px;
+    margin: 0;
+    padding: 0 10px 5px;
+    overflow: hidden;
+    color: $text-light;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    button {
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        color: $text-light;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        border-radius: 7px;
+
+        &:hover {
+            color: $text-primary;
+            background: $paper-dark;
+        }
+    }
+}
+
+.nav-list {
+    display: grid;
+    gap: 3px;
+}
+
+.nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 43px;
+    padding: 0 10px;
+    color: $text-secondary;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+
+    &::before {
+        position: absolute;
+        top: 10px;
+        bottom: 10px;
+        left: -10px;
+        width: 3px;
+        content: '';
+        background: transparent;
+        border-radius: 0 3px 3px 0;
+    }
+
+    &:hover {
+        color: $text-primary;
+        background: $page-bg;
+        border-color: $border-light;
+    }
+
+    &.is-active {
+        color: $heading;
+        background: $paper-dark;
+        border-color: $border;
+
+        &::before {
+            background: $heading;
+        }
+
+        .nav-icon {
+            color: $heading;
+            background: $note-yellow;
+        }
+    }
+}
+
+.nav-icon {
+    display: grid;
+    flex: 0 0 31px;
+    width: 31px;
+    height: 31px;
+    place-items: center;
+    color: $text-secondary;
+    border-radius: 9px;
+    transition: color 150ms ease, background-color 150ms ease;
+}
+
+.space-icon {
+    background: var(--space-color, $paper-dark);
+}
+
+.nav-label {
+    margin-left: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-count {
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.sidebar-footer {
+    flex: 0 0 auto;
+    padding: 9px 10px 12px;
+    background: $paper;
+    border-top: 1px solid $border-light;
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 8px;
+
+    .nav-item {
+        min-height: 37px;
+        padding-inline: 7px;
+        font-size: 0.73rem;
+    }
+
+    .nav-icon {
+        flex-basis: 25px;
+        width: 25px;
+        height: 25px;
+    }
+
+    .nav-label {
+        margin-left: 5px;
+    }
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    padding: 7px;
+    color: $text-primary;
+    text-align: left;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+
+    &:hover {
+        background: $page-bg;
+        border-color: $border-light;
+    }
+}
+
+.profile-avatar {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    color: $heading;
+    font-weight: 800;
+    background: $note-blue;
+    border: 1px solid rgba(17, 17, 17, 0.11);
+    border-radius: 10px;
+}
+
+.profile-copy {
+    display: grid;
+    min-width: 0;
+    margin-left: 9px;
+
+    strong,
+    small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    strong {
+        font-size: 0.8rem;
+    }
+
+    small {
+        color: $text-light;
+        font-size: 0.66rem;
+    }
+}
+
+.profile-chevron {
+    margin-left: auto;
+    color: $text-light;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 108px;
+    right: -15px;
+    z-index: 20;
+
+    display: grid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    place-items: center;
+
+    color: $text-secondary;
+    cursor: pointer;
+    background: $paper;
+    border: 1px solid $border;
+    border-radius: 50%;
+    box-shadow:
+        0 2px 6px rgba(17, 17, 17, 0.1),
+        0 6px 16px rgba(17, 17, 17, 0.08);
+
+    transition:
+        color 160ms ease,
+        background-color 160ms ease,
+        border-color 160ms ease,
+        transform 160ms ease;
+
+    &:hover {
+        color: $heading;
+        background: $note-yellow;
+        border-color: rgba(17, 17, 17, 0.2);
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+
+    &:focus-visible {
+        outline: 3px solid rgba($accent, 0.22);
+        outline-offset: 2px;
+    }
+}
+
+.sidebar.is-collapsed {
+    .brand-row {
+        justify-content: center;
+        padding-inline: 12px;
+    }
+
+    .brand-copy,
+    .workspace-copy,
+    .workspace-chevron,
+    .new-note-action app-button,
+    .group-heading,
+    .nav-label,
+    .nav-count,
+    .profile-copy,
+    .profile-chevron {
+        display: none;
+    }
+
+    .workspace-switcher {
+        justify-content: center;
+        width: 46px;
+        margin-inline: auto;
+        padding: 6px;
+    }
+
+    .workspace-select-shell {
+        width: 48px;
+        margin: 12px auto 14px;
+    }
+
+    .new-note-action {
+        padding-inline: 10px;
+    }
+
+    .new-note-compact {
+        display: grid;
+    }
+
+    .sidebar-navigation {
+        padding-inline: 10px;
+    }
+
+    .nav-group+.nav-group {
+        margin-top: 9px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding-inline: 0;
+    }
+
+    .nav-item::before {
+        left: -10px;
+    }
+
+    .nav-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .sidebar-footer {
+        padding-inline: 10px;
+    }
+
+    .footer-links {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-links .nav-item {
+        padding-inline: 0;
+    }
+
+    .profile-card {
+        justify-content: center;
+        padding-inline: 0;
+    }
+}
+
+:host ::ng-deep .sidebar.is-collapsed .workspace-select {
+    .app-select-workspace .app-select-trigger {
+        justify-content: center;
+        width: 48px;
+        min-width: 48px;
+        min-height: 48px;
+        padding: 5px;
+    }
+
+    .app-select-identity-copy,
+    .app-select-actions {
+        display: none;
+    }
+
+    .app-select-workspace .app-select-dropdown {
+        width: 292px;
+    }
+}
+
+@media (max-width: 1023.98px) {
+    .sidebar.is-collapsed {
+        .brand-row {
+            justify-content: flex-start;
+            padding-inline: 18px;
+        }
+
+        .brand-copy,
+        .workspace-copy,
+        .profile-copy {
+            display: grid;
+        }
+
+        .workspace-chevron,
+        .nav-label,
+        .profile-chevron {
+            display: inline-flex;
+        }
+
+        .new-note-action app-button,
+        .nav-count {
+            display: block;
+        }
+
+        .group-heading {
+            display: flex;
+        }
+
+        .workspace-switcher {
+            justify-content: flex-start;
+            width: auto;
+            margin-inline: 14px;
+            padding: 8px;
+        }
+
+        .workspace-select-shell {
+            width: auto;
+            margin: 12px 14px 14px;
+        }
+
+        .new-note-action {
+            padding-inline: 14px;
+        }
+
+        .new-note-compact {
+            display: none;
+        }
+
+        .sidebar-navigation {
+            padding-inline: 10px;
+        }
+
+        .nav-group+.nav-group {
+            margin-top: 20px;
+        }
+
+        .nav-item {
+            justify-content: flex-start;
+            padding-inline: 10px;
+        }
+
+        .nav-icon {
+            flex-basis: 31px;
+            width: 31px;
+            height: 31px;
+        }
+
+        .sidebar-footer {
+            padding-inline: 10px;
+        }
+
+        .footer-links {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .footer-links .nav-item {
+            padding-inline: 7px;
+        }
+
+        .profile-card {
+            justify-content: flex-start;
+            padding-inline: 7px;
+        }
+    }
+
+    :host ::ng-deep .sidebar.is-collapsed .workspace-select {
+        .app-select-workspace .app-select-trigger {
+            justify-content: flex-start;
+            width: 100%;
+            min-width: 0;
+            min-height: 56px;
+            padding: 7px 46px 7px 7px;
+        }
+
+        .app-select-identity-copy {
+            display: grid;
+        }
+
+        .app-select-actions {
+            display: flex;
+        }
+
+        .app-select-workspace .app-select-dropdown {
+            width: 100%;
+        }
+    }
+
+    .mobile-close {
+        display: grid;
+    }
+
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+@media (max-height: 720px) {
+    .workspace-switcher {
+        margin-top: 9px;
+    }
+
+    .new-note-action {
+        padding-top: 9px;
+    }
+
+    .nav-group+.nav-group {
+        margin-top: 12px;
+    }
+
+    .library-group {
+        display: none;
+    }
+}

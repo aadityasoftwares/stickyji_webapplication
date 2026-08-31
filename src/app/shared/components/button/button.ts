@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,8 +6,12 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { UI } from '../../constants/ui.constants';
+import {
+  AppIcon,
+  type AppIconDefinition,
+} from '../icon/icon';
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -31,14 +36,8 @@ export type ButtonVariant =
   | 'noteBrown'
   | 'noteBlack';
 
-export type ButtonAppearance =
-  | 'standard'
-  | 'tape';
-
-export type ButtonType =
-  | 'button'
-  | 'submit'
-  | 'reset';
+export type ButtonAppearance = 'standard' | 'tape';
+export type ButtonType = 'button' | 'submit' | 'reset';
 
 export type ButtonWidth =
   | 'auto'
@@ -49,14 +48,12 @@ export type ButtonWidth =
   | 'lg'
   | 'xl';
 
-export type ButtonIconPosition =
-  | 'left'
-  | 'right';
+export type ButtonIconPosition = 'left' | 'right';
 
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppIcon],
   templateUrl: './button.html',
   styleUrl: './button.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +77,12 @@ export class Button {
   @Input() paddingX?: number;
   @Input() paddingY?: number;
 
+  /** Direct Lucide inputs used by application screens. */
+  @Input() iconLeft?: AppIconDefinition;
+  @Input() iconRight?: AppIconDefinition;
+  @Input() icon?: AppIconDefinition;
+
+  /** Kept for backward-compatible projected icon slots. */
   @Input() hasIcon = false;
   @Input() iconOnly = false;
   @Input() iconPosition: ButtonIconPosition = 'left';
@@ -96,14 +99,10 @@ export class Button {
   @Input() rounded = false;
   @Input() nowrap = true;
 
-  // Native form support
-
   @Input() buttonId?: string;
   @Input() name?: string;
   @Input() value?: string | number;
   @Input() form?: string;
-
-  // Accessibility
 
   @Input() ariaLabel?: string;
   @Input() ariaDescribedBy?: string;
@@ -128,31 +127,19 @@ export class Button {
       return this.minWidth;
     }
 
-    return (
-      this.predefinedWidth ??
-      UI.button.minWidth[this.size]
-    );
+    return this.predefinedWidth ?? UI.button.minWidth[this.size];
   }
 
   get buttonPaddingX(): number {
-    return (
-      this.paddingX ??
-      UI.button.paddingX[this.size]
-    );
+    return this.paddingX ?? UI.button.paddingX[this.size];
   }
 
   get buttonPaddingY(): number {
-    return (
-      this.paddingY ??
-      UI.button.paddingY[this.size]
-    );
+    return this.paddingY ?? UI.button.paddingY[this.size];
   }
 
   get buttonIconSize(): number {
-    return (
-      this.iconSize ??
-      UI.button.iconSize[this.size]
-    );
+    return this.iconSize ?? UI.button.iconSize[this.size];
   }
 
   get splitButtonWidth(): number {
@@ -164,10 +151,31 @@ export class Button {
   }
 
   get isFullWidth(): boolean {
+    return this.fullWidth || this.width === 'full';
+  }
+
+  get showLeftIcon(): boolean {
     return (
-      this.fullWidth ||
-      this.width === 'full'
+      !this.iconOnly &&
+      Boolean(
+        this.iconLeft ||
+        (this.hasIcon && this.iconPosition === 'left')
+      )
     );
+  }
+
+  get showRightIcon(): boolean {
+    return (
+      !this.iconOnly &&
+      Boolean(
+        this.iconRight ||
+        (this.hasIcon && this.iconPosition === 'right')
+      )
+    );
+  }
+
+  get iconOnlyDefinition(): AppIconDefinition | undefined {
+    return this.icon ?? this.iconLeft ?? this.iconRight;
   }
 
   get accessibleLabel(): string | null {
@@ -187,74 +195,49 @@ export class Button {
   }
 
   get buttonTitle(): string | null {
-    return (
-      this.title ||
-      (this.iconOnly
-        ? this.accessibleLabel
-        : null)
-    );
+    return this.title || (this.iconOnly ? this.accessibleLabel : null);
   }
 
   get ariaBusy(): 'true' | null {
     return this.loading ? 'true' : null;
   }
 
-  get ariaPressedValue():
-    | 'true'
-    | 'false'
-    | null {
+  get ariaPressedValue(): 'true' | 'false' | null {
     if (this.ariaPressed === undefined) {
       return null;
     }
 
-    return this.ariaPressed
-      ? 'true'
-      : 'false';
+    return this.ariaPressed ? 'true' : 'false';
   }
 
-  get ariaExpandedValue():
-    | 'true'
-    | 'false'
-    | null {
+  get ariaExpandedValue(): 'true' | 'false' | null {
     if (this.ariaExpanded === undefined) {
       return null;
     }
 
-    return this.ariaExpanded
-      ? 'true'
-      : 'false';
+    return this.ariaExpanded ? 'true' : 'false';
   }
 
-  get splitExpandedValue():
-    | 'true'
-    | 'false'
-    | null {
+  get splitExpandedValue(): 'true' | 'false' | null {
     if (this.splitExpanded === undefined) {
       return null;
     }
 
-    return this.splitExpanded
-      ? 'true'
-      : 'false';
+    return this.splitExpanded ? 'true' : 'false';
   }
 
   get predefinedWidth(): number | null {
     switch (this.width) {
       case 'xs':
         return UI.button.minWidth.xs;
-
       case 'sm':
         return UI.button.minWidth.sm;
-
       case 'md':
         return UI.button.minWidth.md;
-
       case 'lg':
         return UI.button.minWidth.lg;
-
       case 'xl':
         return UI.button.minWidth.xl;
-
       default:
         return null;
     }
@@ -263,21 +246,11 @@ export class Button {
   get wrapperClasses(): Record<string, boolean> {
     return {
       [`app-button-wrapper-${this.variant}`]: true,
-
-      'app-button-split-wrapper':
-        this.split,
-
-      'app-button-full':
-        this.isFullWidth,
-
-      'app-button-wrapper-rounded':
-        this.rounded,
-
-      'app-button-wrapper-tape':
-        this.appearance === 'tape',
-
-      'app-button-wrapper-disabled':
-        this.isDisabled,
+      'app-button-split-wrapper': this.split,
+      'app-button-full': this.isFullWidth,
+      'app-button-wrapper-rounded': this.rounded,
+      'app-button-wrapper-tape': this.appearance === 'tape',
+      'app-button-wrapper-disabled': this.isDisabled,
     };
   }
 
@@ -286,21 +259,11 @@ export class Button {
       [`app-button-${this.variant}`]: true,
       [`app-button-${this.size}`]: true,
       [`app-button-appearance-${this.appearance}`]: true,
-
-      'app-button-icon-only':
-        this.iconOnly,
-
-      'app-button-rounded':
-        this.rounded,
-
-      'app-button-full':
-        this.isFullWidth,
-
-      'app-button-nowrap':
-        this.nowrap,
-
-      'app-button-loading':
-        this.loading,
+      'app-button-icon-only': this.iconOnly,
+      'app-button-rounded': this.rounded,
+      'app-button-full': this.isFullWidth,
+      'app-button-nowrap': this.nowrap,
+      'app-button-loading': this.loading,
     };
   }
 
@@ -309,9 +272,7 @@ export class Button {
       [`app-button-${this.variant}`]: true,
       [`app-button-${this.size}`]: true,
       [`app-button-appearance-${this.appearance}`]: true,
-
-      'app-button-loading':
-        this.loading,
+      'app-button-loading': this.loading,
     };
   }
 
