@@ -343,6 +343,26 @@
     display: none;
 }
 
+.name-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+    width: 100%;
+}
+
+.name-fields .auth-field,
+.name-fields app-input {
+    min-width: 0;
+    width: 100%;
+}
+
+@media (max-width: 560px) {
+    .name-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 1050px) {
     .auth-layout {
         grid-template-columns: minmax(390px, .88fr) minmax(440px, 1.12fr);

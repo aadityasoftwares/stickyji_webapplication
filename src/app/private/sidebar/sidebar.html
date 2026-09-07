@@ -1,106 +1,255 @@
 <aside class="sidebar" [class.is-collapsed]="collapsed" [class.is-mobile-open]="mobileOpen"
     aria-label="Primary navigation">
-    <div class="brand-row">
-        <a class="brand-link" routerLink="/app/today" aria-label="MyStickyNotes home" (click)="mobileClosed.emit()">
+
+
+    <!-- =====================================================
+         BRAND
+    ====================================================== -->
+
+    <header class="brand-row">
+
+        <a class="brand-link" routerLink="/app/today" aria-label="MyStickyNotes home" (click)="closeMobileNavigation()">
+
             <span class="brand-mark" aria-hidden="true">
-                <span class="brand-line brand-line-one"></span>
-                <span class="brand-line brand-line-two"></span>
-                <span class="brand-line brand-line-three"></span>
+
+                <span class="brand-line brand-line-one">
+                </span>
+
+                <span class="brand-line brand-line-two">
+                </span>
+
+                <span class="brand-line brand-line-three">
+                </span>
+
             </span>
+
+
             <span class="brand-copy">
-                <strong>{{ brandName }}</strong>
-                <small>Make space for ideas</small>
+
+                <strong>
+                    MyStickyNotes
+                </strong>
+
+                <small>
+                    Make space for ideas
+                </small>
+
             </span>
+
         </a>
 
+
         <button class="mobile-close" type="button" aria-label="Close navigation" (click)="mobileClosed.emit()">
+
             <app-icon [icon]="LucideX" size="sm" />
+
         </button>
-    </div>
 
-    <div class="workspace-select-shell" [attr.title]="collapsed ? activeWorkspaceLabel : null">
-        <app-select class="workspace-select" ariaLabel="Switch workspace" placeholder="Select workspace"
-            searchPlaceholder="Search workspaces..." emptyText="No workspaces found" [options]="workspaces"
-            [ngModel]="workspaceId" (ngModelChange)="onWorkspaceChange($event)" [searchable]="true" [clearable]="false"
-            [loading]="loadingWorkspaces" loadingText="Loading workspaces..." size="sm" variant="workspace"
-            eyebrow="Current workspace" dropdownTitle="Switch workspace"
-            dropdownDescription="Choose where you want to organize your notes." placement="auto" [fullWidth]="true"
-            (opened)="workspaceClick.emit()" />
-    </div>
+    </header>
 
-    <nav class="sidebar-navigation" aria-label="Workspace navigation">
-        <div class="nav-group">
-            <div class="nav-list">
-                @for (item of mainItems; track item.route) {
-                <a class="nav-item" [routerLink]="item.route" routerLinkActive="is-active"
-                    [routerLinkActiveOptions]="{ exact: item.exact === true }"
-                    [attr.title]="collapsed ? item.label : null" (click)="selectItem(item)">
-                    <span class="nav-icon" aria-hidden="true"><app-icon [icon]="item.icon" size="sm" /></span>
-                    <span class="nav-label">{{ item.label }}</span>
-                    @if (item.count) {
-                    <app-badge class="nav-count" [label]="item.count.toString()" variant="noteYellow" size="xs"
-                        shape="pill" />
-                    }
-                </a>
-                }
-            </div>
+
+
+    <!-- =====================================================
+         WORKSPACE SELECTOR
+    ====================================================== -->
+
+    <!-- <section class="workspace-section" aria-label="Current workspace">
+
+        <div class="workspace-select-shell" [attr.title]="
+                collapsed
+                    ? activeWorkspaceLabel
+                    : null
+            ">
+
+            <app-select class="workspace-select" ariaLabel="Switch workspace" placeholder="Select workspace"
+                searchPlaceholder="Search workspaces..." emptyText="No workspaces found"
+                loadingText="Loading workspaces..." eyebrow="Current workspace" dropdownTitle="Switch workspace"
+                dropdownDescription="Choose where you want to organize your notes." size="sm" variant="workspace"
+                placement="auto" [options]="workspaces" [ngModel]="workspaceId" [searchable]="true" [clearable]="false"
+                [loading]="loadingWorkspaces" [fullWidth]="true" (ngModelChange)="
+                    onWorkspaceChange($event)
+                " />
+
         </div>
 
-        <div class="nav-group">
-            <div class="group-heading">
-                <span>Spaces</span>
-                <button type="button" aria-label="Create a space" title="Create a space" (click)="createSpace.emit()">
-                    <app-icon [icon]="LucidePlus" size="xs" />
-                </button>
-            </div>
-            <div class="nav-list">
-                @for (item of spaceItems; track item.route) {
-                <a class="nav-item space-item" [routerLink]="item.route" routerLinkActive="is-active"
-                    [style.--space-color]="item.color" [attr.title]="collapsed ? item.label : null"
-                    (click)="selectItem(item)">
-                    <span class="nav-icon space-icon" aria-hidden="true"><app-icon [icon]="item.icon"
-                            size="sm" /></span>
-                    <span class="nav-label">{{ item.label }}</span>
-                </a>
-                }
-            </div>
-        </div>
+    </section> -->
 
-        <div class="nav-group library-group">
-            <p class="group-heading group-heading-static">Library</p>
+
+    <!-- =====================================================
+         COMMON DASHED DIVIDER
+    ====================================================== -->
+
+    <app-divider class="workspace-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
+        [decorative]="true" />
+
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <nav class="sidebar-navigation" aria-label="Application navigation">
+
+
+        @for (
+        group of navigationGroups;
+        track group.label;
+        let groupIndex = $index;
+        let lastGroup = $last
+        ) {
+
+        <section class="navigation-group" [attr.aria-labelledby]="
+                    'sidebar-group-' + groupIndex
+                ">
+
+
+            <!-- =================================================
+                     GROUP TITLE
+                ================================================== -->
+
+            <p class="section-label" [id]="
+                        'sidebar-group-' + groupIndex
+                    ">
+
+                {{ group.label }}
+
+            </p>
+
+
+
+            <!-- =================================================
+                     ITEMS
+                ================================================== -->
+
             <div class="nav-list">
-                @for (item of libraryItems; track item.route) {
-                <a class="nav-item" [routerLink]="item.route" routerLinkActive="is-active"
-                    [attr.title]="collapsed ? item.label : null" (click)="selectItem(item)">
-                    <span class="nav-icon" aria-hidden="true"><app-icon [icon]="item.icon" size="sm" /></span>
-                    <span class="nav-label">{{ item.label }}</span>
+
+                @for (
+                item of group.items;
+                track item.route
+                ) {
+
+                <a class="nav-item" [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{
+                                exact: true
+                            }" ariaCurrentWhenActive="page" [attr.title]="
+                                collapsed
+                                    ? item.label
+                                    : null
+                            " (click)="
+                                closeMobileNavigation()
+                            ">
+
+
+                    <!-- Active marker -->
+
+                    <span class="nav-active-marker" aria-hidden="true">
+                    </span>
+
+
+
+                    <!-- Icon -->
+
+                    <span class="nav-icon" aria-hidden="true">
+
+                        <app-icon [icon]="item.icon" size="sm" />
+
+                    </span>
+
+
+
+                    <!-- Label -->
+
+                    <span class="nav-label">
+
+                        {{ item.label }}
+
+                    </span>
+
                 </a>
+
                 }
+
             </div>
-        </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+                 DASHED DIVIDER BETWEEN GROUPS
+            ================================================== -->
+
+        @if (!lastGroup) {
+
+        <app-divider class="navigation-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
+            [decorative]="true" />
+
+        }
+
+        }
+
     </nav>
 
-    <footer class="sidebar-footer">
-        <div class="footer-links">
-            @for (item of footerItems; track item.route) {
-            <a class="nav-item" [routerLink]="item.route" routerLinkActive="is-active"
-                [attr.title]="collapsed ? item.label : null" (click)="selectItem(item)">
-                <span class="nav-icon" aria-hidden="true"><app-icon [icon]="item.icon" size="sm" /></span>
-                <span class="nav-label">{{ item.label }}</span>
-            </a>
-            }
-        </div>
 
-        <button class="profile-card" type="button" (click)="profileClick.emit()"
-            [attr.aria-label]="'Open profile for ' + userName">
-            <span class="profile-avatar" aria-hidden="true">{{ userName.charAt(0).toUpperCase() }}</span>
-            <span class="profile-copy"><strong>{{ userName }}</strong><small>{{ planName }}</small></span>
-            <app-icon class="profile-chevron" [icon]="LucideChevronDown" size="xs" aria-hidden="true" />
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="sidebar-footer">
+
+
+        <!-- Common dashed divider -->
+
+        <app-divider class="logout-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
+            [decorative]="true" />
+
+
+
+        <!-- Logout -->
+
+        <button class="nav-item logout-item" type="button" [attr.title]="
+                collapsed
+                    ? 'Logout'
+                    : null
+            " aria-label="Logout" (click)="requestLogout()">
+
+
+            <span class="nav-icon" aria-hidden="true">
+
+                <app-icon [icon]="LucideLogOut" size="sm" />
+
+            </span>
+
+
+            <span class="nav-label">
+
+                Logout
+
+            </span>
+
         </button>
+
     </footer>
 
-    <button class="sidebar-toggle" type="button" [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-        [attr.aria-expanded]="!collapsed" (click)="toggleCollapsed()">
-        <app-icon [icon]="collapsed ? LucidePanelLeftOpen : LucidePanelLeftClose" size="xs" />
+
+
+    <!-- =====================================================
+         COLLAPSE BUTTON
+    ====================================================== -->
+
+    <button class="sidebar-toggle" type="button" [attr.aria-label]="
+            collapsed
+                ? 'Expand sidebar'
+                : 'Collapse sidebar'
+        " [attr.aria-expanded]="!collapsed" (click)="toggleCollapsed()">
+
+
+        <app-icon [icon]="
+                collapsed
+                    ? LucidePanelLeftOpen
+                    : LucidePanelLeftClose
+            " size="xs" />
+
     </button>
+
 </aside>

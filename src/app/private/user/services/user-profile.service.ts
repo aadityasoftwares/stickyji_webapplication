@@ -13,9 +13,9 @@ import { environment } from '../../../../Environments/environments';
 import { ApiResponse, CountryReference, CurrencyReference, LanguageReference, ProfileReferenceData, TimezoneReference, UpdateUserProfilePayload, UserProfile } from '../models/user-profile.models';
 
 const PROFILE_ENDPOINTS = {
-    create: '/user-profiles/create',
-    me: '/user-profiles/me',
-    update: '/user-profiles/update',
+    create: '/userprofile/create',
+    me: '/userprofile/me',
+    update: '/userprofile/update',
     countries: '/countries/getall',
     timezones: '/timezones/getall',
     languages: '/languages/getall',

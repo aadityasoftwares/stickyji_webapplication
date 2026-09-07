@@ -1,0 +1,117 @@
+<app-sticky-card class="sticky-note-card-shell" [variant]="variant" appearance="elevated" shape="note" size="sm"
+    shadow="sm" [fullWidth]="fullWidth" [padding]="resolvedPadding" [minHeight]="resolvedMinHeight" [height]="height"
+    [maxWidth]="maxWidth" [hoverable]="false" [footerDivider]="false">
+
+    @if (showPin) {
+    <span card-icon class="sticky-note-card-pin" aria-hidden="true"><span></span></span>
+    }
+
+    <article class="sticky-note-card-content">
+        <header class="sticky-note-card-header">
+            <div class="sticky-note-card-heading">
+                @if (eyebrow) {
+                <app-badge [label]="eyebrow" variant="outline" size="xs" shape="rounded" />
+                }
+            </div>
+
+            <div class="sticky-note-card-actions">
+                <ng-content select="[note-actions]"></ng-content>
+            </div>
+        </header>
+
+        <h4 class="sticky-note-card-title">{{ title }}</h4>
+
+        @if (subtitle) {
+        <span class="sticky-note-card-subtitle">{{ subtitle }}</span>
+        }
+
+        @if (description) {
+        <p class="sticky-note-card-description">
+            @if (completed) {
+            <span class="sticky-note-card-complete-icon" aria-hidden="true">
+                <app-icon [icon]="LucideCheck" size="sm" />
+            </span>
+            }
+            <span>{{ description }}</span>
+        </p>
+        }
+
+        @if (checklists.length) {
+        <div class="sticky-note-card-checklists">
+            @for (checklist of checklists; track checklist.id) {
+            <section class="sticky-note-card-checklist" [attr.aria-label]="checklist.title || 'Checklist'">
+                <div class="sticky-note-card-checklist-header">
+                    <strong>{{ checklist.title || 'Checklist' }}</strong>
+                    <span>{{ checklistCompletedCount(checklist) }}/{{ checklistTotalCount(checklist) }} done</span>
+                </div>
+
+                <div class="sticky-note-card-checklist-items">
+                    @for (item of checklist.items; track item.id) {
+                    <div class="sticky-note-card-checklist-item" [class.is-completed]="item.isCompleted"
+                        [class.is-updating]="isChecklistItemUpdating(item.id)">
+                        <app-checkbox [label]="item.title" [checked]="item.isCompleted" [variant]="checkboxVariant"
+                            size="sm" [disabled]="isChecklistItemUpdating(item.id)"
+                            (checkedChange)="onChecklistItemChange(checklist.id, item.id, $event)" />
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+        </div>
+        }
+
+        @if (normalizedProgress !== null) {
+        <div class="sticky-note-card-progress" role="progressbar" [attr.aria-label]="title + ' progress'"
+            aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="normalizedProgress">
+            <span class="sticky-note-card-progress-track" aria-hidden="true">
+                <span [style.width.%]="normalizedProgress"></span>
+            </span>
+            <small>{{ normalizedProgress }}%</small>
+        </div>
+        }
+
+        <ng-content select="[note-body-extra]"></ng-content>
+
+        @if (showFooter && (forceFooter || dueLabel || timeEstimate || completed || updatedLabel || statusLabel || tag))
+        {
+        @if (footerDivider) {
+        <app-divider spacing="xs" variant="neutral" lineStyle="dashed" />
+        }
+
+        <footer class="sticky-note-card-footer">
+            <div class="sticky-note-card-meta">
+                @if (dueLabel) {
+                <span><app-icon [icon]="LucideCalendarDays" size="xs" />{{ dueLabel }}</span>
+                }
+
+                @if (timeEstimate) {
+                <span><app-icon [icon]="LucideClock3" size="xs" />{{ timeEstimate }}</span>
+                }
+
+                @if (updatedLabel) {
+                <span><app-icon [icon]="LucideClock3" size="xs" />{{ updatedLabel }}</span>
+                }
+
+                @if (completed && !description) {
+                <span class="is-success"><app-icon [icon]="LucideCheckCircle2" size="xs" />Completed</span>
+                }
+            </div>
+
+            <div class="sticky-note-card-footer-badges">
+                @if (statusLabel) {
+                <app-badge [label]="statusLabel" [variant]="statusVariant" size="xs" shape="pill" />
+                }
+
+                @if (tag) {
+                <app-badge [label]="tag" [variant]="tagVariant" size="sm" shape="pill" />
+                }
+
+                <ng-content select="[note-footer]"></ng-content>
+            </div>
+        </footer>
+        }
+    </article>
+</app-sticky-card>
+
+<ng-content select="[note-drag-preview]"></ng-content>
+<ng-content select="[note-drag-placeholder]"></ng-content>

@@ -129,6 +129,34 @@
 
                     <form class="sign-up-form" [formGroup]="signUpForm" [attr.aria-busy]="loading()"
                         (ngSubmit)="submit()" novalidate>
+                        <div class="name-fields">
+                            <div class="auth-field">
+                                <label class="field-label" for="sign-up-first-name">
+                                    First name
+                                </label>
+
+                                <app-input inputId="sign-up-first-name" name="firstName" type="text" label="First name"
+                                    labelMode="hidden" placeholder="First name" autocomplete="given-name"
+                                    variant="notePurple" appearance="underlined" shape="square" size="md"
+                                    [leadingIcon]="LucideUserRound" [required]="true" [fullWidth]="true"
+                                    [formControl]="firstNameControl" [status]="firstNameError ? 'danger' : 'default'"
+                                    [errorText]="firstNameError" />
+                            </div>
+
+                            <div class="auth-field">
+                                <label class="field-label" for="sign-up-last-name">
+                                    Last name
+                                </label>
+
+                                <app-input inputId="sign-up-last-name" name="lastName" type="text" label="Last name"
+                                    labelMode="hidden" placeholder="Last name" autocomplete="family-name"
+                                    variant="notePurple" appearance="underlined" shape="square" size="md"
+                                    [leadingIcon]="LucideUserRound" [required]="true" [fullWidth]="true"
+                                    [formControl]="lastNameControl" [status]="lastNameError ? 'danger' : 'default'"
+                                    [errorText]="lastNameError" />
+                            </div>
+                        </div>
+
                         <div class="auth-field">
                             <label class="field-label" for="sign-up-email">
                                 Email address
@@ -159,20 +187,6 @@
                                 [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
                                 [fullWidth]="true" [formControl]="passwordControl"
                                 [status]="passwordError ? 'danger' : 'default'" [errorText]="passwordError" />
-                        </div>
-
-                        <div class="auth-field">
-                            <label class="field-label" for="sign-up-confirm-password">
-                                Confirm password
-                            </label>
-
-                            <app-input inputId="sign-up-confirm-password" name="confirmPassword" type="password"
-                                label="Confirm password" labelMode="hidden" placeholder="Type your password again"
-                                autocomplete="new-password" variant="notePurple" appearance="underlined" shape="square"
-                                size="md" [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
-                                [fullWidth]="true" [formControl]="confirmPasswordControl"
-                                [status]="confirmPasswordError ? 'danger' : 'default'"
-                                [errorText]="confirmPasswordError" />
                         </div>
 
                         <div class="terms-block">

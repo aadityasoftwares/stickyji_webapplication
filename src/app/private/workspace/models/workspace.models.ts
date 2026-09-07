@@ -1,5 +1,4 @@
 export type WorkspaceStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'DELETED';
-export type WorkspaceVisibility = 'PRIVATE' | 'PUBLIC';
 export type WorkspaceAccessRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export interface WorkspaceUserSummary {
@@ -9,8 +8,14 @@ export interface WorkspaceUserSummary {
     avatar?: string | null;
 }
 
+export enum WorkspaceVisibility {
+    PRIVATE = 'PRIVATE',
+    INVITE_ONLY = 'INVITE_ONLY',
+    PUBLIC = 'PUBLIC'
+}
+
 export interface Workspace {
-    _id: string;
+    id: string;
     name: string;
     slug: string;
     description?: string | null;

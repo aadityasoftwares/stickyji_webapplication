@@ -1,1 +1,449 @@
-<p>workspacefolders works!</p>
+<section class="workspace-page" aria-labelledby="workspace-folder-page-title">
+    <main class="workspace-main">
+        <header class="workspace-header">
+            <div class="workspace-intro">
+                <span class="workspace-intro-mark" aria-hidden="true">
+                    <span class="workspace-mini-folder"></span>
+                </span>
+
+                <div>
+                    <span class="workspace-kicker">Inside {{ selectedWorkspaceLabel() }}</span>
+                    <h1 id="workspace-folder-page-title">
+                        Organise notes across
+                        <span>focused workspace folders.</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="workspace-header-actions folder-header-actions">
+                <div class="workspace-count-slot" aria-live="polite">
+                    @if (!loading() && !error() && selectedWorkspaceId()) {
+                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' folder' : ' folders')"
+                        variant="noteYellow" size="sm" shape="pill" />
+                    } @else {
+                    <span class="workspace-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <div class="folder-workspace-picker">
+                    <app-select [options]="workspaceOptions()" [ngModel]="selectedWorkspaceId()"
+                        (ngModelChange)="onWorkspaceChange($event)" name="workspace-folder-workspace"
+                        [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+                        ariaLabel="Choose workspace for folders" variant="paper" shape="rounded" size="sm"
+                        [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
+                </div>
+
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" variant="outline" size="md"
+                    ariaLabel="Refresh folders" title="Refresh folders" [loading]="loading()"
+                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="loadFolders()" />
+
+                <app-button class="workspace-new-button" label="New folder" [iconLeft]="LucidePlus" variant="noteYellow"
+                    appearance="standard" size="md" [disabled]="!selectedWorkspaceId() || loadingWorkspaces()"
+                    (buttonClick)="openCreateEditor()" />
+            </div>
+        </header>
+
+        <section class="workspace-explorer" [attr.aria-busy]="loading() || loadingWorkspaces()">
+            <div class="workspace-toolbar">
+                <app-tabs class="workspace-status-tabs" [items]="folderTabs()" [value]="activeTab()" variant="paper"
+                    shape="rounded" size="sm" density="compact" ariaLabel="Filter folders by status" [fullWidth]="false"
+                    [scrollable]="true" (valueChange)="setFolderTab($event)" />
+
+                <div class="workspace-toolbar-actions">
+                    <div class="workspace-search">
+                        <app-input type="search" label="Search folders" labelMode="hidden" placeholder="Search folders"
+                            variant="paper" appearance="outlined" shape="rounded" size="sm" [leadingIcon]="LucideSearch"
+                            [clearable]="true" [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search folders"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                    </div>
+
+                    <app-select class="workspace-sort" [options]="sortOptions" [ngModel]="sortBy()"
+                        (ngModelChange)="setSort($event)" name="workspace-folder-sort" placeholder="Sort"
+                        ariaLabel="Sort folders" variant="paper" shape="rounded" size="sm" [clearable]="false"
+                        [searchable]="false" [fullWidth]="false" [width]="176" />
+
+                    <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
+                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
+                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setFolderView($event)" />
+                </div>
+            </div>
+
+            <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
+                @if (loadingWorkspaces()) {
+                <div class="workspace-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Loading your workspaces..."
+                        description="Finding the spaces you can open." [minHeight]="360" />
+                </div>
+                } @else if (workspaceError()) {
+                <div class="workspace-empty-state">
+                    <span class="workspace-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="workspace-empty-note">Couldn’t open your spaces</span>
+                    <h2>Workspaces are unavailable</h2>
+                    <p>{{ workspaceError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadWorkspaces()" />
+                </div>
+                } @else if (workspaces().length === 0) {
+                <div class="workspace-empty-state">
+                    <span class="workspace-empty-icon"><app-icon [icon]="LucidePanelsTopLeft" size="lg" /></span>
+                    <span class="workspace-empty-note">No workspace yet</span>
+                    <h2>Create a workspace first</h2>
+                    <p>Folders belong to a workspace, so create a workspace before adding folders.</p>
+                </div>
+                } @else if (!selectedWorkspaceId()) {
+                <div class="workspace-empty-state">
+                    <span class="workspace-empty-icon"><app-icon [icon]="LucidePanelsTopLeft" size="lg" /></span>
+                    <span class="workspace-empty-note">Choose your space</span>
+                    <h2>Select a workspace</h2>
+                    <p>Choose a workspace from the dropdown above to view its folders.</p>
+                </div>
+                } @else if (loading()) {
+                <div class="workspace-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening your folders..."
+                        description="Getting your workspace folders ready." [minHeight]="360" />
+                </div>
+                } @else if (error()) {
+                <div class="workspace-empty-state">
+                    <span class="workspace-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="workspace-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load your folders</h2>
+                    <p>{{ error() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadFolders()" />
+                </div>
+                } @else if (searchTerm() && visibleFolders().length === 0) {
+                <div class="workspace-empty-state is-compact">
+                    <span class="workspace-empty-icon"><app-icon [icon]="LucideSearch" size="lg" /></span>
+                    <span class="workspace-empty-note">No folder matches</span>
+                    <h2>No folder found</h2>
+                    <p>Try another name or clear your search.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+                } @else if (view() === 'grid') {
+                <div class="workspace-folder-grid" role="list">
+                    @for (folder of visibleFolders(); track folderId(folder)) {
+                    <article class="workspace-folder-tile" role="listitem" [class.is-archived]="isArchived(folder)"
+                        [class.is-busy]="isBusy(folder)">
+                        <div class="workspace-folder-open" [attr.role]="isInlineRenaming(folder) ? null : 'button'"
+                            [attr.tabindex]="isInlineRenaming(folder) || isBusy(folder) ? -1 : 0"
+                            [attr.aria-label]="isInlineRenaming(folder) ? null : 'Open ' + folderName(folder)"
+                            (click)="handleFolderClick(folder, $event)"
+                            (dblclick)="handleFolderDoubleClick(folder, $event)" (keydown.enter)="openFolder(folder)">
+                            <span [class]="'workspace-folder-visual ' + folderTheme(folder).variant" aria-hidden="true">
+                                <span class="workspace-folder-back"></span>
+                                <span class="workspace-folder-sheet"><span></span><span></span><span></span></span>
+                                <span class="workspace-folder-front">
+                                    <app-icon [icon]="folderTheme(folder).icon" size="sm" />
+                                </span>
+                            </span>
+
+                            <span class="workspace-folder-copy">
+                                @if (isInlineRenaming(folder)) {
+                                <input #renameInput class="workspace-inline-rename"
+                                    [class.is-invalid]="!!inlineRenameError()" type="text" maxlength="80"
+                                    aria-label="Rename folder" [attr.aria-invalid]="!!inlineRenameError()"
+                                    [attr.title]="inlineRenameError()" [value]="inlineRenameName()"
+                                    (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()"
+                                    (input)="updateInlineRename($event)"
+                                    (keydown.enter)="saveInlineRename(folder, $event)"
+                                    (keydown.escape)="cancelInlineRename($event)" (blur)="saveInlineRename(folder)" />
+                                } @else {
+                                <strong class="workspace-name-editable" title="Double-click to rename"
+                                    (dblclick)="beginInlineRename(folder, $event)">{{ folderName(folder) }}</strong>
+                                }
+                                <small>{{ folderDescription(folder) }}</small>
+                            </span>
+                        </div>
+
+                        <div class="workspace-folder-meta" aria-hidden="true">
+                            <span><app-icon [icon]="LucideFileText" size="xs" />{{ folderNoteCount(folder) }}</span>
+                            @if (isDefault(folder)) {
+                            <span><app-icon [icon]="LucideStar" size="xs" />Default</span>
+                            } @else {
+                            <span><app-icon [icon]="LucideHash" size="xs" />{{ folderPosition(folder) + 1 }}</span>
+                            }
+                            <time>{{ folderUpdatedLabel(folder) }}</time>
+                        </div>
+
+                        <button type="button" class="workspace-quick-edit"
+                            [attr.aria-label]="'Edit ' + folderName(folder)" [attr.title]="'Edit ' + folderName(folder)"
+                            (click)="openEditEditor(folder, $event)">
+                            <app-icon [icon]="LucidePencil" size="xs" />
+                        </button>
+
+                        <button type="button" class="workspace-menu-trigger" [matMenuTriggerFor]="folderActions"
+                            [attr.aria-label]="'Actions for ' + folderName(folder)" (click)="$event.stopPropagation()">
+                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                        </button>
+
+                        <mat-menu #folderActions="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
+                            class="workspace-actions-menu">
+                            <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                (click)="openFolder(folder)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                        [icon]="LucideArrowRight" size="xs" /></span>
+                                <span class="workspace-menu-item-copy"><strong>Open</strong><small>Go to
+                                        folder</small></span>
+                            </button>
+
+                            <button mat-menu-item type="button" class="workspace-action-item is-edit"
+                                (click)="openEditEditor(folder)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                        [icon]="LucidePencil" size="xs" /></span>
+                                <span class="workspace-menu-item-copy"><strong>Edit folder</strong><small>Name and
+                                        description</small></span>
+                            </button>
+
+                            <button mat-menu-item type="button" class="workspace-action-item"
+                                (click)="beginInlineRename(folder)">
+                                <span class="workspace-menu-item-icon workspace-menu-rename-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucidePencil" size="xs" />
+                                </span>
+                                <span class="workspace-menu-item-copy"><strong>Quick rename</strong><small>Change only
+                                        the folder name</small></span>
+                            </button>
+
+                            @if (isActive(folder)) {
+                            <button mat-menu-item type="button" class="workspace-action-item"
+                                [disabled]="isDefault(folder)" (click)="archiveFolder(folder)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                        [icon]="LucideArchive" size="xs" /></span>
+                                <span class="workspace-menu-item-copy"><strong>Archive</strong><small>{{
+                                        isDefault(folder) ? 'Default folder stays active' : 'Keep it for later'
+                                        }}</small></span>
+                            </button>
+                            } @else {
+                            <button mat-menu-item type="button" class="workspace-action-item"
+                                (click)="activateFolder(folder)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                        [icon]="LucideRotateCcw" size="xs" /></span>
+                                <span class="workspace-menu-item-copy"><strong>Restore</strong><small>Bring it
+                                        back</small></span>
+                            </button>
+                            }
+
+                            <mat-divider />
+
+                            <button mat-menu-item type="button" class="workspace-action-item workspace-menu-danger"
+                                [disabled]="isDefault(folder)" (click)="requestDelete(folder)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                        [icon]="LucideTrash2" size="xs" /></span>
+                                <span class="workspace-menu-item-copy"><strong>Move to trash</strong><small>{{
+                                        isDefault(folder) ? 'Default folder is protected' : 'Remove from this workspace'
+                                        }}</small></span>
+                            </button>
+                        </mat-menu>
+                    </article>
+                    }
+
+                    @if (activeTab() !== 'archived') {
+                    <button type="button" class="workspace-create-folder" (click)="openCreateEditor()">
+                        <span class="workspace-create-folder-visual" aria-hidden="true">
+                            <span></span><app-icon [icon]="LucidePlus" size="md" />
+                        </span>
+                        <strong>Create a new folder</strong>
+                        <small>A fresh place for related notes</small>
+                    </button>
+                    }
+                </div>
+                } @else {
+                <table class="table table-hover align-middle mb-0 workspace-notes-table"
+                    aria-label="Workspace folders list">
+                    <thead>
+                        <tr>
+                            <th scope="col">Folder</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Modified</th>
+                            <th scope="col" class="workspace-table-actions-heading">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (folder of visibleFolders(); track folderId(folder)) {
+                        <tr [attr.data-workspace-theme]="folderTheme(folder).variant"
+                            [class.is-archived]="isArchived(folder)" [class.is-busy]="isBusy(folder)"
+                            (dblclick)="handleFolderDoubleClick(folder, $event)">
+                            <td class="workspace-table-name" data-label="Folder">
+                                <div class="workspace-table-name-main" role="button"
+                                    [attr.tabindex]="isInlineRenaming(folder) || isBusy(folder) ? -1 : 0"
+                                    [attr.aria-label]="isInlineRenaming(folder) ? null : 'Open ' + folderName(folder)"
+                                    (click)="handleFolderClick(folder, $event)" (keydown.enter)="openFolder(folder)">
+                                    <span [class]="'workspace-folder-thumbnail ' + folderTheme(folder).variant"
+                                        aria-hidden="true">
+                                        <span></span><app-icon [icon]="folderTheme(folder).icon" size="xs" />
+                                    </span>
+
+                                    <div class="workspace-table-copy">
+                                        @if (isInlineRenaming(folder)) {
+                                        <input #renameInput class="workspace-inline-rename is-list"
+                                            [class.is-invalid]="!!inlineRenameError()" type="text" maxlength="80"
+                                            aria-label="Rename folder" [attr.aria-invalid]="!!inlineRenameError()"
+                                            [attr.title]="inlineRenameError()" [value]="inlineRenameName()"
+                                            (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()"
+                                            (input)="updateInlineRename($event)"
+                                            (keydown.enter)="saveInlineRename(folder, $event)"
+                                            (keydown.escape)="cancelInlineRename($event)"
+                                            (blur)="saveInlineRename(folder)" />
+                                        } @else {
+                                        <strong class="workspace-name-editable" title="Double-click to rename"
+                                            (dblclick)="beginInlineRename(folder, $event)">{{ folderName(folder)
+                                            }}</strong>
+                                        }
+                                        <small>{{ folderDescription(folder) }}</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="workspace-table-access" data-label="Status">
+                                <app-badge [label]="folderStatusLabel(folder)" variant="outline" size="xs"
+                                    shape="pill" />
+                            </td>
+
+                            <td class="workspace-table-number" data-label="Notes">
+                                <span><app-icon [icon]="LucideFileText" size="xs" />{{ folderNoteCount(folder) }}</span>
+                            </td>
+
+                            <td class="workspace-table-number" data-label="Position">
+                                @if (isDefault(folder)) {
+                                <span><app-icon [icon]="LucideStar" size="xs" />Default</span>
+                                } @else {
+                                <span><app-icon [icon]="LucideHash" size="xs" />{{ folderPosition(folder) + 1 }}</span>
+                                }
+                            </td>
+
+                            <td class="workspace-table-modified" data-label="Modified"><time>{{
+                                    folderUpdatedLabel(folder) }}</time></td>
+
+                            <td class="workspace-table-actions" data-label="Actions">
+                                <div class="workspace-table-action-group">
+                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
+                                        appearance="standard" size="xs" [rounded]="true"
+                                        [ariaLabel]="'Edit ' + folderName(folder)"
+                                        [title]="'Edit ' + folderName(folder)" [disabled]="isBusy(folder)"
+                                        (buttonClick)="openEditEditor(folder, $event)" />
+
+                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
+                                        appearance="standard" size="xs" [rounded]="true"
+                                        [ariaLabel]="'Open ' + folderName(folder)"
+                                        [title]="'Open ' + folderName(folder)" [disabled]="isBusy(folder)"
+                                        (buttonClick)="openFolder(folder)" />
+
+                                    <button type="button" class="workspace-table-menu-button"
+                                        [matMenuTriggerFor]="folderListActions"
+                                        [attr.aria-label]="'More actions for ' + folderName(folder)"
+                                        [attr.title]="'More actions for ' + folderName(folder)"
+                                        [disabled]="isBusy(folder)" (click)="$event.stopPropagation()">
+                                        <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                    </button>
+                                </div>
+
+                                <mat-menu #folderListActions="matMenu" xPosition="before" yPosition="below"
+                                    [overlapTrigger]="false" class="workspace-actions-menu">
+                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                        (click)="openFolder(folder)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                                [icon]="LucideArrowRight" size="xs" /></span>
+                                        <span class="workspace-menu-item-copy"><strong>Open</strong><small>Go to
+                                                folder</small></span>
+                                    </button>
+
+                                    <button mat-menu-item type="button" class="workspace-action-item is-edit"
+                                        (click)="openEditEditor(folder)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                                [icon]="LucidePencil" size="xs" /></span>
+                                        <span class="workspace-menu-item-copy"><strong>Edit folder</strong><small>Name
+                                                and description</small></span>
+                                    </button>
+
+                                    <button mat-menu-item type="button" class="workspace-action-item"
+                                        (click)="beginInlineRename(folder)">
+                                        <span class="workspace-menu-item-icon workspace-menu-rename-icon"
+                                            aria-hidden="true">
+                                            <app-icon [icon]="LucidePencil" size="xs" />
+                                        </span>
+                                        <span class="workspace-menu-item-copy"><strong>Quick
+                                                rename</strong><small>Change only the folder name</small></span>
+                                    </button>
+
+                                    @if (isActive(folder)) {
+                                    <button mat-menu-item type="button" class="workspace-action-item"
+                                        [disabled]="isDefault(folder)" (click)="archiveFolder(folder)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                                [icon]="LucideArchive" size="xs" /></span>
+                                        <span class="workspace-menu-item-copy"><strong>Archive</strong><small>{{
+                                                isDefault(folder) ? 'Default folder stays active' : 'Keep it for later'
+                                                }}</small></span>
+                                    </button>
+                                    } @else {
+                                    <button mat-menu-item type="button" class="workspace-action-item"
+                                        (click)="activateFolder(folder)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                                [icon]="LucideRotateCcw" size="xs" /></span>
+                                        <span class="workspace-menu-item-copy"><strong>Restore</strong><small>Bring it
+                                                back</small></span>
+                                    </button>
+                                    }
+
+                                    <mat-divider />
+
+                                    <button mat-menu-item type="button"
+                                        class="workspace-action-item workspace-menu-danger"
+                                        [disabled]="isDefault(folder)" (click)="requestDelete(folder)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon
+                                                [icon]="LucideTrash2" size="xs" /></span>
+                                        <span class="workspace-menu-item-copy"><strong>Move to trash</strong><small>{{
+                                                isDefault(folder) ? 'Default folder is protected' : 'Remove from this
+                                                workspace' }}</small></span>
+                                    </button>
+                                </mat-menu>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+<app-add-edit-workspace-folder-modal [open]="folderModalOpen()" [workspaceId]="selectedWorkspaceId()"
+    [id]="folderModalId()" [folder]="folderModalFolder()" [position]="nextFolderPosition()"
+    (closed)="closeFolderEditor()" (saved)="onFolderSaved($event)" />
+
+@if (deleteTarget(); as folder) {
+<div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section class="workspace-dialog-shell workspace-delete-shell" role="alertdialog" aria-modal="true"
+        aria-labelledby="workspace-folder-delete-title" (mousedown)="$event.stopPropagation()">
+        <app-sticky-card class="workspace-dialog-note workspace-delete-note" variant="noteRed" appearance="elevated"
+            shape="note" size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+            <span card-icon class="workspace-dialog-icon is-danger" aria-hidden="true">
+                <app-icon [icon]="LucideTrash2" size="sm" />
+            </span>
+
+            <span card-eyebrow class="workspace-dialog-kicker is-danger">Before you move it</span>
+
+            <h2 card-title id="workspace-folder-delete-title" class="workspace-dialog-title">Move folder to trash?</h2>
+
+            <p card-subtitle class="workspace-dialog-subtitle">
+                “{{ folderName(folder) }}” will disappear from this workspace folder list.
+            </p>
+
+            <div class="workspace-delete-message">
+                <span class="workspace-delete-message-icon" aria-hidden="true"><app-icon [icon]="LucideArchive"
+                        size="xs" /></span>
+                <span>If you only want it out of the way for now, archive it instead.</span>
+            </div>
+
+            <div card-footer class="workspace-dialog-actions">
+                <app-button label="Keep folder" variant="secondary" size="sm" [disabled]="deleting()"
+                    (buttonClick)="closeDeleteDialog()" />
+                <app-button label="Move to trash" variant="danger" size="sm" [loading]="deleting()"
+                    [disabled]="deleting()" (buttonClick)="confirmDelete()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}

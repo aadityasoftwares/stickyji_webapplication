@@ -1,0 +1,533 @@
+@use '../../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+.add-edit-my-notes-modal {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal + 1;
+    display: block;
+    padding: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    color: $text-primary;
+    font-family: $font-body;
+    outline: none;
+
+    .modal-dialog {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: min(100%, 680px);
+        max-width: 680px;
+        min-height: calc(100vh - 36px);
+        margin: 0 auto;
+        pointer-events: none;
+    }
+}
+
+.my-notes-modal-content {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-height: calc(100vh - 36px);
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
+    color: $text-primary;
+    background:
+        radial-gradient(circle at 7% 0%,
+            rgba($note-button-yellow, 0.17),
+            transparent 220px),
+        linear-gradient(180deg,
+            rgba($paper-light, 0.99),
+            rgba($paper, 0.99));
+    border: 1px solid rgba($border, 0.96);
+    border-radius: $radius-lg;
+    box-shadow:
+        $shadow-lg,
+        0 30px 90px rgba($heading, 0.10);
+    outline: none;
+
+    &::before {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        left: 50%;
+        width: 82px;
+        height: 7px;
+        content: '';
+        background:
+            linear-gradient(90deg,
+                rgba($note-button-yellow, 0.72),
+                $note-button-yellow,
+                rgba($note-button-yellow, 0.72));
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 2px 8px rgba($heading, 0.08);
+        transform: translateX(-50%);
+    }
+}
+
+.my-notes-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    gap: 16px;
+    padding: 24px 24px 19px;
+    background: transparent;
+    border: 0;
+}
+
+.my-notes-modal-heading {
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    gap: 13px;
+}
+
+.my-notes-modal-heading-copy {
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.my-notes-modal-icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    color: $note-button-yellow-text;
+    background:
+        linear-gradient(145deg,
+            $note-button-yellow,
+            rgba($note-button-yellow, 0.74));
+    border: 1px solid rgba($accent, 0.16);
+    border-radius: $radius-sm;
+    box-shadow:
+        $shadow-sm,
+        inset 0 1px rgba($paper, 0.72);
+    place-items: center;
+}
+
+.my-notes-modal-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: $accent;
+    font-family: $font-note;
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: rotate(-0.35deg);
+    transform-origin: left center;
+}
+
+.my-notes-modal-title {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 1.08rem;
+    font-weight: 780;
+    line-height: 1.22;
+    letter-spacing: -0.025em;
+}
+
+.my-notes-modal-description {
+    max-width: 430px;
+    margin: 6px 0 0;
+    color: $text-secondary;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.my-notes-modal-close {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin: -2px -3px 0 0;
+}
+
+.my-notes-modal-close::ng-deep .app-button-wrapper {
+    display: inline-flex;
+}
+
+.my-notes-modal-close::ng-deep button,
+.my-notes-modal-close::ng-deep .app-button,
+.my-notes-modal-close::ng-deep .app-button-main {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: $radius-xs !important;
+}
+
+.my-notes-modal-divider {
+    display: block;
+    width: 100%;
+    margin: 0;
+    opacity: 0.72;
+}
+
+.my-notes-modal-body {
+    min-height: 0;
+    padding: 20px 24px 23px;
+    overflow-y: auto;
+    background:
+        linear-gradient(180deg,
+            rgba($paper-dark, 0.20),
+            transparent 92px);
+}
+
+.my-notes-modal-form {
+    display: grid;
+    gap: 14px;
+}
+
+.my-notes-modal-form app-input,
+.my-notes-modal-form app-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.my-notes-modal-select-row {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+}
+
+.my-notes-modal-select-field {
+    display: grid;
+    min-width: 0;
+    gap: 5px;
+}
+
+.my-notes-modal-select-field::ng-deep app-label label,
+.my-notes-modal-select-field::ng-deep .app-label {
+    margin: 0 0 1px 3px !important;
+    color: $text-light !important;
+    font-size: 0.56rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.055em !important;
+    text-transform: uppercase !important;
+}
+
+.checklist-choice {
+    display: block;
+    padding: 13px 14px;
+    background:
+        linear-gradient(135deg,
+            rgba($note-button-yellow, 0.12),
+            rgba($paper, 0.72));
+    border: 1px dashed rgba($border, 0.92);
+    border-radius: 12px;
+
+    app-switch {
+        display: block;
+        width: 100%;
+    }
+}
+
+.checklist-loading {
+    padding: 12px 14px;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.24);
+    border: 1px dashed rgba($border, 0.75);
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.checklist-editor {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    background:
+        linear-gradient(180deg,
+            rgba($paper, 0.96),
+            rgba($paper-dark, 0.18));
+    border: 1px solid rgba($border, 0.9);
+    border-radius: 13px;
+    box-shadow: inset 0 1px rgba($paper-light, 0.9);
+}
+
+.checklist-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    >div {
+        min-width: 0;
+    }
+
+    h3 {
+        margin: 2px 0 0;
+        color: $heading;
+        font-family: $font-heading;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+}
+
+.checklist-editor-kicker {
+    color: $accent;
+    font-family: $font-note;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.checklist-items {
+    display: grid;
+    gap: 8px;
+}
+
+.checklist-item-row {
+    display: grid;
+    grid-template-columns:
+        28px minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 8px;
+
+    &.is-completed {
+        .checklist-item-input {
+            opacity: 0.72;
+        }
+    }
+}
+
+.checklist-complete-button {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    cursor: pointer;
+    color: $heading;
+    background: $paper;
+    border: 1px solid rgba($border, 0.98);
+    border-radius: 7px;
+    place-items: center;
+    transition:
+        transform 120ms ease,
+        background 120ms ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    &.is-completed {
+        color: $note-button-yellow-text;
+        background: $note-button-yellow;
+        border-color: rgba($accent, 0.28);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+}
+
+.checklist-item-input {
+    min-width: 0;
+}
+
+.checklist-item-row.is-completed .checklist-item-input::ng-deep input {
+    text-decoration: line-through;
+}
+
+.checklist-remove-button {
+    display: inline-flex;
+}
+
+.checklist-footnote {
+    color: $text-light;
+    font-size: 0.62rem;
+    line-height: 1.45;
+}
+
+.my-notes-modal-error {
+    padding: 10px 12px;
+    color: $danger;
+    background: rgba($danger, 0.07);
+    border: 1px solid rgba($danger, 0.22);
+    border-radius: 9px;
+    font-size: 0.69rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.my-notes-modal-hint {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 11px;
+    color: $text-light;
+    background: rgba($paper, 0.44);
+    border: 1px dashed rgba($border, 0.72);
+    border-radius: 9px;
+    font-family: $font-note;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.my-notes-modal-hint-pin {
+    display: block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    background: rgba($accent, 0.72);
+    border-radius: 999px;
+}
+
+.my-notes-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    gap: 9px;
+    padding: 14px 24px 18px;
+    background: rgba($paper-dark, 0.24);
+    border: 0;
+}
+
+.my-notes-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+    background: rgba($heading, 0.38);
+    opacity: 1;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+@media (max-width: 640px) {
+
+    .add-edit-my-notes-modal {
+        padding: 10px;
+
+        .modal-dialog {
+            width: 100%;
+            max-width: 100%;
+            min-height: calc(100vh - 20px);
+        }
+    }
+
+    .my-notes-modal-content {
+        max-height: calc(100vh - 20px);
+        border-radius: $radius-md;
+    }
+
+    .my-notes-modal-header {
+        padding: 21px 18px 17px;
+    }
+
+    .my-notes-modal-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .my-notes-modal-body {
+        padding: 18px;
+    }
+
+    .my-notes-modal-select-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .my-notes-modal-footer {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+        padding: 12px 18px 16px;
+
+        app-button {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    .my-notes-modal-footer::ng-deep app-button .app-button-wrapper,
+    .my-notes-modal-footer::ng-deep app-button button,
+    .my-notes-modal-footer::ng-deep app-button .app-button {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .my-notes-modal-footer {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .checklist-item-row {
+        grid-template-columns:
+            26px minmax(0, 1fr) 28px;
+        gap: 6px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .add-edit-my-notes-modal,
+    .my-notes-modal-backdrop,
+    .my-notes-modal-content,
+    .checklist-complete-button {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+.checklists-editor {
+    display: grid;
+    gap: 12px;
+}
+
+.checklists-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    >div {
+        min-width: 0;
+    }
+
+    h3 {
+        margin: 2px 0 0;
+        color: $heading;
+        font-family: $font-heading;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+}
+
+.checklist-editor+.checklist-editor {
+    margin-top: 0;
+}
+
+.checklist-editor-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 560px) {
+
+    .checklists-editor-header,
+    .checklist-editor-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .checklist-editor-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

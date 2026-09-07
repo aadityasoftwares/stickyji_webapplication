@@ -1,0 +1,529 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: block;
+    max-width: 100%;
+    font-family: $font-body;
+}
+
+:host.app-loader-host-inline {
+    display: inline-flex;
+    width: auto;
+    vertical-align: middle;
+}
+
+:host.app-loader-host-overlay,
+:host.app-loader-host-fullscreen {
+    display: contents;
+}
+
+.app-loader {
+    --app-loader-min-height: 220px;
+    --app-loader-z-index: 40;
+    --app-loader-visual-width: 78px;
+    --app-loader-visual-height: 62px;
+    --app-loader-note-width: 38px;
+    --app-loader-note-height: 46px;
+    --app-loader-lift: 8px;
+    --app-loader-note-a: #{$note-button-yellow};
+    --app-loader-note-b: #{$note-button-pink};
+    --app-loader-note-c: #{$note-button-blue};
+    --app-loader-note-ink: rgba(41, 37, 31, 0.34);
+    --app-loader-progress-color: #{$accent};
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--app-loader-min-height);
+    padding: 24px;
+    color: $text-primary;
+    isolation: isolate;
+}
+
+.app-loader-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: min(100%, 360px);
+    min-width: 0;
+    gap: 13px;
+    text-align: center;
+}
+
+/* Display modes */
+
+.app-loader-inline {
+    display: inline-flex;
+    width: auto;
+    min-height: 0;
+    padding: 0;
+
+    .app-loader-content {
+        flex-direction: row;
+        width: auto;
+        gap: 9px;
+        text-align: left;
+    }
+
+    .app-loader-visual {
+        flex: 0 0 var(--app-loader-visual-width);
+    }
+
+    .app-loader-progress-row {
+        width: 90px;
+    }
+}
+
+.app-loader-section {
+    background: transparent;
+}
+
+.app-loader-card {
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.52), transparent 52%),
+        $paper;
+    border: 1px solid $border-light;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba($text-primary, 0.055);
+}
+
+.app-loader-overlay,
+.app-loader-fullscreen {
+    inset: 0;
+    z-index: var(--app-loader-z-index);
+    min-height: 0;
+}
+
+.app-loader-overlay {
+    position: absolute;
+    border-radius: inherit;
+}
+
+.app-loader-fullscreen {
+    position: fixed;
+    min-width: 100vw;
+    min-height: 100dvh;
+}
+
+.app-loader-overlay.app-loader-with-backdrop {
+    background: rgba($paper, 0.83);
+}
+
+.app-loader-fullscreen.app-loader-with-backdrop {
+    background:
+        radial-gradient(circle at 22% 18%, rgba($note-button-yellow, 0.16), transparent 31%),
+        radial-gradient(circle at 82% 80%, rgba($note-button-blue, 0.11), transparent 29%),
+        rgba($page-bg, 0.96);
+}
+
+.app-loader-overlay.app-loader-with-blur,
+.app-loader-fullscreen.app-loader-with-blur {
+    backdrop-filter: blur(5px);
+}
+
+/* Sizes */
+
+.app-loader-sm {
+    --app-loader-visual-width: 52px;
+    --app-loader-visual-height: 41px;
+    --app-loader-note-width: 25px;
+    --app-loader-note-height: 31px;
+    --app-loader-lift: 5px;
+
+    gap: 8px;
+
+    &.app-loader-section,
+    &.app-loader-card {
+        padding: 16px;
+    }
+}
+
+.app-loader-md {
+    --app-loader-visual-width: 78px;
+    --app-loader-visual-height: 62px;
+    --app-loader-note-width: 38px;
+    --app-loader-note-height: 46px;
+    --app-loader-lift: 8px;
+}
+
+.app-loader-lg {
+    --app-loader-visual-width: 108px;
+    --app-loader-visual-height: 84px;
+    --app-loader-note-width: 51px;
+    --app-loader-note-height: 63px;
+    --app-loader-lift: 11px;
+
+    .app-loader-content {
+        gap: 17px;
+    }
+}
+
+/* Sticky-note animation */
+
+.app-loader-visual {
+    position: relative;
+    display: block;
+    width: var(--app-loader-visual-width);
+    height: var(--app-loader-visual-height);
+}
+
+.app-loader-note {
+    position: absolute;
+    top: 3px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    width: var(--app-loader-note-width);
+    height: var(--app-loader-note-height);
+    gap: 5px;
+    padding: 32% 20% 15%;
+    overflow: hidden;
+    border: 1px solid rgba(74, 62, 43, 0.13);
+    border-radius: 3px 3px 8px 3px;
+    box-shadow:
+        0 5px 10px rgba(46, 38, 25, 0.13),
+        inset 0 1px rgba(255, 255, 255, 0.45);
+    transform: translateY(0) rotate(var(--app-loader-note-rotation));
+    transform-origin: 50% 80%;
+    animation: app-loader-note-float 1.15s ease-in-out infinite;
+
+    &::before {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 29%;
+        height: 26%;
+        content: '';
+        background: rgba(255, 255, 255, 0.34);
+        clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
+
+    &::after {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 23%;
+        height: 19%;
+        content: '';
+        background: rgba(46, 38, 25, 0.07);
+        clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+}
+
+.app-loader-note-one {
+    --app-loader-note-rotation: -10deg;
+    left: 2%;
+    z-index: 1;
+    background: var(--app-loader-note-a);
+    animation-delay: -0.76s;
+}
+
+.app-loader-note-two {
+    --app-loader-note-rotation: 1deg;
+    left: 50%;
+    z-index: 3;
+    background: var(--app-loader-note-b);
+    transform: translateX(-50%) translateY(0) rotate(var(--app-loader-note-rotation));
+    animation-name: app-loader-center-note-float;
+    animation-delay: -0.38s;
+}
+
+.app-loader-note-three {
+    --app-loader-note-rotation: 10deg;
+    right: 2%;
+    z-index: 2;
+    background: var(--app-loader-note-c);
+}
+
+.app-loader-note-line {
+    display: block;
+    width: 100%;
+    height: max(2px, 5%);
+    background: var(--app-loader-note-ink);
+    border-radius: 999px;
+
+    &.is-short {
+        width: 62%;
+        opacity: 0.78;
+    }
+}
+
+.app-loader-note-pin {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    width: 12%;
+    aspect-ratio: 1;
+    background: rgba(46, 38, 25, 0.36);
+    border-radius: 50%;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+    transform: translateX(-50%);
+}
+
+.app-loader-shadow {
+    position: absolute;
+    right: 10%;
+    bottom: 2px;
+    left: 10%;
+    z-index: 0;
+    height: 8%;
+    background: rgba(46, 38, 25, 0.12);
+    border-radius: 50%;
+    filter: blur(4px);
+    animation: app-loader-shadow-pulse 1.15s ease-in-out infinite;
+}
+
+/* Label and progress */
+
+.app-loader-label {
+    display: block;
+    max-width: 100%;
+}
+
+.app-loader-progress-row {
+    display: flex;
+    align-items: center;
+    width: min(100%, 230px);
+    gap: 9px;
+}
+
+.app-loader-progress {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    height: 5px;
+    overflow: hidden;
+    background: $paper-dark;
+    border: 1px solid $border-light;
+    border-radius: 999px;
+
+    >span {
+        display: block;
+        height: 100%;
+        background: var(--app-loader-progress-color);
+        border-radius: inherit;
+        box-shadow: 0 0 8px color-mix(in srgb, var(--app-loader-progress-color) 34%, transparent);
+        transition: width 180ms ease;
+    }
+}
+
+.app-loader-progress-value {
+    flex: 0 0 30px;
+    color: $text-light;
+    font-family: $font-mono;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.app-loader-visual-hidden .app-loader-content,
+.app-loader-label-hidden .app-loader-content {
+    gap: 0;
+}
+
+.app-loader-visual-hidden.app-loader-with-progress .app-loader-content,
+.app-loader-label-hidden.app-loader-with-progress .app-loader-content {
+    gap: 10px;
+}
+
+/* Tones */
+
+.app-loader-tone-neutral {
+    --app-loader-note-a: #{$paper-dark};
+    --app-loader-note-b: color-mix(in srgb, #{$paper-dark} 78%, #{$border});
+    --app-loader-note-c: color-mix(in srgb, #{$paper} 68%, #{$secondary});
+    --app-loader-progress-color: #{$secondary};
+}
+
+.app-loader-tone-primary {
+    --app-loader-note-a: color-mix(in srgb, #{$primary} 22%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$primary} 36%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$primary} 52%, #{$paper});
+    --app-loader-progress-color: #{$primary};
+}
+
+.app-loader-tone-secondary {
+    --app-loader-note-a: color-mix(in srgb, #{$secondary} 22%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$secondary} 38%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$secondary} 54%, #{$paper});
+    --app-loader-progress-color: #{$secondary};
+}
+
+.app-loader-tone-accent,
+.app-loader-tone-warning {
+    --app-loader-note-a: color-mix(in srgb, #{$accent} 24%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$accent} 43%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$accent} 64%, #{$paper});
+    --app-loader-progress-color: #{$accent};
+}
+
+.app-loader-tone-success {
+    --app-loader-note-a: color-mix(in srgb, #{$success} 22%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$success} 40%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$success} 58%, #{$paper});
+    --app-loader-progress-color: #{$success};
+}
+
+.app-loader-tone-danger {
+    --app-loader-note-a: color-mix(in srgb, #{$danger} 20%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$danger} 38%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$danger} 56%, #{$paper});
+    --app-loader-progress-color: #{$danger};
+}
+
+.app-loader-tone-info {
+    --app-loader-note-a: color-mix(in srgb, #{$info} 20%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$info} 38%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$info} 56%, #{$paper});
+    --app-loader-progress-color: #{$info};
+}
+
+.app-loader-tone-noteYellow {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-yellow} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-yellow};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-yellow} 76%, #{$accent});
+    --app-loader-progress-color: #{$accent};
+}
+
+.app-loader-tone-noteOrange {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-orange} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-orange};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-orange} 78%, #{$accent});
+    --app-loader-progress-color: #{$warning};
+}
+
+.app-loader-tone-notePink {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-pink} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-pink};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-pink} 78%, #{$danger});
+    --app-loader-progress-color: #9b2957;
+}
+
+.app-loader-tone-noteRed {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-red} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-red};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-red} 78%, #{$danger});
+    --app-loader-progress-color: #{$danger};
+}
+
+.app-loader-tone-noteGreen {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-green} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-green};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-green} 78%, #{$success});
+    --app-loader-progress-color: #{$success};
+}
+
+.app-loader-tone-noteBlue {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-blue} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-blue};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-blue} 78%, #{$info});
+    --app-loader-progress-color: #{$info};
+}
+
+.app-loader-tone-notePurple {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-purple} 62%, #{$paper});
+    --app-loader-note-b: #{$note-button-purple};
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-purple} 78%, #67408c);
+    --app-loader-progress-color: #67408c;
+}
+
+.app-loader-tone-noteBrown {
+    --app-loader-note-a: color-mix(in srgb, #{$note-button-brown} 26%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$note-button-brown} 45%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$note-button-brown} 68%, #{$paper});
+    --app-loader-progress-color: #{$note-button-brown};
+}
+
+.app-loader-tone-noteBlack {
+    --app-loader-note-a: color-mix(in srgb, #{$note-black} 24%, #{$paper});
+    --app-loader-note-b: color-mix(in srgb, #{$note-black} 43%, #{$paper});
+    --app-loader-note-c: color-mix(in srgb, #{$note-black} 66%, #{$paper});
+    --app-loader-progress-color: #{$note-black};
+}
+
+@keyframes app-loader-note-float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(var(--app-loader-note-rotation));
+    }
+
+    42% {
+        transform: translateY(calc(var(--app-loader-lift) * -1)) rotate(var(--app-loader-note-rotation));
+    }
+}
+
+@keyframes app-loader-center-note-float {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0) rotate(var(--app-loader-note-rotation));
+    }
+
+    42% {
+        transform: translateX(-50%) translateY(calc(var(--app-loader-lift) * -1)) rotate(var(--app-loader-note-rotation));
+    }
+}
+
+@keyframes app-loader-shadow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.78;
+        transform: scaleX(1);
+    }
+
+    42% {
+        opacity: 0.45;
+        transform: scaleX(0.72);
+    }
+}
+
+@media (max-width: 520px) {
+    .app-loader {
+        padding: 18px;
+    }
+
+    .app-loader-lg {
+        --app-loader-visual-width: 92px;
+        --app-loader-visual-height: 72px;
+        --app-loader-note-width: 44px;
+        --app-loader-note-height: 55px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-loader-note,
+    .app-loader-shadow {
+        animation: none;
+    }
+
+    .app-loader-progress>span {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-loader-note {
+        color: CanvasText;
+        background: Canvas;
+        border: 1px solid CanvasText;
+        box-shadow: none;
+    }
+
+    .app-loader-progress {
+        border-color: CanvasText;
+    }
+
+    .app-loader-progress>span {
+        background: Highlight;
+    }
+}

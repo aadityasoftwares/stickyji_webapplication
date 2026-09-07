@@ -1,2102 +1,892 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
   Input,
+  OnChanges,
+  OnInit,
   Output,
+  SimpleChanges,
   computed,
-  effect,
   inject,
-  signal,
+  signal
 } from '@angular/core';
-
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, forkJoin } from 'rxjs';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
 import {
-  takeUntilDestroyed,
-} from '@angular/core/rxjs-interop';
-
-import {
-  forkJoin,
-} from 'rxjs';
-
-import {
-  CdkDragDrop,
-  DragDropModule,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
-
-import {
-  LucideArrowLeft,
-  LucideArrowRight,
-  LucideCalendarDays,
-  LucideCheck,
-  LucideCheckCircle2,
+  LucideArchive,
   LucideClock3,
-  LucideGripVertical,
+  LucideColumns3,
+  LucideFolderOpen,
+  LucideLayoutGrid,
+  LucideList,
+  LucideMoreHorizontal,
+  LucidePanelsTopLeft,
+  LucidePencil,
   LucidePlus,
-  LucideX,
-  LucideZap,
+  LucideRefreshCw,
+  LucideRotateCcw,
+  LucideSearch,
+  LucideStickyNote,
+  LucideTrash2,
+  LucideX
 } from '@lucide/angular';
 
-import {
-  AppIcon,
-} from '../../shared/components/icon/icon';
-import {
-  Avatar,
-} from '../../shared/components/avatar/avatar';
-import {
-  Badge,
-} from '../../shared/components/badge/badge';
-import {
-  Button,
-} from '../../shared/components/button/button';
-import {
-  Checkbox,
-} from '../../shared/components/checkbox/checkbox';
-import {
-  Divider,
-} from '../../shared/components/divider/divider';
-import {
-  Label,
-} from '../../shared/components/label/label';
-import {
-  StickyCard,
-} from '../../shared/components/sticky-card/sticky-card';
-
-import {
-  WorkspaceFolderStore,
-} from '../workspacefolders/services/workspace-folder.store';
+import { AppIcon } from '../../shared/components/icon/icon';
+import { Badge } from '../../shared/components/badge/badge';
+import { Button } from '../../shared/components/button/button';
+import { Input as AppInput, type InputValue } from '../../shared/components/input/input';
+import { Label } from '../../shared/components/label/label';
+import { Loader } from '../../shared/components/loader/loader';
+import { Select, type SelectOption, type SelectValue } from '../../shared/components/select/select';
+import { Tabs, type TabItem, type TabValue } from '../../shared/components/tabs/tabs';
+import { StickyCard, type CardVariant } from '../../shared/components/sticky-card/sticky-card';
+import { ToastService } from '../../shared/components/toast/services/toast.service';
 
 import type {
-  KanbanColumn,
-  KanbanFolder,
-  KanbanNote,
-  KanbanStatus,
-  StickyNote,
-  StickyNoteColor,
-  StickyNoteColumn,
-  StickyNoteColumnColor,
-  StickyNoteColumnType,
-} from './models/mynotes.interface';
+  MyWorkspaceQuery,
+  PaginatedApiResponse as WorkspacePaginatedApiResponse,
+  Workspace as WorkspaceModel
+} from '../workspace/models/workspace.models';
+import { WorkspaceApiService } from '../workspace/services/workspace.service';
+import { WorkspaceStore } from '../workspace/services/workspace.store';
 
-import {
-  StickyNoteColumnApiService,
-} from './services/sticky-note-column.service';
+import type {
+  PaginatedApiResponse as FolderPaginatedApiResponse,
+  WorkspaceFolder,
+  WorkspaceFolderQuery
+} from '../workspacefolders/models/workspace-folder.models';
+import { WorkspaceFolderApiService } from '../workspacefolders/services/workspace-folder.service';
+import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
+
+import type { StickyNote, StickyNoteColumn } from './models/mynotes.interface';
+import { AddEditMyNotesModal } from './modals/add-edit-my-notes-modal/add-edit-my-notes-modal';
 import { StickyNoteApiService } from './services/sticky-notes.service';
+import { StickyNoteColumnApiService } from './services/sticky-note-column.service';
 
-
+type NoteTab = 'all' | 'active' | 'archived';
+type NoteSort = 'updatedAt' | 'createdAt' | 'title';
+type NoteView = 'grid' | 'table';
+type NoteModalMode = 'create' | 'edit';
+type UnknownRecord = Record<string, unknown>;
 
 @Component({
   standalone: true,
   selector: 'app-mynotes',
   imports: [
-    DragDropModule,
+    FormsModule,
+    MatDividerModule,
+    MatMenuModule,
     AppIcon,
-    Avatar,
+    AppInput,
+    AddEditMyNotesModal,
     Badge,
     Button,
-    Checkbox,
-    Divider,
     Label,
+    Loader,
+    Select,
     StickyCard,
+    Tabs
   ],
   templateUrl: './mynotes.html',
   styleUrl: './mynotes.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MyNotes implements AfterViewInit {
-  private readonly destroyRef =
-    inject(DestroyRef);
+export class MyNotes implements OnInit, OnChanges {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
+  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly folderApi = inject(WorkspaceFolderApiService);
+  private readonly stickyNoteApi = inject(StickyNoteApiService);
+  private readonly stickyNoteColumnApi = inject(StickyNoteColumnApiService);
+  private readonly toastService = inject(ToastService);
 
-  private readonly workspaceFolderStore =
-    inject(WorkspaceFolderStore);
+  @Input() workspaceId = '';
+  @Input() workspaceFolderId = '';
 
-  private readonly stickyNoteColumnApiService =
-    inject(StickyNoteColumnApiService);
+  @Output() readonly workspaceChange = new EventEmitter<string>();
+  @Output() readonly workspaceFolderChange = new EventEmitter<string>();
+  @Output() readonly noteCreated = new EventEmitter<StickyNote>();
+  @Output() readonly noteChanged = new EventEmitter<StickyNote>();
 
-  private readonly stickyNoteApiService =
-    inject(StickyNoteApiService);
-
-  @Input()
-  heading = 'My Board';
-
-  @Input()
-  description =
-    'Capture ideas, stay organized, and get things done.';
-
-  @Input()
-  focusTitle =
-    'Finish the homepage story';
-
-  @Input()
-  focusCompletedSteps = 3;
-
-  @Input()
-  focusTotalSteps = 5;
-
-  @Input()
-  subscriptionUrl = '/pricing';
-
-  @Input()
-  showAdvertisement = true;
-
-  @Input()
-  adsenseClient = '';
-
-  @Input()
-  adsenseSlot = '';
-
-  @Input()
-  set initialNotes(
-    value:
-      | readonly KanbanNote[]
-      | null
-      | undefined,
-  ) {
-    if (!value) {
-      return;
-    }
-
-    this.notes.set(
-      value.map(
-        note => this.copyNote(note),
-      ),
-    );
-
-    this.bindLegacyNoteColumns();
-  }
-
-  @Output()
-  readonly noteAdded =
-    new EventEmitter<KanbanNote>();
-
-  @Output()
-  readonly noteMoved =
-    new EventEmitter<KanbanNote>();
-
-  @Output()
-  readonly noteChanged =
-    new EventEmitter<KanbanNote>();
-
-  @Output()
-  readonly folderAdded =
-    new EventEmitter<KanbanFolder>();
-
-  @Output()
-  readonly subscribeRequested =
-    new EventEmitter<void>();
-
-  readonly LucideArrowLeft =
-    LucideArrowLeft;
-
-  readonly LucideArrowRight =
-    LucideArrowRight;
-
-  readonly LucideCalendarDays =
-    LucideCalendarDays;
-
-  readonly LucideCheck =
-    LucideCheck;
-
-  readonly LucideCheckCircle2 =
-    LucideCheckCircle2;
-
-  readonly LucideClock3 =
-    LucideClock3;
-
-  readonly LucideGripVertical =
-    LucideGripVertical;
-
-  readonly LucidePlus =
-    LucidePlus;
-
-  readonly LucideX =
-    LucideX;
-
-  readonly LucideZap =
-    LucideZap;
-
-  private readonly columnsState =
-    signal<readonly KanbanColumn[]>([]);
-
-  get columns(): readonly KanbanColumn[] {
-    return this.columnsState();
-  }
-
-  readonly loadingColumns =
-    signal(false);
-
-  readonly columnsError =
-    signal<string | null>(null);
-
-  readonly notes =
-    signal<KanbanNote[]>([]);
-
-  readonly loadingNotes =
-    signal(false);
-
-  readonly notesError =
-    signal<string | null>(null);
-
-  readonly creatingNote =
-    signal(false);
-
-  readonly folders =
-    computed<KanbanFolder[]>(
-      () => {
-        return this.workspaceFolderStore
-          .folders()
-          .filter(
-            folder =>
-              folder.status === 'ACTIVE',
-          )
-          .sort(
-            (first, second) =>
-              first.position -
-              second.position,
-          )
-          .map(
-            folder => ({
-              id: folder._id,
-              label: folder.name,
-            }),
-          );
-      },
-    );
-
-  readonly loadingFolders =
-    this.workspaceFolderStore.loading;
-
-  readonly foldersInitialized =
-    this.workspaceFolderStore.initialized;
-
-  readonly foldersError =
-    this.workspaceFolderStore.error;
-
-  readonly activeFolder =
-    signal<string | null>(null);
-
-  readonly folderComposerOpen =
-    signal(false);
-
-  readonly composerColumn =
-    signal<string | null>(null);
-
-  readonly activeNoteCount =
-    computed(
-      () => {
-        const completedColumn =
-          this.getCompletedColumn();
-
-        const notes =
-          this.notesForActiveFolder();
-
-        if (!completedColumn) {
-          return notes.length;
-        }
-
-        return notes.filter(
-          note =>
-            this.resolveNoteColumnId(note) !==
-            completedColumn.id,
-        ).length;
-      },
-    );
-
-  private readonly currentDate =
-    new Date();
-
-  readonly todayLabel =
-    new Intl.DateTimeFormat(
-      'en-US',
-      {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(
-      this.currentDate,
-    );
-
-  readonly todayIso = [
-    this.currentDate.getFullYear(),
-    String(
-      this.currentDate.getMonth() + 1,
-    ).padStart(
-      2,
-      '0',
-    ),
-    String(
-      this.currentDate.getDate(),
-    ).padStart(
-      2,
-      '0',
-    ),
-  ].join('-');
-
-  draftTitle = '';
-
-  draftFolderName = '';
-
-  private columnRequestVersion = 0;
-
+  private initialized = false;
+  private workspaceRequestVersion = 0;
+  private folderRequestVersion = 0;
   private noteRequestVersion = 0;
 
-  constructor() {
-    effect(
-      () => {
-        const workspaceId =
-          this.workspaceFolderStore.workspaceId();
-
-        const folders =
-          this.folders();
-
-        const activeFolderId =
-          this.activeFolder();
-
-        if (
-          !workspaceId ||
-          folders.length === 0
-        ) {
-          ++this.columnRequestVersion;
-          ++this.noteRequestVersion;
-
-          this.activeFolder.set(null);
-          this.columnsState.set([]);
-          this.notes.set([]);
-
-          return;
-        }
-
-        const currentFolderExists =
-          activeFolderId &&
-          folders.some(
-            folder =>
-              folder.id === activeFolderId,
-          );
-
-        if (currentFolderExists) {
-          return;
-        }
-
-        const defaultFolder =
-          this.workspaceFolderStore.defaultFolder();
-
-        const defaultFolderExists =
-          defaultFolder &&
-          folders.some(
-            folder =>
-              folder.id ===
-              defaultFolder._id,
-          );
-
-        this.activeFolder.set(
-          defaultFolderExists
-            ? defaultFolder._id
-            : folders[0]?.id ?? null,
-        );
-      },
-      {
-        allowSignalWrites: true,
-      },
-    );
-
-    effect(
-      () => {
-        const workspaceId =
-          this.workspaceFolderStore.workspaceId();
-
-        const workspaceFolderId =
-          this.activeFolder();
-
-        if (
-          !workspaceId ||
-          !workspaceFolderId
-        ) {
-          ++this.columnRequestVersion;
-          ++this.noteRequestVersion;
-
-          this.columnsState.set([]);
-          this.notes.set([]);
-
-          this.loadingColumns.set(false);
-          this.loadingNotes.set(false);
-
-          return;
-        }
-
-        this.loadColumns(
-          workspaceId,
-          workspaceFolderId,
-        );
-
-        this.loadNotes(
-          workspaceId,
-          workspaceFolderId,
-        );
-      },
-      {
-        allowSignalWrites: true,
-      },
-    );
-  }
-
-  get focusProgress(): number {
-    const total =
-      Math.max(
-        1,
-        this.focusTotalSteps,
-      );
-
-    const completed =
-      Math.min(
-        Math.max(
-          0,
-          this.focusCompletedSteps,
-        ),
-        total,
-      );
-
-    return Math.round(
-      (completed / total) * 100,
-    );
-  }
-
-  ngAfterViewInit(): void {
-    this.requestAdvertisementRender();
-  }
-
-  selectFolder(
-    folder: KanbanFolder,
-  ): void {
-    if (
-      this.activeFolder() ===
-      folder.id
-    ) {
-      return;
-    }
-
-    this.activeFolder.set(
-      folder.id,
-    );
-
-    this.closeComposer();
-  }
-
-  notesFor(
-    columnIdOrStatus: string,
-  ): KanbanNote[] {
-    const columnId =
-      this.resolveRequestedColumnId(
-        columnIdOrStatus,
-      );
-
-    if (!columnId) {
-      return [];
-    }
-
-    return this.notes().filter(
-      note =>
-        this.resolveNoteColumnId(note) ===
-        columnId,
-    );
-  }
-
-  visibleNotesFor(
-    columnIdOrStatus: string,
-  ): KanbanNote[] {
-    const folderId =
-      this.activeFolder();
-
-    if (!folderId) {
-      return [];
-    }
-
-    const columnId =
-      this.resolveRequestedColumnId(
-        columnIdOrStatus,
-      );
-
-    if (!columnId) {
-      return [];
-    }
-
-    return this.notes().filter(
-      note =>
-        this.resolveNoteFolder(note) ===
-        folderId &&
-        this.resolveNoteColumnId(note) ===
-        columnId,
-    );
-  }
-
-  columnCount(
-    columnIdOrStatus: string,
-  ): number {
-    return this.visibleNotesFor(
-      columnIdOrStatus,
-    ).length;
-  }
-
-  folderCount(
-    folderId: string,
-  ): number {
-    return this.notes()
-      .filter(
-        note =>
-          this.resolveNoteFolder(note) ===
-          folderId,
-      )
-      .length;
-  }
-
-  totalNoteCount(): number {
-    return this.notesForActiveFolder()
-      .length;
-  }
-
-  completedNoteCount(): number {
-    const completedColumn =
-      this.getCompletedColumn();
-
-    if (!completedColumn) {
-      return 0;
-    }
-
-    return this.notesForActiveFolder()
-      .filter(
-        note =>
-          this.resolveNoteColumnId(note) ===
-          completedColumn.id,
-      )
-      .length;
-  }
-
-  remainingNoteCount(): number {
-    return Math.max(
-      0,
-      this.totalNoteCount() -
-      this.completedNoteCount(),
-    );
-  }
-
-  completionPercentage(): number {
-    const total =
-      this.totalNoteCount();
-
-    if (total === 0) {
-      return 0;
-    }
-
-    return Math.round(
-      (
-        this.completedNoteCount() /
-        total
-      ) * 100,
-    );
-  }
-
-  openFolderComposer(): void {
-    this.draftFolderName = '';
-
-    this.folderComposerOpen.set(
-      true,
-    );
-  }
-
-  closeFolderComposer(): void {
-    this.draftFolderName = '';
-
-    this.folderComposerOpen.set(
-      false,
-    );
-  }
-
-  updateFolderDraft(
-    event: Event,
-  ): void {
-    this.draftFolderName =
-      (
-        event.target as HTMLInputElement
-      ).value;
-  }
-
-  addFolder(): void {
-    const label =
-      this.draftFolderName.trim();
-
-    if (!label) {
-      return;
-    }
-
-    const workspaceId =
-      this.workspaceFolderStore.workspaceId();
-
-    if (!workspaceId) {
-      return;
-    }
-
-    const folder: KanbanFolder = {
-      id: `new-${Date.now()}`,
-      label,
-    };
-
-    this.folderAdded.emit({
-      ...folder,
-    });
-
-    this.closeFolderComposer();
-  }
-
-  openComposer(
-    columnIdOrStatus: string,
-  ): void {
-    const columnId =
-      this.resolveRequestedColumnId(
-        columnIdOrStatus,
-      );
-
-    if (!columnId) {
-      return;
-    }
-
-    this.draftTitle = '';
-
-    this.composerColumn.set(
-      columnId,
-    );
-  }
-
-  closeComposer(): void {
-    this.draftTitle = '';
-
-    this.composerColumn.set(
-      null,
-    );
-  }
-
-  updateDraft(
-    event: Event,
-  ): void {
-    this.draftTitle =
-      (
-        event.target as HTMLInputElement
-      ).value;
-  }
-
-  addNote(
-    columnIdOrStatus: string,
-  ): void {
-    if (this.creatingNote()) {
-      return;
-    }
-
-    const title =
-      this.draftTitle.trim();
-
-    if (!title) {
-      return;
-    }
-
-    const workspaceId =
-      this.workspaceFolderStore.workspaceId();
-
-    const workspaceFolderId =
-      this.activeFolder();
-
-    if (
-      !workspaceId ||
-      !workspaceFolderId
-    ) {
-      return;
-    }
-
-    const columnId =
-      this.resolveRequestedColumnId(
-        columnIdOrStatus,
-      );
-
-    if (!columnId) {
-      return;
-    }
-
-    const column =
-      this.getColumn(columnId);
-
-    if (!column) {
-      return;
-    }
-
-    this.creatingNote.set(true);
-    this.notesError.set(null);
-
-    this.stickyNoteApiService
-      .create({
-        workspaceId,
-        workspaceFolderId,
-        columnId,
-        title,
-        content: title,
-        color:
-          column.color ??
-          'YELLOW',
+  readonly LucideArchive = LucideArchive;
+  readonly LucideClock3 = LucideClock3;
+  readonly LucideColumns3 = LucideColumns3;
+  readonly LucideFolderOpen = LucideFolderOpen;
+  readonly LucideLayoutGrid = LucideLayoutGrid;
+  readonly LucideList = LucideList;
+  readonly LucideMoreHorizontal = LucideMoreHorizontal;
+  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
+  readonly LucidePencil = LucidePencil;
+  readonly LucidePlus = LucidePlus;
+  readonly LucideRefreshCw = LucideRefreshCw;
+  readonly LucideRotateCcw = LucideRotateCcw;
+  readonly LucideSearch = LucideSearch;
+  readonly LucideStickyNote = LucideStickyNote;
+  readonly LucideTrash2 = LucideTrash2;
+  readonly LucideX = LucideX;
+
+  /* Shared workspace/folder state — same source used by Today. */
+  readonly workspaces = this.workspaceStore.workspaces;
+  readonly loadingWorkspaces = this.workspaceStore.loading;
+  readonly workspaceError = this.workspaceStore.error;
+  readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
+
+  readonly folders = this.workspaceFolderStore.activeFolders;
+  readonly loadingFolders = this.workspaceFolderStore.loading;
+  readonly folderError = this.workspaceFolderStore.error;
+  readonly selectedFolderId = computed(() => this.workspaceFolderStore.selectedId() ?? '');
+
+  readonly columns = signal<readonly StickyNoteColumn[]>([]);
+  readonly notes = signal<readonly StickyNote[]>([]);
+  readonly loadingNotes = signal(false);
+  readonly notesError = signal<string | null>(null);
+
+  readonly activeTab = signal<NoteTab>('all');
+  readonly view = signal<NoteView>('grid');
+  readonly searchTerm = signal('');
+  readonly sortBy = signal<NoteSort>('updatedAt');
+  readonly busyIds = signal<ReadonlySet<string>>(new Set());
+
+  /* Same note modal contract used by Today. */
+  readonly noteModalOpen = signal(false);
+  readonly noteModalMode = signal<NoteModalMode>('create');
+  readonly noteModalId = signal('');
+
+  readonly deleteTarget = signal<StickyNote | null>(null);
+  readonly deleting = signal(false);
+
+  readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
+    this.workspaces()
+      .map(workspace => ({
+        label: this.workspaceName(workspace),
+        value: this.workspaceRecordId(workspace),
+        icon: LucidePanelsTopLeft
+      }))
+      .filter(option => !!option.value)
+  );
+
+  readonly folderOptions = computed<readonly SelectOption[]>(() =>
+    this.folders()
+      .map(folder => ({
+        label: this.folderName(folder),
+        value: this.folderId(folder),
+        icon: LucideFolderOpen
+      }))
+      .filter(option => !!option.value)
+  );
+
+  readonly sortOptions: readonly SelectOption[] = [
+    { label: 'Recently updated', value: 'updatedAt' },
+    { label: 'Recently created', value: 'createdAt' },
+    { label: 'Title A–Z', value: 'title' }
+  ];
+
+  readonly selectedWorkspaceLabel = computed(() => {
+    const id = this.selectedWorkspaceId();
+    const workspace = this.workspaces().find(item => this.workspaceRecordId(item) === id);
+    return workspace ? this.workspaceName(workspace) : 'Select workspace';
+  });
+
+  readonly selectedFolderLabel = computed(() => {
+    const id = this.selectedFolderId();
+    const folder = this.folders().find(item => this.folderId(item) === id);
+    return folder ? this.folderName(folder) : 'Select folder';
+  });
+
+  readonly totalCount = computed(() => this.notes().filter(note => !this.isDeleted(note)).length);
+  readonly activeCount = computed(() => this.notes().filter(note => this.isActive(note)).length);
+  readonly archivedCount = computed(() => this.notes().filter(note => this.isArchived(note)).length);
+
+  readonly noteTabs = computed<readonly TabItem[]>(() => [
+    { value: 'all', label: 'All', count: this.totalCount(), icon: LucideStickyNote, ariaLabel: 'All notes' },
+    { value: 'active', label: 'Active', count: this.activeCount(), icon: LucideStickyNote, ariaLabel: 'Active notes' },
+    { value: 'archived', label: 'Archived', count: this.archivedCount(), icon: LucideArchive, ariaLabel: 'Archived notes' }
+  ]);
+
+  readonly viewTabs: readonly TabItem[] = [
+    { value: 'grid', label: 'Grid', icon: LucideLayoutGrid, ariaLabel: 'Grid view' },
+    { value: 'table', label: 'Table', icon: LucideList, ariaLabel: 'Table view' }
+  ];
+
+  readonly visibleNotes = computed(() => {
+    const tab = this.activeTab();
+    const search = this.searchTerm().trim().toLowerCase();
+    const sort = this.sortBy();
+
+    return [...this.notes()]
+      .filter(note => {
+        if (this.isDeleted(note)) return false;
+        if (tab === 'active' && !this.isActive(note)) return false;
+        if (tab === 'archived' && !this.isArchived(note)) return false;
+        if (!search) return true;
+
+        return [this.noteTitle(note), this.noteContent(note), this.noteColumnName(note)]
+          .some(value => value.toLowerCase().includes(search));
       })
-      .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-      )
-      .subscribe({
-        next: response => {
-          const note =
-            this.mapStickyNote(
-              response.data,
-            );
-
-          this.notes.update(
-            notes => [
-              ...notes,
-              note,
-            ],
-          );
-
-          this.noteAdded.emit(
-            this.copyNote(note),
-          );
-
-          this.creatingNote.set(false);
-
-          this.closeComposer();
-        },
-        error: error => {
-          this.creatingNote.set(false);
-
-          this.notesError.set(
-            error?.error?.message ??
-            error?.message ??
-            'Unable to create sticky note.',
-          );
-        },
+      .sort((first, second) => {
+        if (sort === 'title') {
+          return this.noteTitle(first).localeCompare(this.noteTitle(second), undefined, { sensitivity: 'base' });
+        }
+        return this.noteTimestamp(second, sort) - this.noteTimestamp(first, sort);
       });
+  });
+
+  readonly canCreateNote = computed(() =>
+    !!this.selectedWorkspaceId() &&
+    !!this.selectedFolderId() &&
+    this.columns().length > 0 &&
+    !this.loadingNotes()
+  );
+
+  ngOnInit(): void {
+    this.initialized = true;
+    this.loadWorkspaces();
   }
 
-  moveBackward(
-    note: KanbanNote,
-  ): void {
-    const columnId =
-      this.resolveNoteColumnId(
-        note,
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.initialized) return;
+
+    if (changes['workspaceId'] && this.workspaceId.trim()) {
+      const requestedWorkspaceId = this.workspaceId.trim();
+      const exists = this.workspaces().some(
+        workspace => this.workspaceRecordId(workspace) === requestedWorkspaceId
       );
 
-    const index =
-      this.columnIndex(columnId);
-
-    if (index <= 0) {
-      return;
-    }
-
-    const previousColumn =
-      this.columns[index - 1];
-
-    if (!previousColumn) {
-      return;
-    }
-
-    this.moveNote(
-      note.id,
-      previousColumn.id,
-    );
-  }
-
-  moveForward(
-    note: KanbanNote,
-  ): void {
-    const columnId =
-      this.resolveNoteColumnId(
-        note,
-      );
-
-    const index =
-      this.columnIndex(columnId);
-
-    if (
-      index < 0 ||
-      index >=
-      this.columns.length - 1
-    ) {
-      return;
-    }
-
-    const nextColumn =
-      this.columns[index + 1];
-
-    if (!nextColumn) {
-      return;
-    }
-
-    this.moveNote(
-      note.id,
-      nextColumn.id,
-    );
-  }
-
-  canMoveBackward(
-    note: KanbanNote,
-  ): boolean {
-    const columnId =
-      this.resolveNoteColumnId(
-        note,
-      );
-
-    return (
-      this.columnIndex(columnId) > 0
-    );
-  }
-
-  canMoveForward(
-    note: KanbanNote,
-  ): boolean {
-    const columnId =
-      this.resolveNoteColumnId(
-        note,
-      );
-
-    const index =
-      this.columnIndex(columnId);
-
-    return (
-      index >= 0 &&
-      index <
-      this.columns.length - 1
-    );
-  }
-
-  toggleChecklist(
-    noteId: string,
-    itemId: string,
-    checked: boolean,
-  ): void {
-    let changedNote:
-      | KanbanNote
-      | undefined;
-
-    this.notes.update(
-      notes =>
-        notes.map(
-          note => {
-            if (
-              note.id !== noteId ||
-              !note.checklist
-            ) {
-              return note;
-            }
-
-            const updatedNote: KanbanNote = {
-              ...note,
-              checklist:
-                note.checklist.map(
-                  item =>
-                    item.id === itemId
-                      ? {
-                        ...item,
-                        checked,
-                      }
-                      : item,
-                ),
-            };
-
-            changedNote =
-              updatedNote;
-
-            return updatedNote;
-          },
-        ),
-    );
-
-    if (changedNote) {
-      this.noteChanged.emit(
-        this.copyNote(
-          changedNote,
-        ),
-      );
-    }
-  }
-
-  dropNote(
-    event: CdkDragDrop<
-      KanbanNote[],
-      KanbanNote[],
-      KanbanNote
-    >,
-    targetColumnId: string,
-  ): void {
-    const draggedNote =
-      event.item.data;
-
-    const sourceColumnId =
-      this.resolveNoteColumnId(
-        draggedNote,
-      );
-
-    if (
-      !sourceColumnId ||
-      !targetColumnId
-    ) {
-      return;
-    }
-
-    const snapshot =
-      this.notes().map(
-        note => this.copyNote(note),
-      );
-
-    const sameColumn =
-      sourceColumnId ===
-      targetColumnId;
-
-    const targetNotes = [
-      ...event.container.data,
-    ];
-
-    if (sameColumn) {
-      moveItemInArray(
-        targetNotes,
-        event.previousIndex,
-        event.currentIndex,
-      );
-
-      this.applyColumnOrders(
-        new Map([
-          [
-            targetColumnId,
-            targetNotes,
-          ],
-        ]),
-      );
-    } else {
-      const sourceNotes = [
-        ...event.previousContainer.data,
-      ];
-
-      transferArrayItem(
-        sourceNotes,
-        targetNotes,
-        event.previousIndex,
-        event.currentIndex,
-      );
-
-      const movedNote =
-        this.withColumn(
-          draggedNote,
-          targetColumnId,
-        );
-
-      const normalizedTargetNotes =
-        targetNotes.map(
-          note =>
-            note.id === movedNote.id
-              ? movedNote
-              : note,
-        );
-
-      this.applyColumnOrders(
-        new Map([
-          [
-            sourceColumnId,
-            sourceNotes,
-          ],
-          [
-            targetColumnId,
-            normalizedTargetNotes,
-          ],
-        ]),
-      );
-
-      this.noteMoved.emit(
-        this.copyNote(
-          movedNote,
-        ),
-      );
-    }
-
-    if (sameColumn) {
-      const movedNote =
-        this.notes().find(
-          note =>
-            note.id ===
-            draggedNote.id,
-        );
-
-      if (movedNote) {
-        this.noteChanged.emit(
-          this.copyNote(
-            movedNote,
-          ),
-        );
+      if (exists && requestedWorkspaceId !== this.selectedWorkspaceId()) {
+        this.selectWorkspace(requestedWorkspaceId, false);
+        return;
       }
     }
 
-    this.persistColumnOrders(
-      sameColumn
-        ? [targetColumnId]
-        : [
-          sourceColumnId,
-          targetColumnId,
-        ],
-      snapshot,
-    );
+    if (changes['workspaceFolderId'] && this.workspaceFolderId.trim()) {
+      const requestedFolderId = this.workspaceFolderId.trim();
+      const exists = this.folders().some(folder => this.folderId(folder) === requestedFolderId);
+
+      if (exists && requestedFolderId !== this.selectedFolderId()) {
+        this.selectFolder(requestedFolderId, false);
+      }
+    }
   }
 
-  columnDropListIds(
-    excludeColumnId?: string,
-  ): string[] {
-    return this.columns
-      .filter(
-        column =>
-          column.id !==
-          excludeColumnId,
-      )
-      .map(
-        column =>
-          `${column.id}-drop-list`,
-      );
-  }
-
-  isCompletedColumn(
-    columnId: string | undefined,
-  ): boolean {
-    if (!columnId) {
-      return false;
+  loadWorkspaces(force = false): void {
+    if (!force && this.workspaceStore.initialized() && this.workspaces().length) {
+      this.selectInitialWorkspace();
+      return;
     }
 
-    return (
-      this.getColumn(columnId)?.type ===
-      'COMPLETED'
-    );
-  }
+    const requestVersion = ++this.workspaceRequestVersion;
+    this.workspaceStore.setLoading(true);
 
-  isNoteCompleted(
-    note: KanbanNote,
-  ): boolean {
-    return this.isCompletedColumn(
-      this.resolveNoteColumnId(
-        note,
-      ),
-    );
-  }
+    const query: MyWorkspaceQuery = { page: 1, limit: 100 };
 
-  private loadColumns(
-    workspaceId: string,
-    workspaceFolderId: string,
-  ): void {
-    const requestVersion =
-      ++this.columnRequestVersion;
-
-    this.loadingColumns.set(
-      true,
-    );
-
-    this.columnsError.set(
-      null,
-    );
-
-    this.stickyNoteColumnApiService
-      .getByWorkspaceFolder(
-        workspaceId,
-        workspaceFolderId,
-      )
-      .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-      )
+    this.workspaceApi
+      .getMyWorkspaces(query)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
-          if (
-            requestVersion !==
-            this.columnRequestVersion
-          ) {
-            return;
-          }
+          if (requestVersion !== this.workspaceRequestVersion) return;
 
-          const columns =
-            (
-              response.data ??
-              []
-            )
-              .slice()
-              .sort(
-                (first, second) =>
-                  first.position -
-                  second.position,
-              )
-              .map(
-                column =>
-                  this.mapColumn(
-                    column,
-                  ),
-              );
-
-          this.columnsState.set(
-            columns,
-          );
-
-          this.bindLegacyNoteColumns();
-
-          this.loadingColumns.set(
-            false,
-          );
+          const workspaces = this.extractWorkspaces(response);
+          this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
+          this.selectInitialWorkspace();
         },
         error: error => {
-          if (
-            requestVersion !==
-            this.columnRequestVersion
-          ) {
-            return;
-          }
+          if (requestVersion !== this.workspaceRequestVersion) return;
 
-          this.columnsState.set([]);
+          const message = this.errorMessage(error, 'Unable to load your workspaces.');
+          this.workspaceStore.setError(message);
+          this.workspaceFolderStore.clear();
+          this.clearNotesState();
 
-          this.loadingColumns.set(
-            false,
-          );
-
-          this.columnsError.set(
-            error?.error?.message ??
-            error?.message ??
-            'Unable to load board columns.',
-          );
-        },
+          this.toastService.error(message, {
+            title: 'Could not load workspaces',
+            dedupeKey: 'notes-workspaces-load-error'
+          });
+        }
       });
   }
 
-  private loadNotes(
-    workspaceId: string,
-    workspaceFolderId: string,
-  ): void {
-    const requestVersion =
-      ++this.noteRequestVersion;
+  onWorkspaceChange(value: SelectValue | SelectValue[] | null): void {
+    if (typeof value !== 'string' || !value.trim()) return;
+    this.selectWorkspace(value.trim(), true);
+  }
 
+  loadFolders(force = false): void {
+    const workspaceId = this.selectedWorkspaceId();
+
+    if (!workspaceId) {
+      this.workspaceFolderStore.clear();
+      this.clearNotesState();
+      return;
+    }
+
+    if (
+      !force &&
+      this.workspaceFolderStore.initialized() &&
+      this.workspaceFolderStore.workspaceId() === workspaceId
+    ) {
+      this.selectInitialFolder();
+      return;
+    }
+
+    const requestVersion = ++this.folderRequestVersion;
+    this.workspaceFolderStore.resetForWorkspace(workspaceId);
+    this.workspaceFolderStore.setLoading(true);
+
+    const query: WorkspaceFolderQuery = {
+      page: 1,
+      limit: 100,
+      status: 'ACTIVE',
+      sortBy: 'position',
+      sortOrder: 'asc'
+    };
+
+    this.folderApi
+      .getByWorkspace(workspaceId, query)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          if (requestVersion !== this.folderRequestVersion || this.selectedWorkspaceId() !== workspaceId) return;
+
+          const folders = this.extractFolders(response);
+          this.workspaceFolderStore.setFolders(workspaceId, folders, response.pagination ?? null);
+          this.selectInitialFolder();
+        },
+        error: error => {
+          if (requestVersion !== this.folderRequestVersion || this.selectedWorkspaceId() !== workspaceId) return;
+
+          const message = this.errorMessage(error, 'Unable to load folders for this workspace.');
+          this.workspaceFolderStore.setError(message);
+          this.clearNotesState();
+
+          this.toastService.error(message, {
+            title: 'Could not load folders',
+            dedupeKey: 'notes-folders-load-error'
+          });
+        }
+      });
+  }
+
+  onFolderChange(value: SelectValue | SelectValue[] | null): void {
+    if (typeof value !== 'string' || !value.trim()) return;
+    this.selectFolder(value.trim(), true);
+  }
+
+  loadSelectedFolder(savedId = '', created = false): void {
+    const workspaceId = this.selectedWorkspaceId();
+    const workspaceFolderId = this.selectedFolderId();
+
+    if (!workspaceId || !workspaceFolderId) {
+      this.clearNotesState();
+      return;
+    }
+
+    const requestVersion = ++this.noteRequestVersion;
     this.loadingNotes.set(true);
     this.notesError.set(null);
 
-    this.stickyNoteApiService
-      .getByWorkspaceFolder(
-        workspaceId,
-        workspaceFolderId,
-        {
-          status: 'ACTIVE',
-          page: 1,
-          limit: 100,
-          sortBy: 'position',
-          sortOrder: 'asc',
-        },
-      )
+    forkJoin({
+      columns: this.stickyNoteColumnApi.getByWorkspaceFolder(workspaceId, workspaceFolderId),
+      notes: this.stickyNoteApi.getByWorkspaceFolder(workspaceId, workspaceFolderId, { page: 1, limit: 100 })
+    })
       .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
+        finalize(() => {
+          if (requestVersion === this.noteRequestVersion) this.loadingNotes.set(false);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: ({ columns, notes }) => {
+          if (
+            requestVersion !== this.noteRequestVersion ||
+            this.selectedWorkspaceId() !== workspaceId ||
+            this.selectedFolderId() !== workspaceFolderId
+          ) return;
+
+          const nextColumns = [...(columns.data ?? [])]
+            .sort((first, second) => first.position - second.position);
+          const nextNotes = [...(notes.data ?? [])];
+
+          this.columns.set(nextColumns);
+          this.notes.set(nextNotes);
+
+          if (!savedId) return;
+
+          const savedNote = nextNotes.find(note => this.noteId(note) === savedId);
+          if (!savedNote) return;
+
+          if (created) this.noteCreated.emit(savedNote);
+          else this.noteChanged.emit(savedNote);
+        },
+        error: error => {
+          if (requestVersion !== this.noteRequestVersion) return;
+
+          this.columns.set([]);
+          this.notes.set([]);
+
+          const message = this.errorMessage(error, 'Unable to load notes for this folder.');
+          this.notesError.set(message);
+
+          this.toastService.error(message, {
+            title: 'Could not load notes',
+            dedupeKey: 'notes-list-load-error'
+          });
+        }
+      });
+  }
+
+  refresh(): void {
+    if (!this.selectedWorkspaceId()) {
+      this.loadWorkspaces(true);
+      return;
+    }
+
+    this.loadFolders(true);
+  }
+
+  setNoteTab(value: TabValue): void {
+    if (value === 'all' || value === 'active' || value === 'archived') this.activeTab.set(value);
+  }
+
+  setNoteView(value: TabValue): void {
+    if (value === 'grid' || value === 'table') this.view.set(value);
+  }
+
+  updateSearch(value: InputValue): void {
+    this.searchTerm.set(String(value ?? ''));
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  setSort(value: SelectValue | SelectValue[] | null): void {
+    if (Array.isArray(value) || value === null) return;
+    if (value === 'updatedAt' || value === 'createdAt' || value === 'title') this.sortBy.set(value);
+  }
+
+  openCreateEditor(): void {
+    if (!this.canCreateNote()) {
+      if (!this.selectedFolderId()) {
+        this.toastService.error('Select a folder before creating a note.', {
+          title: 'Folder required',
+          dedupeKey: 'note-create-folder-required'
+        });
+      } else if (this.columns().length === 0) {
+        this.toastService.error('This folder does not have a note column yet.', {
+          title: 'Column required',
+          dedupeKey: 'note-create-column-required'
+        });
+      }
+      return;
+    }
+
+    const defaultColumn = this.columns().find(column => column.type !== 'COMPLETED') ?? this.columns()[0];
+    const columnId = defaultColumn?._id ?? '';
+    if (!columnId) return;
+
+    this.noteModalMode.set('create');
+    this.noteModalId.set(columnId);
+    this.noteModalOpen.set(true);
+  }
+
+  openEditEditor(note: StickyNote, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    const id = this.noteId(note);
+    if (!id || this.isBusy(note)) return;
+
+    this.noteModalMode.set('edit');
+    this.noteModalId.set(id);
+    this.noteModalOpen.set(true);
+  }
+
+  closeNoteModal(): void {
+    this.noteModalOpen.set(false);
+    this.noteModalId.set('');
+  }
+
+  onNoteSaved(noteId: string): void {
+    const created = this.noteModalMode() === 'create';
+    this.closeNoteModal();
+    this.loadSelectedFolder(noteId, created);
+  }
+
+  archiveNote(note: StickyNote): void {
+    const id = this.noteId(note);
+    if (!id || this.isBusy(note)) return;
+
+    this.setBusy(id, true);
+
+    this.stickyNoteApi
+      .archive(id)
+      .pipe(
+        finalize(() => this.setBusy(id, false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: response => {
-          if (
-            requestVersion !==
-            this.noteRequestVersion
-          ) {
-            return;
-          }
-
-          const notes =
-            (
-              response.data ??
-              []
-            )
-              .slice()
-              .sort(
-                (first, second) =>
-                  first.position -
-                  second.position,
-              )
-              .map(
-                note =>
-                  this.mapStickyNote(
-                    note,
-                  ),
-              );
-
-          this.notes.set(notes);
-
-          this.loadingNotes.set(false);
+          this.replaceNote(response.data);
+          this.noteChanged.emit(response.data);
+          this.toastService.success('The note was archived.', {
+            title: 'Note archived',
+            dedupeKey: `note-archived-${id}`
+          });
         },
         error: error => {
-          if (
-            requestVersion !==
-            this.noteRequestVersion
-          ) {
-            return;
-          }
-
-          this.notes.set([]);
-
-          this.loadingNotes.set(false);
-
-          this.notesError.set(
-            error?.error?.message ??
-            error?.message ??
-            'Unable to load sticky notes.',
-          );
-        },
+          const message = this.errorMessage(error, 'Unable to archive the note.');
+          this.toastService.error(message, {
+            title: 'Could not archive note',
+            dedupeKey: `note-archive-error-${id}`
+          });
+        }
       });
   }
 
-  private mapStickyNote(
-    stickyNote: StickyNote,
-  ): KanbanNote {
-    const columnId =
-      this.getReferenceId(
-        stickyNote.columnId,
-      );
+  activateNote(note: StickyNote): void {
+    const id = this.noteId(note);
+    if (!id || this.isBusy(note)) return;
 
-    const folderId =
-      this.getReferenceId(
-        stickyNote.workspaceFolderId,
-      );
+    this.setBusy(id, true);
 
-    const populatedColumn =
-      typeof stickyNote.columnId ===
-        'object'
-        ? stickyNote.columnId
-        : null;
-
-    const columnType =
-      populatedColumn?.type ??
-      this.getColumn(
-        columnId,
-      )?.type;
-
-    const folderLabel =
-      this.folders()
-        .find(
-          folder =>
-            folder.id === folderId,
-        )
-        ?.label ??
-      'Notes';
-
-    const normalizedContent =
-      stickyNote.content.trim();
-
-    const normalizedTitle =
-      stickyNote.title.trim();
-
-    const description =
-      normalizedContent &&
-        normalizedContent !==
-        normalizedTitle
-        ? normalizedContent
-        : undefined;
-
-    return {
-      id: stickyNote._id,
-      status: stickyNote.status,
-      columnId,
-      folderId,
-      eyebrow:
-        columnType === 'COMPLETED'
-          ? 'Completed'
-          : columnType ===
-            'IN_PROGRESS'
-            ? 'In progress'
-            : 'Note',
-      title:
-        normalizedTitle ||
-        'Untitled note',
-      description,
-      tone:
-        this.noteColorToTone(
-          stickyNote.color,
-        ),
-      tag: folderLabel,
-      tagVariant: 'outline',
-      compact:
-        !description,
-    };
-  }
-
-  private getReferenceId(
-    value:
-      | string
-      | {
-        _id: string;
-      }
-      | null
-      | undefined,
-  ): string {
-    if (!value) {
-      return '';
-    }
-
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    return value._id;
-  }
-
-  private noteColorToTone(
-    color: StickyNoteColor,
-  ): KanbanNote['tone'] {
-    switch (color) {
-      case 'BLUE':
-        return 'noteBlue';
-
-      case 'GREEN':
-        return 'noteGreen';
-
-      case 'PINK':
-        return 'notePink';
-
-      case 'ORANGE':
-        return 'noteOrange';
-
-      case 'PURPLE':
-        return 'notePurple';
-
-      case 'RED':
-        return 'noteRed';
-
-      case 'BROWN':
-        return 'noteBrown';
-
-      case 'YELLOW':
-      default:
-        return 'noteYellow';
-    }
-  }
-
-  private mapColumn(
-    column: StickyNoteColumn,
-  ): KanbanColumn {
-    return {
-      id: column._id,
-      label: column.name,
-      type: column.type,
-      color: column.color,
-      position: column.position,
-      isSystem: column.isSystem,
-      accent:
-        this.columnAccent(
-          column.color,
-        ),
-      checkboxVariant:
-        this.columnCheckboxVariant(
-          column.color,
-        ),
-    };
-  }
-
-  private bindLegacyNoteColumns(): void {
-    if (this.columns.length === 0) {
-      return;
-    }
-
-    this.notes.update(
-      notes =>
-        notes.map(
-          note => {
-            if (
-              note.columnId &&
-              this.columns.some(
-                column =>
-                  column.id ===
-                  note.columnId,
-              )
-            ) {
-              return note;
-            }
-
-            const columnType =
-              this.legacyStatusToColumnType(
-                note.status,
-              );
-
-            if (!columnType) {
-              return note;
-            }
-
-            const column =
-              this.columns.find(
-                candidate =>
-                  candidate.type ===
-                  columnType,
-              );
-
-            if (!column) {
-              return note;
-            }
-
-            return {
-              ...note,
-              columnId: column.id,
-            };
-          },
-        ),
-    );
-  }
-
-  private moveNote(
-    noteId: string,
-    columnId: string,
-  ): void {
-    const note =
-      this.notes().find(
-        candidate =>
-          candidate.id ===
-          noteId,
-      );
-
-    if (!note) {
-      return;
-    }
-
-    const sourceColumnId =
-      this.resolveNoteColumnId(
-        note,
-      );
-
-    if (
-      !sourceColumnId ||
-      sourceColumnId ===
-      columnId
-    ) {
-      return;
-    }
-
-    const snapshot =
-      this.notes().map(
-        item => this.copyNote(item),
-      );
-
-    const sourceNotes =
-      this.visibleNotesFor(
-        sourceColumnId,
-      ).filter(
-        item =>
-          item.id !== noteId,
-      );
-
-    const movedNote =
-      this.withColumn(
-        note,
-        columnId,
-      );
-
-    const targetNotes = [
-      ...this.visibleNotesFor(
-        columnId,
-      ),
-      movedNote,
-    ];
-
-    this.applyColumnOrders(
-      new Map([
-        [
-          sourceColumnId,
-          sourceNotes,
-        ],
-        [
-          columnId,
-          targetNotes,
-        ],
-      ]),
-    );
-
-    this.noteMoved.emit(
-      this.copyNote(
-        movedNote,
-      ),
-    );
-
-    this.persistColumnOrders(
-      [
-        sourceColumnId,
-        columnId,
-      ],
-      snapshot,
-    );
-  }
-
-  private applyColumnOrders(
-    columnOrders: Map<
-      string,
-      KanbanNote[]
-    >,
-  ): void {
-    const folderId =
-      this.activeFolder();
-
-    if (!folderId) {
-      return;
-    }
-
-    const affectedColumns =
-      new Set(
-        columnOrders.keys(),
-      );
-
-    const affectedNoteIds =
-      new Set(
-        Array.from(
-          columnOrders.values(),
-        ).flatMap(
-          notes =>
-            notes.map(
-              note => note.id,
-            ),
-        ),
-      );
-
-    this.notes.update(
-      notes => {
-        const remainingNotes =
-          notes.filter(
-            note => {
-              const noteColumnId =
-                this.resolveNoteColumnId(
-                  note,
-                );
-
-              const noteFolderId =
-                this.resolveNoteFolder(
-                  note,
-                );
-
-              return !(
-                affectedNoteIds.has(
-                  note.id,
-                ) ||
-                (
-                  noteFolderId === folderId &&
-                  affectedColumns.has(
-                    noteColumnId,
-                  )
-                )
-              );
-            },
-          );
-
-        const orderedNotes =
-          this.columns
-            .filter(
-              column =>
-                columnOrders.has(
-                  column.id,
-                ),
-            )
-            .flatMap(
-              column =>
-                (
-                  columnOrders.get(
-                    column.id,
-                  ) ??
-                  []
-                ).map(
-                  note =>
-                    this.resolveNoteColumnId(
-                      note,
-                    ) === column.id
-                      ? note
-                      : this.withColumn(
-                        note,
-                        column.id,
-                      ),
-                ),
-            );
-
-        return [
-          ...remainingNotes,
-          ...orderedNotes,
-        ];
-      },
-    );
-  }
-
-  private persistColumnOrders(
-    columnIds: string[],
-    rollbackSnapshot: KanbanNote[],
-  ): void {
-    const uniqueColumnIds =
-      Array.from(
-        new Set(
-          columnIds.filter(Boolean),
-        ),
-      );
-
-    const requests =
-      uniqueColumnIds.flatMap(
-        columnId =>
-          this.visibleNotesFor(
-            columnId,
-          ).map(
-            (note, position) =>
-              this.stickyNoteApiService
-                .update(
-                  note.id,
-                  {
-                    columnId,
-                    position,
-                  },
-                ),
-          ),
-      );
-
-    if (requests.length === 0) {
-      return;
-    }
-
-    this.notesError.set(null);
-
-    forkJoin(requests)
+    this.stickyNoteApi
+      .updateStatus(id, 'ACTIVE')
       .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
+        finalize(() => this.setBusy(id, false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        error: error => {
-          this.notes.set(
-            rollbackSnapshot.map(
-              note =>
-                this.copyNote(
-                  note,
-                ),
-            ),
-          );
-
-          this.notesError.set(
-            error?.error?.message ??
-            error?.message ??
-            'Unable to save note position.',
-          );
+        next: response => {
+          this.replaceNote(response.data);
+          this.noteChanged.emit(response.data);
+          this.toastService.success('The note is active again.', {
+            title: 'Note restored',
+            dedupeKey: `note-restored-${id}`
+          });
         },
+        error: error => {
+          const message = this.errorMessage(error, 'Unable to restore the note.');
+          this.toastService.error(message, {
+            title: 'Could not restore note',
+            dedupeKey: `note-restore-error-${id}`
+          });
+        }
       });
   }
 
-  private withColumn(
-    note: KanbanNote,
-    columnId: string,
-  ): KanbanNote {
-    const column =
-      this.getColumn(columnId);
+  requestDelete(note: StickyNote, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (!this.isBusy(note)) this.deleteTarget.set(note);
+  }
 
-    if (!column) {
-      return note;
-    }
+  closeDeleteDialog(force = false): void {
+    if (this.deleting() && !force) return;
+    this.deleteTarget.set(null);
+  }
 
-    const currentColumnId =
-      this.resolveNoteColumnId(
-        note,
-      );
+  confirmDelete(): void {
+    const note = this.deleteTarget();
+    if (!note || this.deleting()) return;
 
-    if (
-      currentColumnId ===
-      columnId
-    ) {
-      return note;
-    }
+    const id = this.noteId(note);
+    if (!id) return;
 
-    const completed =
-      column.type === 'COMPLETED';
+    this.deleting.set(true);
+    this.setBusy(id, true);
 
-    const nextStatus =
-      this.isLegacyKanbanStatus(
-        note.status,
+    this.stickyNoteApi
+      .delete(id)
+      .pipe(
+        finalize(() => {
+          this.deleting.set(false);
+          this.setBusy(id, false);
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
-        ? this.columnTypeToLegacyStatus(
-          column.type,
-        ) ?? note.status
-        : note.status;
-
-    return {
-      ...note,
-      columnId,
-      status: nextStatus,
-      eyebrow: completed
-        ? this.doneLabel()
-        : note.eyebrow
-          .toLowerCase()
-          .startsWith(
-            'done at',
-          )
-          ? column.type ===
-            'IN_PROGRESS'
-            ? 'In progress'
-            : 'Next up'
-          : note.eyebrow,
-      completedAt: completed
-        ? this.timeNow()
-        : undefined,
-      tone: note.tone,
-    };
+      .subscribe({
+        next: () => {
+          this.notes.update(notes => notes.filter(item => this.noteId(item) !== id));
+          this.deleteTarget.set(null);
+          this.toastService.success('The note was moved to trash.', {
+            title: 'Note removed',
+            dedupeKey: `note-deleted-${id}`
+          });
+        },
+        error: error => {
+          const message = this.errorMessage(error, 'Unable to delete the note.');
+          this.toastService.error(message, {
+            title: 'Could not delete note',
+            dedupeKey: `note-delete-error-${id}`
+          });
+        }
+      });
   }
 
-  private resolveRequestedColumnId(
-    value: string,
-  ): string {
-    if (!value) {
-      return '';
+  isBusy(note: StickyNote): boolean {
+    return this.busyIds().has(this.noteId(note));
+  }
+
+  noteId(note: StickyNote): string {
+    return note._id ?? '';
+  }
+
+  noteTitle(note: StickyNote): string {
+    return note.title?.trim() || 'Untitled note';
+  }
+
+  noteContent(note: StickyNote): string {
+    const content = note.content?.trim() ?? '';
+    const title = note.title?.trim() ?? '';
+    return content === title ? '' : content;
+  }
+
+  notePreview(note: StickyNote): string {
+    return this.noteContent(note) || 'A quick thought pinned for later.';
+  }
+
+  noteColumnId(note: StickyNote): string {
+    return this.getReferenceId(note.columnId);
+  }
+
+  noteColumnName(note: StickyNote): string {
+    if (note.columnId && typeof note.columnId === 'object') {
+      const populatedName = (note.columnId as unknown as UnknownRecord)['name'];
+      if (typeof populatedName === 'string' && populatedName.trim()) return populatedName;
     }
 
-    const directColumn =
-      this.columns.find(
-        column =>
-          column.id === value,
-      );
-
-    if (directColumn) {
-      return directColumn.id;
-    }
-
-    const type =
-      this.legacyStatusToColumnType(
-        value,
-      );
-
-    if (!type) {
-      return '';
-    }
-
-    return (
-      this.columns.find(
-        column =>
-          column.type === type,
-      )?.id ??
-      ''
-    );
+    const id = this.noteColumnId(note);
+    return this.columns().find(column => column._id === id)?.name ?? 'Notes';
   }
 
-  private resolveNoteColumnId(
-    note: KanbanNote,
-  ): string {
-    if (
-      note.columnId &&
-      this.columns.some(
-        column =>
-          column.id ===
-          note.columnId,
-      )
-    ) {
-      return note.columnId;
-    }
-
-    const columnType =
-      this.legacyStatusToColumnType(
-        note.status,
-      );
-
-    if (!columnType) {
-      return '';
-    }
-
-    return (
-      this.columns.find(
-        column =>
-          column.type ===
-          columnType,
-      )?.id ??
-      ''
-    );
-  }
-
-  private legacyStatusToColumnType(
-    status: string,
-  ): StickyNoteColumnType | null {
-    switch (
-    status
-      .trim()
-      .toLowerCase()
-    ) {
-      case 'todo':
-        return 'TODO';
-
-      case 'doing':
-        return 'IN_PROGRESS';
-
-      case 'done':
-        return 'COMPLETED';
-
-      default:
-        return null;
-    }
-  }
-
-  private columnTypeToLegacyStatus(
-    type:
-      | StickyNoteColumnType
-      | undefined,
-  ): KanbanStatus | null {
-    switch (type) {
-      case 'TODO':
-        return 'todo';
-
-      case 'IN_PROGRESS':
-        return 'doing';
-
-      case 'COMPLETED':
-        return 'done';
-
-      default:
-        return null;
-    }
-  }
-
-  private isLegacyKanbanStatus(
-    status: string,
-  ): status is KanbanStatus {
-    return (
-      status === 'todo' ||
-      status === 'doing' ||
-      status === 'done'
-    );
-  }
-
-  private getColumn(
-    columnId: string,
-  ): KanbanColumn | undefined {
-    return this.columns.find(
-      column =>
-        column.id === columnId,
-    );
-  }
-
-  private getCompletedColumn():
-    | KanbanColumn
-    | undefined {
-    return this.columns.find(
-      column =>
-        column.type ===
-        'COMPLETED',
-    );
-  }
-
-  private columnIndex(
-    columnId: string,
-  ): number {
-    return this.columns.findIndex(
-      column =>
-        column.id === columnId,
-    );
-  }
-
-  private notesForActiveFolder():
-    KanbanNote[] {
-    const folderId =
-      this.activeFolder();
-
-    if (!folderId) {
-      return [];
-    }
-
-    return this.notes().filter(
-      note =>
-        this.resolveNoteFolder(note) ===
-        folderId,
-    );
-  }
-
-  private defaultTone(
-    columnId: string,
-  ): KanbanNote['tone'] {
-    const color =
-      this.getColumn(
-        columnId,
-      )?.color;
-
-    switch (color) {
-      case 'BLUE':
-        return 'noteBlue';
-
-      case 'GREEN':
-        return 'noteGreen';
-
-      case 'PINK':
-        return 'notePink';
-
-      case 'ORANGE':
-        return 'noteOrange';
-
-      case 'PURPLE':
-        return 'notePurple';
-
+  noteVariant(note: StickyNote): CardVariant {
+    switch (note.color) {
+      case 'PINK': return 'notePink';
+      case 'BLUE': return 'noteBlue';
+      case 'GREEN': return 'noteGreen';
+      case 'ORANGE': return 'noteOrange';
+      case 'PURPLE': return 'notePurple';
+      case 'RED': return 'noteRed';
+      case 'BROWN': return 'noteBrown';
       case 'YELLOW':
-      default:
-        return 'noteYellow';
+      default: return 'noteYellow';
     }
   }
 
-  private columnAccent(
-    color: StickyNoteColumnColor,
-  ): string {
-    switch (color) {
-      case 'BLUE':
-        return '#87cdf5';
-
-      case 'GREEN':
-        return '#18a957';
-
-      case 'PINK':
-        return '#f5a8c7';
-
-      case 'PURPLE':
-        return '#b8a4e8';
-
-      case 'ORANGE':
-        return '#f4a261';
-
-      case 'YELLOW':
-      default:
-        return '#ffd84d';
-    }
+  noteColorKey(note: StickyNote): string {
+    return String(note.color ?? 'YELLOW').toLowerCase();
   }
 
-  private columnCheckboxVariant(
-    color: StickyNoteColumnColor,
-  ): KanbanColumn['checkboxVariant'] {
-    switch (color) {
-      case 'BLUE':
-        return 'noteBlue';
-
-      case 'GREEN':
-        return 'noteGreen';
-
-      case 'PINK':
-        return 'notePink';
-
-      case 'PURPLE':
-        return 'notePurple';
-
-      case 'ORANGE':
-        return 'noteOrange';
-
-      case 'YELLOW':
-      default:
-        return 'noteYellow';
-    }
+  noteColorLabel(note: StickyNote): string {
+    const value = String(note.color ?? 'YELLOW').trim().toLowerCase();
+    return value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Yellow';
   }
 
-  private doneLabel(): string {
-    return `Done at ${this.timeNow()}`;
+  noteUpdatedLabel(note: StickyNote): string {
+    const timestamp = this.noteTimestamp(note, 'updatedAt');
+    if (!timestamp) return 'Recently';
+
+    const date = new Date(timestamp);
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
   }
 
-  private timeNow(): string {
-    return new Intl.DateTimeFormat(
-      'en',
-      {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      },
-    ).format(
-      new Date(),
-    );
+  isActive(note: StickyNote): boolean {
+    return String(note.status ?? '').toUpperCase() === 'ACTIVE';
   }
 
-  private resolveNoteFolder(
-    note: KanbanNote,
-  ): string {
-    if (
-      note.folderId &&
-      this.folders().some(
-        folder =>
-          folder.id === note.folderId,
-      )
-    ) {
-      return note.folderId;
+  isArchived(note: StickyNote): boolean {
+    return String(note.status ?? '').toUpperCase() === 'ARCHIVED';
+  }
+
+  isDeleted(note: StickyNote): boolean {
+    return String(note.status ?? '').toUpperCase() === 'DELETED';
+  }
+
+  folderId(folder: WorkspaceFolder | undefined): string {
+    if (!folder) return '';
+    const record = folder as unknown as UnknownRecord;
+    return String(record['id'] ?? record['_id'] ?? '');
+  }
+
+  folderName(folder: WorkspaceFolder): string {
+    return folder.name?.trim() || 'Untitled folder';
+  }
+
+  private selectWorkspace(id: string, emitChange: boolean): void {
+    if (!id) return;
+
+    const changed = id !== this.selectedWorkspaceId();
+    this.workspaceStore.select(id);
+
+    if (changed) {
+      this.workspaceFolderStore.clear();
+      this.clearNotesState();
     }
 
-    const normalizedTag =
-      (
-        note.tag ??
-        ''
-      )
-        .trim()
-        .toLowerCase();
-
-    const matchingFolder =
-      this.folders().find(
-        folder =>
-          folder.label
-            .trim()
-            .toLowerCase() ===
-          normalizedTag,
-      );
-
-    if (matchingFolder) {
-      return matchingFolder.id;
-    }
-
-    const defaultFolder =
-      this.workspaceFolderStore.defaultFolder();
-
-    return (
-      defaultFolder?._id ??
-      ''
-    );
+    if (emitChange && changed) this.workspaceChange.emit(id);
+    this.loadFolders();
   }
 
-  private requestAdvertisementRender(): void {
-    if (
-      typeof window === 'undefined' ||
-      !this.showAdvertisement ||
-      !this.adsenseClient ||
-      !this.adsenseSlot
-    ) {
+  private selectFolder(id: string, emitChange: boolean): void {
+    if (!id) return;
+
+    const changed = id !== this.selectedFolderId();
+    this.workspaceFolderStore.select(id);
+    this.clearNotesState(false);
+    this.activeTab.set('all');
+    this.searchTerm.set('');
+
+    if (emitChange && changed) this.workspaceFolderChange.emit(id);
+    this.loadSelectedFolder();
+  }
+
+  private selectInitialWorkspace(): void {
+    const workspaces = this.workspaces();
+
+    if (!workspaces.length) {
+      this.workspaceStore.select(null);
+      this.workspaceFolderStore.clear();
+      this.clearNotesState();
       return;
     }
 
-    window.setTimeout(
-      () => {
-        try {
-          const adsenseWindow =
-            window as Window & {
-              adsbygoogle?: Array<
-                Record<string, unknown>
-              >;
-            };
+    const requestedId = this.workspaceId.trim();
+    const currentId = this.selectedWorkspaceId();
+    const exists = (id: string) => !!id && workspaces.some(item => this.workspaceRecordId(item) === id);
+    const nextId = exists(requestedId) ? requestedId : exists(currentId) ? currentId : this.workspaceRecordId(workspaces[0]);
 
-          adsenseWindow.adsbygoogle ??=
-            [];
-
-          adsenseWindow.adsbygoogle.push(
-            {},
-          );
-        } catch {
-          // Ad blockers or delayed scripts
-          // must not break the board.
-        }
-      },
-    );
+    this.selectWorkspace(nextId, false);
   }
 
-  private copyNote(
-    note: KanbanNote,
-  ): KanbanNote {
-    return {
-      ...note,
-      checklist:
-        note.checklist?.map(
-          item => ({
-            ...item,
-          }),
-        ),
-      assignees:
-        note.assignees?.map(
-          assignee => ({
-            ...assignee,
-          }),
-        ),
-    };
+  private selectInitialFolder(): void {
+    const folders = this.folders();
+
+    if (!folders.length) {
+      this.workspaceFolderStore.select(null);
+      this.clearNotesState();
+      return;
+    }
+
+    const requestedId = this.workspaceFolderId.trim();
+    const currentId = this.selectedFolderId();
+    const exists = (id: string) => !!id && folders.some(item => this.folderId(item) === id);
+    const defaultFolder = folders.find(folder => Boolean(folder.isDefault));
+    const nextId = exists(requestedId)
+      ? requestedId
+      : exists(currentId)
+        ? currentId
+        : this.folderId(defaultFolder ?? folders[0]);
+
+    this.selectFolder(nextId, false);
+  }
+
+  private replaceNote(updated: StickyNote): void {
+    const id = this.noteId(updated);
+    this.notes.update(notes => notes.map(note => this.noteId(note) === id ? updated : note));
+  }
+
+  private setBusy(id: string, busy: boolean): void {
+    const next = new Set(this.busyIds());
+    busy ? next.add(id) : next.delete(id);
+    this.busyIds.set(next);
+  }
+
+  private clearNotesState(closeOverlays = true): void {
+    ++this.noteRequestVersion;
+    this.columns.set([]);
+    this.notes.set([]);
+    this.loadingNotes.set(false);
+    this.notesError.set(null);
+    this.busyIds.set(new Set());
+
+    if (closeOverlays) {
+      this.closeNoteModal();
+      this.closeDeleteDialog(true);
+    }
+  }
+
+  private workspaceRecordId(workspace: WorkspaceModel | undefined): string {
+    if (!workspace) return '';
+    const record = workspace as unknown as UnknownRecord;
+    return String(record['id'] ?? record['_id'] ?? '');
+  }
+
+  private workspaceName(workspace: WorkspaceModel): string {
+    return workspace.name?.trim() || 'Untitled workspace';
+  }
+
+  private getReferenceId(value: string | { _id: string } | null | undefined): string {
+    if (!value) return '';
+    return typeof value === 'string' ? value : value._id;
+  }
+
+  private noteTimestamp(note: StickyNote, field: 'updatedAt' | 'createdAt'): number {
+    const value = (note as unknown as UnknownRecord)[field];
+    if (typeof value !== 'string' && !(value instanceof Date)) return 0;
+
+    const timestamp = new Date(value).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  private extractWorkspaces(
+    response: WorkspacePaginatedApiResponse<WorkspaceModel>
+  ): readonly WorkspaceModel[] {
+    const data = response.data as unknown;
+    if (Array.isArray(data)) return data as WorkspaceModel[];
+    if (!data || typeof data !== 'object') return [];
+
+    const record = data as UnknownRecord;
+    const candidates = [record['items'], record['workspaces'], record['docs'], record['results']];
+    return candidates.find(Array.isArray) as WorkspaceModel[] | undefined ?? [];
+  }
+
+  private extractFolders(
+    response: FolderPaginatedApiResponse<WorkspaceFolder>
+  ): readonly WorkspaceFolder[] {
+    const data = response.data as unknown;
+    if (Array.isArray(data)) return data as WorkspaceFolder[];
+    if (!data || typeof data !== 'object') return [];
+
+    const record = data as UnknownRecord;
+    const candidates = [record['items'], record['folders'], record['workspaceFolders'], record['docs'], record['results']];
+    return candidates.find(Array.isArray) as WorkspaceFolder[] | undefined ?? [];
+  }
+
+  private errorMessage(error: unknown, fallback: string): string {
+    if (!error || typeof error !== 'object') return fallback;
+
+    const record = error as UnknownRecord;
+    const nested = record['error'];
+
+    if (nested && typeof nested === 'object') {
+      const message = (nested as UnknownRecord)['message'];
+      if (typeof message === 'string' && message.trim()) return message;
+    }
+
+    const message = record['message'];
+    return typeof message === 'string' && message.trim() ? message : fallback;
   }
 }

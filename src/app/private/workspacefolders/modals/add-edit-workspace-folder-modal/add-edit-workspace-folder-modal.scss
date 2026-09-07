@@ -1,0 +1,286 @@
+@use '../../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+.add-edit-folder-modal {
+    position: fixed;
+    z-index: $z-modal + 1;
+    inset: 0;
+    display: block;
+    padding: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    color: $text-primary;
+    font-family: $font-body;
+    outline: none;
+
+    .modal-dialog {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: min(100%, 500px);
+        max-width: 500px;
+        min-height: calc(100vh - 36px);
+        margin: 0 auto;
+        pointer-events: none;
+    }
+}
+
+.folder-modal-content {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
+    color: $text-primary;
+    background:
+        radial-gradient(circle at 6% 0%, rgba($note-button-yellow, 0.16), transparent 190px),
+        linear-gradient(180deg, rgba($paper-light, 0.99), rgba($paper, 0.99));
+    border: 1px solid rgba($border, 0.96);
+    border-radius: $radius-lg;
+    box-shadow: $shadow-lg, 0 30px 90px rgba($heading, 0.1);
+    outline: none;
+
+    &::before {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        left: 50%;
+        width: 78px;
+        height: 7px;
+        content: '';
+        background: linear-gradient(90deg,
+                rgba($note-button-yellow, 0.72),
+                $note-button-yellow,
+                rgba($note-button-yellow, 0.72));
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 2px 8px rgba($heading, 0.08);
+        transform: translateX(-50%);
+    }
+}
+
+.folder-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 24px 19px;
+    background: transparent;
+    border: 0;
+}
+
+.folder-modal-heading {
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    gap: 13px;
+}
+
+.folder-modal-heading-copy {
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.folder-modal-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    color: $note-button-yellow-text;
+    background: linear-gradient(145deg, $note-button-yellow, rgba($note-button-yellow, 0.74));
+    border: 1px solid rgba($accent, 0.16);
+    border-radius: $radius-sm;
+    box-shadow: $shadow-sm, inset 0 1px rgba($paper, 0.72);
+    place-items: center;
+}
+
+.folder-modal-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: $accent;
+    font-family: $font-note;
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: rotate(-0.35deg);
+    transform-origin: left center;
+}
+
+.folder-modal-title {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 1.08rem;
+    font-weight: 780;
+    line-height: 1.22;
+    letter-spacing: -0.025em;
+}
+
+.folder-modal-description {
+    max-width: 340px;
+    margin: 6px 0 0;
+    color: $text-secondary;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.folder-modal-close {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin: -2px -3px 0 0;
+}
+
+.folder-modal-close::ng-deep .app-button-wrapper {
+    display: inline-flex;
+}
+
+.folder-modal-close::ng-deep button,
+.folder-modal-close::ng-deep .app-button,
+.folder-modal-close::ng-deep .app-button-main {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: $radius-xs !important;
+}
+
+.folder-modal-divider {
+    display: block;
+    width: 100%;
+    margin: 0;
+    opacity: 0.72;
+}
+
+.folder-modal-body {
+    padding: 21px 24px 24px;
+    background: linear-gradient(180deg, rgba($paper-dark, 0.2), transparent 84px);
+}
+
+.folder-modal-form {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+.folder-modal-form app-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.folder-modal-error {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    gap: 8px;
+    padding: 8px 10px;
+    color: $danger;
+    background: rgba($danger, 0.06);
+    border: 1px solid rgba($danger, 0.15);
+    border-radius: 9px;
+    font-size: 0.68rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.folder-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    padding: 14px 24px 18px;
+    background: rgba($paper-dark, 0.24);
+    border: 0;
+}
+
+.folder-modal-backdrop {
+    position: fixed;
+    z-index: $z-modal;
+    inset: 0;
+    background: rgba($heading, 0.38);
+    opacity: 1;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+@media (max-width: 575.98px) {
+    .add-edit-folder-modal {
+        padding: 10px;
+
+        .modal-dialog {
+            width: 100%;
+            max-width: 100%;
+            min-height: calc(100vh - 20px);
+        }
+    }
+
+    .folder-modal-content {
+        border-radius: $radius-md;
+
+        &::before {
+            width: 68px;
+        }
+    }
+
+    .folder-modal-header {
+        gap: 10px;
+        padding: 21px 18px 17px;
+    }
+
+    .folder-modal-heading {
+        gap: 10px;
+    }
+
+    .folder-modal-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .folder-modal-title {
+        font-size: 1rem;
+    }
+
+    .folder-modal-description {
+        max-width: 270px;
+        font-size: 0.69rem;
+    }
+
+    .folder-modal-body {
+        padding: 18px;
+    }
+
+    .folder-modal-footer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+        padding: 12px 18px 16px;
+
+        app-button {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    .folder-modal-footer::ng-deep app-button .app-button-wrapper,
+    .folder-modal-footer::ng-deep app-button button,
+    .folder-modal-footer::ng-deep app-button .app-button {
+        width: 100% !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .add-edit-folder-modal,
+    .folder-modal-backdrop,
+    .folder-modal-content {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -15,8 +15,6 @@ import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import {
@@ -36,6 +34,7 @@ import {
   LucideMail,
   LucideShieldCheck,
   LucideSparkles,
+  LucideUserRound,
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
@@ -47,34 +46,24 @@ import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
+import { AuthService } from '../services/auth-service';
 import {
-  AuthService,
-} from '../services/auth-service';
-import { RegisterCredentials, RegisterResponse } from '../models/auth.models';
+  RegisterCredentials,
+  RegisterResponse,
+} from '../models/auth.models';
 
 type SignUpControl =
+  | 'firstName'
+  | 'lastName'
   | 'email'
   | 'password'
-  | 'confirmPassword'
   | 'acceptTerms';
 
-const passwordMatchValidator: ValidatorFn = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const password = control.get('password')?.value ?? '';
-  const confirmPassword =
-    control.get('confirmPassword')?.value ?? '';
-
-  if (!password || !confirmPassword) {
-    return null;
-  }
-
-  return password === confirmPassword
-    ? null
-    : {
-      passwordMismatch: true,
-    };
-};
+interface BrowserRegistrationContext {
+  timezoneCode: string;
+  locale: string;
+  countryCodeHint?: string;
+}
 
 @Component({
   selector: 'app-signup',
@@ -111,6 +100,7 @@ export class Signup {
   readonly LucideMail = LucideMail;
   readonly LucideShieldCheck = LucideShieldCheck;
   readonly LucideSparkles = LucideSparkles;
+  readonly LucideUserRound = LucideUserRound;
 
   @Input() brandName = 'MyStickyNotes';
   @Input() brandHref = '/';
@@ -126,42 +116,46 @@ export class Signup {
   readonly loading = signal(false);
   readonly submitted = signal(false);
 
-  readonly signUpForm = this.formBuilder.nonNullable.group(
-    {
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.maxLength(254),
-        ],
+  readonly signUpForm = this.formBuilder.nonNullable.group({
+    firstName: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(50),
       ],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(128),
-        ],
+    ],
+    lastName: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(50),
       ],
-      confirmPassword: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(128),
-        ],
+    ],
+    email: [
+      '',
+      [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(254),
       ],
-      acceptTerms: [
-        false,
-        [
-          Validators.requiredTrue,
-        ],
+    ],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(128),
       ],
-    },
-    {
-      validators: passwordMatchValidator,
-    },
-  );
+    ],
+    acceptTerms: [
+      false,
+      [
+        Validators.requiredTrue,
+      ],
+    ],
+  });
 
   constructor() {
     afterNextRender(() => {
@@ -171,10 +165,20 @@ export class Signup {
 
       if (email) {
         this.emailControl.setValue(email);
+        this.focusControl('password');
+        return;
       }
 
-      this.focusControl('email');
+      this.focusControl('firstName');
     });
+  }
+
+  get firstNameControl() {
+    return this.signUpForm.controls.firstName;
+  }
+
+  get lastNameControl() {
+    return this.signUpForm.controls.lastName;
   }
 
   get emailControl() {
@@ -185,12 +189,22 @@ export class Signup {
     return this.signUpForm.controls.password;
   }
 
-  get confirmPasswordControl() {
-    return this.signUpForm.controls.confirmPassword;
-  }
-
   get acceptTermsControl() {
     return this.signUpForm.controls.acceptTerms;
+  }
+
+  get firstNameError(): string {
+    return this.nameError(
+      this.firstNameControl,
+      'First name',
+    );
+  }
+
+  get lastNameError(): string {
+    return this.nameError(
+      this.lastNameControl,
+      'Last name',
+    );
   }
 
   get emailError(): string {
@@ -233,40 +247,6 @@ export class Signup {
     return '';
   }
 
-  get confirmPasswordError(): string {
-    const control = this.confirmPasswordControl;
-
-    if (
-      control.hasError('required') &&
-      this.shouldShowError(control)
-    ) {
-      return 'Please confirm your password.';
-    }
-
-    if (
-      control.hasError('maxlength') &&
-      this.shouldShowError(control)
-    ) {
-      return 'Password cannot exceed 128 characters.';
-    }
-
-    const showMismatch =
-      (
-        this.submitted() ||
-        control.touched ||
-        control.dirty
-      ) &&
-      this.signUpForm.hasError(
-        'passwordMismatch',
-      );
-
-    if (showMismatch) {
-      return 'Passwords do not match.';
-    }
-
-    return '';
-  }
-
   get termsError(): string {
     return this.shouldShowError(
       this.acceptTermsControl,
@@ -284,24 +264,35 @@ export class Signup {
 
     if (this.signUpForm.invalid) {
       this.signUpForm.markAllAsTouched();
-
-      this.focusControl(
-        this.firstInvalidControl(),
-      );
-
+      this.focusControl(this.firstInvalidControl());
       return;
     }
 
-    const value =
-      this.signUpForm.getRawValue();
+    const value = this.signUpForm.getRawValue();
+    const browserContext =
+      this.getBrowserRegistrationContext();
 
     const credentials: RegisterCredentials = {
+      firstName: this.normalizeName(value.firstName),
+      lastName: this.normalizeName(value.lastName),
       email: value.email
         .trim()
         .toLowerCase(),
       password: value.password,
+
       termsAccepted: value.acceptTerms,
       privacyPolicyAccepted: value.acceptTerms,
+
+      // Collected silently from the browser.
+      timezoneCode: browserContext.timezoneCode,
+      locale: browserContext.locale,
+
+      // This is only a hint. The backend should validate
+      // it or use the configured India default.
+      ...(browserContext.countryCodeHint && {
+        countryCodeHint:
+          browserContext.countryCodeHint,
+      }),
     };
 
     this.loading.set(true);
@@ -346,6 +337,75 @@ export class Signup {
     }
 
     this.googleSignUp.emit();
+  }
+
+  private getBrowserRegistrationContext():
+    BrowserRegistrationContext {
+    return {
+      locale: this.resolveBrowserLocale(),
+      timezoneCode: this.resolveBrowserTimezone(),
+
+      // Application is currently India-only.
+      countryCodeHint: 'IN',
+    };
+  }
+
+  private resolveBrowserLocale(): string {
+    if (typeof navigator === 'undefined') {
+      return 'en-IN';
+    }
+
+    return (
+      navigator.languages?.find(Boolean) ||
+      navigator.language ||
+      'en-IN'
+    );
+  }
+
+  private resolveBrowserTimezone(): string {
+    try {
+      const timezone =
+        Intl.DateTimeFormat()
+          .resolvedOptions()
+          .timeZone ||
+        'Asia/Kolkata';
+
+      // Normalize the older IANA alias used by some browsers/systems.
+      return timezone === 'Asia/Calcutta'
+        ? 'Asia/Kolkata'
+        : timezone;
+    } catch {
+      return 'Asia/Kolkata';
+    }
+  }
+
+  private normalizeName(value: string): string {
+    return value
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
+  private nameError(
+    control: AbstractControl,
+    label: string,
+  ): string {
+    if (!this.shouldShowError(control)) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return `${label} is required.`;
+    }
+
+    if (control.hasError('minlength')) {
+      return `${label} must contain at least 2 characters.`;
+    }
+
+    if (control.hasError('maxlength')) {
+      return `${label} cannot exceed 50 characters.`;
+    }
+
+    return '';
   }
 
   private handleSuccess(
@@ -476,21 +536,20 @@ export class Signup {
   }
 
   private firstInvalidControl(): SignUpControl {
+    if (this.firstNameControl.invalid) {
+      return 'firstName';
+    }
+
+    if (this.lastNameControl.invalid) {
+      return 'lastName';
+    }
+
     if (this.emailControl.invalid) {
       return 'email';
     }
 
     if (this.passwordControl.invalid) {
       return 'password';
-    }
-
-    if (
-      this.confirmPasswordControl.invalid ||
-      this.signUpForm.hasError(
-        'passwordMismatch',
-      )
-    ) {
-      return 'confirmPassword';
     }
 
     return 'acceptTerms';
@@ -500,9 +559,10 @@ export class Signup {
     control: SignUpControl,
   ): void {
     const ids: Record<SignUpControl, string> = {
+      firstName: 'sign-up-first-name',
+      lastName: 'sign-up-last-name',
       email: 'sign-up-email',
       password: 'sign-up-password',
-      confirmPassword: 'sign-up-confirm-password',
       acceptTerms: 'signup-terms',
     };
 

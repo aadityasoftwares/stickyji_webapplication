@@ -1,0 +1,319 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    min-width: 0;
+    font-family: $font-body;
+}
+
+:host(.is-full-width) {
+    display: flex;
+    width: 100%;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.app-tabs {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    gap: 3px;
+
+    &.is-full-width {
+        width: 100%;
+
+        .app-tab {
+            flex: 1 1 0;
+        }
+    }
+
+    &.is-vertical {
+        align-items: stretch;
+        flex-direction: column;
+
+        .app-tab {
+            justify-content: flex-start;
+        }
+    }
+
+    &.is-scrollable:not(.is-vertical) {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    &.is-disabled {
+        opacity: 0.58;
+    }
+}
+
+.app-tab {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--app-tab-min-width, auto);
+    gap: 6px;
+    padding-inline: 12px;
+    color: $text-secondary;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        color 150ms ease,
+        background-color 150ms ease,
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        transform 150ms ease;
+
+    &:hover:not(:disabled) {
+        color: $heading;
+        background: rgba($paper, 0.52);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        z-index: 2;
+        outline: none;
+        box-shadow: var(--app-focus-ring);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.44;
+    }
+}
+
+.app-tab-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: currentColor;
+}
+
+.app-tab-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-tab-count {
+    display: inline-grid;
+    flex: 0 0 auto;
+    min-width: 19px;
+    height: 18px;
+    padding-inline: 5px;
+    color: $text-light;
+    background: rgba($heading, 0.055);
+    border: 1px solid rgba($heading, 0.035);
+    border-radius: 999px;
+    font-family: $font-mono;
+    font-size: 0.54rem;
+    font-weight: 700;
+    line-height: 1;
+    place-items: center;
+}
+
+/* Sizes */
+.app-tabs-sm .app-tab {
+    height: 34px;
+    padding-inline: 10px;
+    font-size: 0.68rem;
+}
+
+.app-tabs-md .app-tab {
+    height: 39px;
+    font-size: 0.73rem;
+}
+
+.app-tabs-lg .app-tab {
+    height: 44px;
+    padding-inline: 15px;
+    font-size: 0.79rem;
+}
+
+/* Density */
+.app-tabs-density-compact {
+    gap: 2px;
+
+    .app-tab {
+        gap: 5px;
+    }
+
+    .app-tab-count {
+        min-width: 17px;
+        height: 16px;
+        padding-inline: 4px;
+        font-size: 0.51rem;
+    }
+
+    &.app-tabs-sm .app-tab {
+        height: 30px;
+        padding-inline: 8px;
+        font-size: 0.66rem;
+    }
+
+    &.app-tabs-md .app-tab {
+        height: 34px;
+        padding-inline: 10px;
+        font-size: 0.7rem;
+    }
+
+    &.app-tabs-lg .app-tab {
+        height: 39px;
+        padding-inline: 12px;
+        font-size: 0.75rem;
+    }
+}
+
+.app-tabs-pill .app-tab {
+    border-radius: 999px;
+}
+
+/* Segmented */
+.app-tabs-segmented {
+    padding: 3px;
+    background: rgba($heading, 0.045);
+    border: 1px solid rgba($border, 0.66);
+    border-radius: 11px;
+    box-shadow: inset 0 1px 2px rgba($heading, 0.025);
+
+    &.app-tabs-density-compact {
+        padding: 2px;
+        border-radius: 9px;
+    }
+
+    &.app-tabs-pill {
+        border-radius: 999px;
+    }
+
+    .app-tab.is-active {
+        color: $heading;
+        background: $paper;
+        border-color: rgba($border, 0.76);
+        box-shadow:
+            0 1px 2px rgba($heading, 0.06),
+            0 4px 10px rgba($heading, 0.055);
+
+        .app-tab-count {
+            color: #654e00;
+            background: rgba($note-button-yellow, 0.44);
+            border-color: rgba(#8b6800, 0.07);
+        }
+    }
+}
+
+/* Paper */
+.app-tabs-paper {
+    padding: 3px;
+    background:
+        linear-gradient(rgba($paper, 0.28), rgba($paper, 0.28)),
+        rgba($paper-dark, 0.62);
+    border: 1px solid rgba($border, 0.58);
+    border-radius: 11px;
+
+    &.app-tabs-density-compact {
+        padding: 2px;
+        border-radius: 9px;
+    }
+
+    &.app-tabs-pill {
+        border-radius: 999px;
+    }
+
+    .app-tab.is-active {
+        color: $heading;
+        background: $paper;
+        border-color: rgba($border, 0.82);
+        box-shadow:
+            0 1px 1px rgba($heading, 0.05),
+            0 4px 10px rgba($heading, 0.065);
+
+        .app-tab-count {
+            color: #654e00;
+            background: rgba($note-button-yellow, 0.48);
+        }
+    }
+}
+
+/* Underline */
+.app-tabs-underline {
+    gap: 13px;
+    border-bottom: 1px solid $border-light;
+
+    &.app-tabs-density-compact {
+        gap: 10px;
+    }
+
+    .app-tab {
+        padding-inline: 2px;
+        border-radius: 0;
+
+        &:hover:not(:disabled) {
+            background: transparent;
+        }
+
+        &::after {
+            position: absolute;
+            right: 0;
+            bottom: -1px;
+            left: 0;
+            height: 2px;
+            content: '';
+            background: transparent;
+            border-radius: 999px 999px 0 0;
+        }
+
+        &.is-active {
+            color: $heading;
+
+            &::after {
+                background: $accent;
+            }
+
+            .app-tab-count {
+                color: #654e00;
+                background: rgba($note-button-yellow, 0.42);
+            }
+        }
+    }
+
+    &.is-vertical {
+        gap: 4px;
+        border-right: 1px solid $border-light;
+        border-bottom: 0;
+
+        .app-tab::after {
+            top: 3px;
+            right: -1px;
+            bottom: 3px;
+            left: auto;
+            width: 2px;
+            height: auto;
+            border-radius: 999px 0 0 999px;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-tab {
+        transition: none;
+    }
+}

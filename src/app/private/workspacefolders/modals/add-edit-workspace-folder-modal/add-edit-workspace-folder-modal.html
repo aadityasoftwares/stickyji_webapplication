@@ -1,0 +1,70 @@
+@if (open) {
+<div class="modal fade show d-block add-edit-folder-modal" tabindex="-1" role="dialog" aria-modal="true"
+    aria-labelledby="workspace-folder-modal-title" aria-describedby="workspace-folder-modal-description"
+    (mousedown)="onBackdropMouseDown($event)">
+
+    <div class="modal-dialog modal-dialog-centered" role="document" (mousedown)="$event.stopPropagation()">
+        <section class="modal-content folder-modal-content">
+            <header class="modal-header folder-modal-header">
+                <div class="folder-modal-heading">
+                    <span class="folder-modal-icon" aria-hidden="true">
+                        <app-icon [icon]="headerIcon" size="sm" />
+                    </span>
+
+                    <div class="folder-modal-heading-copy">
+                        <span class="folder-modal-kicker">{{ eyebrow }}</span>
+                        <h2 id="workspace-folder-modal-title" class="modal-title folder-modal-title">{{ title }}</h2>
+                        <p id="workspace-folder-modal-description" class="folder-modal-description">{{ description }}
+                        </p>
+                    </div>
+                </div>
+
+                <app-button class="folder-modal-close" [icon]="LucideX" [iconOnly]="true" variant="danger"
+                    appearance="standard" size="sm" ariaLabel="Close folder editor" title="Close" [disabled]="loading()"
+                    (buttonClick)="close()" />
+            </header>
+
+            <app-divider class="folder-modal-divider" variant="neutral" lineStyle="dashed" spacing="none"
+                [thickness]="1" />
+
+            <div class="modal-body folder-modal-body">
+                <div class="folder-modal-form">
+                    <app-input #folderNameInput type="text" label="Folder name"
+                        labelDescription="Keep it short and easy to recognise." placeholder="Example: Product ideas"
+                        variant="paper" appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideFolderOpen"
+                        [required]="true" [clearable]="true" [showCounter]="true" [maxLength]="nameMaxLength"
+                        [value]="name()" [disabled]="loading()" [fullWidth]="true" autocomplete="off"
+                        (valueChange)="updateName($event)" (enterKey)="submit()" />
+
+                    <app-input label="Description" labelDescription="Optional — describe what belongs in this folder."
+                        placeholder="Example: Product notes, ideas and planning" variant="paper" appearance="outlined"
+                        shape="rounded" size="md" [multiline]="true" [rows]="3" [clearable]="true" [showCounter]="true"
+                        [maxLength]="descriptionMaxLength" [value]="folderDescription()" [disabled]="loading()"
+                        [fullWidth]="true" (valueChange)="updateDescription($event)" />
+
+                    @if (error()) {
+                    <div class="folder-modal-error" role="alert">
+                        <app-icon [icon]="LucideX" size="xs" />
+                        <span>{{ error() }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <app-divider class="folder-modal-divider" variant="neutral" lineStyle="solid" spacing="none"
+                [thickness]="1" />
+
+            <footer class="modal-footer folder-modal-footer">
+                <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="loading()"
+                    (buttonClick)="close()" />
+
+                <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
+                    size="sm" [loading]="loading()" [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
+                    [disabled]="!canSubmit" (buttonClick)="submit()" />
+            </footer>
+        </section>
+    </div>
+</div>
+
+<div class="modal-backdrop fade show folder-modal-backdrop" aria-hidden="true"></div>
+}

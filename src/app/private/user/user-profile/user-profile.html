@@ -1,37 +1,41 @@
 <main class="profile-page" aria-labelledby="profile-page-title">
-    <header class="profile-heading">
-        <div class="profile-heading__copy">
-            <app-badge label="Your personal corner" variant="noteYellow" size="md" shape="pill"
-                [icon]="LucideSparkles" />
+    <header class="page-header">
+        <div class="page-header__copy">
+            <app-badge label="Account profile" variant="noteYellow" size="sm" shape="pill" [icon]="LucideSparkles" />
 
-            <h1 id="profile-page-title">Profile & preferences</h1>
+            <h1 id="profile-page-title">
+                Your profile
+            </h1>
+
             <p>
-                Make MyStickyNotes feel like yours. Your regional choices also
-                control how dates, times and prices are displayed.
+                Manage the personal and regional information used
+                across your notes and workspaces.
             </p>
         </div>
 
-        <div class="profile-heading__actions">
-            <app-button label="Reset changes" variant="secondary" size="md" [iconLeft]="LucideRotateCcw"
-                [disabled]="profileForm.pristine || saving()" (buttonClick)="resetForm()" />
-
-            <app-button label="Save profile" variant="primary" size="md" [iconLeft]="LucideSave" [loading]="saving()"
-                [disabled]="profileForm.pristine || saving()" (buttonClick)="saveProfile()" />
-        </div>
     </header>
 
     @if (loading()) {
     <section class="profile-loading" aria-live="polite" aria-busy="true">
-        <span class="profile-loading__note"></span>
-        <span class="profile-loading__note"></span>
-        <span class="profile-loading__note"></span>
-        <p>Opening your profile…</p>
+        <div class="profile-loading__notes">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div>
+            <strong>Opening your profile</strong>
+            <p>Getting your personal details ready…</p>
+        </div>
     </section>
     } @else if (loadError()) {
-    <app-sticky-card variant="noteRed" appearance="outlined" shape="note" shadow="sm" [fullWidth]="true">
+    <app-sticky-card variant="noteRed" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
         <div class="state-message" role="alert">
-            <h2>Profile could not be opened</h2>
-            <p>{{ loadError() }}</p>
+            <div>
+                <h2>Profile could not be opened</h2>
+                <p>{{ loadError() }}</p>
+            </div>
+
             <app-button label="Try again" variant="primary" size="md" (buttonClick)="reload()" />
         </div>
     </app-sticky-card>
@@ -39,7 +43,8 @@
     @if (saved()) {
     <div class="feedback-banner feedback-banner--success" role="status">
         <app-icon [icon]="LucideCheck" size="sm" tone="success" />
-        <span>Your profile is up to date.</span>
+
+        <span>Your profile has been saved.</span>
     </div>
     }
 
@@ -49,35 +54,37 @@
     </div>
     }
 
-    <form class="profile-layout" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
-        <aside class="profile-sidebar" aria-label="Profile overview">
-            <app-sticky-card variant="noteYellow" appearance="elevated" shape="note" shadow="md" [fullWidth]="true">
-                <div class="identity-card">
-                    <span class="identity-card__tape" aria-hidden="true"></span>
+    <form class="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <!-- Compact profile overview -->
+        <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
+            <section class="profile-overview" aria-label="Profile overview">
+                <div class="profile-identity">
+                    <app-avatar [name]="previewName()" size="xl" shape="rounded" tone="yellow" status="online" />
 
-                    <app-avatar [name]="previewName()" size="2xl" shape="rounded" tone="yellow" status="online" />
-
-                    <div class="identity-card__copy">
+                    <div class="profile-identity__copy">
+                        <span>Profile preview</span>
                         <h2>{{ previewName() }}</h2>
                         <p>{{ previewOccupation() }}</p>
                     </div>
 
-                    <app-badge [label]="(profileForm.controls.profileType.value ?? '') | titlecase" variant="outline"
-                        size="sm" shape="pill" />
-
-                    <p class="identity-card__avatar-note">
-                        Your avatar is created from your initials.
-                    </p>
+                    <app-badge [label]="
+                (profileForm.controls.profileType.value ?? '')
+                  | titlecase
+              " variant="outline" size="sm" shape="pill" />
                 </div>
-            </app-sticky-card>
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <div class="completion-card">
-                    <div class="completion-card__heading">
+                <app-divider class="overview-divider" orientation="vertical" variant="neutral" [length]="58"
+                    spacing="lg" />
+
+                <div class="profile-completion">
+                    <div class="profile-completion__heading">
                         <div>
-                            <span>Profile strength</span>
-                            <strong>{{ completionPercent() }}%</strong>
+                            <span>Profile completion</span>
+                            <strong>
+                                {{ completionPercent() }}%
+                            </strong>
                         </div>
+
                         <app-icon [icon]="LucideCircleUserRound" size="md" tone="accent" surface="soft"
                             shape="rounded" />
                     </div>
@@ -88,164 +95,212 @@
                     </div>
 
                     <p>
-                        Add a short bio, your interests and regional
-                        preferences to complete your profile.
+                        Complete optional details to help collaborators
+                        recognize you.
                     </p>
                 </div>
-            </app-sticky-card>
+            </section>
+        </app-sticky-card>
 
-            <div class="profile-promise">
-                <app-icon [icon]="LucideSparkles" size="sm" tone="accent" />
-                <p>
-                    A little context helps shared workspaces feel more
-                    human—without making your profile noisy.
-                </p>
-            </div>
-        </aside>
+        <div class="profile-editor">
+            <div class="profile-editor__main">
+                <!-- Personal information -->
+                <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
+                    <section class="form-section" aria-labelledby="personal-details-title">
+                        <header class="section-heading">
+                            <app-icon [icon]="LucideUserRound" size="md" tone="primary" surface="paper"
+                                shape="rounded" />
 
-        <div class="profile-content">
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="form-section" aria-labelledby="personal-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideUserRound" size="md" tone="primary" surface="paper" shape="rounded" />
-                        <div>
-                            <h2 id="personal-title">Personal details</h2>
-                            <p>The name teammates will see around your notes.</p>
+                            <div>
+                                <h2 id="personal-details-title">
+                                    Personal information
+                                </h2>
+
+                                <p>
+                                    Your name and basic profile details.
+                                </p>
+                            </div>
+                        </header>
+
+                        <app-divider variant="neutral" spacing="md" />
+
+                        <div class="form-grid">
+                            <app-input label="First name" placeholder="Enter your first name"
+                                formControlName="firstName" [maxLength]="50" [required]="true"
+                                [errorText]="fieldMessage('firstName')" />
+
+                            <app-input label="Last name" placeholder="Enter your last name" formControlName="lastName"
+                                [maxLength]="50" [required]="true" [errorText]="fieldMessage('lastName')" />
+
+                            <app-input class="form-grid__wide" label="Display name"
+                                placeholder="How should we address you?" formControlName="displayName" [maxLength]="80"
+                                [optional]="true" hint="Shown instead of your full name when provided."
+                                [errorText]="fieldMessage('displayName')" />
+
+                            <app-select label="Profile type" placeholder="Choose a profile type"
+                                formControlName="profileType" [options]="profileTypeOptions" [searchable]="false"
+                                [clearable]="false" variant="paper" size="md" />
+
+                            <app-datepicker-input label="Date of birth" placeholder="DD/MM/YYYY"
+                                formControlName="dateOfBirth" variant="paper" size="md" [optional]="true"
+                                [clearable]="true" [minDate]="minimumDateOfBirth" [maxDate]="maximumDateOfBirth"
+                                hint="Choose your date of birth." />
                         </div>
-                    </header>
+                    </section>
+                </app-sticky-card>
 
-                    <app-divider variant="neutral" spacing="lg" />
+                <!-- About -->
+                <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
+                    <section class="form-section" aria-labelledby="about-title">
+                        <header class="section-heading">
+                            <app-icon [icon]="LucideBriefcaseBusiness" size="md" tone="accent" surface="soft"
+                                shape="rounded" />
 
-                    <div class="form-grid">
-                        <app-input label="First name" placeholder="Aaditya" formControlName="firstName" [maxLength]="50"
-                            [required]="true" [errorText]="fieldMessage('firstName')" />
+                            <div>
+                                <h2 id="about-title">
+                                    About you
+                                </h2>
 
-                        <app-input label="Last name" placeholder="Panchal" formControlName="lastName" [maxLength]="50"
-                            [required]="true" [errorText]="fieldMessage('lastName')" />
+                                <p>
+                                    Optional information for your profile.
+                                </p>
+                            </div>
+                        </header>
 
-                        <app-input class="form-grid__wide" label="Display name" placeholder="How should we address you?"
-                            formControlName="displayName" [maxLength]="80" [optional]="true"
-                            hint="Used instead of your full name." [errorText]="fieldMessage('displayName')" />
+                        <app-divider variant="neutral" spacing="md" />
 
-                        <app-select label="Profile type" placeholder="Choose a profile type"
-                            formControlName="profileType" [options]="profileTypeOptions" [searchable]="false"
-                            [clearable]="false" variant="paper" size="md" />
+                        <div class="form-grid">
+                            <app-input label="Occupation" placeholder="For example, Product designer"
+                                formControlName="occupation" [leadingIcon]="LucideBriefcaseBusiness" [maxLength]="100"
+                                [optional]="true" [errorText]="fieldMessage('occupation')" />
 
-                        <app-input label="Date of birth" type="date" formControlName="dateOfBirth"
-                            [leadingIcon]="LucideCalendarDays" [errorText]="fieldMessage('dateOfBirth')" />
-                    </div>
-                </section>
-            </app-sticky-card>
+                            <app-input label="Education" placeholder="Course, school or institution"
+                                formControlName="education" [leadingIcon]="LucideBookOpen" [maxLength]="150"
+                                [optional]="true" [errorText]="fieldMessage('education')" />
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="form-section" aria-labelledby="about-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideBriefcaseBusiness" size="md" tone="accent" surface="soft"
-                            shape="rounded" />
-                        <div>
-                            <h2 id="about-title">A little about you</h2>
-                            <p>Optional details that make your profile warmer.</p>
-                        </div>
-                    </header>
-
-                    <app-divider variant="neutral" spacing="lg" />
-
-                    <div class="form-grid">
-                        <app-input label="Occupation" placeholder="Product designer, student…"
-                            formControlName="occupation" [leadingIcon]="LucideBriefcaseBusiness" [maxLength]="100"
-                            [errorText]="fieldMessage('occupation')" />
-
-                        <app-input label="Education" placeholder="Your course or institution"
-                            formControlName="education" [leadingIcon]="LucideBookOpen" [maxLength]="150"
-                            [errorText]="fieldMessage('education')" />
-
-                        <app-input class="form-grid__wide" label="Bio" placeholder="Write a short note about yourself…"
-                            formControlName="bio" [multiline]="true" [rows]="4" [maxLength]="280" [showCounter]="true"
-                            resize="vertical" [errorText]="fieldMessage('bio')" />
-                    </div>
-
-                    <div class="interest-field">
-                        <div class="interest-field__label">
-                            <label for="interest-input">Interests</label>
-                            <span>{{ interests().length }}/10</span>
+                            <app-input class="form-grid__wide" label="Bio"
+                                placeholder="Write a short introduction about yourself…" formControlName="bio"
+                                [multiline]="true" [rows]="4" [maxLength]="280" [showCounter]="true" [optional]="true"
+                                resize="vertical" [errorText]="fieldMessage('bio')" />
                         </div>
 
-                        <div class="interest-input-row">
-                            <input #interestInput id="interest-input" type="text" maxlength="40"
-                                placeholder="Type an interest and press Enter"
-                                (keydown)="handleInterestKeydown($event, interestInput)" />
-                            <app-button label="Add" variant="secondary" size="md" [disabled]="interests().length >= 10"
-                                (buttonClick)="addInterest(interestInput)" />
-                        </div>
+                        <div class="interest-field">
+                            <div class="interest-field__header">
+                                <div>
+                                    <label for="interest-input">
+                                        Interests
+                                    </label>
 
-                        @if (interests().length) {
-                        <div class="interest-list" aria-label="Your interests">
-                            @for (interest of interests(); track interest) {
-                            <app-badge [label]="interest" variant="noteYellow" size="md" shape="pill" [removable]="true"
-                                (removed)="removeInterest(interest)" />
+                                    <p>
+                                        Add topics you enjoy or work with.
+                                    </p>
+                                </div>
+
+                                <span>
+                                    {{ interests().length }}/10
+                                </span>
+                            </div>
+
+                            <div class="interest-input-row">
+                                <input #interestInput id="interest-input" type="text" maxlength="40" autocomplete="off"
+                                    placeholder="Type an interest and press Enter" (keydown)="
+                      handleInterestKeydown(
+                        $event,
+                        interestInput
+                      )
+                    " />
+
+                                <app-button label="Add interest" variant="secondary" size="md"
+                                    [disabled]="interests().length >= 10" (buttonClick)="addInterest(interestInput)" />
+                            </div>
+
+                            @if (interests().length) {
+                            <div class="interest-list" aria-label="Your interests">
+                                @for (
+                                interest of interests();
+                                track interest
+                                ) {
+                                <app-badge [label]="interest" variant="noteYellow" size="md" shape="pill"
+                                    [removable]="true" (removed)="removeInterest(interest)" />
+                                }
+                            </div>
+                            } @else {
+                            <p class="interest-empty">
+                                For example: Productivity, design,
+                                reading or side projects.
+                            </p>
                             }
                         </div>
-                        } @else {
-                        <p class="interest-field__hint">
-                            Try productivity, design, reading or side projects.
-                        </p>
-                        }
-                    </div>
-                </section>
-            </app-sticky-card>
+                    </section>
+                </app-sticky-card>
+            </div>
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="form-section" aria-labelledby="preferences-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideGlobe2" size="md" tone="info" surface="soft" shape="rounded" />
-                        <div>
-                            <h2 id="preferences-title">Regional preferences</h2>
-                            <p>Used for dates, reminders, language and billing.</p>
+            <!-- Regional settings -->
+            <aside class="profile-editor__aside" aria-label="Regional settings">
+                <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
+                    <section class="form-section regional-section" aria-labelledby="regional-settings-title">
+                        <header class="section-heading">
+                            <app-icon [icon]="LucideGlobe2" size="md" tone="info" surface="soft" shape="rounded" />
+
+                            <div>
+                                <h2 id="regional-settings-title">
+                                    Regional settings
+                                </h2>
+
+                                <p>
+                                    Control dates, times and currency.
+                                </p>
+                            </div>
+                        </header>
+
+                        <app-divider variant="neutral" spacing="md" />
+
+                        <div class="regional-note">
+                            <app-icon [icon]="LucideClock3" size="sm" tone="accent" />
+
+                            <p>
+                                Your timezone determines when reminders and
+                                scheduled notes are delivered.
+                            </p>
                         </div>
-                    </header>
 
-                    <app-divider variant="neutral" spacing="lg" />
+                        <div class="regional-fields">
+                            <app-select label="Country" placeholder="Search country" formControlName="countryId"
+                                [options]="countryOptions()" [searchable]="true" [clearable]="true"
+                                [iconLeft]="LucideMapPin" variant="paper" size="md" />
 
-                    <div class="preference-note">
-                        <app-icon [icon]="LucideClock3" size="sm" tone="accent" />
-                        <p>
-                            Your timezone controls reminder delivery. Choose the
-                            location where you usually work.
-                        </p>
-                    </div>
+                            <app-select label="Timezone" placeholder="Search timezone" formControlName="timezoneId"
+                                [options]="timezoneOptions()" [searchable]="true" [clearable]="true"
+                                [iconLeft]="LucideClock3" variant="paper" size="md" />
 
-                    <div class="form-grid">
-                        <app-select label="Country" placeholder="Search country" formControlName="countryId"
-                            [options]="countryOptions()" [searchable]="true" [clearable]="true"
-                            [iconLeft]="LucideMapPin" variant="paper" size="md" />
-
-                        <app-select label="Timezone" placeholder="Search timezone" formControlName="timezoneId"
-                            [options]="timezoneOptions()" [searchable]="true" [clearable]="true"
-                            [iconLeft]="LucideClock3" variant="paper" size="md" />
-
-                        <app-select label="Language" placeholder="Choose language" formControlName="languageId"
-                            [options]="languageOptions()" [searchable]="true" [clearable]="true"
-                            [iconLeft]="LucideLanguages" variant="paper" size="md" />
-
-                        <app-select label="Currency" placeholder="Choose currency" formControlName="currencyId"
-                            [options]="currencyOptions()" [searchable]="true" [clearable]="true"
-                            [iconLeft]="LucideCoins" variant="paper" size="md" />
-                    </div>
-                </section>
-            </app-sticky-card>
-
-            <footer class="mobile-save-bar">
-                <p>
-                    @if (profileForm.dirty) {
-                    You have unsaved changes.
-                    } @else {
-                    Everything is saved.
-                    }
-                </p>
-                <app-button label="Save profile" variant="primary" size="lg" width="full" [iconLeft]="LucideSave"
-                    [loading]="saving()" [disabled]="profileForm.pristine || saving()" (buttonClick)="saveProfile()" />
-            </footer>
+                            <app-select label="Language" placeholder="Choose language" formControlName="languageId"
+                                [options]="languageOptions()" [searchable]="true" [clearable]="true"
+                                [iconLeft]="LucideLanguages" variant="paper" size="md" />
+                        </div>
+                    </section>
+                </app-sticky-card>
+            </aside>
         </div>
+
+        <footer class="floating-save-bar" aria-label="Profile save actions">
+            <div class="floating-save-bar__status" aria-live="polite">
+                @if (profileForm.dirty) {
+                <span class="floating-save-bar__dot"></span>
+                <span>You have unsaved changes</span>
+                } @else {
+                <app-icon [icon]="LucideCheck" size="xs" tone="success" />
+                <span>Everything is saved</span>
+                }
+            </div>
+
+            <div class="floating-save-bar__actions">
+                <app-button label="Reset" variant="secondary" size="md" [iconLeft]="LucideRotateCcw"
+                    [disabled]="profileForm.pristine || saving()" (buttonClick)="resetForm()" />
+
+                <app-button label="Save profile" variant="primary" size="md" [iconLeft]="LucideSave"
+                    [loading]="saving()" [disabled]="profileForm.pristine || saving()" (buttonClick)="saveProfile()" />
+            </div>
+        </footer>
     </form>
     }
 </main>

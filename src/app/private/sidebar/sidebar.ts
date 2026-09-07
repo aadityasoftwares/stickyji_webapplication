@@ -5,24 +5,26 @@ import {
   Input,
   Output,
 } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+
 import {
-  LucideArchive,
-  LucideBriefcaseBusiness,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
+
+import {
   LucideCalendarDays,
-  LucideCheckSquare2,
-  LucideChevronDown,
-  LucideHelpCircle,
-  LucideLightbulb,
+  LucideCircleUserRound,
+  LucideFolderOpen,
+  LucideLogOut,
   LucidePanelLeftClose,
   LucidePanelLeftOpen,
-  LucidePlus,
-  LucideSettings2,
+  LucidePanelsTopLeft,
+  LucideSlidersHorizontal,
   LucideStar,
   LucideStickyNote,
-  LucideTrash2,
-  LucideUserRound,
+  LucideUsersRound,
   LucideX,
 } from '@lucide/angular';
 
@@ -30,20 +32,26 @@ import {
   AppIcon,
   type AppIconDefinition,
 } from '../../shared/components/icon/icon';
-import { Badge } from '../../shared/components/badge/badge';
+
 import {
   Select,
   type SelectOption,
   type SelectValue,
 } from '../../shared/components/select/select';
 
-export interface SidebarItem {
+import {
+  Divider,
+} from '../../shared/components/divider/divider';
+
+interface SidebarItem {
   label: string;
   route: string;
   icon: AppIconDefinition;
-  exact?: boolean;
-  count?: number;
-  color?: string;
+}
+
+interface SidebarGroup {
+  label: string;
+  items: readonly SidebarItem[];
 }
 
 export interface SidebarWorkspace extends SelectOption {
@@ -54,140 +62,247 @@ export interface SidebarWorkspace extends SelectOption {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
+
   imports: [
     FormsModule,
     RouterLink,
     RouterLinkActive,
     AppIcon,
-    Badge,
     Select,
+    Divider,
   ],
+
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
+
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
+
   @Input() collapsed = false;
   @Input() mobileOpen = false;
-  @Input() brandName = 'MyStickyNotes';
-  @Input() workspaceName = 'My workspace';
+
   @Input() workspaceId = '';
-  @Input() userName = 'Aaditya';
-  @Input() planName = 'Free plan';
   @Input() loadingWorkspaces = false;
-  @Input() workspaces: readonly SidebarWorkspace[] = [];
 
-  @Input() mainItems: readonly SidebarItem[] = [
+  @Input()
+  workspaces: readonly SidebarWorkspace[] = [];
+
+  @Output()
+  collapsedChange = new EventEmitter<boolean>();
+
+  @Output()
+  mobileClosed = new EventEmitter<void>();
+
+  @Output()
+  workspaceChange = new EventEmitter<string>();
+
+  @Output()
+  logout = new EventEmitter<void>();
+
+
+  /*
+   * ============================================================
+   * SIMPLE SIDEBAR STRUCTURE
+   * ============================================================
+   *
+   * Home
+   *   Today
+   *
+   * Workspace
+   *   Workspaces
+   *   Folders
+   *   Members
+   *
+   * Notes
+   *   Notes
+   *   Favourites
+   *
+   * Account
+   *   Profile
+   *   Preferences
+   */
+
+  readonly navigationGroups: readonly SidebarGroup[] = [
+
     {
-      label: 'Today',
-      route: '/app/today',
-      icon: LucideCalendarDays,
-      exact: true,
+      label: 'Home',
+
+      items: [
+        {
+          label: 'Today',
+          route: '/app/today',
+          icon: LucideCalendarDays,
+        },
+      ],
     },
+
     {
-      label: 'All notes',
-      route: '/app/notes',
-      icon: LucideStickyNote,
+      label: 'Workspace',
+
+      items: [
+        {
+          label: 'Workspaces',
+          route: '/app/workspaces/my',
+          icon: LucidePanelsTopLeft,
+        },
+
+        {
+          label: 'Folders',
+          route: '/app/workspacefolders/my',
+          icon: LucideFolderOpen,
+        },
+
+        {
+          label: 'Members',
+          route: '/app/workspace-members',
+          icon: LucideUsersRound,
+        },
+      ],
     },
+
     {
-      label: 'Tasks',
-      route: '/app/tasks',
-      icon: LucideCheckSquare2,
+      label: 'Notes',
+
+      items: [
+        {
+          label: 'Notes',
+          route: '/app/sticky-notes/my',
+          icon: LucideStickyNote,
+        },
+
+        {
+          label: 'Favourites',
+          route: '/app/favorites',
+          icon: LucideStar,
+        },
+      ],
     },
+
     {
-      label: 'Favorites',
-      route: '/app/favorites',
-      icon: LucideStar,
+      label: 'Account',
+
+      items: [
+        {
+          label: 'Profile',
+          route: '/app/account/profile',
+          icon: LucideCircleUserRound,
+        },
+
+        {
+          label: 'Preferences',
+          route: '/app/account/preferences',
+          icon: LucideSlidersHorizontal,
+        },
+      ],
     },
+
   ];
 
-  @Input() spaceItems: readonly SidebarItem[] = [
-    {
-      label: 'Personal',
-      route: '/app/spaces/personal',
-      icon: LucideUserRound,
-      color: '#f2cf66',
-    },
-    {
-      label: 'Work',
-      route: '/app/spaces/work',
-      icon: LucideBriefcaseBusiness,
-      color: '#a8d8f0',
-    },
-    {
-      label: 'Ideas',
-      route: '/app/spaces/ideas',
-      icon: LucideLightbulb,
-      color: '#ddbff3',
-    },
-  ];
 
-  @Input() libraryItems: readonly SidebarItem[] = [
-    {
-      label: 'Archive',
-      route: '/app/archive',
-      icon: LucideArchive,
-    },
-    {
-      label: 'Trash',
-      route: '/app/trash',
-      icon: LucideTrash2,
-    },
-  ];
+  /*
+   * ============================================================
+   * TEMPLATE ICONS
+   * ============================================================
+   */
 
-  @Input() footerItems: readonly SidebarItem[] = [
-    {
-      label: 'Help & support',
-      route: '/app/help',
-      icon: LucideHelpCircle,
-    },
-    {
-      label: 'Settings',
-      route: '/app/settings',
-      icon: LucideSettings2,
-    },
-  ];
+  readonly LucidePanelLeftClose =
+    LucidePanelLeftClose;
 
-  @Output() collapsedChange = new EventEmitter<boolean>();
-  @Output() mobileClosed = new EventEmitter<void>();
-  @Output() createNote = new EventEmitter<void>();
-  @Output() createSpace = new EventEmitter<void>();
-  @Output() itemSelected = new EventEmitter<SidebarItem>();
-  @Output() workspaceClick = new EventEmitter<void>();
-  @Output() workspaceChange = new EventEmitter<string>();
-  @Output() profileClick = new EventEmitter<void>();
+  readonly LucidePanelLeftOpen =
+    LucidePanelLeftOpen;
 
-  readonly LucidePanelLeftClose = LucidePanelLeftClose;
-  readonly LucidePanelLeftOpen = LucidePanelLeftOpen;
-  readonly LucideChevronDown = LucideChevronDown;
-  readonly LucidePlus = LucidePlus;
-  readonly LucideX = LucideX;
+  readonly LucideLogOut =
+    LucideLogOut;
+
+  readonly LucideX =
+    LucideX;
+
+
+  /*
+   * ============================================================
+   * ACTIVE WORKSPACE
+   * ============================================================
+   */
 
   get activeWorkspaceLabel(): string {
+
     return (
-      this.workspaces.find(workspace => workspace.value === this.workspaceId)
-        ?.label ?? this.workspaceName
+      this.workspaces.find(
+        workspace =>
+          workspace.value === this.workspaceId,
+      )?.label ?? 'My workspace'
     );
+
   }
+
+
+  /*
+   * ============================================================
+   * SIDEBAR COLLAPSE
+   * ============================================================
+   */
 
   toggleCollapsed(): void {
-    this.collapsedChange.emit(!this.collapsed);
+
+    this.collapsedChange.emit(
+      !this.collapsed,
+    );
+
   }
 
-  selectItem(item: SidebarItem): void {
-    this.itemSelected.emit(item);
-    this.mobileClosed.emit();
+
+  /*
+   * ============================================================
+   * MOBILE CLOSE
+   * ============================================================
+   */
+
+  closeMobileNavigation(): void {
+
+    if (this.mobileOpen) {
+      this.mobileClosed.emit();
+    }
+
   }
 
-  onWorkspaceChange(value: SelectValue | SelectValue[] | null): void {
-    if (typeof value !== 'string' || value === this.workspaceId) {
+
+  /*
+   * ============================================================
+   * WORKSPACE CHANGE
+   * ============================================================
+   */
+
+  onWorkspaceChange(
+    value: SelectValue | SelectValue[] | null,
+  ): void {
+
+    if (
+      typeof value !== 'string' ||
+      value === this.workspaceId
+    ) {
       return;
     }
 
     this.workspaceChange.emit(value);
 
-    if (this.mobileOpen) {
-      this.mobileClosed.emit();
-    }
+    this.closeMobileNavigation();
+
   }
+
+
+  /*
+   * ============================================================
+   * LOGOUT
+   * ============================================================
+   */
+
+  requestLogout(): void {
+
+    this.closeMobileNavigation();
+
+    this.logout.emit();
+
+  }
+
 }

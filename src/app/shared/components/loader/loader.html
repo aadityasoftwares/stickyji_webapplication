@@ -1,0 +1,50 @@
+@if (active) {
+<div class="app-loader" [ngClass]="loaderClasses" role="status" [attr.aria-label]="accessibleLabel"
+    [attr.aria-live]="ariaLive" [attr.aria-busy]="true" [style.--app-loader-min-height]="resolvedMinHeight"
+    [style.--app-loader-z-index]="zIndex">
+    <div class="app-loader-content">
+        @if (showVisual) {
+        <span class="app-loader-visual" aria-hidden="true">
+            <span class="app-loader-note app-loader-note-one">
+                <span class="app-loader-note-line"></span>
+                <span class="app-loader-note-line is-short"></span>
+            </span>
+
+            <span class="app-loader-note app-loader-note-two">
+                <span class="app-loader-note-pin"></span>
+                <span class="app-loader-note-line"></span>
+                <span class="app-loader-note-line is-short"></span>
+            </span>
+
+            <span class="app-loader-note app-loader-note-three">
+                <span class="app-loader-note-line"></span>
+                <span class="app-loader-note-line is-short"></span>
+            </span>
+
+            <span class="app-loader-shadow"></span>
+        </span>
+        }
+
+        @if (showLabel && (label || description)) {
+        <app-label class="app-loader-label" [text]="label" [description]="description" [variant]="labelVariant"
+            [appearance]="labelAppearance" [size]="resolvedLabelSize" weight="semibold"
+            [align]="mode === 'inline' ? 'start' : 'center'" [fullWidth]="mode !== 'inline'" [wrap]="true" />
+        }
+
+        @if (hasProgress) {
+        <div class="app-loader-progress-row">
+            <span class="app-loader-progress" role="progressbar" [attr.aria-label]="accessibleLabel + ' progress'"
+                aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="normalizedProgress">
+                <span [style.width.%]="normalizedProgress"></span>
+            </span>
+
+            @if (showProgressValue) {
+            <span class="app-loader-progress-value" aria-hidden="true">
+                {{ progressText }}
+            </span>
+            }
+        </div>
+        }
+    </div>
+</div>
+}

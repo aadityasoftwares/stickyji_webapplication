@@ -1,0 +1,480 @@
+@use '../../../styles/variables' as *;
+
+/* ==========================================================================
+   HOST
+   ========================================================================== */
+
+:host {
+    --app-tape-edge-inset: 8px;
+
+    display: inline-flex;
+    max-width: 100%;
+    overflow: visible;
+
+    vertical-align: middle;
+
+    pointer-events: none;
+}
+
+:host.app-tape-host-inline {
+    position: relative;
+}
+
+:host.app-tape-host-overlay {
+    position: absolute;
+    display: block;
+    overflow: visible;
+}
+
+/* ==========================================================================
+   SAFE INSIDE POSITIONS
+
+   These are the default positions.
+   The full tape stays inside its parent, so cards with overflow:hidden
+   cannot cut the top half of the tape.
+   ========================================================================== */
+
+:host.app-tape-host-inside.app-tape-host-top-left {
+    top: var(--app-tape-edge-inset);
+    left: var(--app-tape-edge-inset);
+}
+
+:host.app-tape-host-inside.app-tape-host-top-center {
+    top: var(--app-tape-edge-inset);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+:host.app-tape-host-inside.app-tape-host-top-right {
+    top: var(--app-tape-edge-inset);
+    right: var(--app-tape-edge-inset);
+}
+
+:host.app-tape-host-inside.app-tape-host-bottom-left {
+    bottom: var(--app-tape-edge-inset);
+    left: var(--app-tape-edge-inset);
+}
+
+:host.app-tape-host-inside.app-tape-host-bottom-center {
+    bottom: var(--app-tape-edge-inset);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+:host.app-tape-host-inside.app-tape-host-bottom-right {
+    right: var(--app-tape-edge-inset);
+    bottom: var(--app-tape-edge-inset);
+}
+
+:host.app-tape-host-inside.app-tape-host-left-center {
+    top: 50%;
+    left: var(--app-tape-edge-inset);
+    transform: translateY(-50%);
+}
+
+:host.app-tape-host-inside.app-tape-host-right-center {
+    top: 50%;
+    right: var(--app-tape-edge-inset);
+    transform: translateY(-50%);
+}
+
+/* ==========================================================================
+   OPTIONAL EDGE-OVERLAP POSITIONS
+
+   Use placement="overlap" only when the parent has overflow: visible.
+   ========================================================================== */
+
+:host.app-tape-host-overlap.app-tape-host-top-left {
+    top: 0;
+    left: var(--app-tape-edge-inset);
+    transform: translateY(-50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-top-center {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-top-right {
+    top: 0;
+    right: var(--app-tape-edge-inset);
+    transform: translateY(-50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-bottom-left {
+    bottom: 0;
+    left: var(--app-tape-edge-inset);
+    transform: translateY(50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-bottom-center {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-bottom-right {
+    right: var(--app-tape-edge-inset);
+    bottom: 0;
+    transform: translateY(50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-left-center {
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+
+:host.app-tape-host-overlap.app-tape-host-right-center {
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+}
+
+/* ==========================================================================
+   BASE TAPE
+   ========================================================================== */
+
+.app-tape {
+    --app-tape-width: 78px;
+    --app-tape-height: 23px;
+
+    --app-tape-bg: rgba(255, 233, 118, 0.84);
+    --app-tape-text: #{$note-button-dark-text};
+
+    position: relative;
+    isolation: isolate;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--app-tape-width);
+    height: var(--app-tape-height);
+
+    overflow: visible;
+
+    color: var(--app-tape-text);
+
+    transform-origin: center;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ==========================================================================
+   TAPE SURFACE
+   ========================================================================== */
+
+.app-tape-surface {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.32) 0%,
+            rgba(255, 255, 255, 0.14) 36%,
+            rgba(255, 255, 255, 0.04) 62%,
+            rgba(17, 17, 17, 0.025) 100%),
+        var(--app-tape-bg);
+
+    border: 1px solid rgba(94, 79, 57, 0.055);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        inset 0 -1px 0 rgba(94, 79, 57, 0.035);
+}
+
+/* Adhesive/translucent paper lighting */
+.app-tape-surface::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    background:
+        linear-gradient(90deg,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(255, 255, 255, 0.03) 18%,
+            transparent 35%,
+            transparent 65%,
+            rgba(255, 255, 255, 0.05) 82%,
+            rgba(255, 255, 255, 0.13) 100%);
+
+    pointer-events: none;
+}
+
+/* Paper/tape grain */
+.app-tape-grain .app-tape-surface::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    opacity: 0.12;
+
+    background-image:
+        radial-gradient(circle at 22% 28%,
+            rgba(255, 255, 255, 0.75) 0,
+            transparent 0.75px),
+        radial-gradient(circle at 69% 72%,
+            rgba(90, 69, 37, 0.18) 0,
+            transparent 0.65px),
+        radial-gradient(circle at 46% 16%,
+            rgba(255, 255, 255, 0.58) 0,
+            transparent 0.65px);
+
+    background-size:
+        12px 11px,
+        14px 13px,
+        10px 10px;
+
+    pointer-events: none;
+}
+
+.app-tape-shadow {
+    filter:
+        drop-shadow(0 1px 1px rgba(46, 38, 25, 0.08)) drop-shadow(0 3px 5px rgba(46, 38, 25, 0.06));
+}
+
+/* ==========================================================================
+   SHAPES
+   ========================================================================== */
+
+.app-tape-shape-straight .app-tape-surface {
+    border-radius: 2px;
+}
+
+/*
+ * Torn but still subtle.
+ * The previous polygon had aggressive top peaks that visually looked clipped.
+ */
+.app-tape-shape-torn .app-tape-surface {
+    clip-path: polygon(1% 8%,
+            5% 4%,
+            10% 7%,
+            16% 3%,
+            23% 6%,
+            30% 3%,
+            38% 6%,
+            46% 3%,
+            54% 6%,
+            62% 3%,
+            70% 6%,
+            78% 3%,
+            86% 6%,
+            94% 3%,
+            99% 8%,
+
+            98% 23%,
+            100% 39%,
+            98% 56%,
+            100% 73%,
+            98% 91%,
+
+            94% 96%,
+            86% 93%,
+            78% 97%,
+            69% 94%,
+            61% 97%,
+            53% 94%,
+            45% 97%,
+            37% 94%,
+            29% 97%,
+            21% 94%,
+            13% 97%,
+            6% 94%,
+            1% 91%,
+
+            2% 73%,
+            0% 56%,
+            2% 39%,
+            0% 23%);
+}
+
+.app-tape-shape-rough .app-tape-surface {
+    clip-path: polygon(0% 10%,
+            8% 5%,
+            17% 8%,
+            27% 4%,
+            39% 7%,
+            50% 3%,
+            61% 7%,
+            73% 4%,
+            84% 8%,
+            100% 9%,
+
+            98% 91%,
+            89% 96%,
+            78% 93%,
+            66% 97%,
+            54% 94%,
+            42% 97%,
+            30% 93%,
+            17% 97%,
+            7% 94%,
+            1% 90%);
+}
+
+/* ==========================================================================
+   SIZES
+   ========================================================================== */
+
+.app-tape-xs {
+    --app-tape-width: 46px;
+    --app-tape-height: 14px;
+}
+
+.app-tape-sm {
+    --app-tape-width: 62px;
+    --app-tape-height: 18px;
+}
+
+.app-tape-md {
+    --app-tape-width: 78px;
+    --app-tape-height: 23px;
+}
+
+.app-tape-lg {
+    --app-tape-width: 102px;
+    --app-tape-height: 29px;
+}
+
+.app-tape-xl {
+    --app-tape-width: 132px;
+    --app-tape-height: 36px;
+}
+
+/* ==========================================================================
+   VARIANTS
+   ========================================================================== */
+
+.app-tape-yellow {
+    --app-tape-bg: rgba(255, 233, 118, 0.84);
+    --app-tape-text: #{$note-button-yellow-text};
+}
+
+.app-tape-orange {
+    --app-tape-bg: rgba(255, 201, 120, 0.84);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-pink {
+    --app-tape-bg: rgba(255, 184, 210, 0.82);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-red {
+    --app-tape-bg: rgba(255, 170, 166, 0.82);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-green {
+    --app-tape-bg: rgba(189, 234, 169, 0.84);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-blue {
+    --app-tape-bg: rgba(171, 217, 250, 0.82);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-purple {
+    --app-tape-bg: rgba(211, 183, 245, 0.82);
+    --app-tape-text: #{$note-button-dark-text};
+}
+
+.app-tape-brown {
+    --app-tape-bg: rgba(139, 94, 60, 0.76);
+    --app-tape-text: #ffffff;
+}
+
+.app-tape-black {
+    --app-tape-bg: rgba(37, 37, 37, 0.82);
+    --app-tape-text: #ffffff;
+}
+
+.app-tape-paper {
+    --app-tape-bg: rgba(255, 253, 248, 0.84);
+    --app-tape-text: #{$text-primary};
+}
+
+.app-tape-neutral {
+    --app-tape-bg: rgba(221, 213, 200, 0.82);
+    --app-tape-text: #{$text-primary};
+}
+
+/* ==========================================================================
+   OPTIONAL TEXT
+   ========================================================================== */
+
+.app-tape-text {
+    position: relative;
+    z-index: 2;
+
+    display: block;
+
+    max-width: calc(100% - 14px);
+
+    overflow: hidden;
+
+    color: inherit;
+
+    font-family: $font-note;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    transform: translateY(-1px);
+}
+
+.app-tape-xs .app-tape-text {
+    font-size: 10px;
+}
+
+.app-tape-sm .app-tape-text {
+    font-size: 12px;
+}
+
+.app-tape-lg .app-tape-text {
+    font-size: 17px;
+}
+
+.app-tape-xl .app-tape-text {
+    font-size: 20px;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .app-tape {
+        transform: none !important;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-tape-surface {
+        background: Canvas;
+        border: 1px solid CanvasText;
+        clip-path: none;
+    }
+
+    .app-tape-text {
+        color: CanvasText;
+    }
+}

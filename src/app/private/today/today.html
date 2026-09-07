@@ -1,0 +1,444 @@
+<section class="today-page" aria-labelledby="today-page-title">
+    <main class="today-main">
+        <header class="today-header">
+            <div class="today-intro">
+                <span class="today-calendar-mark" aria-hidden="true">
+                    <span class="today-calendar-top">TODAY</span>
+                    <strong>{{ today() | date:'d' }}</strong>
+                </span>
+
+                <div>
+                    <span class="today-kicker">Today · {{ today() | date:'MMMM d, y' }}</span>
+                    <h1 id="today-page-title">Plan, organise, and get things done</h1>
+                </div>
+            </div>
+
+            <div class="today-header-actions">
+                <div class="today-note-count-slot" aria-live="polite">
+                    @if (noteCount() > 0) {
+                    <app-badge class="today-note-count" [label]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')"
+                        variant="noteYellow" size="sm" shape="pill"
+                        [ariaLabel]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')" />
+                    } @else {
+                    <span class="today-note-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <div class="today-header-context-picker" aria-label="Workspace and folder selection">
+                    <div class="today-header-picker-field">
+                        <app-label for="today-workspace-select" text="Workspace" />
+                        <div class="today-header-picker-control">
+                            <app-select id="today-workspace-select" [options]="workspaceOptions()"
+                                [ngModel]="activeWorkspaceId()" (ngModelChange)="onWorkspaceSelection($event)"
+                                name="today-workspace"
+                                [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+                                ariaLabel="Choose workspace for today" variant="paper" shape="rounded" size="sm"
+                                [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true"
+                                [fullWidth]="true" />
+
+                            <!-- <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
+                                ariaLabel="Edit selected workspace" title="Edit selected workspace"
+                                [disabled]="!activeWorkspaceId() || loadingWorkspaces()"
+                                (buttonClick)="requestWorkspaceEdit()" /> -->
+                        </div>
+                    </div>
+
+                    <span class="today-header-context-separator" aria-hidden="true">/</span>
+
+                    <div class="today-header-picker-field">
+                        <app-label for="today-folder-select" text="Folder" />
+                        <div class="today-header-picker-control">
+                            <app-select id="today-folder-select" [options]="folderOptions()" [ngModel]="activeFolder()"
+                                (ngModelChange)="onFolderSelection($event)" name="today-folder"
+                                [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
+                                ariaLabel="Choose folder for today" variant="paper" shape="rounded" size="sm"
+                                [iconLeft]="LucideFolderOpen" [clearable]="false" [searchable]="true"
+                                [fullWidth]="true" />
+
+                            <!-- <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
+                                ariaLabel="Edit selected folder" title="Edit selected folder"
+                                [disabled]="!activeFolder() || loadingFolders()" (buttonClick)="requestFolderEdit()" /> -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="today-header-command-group">
+                    <app-button [icon]="LucideRefreshCw" [iconOnly]="true" variant="secondary" size="md"
+                        ariaLabel="Refresh today board" title="Refresh today board" [loading]="boardLoading()"
+                        [disabled]="!activeFolder()" (buttonClick)="refreshBoard()" />
+
+                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="md"
+                        [disabled]="!activeFolder() || !hasColumns()"
+                        (buttonClick)="openNoteCreateModal(firstActionColumnId())" />
+                </div>
+            </div>
+        </header>
+
+        <section class="today-explorer" [attr.aria-busy]="boardLoading()">
+            <div class="today-toolbar">
+                <app-tabs [items]="viewTabs" [value]="view()" variant="segmented" shape="rounded" size="sm"
+                    density="compact" ariaLabel="Choose Kanban or Table view" [scrollable]="false" [minTabWidth]="82"
+                    (valueChange)="setView($event)" />
+
+                <div class="today-search">
+                    <app-input type="search" label="Search today notes" labelMode="hidden" placeholder="Search notes"
+                        variant="paper" appearance="outlined" shape="rounded" size="sm" [leadingIcon]="LucideSearch"
+                        [clearable]="true" [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search today notes"
+                        (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                </div>
+            </div>
+
+            <div class="today-explorer-body" [class.is-list]="view() === 'list'">
+                @if (loadingWorkspaces() || (loadingFolders() && folders().length === 0)) {
+                <div class="today-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful"
+                        [label]="loadingWorkspaces() ? 'Opening your workspace...' : 'Opening your folders...'"
+                        description="Getting today’s workspace ready." [minHeight]="390" />
+                </div>
+
+                } @else if (foldersError()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="today-empty-note">Couldn’t open your folders</span>
+                    <h2>Folders are unavailable</h2>
+                    <p>{{ foldersError() }}</p>
+                </div>
+
+                } @else if (folders().length === 0) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
+                    <span class="today-empty-note">Start with a folder</span>
+                    <h2>Create your first folder</h2>
+                    <p>Today needs a folder before notes can be organised into a board.</p>
+                    <app-button label="New folder" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openFolderCreateModal()" />
+                </div>
+
+                } @else if (!activeFolder()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
+                    <span class="today-empty-note">Choose where to work</span>
+                    <h2>Select a folder</h2>
+                    <p>Your Kanban board and list will appear here.</p>
+                </div>
+
+                } @else if (loadingColumns() || loadingNotes()) {
+                <div class="today-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Preparing today..."
+                        description="Loading columns and sticky notes." [minHeight]="390" />
+                </div>
+
+                } @else if (boardError()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="today-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load today’s notes</h2>
+                    <p>{{ boardError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="refreshBoard()" />
+                </div>
+
+                } @else if (!hasColumns()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucidePanelsTopLeft" size="lg" /></span>
+                    <span class="today-empty-note">No board columns yet</span>
+                    <h2>This folder needs columns</h2>
+                    <p>Create or configure columns before adding notes to this board.</p>
+                    <app-button label="Add column" [iconLeft]="LucidePlus" variant="outline" size="sm"
+                        (buttonClick)="openColumnCreateModal()" />
+                </div>
+
+                } @else if (view() === 'kanban') {
+                <div class="today-kanban" cdkDropListGroup aria-label="Today Kanban board">
+                    @for (column of stickyNoteColumns(); track column.id) {
+                    <section class="today-kanban-column" [style.--column-accent]="column.accent"
+                        [attr.aria-labelledby]="column.id + '-heading'">
+                        <header class="today-column-header">
+                            <div class="today-column-title">
+                                <span class="today-column-dot" aria-hidden="true"></span>
+                                <h3 [id]="column.id + '-heading'">{{ column.label | uppercase }}</h3>
+                                <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs"
+                                    shape="pill" [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
+                            </div>
+
+                            <div class="today-column-actions">
+                                <app-button [icon]="LucidePlus" [iconOnly]="true" variant="secondary" size="sm"
+                                    [ariaLabel]="'Add note to ' + column.label" [title]="'Add note to ' + column.label"
+                                    (buttonClick)="openNoteCreateModal(column.id)" />
+
+                                <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
+                                    [ariaLabel]="'Edit ' + column.label + ' column'"
+                                    [title]="'Edit ' + column.label + ' column'"
+                                    (buttonClick)="requestColumnEdit(column)" />
+                            </div>
+                        </header>
+
+                        <app-divider variant="neutral" lineStyle="dashed" spacing="none" [thickness]="1" />
+
+                        <div class="today-column-notes" cdkDropList [id]="column.id + '-drop-list'"
+                            [cdkDropListData]="visibleNotesFor(column.id)"
+                            [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
+                            (cdkDropListDropped)="dropNote($event, column.id)">
+                            @for (note of visibleNotesFor(column.id); track note.id) {
+                            <app-sticky-card cdkDrag [cdkDragData]="note"
+                                [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()" [variant]="note.tone"
+                                appearance="elevated" shape="note" size="sm" shadow="sm" [fullWidth]="true"
+                                [padding]="note.compact ? 8 : 10" [minHeight]="note.compact ? 88 : 104"
+                                [hoverable]="false" cdkDragBoundary=".today-kanban">
+                                <article class="today-note-content" [attr.aria-labelledby]="note.id + '-title'">
+                                    <header class="today-note-header">
+                                        <app-badge [label]="noteEyebrow(note)" variant="outline" size="xs"
+                                            shape="rounded" />
+
+                                        <div class="today-note-actions">
+                                            <app-button cdkDragHandle [icon]="LucideGripVertical" [iconOnly]="true"
+                                                variant="ghost" size="sm" ariaLabel="Drag note" title="Drag note" />
+
+                                            <app-button [icon]="LucidePencil" [iconOnly]="true" variant="ghost"
+                                                size="sm" [ariaLabel]="'Edit ' + note.title"
+                                                [title]="'Edit ' + note.title"
+                                                (buttonClick)="openNoteEditModal(note, $event)" />
+
+                                            <app-button [icon]="LucideArrowLeft" [iconOnly]="true" variant="ghost"
+                                                size="sm" ariaLabel="Move note backward" title="Move backward"
+                                                [disabled]="!canMoveBackward(note)"
+                                                (buttonClick)="moveBackward(note)" />
+
+                                            <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="ghost"
+                                                size="sm" ariaLabel="Move note forward" title="Move forward"
+                                                [disabled]="!canMoveForward(note)" (buttonClick)="moveForward(note)" />
+                                        </div>
+                                    </header>
+
+                                    <h4 [id]="note.id + '-title'">{{ note.title }}</h4>
+
+                                    @if (note.description) {
+                                    <p class="today-note-description">
+                                        @if (isNoteCompleted(note)) {
+                                        <span class="today-complete-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideCheck" size="sm" />
+                                        </span>
+                                        }
+                                        <span>{{ note.description }}</span>
+                                    </p>
+                                    }
+
+                                    @if (note.checklists?.length) {
+                                    <div class="today-note-checklists">
+                                        @for (checklist of note.checklists; track checklist.id) {
+                                        <section class="today-note-checklist"
+                                            [attr.aria-label]="checklist.title || 'Checklist'">
+                                            <div class="today-note-checklist-header">
+                                                <strong>{{ checklist.title || 'Checklist' }}</strong>
+                                                <span>{{ checklist.completedCount }}/{{ checklist.totalCount }}
+                                                    done</span>
+                                            </div>
+
+                                            <div class="today-note-checklist-items">
+                                                @for (item of checklist.items; track item.id) {
+                                                <div class="today-note-checklist-item"
+                                                    [class.is-completed]="item.isCompleted"
+                                                    [class.is-updating]="isChecklistItemUpdating(item.id)">
+                                                    <app-checkbox [label]="item.title" [checked]="item.isCompleted"
+                                                        [variant]="column.checkboxVariant" size="sm"
+                                                        [disabled]="isChecklistItemUpdating(item.id)"
+                                                        (checkedChange)="updateChecklistItemStatus(note.id, item.id, $event)" />
+                                                </div>
+                                                }
+                                            </div>
+                                        </section>
+                                        }
+                                    </div>
+                                    }
+
+                                    @if (note.progress !== undefined) {
+                                    <div class="today-note-progress" role="progressbar"
+                                        [attr.aria-label]="note.title + ' progress'" aria-valuemin="0"
+                                        aria-valuemax="100" [attr.aria-valuenow]="note.progress">
+                                        <span class="today-note-progress-track" aria-hidden="true">
+                                            <span [style.width.%]="note.progress"></span>
+                                        </span>
+                                        <small>{{ note.progress }}%</small>
+                                    </div>
+                                    }
+
+                                    @if (!note.compact || note.tag || note.dueLabel || note.timeEstimate ||
+                                    note.assignees?.length) {
+                                    <app-divider spacing="xs" variant="neutral" lineStyle="dashed" />
+
+                                    <footer class="today-note-footer">
+                                        <div class="today-note-meta">
+                                            @if (note.dueLabel) {
+                                            <span><app-icon [icon]="LucideCalendarDays" size="xs" />{{ note.dueLabel
+                                                }}</span>
+                                            }
+
+                                            @if (note.timeEstimate) {
+                                            <span><app-icon [icon]="LucideClock3" size="xs" />{{ note.timeEstimate
+                                                }}</span>
+                                            }
+
+                                            @if (isNoteCompleted(note) && !note.description) {
+                                            <span class="today-done-meta">
+                                                <app-icon [icon]="LucideCheckCircle2" size="xs" />Completed
+                                            </span>
+                                            }
+                                        </div>
+
+                                        @if (note.tag) {
+                                        <app-badge [label]="note.tag" [variant]="note.tagVariant ?? 'outline'" size="sm"
+                                            shape="pill" />
+                                        }
+                                    </footer>
+                                    }
+                                </article>
+
+                                <div class="today-note-drag-preview" *cdkDragPreview>
+                                    <strong>{{ note.title }}</strong>
+                                    <small>{{ column.label }}</small>
+                                </div>
+
+                                <div class="today-note-drag-placeholder" *cdkDragPlaceholder></div>
+                            </app-sticky-card>
+
+                            } @empty {
+                            <div class="today-empty-column">
+                                <span class="today-empty-column-visual" aria-hidden="true">
+                                    <span></span><span></span><span></span>
+                                </span>
+                                <strong>
+                                    {{ searchTerm() ? 'No matching notes' : column.type === 'COMPLETED' ? 'Nothing
+                                    completed yet' : 'No notes here yet' }}
+                                </strong>
+                                <small>
+                                    {{ searchTerm() ? 'Try another search or clear the filter.' : column.type ===
+                                    'COMPLETED' ? 'Move notes here when they’re done.' : 'Add a note or drag one into
+                                    this column.' }}
+                                </small>
+
+                                @if (searchTerm()) {
+                                <app-button label="Clear search" variant="outline" size="xs"
+                                    (buttonClick)="clearSearch()" />
+                                } @else {
+                                <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="xs"
+                                    (buttonClick)="openNoteCreateModal(column.id)" />
+                                }
+                            </div>
+                            }
+                        </div>
+                    </section>
+
+                    <div class="today-kanban-divider" aria-hidden="true">
+                        <app-divider orientation="vertical" variant="neutral" lineStyle="dashed" spacing="none"
+                            [thickness]="1" />
+                    </div>
+                    }
+
+                    <aside class="today-add-column-rail" aria-label="Add another column">
+                        <div class="today-add-column-inner">
+                            <app-button label="Add column" [iconLeft]="LucidePlus" variant="outline" size="sm"
+                                ariaLabel="Add another board column" title="Add column"
+                                (buttonClick)="openColumnCreateModal()" />
+                            <small>Create another stage</small>
+                        </div>
+                    </aside>
+                </div>
+
+                } @else {
+                @if (visibleListNotes().length === 0) {
+                <div class="today-empty-state is-compact">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideSearch" size="lg" /></span>
+                    <span class="today-empty-note">
+                        {{ searchTerm() ? 'Nothing matches your search' : 'A clear list' }}
+                    </span>
+                    <h2>{{ searchTerm() ? 'No notes found' : 'No notes yet' }}</h2>
+                    <p>{{ searchTerm() ? 'Try another word or clear the search.' : 'Add your first note and it will
+                        appear here.' }}</p>
+
+                    @if (searchTerm()) {
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                    } @else {
+                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openNoteCreateModal(firstActionColumnId())" />
+                    }
+                </div>
+
+                } @else {
+                <table class="table table-hover align-middle mb-0 today-notes-table" aria-label="Today notes table">
+                    <thead>
+                        <tr>
+                            <th class="today-table-check" scope="col">
+                                <app-checkbox label="" size="sm" variant="noteYellow"
+                                    ariaLabel="Select all visible notes" [checked]="false" />
+                            </th>
+                            <th scope="col">Note</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="today-table-actions-heading">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (note of visibleListNotes(); track note.id) {
+                        <tr [attr.data-note-color]="note.color || 'YELLOW'" [class.is-completed]="isNoteCompleted(note)"
+                            (dblclick)="openNoteEditModal(note, $event)">
+                            <td class="today-table-check">
+                                <app-checkbox label="" size="sm" variant="noteYellow"
+                                    [ariaLabel]="'Select ' + note.title" [checked]="false" />
+                            </td>
+
+                            <td class="today-table-note" data-label="Note">
+                                <div class="today-table-note-main">
+                                    <span class="today-table-note-mark" aria-hidden="true"></span>
+                                    <div>
+                                        <strong>{{ note.title }}</strong>
+                                        @if (note.description) {
+                                        <p>{{ note.description }}</p>
+                                        }
+                                        @if (note.checklistItemCount) {
+                                        <span class="today-table-checklist">
+                                            <span>{{ note.completedChecklistItemCount }}/{{ note.checklistItemCount }}
+                                                completed</span>
+                                            <span aria-hidden="true">·</span>
+                                            <span>{{ note.checklistCount }} {{ note.checklistCount === 1 ? 'checklist' :
+                                                'checklists' }}</span>
+                                        </span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="today-table-status" data-label="Status">
+                                <app-badge [label]="noteColumnLabel(note)" variant="outline" size="xs" shape="pill" />
+                            </td>
+
+                            <td class="today-table-actions" data-label="Actions">
+                                <div class="today-table-action-group">
+                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
+                                        appearance="standard" size="xs" [rounded]="true"
+                                        [ariaLabel]="'Edit ' + note.title" [title]="'Edit ' + note.title"
+                                        (buttonClick)="openNoteEditModal(note, $event)" />
+
+                                    <app-button [icon]="LucideArrowLeft" [iconOnly]="true" variant="secondary"
+                                        appearance="standard" size="xs" [rounded]="true" ariaLabel="Move note backward"
+                                        title="Move backward" [disabled]="!canMoveBackward(note) || !!movingNoteId()"
+                                        (buttonClick)="moveBackward(note)" />
+
+                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
+                                        appearance="standard" size="xs" [rounded]="true" ariaLabel="Move note forward"
+                                        title="Move forward" [disabled]="!canMoveForward(note) || !!movingNoteId()"
+                                        (buttonClick)="moveForward(note)" />
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+                }
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+<app-add-edit-my-notes-modal [open]="noteModalOpen()" [mode]="noteModalMode()" [id]="noteModalId()"
+    (closed)="closeNoteModal()" (saved)="onNoteSaved($event)" />

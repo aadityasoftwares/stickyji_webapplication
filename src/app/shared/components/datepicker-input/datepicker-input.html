@@ -1,0 +1,168 @@
+<div class="app-datepicker-wrapper" [ngClass]="wrapperClasses" [style.width]="
+    isFullWidth
+      ? '100%'
+      : width !== undefined
+        ? width + 'px'
+        : null
+  " [style.max-width.px]="maxWidth" [style.--app-datepicker-height]="
+    inputHeight + 'px'
+  " [style.--app-datepicker-padding-x]="
+    inputPaddingX + 'px'
+  " [style.--app-datepicker-radius]="
+    inputRadius + 'px'
+  ">
+    @if (decoration === 'tape') {
+    <span class="app-datepicker-tape app-datepicker-tape-left" aria-hidden="true"></span>
+
+    <span class="app-datepicker-tape app-datepicker-tape-right" aria-hidden="true"></span>
+    }
+
+    @if (
+    label &&
+    labelMode === 'top'
+    ) {
+    <div class="app-datepicker-label-row">
+        <label class="app-datepicker-label" [for]="resolvedId">
+            {{ label }}
+
+            @if (required) {
+            <span class="app-datepicker-required" aria-hidden="true">
+                *
+            </span>
+
+            <span class="app-datepicker-visually-hidden">
+                {{ requiredText }}
+            </span>
+            } @else if (optional) {
+            <span class="app-datepicker-optional">
+                ({{ optionalText }})
+            </span>
+            }
+        </label>
+
+        @if (labelHint) {
+        <span class="app-datepicker-label-hint">
+            {{ labelHint }}
+        </span>
+        }
+    </div>
+
+    @if (labelDescription) {
+    <div class="app-datepicker-label-description">
+        {{ labelDescription }}
+    </div>
+    }
+    }
+
+    @if (
+    label &&
+    labelMode === 'hidden'
+    ) {
+    <label class="app-datepicker-visually-hidden" [for]="resolvedId">
+        {{ label }}
+    </label>
+    }
+
+    <div class="app-datepicker-control-shell">
+        @if (leadingIcon) {
+        <span class="app-datepicker-leading-icon" aria-hidden="true">
+            <app-icon [icon]="leadingIcon" [size]="iconSize" [tone]="leadingIconTone" />
+        </span>
+        }
+
+        <!-- Visible input styled like app-input -->
+        <input #visibleInput class="app-datepicker-control" [id]="resolvedId" type="text" inputmode="numeric"
+            [name]="name || ''" [value]="displayValue" [attr.placeholder]="
+        labelMode === 'floating'
+          ? (placeholder || ' ')
+          : placeholder
+      " [attr.autocomplete]="autocomplete" [attr.aria-label]="
+        ariaLabel ||
+        (
+          labelMode === 'hidden'
+            ? label
+            : null
+        )
+      " [attr.aria-describedby]="describedBy" [attr.aria-invalid]="
+        effectiveStatus === 'danger'
+          ? 'true'
+          : null
+      " [attr.aria-required]="
+        required
+          ? 'true'
+          : null
+      " [attr.aria-haspopup]="'dialog'" [attr.aria-expanded]="pickerIsOpen" maxlength="10" [required]="required"
+            [readOnly]="readonly" [disabled]="isDisabled" (input)="handleTextInput($event)"
+            (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="
+        handleKeydown(
+          $event,
+          picker
+        )
+      " />
+
+        @if (
+        label &&
+        labelMode === 'floating'
+        ) {
+        <label class="app-datepicker-floating-label" [for]="resolvedId">
+            {{ label }}
+
+            @if (required) {
+            <span class="app-datepicker-required" aria-hidden="true">
+                *
+            </span>
+            } @else if (optional) {
+            <span class="app-datepicker-optional">
+                ({{ optionalText }})
+            </span>
+            }
+        </label>
+        }
+
+        @if (showClearButton) {
+        <button class="app-datepicker-action" type="button" aria-label="Clear date" title="Clear date"
+            (mousedown)="$event.preventDefault()" (click)="clear($event)">
+            <app-icon [icon]="clearIcon" size="sm" />
+        </button>
+        }
+
+        @if (loading) {
+        <span class="app-datepicker-spinner" aria-hidden="true">
+            <app-icon [icon]="loadingIcon" size="sm" />
+        </span>
+        } @else if (statusIcon) {
+        <span class="app-datepicker-status-icon" aria-hidden="true">
+            <app-icon [icon]="statusIcon" size="sm" [tone]="statusIconTone" />
+        </span>
+        }
+
+        <button class="app-datepicker-picker-button" type="button" aria-label="Open calendar" title="Open calendar"
+            [disabled]="isDisabled" (mousedown)="$event.preventDefault()" (click)="openPicker(picker)">
+            <app-icon [icon]="calendarIcon" size="sm" />
+        </button>
+
+        <!--
+      Material needs its own connected input.
+      This invisible anchor controls the Material calendar,
+      while the visible input keeps your custom design.
+    -->
+        <input class="app-datepicker-material-anchor" tabindex="-1" aria-hidden="true" [matDatepicker]="picker"
+            [value]="selectedDate" [min]="resolvedMinDate" [max]="resolvedMaxDate" [matDatepickerFilter]="dateFilter"
+            [disabled]="isDisabled" (dateChange)="handlePickerSelection($event)" />
+
+        <mat-datepicker #picker [touchUi]="touchUi" [startView]="startView" [startAt]="selectedDate"
+            panelClass="app-common-datepicker-panel" (opened)="handlePickerOpened()" (closed)="handlePickerClosed()" />
+    </div>
+
+    @if (displayedMessage) {
+    <div class="app-datepicker-support-row">
+        <div class="app-datepicker-message" [id]="messageId" [attr.role]="
+          effectiveStatus === 'danger'
+            ? 'alert'
+            : null
+        ">
+            {{ displayedMessage }}
+        </div>
+    </div>
+    }
+</div>

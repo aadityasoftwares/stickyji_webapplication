@@ -1,349 +1,605 @@
-<section class="kanban-page" aria-labelledby="kanban-title">
-    <main class="board-workspace">
-        <header class="board-heading">
-            <div class="board-heading-copy">
-                <h2 id="kanban-title">{{ heading }}</h2>
-                <p>{{ description }}</p>
+<section class="notes-page" aria-labelledby="notes-page-title">
+    <main class="notes-main">
+        <header class="notes-header">
+            <div class="notes-intro">
+                <span class="notes-intro-mark" aria-hidden="true">
+                    <span class="notes-paper-stack">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </span>
+
+                <div>
+                    <span class="notes-kicker">Your pinned thoughts</span>
+                    <h1 id="notes-page-title">
+                        Find every idea inside
+                        <span>{{ selectedFolderLabel() }}.</span>
+                    </h1>
+                </div>
             </div>
 
-            <div class="board-heading-actions">
-                <app-badge class="active-notes-badge" [label]="activeNoteCount() + ' active notes'" variant="outline"
-                    size="md" shape="pill" [ariaLabel]="activeNoteCount() + ' active notes'" />
+            <div class="notes-header-actions">
 
-                <a class="subscription-button" [href]="subscriptionUrl"
-                    aria-label="Subscribe to Pro and remove advertisements" (click)="subscribeRequested.emit()">
-                    <small>No ads. More space.</small>
-                    <span>Subscribe to Pro</span>
-                </a>
+                @if (
+                selectedFolderId() &&
+                !loadingNotes()
+                ) {
+                <app-badge class="notes-note-count" [label]="
+                        totalCount() +
+                        (totalCount() === 1
+                            ? ' note'
+                            : ' notes')
+                    " variant="noteYellow" size="sm" shape="pill" [ariaLabel]="
+                        totalCount() +
+                        (totalCount() === 1
+                            ? ' note'
+                            : ' notes')
+                    " />
+                }
 
-                <app-button class="top-add-note" label="Add note" variant="noteYellow" appearance="tape" size="md"
-                    (buttonClick)="openComposer('todo')" />
+                <!-- Workspace + Folder selectors moved into topbar like Today -->
+                <div class="notes-header-context-picker" aria-label="Workspace and folder selection">
+
+                    <div class="notes-header-picker-field notes-header-workspace-select">
+
+                        <app-label for="notes-workspace-select" text="Workspace" />
+
+                        <div class="notes-header-picker-control">
+
+                            <app-select id="notes-workspace-select" [options]="workspaceOptions()"
+                                [ngModel]="selectedWorkspaceId()" (ngModelChange)="onWorkspaceChange($event)"
+                                name="notes-workspace" [placeholder]="
+                                    loadingWorkspaces()
+                                        ? 'Loading workspaces...'
+                                        : 'Select workspace'
+                                " ariaLabel="Choose workspace" variant="paper" shape="rounded" size="sm"
+                                [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true"
+                                [fullWidth]="true" />
+
+                        </div>
+                    </div>
+
+                    <span class="notes-header-context-separator" aria-hidden="true">
+                        /
+                    </span>
+
+                    <div class="notes-header-picker-field notes-header-folder-select">
+
+                        <app-label for="notes-folder-select" text="Folder" />
+
+                        <div class="notes-header-picker-control">
+
+                            <app-select id="notes-folder-select" [options]="folderOptions()"
+                                [ngModel]="selectedFolderId()" (ngModelChange)="onFolderChange($event)"
+                                name="notes-folder" [placeholder]="
+                                    loadingFolders()
+                                        ? 'Loading folders...'
+                                        : 'Select folder'
+                                " ariaLabel="Choose workspace folder" variant="paper" shape="rounded" size="sm"
+                                [iconLeft]="LucideFolderOpen" [clearable]="false" [searchable]="true"
+                                [fullWidth]="true" />
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="notes-header-command-group">
+
+                    <app-button class="notes-refresh-button" [icon]="LucideRefreshCw" [iconOnly]="true"
+                        variant="outline" size="md" ariaLabel="Refresh notes" title="Refresh notes" [loading]="
+                            loadingWorkspaces() ||
+                            loadingFolders() ||
+                            loadingNotes()
+                        " (buttonClick)="refresh()" />
+
+                    <app-button class="notes-new-button" label="New note" [iconLeft]="LucidePlus" variant="noteYellow"
+                        appearance="standard" size="md" [disabled]="!canCreateNote()"
+                        (buttonClick)="openCreateEditor()" />
+
+                </div>
+
             </div>
         </header>
 
-        <nav class="folder-bar" aria-label="Note folders">
-            <div class="folder-tabs">
-                @for (folder of folders(); track folder.id) {
-                <button class="folder-tab" type="button" [class.is-active]="activeFolder() === folder.id"
-                    [attr.aria-pressed]="activeFolder() === folder.id" (click)="selectFolder(folder)">
-                    <span class="folder-tab-icon" aria-hidden="true"></span>
-                    <span>{{ folder.label }}</span>
-                    <small>{{ folderCount(folder.id) }}</small>
-                </button>
-                }
-            </div>
+        @if (workspaceError()) {
+        <div class="notes-inline-error">
+            <span>{{ workspaceError() }}</span>
+            <app-button label="Retry" variant="ghost" size="xs" (buttonClick)="loadWorkspaces()" />
+        </div>
+        }
 
-            <div class="folder-create-control">
-                @if (folderComposerOpen()) {
-                <div class="folder-composer">
-                    <app-label for="new-folder-name" text="Folder name" [visuallyHidden]="true" />
+        @if (folderError()) {
+        <div class="notes-inline-error">
+            <span>{{ folderError() }}</span>
+            <app-button label="Retry" variant="ghost" size="xs" (buttonClick)="loadFolders()" />
+        </div>
+        }
 
-                    <input id="new-folder-name" type="text" maxlength="32" autofocus placeholder="Folder name"
-                        [value]="draftFolderName" (input)="updateFolderDraft($event)"
-                        (keydown.enter)="addFolder(); $event.preventDefault()"
-                        (keydown.escape)="closeFolderComposer()" />
+        <section class="notes-explorer" [attr.aria-busy]="loadingNotes()">
+            <div class="notes-toolbar">
+                <app-tabs class="notes-status-tabs" [items]="noteTabs()" [value]="activeTab()" variant="paper"
+                    shape="rounded" size="sm" density="compact" ariaLabel="Filter notes by status" [fullWidth]="false"
+                    [scrollable]="true" (valueChange)="setNoteTab($event)" />
 
-                    <button class="folder-composer-action save" type="button" aria-label="Create folder"
-                        title="Create folder" [disabled]="!draftFolderName.trim()" (click)="addFolder()">
-                        <app-icon [icon]="LucideCheck" size="xs" />
-                    </button>
-
-                    <button class="folder-composer-action cancel" type="button" aria-label="Cancel new folder"
-                        title="Cancel" (click)="closeFolderComposer()">
-                        <app-icon [icon]="LucideX" size="xs" />
-                    </button>
-                </div>
-                } @else {
-                <button class="new-folder-button" type="button" (click)="openFolderComposer()">
-                    <span aria-hidden="true">＋</span>
-                    New folder
-                </button>
-                }
-            </div>
-        </nav>
-
-        <div class="kanban-columns" aria-label="Kanban board">
-            @for (column of columns; track column.id) {
-            <section class="kanban-column" [style.--column-accent]="column.accent"
-                [attr.aria-labelledby]="column.id + '-heading'">
-                <header class="column-header">
-                    <div class="column-title">
-                        <span class="column-dot" aria-hidden="true"></span>
-
-                        <h3 [id]="column.id + '-heading'">
-                            {{ column.label }}
-                        </h3>
-
-                        <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs" shape="pill"
-                            [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
+                <div class="notes-toolbar-actions">
+                    <div class="notes-search">
+                        <app-input type="search" label="Search notes" labelMode="hidden"
+                            placeholder="Search title, content or column" variant="paper" appearance="outlined"
+                            shape="rounded" size="sm" [leadingIcon]="LucideSearch" [clearable]="true"
+                            [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search notes"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
                     </div>
 
-                    <span class="today-label">
-                        @if (isCompletedColumn(column.id)) {
-                        Today
-                        }
+                    <app-select class="notes-sort" [options]="sortOptions" [ngModel]="sortBy()"
+                        (ngModelChange)="setSort($event)" name="notes-sort" placeholder="Sort" ariaLabel="Sort notes"
+                        variant="paper" shape="rounded" size="sm" [clearable]="false" [searchable]="false"
+                        [fullWidth]="false" [width]="176" />
+
+                    <app-tabs class="notes-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
+                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or table view"
+                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setNoteView($event)" />
+                </div>
+            </div>
+
+            <div class="notes-location-bar">
+                <div class="notes-location-copy">
+                    <span class="notes-location-icon" aria-hidden="true">
+                        <app-icon [icon]="LucideFolderOpen" size="sm" />
                     </span>
-
-                    <button class="column-add" type="button" [attr.aria-label]="'Add note to ' + column.label"
-                        [attr.title]="'Add note to ' + column.label" (click)="openComposer(column.id)">
-                        <app-icon [icon]="LucidePlus" size="sm" />
-                    </button>
-                </header>
-
-                @if (composerColumn() === column.id) {
-                <div class="note-composer">
-                    <app-label [for]="'new-note-' + column.id" text="Note title" [visuallyHidden]="true" />
-
-                    <input [id]="'new-note-' + column.id" type="text" maxlength="120" autofocus
-                        placeholder="What needs to happen?" [value]="draftTitle" (input)="updateDraft($event)"
-                        (keydown.enter)="addNote(column.id); $event.preventDefault()"
-                        (keydown.escape)="closeComposer()" />
-
-                    <div class="composer-actions">
-                        <app-button label="Add note" variant="primary" size="sm" (buttonClick)="addNote(column.id)" />
-
-                        <app-button label="Cancel" variant="secondary" size="sm" (buttonClick)="closeComposer()" />
+                    <div>
+                        <span class="notes-section-kicker">
+                            {{ selectedFolderId() ? selectedFolderLabel() : 'Choose a folder' }}
+                        </span>
+                        <p>
+                            @if (searchTerm()) {
+                            Showing matches for “{{ searchTerm() }}”
+                            } @else if (selectedFolderId()) {
+                            Square sticky notes from {{ selectedWorkspaceLabel() }}
+                            } @else {
+                            Pick a workspace and folder to see its notes
+                            }
+                        </p>
                     </div>
                 </div>
+
+                @if (selectedFolderId() && !loadingNotes()) {
+                <span class="notes-result-count">
+                    {{ visibleNotes().length }}
+                    {{ visibleNotes().length === 1 ? 'note' : 'notes' }}
+                </span>
                 }
+            </div>
 
-                <div class="column-notes" cdkDropList [id]="column.id + '-drop-list'"
-                    [cdkDropListData]="visibleNotesFor(column.id)"
-                    [cdkDropListConnectedTo]="columnDropListIds(column.id)"
-                    (cdkDropListDropped)="dropNote($event, column.id)">
-                    @for (note of visibleNotesFor(column.id); track note.id) {
-                    <app-sticky-card class="note-card" cdkDrag [cdkDragData]="note"
-                        [class.note-card-compact]="note.compact" [variant]="note.tone" appearance="elevated"
-                        shape="square" size="sm" shadow="sm" [fullWidth]="true" [padding]="note.compact ? 14 : 17"
-                        [minHeight]="note.compact ? 94 : 138" [hoverable]="true" cdkDragBoundary=".kanban-columns">
-                        <article class="note-content" [attr.aria-labelledby]="note.id + '-title'">
-                            <header class="note-header">
-                                <app-badge [label]="note.eyebrow" variant="outline" size="xs" shape="rounded" />
+            <div class="notes-explorer-body">
+                @if (loadingWorkspaces() && workspaces().length === 0) {
+                <app-loader mode="section" size="md" tone="colorful" label="Opening your workspaces..."
+                    description="Getting your sticky spaces ready." [minHeight]="390" />
+                } @else if (!selectedWorkspaceId()) {
+                <div class="notes-empty-state">
+                    <span class="notes-empty-icon">
+                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">Start with a workspace</span>
+                    <h2>Select a workspace</h2>
+                    <p>Your folders and notes will appear here.</p>
+                </div>
+                } @else if (loadingFolders()) {
+                <app-loader mode="section" size="md" tone="colorful" label="Opening folders..."
+                    description="Finding the folders in this workspace." [minHeight]="390" />
+                } @else if (folders().length === 0) {
+                <div class="notes-empty-state">
+                    <span class="notes-empty-icon">
+                        <app-icon [icon]="LucideFolderOpen" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">No active folder yet</span>
+                    <h2>Create a folder first</h2>
+                    <p>Notes belong to a workspace folder, so add one before pinning your first note.</p>
+                </div>
+                } @else if (loadingNotes()) {
+                <app-loader mode="section" size="md" tone="colorful" label="Unfolding sticky notes..."
+                    description="Loading notes and columns for this folder." [minHeight]="390" />
+                } @else if (notesError()) {
+                <div class="notes-empty-state">
+                    <span class="notes-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load these notes</h2>
+                    <p>{{ notesError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadSelectedFolder()" />
+                </div>
+                } @else if (searchTerm() && visibleNotes().length === 0) {
+                <div class="notes-empty-state is-compact">
+                    <span class="notes-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">No sticky note matches</span>
+                    <h2>Nothing found</h2>
+                    <p>Try another title, phrase or column name.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+                } @else if (visibleNotes().length === 0) {
+                <div class="notes-empty-state">
+                    <span class="notes-empty-icon is-note">
+                        <app-icon [icon]="LucideStickyNote" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">
+                        {{ activeTab() === 'archived' ? 'Nothing saved away' : 'A blank page is waiting' }}
+                    </span>
+                    <h2>
+                        {{ activeTab() === 'archived' ? 'No archived notes' : 'Create your first sticky note' }}
+                    </h2>
+                    <p>
+                        {{ activeTab() === 'archived'
+                        ? 'Archived notes from this folder will appear here.'
+                        : 'Pin a thought, task, reminder or idea inside this folder.' }}
+                    </p>
 
-                                <div class="note-move-actions">
-                                    <button class="drag-handle" type="button" cdkDragHandle
-                                        aria-label="Drag to reorder or move note" title="Drag note">
-                                        <app-icon [icon]="LucideGripVertical" size="xs" />
-                                    </button>
+                    @if (activeTab() !== 'archived') {
+                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        [disabled]="!canCreateNote()" (buttonClick)="openCreateEditor()" />
+                    }
+                </div>
+                } @else if (view() === 'grid') {
+                <div class="notes-grid" role="list">
+                    @for (note of visibleNotes(); track noteId(note)) {
+                    <article class="notes-grid-item" role="listitem" [class.is-archived]="isArchived(note)"
+                        [class.is-busy]="isBusy(note)" (dblclick)="openEditEditor(note, $event)">
+                        <app-sticky-card class="note-card" [variant]="noteVariant(note)" appearance="elevated"
+                            shape="note" size="sm" [fullWidth]="true" [maxWidth]="238" [height]="238"
+                            [hoverable]="false" [footerDivider]="true">
+                            <span card-icon class="note-pin" aria-hidden="true">
+                                <span></span>
+                            </span>
 
-                                    @if (canMoveBackward(note)) {
-                                    <button type="button" aria-label="Move note backward" title="Move backward"
-                                        (click)="moveBackward(note)">
-                                        <app-icon [icon]="LucideArrowLeft" size="xs" />
-                                    </button>
-                                    }
+                            <span card-eyebrow class="note-card-eyebrow">
+                                {{ noteColumnName(note) }}
+                            </span>
 
-                                    @if (canMoveForward(note)) {
-                                    <button type="button" aria-label="Move note forward" title="Move forward"
-                                        (click)="moveForward(note)">
-                                        <app-icon [icon]="LucideArrowRight" size="xs" />
-                                    </button>
-                                    }
-                                </div>
-                            </header>
+                            <strong card-title class="note-card-title">
+                                {{ noteTitle(note) }}
+                            </strong>
 
-                            <h4 [id]="note.id + '-title'">
-                                {{ note.title }}
-                            </h4>
+                            <span card-subtitle class="note-card-subtitle">
+                                {{ isArchived(note) ? 'Archived note' : 'Pinned note' }}
+                            </span>
 
-                            @if (note.description) {
-                            <p class="note-description">
-                                @if (isNoteCompleted(note)) {
-                                <span class="complete-icon" aria-hidden="true">
-                                    <app-icon [icon]="LucideCheck" size="sm" />
-                                </span>
-                                }
+                            <button card-header-action type="button" class="note-menu-trigger"
+                                [matMenuTriggerFor]="noteActions" [attr.aria-label]="'Actions for ' + noteTitle(note)"
+                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                                <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                            </button>
 
-                                <span>{{ note.description }}</span>
+                            <p class="note-card-content">
+                                {{ notePreview(note) }}
                             </p>
-                            }
 
-                            @if (note.checklist?.length) {
-                            <div class="note-checklist" aria-label="Checklist">
-                                @for (item of note.checklist; track item.id) {
-                                <app-checkbox [label]="item.label" [checked]="item.checked"
-                                    [variant]="column.checkboxVariant" size="sm" (checkedChange)="
-                                        toggleChecklist(
-                                            note.id,
-                                            item.id,
-                                            $event
-                                        )
-                                    " />
-                                }
-                            </div>
-                            }
-
-                            @if (note.progress !== undefined) {
-                            <div class="note-progress" role="progressbar" [attr.aria-label]="note.title + ' progress'"
-                                aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="note.progress">
-                                <span class="note-progress-track" aria-hidden="true">
-                                    <span [style.width.%]="note.progress"></span>
+                            <div card-footer class="note-card-footer">
+                                <span>
+                                    <app-icon [icon]="LucideClock3" size="xs" />
+                                    {{ noteUpdatedLabel(note) }}
                                 </span>
 
-                                <small>{{ note.progress }}%</small>
+                                <span class="note-card-status" [class.is-archived]="isArchived(note)">
+                                    {{ isArchived(note) ? 'Archived' : 'Active' }}
+                                </span>
                             </div>
+                        </app-sticky-card>
+
+                        <mat-menu #noteActions="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
+                            class="notes-actions-menu">
+                            <button mat-menu-item type="button" class="notes-action-item is-edit"
+                                (click)="openEditEditor(note)">
+                                <span class="notes-menu-item-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucidePencil" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Edit note</strong>
+                                    <small>Title, content, color and column</small>
+                                </span>
+                            </button>
+
+                            @if (isActive(note)) {
+                            <button mat-menu-item type="button" class="notes-action-item" (click)="archiveNote(note)">
+                                <span class="notes-menu-item-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideArchive" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Archive</strong>
+                                    <small>Keep it out of the active view</small>
+                                </span>
+                            </button>
+                            } @else {
+                            <button mat-menu-item type="button" class="notes-action-item" (click)="activateNote(note)">
+                                <span class="notes-menu-item-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideRotateCcw" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Restore</strong>
+                                    <small>Bring this note back</small>
+                                </span>
+                            </button>
                             }
 
-                            @if (
-                            !note.compact ||
-                            note.tag ||
-                            note.dueLabel ||
-                            note.timeEstimate ||
-                            note.assignees?.length
-                            ) {
-                            <app-divider spacing="xs" variant="neutral" />
+                            <mat-divider />
 
-                            <footer class="note-footer">
-                                <div class="note-meta">
-                                    @if (note.dueLabel) {
-                                    <span>
-                                        <app-icon [icon]="LucideCalendarDays" size="xs" />
-                                        {{ note.dueLabel }}
-                                    </span>
-                                    }
+                            <button mat-menu-item type="button" class="notes-action-item notes-menu-danger"
+                                (click)="requestDelete(note)">
+                                <span class="notes-menu-item-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideTrash2" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Move to trash</strong>
+                                    <small>Remove this sticky note</small>
+                                </span>
+                            </button>
+                        </mat-menu>
+                    </article>
+                    }
 
-                                    @if (note.timeEstimate) {
-                                    <span>
-                                        <app-icon [icon]="LucideClock3" size="xs" />
-                                        {{ note.timeEstimate }}
-                                    </span>
-                                    }
-
-                                    @if (
-                                    isNoteCompleted(note) &&
-                                    !note.description
-                                    ) {
-                                    <span class="done-meta">
-                                        <app-icon [icon]="LucideCheckCircle2" size="xs" />
-                                        Completed
-                                    </span>
-                                    }
-                                </div>
-
-                                @if (note.assignees?.length) {
-                                <div class="assignee-stack" aria-label="Assigned people">
-                                    @for (
-                                    assignee of note.assignees;
-                                    track assignee.name
-                                    ) {
-                                    <app-avatar [src]="assignee.avatarUrl" [name]="assignee.name" [initials]="
-                                            assignee.initials ?? ''
-                                        " size="xs" shape="circle" [tone]="assignee.tone" [bordered]="true"
-                                        [decorative]="false" />
-                                    }
-
-                                    @if (note.extraAssigneeCount) {
-                                    <app-badge [label]="
-                                            '+' + note.extraAssigneeCount
-                                        " variant="outline" size="xs" shape="pill" [ariaLabel]="
-                                            note.extraAssigneeCount +
-                                            ' more people'
-                                        " />
-                                    }
-                                </div>
-                                }
-
-                                @if (note.tag) {
-                                <app-badge [label]="note.tag" [variant]="
-                                        note.tagVariant ?? 'outline'
-                                    " size="sm" shape="pill" />
-                                }
-                            </footer>
-                            }
-                        </article>
-
-                        <div class="note-drag-preview" *cdkDragPreview>
-                            <strong>{{ note.title }}</strong>
-                            <small>{{ column.label }}</small>
-                        </div>
-
-                        <div class="note-drag-placeholder" *cdkDragPlaceholder></div>
-                    </app-sticky-card>
-                    } @empty {
-                    <button class="empty-column" type="button" (click)="openComposer(column.id)">
-                        <app-icon [icon]="LucidePlus" size="sm" />
-                        <span>Add the first note</span>
+                    @if (activeTab() !== 'archived') {
+                    <button type="button" class="note-create-card" [disabled]="!canCreateNote()"
+                        (click)="openCreateEditor()">
+                        <span class="note-create-pin" aria-hidden="true"></span>
+                        <span class="note-create-icon" aria-hidden="true">
+                            <app-icon [icon]="LucidePlus" size="md" />
+                        </span>
+                        <strong>Pin a new note</strong>
+                        <small>Add an idea to {{ selectedFolderLabel() }}</small>
                     </button>
                     }
                 </div>
-            </section>
-            }
-        </div>
-    </main>
 
-    <aside class="board-sidebar" aria-label="Board summary and advertisement">
-        <section class="today-card">
-            <header class="today-card-header">
-                <div>
-                    <h3>Today</h3>
-                    <time [attr.datetime]="todayIso">
-                        {{ todayLabel }}
-                    </time>
-                </div>
-
-                <span class="today-calendar-icon" aria-hidden="true">
-                    <app-icon [icon]="LucideCalendarDays" size="sm" />
-                </span>
-            </header>
-
-            <div class="completion-summary">
-                <div class="completion-ring" role="progressbar" aria-label="Completed notes" aria-valuemin="0"
-                    aria-valuemax="100" [attr.aria-valuenow]="completionPercentage()"
-                    [style.--completion]="completionPercentage() + '%'">
-                    <div class="completion-ring-content">
-                        <strong>
-                            {{ completedNoteCount() }}
-                            <small>/{{ totalNoteCount() }}</small>
-                        </strong>
-                        <span>Done</span>
-                    </div>
-                </div>
-
-                <div class="completion-statistics">
-                    <div>
-                        <span class="stat-dot completed"></span>
-                        <strong>{{ completedNoteCount() }}</strong>
-                        <small>Completed</small>
-                    </div>
-
-                    <div>
-                        <span class="stat-dot remaining"></span>
-                        <strong>{{ remainingNoteCount() }}</strong>
-                        <small>Remaining</small>
-                    </div>
-                </div>
-            </div>
-
-            <footer class="today-message">
-                <app-icon [icon]="LucideCheckCircle2" size="sm" />
-                <span>Keep going! You’re on track.</span>
-            </footer>
-        </section>
-
-        @if (showAdvertisement) {
-        <section class="advertisement-panel" aria-label="Advertisement">
-            <p class="advertisement-label">Advertisement</p>
-
-            <div class="advertisement-slot">
-                @if (adsenseClient && adsenseSlot) {
-                <ins class="adsbygoogle" [attr.data-ad-client]="adsenseClient" [attr.data-ad-slot]="adsenseSlot"
-                    data-ad-format="rectangle" data-full-width-responsive="true"></ins>
                 } @else {
-                <div class="advertisement-placeholder">
-                    <span class="advertisement-mark">AD</span>
 
-                    <div>
-                        <strong>Advertisement space</strong>
-                        <small>Your responsive Google AdSense unit will appear here.</small>
-                    </div>
+                <!-- =====================================================
+                     TABLE VIEW
+                     Same action menu behavior as the workspace pages.
+                     ===================================================== -->
+                <div class="notes-table-shell" role="region" aria-label="Notes table" tabindex="0">
+
+                    <table class="notes-table">
+
+                        <thead>
+                            <tr>
+                                <th scope="col">Note</th>
+                                <th scope="col">Column</th>
+                                <th scope="col">Color</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Updated</th>
+                                <th scope="col" class="notes-table-actions-heading">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @for (note of visibleNotes(); track noteId(note)) {
+
+                            <tr [class.is-archived]="isArchived(note)" [class.is-busy]="isBusy(note)"
+                                (dblclick)="openEditEditor(note, $event)">
+
+                                <td class="notes-table-note-cell">
+
+                                    <div class="notes-table-note-main">
+
+                                        <span [class]="'notes-table-note-mark is-' + noteColorKey(note)"
+                                            aria-hidden="true">
+                                        </span>
+
+                                        <div class="notes-table-note-copy">
+
+                                            <strong>
+                                                {{ noteTitle(note) }}
+                                            </strong>
+
+                                            <p>
+                                                {{ notePreview(note) }}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td class="notes-table-column-cell">
+
+                                    <span class="notes-table-column-pill">
+                                        <app-icon [icon]="LucideColumns3" size="xs" />
+
+                                        {{ noteColumnName(note) }}
+                                    </span>
+
+                                </td>
+
+                                <td class="notes-table-color-cell">
+
+                                    <span class="notes-table-color">
+
+                                        <span [class]="'notes-table-color-dot is-' + noteColorKey(note)"
+                                            aria-hidden="true">
+                                        </span>
+
+                                        {{ noteColorLabel(note) }}
+
+                                    </span>
+
+                                </td>
+
+                                <td class="notes-table-status-cell">
+
+                                    <app-badge [label]="isArchived(note) ? 'Archived' : 'Active'"
+                                        [variant]="isArchived(note) ? 'neutral' : 'success'" size="xs" shape="pill" />
+
+                                </td>
+
+                                <td class="notes-table-updated-cell">
+
+                                    <span class="notes-table-updated">
+                                        <app-icon [icon]="LucideClock3" size="xs" />
+
+                                        {{ noteUpdatedLabel(note) }}
+                                    </span>
+
+                                </td>
+
+                                <td class="notes-table-actions-cell">
+
+                                    <div class="notes-table-actions">
+
+                                        <app-button class="notes-table-edit" [icon]="LucidePencil" [iconOnly]="true"
+                                            variant="ghost" appearance="standard" size="sm"
+                                            [ariaLabel]="'Edit ' + noteTitle(note)" [title]="'Edit ' + noteTitle(note)"
+                                            [disabled]="isBusy(note)" (buttonClick)="openEditEditor(note, $event)" />
+
+                                        <button type="button" class="note-menu-trigger notes-table-menu-trigger"
+                                            [matMenuTriggerFor]="noteTableActions"
+                                            [attr.aria-label]="'Actions for ' + noteTitle(note)"
+                                            [disabled]="isBusy(note)" (click)="$event.stopPropagation()"
+                                            (dblclick)="$event.stopPropagation()">
+
+                                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+
+                                        </button>
+
+                                        <mat-menu #noteTableActions="matMenu" xPosition="before" yPosition="below"
+                                            [overlapTrigger]="false" class="notes-actions-menu">
+
+                                            <button mat-menu-item type="button" class="notes-action-item is-edit"
+                                                (click)="openEditEditor(note)">
+
+                                                <span class="notes-menu-item-icon" aria-hidden="true">
+
+                                                    <app-icon [icon]="LucidePencil" size="xs" />
+
+                                                </span>
+
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Edit note</strong>
+                                                    <small>Title, content, color and column</small>
+                                                </span>
+
+                                            </button>
+
+                                            @if (isActive(note)) {
+
+                                            <button mat-menu-item type="button" class="notes-action-item"
+                                                (click)="archiveNote(note)">
+
+                                                <span class="notes-menu-item-icon" aria-hidden="true">
+
+                                                    <app-icon [icon]="LucideArchive" size="xs" />
+
+                                                </span>
+
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Archive</strong>
+                                                    <small>Keep it out of the active view</small>
+                                                </span>
+
+                                            </button>
+
+                                            } @else {
+
+                                            <button mat-menu-item type="button" class="notes-action-item"
+                                                (click)="activateNote(note)">
+
+                                                <span class="notes-menu-item-icon" aria-hidden="true">
+
+                                                    <app-icon [icon]="LucideRotateCcw" size="xs" />
+
+                                                </span>
+
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Restore</strong>
+                                                    <small>Bring this note back</small>
+                                                </span>
+
+                                            </button>
+
+                                            }
+
+                                            <mat-divider />
+
+                                            <button mat-menu-item type="button"
+                                                class="notes-action-item notes-menu-danger"
+                                                (click)="requestDelete(note)">
+
+                                                <span class="notes-menu-item-icon" aria-hidden="true">
+
+                                                    <app-icon [icon]="LucideTrash2" size="xs" />
+
+                                                </span>
+
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Move to trash</strong>
+                                                    <small>Remove this sticky note</small>
+                                                </span>
+
+                                            </button>
+
+                                        </mat-menu>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
                 </div>
+
                 }
             </div>
-
-            <a class="remove-ads-button" [href]="subscriptionUrl" (click)="subscribeRequested.emit()">
-                Remove ads with Pro
-            </a>
         </section>
-        }
-    </aside>
+    </main>
 </section>
+
+<app-add-edit-my-notes-modal [open]="noteModalOpen()" [mode]="noteModalMode()" [id]="noteModalId()"
+    (closed)="closeNoteModal()" (saved)="onNoteSaved($event)" />
+
+@if (deleteTarget(); as note) {
+<div class="notes-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section class="notes-dialog-shell notes-delete-shell" role="alertdialog" aria-modal="true"
+        aria-labelledby="notes-delete-title" (mousedown)="$event.stopPropagation()">
+        <app-sticky-card class="notes-dialog-note notes-delete-note" variant="noteRed" appearance="elevated"
+            shape="note" size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+            <span card-icon class="notes-delete-icon" aria-hidden="true">
+                <app-icon [icon]="LucideTrash2" size="sm" />
+            </span>
+
+            <span card-eyebrow class="notes-dialog-kicker is-danger">Before you remove it</span>
+
+            <h2 card-title id="notes-delete-title" class="notes-dialog-title">
+                Move note to trash?
+            </h2>
+
+            <p card-subtitle class="notes-dialog-subtitle">
+                “{{ noteTitle(note) }}” will disappear from this folder.
+            </p>
+
+            <div class="notes-delete-message">
+                <span>If you only want it out of the way for now, archive it instead.</span>
+            </div>
+
+            <div card-footer class="notes-dialog-actions">
+                <app-button label="Keep note" variant="secondary" size="sm" [disabled]="deleting()"
+                    (buttonClick)="closeDeleteDialog()" />
+
+                <app-button label="Move to trash" variant="danger" size="sm" [loading]="deleting()"
+                    [disabled]="deleting()" (buttonClick)="confirmDelete()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}

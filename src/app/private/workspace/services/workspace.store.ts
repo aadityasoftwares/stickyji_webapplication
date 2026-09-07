@@ -19,7 +19,7 @@ export class WorkspaceStore {
 
     readonly selectedWorkspace = computed(() => {
         const selectedId = this.selectedIdState();
-        return this.entitiesState().find(workspace => workspace._id === selectedId) ?? null;
+        return this.entitiesState().find(workspace => workspace.id === selectedId) ?? null;
     });
 
     readonly hasWorkspaces = computed(() => this.entitiesState().length > 0);
@@ -43,7 +43,7 @@ export class WorkspaceStore {
 
     upsert(workspace: Workspace): void {
         this.entitiesState.update(current => {
-            const index = current.findIndex(item => item._id === workspace._id);
+            const index = current.findIndex(item => item.id === workspace.id);
             if (index < 0) return [workspace, ...current];
 
             const next = [...current];
@@ -53,7 +53,7 @@ export class WorkspaceStore {
     }
 
     remove(id: string): void {
-        this.entitiesState.update(current => current.filter(item => item._id !== id));
+        this.entitiesState.update(current => current.filter(item => item.id !== id));
         if (this.selectedIdState() === id) this.selectedIdState.set(null);
     }
 

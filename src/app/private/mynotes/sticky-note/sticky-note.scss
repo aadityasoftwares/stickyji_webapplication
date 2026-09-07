@@ -1,0 +1,268 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.sticky-note-card-shell {
+    display: block;
+    width: 100%;
+    min-width: 0;
+
+    ::ng-deep .app-card {
+        width: 100% !important;
+        max-width: none;
+        overflow: visible;
+    }
+
+    ::ng-deep .app-card-body {
+        min-height: 0;
+    }
+}
+
+.sticky-note-card-content {
+    min-width: 0;
+}
+
+.sticky-note-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    min-width: 0;
+}
+
+.sticky-note-card-heading {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sticky-note-card-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+}
+
+.sticky-note-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 6px 0 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 0.82rem;
+    font-weight: 760;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sticky-note-card-subtitle {
+    display: block;
+    margin-top: 3px;
+    color: $text-light;
+    font-size: 0.56rem;
+    font-weight: 650;
+}
+
+.sticky-note-card-description {
+    display: flex;
+    gap: 6px;
+    margin: 5px 0 0;
+    color: $text-secondary;
+    font-size: 0.64rem;
+    font-weight: 530;
+    line-height: 1.42;
+
+    >span:last-child {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
+    }
+}
+
+.sticky-note-card-complete-icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 19px;
+    height: 19px;
+    margin-top: 1px;
+    color: $success;
+    background: rgba($success, 0.1);
+    border-radius: 999px;
+    place-items: center;
+}
+
+.sticky-note-card-checklists {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.sticky-note-card-checklist {
+    display: grid;
+    gap: 6px;
+    padding-top: 7px;
+    border-top: 1px dashed rgba($heading, 0.11);
+}
+
+.sticky-note-card-checklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+
+    strong {
+        overflow: hidden;
+        color: $text-secondary;
+        font-size: 0.58rem;
+        font-weight: 760;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    span {
+        flex: 0 0 auto;
+        color: $text-light;
+        font-family: $font-mono;
+        font-size: 0.5rem;
+        font-weight: 700;
+    }
+}
+
+.sticky-note-card-checklist-items {
+    display: grid;
+    gap: 4px;
+}
+
+.sticky-note-card-checklist-item {
+    min-width: 0;
+    transition: opacity 120ms ease;
+
+    &.is-completed {
+        opacity: 0.68;
+    }
+
+    &.is-updating {
+        pointer-events: none;
+        opacity: 0.48;
+    }
+}
+
+.sticky-note-card-progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 7px;
+    margin-top: 7px;
+
+    small {
+        color: $text-light;
+        font-family: $font-mono;
+        font-size: 0.56rem;
+        font-weight: 700;
+    }
+}
+
+.sticky-note-card-progress-track {
+    height: 5px;
+    overflow: hidden;
+    background: rgba($heading, 0.08);
+    border-radius: 999px;
+
+    >span {
+        display: block;
+        height: 100%;
+        background: $heading;
+        border-radius: inherit;
+    }
+}
+
+.sticky-note-card-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 7px;
+    min-width: 0;
+}
+
+.sticky-note-card-meta,
+.sticky-note-card-footer-badges {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+}
+
+.sticky-note-card-meta>span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: $text-light;
+    font-size: 0.55rem;
+    font-weight: 650;
+    white-space: nowrap;
+
+    &.is-success {
+        color: $success;
+    }
+}
+
+.sticky-note-card-footer-badges {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+}
+
+.sticky-note-card-pin {
+    position: relative;
+    display: grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+
+    span {
+        position: relative;
+        display: block;
+        width: 10px;
+        height: 10px;
+        background: rgba($heading, 0.68);
+        border: 2px solid rgba($paper, 0.7);
+        border-radius: 999px;
+        box-shadow: 0 2px 4px rgba($heading, 0.16);
+
+        &::after {
+            position: absolute;
+            top: 8px;
+            left: 3px;
+            width: 1px;
+            height: 9px;
+            content: '';
+            background: rgba($heading, 0.38);
+            transform: rotate(8deg);
+            transform-origin: top;
+        }
+    }
+}
+
+@media (max-width: 520px) {
+    .sticky-note-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sticky-note-card-footer-badges {
+        justify-content: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sticky-note-card-checklist-item {
+        transition: none;
+    }
+}

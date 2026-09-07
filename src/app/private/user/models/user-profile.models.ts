@@ -36,14 +36,13 @@ export interface UpdateUserProfilePayload {
     displayName: string | null;
     bio: string | null;
     dateOfBirth: string | null;
-    profileType: UserProfileType;
+    profileType: any;
     occupation: string | null;
     education: string | null;
     interests: string[];
     countryId: string | null;
     timezoneId: string | null;
     languageId: string | null;
-    currencyId: string | null;
 }
 
 export interface CountryReference {

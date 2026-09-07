@@ -72,11 +72,19 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials {
+  firstName: string;
+  lastName: string;
+
   email: string;
   password: string;
   phone?: string;
+
   termsAccepted: boolean;
   privacyPolicyAccepted: boolean;
+
+  timezoneCode: string;
+  locale: string;
+  countryCodeHint?: string;
 }
 
 export interface ClientContext {

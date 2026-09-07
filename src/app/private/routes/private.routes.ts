@@ -8,18 +8,38 @@ export const PRIVATE_ROUTES: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'my-notes',
+                redirectTo: 'today',
                 pathMatch: 'full'
             },
             {
-                path: 'my-notes',
-                loadComponent: () => import('../mynotes/mynotes').then(m => m.MyNotes)
+                path: 'today',
+                loadComponent: () => import('../today/today').then(m => m.Today)
+            },
+            {
+                path: 'workspaces',
+                loadChildren: () =>
+                    import('../workspace/routes/workspaces.routes').then(m => m.WORKSPACES_ROUTES),
+            },
+            {
+                path: 'workspacefolders',
+                loadChildren: () =>
+                    import('../workspacefolders/routes/workspacesfolder.routes').then(m => m.WORKSPACESFOLDER_ROUTES),
+            },
+            {
+                path: 'account',
+                loadChildren: () =>
+                    import('../user/routes/user-profile.routes').then(m => m.USER_PROFILE_ROUTES),
+            },
+            {
+                path: 'account',
+                loadChildren: () =>
+                    import('../user-preferences/routes/user-preference.routes').then(m => m.USER_PREFERENCE_ROUTES),
+            },
+            {
+                path: 'sticky-notes',
+                loadChildren: () =>
+                    import('../mynotes/routes/mynotes.routes').then(m => m.MYNOTES_ROUTES),
             }
         ]
     },
-    {
-        path: 'account',
-        loadChildren: () =>
-            import('../user/routes/user-profile.routes').then(m => m.USER_PROFILE_ROUTES),
-    }
 ];

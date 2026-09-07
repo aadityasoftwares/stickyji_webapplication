@@ -12,200 +12,303 @@
     width: 100%;
 }
 
-.app-select {
-    position: relative;
-    width: auto;
-    color: $text-primary;
-    font-family: $font-body;
+.app-select-wrapper {
+    --app-select-height: 42px;
+    --app-select-radius: 12px;
+    --app-select-padding-x: 12px;
+
+    --app-select-background: #{$paper};
+    --app-select-border: #{$border};
+    --app-select-color: #{$text-primary};
+    --app-select-muted: #{$text-secondary};
+    --app-select-placeholder: #{$text-light};
+    --app-select-depth: #{color.adjust(
+ $border,
+    $lightness: -8%)
 }
 
-.app-select-full {
-    width: 100%;
+;
+
+position: relative;
+display: flex;
+flex-direction: column;
+min-width: 0;
+color: var(--app-select-color);
+font-family: $font-body;
+}
+
+/* Label */
+
+.app-select-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 7px;
 }
 
 .app-select-label {
-    display: inline-flex;
-    gap: 4px;
-    margin-bottom: 7px;
+    min-width: 0;
     color: $text-primary;
-    font-size: 0.8rem;
-    font-weight: 750;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    cursor: pointer;
 }
 
-.app-select-label span {
+.app-select-required {
+    margin-left: 2px;
     color: $danger;
 }
 
-.app-select-control {
+.app-select-optional {
+    margin-left: 5px;
+    color: $text-light;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.app-select-label-hint,
+.app-select-label-description {
+    color: $text-light;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.app-select-label-hint {
+    flex: 0 0 auto;
+}
+
+.app-select-label-description {
+    margin: -2px 0 7px;
+}
+
+.app-select-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Trigger */
+
+.app-select-control-shell {
     position: relative;
-    display: flex;
     width: 100%;
+    min-width: 0;
 }
 
 .app-select-trigger {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     width: 100%;
     min-width: 0;
-    height: 42px;
-    padding: 0 72px 0 13px;
-    color: $text-primary;
+    min-height: var(--app-select-height);
+    padding:
+        0 70px 0 var(--app-select-padding-x);
+
+    overflow: hidden;
+    color: var(--app-select-color);
     font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.35;
     text-align: left;
     cursor: pointer;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: $radius-xs;
+
+    background-color:
+        var(--app-select-background);
+
+    background-image:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.34) 0%,
+            rgba(255, 255, 255, 0.07) 52%,
+            rgba(17, 17, 17, 0.025) 100%);
+
+    border:
+        1px solid var(--app-select-border);
+
+    border-radius:
+        var(--app-select-radius);
+
     outline: none;
-    box-shadow: 0 2px 5px rgba(46, 38, 25, 0.05);
-    transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+
+    box-shadow:
+        0 2px 0 var(--app-select-depth),
+        0 5px 11px rgba(46, 38, 25, 0.09);
+
+    transition:
+        transform 150ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        background-color 160ms ease,
+        opacity 160ms ease;
+
+    &::after {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        content: '';
+        pointer-events: none;
+        opacity: 0.13;
+
+        background-image:
+            radial-gradient(circle at 18% 25%,
+                rgba(255, 255, 255, 0.7) 0 0.7px,
+                transparent 0.9px),
+            radial-gradient(circle at 70% 72%,
+                rgba(17, 17, 17, 0.13) 0 0.65px,
+                transparent 0.9px);
+
+        background-size:
+            13px 13px,
+            17px 17px;
+    }
+
+    &:hover:not(:disabled) {
+        border-color:
+            color.adjust($border,
+                $lightness: -10%);
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 2px 0 var(--app-select-depth),
+            0 7px 14px rgba(46, 38, 25, 0.11);
+    }
+
+    &:focus-visible {
+        border-color: $accent;
+
+        box-shadow:
+            0 0 0 3px rgba($accent, 0.16),
+            0 3px 0 color.adjust($accent,
+                $lightness: -13%),
+            0 9px 18px rgba(46, 38, 25, 0.13);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
 }
 
-.app-select-trigger:hover:not(:disabled) {
-    border-color: color.adjust($border, $lightness: -10%);
-    background: $page-bg;
+.app-select-open {
+    .app-select-trigger {
+        z-index: 3;
+        border-color: $accent;
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 0 0 3px rgba($accent, 0.16),
+            0 3px 0 color.adjust($accent,
+                $lightness: -13%),
+            0 9px 18px rgba(46, 38, 25, 0.13);
+    }
 }
 
-.app-select-open .app-select-trigger,
-.app-select-trigger:focus-visible {
-    border-color: $accent;
-    box-shadow: 0 0 0 3px rgba($accent, 0.16);
+.app-select-paper {
+    --app-select-background: #{$page-bg};
 }
 
-.app-select-error .app-select-trigger {
-    border-color: $danger;
+.app-select-filled {
+    --app-select-background: #{$paper-dark};
+    --app-select-border: #{$border-light};
 }
 
-.app-select-trigger:disabled {
-    cursor: not-allowed;
-    opacity: 0.58;
+.app-select-status-danger {
+    --app-select-border: #{$danger};
+    --app-select-depth: #{color.adjust(
+ $danger,
+    $lightness: -8%)
 }
 
-.app-select-filled .app-select-trigger {
-    background: $paper-dark;
-    border-color: transparent;
-    box-shadow: none;
+;
 }
 
-.app-select-paper .app-select-trigger {
-    background: $page-bg;
+.app-select-status-success {
+    --app-select-border: #{$success};
+    --app-select-depth: #{color.adjust(
+ $success,
+    $lightness: -8%)
 }
 
-.app-select-workspace .app-select-trigger {
-    min-height: 56px;
-    height: auto;
-    padding: 8px 50px 8px 9px;
-    background: linear-gradient(145deg, $paper 0%, $page-bg 100%);
-    border-color: $border-light;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(46, 38, 25, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+;
 }
 
-.app-select-workspace .app-select-trigger:hover:not(:disabled) {
-    background: $paper;
-    border-color: color.adjust($border, $lightness: -7%);
-    box-shadow: 0 7px 18px rgba(46, 38, 25, 0.1);
-    transform: translateY(-1px);
+.app-select-status-warning {
+    --app-select-border: #{$warning};
+    --app-select-depth: #{color.adjust(
+ $warning,
+    $lightness: -8%)
 }
 
-.app-select-workspace.app-select-open .app-select-trigger,
-.app-select-workspace .app-select-trigger:focus-visible {
-    border-color: rgba($accent, 0.62);
-    box-shadow: 0 0 0 3px rgba($accent, 0.1), 0 8px 22px rgba(46, 38, 25, 0.11);
+;
 }
 
-.app-select-sm .app-select-trigger {
-    height: 36px;
-    font-size: 0.78rem;
+.app-select-disabled {
+    opacity: 0.62;
 }
 
-.app-select-md .app-select-trigger {
-    height: 42px;
-    font-size: 0.85rem;
-}
-
-.app-select-lg .app-select-trigger {
-    height: 48px;
-    font-size: 0.92rem;
-}
+/* Value */
 
 .app-select-value {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
     min-width: 0;
-    gap: 8px;
+    gap: 9px;
     overflow: hidden;
 }
 
 .app-select-value.is-placeholder {
-    color: $text-light;
+    color: var(--app-select-placeholder);
+    font-weight: 600;
 }
 
-.app-select-value>span:last-child {
+.app-select-placeholder,
+.app-select-single-value {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.app-select-identity-icon {
+.app-select-leading-icon,
+.app-select-selected-icon {
     display: grid;
-    flex: 0 0 36px;
-    width: 36px;
-    height: 36px;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
     place-items: center;
-    color: $heading;
-    font-family: $font-note;
-    font-size: 1.15rem;
-    font-weight: 800;
-    background: $note-yellow;
-    border: 1px solid color.adjust($note-yellow, $lightness: -14%);
-    border-radius: 11px;
-    box-shadow: 0 2px 0 rgba($text-primary, 0.1);
+    color: var(--app-select-muted);
 }
 
-.app-select-identity-avatar {
+.app-select-open,
+.app-select-wrapper:has(.app-select-trigger:hover) {
+    .app-select-leading-icon {
+        color: $accent;
+    }
+}
+
+.app-select-value-avatar {
     flex: 0 0 auto;
 }
 
-.app-select-identity-copy {
-    display: grid;
-    min-width: 0;
-    gap: 1px;
-}
-
-.app-select-identity-copy small {
-    color: $text-light;
-    font-size: 0.54rem;
-    font-weight: 850;
-    letter-spacing: 0.075em;
-    line-height: 1.15;
-    text-transform: uppercase;
-}
-
-.app-select-identity-copy strong {
-    overflow: hidden;
-    color: $heading;
-    font-size: 0.81rem;
-    font-weight: 800;
-    line-height: 1.25;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.app-select-identity-copy>span {
-    overflow: hidden;
-    color: $text-light;
-    font-size: 0.61rem;
-    font-weight: 600;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+/* Actions */
 
 .app-select-actions {
     position: absolute;
     top: 0;
     right: 7px;
+    z-index: 4;
     display: flex;
     align-items: center;
     height: 100%;
@@ -215,43 +318,50 @@
 
 .app-select-clear {
     display: grid;
-    width: 28px;
-    height: 28px;
+    flex: 0 0 29px;
+    width: 29px;
+    height: 29px;
     padding: 0;
     place-items: center;
-    color: $text-light;
+    color: var(--app-select-muted);
     cursor: pointer;
     background: transparent;
     border: 0;
-    border-radius: 7px;
+    border-radius: 8px;
     pointer-events: auto;
-}
 
-.app-select-clear:hover {
-    color: $danger;
-    background: rgba($danger, 0.08);
+    &:hover {
+        color: $danger;
+        background: rgba($danger, 0.08);
+    }
+
+    &:focus-visible {
+        outline: 2px solid rgba($danger, 0.25);
+        outline-offset: 1px;
+    }
 }
 
 .app-select-chevron {
     display: grid;
-    width: 28px;
+    flex: 0 0 29px;
+    width: 29px;
+    height: 29px;
     place-items: center;
-    color: $text-secondary;
-    transition: transform 160ms ease;
+    color: var(--app-select-muted);
+    pointer-events: none;
+    transition:
+        color 160ms ease,
+        transform 160ms ease;
 }
 
-.app-select-open .app-select-chevron {
-    transform: rotate(180deg);
+.app-select-open {
+    .app-select-chevron {
+        color: $accent;
+        transform: rotate(180deg);
+    }
 }
 
-.app-select-workspace .app-select-chevron {
-    width: 30px;
-    height: 30px;
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.76);
-    border: 1px solid $border-light;
-    border-radius: 9px;
-}
+/* Multiple selection */
 
 .app-select-chips {
     display: flex;
@@ -271,27 +381,29 @@
     padding: 0 8px;
     color: $text-primary;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 750;
     background: $note-yellow;
-    border: 1px solid color.adjust($note-yellow, $lightness: -12%);
+    border: 1px solid color.adjust($note-yellow,
+            $lightness: -12%);
     border-radius: 7px;
+}
+
+.app-select-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.app-select-chip {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .app-select-chip-remove {
+    flex: 0 0 auto;
     font-size: 1rem;
     line-height: 1;
     cursor: pointer;
-    opacity: 0.58;
-}
+    opacity: 0.55;
 
-.app-select-chip-remove:hover {
-    opacity: 1;
+    &:hover {
+        opacity: 1;
+    }
 }
 
 .app-select-count {
@@ -299,28 +411,156 @@
     flex: 0 0 auto;
 }
 
+/* Workspace variant */
+
+.app-select-workspace {
+    --app-select-height: 58px;
+    --app-select-radius: 14px;
+    --app-select-background: #{$page-bg};
+    --app-select-border: #{$border-light};
+
+    .app-select-trigger {
+        padding:
+            7px 50px 7px 8px;
+    }
+
+    .app-select-actions {
+        right: 8px;
+    }
+
+    .app-select-chevron {
+        width: 31px;
+        height: 31px;
+        color: $text-secondary;
+        background: rgba($paper-dark, 0.78);
+        border: 1px solid $border-light;
+        border-radius: 9px;
+    }
+}
+
+.app-select-identity-avatar {
+    flex: 0 0 auto;
+}
+
+.app-select-identity-copy {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+
+    small {
+        color: $text-light;
+        font-size: 0.54rem;
+        font-weight: 850;
+        letter-spacing: 0.075em;
+        line-height: 1.15;
+        text-transform: uppercase;
+    }
+
+    strong {
+        overflow: hidden;
+        color: $heading;
+        font-size: 0.81rem;
+        font-weight: 800;
+        line-height: 1.25;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    >span {
+        overflow: hidden;
+        color: $text-light;
+        font-size: 0.61rem;
+        font-weight: 600;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Message */
+
+.app-select-message {
+    min-height: 17px;
+    margin: 6px 2px 0;
+    color: $text-light;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+
+    &.is-error {
+        color: $danger;
+    }
+}
+
+/*
+ * Body-level dropdown.
+ * It is position: fixed because trigger bounds are
+ * measured with getBoundingClientRect().
+ */
+
 .app-select-dropdown {
-    position: absolute;
-    z-index: 1000;
-    right: 0;
+    position: fixed;
+    top: 0;
     left: 0;
-    min-width: 240px;
+    z-index: 10000;
+
+    display: none;
+    flex-direction: column;
+    min-width: 0;
     overflow: hidden;
+
+    color: $text-primary;
+    font-family: $font-body;
+
     background: $paper;
     border: 1px solid $border;
     border-radius: $radius-sm;
-    box-shadow: 0 16px 40px rgba(46, 38, 25, 0.16);
-    animation: select-enter 130ms ease-out;
+
+    box-shadow:
+        0 18px 45px rgba(46, 38, 25, 0.18),
+        0 4px 12px rgba(46, 38, 25, 0.08);
+
+    visibility: hidden;
+    opacity: 0;
+
+    &.is-visible {
+        display: flex;
+    }
+
+    &.is-visible.is-positioned {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    &.open-bottom {
+        transform-origin: top center;
+    }
+
+    &.open-top {
+        transform-origin: bottom center;
+    }
+
+    &.is-visible.is-positioned.open-bottom {
+        animation:
+            select-enter-bottom 140ms ease-out;
+    }
+
+    &.is-visible.is-positioned.open-top {
+        animation:
+            select-enter-top 140ms ease-out;
+    }
 }
 
-.app-select-workspace .app-select-dropdown {
-    min-width: 285px;
+.app-select-dropdown-workspace {
     border-radius: 15px;
-    box-shadow: 0 22px 54px rgba(46, 38, 25, 0.2);
+
+    box-shadow:
+        0 22px 54px rgba(46, 38, 25, 0.2);
 }
 
 .app-select-dropdown-header {
     display: flex;
+    flex: 0 0 auto;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
@@ -331,88 +571,94 @@
     display: grid;
     min-width: 0;
     gap: 3px;
+
+    strong {
+        color: $heading;
+        font-size: 0.84rem;
+        font-weight: 850;
+    }
+
+    small {
+        color: $text-light;
+        font-size: 0.65rem;
+        line-height: 1.35;
+    }
 }
 
-.app-select-dropdown-header strong {
-    color: $heading;
-    font-size: 0.84rem;
-    font-weight: 850;
-}
-
-.app-select-dropdown-header small {
-    color: $text-light;
-    font-size: 0.65rem;
-    line-height: 1.35;
-}
-
-.app-select-dropdown.open-bottom {
-    top: calc(100% + 7px);
-    transform-origin: top;
-}
-
-.app-select-dropdown.open-top {
-    bottom: calc(100% + 7px);
-    transform-origin: bottom;
-}
+/* Search */
 
 .app-select-search {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    flex: 0 0 auto;
+    grid-template-columns:
+        auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
-    padding: 9px 10px;
-    color: $text-light;
-}
-
-.app-select-workspace .app-select-search {
     margin: 8px;
     padding: 0 10px;
+    color: $text-light;
     background: $page-bg;
     border: 1px solid $border-light;
     border-radius: 10px;
+
+    &:focus-within {
+        color: $accent;
+        border-color: $accent;
+        box-shadow:
+            0 0 0 3px rgba($accent, 0.1);
+    }
+
+    input {
+        width: 100%;
+        height: 36px;
+        padding: 0;
+        color: $text-primary;
+        font: inherit;
+        font-size: 0.8rem;
+        background: transparent;
+        border: 0;
+        outline: 0;
+
+        &::placeholder {
+            color: $text-light;
+        }
+
+        &::-webkit-search-cancel-button {
+            display: none;
+        }
+    }
+
+    button {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        padding: 0;
+        place-items: center;
+        color: $text-light;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        border-radius: 6px;
+
+        &:hover {
+            color: $text-primary;
+            background: $paper-dark;
+        }
+    }
 }
 
-.app-select-search input {
-    width: 100%;
-    height: 32px;
-    padding: 0;
-    color: $text-primary;
-    font: inherit;
-    font-size: 0.8rem;
-    background: transparent;
-    border: 0;
-    outline: 0;
-}
-
-.app-select-search input::-webkit-search-cancel-button {
-    display: none;
-}
-
-.app-select-search button {
-    display: grid;
-    width: 27px;
-    height: 27px;
-    padding: 0;
-    place-items: center;
-    color: $text-light;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    border-radius: 6px;
-}
-
-.app-select-search button:hover {
-    color: $text-primary;
-    background: $paper-dark;
-}
+/* Options */
 
 .app-select-options {
-    max-height: 292px;
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 6px;
+    overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba($text-primary, 0.2) transparent;
+    scrollbar-color:
+        rgba($text-primary, 0.2) transparent;
 }
 
 .app-select-group {
@@ -430,67 +676,56 @@
 
 .app-select-option {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns:
+        auto minmax(0, 1fr) auto;
     align-items: center;
     width: 100%;
-    min-height: 42px;
+    min-height: 43px;
     gap: 10px;
-    padding: 8px 9px;
+    padding: 7px 9px;
     color: $text-primary;
     font: inherit;
     text-align: left;
     cursor: pointer;
     background: transparent;
-    border: 0;
-    border-radius: 8px;
-}
-
-.app-select-option:hover:not(:disabled),
-.app-select-option.is-active {
-    background: $paper-dark;
-}
-
-.app-select-option.is-selected {
-    background: rgba($note-yellow, 0.48);
-}
-
-.app-select-workspace .app-select-option {
-    min-height: 58px;
-    padding: 8px;
     border: 1px solid transparent;
-    border-radius: 11px;
+    border-radius: 9px;
+    outline: none;
+    transition:
+        background-color 130ms ease,
+        border-color 130ms ease;
+
+    &:hover:not(:disabled),
+    &.is-active {
+        background: $paper-dark;
+        border-color: $border-light;
+    }
+
+    &.is-selected {
+        background: rgba($note-yellow, 0.4);
+        border-color:
+            color.adjust($note-yellow,
+                $lightness: -11%);
+    }
+
+    &:focus-visible {
+        border-color: $accent;
+        box-shadow:
+            0 0 0 2px rgba($accent, 0.13);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+    }
 }
 
-.app-select-workspace .app-select-option:hover:not(:disabled),
-.app-select-workspace .app-select-option.is-active {
-    background: $page-bg;
-    border-color: $border-light;
-}
-
-.app-select-workspace .app-select-option.is-selected {
-    background: rgba($note-yellow, 0.34);
-    border-color: color.adjust($note-yellow, $lightness: -12%);
-}
-
-.app-select-workspace .app-select-option-icon {
-    width: 38px;
-    height: 38px;
-    color: $heading;
-    background: $paper-dark;
-    border-radius: 10px;
-}
-
-.app-select-workspace .app-select-option.is-selected .app-select-option-icon {
-    background: $note-yellow;
-}
-
-.app-select-workspace .app-select-option-copy strong {
-    font-size: 0.81rem;
-}
-
-.app-select-option:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
+.app-select-dropdown-workspace {
+    .app-select-option {
+        min-height: 58px;
+        padding: 8px;
+        border-radius: 11px;
+    }
 }
 
 .app-select-option-icon {
@@ -504,40 +739,32 @@
     border-radius: 8px;
 }
 
+.app-select-option-avatar {
+    align-self: center;
+}
+
 .app-select-option-copy {
     display: grid;
     min-width: 0;
     gap: 2px;
-}
 
-.app-select-option-copy strong {
-    overflow: hidden;
-    font-size: 0.79rem;
-    font-weight: 750;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+    strong {
+        overflow: hidden;
+        color: $text-primary;
+        font-size: 0.79rem;
+        font-weight: 750;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-.app-select-option-copy small {
-    overflow: hidden;
-    color: $text-light;
-    font-size: 0.67rem;
-    line-height: 1.35;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.app-select-check {
-    display: grid;
-    width: 25px;
-    height: 25px;
-    place-items: center;
-    color: $success;
-    opacity: 0;
-}
-
-.app-select-check.is-visible {
-    opacity: 1;
+    small {
+        overflow: hidden;
+        color: $text-light;
+        font-size: 0.67rem;
+        line-height: 1.35;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 .app-select-option-end {
@@ -548,8 +775,22 @@
     gap: 5px;
 }
 
-.app-select-option-avatar {
-    align-self: center;
+.app-select-check {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    color: $success;
+    opacity: 0;
+    transform: scale(0.75);
+    transition:
+        opacity 130ms ease,
+        transform 130ms ease;
+
+    &.is-visible {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .app-select-state {
@@ -564,36 +805,47 @@
     text-align: center;
 }
 
-.app-select-message {
-    margin: 6px 2px 0;
-    color: $text-light;
-    font-size: 0.7rem;
-    line-height: 1.35;
-}
-
-.app-select-message.is-error {
-    color: $danger;
-}
+/* Spinner */
 
 .app-select-spinner {
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba($text-primary, 0.16);
+    border:
+        2px solid rgba($text-primary, 0.16);
     border-top-color: $accent;
     border-radius: 50%;
-    animation: select-spin 700ms linear infinite;
+    animation:
+        select-spin 700ms linear infinite;
 }
 
-@keyframes select-enter {
+/* Animations */
+
+@keyframes select-enter-bottom {
     from {
         opacity: 0;
-        transform: translateY(-4px) scale(0.985);
+        transform:
+            translateY(-5px) scale(0.985);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform:
+            translateY(0) scale(1);
+    }
+}
+
+@keyframes select-enter-top {
+    from {
+        opacity: 0;
+        transform:
+            translateY(5px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0) scale(1);
     }
 }
 
@@ -603,27 +855,25 @@
     }
 }
 
+@media (max-width: 480px) {
+    .app-select-dropdown {
+        border-radius: 12px;
+    }
+
+    .app-select-dropdown-header {
+        padding-inline: 12px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
-    .app-select-dropdown,
+    .app-select-trigger,
     .app-select-chevron,
+    .app-select-option,
+    .app-select-check,
+    .app-select-dropdown,
     .app-select-spinner {
         animation: none;
         transition: none;
     }
-}
-
-.app-select-leading-icon {
-    display: grid;
-    flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-    place-items: center;
-    color: $text-light;
-}
-
-.app-select-open .app-select-leading-icon,
-.app-select-trigger:hover .app-select-leading-icon {
-    color: $text-primary;
 }

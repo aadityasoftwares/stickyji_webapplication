@@ -12,7 +12,7 @@ export interface WorkspaceFolderUserSummary {
 }
 
 export interface WorkspaceFolderWorkspaceSummary {
-    _id: string;
+    id: string;
     name: string;
     slug: string;
     description?: string | null;
@@ -20,7 +20,7 @@ export interface WorkspaceFolderWorkspaceSummary {
 }
 
 export interface WorkspaceFolder {
-    _id: string;
+    id: string;
     workspaceId: string | WorkspaceFolderWorkspaceSummary;
     name: string;
     slug: string;
