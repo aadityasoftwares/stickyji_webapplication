@@ -20,8 +20,8 @@
         position: relative;
         display: flex;
         align-items: center;
-        width: min(100%, 680px);
-        max-width: 680px;
+        width: min(100%, 820px);
+        max-width: 820px;
         min-height: calc(100vh - 36px);
         margin: 0 auto;
         pointer-events: none;
@@ -186,17 +186,31 @@
 }
 
 .my-notes-modal-form app-input,
-.my-notes-modal-form app-select {
+.my-notes-modal-form app-select,
+.my-notes-modal-form app-datepicker-input {
     display: block;
     width: 100%;
     min-width: 0;
 }
 
-.my-notes-modal-select-row {
+/*
+ * Column is intentionally kept on its own compact row.
+ * The next row contains the three note metadata controls requested:
+ * Sticky color / Note date / Workspace member.
+ */
+.my-notes-modal-column-row {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem);
+    min-width: 0;
+}
+
+.my-notes-modal-meta-row {
     display: grid;
     grid-template-columns:
-        minmax(0, 1fr) minmax(0, 1fr);
+        minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 1.35fr);
+    align-items: end;
     gap: 12px;
+    min-width: 0;
 }
 
 .my-notes-modal-select-field {
@@ -214,6 +228,16 @@
     line-height: 1 !important;
     letter-spacing: 0.055em !important;
     text-transform: uppercase !important;
+}
+
+.my-notes-modal-date-field {
+    align-self: end;
+}
+
+/* Keep member avatars/text from forcing the 3-column row wider. */
+.my-notes-modal-meta-row app-select,
+.my-notes-modal-meta-row app-datepicker-input {
+    min-width: 0;
 }
 
 .checklist-choice {
@@ -405,6 +429,18 @@
     -webkit-backdrop-filter: blur(3px);
 }
 
+
+@media (max-width: 820px) and (min-width: 641px) {
+    .my-notes-modal-meta-row {
+        grid-template-columns:
+            minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .my-notes-modal-meta-row>.my-notes-modal-select-field:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (max-width: 640px) {
 
     .add-edit-my-notes-modal {
@@ -435,8 +471,13 @@
         padding: 18px;
     }
 
-    .my-notes-modal-select-row {
+    .my-notes-modal-column-row,
+    .my-notes-modal-meta-row {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .my-notes-modal-column-row {
+        width: 100%;
     }
 
     .my-notes-modal-footer {

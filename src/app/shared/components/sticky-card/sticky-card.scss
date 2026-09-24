@@ -1,79 +1,131 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
 
-/* Local pastel surfaces avoid the later saturated note variable overrides. */
-$card-note-yellow: #fff3a6;
-$card-note-orange: #ffd7a3;
-$card-note-pink: #ffcfe1;
-$card-note-red: #ffc9c6;
-$card-note-green: #d5f2c8;
-$card-note-blue: #cdeaff;
-$card-note-purple: #e4d2fa;
-$card-note-brown: #9b6b49;
+$card-note-white: #fffdf5;
+$card-note-yellow: #f7df72;
+$card-note-orange: #ffc97d;
+$card-note-pink: #f4bed1;
+$card-note-red: #efa9a2;
+$card-note-green: #c4e4b5;
+$card-note-blue: #b5dff0;
+$card-note-purple: #d6bee9;
+$card-note-brown: #d9bd98;
+$card-note-black: #292929;
 
 :host {
     display: block;
     max-width: 100%;
+    min-width: 0;
+    font-family: $font-body;
 }
 
 :host.app-card-host-full {
     width: 100%;
 }
 
-@mixin card-palette($background, $border-color, $text-color) {
-    --app-card-background: #{$background};
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+@mixin card-palette($surface,
+    $border-color,
+    $text-color,
+    $gradient-from: null,
+    $gradient-to: null) {
+    --app-card-background: #{$surface};
     --app-card-border: #{$border-color};
     --app-card-color: #{$text-color};
-    --app-card-muted: #{rgba($text-color, 0.67)};
-    --app-card-divider: #{rgba($text-color, 0.14)};
+    --app-card-muted: #{rgba($text-color, 0.68)};
+    --app-card-divider: #{rgba($text-color, 0.13)};
+    --app-card-fold: #{color.mix($surface, #67572f, 72%)};
+
+    @if $gradient-from !=null and $gradient-to !=null {
+        --app-card-background-image: linear-gradient(145deg,
+            #{$gradient-from} 0%,
+            #{$surface} 54%,
+            #{$gradient-to} 100%);
+    }
+
+    @else {
+        --app-card-background-image: none;
+    }
+}
+
+/* The shell owns the fold and the drop-shadow. */
+.app-card-shell {
+    --app-card-fold-size: 18px;
+    --app-card-fold: #ddd1b7;
+
+    position: relative;
+    display: block;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    isolation: isolate;
+    transition: transform 150ms ease, filter 150ms ease;
+}
+
+.app-card-shell.app-card-glass {
+    backdrop-filter: none;
 }
 
 .app-card {
     --app-card-padding: 20px;
     --app-card-radius: 16px;
     --app-card-min-height: 100px;
+    --app-card-fold-size: 18px;
     --app-card-media-width: 220px;
     --app-card-body-max-height: none;
-    --app-card-background: #{$paper};
-    --app-card-border: #{$border};
+    --app-card-background: #{$card-note-white};
+    --app-card-background-image: none;
+    --app-card-border: #e5dece;
     --app-card-color: #{$text-primary};
     --app-card-muted: #{$text-secondary};
     --app-card-divider: #{rgba($text-primary, 0.13)};
+    --app-card-fold: #ddd1b7;
 
     position: relative;
     isolation: isolate;
     display: flex;
-    box-sizing: border-box;
+    width: 100%;
     min-width: 0;
     min-height: var(--app-card-min-height);
     overflow: hidden;
     color: var(--app-card-color);
     background-color: var(--app-card-background);
+    background-image: var(--app-card-background-image);
+    background-repeat: no-repeat;
+    background-size: cover;
     border: 1px solid var(--app-card-border);
     border-radius: var(--app-card-radius);
     font-family: $font-body;
     transition:
-        transform 180ms ease,
-        box-shadow 180ms ease,
-        border-color 180ms ease,
-        filter 180ms ease,
-        opacity 180ms ease;
+        transform 150ms ease,
+        box-shadow 150ms ease,
+        border-color 150ms ease,
+        filter 150ms ease,
+        opacity 150ms ease;
 }
 
 .app-card::after {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
-    opacity: 0.18;
+    opacity: 0.095;
     background-image:
-        radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.55) 0 0.7px, transparent 0.9px),
-        radial-gradient(circle at 72% 68%, rgba(17, 17, 17, 0.1) 0 0.65px, transparent 0.9px);
-    background-size: 13px 13px, 17px 17px;
+        radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.82) 0 0.65px, transparent 0.85px),
+        radial-gradient(circle at 73% 66%, rgba(41, 35, 24, 0.09) 0 0.5px, transparent 0.78px),
+        radial-gradient(circle at 42% 80%, rgba(255, 255, 255, 0.58) 0 0.5px, transparent 0.74px);
+    background-size: 12px 12px, 17px 17px, 19px 19px;
 }
 
 .app-card-content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -85,7 +137,7 @@ $card-note-brown: #9b6b49;
 .app-card-footer {
     position: relative;
     z-index: 1;
-    box-sizing: border-box;
+    min-width: 0;
     padding-right: var(--app-card-padding);
     padding-left: var(--app-card-padding);
 }
@@ -93,13 +145,17 @@ $card-note-brown: #9b6b49;
 .app-card-header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 12px;
     align-items: start;
+    gap: 12px;
     padding-top: var(--app-card-padding);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
 }
 
-.app-card-header:not(:has(.app-card-header-icon:not(:empty), .app-card-eyebrow:not(:empty), .app-card-title:not(:empty), .app-card-subtitle:not(:empty), .app-card-header-action:not(:empty))) {
+.app-card-header:not(:has(.app-card-header-icon:not(:empty),
+        .app-card-eyebrow:not(:empty),
+        .app-card-title:not(:empty),
+        .app-card-subtitle:not(:empty),
+        .app-card-header-action:not(:empty))) {
     display: none;
 }
 
@@ -113,15 +169,23 @@ $card-note-brown: #9b6b49;
     display: none;
 }
 
+.app-card-header:not(:has(.app-card-header-icon:not(:empty),
+        .app-card-eyebrow:not(:empty),
+        .app-card-title:not(:empty),
+        .app-card-subtitle:not(:empty),
+        .app-card-header-action:not(:empty)))+.app-card-body {
+    padding-top: var(--app-card-padding);
+}
+
 .app-card-header-icon {
     display: inline-grid;
     place-items: center;
     width: 40px;
     height: 40px;
     color: inherit;
-    background: rgba(255, 255, 255, 0.38);
+    background: rgba(255, 255, 255, 0.32);
     border: 1px solid var(--app-card-divider);
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .app-card-heading {
@@ -169,7 +233,7 @@ $card-note-brown: #9b6b49;
     padding-bottom: var(--app-card-padding);
     color: inherit;
     font-size: 14px;
-    line-height: 1.55;
+    line-height: 1.5;
     overflow-wrap: anywhere;
 }
 
@@ -185,11 +249,11 @@ $card-note-brown: #9b6b49;
 
 .app-card-footer {
     display: flex;
-    gap: 10px;
     align-items: center;
     justify-content: flex-end;
+    gap: 10px;
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: 10px;
     padding-bottom: var(--app-card-padding);
 }
 
@@ -206,7 +270,7 @@ $card-note-brown: #9b6b49;
 }
 
 .app-card-footer-divider .app-card-body {
-    padding-bottom: 12px;
+    padding-bottom: 10px;
 }
 
 .app-card-media {
@@ -226,7 +290,6 @@ $card-note-brown: #9b6b49;
     object-fit: cover;
 }
 
-/* Layout */
 .app-card-layout-vertical {
     flex-direction: column;
 }
@@ -244,7 +307,6 @@ $card-note-brown: #9b6b49;
     width: min(var(--app-card-media-width), 42%);
 }
 
-/* Sizes */
 .app-card-size-xs .app-card-title {
     font-size: 18px;
 }
@@ -269,18 +331,17 @@ $card-note-brown: #9b6b49;
 .app-card-size-xs .app-card-header-icon {
     width: 32px;
     height: 32px;
-    border-radius: 9px;
+    border-radius: 8px;
 }
 
 .app-card-size-xl .app-card-header-icon {
     width: 48px;
     height: 48px;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
-/* Color variants */
 .app-card-default {
-    @include card-palette($paper, $border, $text-primary);
+    @include card-palette($card-note-white, #e5dece, #27251f, #fffefa, #faf6ea);
 }
 
 .app-card-paper {
@@ -288,7 +349,7 @@ $card-note-brown: #9b6b49;
 }
 
 .app-card-glass {
-    @include card-palette(rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.56), $text-primary);
+    @include card-palette(rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.62), $text-primary);
     backdrop-filter: blur(16px) saturate(125%);
 }
 
@@ -297,152 +358,247 @@ $card-note-brown: #9b6b49;
 }
 
 .app-card-noteYellow {
-    @include card-palette($card-note-yellow, color.adjust($card-note-yellow, $lightness: -15%), #302b14);
+    @include card-palette($card-note-yellow, #dac44f, #302a13, #fae77f, #f4d95f);
 }
 
 .app-card-noteOrange {
-    @include card-palette($card-note-orange, color.adjust($card-note-orange, $lightness: -15%), #352719);
+    @include card-palette($card-note-orange, #dfa958, #352615, #ffd38e, #f7bc68);
 }
 
 .app-card-notePink {
-    @include card-palette($card-note-pink, color.adjust($card-note-pink, $lightness: -15%), #37242b);
+    @include card-palette($card-note-pink, #d79cae, #352229, #fac8d8, #efb0c7);
 }
 
 .app-card-noteRed {
-    @include card-palette($card-note-red, color.adjust($card-note-red, $lightness: -15%), #3d2423);
+    @include card-palette($card-note-red, #d28d87, #3a2422, #f5b9b2, #e99d96);
 }
 
 .app-card-noteGreen {
-    @include card-palette($card-note-green, color.adjust($card-note-green, $lightness: -15%), #21311d);
+    @include card-palette($card-note-green, #9fc88d, #24301f, #d0ecbf, #b6dda4);
 }
 
 .app-card-noteBlue {
-    @include card-palette($card-note-blue, color.adjust($card-note-blue, $lightness: -15%), #1c2d38);
+    @include card-palette($card-note-blue, #91bfd3, #1f3038, #c4e8f6, #a7d5e8);
 }
 
 .app-card-notePurple {
-    @include card-palette($card-note-purple, color.adjust($card-note-purple, $lightness: -15%), #30243e);
+    @include card-palette($card-note-purple, #b9a0ce, #30243a, #e0cef0, #cbb3df);
 }
 
 .app-card-noteBrown {
-    @include card-palette($card-note-brown, color.adjust($card-note-brown, $lightness: -10%), #ffffff);
+    @include card-palette($card-note-brown, #b99a73, #362a20, #e3c9a7, #cfad82);
 }
 
-/* Appearance */
+.app-card-noteBlack {
+    @include card-palette($card-note-black, #404040, #ffffff, #333333, #242424);
+    --app-card-muted: rgba(255, 255, 255, 0.7);
+    --app-card-divider: rgba(255, 255, 255, 0.15);
+    --app-card-fold: #161616;
+}
+
 .app-card-appearance-elevated {
-    border-color: color-mix(in srgb, var(--app-card-border) 76%, transparent);
+    border-color: color-mix(in srgb, var(--app-card-border) 62%, transparent);
 }
 
 .app-card-appearance-outlined {
+    border-width: 1px;
     box-shadow: none !important;
-    border-width: 2px;
 }
 
 .app-card-appearance-flat {
-    box-shadow: none !important;
     border-color: transparent;
+    box-shadow: none !important;
 }
 
-/* Shadow */
 .app-card-shadow-none {
     box-shadow: none;
 }
 
 .app-card-shadow-sm {
-    box-shadow: $shadow-sm;
+    box-shadow: 0 1px 2px rgba(49, 41, 25, 0.05), 0 4px 8px rgba(49, 41, 25, 0.055);
 }
 
 .app-card-shadow-md {
-    box-shadow: $shadow;
+    box-shadow: 0 2px 3px rgba(49, 41, 25, 0.055), 0 7px 15px rgba(49, 41, 25, 0.07);
 }
 
 .app-card-shadow-lg {
-    box-shadow: $shadow-lg;
+    box-shadow: 0 3px 6px rgba(49, 41, 25, 0.075), 0 14px 28px rgba(49, 41, 25, 0.105);
 }
 
-/* Shape */
+.app-card-shape-rounded,
+.app-card-shape-soft,
+.app-card-shape-note,
+.app-card-shape-folded {
+    clip-path: none;
+    transform: none;
+}
+
+.app-card-shape-rounded,
+.app-card-shape-soft {
+    border-radius: var(--app-card-radius);
+}
+
 .app-card-shape-square {
     border-radius: 0;
+    clip-path: none;
+    transform: none;
 }
 
 .app-card-shape-note {
-    border-radius: 4px 8px 5px 3px;
-    transform: rotate(-0.35deg);
-}
-
-.app-card-shape-cut {
-    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
-}
-
-.app-card-shape-ticket {
-    clip-path: polygon(0 0, 100% 0, 100% 40%, calc(100% - 10px) 50%, 100% 60%, 100% 100%, 0 100%, 0 60%, 10px 50%, 0 40%);
+    border-radius: 5px 8px 6px 5px;
 }
 
 .app-card-shape-folded {
-    clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 34px, 100% 100%, 0 100%);
+    border-radius: 5px 3px 5px 5px;
 }
 
-.app-card-shape-folded::before {
+.app-card-shape-cut {
+    border-radius: 0;
+    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+    transform: none;
+}
+
+.app-card-shape-ticket {
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 40%, calc(100% - 10px) 50%, 100% 60%, 100% 100%, 0 100%, 0 60%, 10px 50%, 0 40%);
+    transform: none;
+}
+
+/* Default note: the article loses its bottom-right triangular corner. */
+.app-card-shape-stickyFold {
+    border-radius: 3px 3px 0 3px;
+    clip-path: polygon(0 0,
+            100% 0,
+            100% calc(100% - var(--app-card-fold-size)),
+            calc(100% - var(--app-card-fold-size)) 100%,
+            0 100%);
+    transform: none;
+    box-shadow: none !important;
+    border-color: color-mix(in srgb, var(--app-card-border) 50%, transparent);
+}
+
+/* Keep projected content away from the clipped/folded corner. */
+.app-card-shape-stickyFold:not(.app-card-body-flush) .app-card-body,
+.app-card-shape-stickyFold .app-card-footer {
+    padding-right: max(var(--app-card-padding), calc(var(--app-card-fold-size) + 5px));
+}
+
+/* This fills the exact triangle removed by the article clip-path. */
+.sticky-corner {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    width: var(--app-card-fold-size);
+    height: var(--app-card-fold-size);
+    pointer-events: none;
+    background: var(--app-card-fold);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.sticky-corner::before {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    width: 34px;
-    height: 34px;
-    pointer-events: none;
-    background: linear-gradient(225deg, rgba(17, 17, 17, 0.18) 0 49%, rgba(255, 255, 255, 0.45) 50% 100%);
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.26), transparent 58%);
 }
 
-/* Interaction */
+.sticky-corner::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 140%;
+    height: 1px;
+    background: rgba(39, 33, 20, 0.12);
+    transform: rotate(-45deg);
+    transform-origin: right bottom;
+}
+
+.app-card-shell-shape-stickyFold .app-card-shape-stickyFold {
+    box-shadow: none !important;
+}
+
+.app-card-shell-shape-stickyFold.app-card-shell-shadow-none {
+    filter: none;
+}
+
+.app-card-shell-shape-stickyFold.app-card-shell-shadow-sm {
+    filter: drop-shadow(0 1px 1px rgba(49, 41, 25, 0.045)) drop-shadow(0 4px 7px rgba(49, 41, 25, 0.055));
+}
+
+.app-card-shell-shape-stickyFold.app-card-shell-shadow-md {
+    filter: drop-shadow(0 1px 2px rgba(49, 41, 25, 0.055)) drop-shadow(0 7px 13px rgba(49, 41, 25, 0.075));
+}
+
+.app-card-shell-shape-stickyFold.app-card-shell-shadow-lg {
+    filter: drop-shadow(0 2px 3px rgba(49, 41, 25, 0.075)) drop-shadow(0 13px 24px rgba(49, 41, 25, 0.11));
+}
+
 .app-card-clickable {
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
-.app-card-hoverable:hover:not(.app-card-disabled) {
-    transform: translateY(-3px) rotate(0deg);
-    box-shadow: $shadow-lg;
-    border-color: color-mix(in srgb, var(--app-card-border) 70%, $primary);
+.app-card-hoverable:hover:not(.app-card-disabled):not(.app-card-shape-stickyFold) {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--app-card-border) 80%, $primary);
+    box-shadow: 0 2px 4px rgba(44, 37, 22, 0.07), 0 9px 20px rgba(44, 37, 22, 0.085);
 }
 
-.app-card-clickable:active:not(.app-card-disabled) {
-    transform: translateY(-1px) scale(0.995);
+.app-card-shell-shape-stickyFold.app-card-shell-hoverable:hover {
+    transform: translateY(-1px);
+}
+
+.app-card-shell-shape-stickyFold.app-card-shell-hoverable:hover .app-card {
+    border-color: color-mix(in srgb, var(--app-card-border) 80%, $primary);
+}
+
+.app-card-clickable:active:not(.app-card-disabled):not(.app-card-shape-stickyFold),
+.app-card-shell-shape-stickyFold.app-card-shell-hoverable:active {
+    transform: translateY(0);
 }
 
 .app-card:focus-visible {
-    outline: 3px solid rgba($accent, 0.35);
-    outline-offset: 4px;
+    outline: 2px solid rgba($accent, 0.34);
+    outline-offset: 3px;
 }
 
 .app-card-selected {
     border-color: $accent;
-    box-shadow: 0 0 0 3px rgba($accent, 0.2), $shadow;
+    box-shadow: 0 0 0 2px rgba($accent, 0.18), 0 5px 15px rgba(44, 37, 22, 0.08);
+}
+
+.app-card-shape-stickyFold.app-card-selected {
+    box-shadow: inset 0 0 0 1px $accent !important;
 }
 
 .app-card-disabled {
-    opacity: 0.55;
-    filter: grayscale(0.18);
+    opacity: 0.56;
+    filter: grayscale(0.12);
     cursor: not-allowed;
     pointer-events: none;
 }
 
-/* Loading */
+.app-card-shell-disabled {
+    opacity: 0.96;
+}
+
 .app-card-loading-overlay {
     position: absolute;
     inset: 0;
-    z-index: 5;
+    z-index: 6;
     display: grid;
     place-items: center;
-    background: color-mix(in srgb, var(--app-card-background) 72%, transparent);
+    background: color-mix(in srgb, var(--app-card-background) 76%, transparent);
     backdrop-filter: blur(2px);
 }
 
 .app-card-spinner {
-    width: 28px;
-    height: 28px;
-    box-sizing: border-box;
+    width: 26px;
+    height: 26px;
     border: 3px solid currentColor;
     border-right-color: transparent;
     border-radius: 50%;
@@ -467,7 +623,9 @@ $card-note-brown: #9b6b49;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .app-card {
+
+    .app-card,
+    .app-card-shell {
         transition: none;
     }
 
@@ -483,5 +641,9 @@ $card-note-brown: #9b6b49;
 
     .app-card-selected {
         outline: 3px solid Highlight;
+    }
+
+    .sticky-corner {
+        display: none !important;
     }
 }

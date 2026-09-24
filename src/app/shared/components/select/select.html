@@ -5,49 +5,44 @@
         ? width + 'px'
         : null
   " [style.max-width.px]="maxWidth" [style.--app-select-height]="resolvedHeight + 'px'"
-    [style.--app-select-radius]="resolvedRadius + 'px'" [style.--app-select-padding-x]="resolvedPaddingX + 'px'">
-    @if (label) {
-    <div class="app-select-label-row">
-        <label class="app-select-label" [for]="selectId">
-            {{ label }}
-
-            @if (required) {
-            <span class="app-select-required" aria-hidden="true">
-                *
-            </span>
-
-            <span class="app-select-visually-hidden">
-                {{ requiredText }}
-            </span>
-            } @else if (optional) {
-            <span class="app-select-optional">
-                ({{ optionalText }})
-            </span>
-            }
-        </label>
-
-        @if (labelHint) {
-        <span class="app-select-label-hint">
-            {{ labelHint }}
-        </span>
-        }
-    </div>
-
-    @if (labelDescription) {
-    <div class="app-select-label-description">
-        {{ labelDescription }}
-    </div>
+  [style.--app-select-radius]="resolvedRadius + 'px'" [style.--app-select-padding-x]="resolvedPaddingX + 'px'">
+  @if (label) {
+  <div class="app-select-label-row">
+    <label class="app-select-label" [for]="selectId">
+      {{ label }}
+      @if (required) {
+      <span class="app-select-required" aria-hidden="true">
+        *
+      </span>
+      <span class="app-select-visually-hidden">
+        {{ requiredText }}
+      </span>
+      } @else if (optional) {
+      <span class="app-select-optional">
+        ({{ optionalText }})
+      </span>
+      }
+    </label>
+    @if (labelHint) {
+    <span class="app-select-label-hint">
+      {{ labelHint }}
+    </span>
     }
-    }
-
-    <div class="app-select-control-shell">
-        <button #trigger class="app-select-trigger" [id]="selectId" type="button" role="combobox"
-            aria-haspopup="listbox" [attr.name]="name" [attr.aria-label]="
+  </div>
+  @if (labelDescription) {
+  <div class="app-select-label-description">
+    {{ labelDescription }}
+  </div>
+  }
+  }
+  <div class="app-select-control-shell">
+    <button #trigger class="app-select-trigger" [id]="selectId" [attr.title]="selectedLabel || placeholder"
+      type="button" role="combobox" aria-haspopup="listbox" [attr.name]="name" [attr.aria-label]="
         ariaLabel ||
         label ||
         placeholder
       " [attr.aria-controls]="listboxId" [attr.aria-expanded]="isOpen" [attr.aria-activedescendant]="activeOptionId"
-            [attr.aria-describedby]="describedBy" [attr.aria-invalid]="
+      [attr.aria-describedby]="describedBy" [attr.aria-invalid]="
         effectiveStatus === 'danger'
           ? 'true'
           : null
@@ -56,38 +51,40 @@
           ? 'true'
           : null
       " [disabled]="isDisabled" (click)="toggle()" (keydown)="onTriggerKeydown($event)">
-            @if (
-            iconLeft &&
-            variant !== 'workspace' &&
-            !selectedOptions[0]?.avatar &&
-            !selectedOptions[0]?.icon
-            ) {
-            <span class="app-select-leading-icon" aria-hidden="true">
-                <app-icon [icon]="iconLeft" size="sm" />
-            </span>
+      @if (
+      iconLeft &&
+      variant !== 'workspace' &&
+      !selectedOptions[0]?.avatar &&
+      !selectedOptions[0]?.icon &&
+      !selectedOptions[0]?.color
+      ) {
+      <span class="app-select-leading-icon" aria-hidden="true">
+        <app-icon [icon]="iconLeft" size="sm" />
+      </span>
+      }
+      <span class="app-select-value" [class.is-placeholder]="!hasValue">
+        @if (!hasValue) {
+        <span class="app-select-placeholder">
+          {{
+          loading
+          ? loadingText
+          : placeholder
+          }}
+        </span>
+        } @else if (multiple) {
+        <span class="app-select-chips">
+          @for (
+          option of visibleSelectedOptions;
+          track option.value
+          ) {
+          <span class="app-select-chip">
+            @if (option.color) {
+            <span class="app-select-color-swatch" [style.background-color]="option.color" aria-hidden="true"></span>
             }
-
-            <span class="app-select-value" [class.is-placeholder]="!hasValue">
-                @if (!hasValue) {
-                <span class="app-select-placeholder">
-                    {{
-                    loading
-                    ? loadingText
-                    : placeholder
-                    }}
-                </span>
-                } @else if (multiple) {
-                <span class="app-select-chips">
-                    @for (
-                    option of visibleSelectedOptions;
-                    track option.value
-                    ) {
-                    <span class="app-select-chip">
-                        <span class="app-select-chip-label">
-                            {{ option.label }}
-                        </span>
-
-                        <span class="app-select-chip-remove" role="button" tabindex="-1" [attr.aria-label]="
+            <span class="app-select-chip-label">
+              {{ option.label }}
+            </span>
+            <span class="app-select-chip-remove" role="button" tabindex="-1" [attr.aria-label]="
                     'Remove ' + option.label
                   " (click)="
                     removeSelection(
@@ -95,28 +92,27 @@
                       $event
                     )
                   ">
-                            ×
-                        </span>
-                    </span>
-                    }
-
-                    @if (
-                    showSelectedCount &&
-                    hiddenSelectionCount
-                    ) {
-                    <app-badge class="app-select-count" [label]="
+              ×
+            </span>
+          </span>
+          }
+          @if (
+          showSelectedCount &&
+          hiddenSelectionCount
+          ) {
+          <app-badge class="app-select-count" [label]="
                   '+' +
                   hiddenSelectionCount
                 " variant="neutral" size="xs" shape="pill" [ariaLabel]="
                   hiddenSelectionCount +
                   ' more selected'
                 " />
-                    }
-                </span>
-                } @else if (
-                variant === 'workspace'
-                ) {
-                <app-avatar class="app-select-identity-avatar" [src]="
+          }
+        </span>
+        } @else if (
+        variant === 'workspace' && !selectedOptions[0]?.color
+        ) {
+        <app-avatar class="app-select-identity-avatar" [src]="
               selectedOptions[0]
                 ?.avatar?.src
             " [alt]="
@@ -154,34 +150,32 @@
                 ?.avatar?.elevated ??
               false
             " [decorative]="true" />
-
-                <span class="app-select-identity-copy">
-                    @if (eyebrow) {
-                    <small>
-                        {{ eyebrow }}
-                    </small>
-                    }
-
-                    <strong>
-                        {{ selectedOptions[0]?.label }}
-                    </strong>
-
-                    @if (
-                    selectedOptions[0]?.description
-                    ) {
-                    <span>
-                        {{
-                        selectedOptions[0]
-                        ?.description
-                        }}
-                    </span>
-                    }
-                </span>
-                } @else {
-                @if (
-                selectedOptions[0]?.avatar
-                ) {
-                <app-avatar class="app-select-value-avatar" [src]="
+        <span class="app-select-identity-copy">
+          @if (eyebrow) {
+          <small>
+            {{ eyebrow }}
+          </small>
+          }
+          <strong>
+            {{ selectedOptions[0]?.label }}
+          </strong>
+          @if (
+          selectedOptions[0]?.description
+          ) {
+          <span>
+            {{
+            selectedOptions[0]
+            ?.description
+            }}
+          </span>
+          }
+        </span>
+        } @else {
+        @if (selectedOptions[0]?.color) {
+        <span class="app-select-color-swatch" [style.background-color]="selectedOptions[0]?.color"
+          aria-hidden="true"></span>
+        } @else if (selectedOptions[0]?.avatar) {
+        <app-avatar class="app-select-value-avatar" [src]="
                 selectedOptions[0]
                   ?.avatar?.src
               " [alt]="
@@ -215,120 +209,107 @@
                   ?.avatar?.bordered ??
                 true
               " [decorative]="true" />
-                } @else if (
-                selectedOptions[0]?.icon
-                ) {
-                <span class="app-select-selected-icon" aria-hidden="true">
-                    <app-icon [icon]="
+        } @else if (
+        selectedOptions[0]?.icon
+        ) {
+        <span class="app-select-selected-icon" aria-hidden="true">
+          <app-icon [icon]="
                   selectedOptions[0]!.icon!
                 " size="sm" />
-                </span>
-                }
-
-                <span class="app-select-single-value">
-                    {{ selectedOptions[0]?.label }}
-                </span>
-                }
-            </span>
-        </button>
-
-        <div class="app-select-actions">
-            @if (loading) {
-            <span class="app-select-spinner" aria-hidden="true"></span>
-            } @else if (
-            clearable &&
-            hasValue &&
-            !isDisabled
-            ) {
-            <button class="app-select-clear" type="button" aria-label="Clear selection" title="Clear selection"
-                (mousedown)="$event.preventDefault()" (click)="clear($event)">
-                <app-icon [icon]="LucideX" size="xs" />
-            </button>
-            }
-
-            <span class="app-select-chevron" aria-hidden="true">
-                <app-icon [icon]="LucideChevronDown" size="sm" />
-            </span>
-        </div>
+        </span>
+        }
+        <span class="app-select-single-value">
+          {{ selectedOptions[0]?.label }}
+        </span>
+        }
+      </span>
+    </button>
+    <div class="app-select-actions">
+      @if (loading) {
+      <span class="app-select-spinner" aria-hidden="true"></span>
+      } @else if (
+      clearable &&
+      hasValue &&
+      !isDisabled
+      ) {
+      <button class="app-select-clear" type="button" aria-label="Clear selection" title="Clear selection"
+        (mousedown)="$event.preventDefault()" (click)="clear($event)">
+        <app-icon [icon]="LucideX" size="xs" />
+      </button>
+      }
+      <span class="app-select-chevron" aria-hidden="true">
+        <app-icon [icon]="LucideChevronDown" size="sm" />
+      </span>
     </div>
-
-    @if (displayedMessage) {
-    <div class="app-select-message" [id]="messageId" [class.is-error]="
+  </div>
+  @if (displayedMessage) {
+  <div class="app-select-message" [id]="messageId" [class.is-error]="
         effectiveStatus === 'danger'
       " [attr.role]="
         effectiveStatus === 'danger'
           ? 'alert'
           : null
       ">
-        {{ displayedMessage }}
-    </div>
-    }
+    {{ displayedMessage }}
+  </div>
+  }
 </div>
-
 <!--
   This panel is moved to document.body by the component.
   Keeping it permanently rendered gives Angular a stable
   view while allowing the dropdown to escape clipped parents.
 -->
 <div #dropdownPanel class="app-select-dropdown" [class.is-visible]="isOpen" [class.is-positioned]="panelPositioned"
-    [class.open-top]="
+  [class.open-top]="
     resolvedPlacement === 'top'
   " [class.open-bottom]="
     resolvedPlacement === 'bottom'
   " [class.app-select-dropdown-workspace]="
     variant === 'workspace'
   " [attr.data-select-owner]="selectId" (keydown)="onPanelKeydown($event)">
-    @if (isOpen) {
-    @if (
-    dropdownTitle ||
-    dropdownDescription
-    ) {
-    <header class="app-select-dropdown-header">
-        <span class="app-select-dropdown-heading-copy">
-            @if (dropdownTitle) {
-            <strong>
-                {{ dropdownTitle }}
-            </strong>
-            }
-
-            @if (dropdownDescription) {
-            <small>
-                {{ dropdownDescription }}
-            </small>
-            }
-        </span>
-
-        <app-badge [label]="
+  @if (isOpen) {
+  @if (
+  dropdownTitle ||
+  dropdownDescription
+  ) {
+  <header class="app-select-dropdown-header">
+    <span class="app-select-dropdown-heading-copy">
+      @if (dropdownTitle) {
+      <strong>
+        {{ dropdownTitle }}
+      </strong>
+      }
+      @if (dropdownDescription) {
+      <small>
+        {{ dropdownDescription }}
+      </small>
+      }
+    </span>
+    <app-badge [label]="
             filteredOptions.length.toString()
           " variant="outline" size="xs" shape="pill" [ariaLabel]="
             filteredOptions.length +
             ' available options'
           " />
-    </header>
-
-    <app-divider spacing="none" variant="neutral" />
-    }
-
-    @if (searchable) {
-    <div class="app-select-search">
-        <app-icon [icon]="LucideSearch" size="sm" />
-
-        <input #searchInput type="search" autocomplete="off" [placeholder]="searchPlaceholder" [value]="searchTerm"
-            [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="
+  </header>
+  <app-divider spacing="none" variant="neutral" />
+  }
+  @if (searchable) {
+  <div class="app-select-search">
+    <app-icon [icon]="LucideSearch" size="sm" />
+    <input #searchInput type="search" autocomplete="off" [placeholder]="searchPlaceholder" [value]="searchTerm"
+      [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="
             activeOptionId
           " (input)="updateSearch($event)" />
-
-        @if (searchTerm) {
-        <button type="button" aria-label="Clear search" title="Clear search" (click)="clearSearch()">
-            <app-icon [icon]="LucideX" size="xs" />
-        </button>
-        }
-    </div>
-
-    <app-divider spacing="xs" variant="neutral" />
+    @if (searchTerm) {
+    <button type="button" aria-label="Clear search" title="Clear search" (click)="clearSearch()">
+      <app-icon [icon]="LucideX" size="xs" />
+    </button>
     }
-
-    <div class="app-select-options" [id]="listboxId" role="listbox" [attr.aria-label]="
+  </div>
+  <app-divider spacing="xs" variant="neutral" />
+  }
+  <div class="app-select-options" [id]="listboxId" role="listbox" [attr.aria-label]="
         label ||
         ariaLabel ||
         placeholder
@@ -337,47 +318,45 @@
           ? 'true'
           : null
       ">
-        @if (loading) {
-        <div class="app-select-state">
-            <span class="app-select-spinner" aria-hidden="true"></span>
-
-            <span>{{ loadingText }}</span>
-        </div>
-        } @else {
-        @for (
-        option of filteredOptions;
-        track option.value;
-        let index = $index
-        ) {
-        @if (isFirstInGroup(index)) {
-        @if (index > 0) {
-        <app-divider spacing="xs" variant="neutral" />
-        }
-
-        <div class="app-select-group">
-            <span>{{ option.group }}</span>
-
-            <app-badge [label]="
+    @if (loading) {
+    <div class="app-select-state">
+      <span class="app-select-spinner" aria-hidden="true"></span>
+      <span>{{ loadingText }}</span>
+    </div>
+    } @else {
+    @for (
+    option of filteredOptions;
+    track option.value;
+    let index = $index
+    ) {
+    @if (isFirstInGroup(index)) {
+    @if (index > 0) {
+    <app-divider spacing="xs" variant="neutral" />
+    }
+    <div class="app-select-group">
+      <span>{{ option.group }}</span>
+      <app-badge [label]="
                   groupCount(
                     option.group
                   ).toString()
                 " variant="neutral" size="xs" shape="pill" />
-        </div>
-        }
-
-        <button class="app-select-option" type="button" role="option" [id]="optionId(index)"
-            [attr.data-option-index]="index" [class.is-active]="
+    </div>
+    }
+    <button class="app-select-option" type="button" role="option" [id]="optionId(index)"
+      [attr.data-option-index]="index" [class.is-active]="
               activeIndex === index
             " [class.is-selected]="
               isSelected(option)
             " [disabled]="option.disabled" [attr.aria-selected]="
               isSelected(option)
             " (mouseenter)="activeIndex = index" (click)="selectOption(option)">
-            @if (
-            option.avatar ||
-            variant === 'workspace'
-            ) {
-            <app-avatar class="app-select-option-avatar" [src]="option.avatar?.src" [alt]="
+      @if (option.color) {
+      <span class="app-select-color-swatch" [style.background-color]="option.color" aria-hidden="true"></span>
+      } @else if (
+      option.avatar ||
+      variant === 'workspace'
+      ) {
+      <app-avatar class="app-select-option-avatar" [src]="option.avatar?.src" [alt]="
                   option.avatar?.alt ?? ''
                 " [name]="
                   option.avatar?.name ??
@@ -413,30 +392,27 @@
                   option.avatar?.elevated ??
                   false
                 " [decorative]="true" />
-            } @else if (option.icon) {
-            <span class="app-select-option-icon" aria-hidden="true">
-                <app-icon [icon]="option.icon" size="sm" />
-            </span>
-            }
-
-            <span class="app-select-option-copy">
-                <strong>
-                    {{ option.label }}
-                </strong>
-
-                @if (option.description) {
-                <small>
-                    {{ option.description }}
-                </small>
-                }
-            </span>
-
-            <span class="app-select-option-end">
-                @if (
-                option.badgeLabel ||
-                option.badgeDot
-                ) {
-                <app-badge [label]="
+      } @else if (option.icon) {
+      <span class="app-select-option-icon" aria-hidden="true">
+        <app-icon [icon]="option.icon" size="sm" />
+      </span>
+      }
+      <span class="app-select-option-copy">
+        <strong>
+          {{ option.label }}
+        </strong>
+        @if (option.description) {
+        <small>
+          {{ option.description }}
+        </small>
+        }
+      </span>
+      <span class="app-select-option-end">
+        @if (
+        option.badgeLabel ||
+        option.badgeDot
+        ) {
+        <app-badge [label]="
                     option.badgeLabel ?? ''
                   " [variant]="
                     option.badgeVariant ??
@@ -445,21 +421,20 @@
                     option.badgeDot ??
                     false
                   " />
-                }
-
-                <span class="app-select-check" [class.is-visible]="
+        }
+        <span class="app-select-check" [class.is-visible]="
                   isSelected(option)
                 " aria-hidden="true">
-                    <app-icon [icon]="LucideCheck" size="sm" />
-                </span>
-            </span>
-        </button>
-        } @empty {
-        <div class="app-select-state">
-            {{ emptyText }}
-        </div>
-        }
-        }
+          <app-icon [icon]="LucideCheck" size="sm" />
+        </span>
+      </span>
+    </button>
+    } @empty {
+    <div class="app-select-state">
+      {{ emptyText }}
     </div>
     }
+    }
+  </div>
+  }
 </div>

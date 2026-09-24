@@ -1,6 +1,5 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
-
 $datepicker-note-yellow: #fff3a6;
 $datepicker-note-orange: #ffd7a3;
 $datepicker-note-pink: #ffcfe1;
@@ -26,15 +25,10 @@ $datepicker-note-black: #252525;
     $border-color,
     $text-color) {
     --app-datepicker-background: #{$background};
-
     --app-datepicker-border: #{$border-color};
-
     --app-datepicker-color: #{$text-color};
-
     --app-datepicker-muted: #{rgba($text-color, 0.64)};
-
     --app-datepicker-placeholder: #{rgba($text-color, 0.46)};
-
     --app-datepicker-depth: #{color.adjust(
  $border-color,
     $lightness: -8%)
@@ -47,20 +41,17 @@ $datepicker-note-black: #252525;
     --app-datepicker-height: 42px;
     --app-datepicker-padding-x: 12px;
     --app-datepicker-radius: 12px;
-
     --app-datepicker-background: #{$paper};
     --app-datepicker-border: #{$border};
     --app-datepicker-color: #{$text-primary};
     --app-datepicker-muted: #{$text-secondary};
     --app-datepicker-placeholder: #{$text-light};
-
     --app-datepicker-depth: #{color.adjust(
  $border,
     $lightness: -8%)
 }
 
 ;
-
 position: relative;
 display: flex;
 flex-direction: column;
@@ -70,7 +61,6 @@ font-family: $font-body;
 }
 
 /* Label */
-
 .app-datepicker-label-row {
     display: flex;
     align-items: baseline;
@@ -130,7 +120,6 @@ font-family: $font-body;
 }
 
 /* Control shell */
-
 .app-datepicker-control-shell {
     position: relative;
     isolation: isolate;
@@ -143,23 +132,18 @@ font-family: $font-body;
     color: var(--app-datepicker-color);
     background-color:
         var(--app-datepicker-background);
-
     background-image:
         linear-gradient(145deg,
             rgba(255, 255, 255, 0.34) 0%,
             rgba(255, 255, 255, 0.07) 52%,
             rgba(17, 17, 17, 0.025) 100%);
-
     border:
         1px solid var(--app-datepicker-border);
-
     border-radius:
         var(--app-datepicker-radius);
-
     box-shadow:
         0 2px 0 var(--app-datepicker-depth),
         0 5px 11px rgba(46, 38, 25, 0.09);
-
     transition:
         transform 150ms ease,
         border-color 160ms ease,
@@ -174,7 +158,6 @@ font-family: $font-body;
         content: '';
         pointer-events: none;
         opacity: 0.13;
-
         background-image:
             radial-gradient(circle at 18% 25%,
                 rgba(255, 255, 255, 0.7) 0 0.7px,
@@ -182,7 +165,6 @@ font-family: $font-body;
             radial-gradient(circle at 70% 72%,
                 rgba(17, 17, 17, 0.13) 0 0.65px,
                 transparent 0.9px);
-
         background-size:
             13px 13px,
             17px 17px;
@@ -200,7 +182,6 @@ font-family: $font-body;
         z-index: 3;
         border-color: $accent;
         transform: translateY(-1px);
-
         box-shadow:
             0 0 0 3px rgba($accent, 0.16),
             0 3px 0 color.adjust($accent,
@@ -214,7 +195,6 @@ font-family: $font-body;
 }
 
 /* Native visible input */
-
 .app-datepicker-control {
     position: relative;
     z-index: 1;
@@ -223,10 +203,8 @@ font-family: $font-body;
     min-width: 0;
     height:
         calc(var(--app-datepicker-height) - 2px);
-
     padding:
         0 4px 0 var(--app-datepicker-padding-x);
-
     color: inherit;
     background: transparent;
     border: 0;
@@ -249,7 +227,6 @@ font-family: $font-body;
 }
 
 /* Icons */
-
 .app-datepicker-leading-icon,
 .app-datepicker-status-icon,
 .app-datepicker-spinner {
@@ -277,7 +254,6 @@ font-family: $font-body;
 }
 
 /* Action buttons */
-
 .app-datepicker-action,
 .app-datepicker-picker-button {
     position: relative;
@@ -342,7 +318,6 @@ font-family: $font-body;
  * It remains positioned inside the field so the
  * Material overlay opens from the correct location.
  */
-
 .app-datepicker-material-anchor {
     position: absolute;
     right: 12px;
@@ -356,7 +331,6 @@ font-family: $font-body;
 }
 
 /* Floating label */
-
 .app-datepicker-floating-label {
     position: absolute;
     top: 50%;
@@ -398,7 +372,6 @@ font-family: $font-body;
 }
 
 /* Support text */
-
 .app-datepicker-support-row {
     display: flex;
     min-height: 17px;
@@ -432,10 +405,8 @@ font-family: $font-body;
 }
 
 /* Validation states */
-
 .app-datepicker-status-danger {
     --app-datepicker-border: #{$danger};
-
     --app-datepicker-depth: #{color.adjust(
  $danger,
     $lightness: -8%)
@@ -446,7 +417,6 @@ font-family: $font-body;
 
 .app-datepicker-status-success {
     --app-datepicker-border: #{$success};
-
     --app-datepicker-depth: #{color.adjust(
  $success,
     $lightness: -8%)
@@ -457,7 +427,6 @@ font-family: $font-body;
 
 .app-datepicker-status-warning {
     --app-datepicker-border: #{$warning};
-
     --app-datepicker-depth: #{color.adjust(
  $warning,
     $lightness: -8%)
@@ -467,7 +436,6 @@ font-family: $font-body;
 }
 
 /* Variants */
-
 .app-datepicker-paper {
     @include datepicker-palette($page-bg,
         $border,
@@ -478,7 +446,6 @@ font-family: $font-body;
     @include datepicker-palette(rgba($paper, 0.82),
         rgba($border, 0.82),
         $text-primary );
-
     backdrop-filter: blur(10px);
 }
 
@@ -551,7 +518,6 @@ font-family: $font-body;
 }
 
 /* Appearances */
-
 .app-datepicker-appearance-filled {
     .app-datepicker-control-shell {
         border-color: transparent;
@@ -570,7 +536,6 @@ font-family: $font-body;
 }
 
 /* Disabled and readonly */
-
 .app-datepicker-disabled {
     opacity: 0.58;
 
@@ -586,7 +551,6 @@ font-family: $font-body;
 }
 
 /* Tape decoration */
-
 .app-datepicker-tape {
     position: absolute;
     top: -7px;
@@ -614,5 +578,82 @@ font-family: $font-body;
     .app-datepicker-control-shell,
     .app-datepicker-floating-label {
         transition: none;
+    }
+}
+
+/* Optional flat styles; existing outlined/filled/underlined appearances remain available. */
+.app-datepicker-wrapper,
+.app-datepicker-wrapper * {
+    box-sizing: border-box;
+}
+
+.app-datepicker-control {
+    flex: 1 1 0;
+    width: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.app-datepicker-has-leading-icon .app-datepicker-control {
+    padding-left: 8px;
+}
+
+.app-datepicker-wrapper:not(.app-datepicker-has-leading-icon) .app-datepicker-floating-label {
+    left: var(--app-datepicker-padding-x);
+}
+
+.app-datepicker-appearance-inline,
+.app-datepicker-appearance-transparent,
+.app-datepicker-appearance-bordered {
+    .app-datepicker-control-shell {
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .app-datepicker-control-shell::after {
+        display: none;
+    }
+
+    &:not(.app-datepicker-disabled) .app-datepicker-control-shell:hover {
+        background: color-mix(in srgb, var(--app-datepicker-color) 4%, transparent);
+    }
+
+    &.app-datepicker-focused .app-datepicker-control-shell {
+        background: color-mix(in srgb, var(--app-datepicker-color) 4%, transparent);
+        border-color: $accent;
+        box-shadow: 0 0 0 2px rgba($accent, 0.12);
+        transform: none;
+    }
+
+    .app-datepicker-action:hover:not(:disabled),
+    .app-datepicker-picker-button:hover:not(:disabled) {
+        color: var(--app-datepicker-color);
+    }
+}
+
+.app-datepicker-appearance-inline:not(.app-datepicker-focused),
+.app-datepicker-appearance-transparent:not(.app-datepicker-focused) {
+    .app-datepicker-control-shell {
+        border-color: transparent;
+    }
+}
+
+.app-datepicker-appearance-inline:not(.app-datepicker-disabled) .app-datepicker-control-shell:hover {
+    border-color: var(--app-datepicker-border);
+}
+
+.app-datepicker-appearance-inline,
+.app-datepicker-appearance-transparent,
+.app-datepicker-appearance-bordered {
+    &.app-datepicker-status-danger .app-datepicker-control-shell {
+        border-color: $danger;
+    }
+
+    &.app-datepicker-status-warning .app-datepicker-control-shell {
+        border-color: $warning;
+    }
+
+    &.app-datepicker-status-success .app-datepicker-control-shell {
+        border-color: $success;
     }
 }

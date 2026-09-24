@@ -1,0 +1,515 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.note-editor {
+    --editor-paper: #{$paper};
+    --editor-body: var(--editor-paper);
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    border-radius: 12px;
+    color: var(--editor-ink);
+    background: var(--editor-body);
+    font-family: $font-body;
+    transition: background-color 140ms ease;
+}
+
+.note-editor[data-color='white'] {
+    --editor-paper: #{$paper};
+    --editor-paper-deep: #{$paper-dark};
+    --note-accent: #{$secondary};
+}
+
+.note-editor[data-color='yellow'] {
+    --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
+    --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
+    --note-accent: #{$note-mustard};
+}
+
+.note-editor[data-color='orange'] {
+    --editor-paper: #{color.mix($note-orange, $paper, 20%)};
+    --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
+    --note-accent: #{$note-burnt-orange};
+}
+
+.note-editor[data-color='pink'] {
+    --editor-paper: #{color.mix($note-pink, $paper, 34%)};
+    --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
+    --note-accent: #{$note-blush};
+}
+
+.note-editor[data-color='red'] {
+    --editor-paper: #{color.mix($note-red, $paper, 20%)};
+    --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
+    --note-accent: #{$note-dark-red};
+}
+
+.note-editor[data-color='green'] {
+    --editor-paper: #{color.mix($note-green, $paper, 18%)};
+    --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
+    --note-accent: #{$note-forest-green};
+}
+
+.note-editor[data-color='blue'] {
+    --editor-paper: #{color.mix($note-blue, $paper, 16%)};
+    --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
+    --note-accent: #{$note-steel-blue};
+}
+
+.note-editor[data-color='purple'] {
+    --editor-paper: #{color.mix($note-purple, $paper, 14%)};
+    --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
+    --note-accent: #{$note-grape};
+}
+
+.note-editor[data-color='brown'] {
+    --editor-paper: #{color.mix($note-brown, $paper, 18%)};
+    --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
+    --note-accent: #{$note-coffee};
+}
+
+.note-editor[data-color='black'] {
+    --editor-paper: #{$note-jet-black};
+    --editor-paper-deep: #{$note-black};
+    --editor-ink: #{$paper};
+    --editor-muted: #{$border};
+    --editor-rule: #{rgba($paper, 0.18)};
+    --note-accent: #{$note-gold};
+    --note-check: #{$note-mint};
+}
+
+.note-editor app-input,
+.note-editor app-select,
+.note-editor app-datepicker-input {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
+
+/* The three pill selectors in the drawing: workspace, folder, column. */
+.note-context {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(10ch + 84px)), 1fr));
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+
+.note-context-field {
+    min-width: 0;
+}
+
+/* Labels sit beside fields, exactly as in the sketch. */
+.note-fields {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.note-field {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+}
+
+.note-field>app-label {
+    padding-top: 10px;
+}
+
+.note-field-control {
+    min-width: 0;
+}
+
+.note-date-row {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+}
+
+.note-date-row>app-label {
+    padding-top: 0;
+}
+
+.note-date-control {
+    width: 100%;
+    max-width: 240px;
+    min-width: 0;
+}
+
+.note-date-row ::ng-deep .app-datepicker-wrapper {
+    --app-datepicker-background: var(--editor-body);
+    --app-datepicker-border: var(--editor-rule);
+    --app-datepicker-color: var(--editor-ink);
+    --app-datepicker-muted: var(--editor-muted);
+    --app-datepicker-placeholder: var(--editor-muted);
+    --app-datepicker-depth: transparent;
+}
+
+.note-date-row ::ng-deep .app-datepicker-control-shell {
+    background: transparent;
+    box-shadow: none;
+}
+
+.note-date-row ::ng-deep .app-datepicker-control {
+    color: var(--editor-ink);
+}
+
+.note-title-field ::ng-deep .app-input-control {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.note-details-field ::ng-deep .app-input-textarea {
+    min-height: 108px;
+    line-height: 1.6;
+}
+
+.note-field-counter {
+    display: block;
+    text-align: right;
+    padding: 3px 8px 0;
+    color: var(--editor-muted);
+    font-size: 10px;
+}
+
+.note-fields ::ng-deep .app-input-wrapper {
+    --app-input-background: var(--editor-body);
+    --app-input-color: var(--editor-ink);
+    --app-input-border: var(--editor-rule);
+    --app-input-muted: var(--editor-muted);
+    --app-input-placeholder: var(--editor-muted);
+    --app-input-inline-hover-background: rgba(127, 127, 127, 0.06);
+}
+
+.note-fields ::ng-deep .app-input-control-shell {
+    background: transparent;
+}
+
+.note-fields ::ng-deep .app-input-control {
+    color: var(--editor-ink);
+}
+
+.note-fields ::ng-deep .app-input-control::placeholder {
+    color: var(--editor-muted);
+    opacity: 0.8;
+}
+
+.note-editor ::ng-deep .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+}
+
+.note-context ::ng-deep .app-select-trigger,
+.note-appearance ::ng-deep .app-select-trigger {
+    color: var(--editor-ink);
+}
+
+.note-context ::ng-deep .app-select-single-value,
+.note-appearance ::ng-deep .app-select-single-value {
+    color: inherit;
+}
+
+.note-context ::ng-deep .app-select-placeholder,
+.note-context ::ng-deep .app-select-chevron,
+.note-appearance ::ng-deep .app-select-chevron {
+    color: var(--editor-muted);
+}
+
+.note-context ::ng-deep .app-select-trigger:hover:not(:disabled),
+.note-appearance ::ng-deep .app-select-trigger:hover:not(:disabled) {
+    background: rgba(127, 127, 127, 0.10);
+}
+
+/* Color / Shape / Variant occupy a single compact row. */
+
+.note-appearance ::ng-deep .app-select-trigger {
+    background: transparent;
+}
+
+.note-extra-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 12px;
+}
+
+.note-extra-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.checklist-editor {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.checklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.checklist-header>div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checklist-header h3 {
+    margin: 0;
+    font: 600 13px/1.4 $font-body;
+    color: var(--editor-ink);
+    letter-spacing: normal;
+}
+
+.checklist-loading {
+    color: var(--editor-muted);
+    font-size: 12px;
+}
+
+.checklist-empty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border: 0;
+    text-align: left;
+    background: transparent;
+    color: var(--editor-ink);
+    cursor: pointer;
+}
+
+.checklist-empty>span:last-child {
+    display: grid;
+    gap: 2px;
+}
+
+.checklist-empty strong {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.checklist-empty small {
+    color: var(--editor-muted);
+    font-size: 11px;
+}
+
+.checklist-empty:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.checklist-groups {
+    display: grid;
+    gap: 12px;
+}
+
+.checklist-group {
+    display: grid;
+    gap: 6px;
+}
+
+.checklist-group+.checklist-group {
+    padding-top: 10px;
+    border-top: 1px dashed var(--editor-rule);
+}
+
+.checklist-title-row {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 6px;
+}
+
+.checklist-number {
+    color: var(--editor-muted);
+    font-size: 11px;
+    text-align: center;
+}
+
+.checklist-items {
+    display: grid;
+    gap: 3px;
+    padding-left: 28px;
+}
+
+.checklist-item {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 6px;
+}
+
+.checklist-toggle {
+    display: block;
+    min-width: 0;
+    padding: 3px;
+    background: #FDFDF9;
+    border-radius: 5px;
+}
+
+.checklist-item.is-completed ::ng-deep .app-input-control {
+    color: #70766C;
+    text-decoration: none;
+}
+
+.remove-item {
+    opacity: 0.7;
+}
+
+.remove-item:hover,
+.remove-item:focus-within {
+    opacity: 1;
+}
+
+.add-item {
+    justify-self: start;
+    margin-left: 28px;
+}
+
+/* Floating preview is a sibling, not part of the panel's scrolling body. */
+.note-external-preview {
+    position: fixed;
+    z-index: 2147483000;
+    top: 90px;
+    right: 720px;
+    /* Keep the preview fully outside the side-panel shell. */
+    width: min(320px, calc(100vw - 760px));
+    max-height: calc(100dvh - 120px);
+    overflow: hidden;
+    display: grid;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.note-external-preview app-badge {
+    justify-self: start;
+}
+
+.note-mobile-preview {
+    display: none;
+}
+
+.note-editor-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+.note-editor-footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.note-editor-error {
+    padding: 10px;
+    color: #9B2626;
+    background: #FDEAE7;
+    font-size: 12px;
+}
+
+@media (max-width: 1199.98px) {
+    .note-external-preview {
+        display: none;
+    }
+
+    .note-mobile-preview {
+        display: grid;
+        gap: 12px;
+        max-width: 340px;
+        width: 100%;
+        justify-self: center;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .note-editor {
+        padding: 12px;
+        gap: 14px;
+    }
+
+    .note-field,
+    .note-date-row {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .note-date-control {
+        max-width: none;
+    }
+
+    .note-extra-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .checklist-items {
+        padding-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .note-editor {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .note-editor[data-color] {
+        --editor-body: Canvas;
+        --editor-paper: Canvas;
+        --editor-ink: CanvasText;
+        --editor-muted: CanvasText;
+        --editor-rule: CanvasText;
+    }
+}
+
+/* Allocate readable label space; wrap controls rather than squeeze their text. */
+.note-context,
+.note-appearance {
+    font-size: 14px;
+}
+
+.note-appearance {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(10ch + 84px)), 1fr));
+    align-items: center;
+    gap: 6px 8px;
+    min-width: 0;
+}
+
+.note-editor ::ng-deep .app-select-wrapper {
+    --app-select-background: var(--editor-paper);
+    --app-select-color: var(--editor-ink);
+    --app-select-muted: var(--editor-muted);
+    --app-select-border: var(--editor-rule);
+    --app-select-inline-hover-background: rgba(127, 127, 127, 0.08);
+}

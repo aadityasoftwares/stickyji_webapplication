@@ -1,0 +1,90 @@
+<ng-template #desktopPreview>
+    <aside class="workspace-external-preview" [style.display]="loadingData() || loadFailed() ? 'none' : null"
+        aria-label="Live workspace preview" inert>
+        <app-badge label="Live preview" variant="neutral" size="sm" />
+        <app-workspace-folder-wrapper [name]="name()" [description]="workspaceDescription()" [personal]="isPersonal()"
+            [visibility]="visibility()" [roleLabel]="previewRole" [status]="previewSource()?.status || 'ACTIVE'"
+            [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt" [interactive]="false" />
+    </aside>
+</ng-template>
+
+<app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
+    [headerNote]="statusText" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="isBusy"
+    ariaLabel="Workspace editor" (closed)="close()">
+    <form panel-body class="workspace-editor" (ngSubmit)="$event.preventDefault()" novalidate>
+        @if (loadingData()) {
+        <app-loader mode="section" size="md" tone="colorful" label="Loading workspace..."
+            description="Getting the workspace editor ready." [minHeight]="280" />
+        } @else {
+        <section class="workspace-fields" aria-label="Workspace details">
+            <div class="workspace-field workspace-name-field">
+                <app-label forId="workspace-name" text="Name" />
+                <div class="workspace-field-control">
+                    <app-input #workspaceNameInput inputId="workspace-name" label="Workspace name" labelMode="hidden"
+                        placeholder="Give your workspace a name" variant="paper" appearance="inline" size="md"
+                        [required]="true" [maxLength]="nameMaxLength" [value]="name()"
+                        [disabled]="isBusy || loadFailed()" [fullWidth]="true" [clearable]="false" autocomplete="off"
+                        (valueChange)="updateName($event)" (enterKey)="submit()" />
+                    <span class="workspace-field-counter">{{ name().length }}/{{ nameMaxLength }}</span>
+                </div>
+            </div>
+
+            <div class="workspace-field workspace-details-field">
+                <app-label forId="workspace-description" text="Details" />
+                <div class="workspace-field-control">
+                    <app-input inputId="workspace-description" label="Description" labelMode="hidden"
+                        placeholder="What is this workspace for?" variant="paper" appearance="inline" size="md"
+                        [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
+                        [value]="workspaceDescription()" [disabled]="isBusy || loadFailed()" [fullWidth]="true"
+                        (valueChange)="updateDescription($event)" />
+                    <span class="workspace-field-hint">Optional</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace-access" aria-label="Workspace access">
+            <div class="workspace-access-row">
+                <app-label forId="workspace-visibility" text="Access" />
+                <div class="workspace-access-control">
+                    <app-select selectId="workspace-visibility" name="workspace-visibility"
+                        dropdownTitle="Workspace visibility" dropdownDescription="Choose who can open this workspace."
+                        [options]="visibilityOptions" [ngModel]="visibility()" [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateVisibility($event)" placeholder="Choose visibility"
+                        ariaLabel="Choose workspace visibility" variant="paper" appearance="outlined" shape="pill"
+                        size="sm" [disabled]="isBusy || isPersonal() || loadFailed()" [clearable]="false"
+                        [searchable]="false" [fullWidth]="true" />
+                </div>
+            </div>
+            @if (isPersonal()) {
+            <p class="workspace-access-note">Personal workspaces always stay private.</p>
+            } @else {
+            <p class="workspace-access-note">Choose who can open this workspace.</p>
+            }
+        </section>
+
+        @if (!loadFailed()) {
+        <section class="workspace-mobile-preview" aria-label="Live workspace preview" inert>
+            <app-badge label="Live preview" variant="neutral" size="sm" />
+            <app-workspace-folder-wrapper [name]="name()" [description]="workspaceDescription()"
+                [personal]="isPersonal()" [visibility]="visibility()" [roleLabel]="previewRole"
+                [status]="previewSource()?.status || 'ACTIVE'"
+                [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt" [interactive]="false" />
+        </section>
+        }
+        @if (error()) {
+        <div class="workspace-editor-error" role="alert">{{ error() }}</div>
+        }
+        }
+    </form>
+
+    <div panel-footer class="workspace-editor-footer">
+        <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
+        <div class="workspace-editor-footer-actions">
+            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
+                (buttonClick)="close()" />
+            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
+                size="sm" [loading]="loading()" [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
+                [disabled]="!canSubmit" (buttonClick)="submit()" />
+        </div>
+    </div>
+</app-side-panel>

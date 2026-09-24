@@ -35,6 +35,17 @@ export type StickyNoteColor =
     | 'BROWN'
     | 'BLACK';
 
+export enum StickyNoteShape {
+    NOTE = 'NOTE',
+    ROUNDED = 'ROUNDED',
+    SOFT = 'SOFT',
+    SQUARE = 'SQUARE',
+    CUT = 'CUT',
+    TICKET = 'TICKET',
+    FOLDED = 'FOLDED'
+}
+
+
 export type StickyNoteColumnType =
     | 'TODO'
     | 'IN_PROGRESS'
@@ -187,6 +198,7 @@ export interface StickyNote {
     title: string;
     content: string;
     color: StickyNoteColor;
+    shape: StickyNoteShape;
 
     position: number;
     status: StickyNoteStatus;
@@ -202,6 +214,8 @@ export interface StickyNote {
 
     archivedAt?: string | null;
     deletedAt?: string | null;
+
+    noteDate: any;
 
     createdAt?: string;
     updatedAt?: string;

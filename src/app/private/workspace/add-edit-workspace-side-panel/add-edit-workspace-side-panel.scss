@@ -1,0 +1,235 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.workspace-editor {
+    --editor-paper: #{$paper};
+    --editor-body: var(--editor-paper);
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    border-radius: 12px;
+    color: var(--editor-ink);
+    background: var(--editor-body);
+    font-family: $font-body;
+}
+
+.workspace-fields {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.workspace-field {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.workspace-field>app-label {
+    padding-top: 10px;
+}
+
+.workspace-field-control,
+.workspace-access-control {
+    min-width: 0;
+}
+
+.workspace-editor app-input,
+.workspace-editor app-select,
+.workspace-editor app-label {
+    display: block;
+    min-width: 0;
+}
+
+.workspace-editor app-input,
+.workspace-editor app-select {
+    width: 100%;
+}
+
+.workspace-name-field ::ng-deep .app-input-control {
+    font-family: $font-heading;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.workspace-details-field ::ng-deep .app-input-textarea {
+    min-height: 108px;
+    line-height: 1.6;
+}
+
+.workspace-field-counter,
+.workspace-field-hint {
+    display: block;
+    padding: 3px 8px 0;
+    color: var(--editor-muted);
+    font-size: 11px;
+    text-align: right;
+}
+
+.workspace-fields ::ng-deep .app-input-wrapper {
+    --app-input-background: var(--editor-body);
+    --app-input-color: var(--editor-ink);
+    --app-input-border: var(--editor-rule);
+    --app-input-muted: var(--editor-muted);
+    --app-input-placeholder: var(--editor-muted);
+    --app-input-inline-hover-background: rgba(127, 127, 127, 0.06);
+}
+
+.workspace-fields ::ng-deep .app-input-control-shell {
+    background: transparent;
+}
+
+.workspace-fields ::ng-deep .app-input-control {
+    color: var(--editor-ink);
+}
+
+.workspace-fields ::ng-deep .app-input-control::placeholder {
+    color: var(--editor-muted);
+    opacity: 0.8;
+}
+
+.workspace-editor ::ng-deep .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+}
+
+.workspace-access {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--editor-rule);
+}
+
+.workspace-access-row {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.workspace-access-control {
+    width: 100%;
+    max-width: 240px;
+}
+
+.workspace-access-note {
+    margin: 0;
+    padding-left: 72px;
+    color: var(--editor-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Match the supplied note editor's body-mounted desktop preview. */
+.workspace-external-preview {
+    position: fixed;
+    z-index: 2147483000;
+    top: 90px;
+    right: 720px;
+    display: grid;
+    gap: 12px;
+    width: min(320px, calc(100vw - 760px));
+    max-height: calc(100dvh - 120px);
+    overflow: hidden;
+    color: $text-primary;
+    font-family: $font-body;
+    pointer-events: none;
+}
+
+.workspace-external-preview app-badge,
+.workspace-mobile-preview app-badge {
+    justify-self: start;
+}
+
+.workspace-external-preview app-workspace-folder-wrapper,
+.workspace-mobile-preview app-workspace-folder-wrapper {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.workspace-mobile-preview {
+    display: none;
+}
+
+.workspace-editor-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+.workspace-editor-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.workspace-editor-error {
+    padding: 10px;
+    color: $danger;
+    background: rgba($danger, 0.07);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 1199.98px) {
+    .workspace-external-preview {
+        display: none;
+    }
+
+    .workspace-mobile-preview {
+        display: grid;
+        gap: 12px;
+        width: 100%;
+        max-width: 340px;
+        justify-self: center;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .workspace-editor {
+        gap: 14px;
+        padding: 12px;
+    }
+
+    .workspace-field,
+    .workspace-access-row {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .workspace-access-control {
+        max-width: none;
+    }
+
+    .workspace-access-note {
+        padding-left: 54px;
+    }
+}

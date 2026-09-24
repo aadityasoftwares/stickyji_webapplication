@@ -2,6 +2,8 @@ export const USER_PREFERENCE_KEYS = {
     THEME: 'theme',
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     NOTE_VIEW: 'noteView',
+    WORKSPACE_VIEW: 'workspaceView',
+    WORKSPACE_SORT: 'workspaceSort',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -15,9 +17,15 @@ export const USER_PREFERENCE_KEYS = {
 } as const;
 
 export type UserPreferenceKey =
-    typeof USER_PREFERENCE_KEYS[keyof typeof USER_PREFERENCE_KEYS];
+    typeof USER_PREFERENCE_KEYS[
+    keyof typeof USER_PREFERENCE_KEYS
+    ];
 
-export type UserTheme = 'SYSTEM' | 'LIGHT' | 'DARK';
+export type UserTheme =
+    | 'SYSTEM'
+    | 'LIGHT'
+    | 'DARK';
+
 export type DefaultNoteColor =
     | 'YELLOW'
     | 'ORANGE'
@@ -28,7 +36,21 @@ export type DefaultNoteColor =
     | 'PURPLE'
     | 'BROWN'
     | 'BLACK';
-export type NoteView = 'GRID' | 'LIST' | 'KANBAN';
+
+export type NoteView =
+    | 'GRID'
+    | 'LIST'
+    | 'KANBAN';
+
+export type WorkspacePreferenceView =
+    | 'GRID'
+    | 'LIST';
+
+export type WorkspacePreferenceSort =
+    | 'UPDATED_AT'
+    | 'CREATED_AT'
+    | 'NAME_ASC'
+    | 'NAME_DESC';
 
 export type UserPreferenceValue =
     | string
@@ -55,7 +77,9 @@ export type UserPreferenceCategory =
 export interface UserPreferenceRecord {
     _id: string;
     userId: string;
-    key: UserPreferenceKey | string;
+    key:
+    | UserPreferenceKey
+    | string;
     value: UserPreferenceValue;
     valueType: UserPreferenceValueType;
     category: UserPreferenceCategory;
@@ -64,7 +88,10 @@ export interface UserPreferenceRecord {
 }
 
 export interface UserPreferencesM {
+
     theme: UserTheme;
+    workspaceView: WorkspacePreferenceView;
+    workspaceSort: WorkspacePreferenceSort;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
     autosaveEnabled: boolean;
@@ -104,8 +131,13 @@ export type UserPreferencesResponseData =
         records?: UserPreferenceRecord[];
     };
 
-export const DEFAULT_USER_PREFERENCES: Readonly<UserPreferencesM> = {
+
+export const DEFAULT_USER_PREFERENCES:
+    Readonly<UserPreferencesM> = {
+
     theme: 'SYSTEM',
+    workspaceView: 'GRID',
+    workspaceSort: 'UPDATED_AT',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,
@@ -120,7 +152,7 @@ export const DEFAULT_USER_PREFERENCES: Readonly<UserPreferencesM> = {
     highContrast: false,
 };
 
-export const USER_PREFERENCE_KEY_LIST = Object.values(
-    USER_PREFERENCE_KEYS,
-) as UserPreferenceKey[];
-
+export const USER_PREFERENCE_KEY_LIST =
+    Object.values(
+        USER_PREFERENCE_KEYS,
+    ) as UserPreferenceKey[];

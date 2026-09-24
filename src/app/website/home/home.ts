@@ -9,7 +9,7 @@ import { Collaboration } from "../collaboration/collaboration";
 import { WebsiteFooter } from "../website-footer/website-footer";
 
 @Component({
-  imports: [Hero, WebsiteHeader, ThoughtFlow, UseCases, Reviews, Subscription, Collaboration, WebsiteFooter],
+  imports: [Hero, WebsiteHeader, ThoughtFlow, UseCases, Reviews, Subscription, WebsiteFooter],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',

@@ -39,6 +39,16 @@ export const PRIVATE_ROUTES: Routes = [
                 path: 'sticky-notes',
                 loadChildren: () =>
                     import('../mynotes/routes/mynotes.routes').then(m => m.MYNOTES_ROUTES),
+            },
+            {
+                path: 'workspace',
+                loadChildren: () =>
+                    import('../workspace-members/routes/workspace-members.routes').then(m => m.WORKSPACES_MEMBERS_ROUTES),
+            },
+            {
+                path: 'workspace',
+                loadChildren: () =>
+                    import('../roles-permissions/routes/roles.routes').then(m => m.ROLES_ROUTES),
             }
         ]
     },

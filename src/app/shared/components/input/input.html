@@ -2,6 +2,7 @@
     [style.width]="isFullWidth ? '100%' : width !== undefined ? width + 'px' : null" [style.max-width.px]="maxWidth"
     [style.--app-input-height]="inputHeight + 'px'" [style.--app-input-padding-x]="inputPaddingX + 'px'"
     [style.--app-input-radius]="inputRadius + 'px'" [style.--app-input-resize]="resize">
+
     @if (decoration === 'tape') {
     <span class="app-input-tape app-input-tape-left" aria-hidden="true"></span>
     <span class="app-input-tape app-input-tape-right" aria-hidden="true"></span>
@@ -11,18 +12,23 @@
     <div class="app-input-label-row">
         <label class="app-input-label" [for]="resolvedId">
             {{ label }}
+
             @if (required) {
             <span class="app-input-required" aria-hidden="true">*</span>
             <span class="app-input-visually-hidden">
                 {{ requiredText }}
             </span>
             } @else if (optional) {
-            <span class="app-input-optional">({{ optionalText }})</span>
+            <span class="app-input-optional">
+                ({{ optionalText }})
+            </span>
             }
         </label>
 
         @if (labelHint) {
-        <span class="app-input-label-hint">{{ labelHint }}</span>
+        <span class="app-input-label-hint">
+            {{ labelHint }}
+        </span>
         }
     </div>
 
@@ -70,7 +76,8 @@
             [attr.aria-describedby]="describedBy" [attr.aria-invalid]="effectiveStatus === 'danger' ? 'true' : null"
             [attr.aria-required]="required ? 'true' : null" [required]="required" [readOnly]="readonly"
             [disabled]="isDisabled" [spellcheck]="spellcheck" (input)="handleInput($event)"
-            (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)"></textarea>
+            (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)">
+        </textarea>
         } @else {
         <input #nativeControl class="app-input-control" [id]="resolvedId" [type]="currentType" [name]="name || ''"
             [value]="value ?? ''" [attr.placeholder]="labelMode === 'floating' ? (placeholder || ' ') : placeholder"
@@ -86,10 +93,13 @@
         @if (label && labelMode === 'floating') {
         <label class="app-input-floating-label" [for]="resolvedId">
             {{ label }}
+
             @if (required) {
             <span class="app-input-required" aria-hidden="true">*</span>
             } @else if (optional) {
-            <span class="app-input-optional">({{ optionalText }})</span>
+            <span class="app-input-optional">
+                ({{ optionalText }})
+            </span>
             }
         </label>
         }

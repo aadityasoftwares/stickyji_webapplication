@@ -33,8 +33,8 @@
                         [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
                 </div>
 
-                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" variant="outline" size="md"
-                    ariaLabel="Refresh folders" title="Refresh folders" [loading]="loading()"
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh folders" title="Refresh folders" [loading]="loading()"
                     [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="loadFolders()" />
 
                 <app-button class="workspace-new-button" label="New folder" [iconLeft]="LucidePlus" variant="noteYellow"
@@ -45,7 +45,7 @@
 
         <section class="workspace-explorer" [attr.aria-busy]="loading() || loadingWorkspaces()">
             <div class="workspace-toolbar">
-                <app-tabs class="workspace-status-tabs" [items]="folderTabs()" [value]="activeTab()" variant="paper"
+                <app-tabs class="workspace-status-tabs" [items]="folderTabs()" [value]="activeTab()" variant="segmented"
                     shape="rounded" size="sm" density="compact" ariaLabel="Filter folders by status" [fullWidth]="false"
                     [scrollable]="true" (valueChange)="setFolderTab($event)" />
 
@@ -60,7 +60,7 @@
                     <app-select class="workspace-sort" [options]="sortOptions" [ngModel]="sortBy()"
                         (ngModelChange)="setSort($event)" name="workspace-folder-sort" placeholder="Sort"
                         ariaLabel="Sort folders" variant="paper" shape="rounded" size="sm" [clearable]="false"
-                        [searchable]="false" [fullWidth]="false" [width]="176" />
+                        [searchable]="false" [fullWidth]="true" />
 
                     <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
                         shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"

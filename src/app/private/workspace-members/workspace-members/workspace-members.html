@@ -1,0 +1,946 @@
+<section class="workspace-members-page" aria-labelledby="workspace-members-page-title">
+    <main class="workspace-members-main">
+
+        <header class="workspace-members-header">
+            <div class="workspace-members-intro">
+                <span class="workspace-members-intro-mark" aria-hidden="true">
+                    <span class="workspace-members-person-icon">
+                        <span class="workspace-members-person-head"></span>
+                        <span class="workspace-members-person-body"></span>
+                    </span>
+                    <span class="workspace-members-person-icon is-secondary">
+                        <span class="workspace-members-person-head"></span>
+                        <span class="workspace-members-person-body"></span>
+                    </span>
+                </span>
+
+                <div>
+                    <span class="workspace-members-kicker">
+                        Inside {{ selectedWorkspaceLabel() }}
+                    </span>
+
+                    <h1 id="workspace-members-page-title">
+                        Manage people and
+                        <span>shared access.</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="workspace-members-header-actions">
+                <div class="workspace-members-count-slot" aria-live="polite">
+                    @if (
+                    !loading() &&
+                    !invitationLoading() &&
+                    !error() &&
+                    !invitationError() &&
+                    selectedWorkspaceId()
+                    ) {
+                    <app-badge [label]="headerCountLabel()" variant="noteYellow" size="sm" shape="pill" />
+                    } @else {
+                    <span class="workspace-members-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <div class="workspace-members-workspace-picker">
+                    <app-select [options]="workspaceOptions()" [ngModel]="selectedWorkspaceId()"
+                        (ngModelChange)="onWorkspaceChange($event)" name="workspace-members-workspace"
+                        [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+                        ariaLabel="Choose workspace for members" variant="paper" shape="rounded" size="sm"
+                        [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
+                </div>
+
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh workspace access" title="Refresh workspace access"
+                    [loading]="loading() || invitationLoading()"
+                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="loadWorkspaceAccess()" />
+
+                <app-button class="workspace-members-new-button" label="Invite member" [iconLeft]="LucideUserPlus"
+                    variant="noteYellow" appearance="standard" size="md"
+                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="openSendRequest()" />
+            </div>
+        </header>
+
+        <section class="workspace-members-explorer"
+            [attr.aria-busy]="loading() || invitationLoading() || loadingWorkspaces()">
+
+            <div class="workspace-members-toolbar">
+                <app-tabs class="workspace-members-status-tabs" [items]="memberTabs()" [value]="activeTab()"
+                    variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter workspace access"
+                    [fullWidth]="false" [scrollable]="true" (valueChange)="setMemberTab($event)" />
+
+                <div class="workspace-members-toolbar-actions">
+                    <div class="workspace-members-search">
+                        <app-input type="search" label="Search access" labelMode="hidden"
+                            [placeholder]="searchPlaceholder()" variant="paper" appearance="outlined" shape="rounded"
+                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
+                            [fullWidth]="true" ariaLabel="Search workspace access" (valueChange)="updateSearch($event)"
+                            (cleared)="clearSearch()" />
+                    </div>
+
+                    <app-select class="workspace-members-sort" [options]="sortOptions" [ngModel]="sortBy()"
+                        (ngModelChange)="setSort($event)" name="workspace-members-sort" placeholder="Sort"
+                        ariaLabel="Sort workspace access" variant="paper" shape="rounded" size="sm" [clearable]="false"
+                        [searchable]="false" [fullWidth]="false" [width]="176" />
+
+                    <app-tabs class="workspace-members-view-tabs" [items]="viewTabs" [value]="view()"
+                        variant="segmented" shape="rounded" size="sm" density="compact"
+                        ariaLabel="Choose grid or list view" [scrollable]="false" [minTabWidth]="64"
+                        (valueChange)="setMemberView($event)" />
+                </div>
+            </div>
+
+            <div class="workspace-members-explorer-body" [class.is-list]="view() === 'list'">
+
+                @if (loadingWorkspaces()) {
+                <div class="workspace-members-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Loading your workspaces..."
+                        description="Finding the spaces you can manage." [minHeight]="360" />
+                </div>
+
+                } @else if (workspaceError()) {
+                <div class="workspace-members-empty-state">
+                    <span class="workspace-members-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">Couldn’t open your spaces</span>
+                    <h2>Workspaces are unavailable</h2>
+                    <p>{{ workspaceError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadWorkspaces()" />
+                </div>
+
+                } @else if (workspaces().length === 0) {
+                <div class="workspace-members-empty-state">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">No workspace yet</span>
+                    <h2>Create a workspace first</h2>
+                    <p>Members and invitations belong to a workspace, so create a workspace before inviting people.</p>
+                </div>
+
+                } @else if (!selectedWorkspaceId()) {
+                <div class="workspace-members-empty-state">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">Choose your space</span>
+                    <h2>Select a workspace</h2>
+                    <p>Choose a workspace above to view its members and invitations.</p>
+                </div>
+
+                } @else if (activeTab() === 'invitations') {
+
+                @if (invitationLoading()) {
+                <div class="workspace-members-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening invitations..."
+                        description="Getting workspace invitation history ready." [minHeight]="360" />
+                </div>
+
+                } @else if (invitationError()) {
+                <div class="workspace-members-empty-state">
+                    <span class="workspace-members-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">Invitations slipped away</span>
+                    <h2>Couldn’t load invitations</h2>
+                    <p>{{ invitationError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadInvitations()" />
+                </div>
+
+                } @else if (searchTerm() && visibleInvitations().length === 0) {
+                <div class="workspace-members-empty-state is-compact">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">No invitation matches</span>
+                    <h2>No invitation found</h2>
+                    <p>Try another email, role, status or inviter.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+
+                } @else if (visibleInvitations().length === 0) {
+                <div class="workspace-members-empty-state is-compact">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="LucideMail" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">No invitations yet</span>
+                    <h2>Invite someone to this space</h2>
+                    <p>Sent invitations will appear here with their role, status and expiry date.</p>
+                    <app-button label="Invite member" [iconLeft]="LucideUserPlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openSendRequest()" />
+                </div>
+
+                } @else if (view() === 'grid') {
+                <div class="workspace-access-grid workspace-invitation-grid" role="list">
+                    @for (invitation of visibleInvitations(); track invitationId(invitation)) {
+
+                    <app-sticky-card class="workspace-invitation-profile-card" role="listitem" variant="noteYellow"
+                        appearance="flat" shape="note" size="sm" [padding]="0" [fullWidth]="true" [hoverable]="false"
+                        [class.is-busy]="isInvitationBusy(invitation)"
+                        [class.is-closed]="!canCancelInvitation(invitation)">
+
+                        <div class="workspace-invitation-card">
+
+                            <div class="workspace-invitation-card-top">
+                                <span class="workspace-invitation-card-type">
+                                    Invitation
+                                </span>
+
+                                @if (canCancelInvitation(invitation)) {
+                                <app-button class="workspace-invitation-card-menu" [icon]="LucideMoreHorizontal"
+                                    [iconOnly]="true" appearance="standard" variant="ghost" size="xs" [rounded]="true"
+                                    [ariaLabel]="'Actions for invitation to ' + invitationEmail(invitation)"
+                                    [title]="'Actions for invitation to ' + invitationEmail(invitation)"
+                                    [disabled]="isInvitationBusy(invitation)"
+                                    [matMenuTriggerFor]="invitationCardActions" (click)="$event.stopPropagation()" />
+
+                                <mat-menu #invitationCardActions="matMenu" xPosition="before" yPosition="below"
+                                    [overlapTrigger]="false" class="workspace-actions-menu">
+
+                                    <button mat-menu-item type="button"
+                                        class="workspace-action-item workspace-menu-danger"
+                                        (click)="requestCancelInvitation(invitation)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideX" size="xs" />
+                                        </span>
+
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>Cancel invitation</strong>
+                                            <small>Stop this pending invitation</small>
+                                        </span>
+                                    </button>
+                                </mat-menu>
+                                }
+                            </div>
+
+                            <div class="workspace-invitation-card-identity">
+                                <span class="workspace-invitation-card-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideMail" size="md" />
+                                </span>
+
+                                <strong class="workspace-invitation-card-email" [title]="invitationEmail(invitation)">
+                                    {{ invitationEmail(invitation) }}
+                                </strong>
+
+                                <span class="workspace-invitation-card-secondary"
+                                    [title]="invitationMessage(invitation)">
+                                    {{ invitationSecondaryLabel(invitation) }}
+                                </span>
+                            </div>
+
+                            <div class="workspace-invitation-card-access">
+                                <span class="workspace-invitation-card-role">
+                                    <app-icon [icon]="LucideShield" size="xs" />
+                                    {{ invitationRoleName(invitation) }}
+                                </span>
+
+                                <app-badge [label]="invitationStatusLabel(invitation)"
+                                    [variant]="invitationStatusVariant(invitation)" size="xs" shape="pill"
+                                    [dot]="true" />
+                            </div>
+
+                            <div class="workspace-invitation-card-meta">
+                                <div class="workspace-invitation-card-meta-item">
+                                    <span>Sent</span>
+                                    <strong>{{ invitationCreatedLabel(invitation) }}</strong>
+                                </div>
+
+                                <span class="workspace-invitation-card-meta-divider" aria-hidden="true"></span>
+
+                                <div class="workspace-invitation-card-meta-item">
+                                    <span>Expires</span>
+                                    <strong>{{ invitationExpiryLabel(invitation) }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="workspace-invitation-card-footer">
+                                <div class="workspace-invitation-card-by">
+                                    <span>Invited by</span>
+                                    <strong>{{ invitationInvitedByLabel(invitation) }}</strong>
+                                </div>
+
+                                @if (canCancelInvitation(invitation)) {
+                                <app-button class="workspace-invitation-card-cancel" [icon]="LucideX" [iconOnly]="true"
+                                    variant="outline" appearance="standard" size="sm" [rounded]="true"
+                                    [ariaLabel]="'Cancel invitation to ' + invitationEmail(invitation)"
+                                    title="Cancel invitation" [disabled]="isInvitationBusy(invitation)"
+                                    (buttonClick)="requestCancelInvitation(invitation)" />
+                                }
+                            </div>
+                        </div>
+                    </app-sticky-card>
+                    }
+
+                    <app-sticky-card class="workspace-member-add-card workspace-invitation-add-card"
+                        variant="noteYellow" appearance="flat" shape="note" size="sm" [padding]="0" [fullWidth]="true"
+                        [hoverable]="false" [clickable]="true" (cardClick)="openSendRequest()">
+
+                        <div class="workspace-member-add-card-content">
+                            <span class="workspace-member-add-icon" aria-hidden="true">
+                                <app-icon [icon]="LucideUserPlus" size="md" />
+                            </span>
+
+                            <strong>Invite another person</strong>
+
+                            <small>
+                                Send a workspace invitation.
+                            </small>
+
+                            <span class="workspace-member-add-link">
+                                Send invite
+                                <app-icon [icon]="LucideUserPlus" size="xs" />
+                            </span>
+                        </div>
+                    </app-sticky-card>
+                </div>
+
+                } @else {
+                <div class="workspace-access-list-scroll">
+                    <table class="workspace-access-table workspace-invitation-table"
+                        aria-label="Workspace invitations list">
+
+                        <thead>
+                            <tr>
+                                <th scope="col">Invitation</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Sent</th>
+                                <th scope="col">Expires</th>
+                                <th scope="col">Invited by</th>
+                                <th scope="col" class="workspace-access-actions-heading">
+                                    <span class="visually-hidden">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (invitation of visibleInvitations(); track invitationId(invitation)) {
+                            <tr [class.is-busy]="isInvitationBusy(invitation)"
+                                [class.is-muted]="!canCancelInvitation(invitation)">
+
+                                <td class="workspace-access-primary" data-label="Invitation">
+                                    <div class="workspace-access-person">
+                                        <app-avatar [name]="invitationName(invitation)" size="sm" shape="rounded" />
+
+                                        <div class="workspace-access-person-copy">
+                                            <strong [title]="invitationEmail(invitation)">
+                                                {{ invitationEmail(invitation) }}
+                                            </strong>
+                                            <small [title]="invitationMessage(invitation)">
+                                                {{ invitationSecondaryLabel(invitation) }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td data-label="Role">
+                                    <div class="workspace-access-role">
+                                        <app-icon [icon]="LucideShield" size="xs" />
+                                        <span>{{ invitationRoleName(invitation) }}</span>
+                                    </div>
+                                </td>
+
+                                <td data-label="Status">
+                                    <app-badge [label]="invitationStatusLabel(invitation)"
+                                        [variant]="invitationStatusVariant(invitation)" size="xs" shape="pill"
+                                        [dot]="true" />
+                                </td>
+
+                                <td data-label="Sent">
+                                    <span class="workspace-access-date">
+                                        {{ invitationCreatedLabel(invitation) }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Expires">
+                                    <span class="workspace-access-date">
+                                        {{ invitationExpiryLabel(invitation) }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Invited by">
+                                    <span class="workspace-access-truncate">
+                                        {{ invitationInvitedByLabel(invitation) }}
+                                    </span>
+                                </td>
+
+                                <td class="workspace-access-actions" data-label="Actions">
+                                    @if (canCancelInvitation(invitation)) {
+                                    <app-button class="workspace-access-menu-button" [icon]="LucideMoreHorizontal"
+                                        [iconOnly]="true" appearance="standard" variant="ghost" size="xs"
+                                        [rounded]="true"
+                                        [ariaLabel]="'Actions for invitation to ' + invitationEmail(invitation)"
+                                        [title]="'Actions for invitation to ' + invitationEmail(invitation)"
+                                        [disabled]="isInvitationBusy(invitation)"
+                                        [matMenuTriggerFor]="invitationListActions"
+                                        (click)="$event.stopPropagation()" />
+
+                                    <mat-menu #invitationListActions="matMenu" xPosition="before" yPosition="below"
+                                        [overlapTrigger]="false" class="workspace-actions-menu">
+
+                                        <button mat-menu-item type="button"
+                                            class="workspace-action-item workspace-menu-danger"
+                                            (click)="requestCancelInvitation(invitation)">
+                                            <span class="workspace-menu-item-icon" aria-hidden="true">
+                                                <app-icon [icon]="LucideX" size="xs" />
+                                            </span>
+                                            <span class="workspace-menu-item-copy">
+                                                <strong>Cancel invitation</strong>
+                                                <small>Stop this pending invitation</small>
+                                            </span>
+                                        </button>
+                                    </mat-menu>
+                                    } @else {
+                                    <span class="workspace-access-no-action">—</span>
+                                    }
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+
+                } @else {
+
+                @if (loading()) {
+                <div class="workspace-members-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening your members..."
+                        description="Getting workspace access ready." [minHeight]="360" />
+                </div>
+
+                } @else if (error()) {
+                <div class="workspace-members-empty-state">
+                    <span class="workspace-members-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load members</h2>
+                    <p>{{ error() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadMembers()" />
+                </div>
+
+                } @else if (searchTerm() && visibleMembers().length === 0) {
+                <div class="workspace-members-empty-state is-compact">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">No person matches</span>
+                    <h2>No member found</h2>
+                    <p>Try another name, email or role.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+
+                } @else if (visibleMembers().length === 0) {
+                <div class="workspace-members-empty-state is-compact">
+                    <span class="workspace-members-empty-icon">
+                        <app-icon [icon]="activeTab() === 'removed' ? LucideTrash2 : LucideUsers" size="lg" />
+                    </span>
+                    <span class="workspace-members-empty-note">
+                        {{ activeTab() === 'removed' ? 'Nothing removed' : 'This space is quiet' }}
+                    </span>
+                    <h2>
+                        {{ activeTab() === 'removed' ? 'No removed members' : 'No members here yet' }}
+                    </h2>
+                    <p>
+                        {{ activeTab() === 'removed'
+                        ? 'Removed members will appear here.'
+                        : 'Invite someone to start sharing this workspace.' }}
+                    </p>
+
+                    @if (activeTab() !== 'removed') {
+                    <app-button label="Invite member" [iconLeft]="LucideUserPlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openSendRequest()" />
+                    }
+                </div>
+
+                } @else if (view() === 'grid') {
+                <div class="workspace-access-grid workspace-member-grid" role="list">
+                    @for (member of visibleMembers(); track memberId(member)) {
+
+                    <app-sticky-card class="workspace-member-profile-card" role="listitem"
+                        [variant]="isOwner(member) ? 'noteYellow' : isRemoved(member) ? 'paper' : 'noteBlue'"
+                        appearance="flat" shape="note" size="sm" [padding]="0" [fullWidth]="true" [hoverable]="false"
+                        [class.is-owner]="isOwner(member)" [class.is-removed]="isRemoved(member)"
+                        [class.is-busy]="isBusy(member)">
+
+                        <div class="workspace-member-card">
+
+                            <div class="workspace-member-card-top">
+                                <span class="workspace-member-card-type">
+                                    {{ isOwner(member) ? 'Owner' : 'Member' }}
+                                </span>
+
+                                <app-button class="workspace-member-card-menu" [icon]="LucideMoreHorizontal"
+                                    [iconOnly]="true" appearance="standard" variant="ghost" size="xs" [rounded]="true"
+                                    [ariaLabel]="'More actions for ' + memberName(member)"
+                                    [title]="'More actions for ' + memberName(member)" [disabled]="isBusy(member)"
+                                    [matMenuTriggerFor]="memberCardActions" (click)="$event.stopPropagation()" />
+
+                                <mat-menu #memberCardActions="matMenu" xPosition="before" yPosition="below"
+                                    [overlapTrigger]="false" class="workspace-actions-menu">
+
+                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                        (click)="openMemberView(member)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideEye" size="xs" />
+                                        </span>
+
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>View access</strong>
+                                            <small>See full member details</small>
+                                        </span>
+                                    </button>
+
+                                    @if (!isRemoved(member) && canManageMember(member)) {
+                                    <button mat-menu-item type="button" class="workspace-action-item"
+                                        (click)="openRoleEditor(member)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucidePencil" size="xs" />
+                                        </span>
+
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>Change role</strong>
+                                            <small>Update workspace permissions</small>
+                                        </span>
+                                    </button>
+                                    }
+
+                                    @if (!isRemoved(member) && canManageMember(member)) {
+                                    <button mat-menu-item type="button"
+                                        class="workspace-action-item workspace-menu-danger"
+                                        (click)="requestRemove(member)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideTrash2" size="xs" />
+                                        </span>
+
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>Remove member</strong>
+                                            <small>Revoke workspace access</small>
+                                        </span>
+                                    </button>
+                                    }
+
+                                    @if (isRemoved(member)) {
+                                    <button mat-menu-item type="button" class="workspace-action-item"
+                                        (click)="restoreMember(member)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideRotateCcw" size="xs" />
+                                        </span>
+
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>Restore access</strong>
+                                            <small>Bring this member back</small>
+                                        </span>
+                                    </button>
+                                    }
+                                </mat-menu>
+                            </div>
+
+                            <div class="workspace-member-card-main">
+                                <div class="workspace-member-card-avatar-wrap">
+                                    <span class="workspace-member-card-avatar">
+                                        <app-avatar [name]="memberName(member)" size="md" shape="rounded" />
+                                    </span>
+
+                                    <span class="workspace-member-card-presence" [class.is-removed]="isRemoved(member)"
+                                        [attr.title]="isRemoved(member) ? 'Removed' : memberStatusLabel(member)">
+                                    </span>
+                                </div>
+
+                                <div class="workspace-member-card-copy">
+                                    <div class="workspace-member-card-name-row">
+                                        <strong class="workspace-member-card-name" [title]="memberName(member)">
+                                            {{ memberName(member) }}
+                                        </strong>
+
+                                        @if (isCurrentUser(member)) {
+                                        <span class="workspace-member-you">You</span>
+                                        }
+                                    </div>
+
+                                    <span class="workspace-member-card-email" [title]="memberEmail(member)">
+                                        {{ memberEmail(member) || 'Workspace member' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="workspace-member-card-access-row">
+                                <span class="workspace-member-card-role" [title]="memberRoleName(member)">
+                                    <app-icon [icon]="LucideShield" size="xs" />
+                                    {{ memberRoleName(member) }}
+                                </span>
+
+                                @if (isOwner(member)) {
+                                <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill" />
+                                } @else {
+                                <app-badge [label]="memberStatusLabel(member)" [variant]="memberStatusVariant(member)"
+                                    size="xs" shape="pill" [dot]="true" />
+                                }
+                            </div>
+
+                            <div class="workspace-member-card-meta">
+                                <div class="workspace-member-card-meta-item">
+                                    <span>Last active</span>
+                                    <strong>{{ memberLastActiveLabel(member) }}</strong>
+                                </div>
+
+                                <div class="workspace-member-card-meta-item is-secondary">
+                                    <span>Joined</span>
+                                    <strong>{{ memberJoinedLabel(member) }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="workspace-member-card-footer">
+                                @if (isRemoved(member)) {
+                                <app-button class="workspace-member-card-primary-action" label="Restore"
+                                    [iconLeft]="LucideRotateCcw" variant="outline" appearance="standard" size="sm"
+                                    [fullWidth]="true" [disabled]="isBusy(member)"
+                                    (buttonClick)="restoreMember(member)" />
+                                } @else {
+                                <app-button class="workspace-member-card-primary-action" label="View access"
+                                    [iconLeft]="LucideEye" variant="outline" appearance="standard" size="sm"
+                                    [fullWidth]="true" (buttonClick)="openMemberView(member)" />
+                                }
+
+                                @if (!isRemoved(member)) {
+                                <app-button class="workspace-member-card-edit-action" [icon]="LucidePencil"
+                                    [iconOnly]="true" variant="outline" appearance="standard" size="sm" [rounded]="true"
+                                    [ariaLabel]="'Change role for ' + memberName(member)" [title]="canManageMember(member)
+                                        ? 'Change role'
+                                        : memberManageBlockedReason(member)"
+                                    [disabled]="isBusy(member) || !canManageMember(member)"
+                                    (buttonClick)="openRoleEditor(member)" />
+                                }
+                            </div>
+                        </div>
+                    </app-sticky-card>
+                    }
+
+                    @if (activeTab() !== 'removed') {
+                    <app-sticky-card class="workspace-member-add-card" variant="noteYellow" appearance="flat"
+                        shape="note" size="sm" [padding]="0" [fullWidth]="true" [hoverable]="false" [clickable]="true"
+                        (cardClick)="openSendRequest()">
+
+                        <div class="workspace-member-add-card-content">
+                            <span class="workspace-member-add-icon" aria-hidden="true">
+                                <app-icon [icon]="LucideUserPlus" size="md" />
+                            </span>
+
+                            <strong>Invite a teammate</strong>
+
+                            <small>
+                                Share {{ selectedWorkspaceLabel() }} with someone new.
+                            </small>
+
+                            <span class="workspace-member-add-link">
+                                Add member
+                                <app-icon [icon]="LucideUserPlus" size="xs" />
+                            </span>
+                        </div>
+                    </app-sticky-card>
+                    }
+                </div>
+
+                } @else {
+                <div class="workspace-access-list-scroll">
+                    <table class="workspace-access-table" aria-label="Workspace members list">
+                        <thead>
+                            <tr>
+                                <th scope="col">Member</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Last active</th>
+                                <th scope="col">Joined</th>
+                                <th scope="col">Added by</th>
+                                <th scope="col" class="workspace-access-actions-heading">
+                                    <span class="visually-hidden">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (member of visibleMembers(); track memberId(member)) {
+                            <tr [class.is-removed]="isRemoved(member)" [class.is-busy]="isBusy(member)">
+
+                                <td class="workspace-access-primary" data-label="Member">
+                                    <div class="workspace-access-person">
+                                        <app-avatar [name]="memberName(member)" size="sm" shape="rounded" />
+
+                                        <div class="workspace-access-person-copy">
+                                            <div class="workspace-access-person-name-row">
+                                                <strong [title]="memberName(member)">
+                                                    {{ memberName(member) }}
+                                                </strong>
+
+                                                @if (isCurrentUser(member)) {
+                                                <span class="workspace-member-you">You</span>
+                                                }
+                                            </div>
+
+                                            <small [title]="memberEmail(member)">
+                                                {{ memberEmail(member) || 'Workspace member' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td data-label="Role">
+                                    <div class="workspace-access-role">
+                                        <app-icon [icon]="LucideShield" size="xs" />
+                                        <span>{{ memberRoleName(member) }}</span>
+
+                                        @if (isOwner(member)) {
+                                        <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill" />
+                                        }
+                                    </div>
+                                </td>
+
+                                <td data-label="Status">
+                                    <app-badge [label]="memberStatusLabel(member)"
+                                        [variant]="memberStatusVariant(member)" size="xs" shape="pill" [dot]="true" />
+                                </td>
+
+                                <td data-label="Last active">
+                                    <span class="workspace-access-activity" [class.is-empty]="!member.lastActiveAt">
+                                        {{ memberLastActiveLabel(member) }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Joined">
+                                    <span class="workspace-access-date">
+                                        {{ memberJoinedLabel(member) }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Added by">
+                                    <span class="workspace-access-truncate"
+                                        [title]="member.addedBy?.email || addedByLabel(member)">
+                                        {{ addedByLabel(member) }}
+                                    </span>
+                                </td>
+
+                                <td class="workspace-access-actions" data-label="Actions">
+                                    <div class="workspace-member-action-group">
+                                        @if (isRemoved(member)) {
+                                        <app-button class="workspace-member-action-restore" [icon]="LucideRotateCcw"
+                                            [iconOnly]="true" variant="noteBlue" appearance="standard" size="xs"
+                                            [rounded]="true" [ariaLabel]="'Restore ' + memberName(member)"
+                                            [title]="'Restore ' + memberName(member)" [disabled]="isBusy(member)"
+                                            (buttonClick)="restoreMember(member)" />
+                                        } @else {
+                                        <app-button class="workspace-member-action-edit" [icon]="LucidePencil"
+                                            [iconOnly]="true" variant="noteBlue" appearance="standard" size="xs"
+                                            [rounded]="true" [ariaLabel]="'Edit role for ' + memberName(member)"
+                                            [title]="canManageMember(member) ? 'Change role' : memberManageBlockedReason(member)"
+                                            [disabled]="isBusy(member) || !canManageMember(member)"
+                                            (buttonClick)="openRoleEditor(member)" />
+
+                                        <app-button class="workspace-member-action-remove" [icon]="LucideTrash2"
+                                            [iconOnly]="true" variant="danger" appearance="standard" size="xs"
+                                            [rounded]="true" [ariaLabel]="'Remove ' + memberName(member)"
+                                            [title]="canManageMember(member) ? 'Remove member' : memberManageBlockedReason(member)"
+                                            [disabled]="isBusy(member) || !canManageMember(member)"
+                                            (buttonClick)="requestRemove(member)" />
+                                        }
+
+                                        <app-button class="workspace-access-menu-button" [icon]="LucideMoreHorizontal"
+                                            [iconOnly]="true" appearance="standard" variant="noteYellow" size="xs"
+                                            [rounded]="true" [ariaLabel]="'More actions for ' + memberName(member)"
+                                            [title]="'More actions for ' + memberName(member)"
+                                            [disabled]="isBusy(member)" [matMenuTriggerFor]="memberListActions"
+                                            (click)="$event.stopPropagation()" />
+
+                                        <mat-menu #memberListActions="matMenu" xPosition="before" yPosition="below"
+                                            [overlapTrigger]="false" class="workspace-actions-menu">
+                                            <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                                (click)="openMemberView(member)">
+                                                <span class="workspace-menu-item-icon" aria-hidden="true">
+                                                    <app-icon [icon]="LucideEye" size="xs" />
+                                                </span>
+                                                <span class="workspace-menu-item-copy">
+                                                    <strong>View details</strong>
+                                                    <small>See member access information</small>
+                                                </span>
+                                            </button>
+                                        </mat-menu>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+<app-send-workspace-member-request-side-panel [open]="memberModalOpen()" [workspaceId]="selectedWorkspaceId()"
+    [member]="memberModalMember()" [roleOptions]="roleOptions" (closed)="closeMemberModal()"
+    (saved)="onMemberSaved($event)" />
+
+@if (viewTarget(); as member) {
+<div class="workspace-members-dialog-backdrop" (mousedown)="closeMemberViewDialog()">
+    <section class="workspace-members-dialog-shell workspace-member-view-shell" role="dialog" aria-modal="true"
+        aria-labelledby="workspace-member-view-title" (mousedown)="$event.stopPropagation()">
+
+        <app-sticky-card class="workspace-members-dialog-note workspace-member-view-note" variant="noteBlue"
+            appearance="elevated" shape="note" size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+
+            <span card-icon class="workspace-members-dialog-icon is-view" aria-hidden="true">
+                <app-icon [icon]="LucideEye" size="sm" />
+            </span>
+
+            <span card-eyebrow class="workspace-members-dialog-kicker is-view">
+                Workspace member
+            </span>
+
+            <h2 card-title id="workspace-member-view-title" class="workspace-members-dialog-title">
+                {{ memberName(member) }}
+            </h2>
+
+            <p card-subtitle class="workspace-members-dialog-subtitle workspace-member-view-subtitle">
+                <span>{{ memberEmail(member) || 'No email available' }}</span>
+                @if (isCurrentUser(member)) {
+                <span class="workspace-member-you">You</span>
+                }
+            </p>
+
+            <div class="workspace-member-view-grid">
+                <div>
+                    <span>Role</span>
+                    <strong>{{ memberRoleName(member) }}</strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+                    <strong>{{ isOwner(member) ? 'Owner' : memberStatusLabel(member) }}</strong>
+                </div>
+
+                <div>
+                    <span>Joined</span>
+                    <strong>{{ memberJoinedLabel(member) }}</strong>
+                </div>
+
+                <div>
+                    <span>Last active</span>
+                    <strong>{{ memberLastActiveLabel(member) }}</strong>
+                </div>
+
+                <div class="is-wide">
+                    <span>Added by</span>
+                    <strong>{{ addedByLabel(member) }}</strong>
+                </div>
+
+                <div class="is-wide">
+                    <span>Workspace</span>
+                    <strong>{{ selectedWorkspaceLabel() }}</strong>
+                </div>
+            </div>
+
+            <div card-footer class="workspace-members-dialog-actions">
+                <app-button label="Close" variant="secondary" size="sm" (buttonClick)="closeMemberViewDialog()" />
+
+                @if (!isRemoved(member) && canManageMember(member)) {
+                <app-button label="Change role" [iconLeft]="LucidePencil" variant="noteBlue" size="sm"
+                    (buttonClick)="editViewedMember(member)" />
+                }
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}
+
+@if (removeTarget(); as member) {
+<div class="workspace-members-dialog-backdrop" (mousedown)="closeRemoveDialog()">
+    <section class="workspace-members-dialog-shell" role="alertdialog" aria-modal="true"
+        aria-labelledby="workspace-member-remove-title" (mousedown)="$event.stopPropagation()">
+
+        <app-sticky-card class="workspace-members-dialog-note" variant="noteRed" appearance="elevated" shape="note"
+            size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+
+            <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
+                <app-icon [icon]="LucideTrash2" size="sm" />
+            </span>
+
+            <span card-eyebrow class="workspace-members-dialog-kicker">
+                Before you remove access
+            </span>
+
+            <h2 card-title id="workspace-member-remove-title" class="workspace-members-dialog-title">
+                Remove member?
+            </h2>
+
+            <p card-subtitle class="workspace-members-dialog-subtitle">
+                “{{ memberName(member) }}” will no longer have access to
+                {{ selectedWorkspaceLabel() }}.
+            </p>
+
+            <div class="workspace-members-dialog-message">
+                <span aria-hidden="true">
+                    <app-icon [icon]="LucideRotateCcw" size="xs" />
+                </span>
+                <span>You can restore this member later from the Removed filter.</span>
+            </div>
+
+            <div card-footer class="workspace-members-dialog-actions">
+                <app-button label="Keep member" variant="secondary" size="sm" [disabled]="removing()"
+                    (buttonClick)="closeRemoveDialog()" />
+
+                <app-button label="Remove member" variant="danger" size="sm" [loading]="removing()"
+                    [disabled]="removing()" (buttonClick)="confirmRemove()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}
+
+@if (cancelInvitationTarget(); as invitation) {
+<div class="workspace-members-dialog-backdrop" (mousedown)="closeCancelInvitationDialog()">
+    <section class="workspace-members-dialog-shell" role="alertdialog" aria-modal="true"
+        aria-labelledby="workspace-invitation-cancel-title" (mousedown)="$event.stopPropagation()">
+
+        <app-sticky-card class="workspace-members-dialog-note" variant="noteRed" appearance="elevated" shape="note"
+            size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+
+            <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
+                <app-icon [icon]="LucideMail" size="sm" />
+            </span>
+
+            <span card-eyebrow class="workspace-members-dialog-kicker">
+                Pending workspace invitation
+            </span>
+
+            <h2 card-title id="workspace-invitation-cancel-title" class="workspace-members-dialog-title">
+                Cancel invitation?
+            </h2>
+
+            <p card-subtitle class="workspace-members-dialog-subtitle">
+                {{ invitationEmail(invitation) }} will no longer be able to
+                use this invitation to join {{ selectedWorkspaceLabel() }}.
+            </p>
+
+            <div class="workspace-members-dialog-message">
+                <span aria-hidden="true">
+                    <app-icon [icon]="LucideUserPlus" size="xs" />
+                </span>
+                <span>You can send a new invitation later if access is still needed.</span>
+            </div>
+
+            <div card-footer class="workspace-members-dialog-actions">
+                <app-button label="Keep invitation" variant="secondary" size="sm" [disabled]="cancellingInvitation()"
+                    (buttonClick)="closeCancelInvitationDialog()" />
+
+                <app-button label="Cancel invitation" variant="danger" size="sm" [loading]="cancellingInvitation()"
+                    [disabled]="cancellingInvitation()" (buttonClick)="confirmCancelInvitation()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}

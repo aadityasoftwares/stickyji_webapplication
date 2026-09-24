@@ -20,7 +20,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import {
   LucideArchive,
   LucideArrowRight,
-  LucideFileText,
   LucideFolder,
   LucideGrid2X2,
   LucideLightbulb,
@@ -55,7 +54,8 @@ import type {
   WorkspaceUpdateRequest
 } from './models/workspace.models';
 import { WorkspaceApiService } from './services/workspace.service';
-import { AddEditWorkspaceModal } from './modals/add-edit-workspace-modal/add-edit-workspace-modal';
+import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
+import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
 
 type WorkspaceTab = 'all' | 'active' | 'archived';
 type WorkspaceView = 'grid' | 'list';
@@ -67,6 +67,7 @@ type UnknownRecord = Record<string, unknown>;
   standalone: true,
   imports: [
     FormsModule,
+    WorkspaceFolderWrapper,
     MatDividerModule,
     MatMenuModule,
     AppIcon,
@@ -74,7 +75,7 @@ type UnknownRecord = Record<string, unknown>;
     Badge,
     Button,
     Loader,
-    AddEditWorkspaceModal,
+    AddEditWorkspaceSidePanel,
     Select,
     StickyCard,
     Tabs
@@ -99,7 +100,6 @@ export class Workspace implements OnInit {
 
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowRight = LucideArrowRight;
-  readonly LucideFileText = LucideFileText;
   readonly LucideFolder = LucideFolder;
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideList = LucideList;
@@ -133,8 +133,11 @@ export class Workspace implements OnInit {
   readonly searchTerm = signal('');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly workspaceModalOpen = signal(false);
-  readonly workspaceModalId = signal('');
+  readonly workspaceEditorOpen = signal(false);
+  readonly workspaceEditorId = signal('');
+  readonly editorWorkspace = computed(() =>
+    this.workspaces().find(item => item.id === this.workspaceEditorId()) ?? null
+  );
 
   readonly inlineRenameId = signal<string | null>(null);
   readonly inlineRenameName = signal('');
@@ -312,8 +315,8 @@ export class Workspace implements OnInit {
 
   openCreateEditor(): void {
     this.cancelInlineRename();
-    this.workspaceModalId.set('');
-    this.workspaceModalOpen.set(true);
+    this.workspaceEditorId.set('');
+    this.workspaceEditorOpen.set(true);
   }
 
   openEditEditor(workspace: WorkspaceModel, event?: Event): void {
@@ -324,17 +327,17 @@ export class Workspace implements OnInit {
 
     this.clearWorkspaceClickTimer();
     this.cancelInlineRename();
-    this.workspaceModalId.set(workspace.id);
-    this.workspaceModalOpen.set(true);
+    this.workspaceEditorId.set(workspace.id);
+    this.workspaceEditorOpen.set(true);
   }
 
   closeWorkspaceEditor(): void {
-    this.workspaceModalOpen.set(false);
-    this.workspaceModalId.set('');
+    this.workspaceEditorOpen.set(false);
+    this.workspaceEditorId.set('');
   }
 
   onWorkspaceSaved(id: string): void {
-    const created = !this.workspaceModalId();
+    const created = !this.workspaceEditorId();
 
     this.closeWorkspaceEditor();
 
@@ -554,27 +557,6 @@ export class Workspace implements OnInit {
 
     const normalized = role.toLowerCase();
     return normalized.charAt(0).toUpperCase() + normalized.slice(1);
-  }
-
-  workspaceNoteCount(workspace: WorkspaceModel): number {
-    const record = workspace as unknown as UnknownRecord;
-    const value = record['noteCount'] ?? record['notesCount'] ?? record['stickyNoteCount'];
-
-    return typeof value === 'number' && Number.isFinite(value)
-      ? Math.max(0, value)
-      : 0;
-  }
-
-  workspaceMemberCount(workspace: WorkspaceModel): number {
-    const record = workspace as unknown as UnknownRecord;
-    const count = record['memberCount'] ?? record['membersCount'];
-
-    if (typeof count === 'number' && Number.isFinite(count)) {
-      return Math.max(0, count);
-    }
-
-    const members = record['members'];
-    return Array.isArray(members) && members.length ? members.length : 1;
   }
 
   workspaceUpdatedLabel(workspace: WorkspaceModel): string {

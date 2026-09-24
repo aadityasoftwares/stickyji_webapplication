@@ -21,6 +21,7 @@ import {
   LucidePanelLeftClose,
   LucidePanelLeftOpen,
   LucidePanelsTopLeft,
+  LucideShieldCheck,
   LucideSlidersHorizontal,
   LucideStar,
   LucideStickyNote,
@@ -43,6 +44,7 @@ import {
   Divider,
 } from '../../shared/components/divider/divider';
 
+
 interface SidebarItem {
   label: string;
   route: string;
@@ -59,6 +61,7 @@ export interface SidebarWorkspace extends SelectOption {
   memberCount?: number;
 }
 
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -68,7 +71,6 @@ export interface SidebarWorkspace extends SelectOption {
     RouterLink,
     RouterLinkActive,
     AppIcon,
-    Select,
     Divider,
   ],
 
@@ -79,31 +81,42 @@ export interface SidebarWorkspace extends SelectOption {
 })
 export class Sidebar {
 
-  @Input() collapsed = false;
-  @Input() mobileOpen = false;
+  @Input()
+  collapsed = false;
 
-  @Input() workspaceId = '';
-  @Input() loadingWorkspaces = false;
+  @Input()
+  mobileOpen = false;
+
+  @Input()
+  workspaceId = '';
+
+  @Input()
+  loadingWorkspaces = false;
 
   @Input()
   workspaces: readonly SidebarWorkspace[] = [];
 
-  @Output()
-  collapsedChange = new EventEmitter<boolean>();
 
   @Output()
-  mobileClosed = new EventEmitter<void>();
+  collapsedChange =
+    new EventEmitter<boolean>();
 
   @Output()
-  workspaceChange = new EventEmitter<string>();
+  mobileClosed =
+    new EventEmitter<void>();
 
   @Output()
-  logout = new EventEmitter<void>();
+  workspaceChange =
+    new EventEmitter<string>();
+
+  @Output()
+  logout =
+    new EventEmitter<void>();
 
 
   /*
    * ============================================================
-   * SIMPLE SIDEBAR STRUCTURE
+   * NAVIGATION
    * ============================================================
    *
    * Home
@@ -113,6 +126,7 @@ export class Sidebar {
    *   Workspaces
    *   Folders
    *   Members
+   *   Roles & permissions
    *
    * Notes
    *   Notes
@@ -123,81 +137,88 @@ export class Sidebar {
    *   Preferences
    */
 
-  readonly navigationGroups: readonly SidebarGroup[] = [
+  readonly navigationGroups:
+    readonly SidebarGroup[] = [
 
-    {
-      label: 'Home',
+      {
+        label: 'Home',
 
-      items: [
-        {
-          label: 'Today',
-          route: '/app/today',
-          icon: LucideCalendarDays,
-        },
-      ],
-    },
+        items: [
+          {
+            label: 'Today',
+            route: '/app/today',
+            icon: LucideCalendarDays,
+          },
+        ],
+      },
 
-    {
-      label: 'Workspace',
+      {
+        label: 'Workspace',
 
-      items: [
-        {
-          label: 'Workspaces',
-          route: '/app/workspaces/my',
-          icon: LucidePanelsTopLeft,
-        },
+        items: [
+          {
+            label: 'Workspaces',
+            route: '/app/workspaces/my',
+            icon: LucidePanelsTopLeft,
+          },
 
-        {
-          label: 'Folders',
-          route: '/app/workspacefolders/my',
-          icon: LucideFolderOpen,
-        },
+          {
+            label: 'Folders',
+            route: '/app/workspacefolders/my',
+            icon: LucideFolderOpen,
+          },
 
-        {
-          label: 'Members',
-          route: '/app/workspace-members',
-          icon: LucideUsersRound,
-        },
-      ],
-    },
+          {
+            label: 'Members',
+            route: '/app/workspace/members',
+            icon: LucideUsersRound,
+          },
 
-    {
-      label: 'Notes',
+          {
+            label: 'Roles & permissions',
+            route: '/app/workspace/roles-permissions',
+            icon: LucideShieldCheck,
+          },
+        ],
+      },
 
-      items: [
-        {
-          label: 'Notes',
-          route: '/app/sticky-notes/my',
-          icon: LucideStickyNote,
-        },
+      {
+        label: 'Notes',
 
-        {
-          label: 'Favourites',
-          route: '/app/favorites',
-          icon: LucideStar,
-        },
-      ],
-    },
+        items: [
+          {
+            label: 'Notes',
+            route: '/app/sticky-notes/my',
+            icon: LucideStickyNote,
+          },
 
-    {
-      label: 'Account',
+          {
+            label: 'Favourites',
+            route: '/app/favorites',
+            icon: LucideStar,
+          },
+        ],
+      },
 
-      items: [
-        {
-          label: 'Profile',
-          route: '/app/account/profile',
-          icon: LucideCircleUserRound,
-        },
+      {
+        label: 'Account',
 
-        {
-          label: 'Preferences',
-          route: '/app/account/preferences',
-          icon: LucideSlidersHorizontal,
-        },
-      ],
-    },
+        items: [
+          {
+            label: 'Profile',
+            route: '/app/account/profile',
+            icon: LucideCircleUserRound,
+          },
 
-  ];
+          {
+            label: 'Preferences',
+            route: '/app/account/preferences',
+            icon: LucideSlidersHorizontal,
+          },
+        ],
+      },
+
+    ];
 
 
   /*
@@ -260,9 +281,11 @@ export class Sidebar {
 
   closeMobileNavigation(): void {
 
-    if (this.mobileOpen) {
-      this.mobileClosed.emit();
+    if (!this.mobileOpen) {
+      return;
     }
+
+    this.mobileClosed.emit();
 
   }
 

@@ -25,8 +25,8 @@
                     }
                 </div>
 
-                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" variant="outline" size="md"
-                    ariaLabel="Refresh spaces" title="Refresh spaces" [loading]="loading()"
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh spaces" title="Refresh spaces" [loading]="loading()"
                     (buttonClick)="loadWorkspaces()" />
 
                 <app-button class="workspace-new-button" label="New workspace" [iconLeft]="LucidePlus"
@@ -36,9 +36,9 @@
 
         <section class="workspace-explorer" [attr.aria-busy]="loading()">
             <div class="workspace-toolbar">
-                <app-tabs class="workspace-status-tabs" [items]="workspaceTabs()" [value]="activeTab()" variant="paper"
-                    shape="rounded" size="sm" density="compact" ariaLabel="Filter spaces by status" [fullWidth]="false"
-                    [scrollable]="true" (valueChange)="setWorkspaceTab($event)" />
+                <app-tabs class="workspace-status-tabs" [items]="workspaceTabs()" [value]="activeTab()"
+                    variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter spaces by status"
+                    [fullWidth]="false" [scrollable]="true" (valueChange)="setWorkspaceTab($event)" />
 
                 <div class="workspace-toolbar-actions">
                     <div class="workspace-search">
@@ -51,7 +51,7 @@
                     <app-select class="workspace-sort" [options]="sortOptions" [ngModel]="sortBy()"
                         (ngModelChange)="setSort($event)" name="workspace-sort" placeholder="Sort"
                         ariaLabel="Sort spaces" variant="paper" shape="rounded" size="sm" [clearable]="false"
-                        [searchable]="false" [fullWidth]="false" [width]="176" />
+                        [searchable]="false" [fullWidth]="true" />
 
                     <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
                         shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
@@ -82,34 +82,25 @@
                         <app-icon [icon]="LucideSearch" size="lg" />
                     </span>
                     <span class="workspace-empty-note">No sticky space matches</span>
-                    <h2>No folder found</h2>
+                    <h2>No workspace found</h2>
                     <p>Try another name or clear your search.</p>
                     <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
                 </div>
                 } @else if (view() === 'grid') {
-                <div class="workspace-folder-grid" role="list">
+                <div class="workspace-folder-grid workspace-folder-grid--cards" role="list">
                     @for (workspace of visibleWorkspaces(); track workspaceId(workspace)) {
-                    <article class="workspace-folder-tile" role="listitem" [class.is-archived]="isArchived(workspace)"
-                        [class.is-busy]="isBusy(workspace)">
+                    <article class="workspace-folder-tile workspace-folder-tile--card" role="listitem"
+                        [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)">
 
-                        <div class="workspace-folder-open" [attr.role]="isInlineRenaming(workspace) ? null : 'button'"
-                            [attr.tabindex]="isInlineRenaming(workspace) || isBusy(workspace) ? -1 : 0"
-                            [attr.aria-label]="isInlineRenaming(workspace) ? null : 'Open ' + workspaceName(workspace)"
-                            (click)="handleWorkspaceClick(workspace, $event)"
-                            (dblclick)="handleWorkspaceDoubleClick(workspace, $event)"
-                            (keydown.enter)="openWorkspace(workspace)">
-                            <span [class]="'workspace-folder-visual ' + workspaceTheme(workspace).variant"
-                                aria-hidden="true">
-                                <span class="workspace-folder-back"></span>
-                                <span class="workspace-folder-sheet">
-                                    <span></span><span></span><span></span>
-                                </span>
-                                <span class="workspace-folder-front">
-                                    <app-icon [icon]="workspaceTheme(workspace).icon" size="sm" />
-                                </span>
-                            </span>
-
-                            <span class="workspace-folder-copy">
+                        <app-workspace-folder-wrapper [name]="workspaceName(workspace)"
+                            [description]="workspace.description || ''" [personal]="!!workspace.isPersonal"
+                            [visibility]="workspaceVisibility(workspace)" [roleLabel]="workspaceRoleLabel(workspace)"
+                            [status]="workspace.status" [updatedAt]="workspace.updatedAt || workspace.createdAt"
+                            [interactive]="!isInlineRenaming(workspace)" [busy]="isBusy(workspace)"
+                            (opened)="handleWorkspaceClick(workspace, $event)"
+                            (edited)="handleWorkspaceDoubleClick(workspace, $event)"
+                            (keyboardOpened)="openWorkspace(workspace)">
+                            <div folder-title>
                                 @if (isInlineRenaming(workspace)) {
                                 <input #renameInput class="workspace-inline-rename"
                                     [class.is-invalid]="!!inlineRenameError()" type="text" maxlength="80"
@@ -125,30 +116,14 @@
                                     (dblclick)="beginInlineRename(workspace, $event)">{{ workspaceName(workspace)
                                     }}</strong>
                                 }
-                                <small>{{ workspaceDescription(workspace) || workspaceTypeLabel(workspace) }}</small>
-                            </span>
-                        </div>
-
-                        <div class="workspace-folder-meta" aria-hidden="true">
-                            <span><app-icon [icon]="LucideFileText" size="xs" />{{ workspaceNoteCount(workspace)
-                                }}</span>
-                            <span><app-icon [icon]="LucideUsers" size="xs" />{{ workspaceMemberCount(workspace)
-                                }}</span>
-                            <time>{{ workspaceUpdatedLabel(workspace) }}</time>
-                        </div>
-
-                        <button type="button" class="workspace-quick-edit"
-                            [attr.aria-label]="'Edit ' + workspaceName(workspace)"
-                            [attr.title]="'Edit ' + workspaceName(workspace)"
-                            (click)="openEditEditor(workspace, $event)">
-                            <app-icon [icon]="LucidePencil" size="xs" />
-                        </button>
-
-                        <button type="button" class="workspace-menu-trigger" [matMenuTriggerFor]="workspaceActions"
-                            [attr.aria-label]="'Actions for ' + workspaceName(workspace)"
-                            (click)="$event.stopPropagation()">
-                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                        </button>
+                            </div>
+                            <button folder-actions type="button" class="workspace-menu-trigger"
+                                [matMenuTriggerFor]="workspaceActions" [disabled]="isBusy(workspace)"
+                                [attr.aria-label]="'Actions for ' + workspaceName(workspace)"
+                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                                <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                            </button>
+                        </app-workspace-folder-wrapper>
 
                         <mat-menu #workspaceActions="matMenu" xPosition="before" yPosition="below"
                             [overlapTrigger]="false" class="workspace-actions-menu">
@@ -240,8 +215,8 @@
                         <tr>
                             <th scope="col">Workspace</th>
                             <th scope="col">Access</th>
-                            <th scope="col">Notes</th>
-                            <th scope="col">Members</th>
+                            <th scope="col">Visibility</th>
+                            <th scope="col">Status</th>
                             <th scope="col">Modified</th>
                             <th scope="col" class="workspace-table-actions-heading">Actions</th>
                         </tr>
@@ -258,7 +233,7 @@
                                     [attr.tabindex]="isInlineRenaming(workspace) || isBusy(workspace) ? -1 : 0"
                                     [attr.aria-label]="isInlineRenaming(workspace) ? null : 'Open ' + workspaceName(workspace)"
                                     (click)="handleWorkspaceClick(workspace, $event)"
-                                    (keydown.enter)="openWorkspace(workspace)">
+                                    (keydown.enter)="$event.target === $event.currentTarget && openWorkspace(workspace)">
 
                                     <span [class]="'workspace-folder-thumbnail ' + workspaceTheme(workspace).variant"
                                         aria-hidden="true">
@@ -295,15 +270,10 @@
                                     shape="pill" />
                             </td>
 
-                            <td class="workspace-table-number" data-label="Notes">
-                                <span><app-icon [icon]="LucideFileText" size="xs" />{{ workspaceNoteCount(workspace)
-                                    }}</span>
-                            </td>
+                            <td class="workspace-table-number" data-label="Visibility">{{ workspaceVisibility(workspace)
+                                }}</td>
 
-                            <td class="workspace-table-number" data-label="Members">
-                                <span><app-icon [icon]="LucideUsers" size="xs" />{{ workspaceMemberCount(workspace)
-                                    }}</span>
-                            </td>
+                            <td class="workspace-table-number" data-label="Status">{{ workspace.status }}</td>
 
                             <td class="workspace-table-modified" data-label="Modified">
                                 <time>{{ workspaceUpdatedLabel(workspace) }}</time>
@@ -417,8 +387,8 @@
     </main>
 </section>
 
-<app-add-edit-workspace-modal [open]="workspaceModalOpen()" [id]="workspaceModalId()" (closed)="closeWorkspaceEditor()"
-    (saved)="onWorkspaceSaved($event)" />
+<app-add-edit-workspace-side-panel [open]="workspaceEditorOpen()" [id]="workspaceEditorId()"
+    [workspace]="editorWorkspace()" (closed)="closeWorkspaceEditor()" (saved)="onWorkspaceSaved($event)" />
 
 @if (deleteTarget(); as workspace) {
 <div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">

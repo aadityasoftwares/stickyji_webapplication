@@ -1,0 +1,687 @@
+<section class="roles-permissions-page" aria-labelledby="roles-permissions-page-title">
+    <main class="roles-permissions-main">
+
+        <!-- =========================================================
+             HEADER
+             ========================================================= -->
+        <header class="roles-permissions-header">
+            <div class="roles-permissions-intro">
+                <span class="roles-permissions-intro-mark" aria-hidden="true">
+                    <app-icon [icon]="LucideShieldCheck" size="md" />
+
+                    <span class="roles-permissions-intro-key">
+                        <app-icon [icon]="LucideKey" size="xs" />
+                    </span>
+                </span>
+
+                <div>
+                    <span class="roles-permissions-kicker">
+                        Inside {{ selectedWorkspaceLabel() }}
+                    </span>
+
+                    <h1 id="roles-permissions-page-title">
+                        Manage roles and
+                        <span>workspace access.</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="roles-permissions-header-actions">
+                <div class="roles-permissions-count-slot" aria-live="polite">
+                    @if (
+                    !loadingRoles() &&
+                    !roleError() &&
+                    selectedWorkspaceId()
+                    ) {
+                    <app-badge [label]="roles().length + (roles().length === 1 ? ' role' : ' roles')"
+                        variant="noteYellow" size="sm" shape="pill" />
+                    } @else {
+                    <span class="roles-permissions-count-placeholder" aria-hidden="true">
+                    </span>
+                    }
+                </div>
+
+                <div class="roles-permissions-workspace-picker">
+                    <app-select [options]="workspaceOptions()" [ngModel]="selectedWorkspaceId()"
+                        (ngModelChange)="onWorkspaceChange($event)" name="roles-permissions-workspace"
+                        [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+                        ariaLabel="Choose workspace for roles and permissions" variant="paper" shape="rounded" size="sm"
+                        [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
+                </div>
+
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh workspace roles" title="Refresh workspace roles"
+                    [loading]="loadingRoles()" [disabled]="!selectedWorkspaceId() || loadingWorkspaces()"
+                    (buttonClick)="refresh()" />
+
+                <app-button class="roles-permissions-new-button" label="New role" [iconLeft]="LucidePlus"
+                    variant="noteYellow" appearance="standard" size="md" [disabled]="
+                        !selectedWorkspaceId() ||
+                        loadingWorkspaces() ||
+                        loadingPermissions()
+                    " (buttonClick)="openCreateRole()" />
+            </div>
+        </header>
+
+
+        <!-- =========================================================
+             EXPLORER
+             ========================================================= -->
+        <section class="roles-permissions-explorer" [attr.aria-busy]="loadingRoles() || loadingWorkspaces()">
+
+            <!-- Single toolbar.
+                 Roles / Permission Catalog top tabs intentionally removed. -->
+            <div class="roles-permissions-toolbar">
+
+                <app-tabs class="roles-permissions-filter-tabs" [items]="roleTabs()" [value]="activeRoleTab()"
+                    variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter workspace roles"
+                    [fullWidth]="false" [scrollable]="true" (valueChange)="setRoleTab($event)" />
+
+                <div class="roles-permissions-toolbar-actions">
+
+                    <div class="roles-permissions-search">
+                        <app-input type="search" label="Search roles" labelMode="hidden"
+                            placeholder="Search role, code or permission" variant="paper" appearance="outlined"
+                            shape="rounded" size="sm" [leadingIcon]="LucideSearch" [clearable]="true"
+                            [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search workspace roles"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                    </div>
+
+                    <app-select class="roles-permissions-sort" [options]="roleSortOptions" [ngModel]="roleSort()"
+                        (ngModelChange)="setRoleSort($event)" name="workspace-role-sort" placeholder="Sort"
+                        ariaLabel="Sort workspace roles" variant="paper" shape="rounded" size="sm" [clearable]="false"
+                        [searchable]="false" [fullWidth]="true" />
+
+                    <app-tabs class="roles-permissions-view-tabs" [items]="viewTabs" [value]="view()"
+                        variant="segmented" shape="rounded" size="sm" density="compact"
+                        ariaLabel="Choose grid or list view" [scrollable]="false" [minTabWidth]="64"
+                        (valueChange)="setView($event)" />
+                </div>
+            </div>
+
+
+            <!-- =====================================================
+                 BODY
+                 ===================================================== -->
+            <div class="roles-permissions-explorer-body" [class.is-list]="view() === 'list'">
+
+                @if (loadingWorkspaces()) {
+
+                <div class="roles-permissions-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Loading your workspaces..."
+                        description="Finding the spaces you can manage." [minHeight]="360" />
+                </div>
+
+                } @else if (workspaceError()) {
+
+                <div class="roles-permissions-empty-state">
+                    <span class="roles-permissions-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        Couldn’t open your spaces
+                    </span>
+
+                    <h2>Workspaces are unavailable</h2>
+
+                    <p>{{ workspaceError() }}</p>
+
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadWorkspaces()" />
+                </div>
+
+                } @else if (workspaces().length === 0) {
+
+                <div class="roles-permissions-empty-state">
+                    <span class="roles-permissions-empty-icon">
+                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        No workspace yet
+                    </span>
+
+                    <h2>Create a workspace first</h2>
+
+                    <p>
+                        Workspace roles belong to a workspace, so create a
+                        workspace before managing access.
+                    </p>
+                </div>
+
+                } @else if (!selectedWorkspaceId()) {
+
+                <div class="roles-permissions-empty-state">
+                    <span class="roles-permissions-empty-icon">
+                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        Choose your space
+                    </span>
+
+                    <h2>Select a workspace</h2>
+
+                    <p>
+                        Choose a workspace above to view and manage its roles.
+                    </p>
+                </div>
+
+                } @else if (loadingRoles()) {
+
+                <div class="roles-permissions-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening workspace roles..."
+                        description="Getting role access ready." [minHeight]="360" />
+                </div>
+
+                } @else if (roleError()) {
+
+                <div class="roles-permissions-empty-state">
+                    <span class="roles-permissions-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        Something slipped away
+                    </span>
+
+                    <h2>Couldn’t load roles</h2>
+
+                    <p>{{ roleError() }}</p>
+
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadRoles()" />
+                </div>
+
+                } @else if (searchTerm() && visibleRoles().length === 0) {
+
+                <div class="roles-permissions-empty-state is-compact">
+                    <span class="roles-permissions-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        No role matches
+                    </span>
+
+                    <h2>No role found</h2>
+
+                    <p>
+                        Try another role name, code or permission.
+                    </p>
+
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+
+                } @else if (visibleRoles().length === 0) {
+
+                <div class="roles-permissions-empty-state is-compact">
+                    <span class="roles-permissions-empty-icon">
+                        <app-icon [icon]="LucideShield" size="lg" />
+                    </span>
+
+                    <span class="roles-permissions-empty-note">
+                        No roles in this view
+                    </span>
+
+                    <h2>
+                        {{
+                        activeRoleTab() === 'inactive'
+                        ? 'No inactive roles'
+                        : 'Create your first custom role'
+                        }}
+                    </h2>
+
+                    <p>
+                        {{
+                        activeRoleTab() === 'inactive'
+                        ? 'Deactivated custom roles will appear here.'
+                        : 'Create a reusable role and choose exactly what members can access.'
+                        }}
+                    </p>
+
+                    @if (activeRoleTab() !== 'inactive') {
+                    <app-button label="New role" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openCreateRole()" />
+                    }
+                </div>
+
+
+                <!-- =================================================
+                     GRID VIEW
+                     ================================================= -->
+                } @else if (view() === 'grid') {
+
+                <div class="roles-permissions-card-grid" role="list" aria-label="Workspace roles">
+
+                    @for (role of visibleRoles(); track roleId(role)) {
+
+                    <app-sticky-card class="roles-permissions-role-card" role="listitem" variant="noteGreen"
+                        appearance="flat" shape="note" size="sm" [padding]="0" [fullWidth]="true" [hoverable]="false"
+                        [class.is-inactive]="role.isActive === false" [class.is-busy]="isRoleBusy(role)">
+
+                        <div class="role-card">
+
+                            <!-- =================================================
+                                 TOP LABEL + MENU
+                                 ================================================= -->
+                            <div class="role-card-top">
+                                <span class="role-card-type">
+                                    {{
+                                    role.isDefault
+                                    ? 'Default role'
+                                    : role.isSystem
+                                    ? 'System role'
+                                    : 'Custom role'
+                                    }}
+                                </span>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 MAIN IDENTITY
+                                 Same hierarchy as member card:
+                                 icon -> name -> code
+                                 ================================================= -->
+                            <button type="button" class="role-card-main" [disabled]="isRoleBusy(role)"
+                                (click)="openRole(role)">
+
+                                <span class="role-card-avatar" [class.is-system]="role.isSystem" aria-hidden="true">
+
+                                    <app-icon [icon]="role.isSystem ? LucideLock : LucideShield" size="sm" />
+                                </span>
+
+                                <span class="role-card-main-copy">
+                                    <strong class="role-card-name" [title]="roleDisplayName(role)">
+                                        {{ roleDisplayName(role) }}
+                                    </strong>
+
+                                </span>
+                            </button>
+
+
+                            <!-- =================================================
+                                 TYPE + STATUS
+                                 Same row as Member role + Active
+                                 ================================================= -->
+                            <div class="role-card-access-row">
+
+                                <span class="role-card-role" [title]="roleTypeLabel(role)">
+                                    <app-icon [icon]="role.isSystem ? LucideLock : LucideShield" size="xs" />
+
+                                    {{ roleTypeLabel(role) }}
+
+                                    @if (role.isDefault) {
+                                    <span class="role-card-default-text">
+                                        · Default
+                                    </span>
+                                    }
+                                </span>
+
+                                <app-badge [label]="roleStatusLabel(role)" [variant]="roleStatusVariant(role)" size="xs"
+                                    shape="pill" [dot]="true" />
+                            </div>
+
+
+                            <!-- =================================================
+                                 TWO IMPORTANT FACTS
+                                 Keep grid easy to scan just like Members
+                                 ================================================= -->
+                            <div class="role-card-meta">
+
+                                <div class="role-card-meta-item">
+                                    <span>Permissions</span>
+                                    <strong>
+                                        {{ rolePermissionCount(role) }}
+                                    </strong>
+                                </div>
+
+                                <div class="role-card-meta-item is-secondary">
+                                    <span>Level</span>
+                                    <strong>
+                                        {{ rolePriorityLabel(role) }}
+                                    </strong>
+                                </div>
+                            </div>
+
+
+                            <!-- =================================================
+                                 FOOTER ACTION
+                                 Same hierarchy as View access + Edit
+                                 ================================================= -->
+                            <div class="role-card-footer">
+
+                                <app-button class="role-card-primary-action"
+                                    [label]="role.isSystem ? 'View permissions' : 'Manage role'"
+                                    [iconLeft]="role.isSystem ? LucideEye : LucidePencil" variant="outline"
+                                    appearance="standard" size="sm" [fullWidth]="true" [disabled]="isRoleBusy(role)"
+                                    (buttonClick)="openRole(role)" />
+
+                                @if (!role.isSystem) {
+                                <app-button class="role-card-status-action" [icon]="
+                                        role.isActive === false
+                                            ? LucideRotateCcw
+                                            : LucidePower
+                                    " [iconOnly]="true" variant="outline" appearance="standard" size="sm"
+                                    [rounded]="true" [ariaLabel]="
+                                        role.isActive === false
+                                            ? 'Activate ' + roleDisplayName(role)
+                                            : 'Deactivate ' + roleDisplayName(role)
+                                    " [title]="
+                                        role.isActive === false
+                                            ? 'Activate role'
+                                            : 'Deactivate role'
+                                    " [disabled]="isRoleBusy(role)" (buttonClick)="changeRoleStatus(
+                                        role,
+                                        role.isActive === false
+                                    )" />
+                                }
+                            </div>
+                        </div>
+                    </app-sticky-card>
+                    }
+
+
+                    <!-- =================================================
+                         CREATE ROLE
+                         Same visual rhythm as Invite teammate
+                         ================================================= -->
+                    @if (activeRoleTab() !== 'inactive') {
+                    <app-sticky-card class="roles-permissions-add-card" variant="noteGreen" appearance="flat"
+                        shape="note" size="sm" [padding]="0" [fullWidth]="true" [hoverable]="false" [clickable]="true"
+                        (cardClick)="openCreateRole()">
+
+                        <div class="roles-permissions-add-content">
+                            <span class="roles-permissions-add-icon" aria-hidden="true">
+                                <app-icon [icon]="LucidePlus" size="md" />
+                            </span>
+
+                            <strong>Create a new role</strong>
+
+                            <small>
+                                Set permissions for a reusable workspace role.
+                            </small>
+
+                            <span class="roles-permissions-add-link">
+                                Add role
+                                <app-icon [icon]="LucideShield" size="xs" />
+                            </span>
+                        </div>
+                    </app-sticky-card>
+                    }
+                </div>
+
+
+                <!-- =================================================
+                     LIST VIEW
+                     ================================================= -->
+                } @else {
+
+                <div class="roles-permissions-table-scroll">
+                    <table class="roles-permissions-table" aria-label="Workspace roles list">
+
+                        <thead>
+                            <tr>
+                                <th scope="col">Role</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Permissions</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Scope</th>
+                                <th scope="col" class="roles-permissions-actions-col">
+                                    <span class="visually-hidden">
+                                        Actions
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (role of visibleRoles(); track roleId(role)) {
+
+                            <tr [class.is-inactive]="role.isActive === false" [class.is-busy]="isRoleBusy(role)">
+
+                                <td data-label="Role">
+                                    <button type="button" class="role-table-primary" [disabled]="isRoleBusy(role)"
+                                        (click)="openRole(role)">
+
+                                        <span class="role-table-icon" [class.is-system]="role.isSystem"
+                                            aria-hidden="true">
+                                            <app-icon [icon]="
+                                                    role.isSystem
+                                                        ? LucideLock
+                                                        : LucideShield
+                                                " size="xs" />
+                                        </span>
+
+                                        <span class="role-table-copy">
+                                            <span class="role-table-name-row">
+                                                <strong>
+                                                    {{ roleDisplayName(role) }}
+                                                </strong>
+
+                                                @if (role.isDefault) {
+                                                <app-badge label="Default" variant="noteYellow" size="xs"
+                                                    shape="pill" />
+                                                }
+                                            </span>
+
+                                        </span>
+                                    </button>
+                                </td>
+
+                                <td data-label="Type">
+                                    <app-badge [label]="roleTypeLabel(role)" [variant]="roleTypeVariant(role)" size="xs"
+                                        shape="pill" />
+                                </td>
+
+                                <td data-label="Permissions">
+                                    <div class="role-table-permission-summary">
+                                        <strong>
+                                            {{ rolePermissionCount(role) }}
+                                        </strong>
+
+                                        <small>
+                                            {{ rolePermissionPreview(role) }}
+                                        </small>
+                                    </div>
+                                </td>
+
+                                <td data-label="Status">
+                                    <app-badge [label]="roleStatusLabel(role)" [variant]="roleStatusVariant(role)"
+                                        size="xs" shape="pill" [dot]="true" />
+                                </td>
+
+                                <td data-label="Level">
+                                    <span class="role-table-text">
+                                        {{ rolePriorityLabel(role) }}
+                                    </span>
+                                </td>
+
+                                <td data-label="Scope">
+                                    <span class="role-table-text">
+                                        {{ roleScopeLabel(role) }}
+                                    </span>
+                                </td>
+
+                                <td class="roles-permissions-actions-col" data-label="Actions">
+
+                                    <button type="button" class="roles-permissions-menu-trigger"
+                                        [matMenuTriggerFor]="roleActions" [attr.aria-label]="
+                                            'Actions for ' +
+                                            roleDisplayName(role)
+                                        " [disabled]="isRoleBusy(role)" (click)="$event.stopPropagation()">
+
+                                        <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                    </button>
+
+                                    <mat-menu #roleActions="matMenu" xPosition="before" yPosition="below"
+                                        [overlapTrigger]="false" class="roles-permissions-actions-menu">
+
+                                        <button mat-menu-item type="button"
+                                            class="roles-permissions-action-item is-primary" (click)="openRole(role)">
+
+                                            <span class="roles-permissions-menu-item-icon" aria-hidden="true">
+                                                <app-icon [icon]="
+                                                        role.isSystem
+                                                            ? LucideEye
+                                                            : LucidePencil
+                                                    " size="xs" />
+                                            </span>
+
+                                            <span class="roles-permissions-menu-item-copy">
+                                                <strong>
+                                                    {{
+                                                    role.isSystem
+                                                    ? 'View permissions'
+                                                    : 'Edit role'
+                                                    }}
+                                                </strong>
+
+                                                <small>
+                                                    {{
+                                                    role.isSystem
+                                                    ? 'System role is read only'
+                                                    : 'Update role details and access'
+                                                    }}
+                                                </small>
+                                            </span>
+                                        </button>
+
+                                        @if (!role.isSystem) {
+
+                                        <button mat-menu-item type="button" class="roles-permissions-action-item"
+                                            (click)="changeRoleStatus(
+                                                role,
+                                                role.isActive === false
+                                            )">
+
+                                            <span class="roles-permissions-menu-item-icon" aria-hidden="true">
+                                                <app-icon [icon]="
+                                                        role.isActive === false
+                                                            ? LucideRotateCcw
+                                                            : LucidePower
+                                                    " size="xs" />
+                                            </span>
+
+                                            <span class="roles-permissions-menu-item-copy">
+                                                <strong>
+                                                    {{
+                                                    role.isActive === false
+                                                    ? 'Activate role'
+                                                    : 'Deactivate role'
+                                                    }}
+                                                </strong>
+
+                                                <small>
+                                                    {{
+                                                    role.isActive === false
+                                                    ? 'Make it assignable again'
+                                                    : 'Keep it saved but unavailable'
+                                                    }}
+                                                </small>
+                                            </span>
+                                        </button>
+
+                                        <mat-divider />
+
+                                        <button mat-menu-item type="button"
+                                            class="roles-permissions-action-item roles-permissions-menu-danger"
+                                            (click)="requestDelete(role)">
+
+                                            <span class="roles-permissions-menu-item-icon" aria-hidden="true">
+                                                <app-icon [icon]="LucideTrash2" size="xs" />
+                                            </span>
+
+                                            <span class="roles-permissions-menu-item-copy">
+                                                <strong>Delete role</strong>
+                                                <small>
+                                                    Permanently remove this custom role
+                                                </small>
+                                            </span>
+                                        </button>
+                                        }
+                                    </mat-menu>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+
+<!-- =============================================================
+     EXISTING ROLE PERMISSION VIEWER
+     ============================================================= -->
+<app-view-role-permissions-modal [open]="permissionViewerOpen()" [role]="permissionViewerRole()"
+    [workspaceLabel]="selectedWorkspaceLabel()" [permissionGroups]="permissionGroups()" [loading]="loadingPermissions()"
+    [error]="permissionError()" (closed)="closePermissionViewer()" (retry)="loadPermissions()" />
+
+
+<!-- =============================================================
+     EXISTING ADD / EDIT ROLE PANEL
+     ============================================================= -->
+<app-add-edit-workspace-role-side-panel [open]="roleEditorOpen()" [workspaceId]="selectedWorkspaceId()"
+    [workspaceLabel]="selectedWorkspaceLabel()" [role]="editorRole()" [permissionGroups]="permissionGroups()"
+    (closed)="closeRoleEditor()" (saved)="onRoleSaved()" />
+
+
+<!-- =============================================================
+     DELETE DIALOG
+     ============================================================= -->
+@if (deleteTarget(); as role) {
+<div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+
+    <section class="roles-permissions-dialog-shell" role="alertdialog" aria-modal="true"
+        aria-labelledby="workspace-role-delete-title" (mousedown)="$event.stopPropagation()">
+
+        <app-sticky-card class="roles-permissions-dialog-note" variant="noteRed" appearance="elevated" shape="note"
+            size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+
+            <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
+                <app-icon [icon]="LucideTrash2" size="sm" />
+            </span>
+
+            <span card-eyebrow class="roles-permissions-dialog-kicker">
+                Before you remove the role
+            </span>
+
+            <h2 card-title id="workspace-role-delete-title" class="roles-permissions-dialog-title">
+                Delete custom role?
+            </h2>
+
+            <p card-subtitle class="roles-permissions-dialog-subtitle">
+                “{{ roleDisplayName(role) }}” will be permanently removed
+                from {{ selectedWorkspaceLabel() }}.
+            </p>
+
+            <div class="roles-permissions-delete-message">
+                <span aria-hidden="true">
+                    <app-icon [icon]="LucidePower" size="xs" />
+                </span>
+
+                <span>
+                    If you may need this role later, deactivate it instead
+                    of deleting it.
+                </span>
+            </div>
+
+            <div card-footer class="roles-permissions-dialog-actions">
+
+                <app-button label="Keep role" variant="secondary" size="sm" [disabled]="deleting()"
+                    (buttonClick)="closeDeleteDialog()" />
+
+                <app-button label="Delete role" variant="danger" size="sm" [loading]="deleting()"
+                    [disabled]="deleting()" (buttonClick)="confirmDelete()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}

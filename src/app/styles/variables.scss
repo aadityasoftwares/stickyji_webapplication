@@ -264,6 +264,21 @@ $font-body: 'DM Sans', 'Segoe UI', Arial, sans-serif;
 $font-note: 'Caveat', 'Comic Sans MS', cursive;
 $font-mono: 'JetBrains Mono', monospace;
 
+/* Selectable sticky-note fonts. These are intentionally separate from the
+   product UI fonts so changing a note never changes tabs, forms or navigation. */
+$font-note-dm-sans: 'DM Sans', 'Segoe UI', Arial, sans-serif;
+$font-note-caveat: 'Caveat', 'Comic Sans MS', cursive;
+$font-note-patrick-hand: 'Patrick Hand', cursive;
+$font-note-kalam: 'Kalam', cursive;
+$font-note-architects-daughter: 'Architects Daughter', cursive;
+$font-note-indie-flower: 'Indie Flower', cursive;
+$font-note-nanum-pen: 'Nanum Pen Script', cursive;
+$font-note-shadows-into-light: 'Shadows Into Light', cursive;
+$font-note-comic-neue: 'Comic Neue', cursive;
+$font-note-sriracha: 'Sriracha', cursive;
+$font-note-short-stack: 'Short Stack', cursive;
+$font-note-gochi-hand: 'Gochi Hand', cursive;
+
 // STICKY NOTES COMMON COLORS
 /* ==========================================================
    Sticky Note Color Palette

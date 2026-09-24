@@ -1,14 +1,32 @@
 @use '../../styles/variables' as *;
 
+/* ==========================================================
+   MY NOTES
+   - Same page/layout rhythm as Workspace
+   - My Notes-owned note/grid/table styling only
+   - 13px / 14px / 15px type scale
+   - Page never scrolls; grid/table owns scrolling
+   ========================================================== */
+
 :host {
+    --notes-font-13: 0.8125rem;
+    --notes-font-14: 0.875rem;
+    --notes-font-15: 0.9375rem;
+
     display: flex;
     flex: 1 1 auto;
+
     width: 100%;
+    height: 100%;
+
     min-width: 0;
-    min-height: 100%;
+    min-height: 0;
+    max-height: 100%;
+
+    overflow: hidden;
+
     color: $text-primary;
     font-family: $font-body;
-    -webkit-font-smoothing: antialiased;
 }
 
 *,
@@ -17,1654 +35,848 @@
     box-sizing: border-box;
 }
 
-button {
+button,
+input {
     color: inherit;
     font: inherit;
 }
 
+
+/* ==========================================================
+   PAGE / MAIN
+   ========================================================== */
+
 .notes-page {
     display: flex;
     flex: 1 1 auto;
+
     width: 100%;
+    height: 100%;
+
     min-width: 0;
-    min-height: 100%;
-    padding: clamp(22px, 2.6vw, 40px);
-    background:
-        radial-gradient(circle at 3% 0, rgba($note-button-yellow, 0.11), transparent 31rem),
-        radial-gradient(circle at 100% 20%, rgba($note-blue, 0.075), transparent 29rem),
-        $page-bg;
+    min-height: 0;
+    max-height: 100%;
+
+    padding:
+        clamp(0.875rem, 1.5vw, 1.375rem) clamp(0.875rem, 1.8vw, 1.75rem) 0;
+
+    overflow: hidden;
+
+    background: $page-bg;
 }
 
 .notes-main {
-    width: min(100%, 1540px);
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+
+    width: min(100%, 96rem);
+    height: 100%;
+
     min-width: 0;
+    min-height: 0;
+
     margin-inline: auto;
+
+    overflow: hidden;
 }
 
+
+/* ==========================================================
+   PAGE HEADER
+   ========================================================== */
+
 .notes-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
+    display: grid;
+    grid-template-columns:
+        minmax(15rem, 1fr) auto;
+
+    align-items: end;
+
+    flex: 0 0 auto;
+
     min-width: 0;
+
+    gap:
+        0.875rem 1.25rem;
 }
 
 .notes-intro {
     display: flex;
     align-items: center;
-    gap: 15px;
+
     min-width: 0;
 
-    >div {
-        min-width: 0;
-    }
+    gap: 0.75rem;
+}
 
-    h1 {
-        max-width: 760px;
-        margin: 2px 0 0;
-        color: $text-secondary;
-        font-family: $font-heading;
-        font-size: clamp(1.22rem, 2vw, 1.72rem);
-        font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: -0.035em;
+.notes-intro>div {
+    min-width: 0;
+}
 
-        span {
-            position: relative;
-            color: $heading;
-            white-space: nowrap;
+.notes-intro h1 {
+    max-width: 46rem;
 
-            &::after {
-                position: absolute;
-                z-index: -1;
-                right: -3px;
-                bottom: 0;
-                left: -3px;
-                height: 34%;
-                content: '';
-                background: rgba($note-button-yellow, 0.42);
-                border-radius: 2px;
-                transform: rotate(-0.7deg);
-            }
-        }
+    margin:
+        0.1875rem 0 0;
+
+    overflow: hidden;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--notes-font-15);
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notes-intro h1 span {
+    color: inherit;
+}
+
+
+/* ==========================================================
+   MY NOTES MARK
+   ========================================================== */
+
+.notes-header-mark {
+    display: grid;
+    flex: 0 0 auto;
+
+    width: 3.375rem;
+    height: 3.375rem;
+
+    overflow: hidden;
+
+    grid-template-rows:
+        1.125rem 1fr;
+
+    color: $heading;
+    background: $paper;
+
+    border:
+        1px solid rgba($accent, 0.32);
+
+    border-radius: 0.75rem;
+
+    box-shadow:
+        0 0.125rem 0.5rem rgba($heading, 0.04);
+
+    >app-icon {
+        display: grid;
+
+        place-items: center;
     }
 }
 
+.notes-header-mark-top {
+    display: grid;
+
+    color: $note-button-yellow-text;
+    background:
+        linear-gradient(180deg,
+            rgba($note-button-yellow, 0.98),
+            rgba($note-button-yellow, 0.82));
+
+    font-family: $font-mono;
+    font-size: 0.375rem;
+    font-weight: 900;
+    letter-spacing: 0.055em;
+
+    place-items: center;
+
+    box-shadow:
+        inset 0 -1px rgba($accent, 0.12);
+}
+
 .notes-kicker,
-.notes-section-kicker,
-.notes-empty-note,
-.notes-dialog-kicker {
+.notes-empty-note {
     color: $accent;
-    font-family: $font-note;
+
     font-weight: 700;
 }
 
 .notes-kicker {
     display: block;
-    font-size: 1.08rem;
-    line-height: 1;
-    transform: rotate(-1deg);
-    transform-origin: left center;
+
+    max-width: 100%;
+
+    overflow: hidden;
+
+    font-family: $font-note;
+    font-size: var(--notes-font-14);
+    line-height: 1.25;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.notes-intro-mark {
-    position: relative;
+
+/* ==========================================================
+   HEADER ACTIONS / CONTEXT
+   ========================================================== */
+
+.notes-header-actions {
     display: grid;
-    flex: 0 0 auto;
-    width: 58px;
-    height: 58px;
-    background: rgba($paper, 0.8);
-    border: 1px solid rgba($border, 0.82);
-    border-radius: 15px;
-    box-shadow: 0 8px 22px rgba($heading, 0.055);
+    grid-template-columns:
+        auto minmax(21rem, 28rem) auto;
+
+    align-items: center;
+    justify-content: end;
+
+    min-width: 0;
+
+    gap: 0.5rem;
+}
+
+.notes-count-slot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-width: 4.75rem;
+    min-height: 2.25rem;
+
+    white-space: nowrap;
+}
+
+.notes-count-placeholder {
+    display: block;
+
+    width: 4.75rem;
+    height: 1.5rem;
+
+    visibility: hidden;
+}
+
+.notes-context-picker {
+    display: grid;
+    grid-template-columns:
+        minmax(9.5rem, 1fr) auto minmax(9.5rem, 1fr);
+
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 0.375rem;
+}
+
+/*
+ * Keep app-label in the template so the current standalone import
+ * remains used, but keep the Workspace-style header compact.
+ */
+.notes-picker-field app-label {
+    display: none;
+}
+
+.notes-picker-field {
+    display: block;
+
+    min-width: 0;
+}
+
+.notes-picker-field app-select {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.notes-context-separator {
+    display: grid;
+
+    width: 1rem;
+    height: 2.25rem;
+
+    color: rgba($text-light, 0.58);
+
+    font-family: $font-note;
+    font-size: 1rem;
+    font-weight: 700;
+
     place-items: center;
 }
 
-.notes-paper-stack {
-    position: relative;
-    display: block;
-    width: 32px;
-    height: 32px;
-
-    span {
-        position: absolute;
-        width: 24px;
-        height: 24px;
-        border: 1px solid rgba(#8c6800, 0.16);
-        border-radius: 3px;
-        box-shadow: 0 3px 6px rgba(#7e5900, 0.08);
-    }
-
-    span:nth-child(1) {
-        top: 1px;
-        left: 1px;
-        background: rgba($note-pink, 0.85);
-        transform: rotate(-8deg);
-    }
-
-    span:nth-child(2) {
-        top: 5px;
-        left: 6px;
-        background: rgba($note-blue, 0.92);
-        transform: rotate(5deg);
-    }
-
-    span:nth-child(3) {
-        top: 7px;
-        left: 4px;
-        background: $note-yellow;
-        transform: rotate(-1deg);
-    }
-}
-
-.notes-header-actions {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 9px;
-}
-
-.notes-inline-error {
+.notes-header-commands {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 12px;
-    padding: 9px 10px 9px 13px;
-    color: $danger;
-    background: rgba($danger, 0.055);
-    border: 1px solid rgba($danger, 0.14);
-    border-radius: 10px;
-    font-size: 0.72rem;
-    font-weight: 600;
+    justify-content: flex-end;
+
+    min-width: max-content;
+
+    gap: 0.5rem;
 }
+
+.notes-new-button {
+    min-width: 0;
+}
+
+
+/* ==========================================================
+   EXPLORER SHELL
+   ========================================================== */
 
 .notes-explorer {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+
     min-width: 0;
-    margin-top: 14px;
-    overflow: visible;
-    background:
-        linear-gradient(rgba($paper, 0.76), rgba($paper, 0.76)),
-        repeating-linear-gradient(0deg, transparent 0 27px, rgba($border, 0.16) 28px);
-    border: 1px solid rgba($border, 0.8);
-    border-radius: 17px;
-    box-shadow: 0 12px 34px rgba($heading, 0.045);
-    backdrop-filter: blur(8px);
+    min-height: 0;
+
+    margin-top: 0.875rem;
+
+    overflow: hidden;
+
+    background: $paper;
+
+    border:
+        1px solid rgba($border, 0.82);
+
+    border-bottom: 0;
+
+    border-radius:
+        0.875rem 0.875rem 0 0;
+
+    box-shadow:
+        0 0.375rem 1.25rem rgba($heading, 0.03);
 }
+
+
+/* ==========================================================
+   TOOLBAR
+   ========================================================== */
 
 .notes-toolbar {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns:
+        auto minmax(0, 1fr);
+
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+
+    flex: 0 0 auto;
+
     min-width: 0;
-    padding: 13px 16px;
-    background: rgba($paper, 0.7);
-    border-bottom: 1px solid rgba($border, 0.68);
-    border-radius: 17px 17px 0 0;
+
+    gap: 1rem;
+
+    padding:
+        0.625rem 0.75rem;
+
+    background: $page-bg;
+
+    border-bottom:
+        1px solid rgba($border, 0.82);
 }
 
 .notes-status-tabs {
-    width: auto;
+    min-width: 0;
     max-width: 100%;
 }
 
 .notes-toolbar-actions {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) 176px auto;
+    grid-template-columns:
+        minmax(13rem, 26rem) 11rem auto;
+
     align-items: center;
-    gap: 9px;
+    justify-content: end;
+
+    min-width: 0;
+
+    gap: 0.5rem;
+}
+
+.notes-search,
+.notes-sort,
+.notes-view-tabs {
     min-width: 0;
 }
 
 .notes-search {
     width: 100%;
-    max-width: 470px;
-    min-width: 0;
-    justify-self: end;
 }
 
-.notes-location-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    min-width: 0;
-    padding: 15px 20px;
-    background: rgba($paper-dark, 0.28);
-    border-bottom: 1px solid rgba($border, 0.55);
+.notes-sort {
+    width: 11rem;
 }
 
-.notes-location-copy {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
 
-    >div {
-        min-width: 0;
-    }
-
-    p {
-        overflow: hidden;
-        margin: 4px 0 0;
-        color: $text-light;
-        font-size: 0.66rem;
-        font-weight: 550;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.notes-location-icon {
-    display: grid;
-    flex: 0 0 auto;
-    width: 34px;
-    height: 34px;
-    color: #7a5900;
-    background: rgba($note-yellow, 0.38);
-    border: 1px solid rgba(#8c6800, 0.1);
-    border-radius: 8px;
-    place-items: center;
-}
-
-.notes-section-kicker {
-    display: block;
-    overflow: hidden;
-    font-size: 0.98rem;
-    line-height: 1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transform: rotate(-0.35deg);
-    transform-origin: left center;
-}
-
-.notes-result-count {
-    flex: 0 0 auto;
-    padding: 5px 8px;
-    color: $text-light;
-    background: rgba($paper, 0.7);
-    border: 1px solid rgba($border, 0.58);
-    border-radius: 999px;
-    font-family: $font-mono;
-    font-size: 0.58rem;
-    font-weight: 700;
-}
+/* ==========================================================
+   EXPLORER BODY
+   ========================================================== */
 
 .notes-explorer-body {
-    min-width: 0;
-    min-height: 420px;
-    max-height: calc(100vh - 335px);
-    padding: clamp(20px, 2.2vw, 30px);
-    overflow: auto;
-    overscroll-behavior: contain;
-}
-
-.notes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 248px));
-    align-items: start;
-    justify-content: start;
-    gap: 20px;
-}
-
-.notes-grid-item {
-    position: relative;
-    width: 100%;
-    max-width: 248px;
-    min-width: 0;
-    transition: opacity 160ms ease, filter 160ms ease;
-
-    &.is-archived {
-        filter: saturate(0.68);
-    }
-
-    &.is-busy {
-        pointer-events: none;
-        opacity: 0.58;
-    }
-}
-
-.note-card {
-    display: block;
-    width: 100%;
-    max-width: 248px;
-
-    ::ng-deep .app-card {
-        overflow: visible;
-    }
-
-    ::ng-deep .app-card-content {
-        min-width: 0;
-    }
-
-    ::ng-deep .app-card-header {
-        align-items: flex-start;
-    }
-
-    ::ng-deep .app-card-body {
-        display: flex;
-        min-height: 0;
-        flex: 1 1 auto;
-        flex-direction: column;
-    }
-}
-
-.note-pin,
-.notes-dialog-pin {
-    position: relative;
-    display: grid;
-    width: 26px;
-    height: 26px;
-    place-items: center;
-
-    span {
-        display: block;
-        width: 10px;
-        height: 10px;
-        background: rgba($heading, 0.68);
-        border: 2px solid rgba($paper, 0.7);
-        border-radius: 999px;
-        box-shadow: 0 2px 4px rgba($heading, 0.16);
-
-        &::after {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            width: 1px;
-            height: 9px;
-            content: '';
-            background: rgba($heading, 0.38);
-            transform: rotate(8deg);
-            transform-origin: top;
-        }
-    }
-}
-
-.note-card-eyebrow {
-    color: rgba($text-secondary, 0.75);
-    font-size: 0.57rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.note-card-title {
-    display: -webkit-box;
-    overflow: hidden;
-    margin-top: 2px;
-    color: $heading;
-    font-family: $font-note;
-    font-size: 1.42rem;
-    font-weight: 700;
-    line-height: 1.02;
-    letter-spacing: -0.015em;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-.note-card-subtitle {
-    color: rgba($text-light, 0.8);
-    font-size: 0.58rem;
-    font-weight: 600;
-}
-
-.note-card-content {
-    display: -webkit-box;
-    overflow: hidden;
-    margin: 5px 0 0;
-    color: rgba($text-secondary, 0.88);
-    font-family: $font-note;
-    font-size: 1.05rem;
-    font-weight: 550;
-    line-height: 1.22;
-    white-space: pre-line;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-}
-
-.note-card-footer {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    flex: 1 1 auto;
+
     width: 100%;
-    color: rgba($text-light, 0.82);
-    font-size: 0.57rem;
-    font-weight: 650;
 
-    >span:first-child {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
+    min-width: 0;
+    min-height: 0;
+
+    padding: 0.75rem;
+
+    overflow: hidden;
+
+    background: $paper;
 }
 
-.note-card-status {
-    padding: 3px 6px;
-    color: #3f6c39;
-    background: rgba($success, 0.09);
-    border: 1px solid rgba($success, 0.12);
-    border-radius: 999px;
-
-    &.is-archived {
-        color: $text-light;
-        background: rgba($text-light, 0.07);
-        border-color: rgba($text-light, 0.12);
-    }
-}
-
-.note-menu-trigger {
-    display: grid;
-    width: 31px;
-    height: 31px;
+.notes-explorer-body.is-list {
     padding: 0;
-    cursor: pointer;
-    color: rgba($text-secondary, 0.8);
-    background: rgba($paper, 0.38);
-    border: 1px solid rgba($border, 0.48);
-    border-radius: 9px;
-    transition: background-color 150ms ease, border-color 150ms ease;
-    place-items: center;
-
-    &:hover,
-    &:focus-visible {
-        color: $heading;
-        background: rgba($paper, 0.76);
-        border-color: rgba($accent, 0.18);
-        outline: none;
-    }
 }
 
-.note-create-card {
-    position: relative;
-    display: flex;
-    width: 100%;
-    max-width: 248px;
-    height: 248px;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 7px;
-    padding: 24px;
-    cursor: pointer;
-    color: $text-secondary;
-    background:
-        linear-gradient(rgba($note-yellow, 0.18), rgba($note-yellow, 0.18)),
-        repeating-linear-gradient(0deg, transparent 0 25px, rgba($accent, 0.065) 26px);
-    border: 1px dashed rgba($accent, 0.28);
-    border-radius: 8px 10px 7px 9px;
-    box-shadow: 0 9px 20px rgba($heading, 0.025);
-    text-align: center;
-    transform: rotate(0.35deg);
-    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 
-    &:hover:not(:disabled),
-    &:focus-visible:not(:disabled) {
-        background:
-            linear-gradient(rgba($note-yellow, 0.31), rgba($note-yellow, 0.31)),
-            repeating-linear-gradient(0deg, transparent 0 25px, rgba($accent, 0.075) 26px);
-        border-color: rgba($accent, 0.44);
-        box-shadow: 0 14px 30px rgba($heading, 0.055);
-        outline: none;
-    }
+/* ==========================================================
+   LOADING / EMPTY
+   ========================================================== */
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-
-    strong {
-        color: $heading;
-        font-family: $font-note;
-        font-size: 1.28rem;
-        font-weight: 700;
-    }
-
-    small {
-        max-width: 170px;
-        color: $text-light;
-        font-size: 0.65rem;
-        line-height: 1.35;
-    }
-}
-
-.note-create-pin {
-    position: absolute;
-    top: 11px;
-    left: 50%;
-    width: 11px;
-    height: 11px;
-    background: rgba($heading, 0.6);
-    border: 2px solid rgba($paper, 0.7);
-    border-radius: 999px;
-    box-shadow: 0 2px 4px rgba($heading, 0.16);
-    transform: translateX(-50%);
-}
-
-.note-create-icon {
+.notes-loader-state {
     display: grid;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 3px;
-    color: #7a5900;
-    background: rgba($paper, 0.55);
-    border: 1px solid rgba($accent, 0.13);
-    border-radius: 14px;
+    flex: 1 1 auto;
+
+    width: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
     place-items: center;
+}
+
+.notes-loader-state app-loader {
+    display: block;
+
+    width: min(100%, 35rem);
 }
 
 .notes-empty-state {
-    display: flex;
-    min-height: 360px;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 34px 20px;
+    display: grid;
+    flex: 1 1 auto;
+
+    width: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    padding:
+        clamp(1.25rem, 3vw, 2rem);
+
     text-align: center;
 
-    &.is-compact {
-        min-height: 300px;
-    }
+    place-content: center;
+    justify-items: center;
+}
 
-    h2 {
-        margin: 9px 0 5px;
-        color: $heading;
-        font-family: $font-heading;
-        font-size: 1.08rem;
-        letter-spacing: -0.02em;
-    }
+.notes-empty-state.is-compact {
+    min-height: 15rem;
+}
 
-    p {
-        max-width: 430px;
-        margin: 0 0 16px;
-        color: $text-light;
-        font-size: 0.72rem;
-        line-height: 1.55;
-    }
+.notes-empty-state h2 {
+    margin:
+        0.625rem 0 0;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--notes-font-15);
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+}
+
+.notes-empty-state p {
+    max-width: 28rem;
+
+    margin:
+        0.375rem 0 1rem;
+
+    color: $text-light;
+
+    font-size: var(--notes-font-13);
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .notes-empty-icon {
     display: grid;
-    width: 56px;
-    height: 56px;
-    margin-bottom: 6px;
-    color: #7a5900;
-    background: rgba($note-yellow, 0.33);
-    border: 1px solid rgba(#8c6800, 0.09);
-    border-radius: 15px;
+
+    width: 3rem;
+    height: 3rem;
+
+    color: #765500;
+    background: rgba($note-yellow, 0.34);
+
+    border:
+        1px solid rgba(#8c6800, 0.10);
+
+    border-radius: 0.75rem;
+
     place-items: center;
+}
 
-    &.is-error {
-        color: $danger;
-        background: rgba($danger, 0.07);
-        border-color: rgba($danger, 0.1);
-    }
+.notes-empty-icon.is-error {
+    color: $danger;
+    background: rgba($danger, 0.07);
 
-    &.is-note {
-        transform: rotate(-3deg);
-    }
+    border-color:
+        rgba($danger, 0.14);
 }
 
 .notes-empty-note {
-    margin-top: 5px;
-    font-size: 1.06rem;
-    transform: rotate(-1deg);
+    margin-top: 0.75rem;
+
+    font-family: $font-note;
+    font-size: var(--notes-font-14);
+    line-height: 1.35;
 }
 
-.notes-dialog-backdrop {
-    position: fixed;
-    z-index: 1200;
-    inset: 0;
+
+/* ==========================================================
+   NOTES GRID
+   ========================================================== */
+
+.notes-grid {
     display: grid;
-    overflow: auto;
-    padding: 28px 18px;
-    background: rgba($heading, 0.38);
-    backdrop-filter: blur(5px);
-    place-items: center;
-}
+    flex: 1 1 auto;
 
-.notes-dialog-shell {
-    width: min(100%, 610px);
-    animation: note-dialog-in 170ms ease-out;
-}
-
-.notes-dialog-note {
-    display: block;
     width: 100%;
 
-    ::ng-deep .app-card {
-        overflow: visible;
-    }
-}
-
-.notes-dialog-title {
-    margin: 0;
-    color: $heading;
-    font-family: $font-note;
-    font-size: 1.65rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.notes-dialog-kicker {
-    font-size: 1rem;
-}
-
-.notes-dialog-kicker.is-danger {
-    color: $danger;
-}
-
-.notes-dialog-subtitle {
-    color: $text-light;
-    font-size: 0.69rem;
-    font-weight: 600;
-}
-
-.notes-dialog-form {
-    display: grid;
-    gap: 14px;
-}
-
-.notes-dialog-select-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.notes-dialog-select-field {
     min-width: 0;
+    min-height: 0;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(14rem, 1fr));
+
+    grid-auto-rows: max-content;
+    align-content: start;
+
+    gap: 0.75rem;
+
+    padding:
+        0.125rem 0.125rem 0.75rem;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba($heading, 0.22) transparent;
 }
 
-.notes-dialog-hint {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 11px;
-    color: $text-light;
-    background: rgba($paper, 0.42);
-    border: 1px dashed rgba($border, 0.72);
-    border-radius: 9px;
-    font-family: $font-note;
-    font-size: 0.92rem;
-    font-weight: 600;
+.notes-grid::-webkit-scrollbar,
+.notes-table-shell::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
 }
 
-.notes-dialog-hint-pin {
-    display: block;
-    flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    background: rgba($accent, 0.72);
+.notes-grid::-webkit-scrollbar-track,
+.notes-table-shell::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notes-grid::-webkit-scrollbar-thumb,
+.notes-table-shell::-webkit-scrollbar-thumb {
+    background:
+        rgba($heading, 0.20);
+
+    border:
+        0.125rem solid $paper;
+
     border-radius: 999px;
 }
 
-.notes-dialog-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 9px;
+.notes-grid::-webkit-scrollbar-button,
+.notes-table-shell::-webkit-scrollbar-button {
+    display: none;
+
+    width: 0;
+    height: 0;
+}
+
+.notes-grid-item {
+    position: relative;
+
+    min-width: 0;
+
+    transition:
+        opacity 140ms ease;
+}
+
+.notes-grid-item app-sticky-note {
+    display: block;
+
     width: 100%;
+    height: 100%;
 }
 
-.notes-delete-shell {
-    width: min(100%, 510px);
+.notes-grid-item.is-archived {
+    opacity: 0.78;
 }
 
-.notes-delete-icon {
+.notes-grid-item.is-busy {
+    pointer-events: none;
+
+    opacity: 0.5;
+}
+
+
+/* ==========================================================
+   GRID NOTE ACTION
+   ========================================================== */
+
+.note-menu-trigger {
+    position: absolute;
+    z-index: 3;
+
+    top: 0.5rem;
+    right: 2.7rem;
+
     display: grid;
-    width: 34px;
-    height: 34px;
-    color: $danger;
-    background: rgba($danger, 0.08);
-    border-radius: 10px;
-    place-items: center;
-}
 
-.notes-delete-message {
-    padding: 11px 12px;
+    width: 1.75rem;
+    height: 1.75rem;
+
+    padding: 0;
+
     color: $text-secondary;
-    background: rgba($paper, 0.4);
-    border: 1px dashed rgba($danger, 0.16);
-    border-radius: 9px;
-    font-size: 0.69rem;
-    line-height: 1.45;
-}
-
-@keyframes note-dialog-in {
-    from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.985) rotate(-0.4deg);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1) rotate(0);
-    }
-}
-
-@media (max-width: 1050px) {
-    .notes-context {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .notes-context-selectors {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .notes-toolbar {
-        grid-template-columns: 1fr;
-    }
-
-    .notes-status-tabs {
-        justify-self: start;
-    }
-}
-
-@media (max-width: 760px) {
-    .notes-page {
-        padding: 16px;
-    }
-
-    .notes-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .notes-header-actions {
-        width: 100%;
-        flex-wrap: wrap;
-    }
-
-    .notes-new-button {
-        margin-left: auto;
-    }
-
-    .notes-intro-mark {
-        width: 48px;
-        height: 48px;
-    }
-
-    .notes-context-selectors {
-        grid-template-columns: 1fr;
-    }
-
-    .notes-context-arrow {
-        display: none;
-    }
-
-    .notes-toolbar-actions {
-        grid-template-columns: minmax(0, 1fr) auto;
-    }
-
-    .notes-location-bar {
-        gap: 10px;
-        padding-inline: 14px;
-    }
-
-    .notes-explorer-body {
-        max-height: none;
-        padding: 16px;
-    }
-
-    .notes-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .notes-grid-item,
-    .note-create-card {
-        max-width: none;
-    }
-
-    .note-card {
-        max-width: none;
-    }
-
-    .note-card ::ng-deep .app-card {
-        width: 100% !important;
-        max-width: none !important;
-    }
-
-    .notes-dialog-select-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 520px) {
-    .notes-intro h1 span {
-        white-space: normal;
-    }
-
-    .notes-header-actions app-badge {
-        display: none;
-    }
-
-    .notes-toolbar-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .notes-sort {
-        width: 100%;
-    }
-
-    .notes-grid {
-        grid-template-columns: 1fr;
-        justify-items: center;
-    }
-
-    .notes-grid-item,
-    .note-create-card,
-    .note-card {
-        width: min(100%, 280px);
-        max-width: 280px;
-    }
-
-    .note-card ::ng-deep .app-card {
-        max-width: 280px !important;
-    }
-
-    .notes-location-copy p {
-        white-space: normal;
-    }
-
-    .notes-dialog-backdrop {
-        align-items: end;
-        padding: 14px 10px;
-    }
-
-    .notes-dialog-shell {
-        width: 100%;
-    }
-
-    .notes-dialog-actions {
-        align-items: stretch;
-        flex-direction: column-reverse;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-    .notes-dialog-shell,
-    .note-create-card,
-    .note-menu-trigger,
-    .notes-grid-item {
-        animation: none;
-        transition: none;
-    }
-}
-
-/* ==========================================================================
-   FINAL MY NOTES TOPBAR — SAME RHYTHM AS TODAY
-   Keep this block at the VERY END of mynotes.scss.
-   ========================================================================== */
-
-/*
- * The old "Where are you working?" card is removed.
- * Explorer now starts directly below the topbar/errors.
- */
-.notes-explorer {
-    margin-top: 14px;
-}
-
-/* --------------------------------------------------------------------------
-   Main header
-   -------------------------------------------------------------------------- */
-
-.notes-header {
-    display: grid !important;
-
-    grid-template-columns:
-        minmax(260px, 1fr) minmax(0, auto);
-
-    align-items: end !important;
-
-    column-gap:
-        clamp(18px, 2vw, 32px);
-
-    width: 100%;
-    min-width: 0;
-}
-
-.notes-intro {
-    min-width: 0;
-}
-
-/*
- * Same order as Today:
- *
- * [ count ] [ Workspace / Folder pair ] [ Refresh + New note ]
- */
-.notes-header-actions {
-    display: grid !important;
-
-    grid-template-columns:
-        auto minmax(390px, 500px) auto;
-
-    align-items: end !important;
-    justify-content: end !important;
-
-    gap: 10px !important;
-
-    width: auto;
-    min-width: 0;
-    max-width: 100% !important;
-
-    flex-wrap: initial !important;
-}
-
-/* --------------------------------------------------------------------------
-   Count
-   -------------------------------------------------------------------------- */
-
-.notes-note-count {
-    align-self: end;
-
-    margin:
-        0 1px 7px 0;
-
-    white-space: nowrap;
-}
-
-/* --------------------------------------------------------------------------
-   Workspace / Folder paired picker — same pattern as Today
-   -------------------------------------------------------------------------- */
-
-.notes-header-context-picker {
-    display: grid !important;
-
-    grid-template-columns:
-        minmax(170px, 1fr) 12px minmax(170px, 1fr) !important;
-
-    align-items: end !important;
-
-    gap: 8px !important;
-
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 500px;
-
-    flex: initial !important;
-}
-
-.notes-header-picker-field {
-    display: grid !important;
-
-    flex: initial !important;
-
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-
-    gap: 4px;
-
-    overflow: visible;
-}
-
-.notes-header-picker-field>app-label {
-    display: block;
-
-    min-width: 0;
-}
-
-.notes-header-picker-field::ng-deep app-label label,
-.notes-header-picker-field::ng-deep .app-label {
-    margin:
-        0 0 1px 3px !important;
-
-    color:
-        $text-light !important;
-
-    font-size:
-        0.54rem !important;
-
-    font-weight:
-        800 !important;
-
-    line-height:
-        1 !important;
-
-    letter-spacing:
-        0.055em !important;
-
-    text-transform:
-        uppercase !important;
-}
-
-.notes-header-picker-control {
-    display: flex;
-
-    align-items: center;
-
-    width: 100%;
-    min-width: 0;
-}
-
-.notes-header-picker-control app-select,
-.notes-header-context-picker .notes-header-workspace-select app-select,
-.notes-header-context-picker .notes-header-folder-select app-select {
-    display: block !important;
-
-    flex: 1 1 auto;
-
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-}
-
-.notes-header-context-separator {
-    display: grid;
-
-    width: 12px;
-    min-width: 12px;
-    height: 38px;
-
-    padding:
-        0 0 7px;
-
-    color:
-        rgba($text-light, 0.58);
-
-    font-family:
-        $font-note;
-
-    font-size:
-        1.2rem;
-
-    font-weight:
-        700;
-
-    place-items: center;
-
-    transform:
-        rotate(8deg);
-}
-
-/* --------------------------------------------------------------------------
-   Header commands
-   -------------------------------------------------------------------------- */
-
-.notes-header-command-group {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: flex-end;
-
-    gap: 9px;
-
-    min-width: max-content;
-
-    padding-bottom: 1px;
-}
-
-.notes-refresh-button,
-.notes-new-button {
-    flex: 0 0 auto !important;
-
-    margin: 0 !important;
-}
-
-.notes-new-button {
-    white-space: nowrap;
-}
-
-/*
- * Removing the old context card frees vertical space.
- * Keep scrolling inside the explorer body.
- */
-.notes-explorer-body {
-    max-height:
-        calc(100vh - 270px);
-}
-
-/* ==========================================================================
-   RESPONSIVE TOPBAR
-   ========================================================================== */
-
-@media (max-width: 1450px) {
-
-    .notes-header {
-        grid-template-columns:
-            minmax(240px, 0.8fr) minmax(0, 1.5fr);
-    }
-
-    .notes-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-
-        gap:
-            8px 10px !important;
-    }
-
-    .notes-note-count {
-        display: none !important;
-    }
-
-    .notes-header-context-picker {
-        max-width: none;
-    }
-}
-
-@media (max-width: 1120px) {
-
-    .notes-header {
-        grid-template-columns:
-            minmax(0, 1fr) !important;
-
-        align-items:
-            stretch !important;
-
-        row-gap: 14px;
-    }
-
-    .notes-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-
-        width: 100%;
-
-        justify-content:
-            stretch !important;
-    }
-
-    .notes-header-context-picker {
-        width: 100% !important;
-
-        max-width: none;
-    }
-}
-
-@media (max-width: 780px) {
-
-    .notes-page {
-        padding: 16px;
-    }
-
-    .notes-header {
-        align-items:
-            stretch !important;
-
-        flex-direction:
-            initial !important;
-    }
-
-    .notes-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr) !important;
-
-        gap: 9px !important;
-    }
-
-    .notes-header-context-picker {
-        grid-template-columns:
-            minmax(0, 1fr) 10px minmax(0, 1fr) !important;
-    }
-
-    .notes-header-command-group {
-        justify-content:
-            flex-start;
-
-        min-width: 0;
-
-        flex-wrap: wrap;
-    }
-
-    .notes-new-button {
-        margin-left: 0 !important;
-    }
-
-    .notes-explorer-body {
-        max-height: none;
-    }
-}
-
-@media (max-width: 560px) {
-
-    .notes-header-context-picker {
-        grid-template-columns:
-            minmax(0, 1fr) !important;
-
-        gap: 8px !important;
-    }
-
-    .notes-header-context-separator {
-        display: none !important;
-    }
-
-    .notes-header-command-group {
-        display: grid;
-
-        grid-template-columns:
-            auto minmax(0, 1fr);
-
-        width: 100%;
-    }
-
-    .notes-refresh-button {
-        grid-column: 1;
-    }
-
-    .notes-new-button {
-        grid-column: 2;
-
-        width: 100%;
-    }
-
-    :host ::ng-deep .notes-new-button .app-button-wrapper,
-    :host ::ng-deep .notes-new-button .app-button {
-        width: 100% !important;
-    }
-}
-
-/* ==========================================================================
-   MY NOTES VIEW SWITCHER + TABLE VIEW
-   ========================================================================== */
-
-.notes-view-tabs {
-    width: auto;
-    max-width: 100%;
-    justify-self: end;
-}
-
-/* --------------------------------------------------------------------------
-   Table shell
-   Scrolling stays inside this explorer/table area, not on the page.
-   -------------------------------------------------------------------------- */
-
-.notes-table-shell {
-    width: 100%;
-    min-width: 0;
-
-    overflow: auto;
-
-    background:
-        rgba($paper, 0.72);
-
-    border:
-        1px solid rgba($border, 0.72);
-
-    border-radius: 13px;
-
-    outline: none;
-
-    scrollbar-width: thin;
-
-    &:focus-visible {
-        box-shadow:
-            var(--app-focus-ring);
-    }
-}
-
-.notes-table {
-    width: 100%;
-    min-width: 920px;
-
-    border-collapse: separate;
-    border-spacing: 0;
-
-    table-layout: fixed;
-
-    color:
-        $text-primary;
-
-    thead {
-        position: sticky;
-        z-index: 3;
-
-        top: 0;
-
-        background:
-            rgba($paper-light, 0.98);
-
-        backdrop-filter:
-            blur(8px);
-    }
-
-    th {
-        height: 42px;
-
-        padding:
-            9px 12px;
-
-        color:
-            $text-light;
-
-        border-bottom:
-            1px solid rgba($border, 0.72);
-
-        font-family:
-            $font-mono;
-
-        font-size:
-            0.56rem;
-
-        font-weight:
-            800;
-
-        line-height: 1;
-
-        letter-spacing:
-            0.055em;
-
-        text-align: left;
-
-        text-transform:
-            uppercase;
-
-        white-space: nowrap;
-
-        &:first-child {
-            width: 36%;
-            padding-left: 16px;
-        }
-
-        &:nth-child(2) {
-            width: 16%;
-        }
-
-        &:nth-child(3) {
-            width: 11%;
-        }
-
-        &:nth-child(4) {
-            width: 11%;
-        }
-
-        &:nth-child(5) {
-            width: 16%;
-        }
-
-        &:last-child {
-            width: 92px;
-
-            text-align:
-                right;
-        }
-    }
-
-    td {
-        min-width: 0;
-
-        padding:
-            11px 12px;
-
-        vertical-align:
-            middle;
-
-        border-bottom:
-            1px dashed rgba($border, 0.62);
-    }
-
-    tbody tr {
-        position: relative;
-
-        transition:
-            background-color 140ms ease,
-            opacity 140ms ease;
-
-        &:hover {
-            background:
-                rgba($note-yellow, 0.10);
-        }
-
-        &:last-child td {
-            border-bottom: 0;
-        }
-
-        &.is-archived {
-            background:
-                rgba($paper-dark, 0.16);
-        }
-
-        &.is-busy {
-            pointer-events: none;
-
-            opacity: 0.55;
-        }
-    }
-}
-
-.notes-table-note-cell {
-    padding-left:
-        16px !important;
-}
-
-.notes-table-note-main {
-    display: flex;
-
-    align-items: center;
-
-    min-width: 0;
-
-    gap: 11px;
-}
-
-.notes-table-note-mark {
-    display: block;
-
-    flex: 0 0 auto;
-
-    width: 11px;
-    height: 34px;
-
-    background:
-        $note-yellow;
+    background: rgba($paper, 0.76);
 
     border:
         1px solid rgba($heading, 0.08);
 
-    border-radius:
-        3px;
+    border-radius: 0.5rem;
 
-    box-shadow:
-        0 2px 5px rgba($heading, 0.06);
+    cursor: pointer;
+
+    place-items: center;
+
+    transition:
+        background-color 120ms ease,
+        border-color 120ms ease;
 }
 
-.notes-table-note-copy {
+.note-menu-trigger:hover:not(:disabled),
+.note-menu-trigger:focus-visible:not(:disabled) {
+    color: $heading;
+    background: $paper;
+
+    border-color:
+        rgba($heading, 0.16);
+
+    outline: none;
+}
+
+.note-menu-trigger:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.45;
+}
+
+
+/* ==========================================================
+   CREATE NOTE TILE
+   ========================================================== */
+
+.note-create-card {
+    display: grid;
+
+    min-width: 0;
+    min-height: 12rem;
+
+    padding: 1rem;
+
+    color: $text-secondary;
+    background:
+        rgba($note-yellow, 0.12);
+
+    border:
+        1px dashed rgba($accent, 0.30);
+
+    border-radius: 0.75rem;
+
+    cursor: pointer;
+
+    text-align: center;
+
+    place-content: center;
+    justify-items: center;
+
+    gap: 0.35rem;
+
+    transition:
+        background-color 140ms ease,
+        border-color 140ms ease;
+}
+
+.note-create-card:hover:not(:disabled),
+.note-create-card:focus-visible:not(:disabled) {
+    background:
+        rgba($note-yellow, 0.18);
+
+    border-color:
+        rgba($accent, 0.45);
+
+    outline: none;
+}
+
+.note-create-card:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.5;
+}
+
+.note-create-card strong {
+    color: $heading;
+
+    font-size: var(--notes-font-14);
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+.note-create-card small {
+    max-width: 12rem;
+
+    color: $text-light;
+
+    font-size: var(--notes-font-13);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.note-create-icon {
+    display: grid;
+
+    width: 2.75rem;
+    height: 2.75rem;
+
+    margin-bottom: 0.2rem;
+
+    color: #765500;
+    background: rgba($paper, 0.64);
+
+    border:
+        1px solid rgba(#8c6800, 0.10);
+
+    border-radius: 0.75rem;
+
+    place-items: center;
+}
+
+
+/* ==========================================================
+   TABLE / LIST VIEW
+   ========================================================== */
+
+.notes-table-shell {
+    flex: 1 1 auto;
+
+    width: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: auto;
+
+    overscroll-behavior: contain;
+
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba($heading, 0.22) transparent;
+}
+
+.notes-table {
+    width: 100%;
+    min-width: 58rem;
+
+    color: $text-primary;
+    background: transparent;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    font-size: var(--notes-font-13);
+
+    table-layout: fixed;
+}
+
+.notes-table th,
+.notes-table td {
+    padding:
+        0.625rem 0.75rem;
+
+    vertical-align: middle;
+
+    border-bottom:
+        1px solid rgba($border, 0.70);
+
+    text-align: left;
+}
+
+.notes-table thead th {
+    position: sticky;
+    z-index: 2;
+
+    top: 0;
+
+    color: $text-light;
+    background: $page-bg;
+
+    font-size: var(--notes-font-13);
+    font-weight: 700;
+    line-height: 1.2;
+
+    white-space: nowrap;
+}
+
+.notes-table tbody tr {
+    transition:
+        background-color 120ms ease,
+        opacity 120ms ease;
+}
+
+.notes-table tbody tr:hover {
+    background:
+        rgba($note-yellow, 0.06);
+}
+
+.notes-table tbody tr.is-archived {
+    opacity: 0.72;
+}
+
+.notes-table tbody tr.is-busy {
+    pointer-events: none;
+
+    opacity: 0.48;
+}
+
+.notes-table-note-main {
+    display: flex;
+    align-items: flex-start;
+
     min-width: 0;
 
-    strong {
-        display: block;
-
-        overflow: hidden;
-
-        color:
-            $heading;
-
-        font-size:
-            0.72rem;
-
-        font-weight:
-            760;
-
-        line-height: 1.2;
-
-        text-overflow:
-            ellipsis;
-
-        white-space:
-            nowrap;
-    }
-
-    p {
-        display: block;
-
-        overflow: hidden;
-
-        margin:
-            4px 0 0;
-
-        color:
-            $text-light;
-
-        font-family:
-            $font-note;
-
-        font-size:
-            0.82rem;
-
-        font-weight:
-            550;
-
-        line-height: 1.2;
-
-        text-overflow:
-            ellipsis;
-
-        white-space:
-            nowrap;
-    }
+    gap: 0.625rem;
 }
 
-.notes-table-column-pill,
-.notes-table-color,
-.notes-table-updated {
-    display: inline-flex;
-
-    align-items: center;
-
-    max-width: 100%;
-
-    gap: 6px;
-}
-
-.notes-table-column-pill {
-    overflow: hidden;
-
-    padding:
-        5px 7px;
-
-    color:
-        $text-secondary;
-
-    background:
-        rgba($paper-dark, 0.56);
-
-    border:
-        1px solid rgba($border, 0.58);
-
-    border-radius:
-        8px;
-
-    font-size:
-        0.62rem;
-
-    font-weight:
-        650;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
-}
-
-.notes-table-color {
-    color:
-        $text-secondary;
-
-    font-size:
-        0.62rem;
-
-    font-weight:
-        650;
-}
-
-.notes-table-color-dot {
+.notes-table-note-mark {
     display: block;
-
     flex: 0 0 auto;
 
-    width: 10px;
-    height: 10px;
+    width: 0.5rem;
+    height: 2.125rem;
 
-    background:
-        $note-yellow;
-
-    border:
-        1px solid rgba($heading, 0.10);
-
-    border-radius:
-        999px;
-
-    box-shadow:
-        0 0 0 3px rgba($note-yellow, 0.18);
-}
-
-.notes-table-updated {
-    color:
-        $text-light;
-
-    font-size:
-        0.61rem;
-
-    font-weight:
-        650;
-
-    white-space:
-        nowrap;
-}
-
-.notes-table-actions-heading {
-    text-align:
-        right !important;
-}
-
-.notes-table-actions-cell {
-    padding-right:
-        10px !important;
-}
-
-.notes-table-actions {
-    display: flex;
-
-    align-items: center;
-    justify-content: flex-end;
-
-    gap: 4px;
-}
-
-.notes-table-edit {
-    display: inline-flex;
-    flex: 0 0 auto;
-}
-
-.notes-table-edit::ng-deep button,
-.notes-table-edit::ng-deep .app-button {
-    width: 30px !important;
-    min-width: 30px !important;
-
-    height: 30px !important;
-    min-height: 30px !important;
-
-    padding: 0 !important;
-
-    border-radius:
-        8px !important;
-}
-
-.notes-table-menu-trigger {
-    width: 30px;
-    min-width: 30px;
-
-    height: 30px;
-
-    border-radius:
-        8px;
-}
-
-/* --------------------------------------------------------------------------
-   Sticky color mapping used by both the vertical note mark and dot.
-   -------------------------------------------------------------------------- */
-
-.notes-table-note-mark.is-yellow,
-.notes-table-color-dot.is-yellow {
     background: $note-yellow;
+
+    border-radius: 999px;
 }
 
 .notes-table-note-mark.is-pink,
@@ -1702,525 +914,839 @@ button {
     background: $note-brown;
 }
 
-/* Give every color dot a subtle local halo. */
-.notes-table-color-dot.is-pink {
-    box-shadow: 0 0 0 3px rgba($note-pink, 0.20);
+.notes-table-note-mark.is-black,
+.notes-table-color-dot.is-black {
+    background: $heading;
 }
 
-.notes-table-color-dot.is-blue {
-    box-shadow: 0 0 0 3px rgba($note-blue, 0.20);
+.notes-table-note-copy {
+    min-width: 0;
 }
 
-.notes-table-color-dot.is-green {
-    box-shadow: 0 0 0 3px rgba($note-green, 0.20);
+.notes-table-note-copy strong {
+    display: block;
+
+    max-width: 24rem;
+
+    overflow: hidden;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--notes-font-14);
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.notes-table-color-dot.is-orange {
-    box-shadow: 0 0 0 3px rgba($note-orange, 0.20);
+.notes-table-note-copy p {
+    display: -webkit-box;
+
+    max-width: 26rem;
+
+    margin:
+        0.18rem 0 0;
+
+    overflow: hidden;
+
+    color: $text-light;
+
+    font-size: var(--notes-font-13);
+    font-weight: 500;
+    line-height: 1.35;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
 }
 
-.notes-table-color-dot.is-purple {
-    box-shadow: 0 0 0 3px rgba($note-purple, 0.20);
+.notes-table-column-pill,
+.notes-table-color,
+.notes-table-updated {
+    display: inline-flex;
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 0.3rem;
+
+    color: $text-secondary;
+
+    font-size: var(--notes-font-13);
+
+    white-space: nowrap;
 }
 
-.notes-table-color-dot.is-red {
-    box-shadow: 0 0 0 3px rgba($note-red, 0.18);
+.notes-table-column-pill {
+    padding:
+        0.28rem 0.5rem;
+
+    background:
+        rgba($paper-dark, 0.42);
+
+    border:
+        1px solid rgba($border, 0.70);
+
+    border-radius: 0.5rem;
+
+    font-weight: 650;
 }
 
-.notes-table-color-dot.is-brown {
-    box-shadow: 0 0 0 3px rgba($note-brown, 0.18);
+.notes-table-color-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+
+    flex: 0 0 auto;
+
+    background: $note-yellow;
+
+    border:
+        1px solid rgba($heading, 0.10);
+
+    border-radius: 999px;
 }
 
-/* --------------------------------------------------------------------------
-   Angular Material menu — same menu is used in Grid and Table.
-   -------------------------------------------------------------------------- */
+.notes-table-updated {
+    color: $text-light;
+}
+
+.notes-table-actions-heading,
+.notes-table-actions-cell {
+    text-align: right !important;
+}
+
+.notes-table-actions-cell {
+    width: 6.5rem;
+}
+
+.notes-table-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 0.3rem;
+}
+
+.notes-table-actions .note-menu-trigger {
+    position: static;
+
+    width: 1.75rem;
+    height: 1.75rem;
+
+    background: transparent;
+
+    border-color: transparent;
+}
 
 
+/* ==========================================================
+   MATERIAL MENU
+   ========================================================== */
 
-/* ==========================================================================
-   TABLE RESPONSIVE
-   ========================================================================== */
+::ng-deep .notes-actions-menu.mat-mdc-menu-panel {
+    min-width: 14.5rem;
+    max-width: 15.5rem;
 
-@media (max-width: 980px) {
+    overflow: hidden;
+
+    background: $paper;
+
+    border:
+        1px solid rgba($border, 0.92);
+
+    border-radius: 0.75rem;
+
+    box-shadow:
+        0 1.125rem 2.625rem rgba($heading, 0.16),
+        0 0.1875rem 0.625rem rgba($heading, 0.06);
+}
+
+::ng-deep .notes-actions-menu .mat-mdc-menu-content {
+    padding: 0.5rem;
+}
+
+::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item {
+    min-height: 3rem;
+    height: auto;
+
+    padding:
+        0.3rem 0.5rem;
+
+    color: $text-secondary;
+
+    border-radius: 0.5rem;
+
+    font-family: $font-body;
+    line-height: 1.2;
+}
+
+::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item:hover,
+::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item:focus-visible {
+    background:
+        rgba($note-yellow, 0.18);
+}
+
+::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item.is-edit {
+    background:
+        rgba($note-blue, 0.16);
+}
+
+::ng-deep .notes-actions-menu .mat-mdc-menu-item-text {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+
+    gap: 0.625rem;
+}
+
+::ng-deep .notes-actions-menu .mat-divider {
+    margin:
+        0.3rem 0.125rem;
+
+    border-color:
+        rgba($border, 0.80);
+}
+
+::ng-deep .notes-actions-menu .notes-menu-item-icon {
+    display: grid;
+
+    width: 1.875rem;
+    height: 1.875rem;
+
+    flex:
+        0 0 1.875rem;
+
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.58);
+
+    border:
+        1px solid rgba($border, 0.72);
+
+    border-radius: 0.45rem;
+
+    place-items: center;
+}
+
+::ng-deep .notes-actions-menu .notes-menu-item-copy {
+    display: flex;
+
+    min-width: 0;
+    flex: 1 1 auto;
+
+    flex-direction: column;
+
+    gap: 0.1rem;
+}
+
+::ng-deep .notes-actions-menu .notes-menu-item-copy strong {
+    color: $heading;
+
+    font-size: var(--notes-font-13);
+    font-weight: 700;
+}
+
+::ng-deep .notes-actions-menu .notes-menu-item-copy small {
+    color: $text-light;
+
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+::ng-deep .notes-actions-menu .notes-menu-danger .notes-menu-item-icon {
+    color: $danger;
+    background: rgba($danger, 0.08);
+}
+
+::ng-deep .notes-actions-menu .notes-menu-danger .notes-menu-item-copy strong {
+    color: $danger;
+}
+
+
+/* ==========================================================
+   DELETE DIALOG
+   ========================================================== */
+
+.notes-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+
+    display: grid;
+
+    padding: 1.125rem;
+
+    overflow: auto;
+
+    background:
+        rgba($heading, 0.38);
+
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+
+    place-items: center;
+}
+
+.notes-delete-shell {
+    width: min(100%, 29.5rem);
+}
+
+.notes-delete-note {
+    display: block;
+
+    width: 100%;
+}
+
+.notes-delete-icon {
+    display: grid;
+
+    width: 2.25rem;
+    height: 2.25rem;
+
+    color: $danger;
+    background: rgba($danger, 0.08);
+
+    border:
+        1px solid rgba($danger, 0.17);
+
+    border-radius: 0.625rem;
+
+    place-items: center;
+}
+
+.notes-dialog-kicker {
+    color: $danger;
+
+    font-family: $font-note;
+    font-size: var(--notes-font-14);
+    font-weight: 700;
+}
+
+.notes-dialog-title {
+    margin: 0;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--notes-font-15);
+    font-weight: 750;
+}
+
+.notes-dialog-subtitle,
+.notes-delete-message {
+    color: $text-secondary;
+
+    font-size: var(--notes-font-13);
+    line-height: 1.5;
+}
+
+.notes-dialog-subtitle {
+    margin:
+        0.375rem 0 0;
+}
+
+.notes-delete-message {
+    margin:
+        0.25rem 0 0;
+
+    padding:
+        0.625rem 0.7rem;
+
+    background:
+        rgba($danger, 0.055);
+
+    border:
+        1px solid rgba($danger, 0.10);
+
+    border-radius: 0.56rem;
+}
+
+.notes-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    width: 100%;
+
+    gap: 0.5rem;
+}
+
+
+/* ==========================================================
+   RESPONSIVE — LAPTOP
+   ========================================================== */
+
+@media (max-width: 75rem) {
+    .notes-header {
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        align-items: stretch;
+
+        gap: 0.75rem;
+    }
+
+    .notes-header-actions {
+        width: 100%;
+
+        grid-template-columns:
+            auto minmax(21rem, 30rem) auto;
+
+        justify-content: start;
+    }
+
+    .notes-toolbar {
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        gap: 0.625rem;
+    }
 
     .notes-toolbar-actions {
         grid-template-columns:
-            minmax(190px, 1fr) 160px auto;
+            minmax(13rem, 1fr) 10rem auto;
+
+        justify-content: stretch;
+
+        width: 100%;
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+   ========================================================== */
+
+@media (max-width: 62rem) {
+    .notes-page {
+        padding:
+            0.875rem 0.875rem 0;
     }
 
+    .notes-count-slot {
+        display: none;
+    }
+
+    .notes-header-actions {
+        grid-template-columns:
+            minmax(20rem, 30rem) auto;
+    }
+
+    .notes-context-picker {
+        width: 100%;
+    }
+
+    .notes-grid {
+        grid-template-columns:
+            repeat(auto-fill, minmax(13rem, 1fr));
+
+        gap: 0.625rem;
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE — TABLET / NARROW DESKTOP TABLE
+   ========================================================== */
+
+@media (max-width: 52rem) {
+    .notes-header-actions {
+        grid-template-columns:
+            minmax(0, 1fr) auto;
+    }
+
+    .notes-toolbar-actions {
+        grid-template-columns:
+            minmax(0, 1fr) 10rem auto;
+    }
+
+    /*
+     * Convert table into structured records before it becomes cramped.
+     * This mirrors the Workspace list behavior and prevents page scroll.
+     */
     .notes-table {
-        min-width: 820px;
+        min-width: 0;
 
-        th:first-child {
-            width: 38%;
-        }
+        table-layout: auto;
+    }
 
-        th:nth-child(3) {
-            width: 10%;
-        }
+    .notes-table thead {
+        display: none;
+    }
 
-        th:nth-child(5) {
-            width: 15%;
-        }
+    .notes-table,
+    .notes-table tbody,
+    .notes-table tr,
+    .notes-table td {
+        display: block;
+
+        width: 100%;
+    }
+
+    .notes-table tbody {
+        padding:
+            0 0 0.5rem;
+    }
+
+    .notes-table tbody tr {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr) auto;
+
+        grid-template-areas:
+            'note actions'
+            'column status'
+            'color updated';
+
+        align-items: center;
+
+        gap:
+            0.45rem 0.75rem;
+
+        margin: 0;
+
+        padding:
+            0.75rem;
+
+        background: $paper;
+
+        border-bottom:
+            1px solid rgba($border, 0.70);
+    }
+
+    .notes-table tbody td {
+        display: block;
+
+        width: auto !important;
+
+        padding: 0;
+
+        border: 0;
+    }
+
+    .notes-table-note-cell {
+        grid-area: note;
+    }
+
+    .notes-table tbody td:nth-child(2) {
+        grid-area: column;
+    }
+
+    .notes-table tbody td:nth-child(3) {
+        grid-area: color;
+    }
+
+    .notes-table tbody td:nth-child(4) {
+        grid-area: status;
+    }
+
+    .notes-table tbody td:nth-child(5) {
+        grid-area: updated;
+    }
+
+    .notes-table-actions-cell {
+        grid-area: actions;
+
+        align-self: center;
+        justify-self: end;
+
+        width: auto;
+    }
+
+    .notes-table-note-copy strong,
+    .notes-table-note-copy p {
+        max-width: 100%;
+    }
+
+    .notes-table-note-main {
+        min-width: 0;
     }
 }
 
-@media (max-width: 780px) {
+
+/* ==========================================================
+   RESPONSIVE — MOBILE LANDSCAPE / SMALL TABLET
+   ========================================================== */
+
+@media (max-width: 43.75rem) {
+    .notes-page {
+        padding:
+            0.75rem 0.75rem 0;
+    }
+
+    .notes-intro {
+        gap: 0.625rem;
+    }
+
+    .notes-header-mark {
+        width: 3rem;
+        height: 3rem;
+
+        grid-template-rows:
+            1rem 1fr;
+
+        border-radius: 0.625rem;
+    }
+
+    .notes-header-actions {
+        grid-template-columns:
+            minmax(0, 1fr);
+    }
+
+    .notes-context-picker {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 0.5rem;
+    }
+
+    .notes-context-separator {
+        display: none;
+    }
+
+    .notes-header-commands {
+        justify-content: flex-start;
+    }
+
+    .notes-toolbar {
+        gap: 0.5rem;
+
+        padding: 0.625rem;
+    }
 
     .notes-toolbar-actions {
         grid-template-columns:
-            minmax(0, 1fr) minmax(145px, auto);
+            minmax(0, 1fr) minmax(9rem, 10rem) auto;
 
-        gap: 8px;
+        gap: 0.5rem;
     }
 
     .notes-search {
         grid-column:
             1 / -1;
 
-        max-width:
-            none;
+        width: min(100%, 28rem);
     }
 
-    .notes-view-tabs {
-        justify-self: end;
+    .notes-sort {
+        width: 100%;
     }
 
-    .notes-table-shell {
-        border-radius: 11px;
+    .notes-explorer {
+        margin-top: 0.75rem;
+    }
+
+    .notes-explorer-body {
+        padding: 0.5rem;
+    }
+
+    .notes-explorer-body.is-list {
+        padding: 0;
+    }
+
+    .notes-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 0.5rem;
+
+        padding:
+            0.0625rem 0.0625rem 0.5rem;
+    }
+
+    .note-create-card {
+        min-height: 10.5rem;
     }
 }
 
-@media (max-width: 520px) {
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+   ========================================================== */
+
+@media (max-width: 36rem) {
+
+    .notes-intro h1,
+    .notes-kicker {
+        white-space: normal;
+    }
+
+    .notes-header-actions {
+        width: 100%;
+    }
+
+    .notes-context-picker {
+        grid-template-columns:
+            minmax(0, 1fr);
+    }
+
+    .notes-header-commands {
+        display: grid;
+        grid-template-columns:
+            auto minmax(0, 1fr);
+
+        width: 100%;
+    }
+
+    .notes-new-button {
+        width: 100%;
+    }
+
+    .notes-new-button::ng-deep .app-button-wrapper,
+    .notes-new-button::ng-deep button {
+        width: 100%;
+    }
 
     .notes-toolbar-actions {
         grid-template-columns:
             minmax(0, 1fr);
+
+        width: 100%;
+    }
+
+    .notes-search {
+        grid-column: auto;
+
+        width: 100%;
     }
 
     .notes-sort,
     .notes-view-tabs {
         width: 100%;
-
-        justify-self:
-            stretch;
+        max-width: none;
     }
 
-    .notes-view-tabs::ng-deep .app-tabs {
-        width: 100%;
+    .notes-view-tabs {
+        justify-self: stretch;
     }
 
-    .notes-table {
-        min-width: 760px;
+    .notes-grid {
+        grid-template-columns:
+            minmax(0, 1fr);
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
+    .note-create-card {
+        min-height: 9.5rem;
+    }
 
     .notes-table tbody tr {
-        transition: none !important;
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        grid-template-areas:
+            'note'
+            'column'
+            'color'
+            'status'
+            'updated'
+            'actions';
+
+        gap: 0.45rem;
+
+        padding:
+            0.6875rem 0.625rem;
+    }
+
+    .notes-table-actions-cell {
+        justify-self: start;
+    }
+
+    .notes-dialog-backdrop {
+        align-items: end;
+
+        padding: 0.625rem;
+    }
+
+    .notes-delete-shell {
+        width: 100%;
+
+        max-height:
+            calc(100dvh - 1.25rem);
+    }
+
+    .notes-dialog-actions {
+        align-items: stretch;
+
+        flex-direction: column-reverse;
+    }
+
+    .notes-dialog-actions app-button {
+        width: 100%;
     }
 }
 
-/* ==========================================================================
-   FINAL MY NOTES MATERIAL MENU — MATCH WORKSPACE
-   IMPORTANT:
-   Angular Material renders mat-menu inside the CDK overlay container.
-   Do NOT prefix these overlay rules with :host.
-   ========================================================================== */
 
-/* Exact compact 3-dot trigger used by Workspace. */
-.note-menu-trigger {
-    display: grid;
+/* ==========================================================
+   RESPONSIVE — VERY SMALL MOBILE
+   ========================================================== */
 
-    width: 32px !important;
-    min-width: 32px !important;
-
-    height: 32px !important;
-    min-height: 32px !important;
-
-    padding: 0 !important;
-
-    appearance: none;
-
-    color: $text-secondary;
-
-    cursor: pointer;
-
-    background:
-        rgba($paper, 0.62);
-
-    border:
-        1px solid rgba($border, 0.66);
-
-    border-radius: 9px;
-
-    line-height: 1;
-
-    transition:
-        background-color 150ms ease,
-        border-color 150ms ease,
-        box-shadow 150ms ease;
-
-    place-items: center;
-
-    &:hover:not(:disabled),
-    &:focus-visible:not(:disabled) {
-        color: $heading;
-
-        background:
-            rgba($paper, 0.96);
-
-        border-color:
-            rgba($accent, 0.18);
-
-        box-shadow:
-            0 5px 14px rgba($heading, 0.055);
-
-        outline: none;
+@media (max-width: 27rem) {
+    .notes-page {
+        padding:
+            0.625rem 0.5rem 0;
     }
 
-    &:disabled {
-        cursor: not-allowed;
+    .notes-header-mark {
+        display: none;
+    }
 
-        opacity: 0.42;
+    .notes-toolbar {
+        padding:
+            0.5rem;
+    }
+
+    .notes-explorer-body {
+        padding:
+            0.4rem;
+    }
+
+    .notes-explorer-body.is-list {
+        padding: 0;
+    }
+
+    .notes-table tbody tr {
+        padding:
+            0.625rem 0.5rem;
     }
 }
 
-.note-menu-trigger app-icon {
-    display: grid;
 
-    place-items: center;
-}
+/* ==========================================================
+   SHORT VIEWPORTS
+   ========================================================== */
 
-/* --------------------------------------------------------------------------
-   Material overlay panel
-   Same paper/tape language used in Workspace.
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu.mat-mdc-menu-panel {
-    position: relative;
-
-    min-width: 232px;
-    max-width: 248px;
-
-    overflow: visible !important;
-
-    background:
-        repeating-linear-gradient(to bottom,
-            transparent 0 31px,
-            rgba($border, 0.12) 32px),
-        $paper !important;
-
-    border:
-        1px solid rgba($border, 0.92);
-
-    border-radius:
-        12px 12px 9px 12px !important;
-
-    box-shadow:
-        0 18px 42px rgba($heading, 0.16),
-        0 3px 10px rgba($heading, 0.06) !important;
-
-    transform-origin:
-        top right;
-}
-
-/*
- * Small paper tape at the top-right,
- * same detail used by Workspace menus.
- */
-::ng-deep .notes-actions-menu.mat-mdc-menu-panel::before {
-    position: absolute;
-
-    z-index: 2;
-
-    top: -6px;
-    right: 18px;
-
-    width: 34px;
-    height: 12px;
-
-    content: '';
-
-    background:
-        rgba($note-yellow, 0.78);
-
-    border:
-        1px solid rgba(#8f6900, 0.08);
-
-    border-radius: 2px;
-
-    box-shadow:
-        0 2px 5px rgba($heading, 0.05);
-
-    transform:
-        rotate(1.8deg);
-
-    pointer-events: none;
-}
-
-/* Remove Material's default loose padding. */
-::ng-deep .notes-actions-menu .mat-mdc-menu-content {
-    padding: 8px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Menu row
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item {
-    min-height: 50px !important;
-    height: auto !important;
-
-    margin: 0 !important;
-
-    padding:
-        5px 8px !important;
-
-    color:
-        $text-secondary !important;
-
-    border-radius:
-        8px !important;
-
-    font-family:
-        $font-body !important;
-
-    line-height: 1.2 !important;
-}
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item+.notes-action-item {
-    margin-top:
-        2px !important;
-}
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item:hover,
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item:focus-visible {
-    background:
-        rgba($note-yellow, 0.18) !important;
-}
-
-/* Remove MDC pseudo state overlays that can make menu look grey. */
-::ng-deep .notes-actions-menu .mat-mdc-menu-item .mat-mdc-menu-item-ripple,
-::ng-deep .notes-actions-menu .mat-mdc-menu-item .mat-ripple-element {
-    border-radius: 8px !important;
-}
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item-text {
-    display: flex !important;
-
-    align-items: center !important;
-
-    width: 100% !important;
-
-    gap: 10px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Icon tile
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .notes-menu-item-icon {
-    display: grid !important;
-
-    width: 30px !important;
-    height: 30px !important;
-
-    flex:
-        0 0 30px !important;
-
-    color:
-        $text-secondary !important;
-
-    background:
-        rgba($paper-dark, 0.58) !important;
-
-    border:
-        1px solid rgba($border, 0.66) !important;
-
-    border-radius:
-        7px !important;
-
-    place-items: center;
-}
-
-::ng-deep .notes-actions-menu .notes-menu-item-icon app-icon {
-    display: grid;
-
-    place-items: center;
-}
-
-/* --------------------------------------------------------------------------
-   Copy
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .notes-menu-item-copy {
-    display: flex !important;
-
-    min-width: 0;
-
-    flex:
-        1 1 auto;
-
-    flex-direction: column;
-
-    gap: 2px;
-}
-
-::ng-deep .notes-actions-menu .notes-menu-item-copy strong {
-    display: block;
-
-    overflow: hidden;
-
-    color:
-        $heading !important;
-
-    font-size:
-        0.69rem !important;
-
-    font-weight:
-        760 !important;
-
-    line-height:
-        1.15 !important;
-
-    letter-spacing:
-        -0.01em;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
-}
-
-::ng-deep .notes-actions-menu .notes-menu-item-copy small {
-    display: block;
-
-    overflow: hidden;
-
-    color:
-        $text-light !important;
-
-    font-size:
-        0.56rem !important;
-
-    font-weight:
-        550 !important;
-
-    line-height:
-        1.2 !important;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
-}
-
-/* --------------------------------------------------------------------------
-   Edit — same blue highlighted action as Workspace
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item.is-edit {
-    background:
-        rgba($note-blue, 0.16) !important;
-}
-
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item.is-edit:hover,
-::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item.is-edit:focus-visible {
-    background:
-        rgba($note-blue, 0.25) !important;
-}
-
-::ng-deep .notes-actions-menu .notes-action-item.is-edit .notes-menu-item-icon {
-    color:
-        #386d97 !important;
-
-    background:
-        rgba($note-blue, 0.32) !important;
-
-    border-color:
-        rgba(#386d97, 0.10) !important;
-}
-
-/* --------------------------------------------------------------------------
-   Divider — Workspace uses a dashed paper divider
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .mat-divider,
-::ng-deep .notes-actions-menu .mat-mdc-menu-content mat-divider {
-    margin:
-        7px 4px !important;
-
-    border-color:
-        rgba($border, 0.82) !important;
-
-    border-top-style:
-        dashed !important;
-}
-
-/* --------------------------------------------------------------------------
-   Danger / trash
-   -------------------------------------------------------------------------- */
-
-::ng-deep .notes-actions-menu .notes-menu-danger:hover,
-::ng-deep .notes-actions-menu .notes-menu-danger:focus-visible {
-    background:
-        rgba($danger, 0.07) !important;
-}
-
-::ng-deep .notes-actions-menu .notes-menu-danger .notes-menu-item-icon {
-    color:
-        $danger !important;
-
-    background:
-        rgba($danger, 0.065) !important;
-
-    border-color:
-        rgba($danger, 0.12) !important;
-}
-
-::ng-deep .notes-actions-menu .notes-menu-danger .notes-menu-item-copy strong {
-    color:
-        $danger !important;
-}
-
-/* --------------------------------------------------------------------------
-   Table-specific trigger keeps same exact dimensions.
-   -------------------------------------------------------------------------- */
-
-.notes-table-menu-trigger {
-    width: 32px !important;
-    min-width: 32px !important;
-
-    height: 32px !important;
-    min-height: 32px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Small screens
-   -------------------------------------------------------------------------- */
-
-@media (max-width: 560px) {
-
-    ::ng-deep .notes-actions-menu.mat-mdc-menu-panel {
-        min-width: 218px;
-
-        max-width:
-            min(238px, calc(100vw - 24px));
+@media (max-height: 42rem) and (min-width: 43.751rem) {
+    .notes-page {
+        padding-top: 0.625rem;
     }
 
-    ::ng-deep .notes-actions-menu .mat-mdc-menu-item.notes-action-item {
-        min-height:
-            48px !important;
+    .notes-explorer {
+        margin-top: 0.625rem;
+    }
+
+    .notes-toolbar {
+        padding-block: 0.5rem;
+    }
+}
+
+
+/* ==========================================================
+   TOUCH / REDUCED MOTION
+   ========================================================== */
+
+@media (hover: none) {
+    .note-menu-trigger {
+        opacity: 1;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-    .note-menu-trigger {
-        transition: none !important;
+    .notes-grid-item,
+    .note-menu-trigger,
+    .note-create-card,
+    .notes-table tbody tr {
+        transition: none;
     }
 }

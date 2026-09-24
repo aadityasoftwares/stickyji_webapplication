@@ -45,6 +45,24 @@ $input-note-black: #252525;
     --app-input-affix-background: #{rgba($text-primary, 0.05)};
     --app-input-depth: #{color.adjust($border, $lightness: -8%)};
 
+    /*
+     * Inline editing tokens. They intentionally derive from the active
+     * variant palette so note colours, paper, dark, glass, etc. all work.
+     */
+    --app-input-inline-hover-background:
+        color-mix(in srgb,
+            var(--app-input-background) 58%,
+            transparent);
+
+    --app-input-inline-hover-border:
+        color-mix(in srgb,
+            var(--app-input-border) 72%,
+            transparent);
+
+    --app-input-inline-focus-border: color-mix(in srgb,
+        #{$accent} 72%,
+        var(--app-input-border));
+
     position: relative;
     display: flex;
     flex-direction: column;
@@ -504,6 +522,268 @@ $input-note-black: #252525;
     transform: none;
     box-shadow: 0 2px 0 rgba($accent, 0.16);
 }
+
+/* =========================================================
+   Inline appearance
+   ========================================================= */
+
+/*
+ * Inline is designed for edit-in-place experiences:
+ * - fully transparent at rest
+ * - subtle border/background on hover
+ * - clear focus state while editing
+ * - works with every palette/variant
+ * - works for both input and textarea
+ */
+.app-input-appearance-inline .app-input-control-shell {
+    overflow: visible;
+
+    background: transparent;
+    background-image: none;
+
+    border-color: transparent;
+
+    box-shadow: none;
+
+    transform: none;
+}
+
+
+.app-input-appearance-inline .app-input-control-shell::after {
+    display: none;
+}
+
+
+.app-input-appearance-inline .app-input-control {
+    background: transparent;
+}
+
+
+/*
+ * Hover is intentionally disabled for readonly / disabled / loading fields.
+ * Each visual aspect can be disabled independently through component inputs.
+ */
+@media (hover: hover) and (pointer: fine) {
+
+    .app-input-appearance-inline:not(.app-input-disabled,
+        .app-input-readonly,
+        .app-input-loading):hover .app-input-control-shell {
+        transform: none;
+    }
+
+
+    .app-input-appearance-inline.app-input-inline-hover-border:not(.app-input-disabled,
+        .app-input-readonly,
+        .app-input-loading,
+        .app-input-focused):hover .app-input-control-shell {
+        border-color:
+            var(--app-input-inline-hover-border);
+    }
+
+
+    .app-input-appearance-inline.app-input-inline-hover-background:not(.app-input-disabled,
+        .app-input-readonly,
+        .app-input-loading,
+        .app-input-focused):hover .app-input-control-shell {
+        background:
+            var(--app-input-inline-hover-background);
+    }
+}
+
+
+/*
+ * Focus is stronger than hover but intentionally flatter than the normal
+ * outlined input. It should feel like editing text in place, not opening
+ * a form field card.
+ */
+.app-input-appearance-inline.app-input-focused .app-input-control-shell {
+    z-index: 3;
+
+    background:
+        color-mix(in srgb,
+            var(--app-input-background) 72%,
+            transparent);
+
+    border-color:
+        var(--app-input-inline-focus-border);
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+.app-input-appearance-inline.app-input-inline-focus-ring.app-input-focused .app-input-control-shell {
+    box-shadow:
+        0 0 0 3px rgba($accent,
+            0.10);
+}
+
+
+/*
+ * Status colours still win in inline mode.
+ */
+.app-input-appearance-inline.app-input-status-success .app-input-control-shell {
+    --app-input-inline-focus-border: #{$success};
+}
+
+
+.app-input-appearance-inline.app-input-status-warning .app-input-control-shell {
+    --app-input-inline-focus-border: #{$warning};
+}
+
+
+.app-input-appearance-inline.app-input-status-danger .app-input-control-shell {
+    --app-input-inline-focus-border: #{$danger};
+}
+
+
+.app-input-appearance-inline.app-input-status-success.app-input-focused .app-input-control-shell {
+    border-color: $success;
+}
+
+
+.app-input-appearance-inline.app-input-status-warning.app-input-focused .app-input-control-shell {
+    border-color: $warning;
+}
+
+
+.app-input-appearance-inline.app-input-status-danger.app-input-focused .app-input-control-shell {
+    border-color: $danger;
+}
+
+
+/*
+ * Remove the heavy status shadow that belongs to regular fields.
+ */
+.app-input-appearance-inline.app-input-status-success.app-input-focused .app-input-control-shell,
+
+.app-input-appearance-inline.app-input-status-warning.app-input-focused .app-input-control-shell,
+
+.app-input-appearance-inline.app-input-status-danger.app-input-focused .app-input-control-shell {
+    box-shadow:
+        0 0 0 3px color-mix(in srgb,
+            currentColor 10%,
+            transparent);
+}
+
+
+/*
+ * Inline textarea should stay compact at rest while respecting rows.
+ * It still uses the same multiline API and resize configuration.
+ */
+.app-input-appearance-inline.app-input-multiline .app-input-control-shell {
+    align-items: flex-start;
+}
+
+
+.app-input-appearance-inline .app-input-textarea {
+    min-height:
+        max(calc(var(--app-input-height) * 1.65),
+            3.25rem);
+
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+
+/*
+ * Prefix/suffix and icons should remain quiet in inline mode.
+ */
+.app-input-appearance-inline .app-input-affix {
+    background:
+        color-mix(in srgb,
+            var(--app-input-affix-background) 58%,
+            transparent);
+}
+
+
+.app-input-appearance-inline .app-input-prefix {
+    border-right-color:
+        transparent;
+}
+
+
+.app-input-appearance-inline .app-input-suffix {
+    border-left-color:
+        transparent;
+}
+
+
+.app-input-appearance-inline:hover .app-input-prefix {
+    border-right-color:
+        color-mix(in srgb,
+            var(--app-input-border) 42%,
+            transparent);
+}
+
+
+.app-input-appearance-inline:hover .app-input-suffix {
+    border-left-color:
+        color-mix(in srgb,
+            var(--app-input-border) 42%,
+            transparent);
+}
+
+
+/*
+ * Floating labels need a tiny surface when the field itself is transparent.
+ */
+.app-input-appearance-inline.app-input-label-floating .app-input-floating-label {
+    background:
+        color-mix(in srgb,
+            var(--app-input-background) 88%,
+            transparent);
+}
+
+
+/*
+ * Tape and inline are allowed together. Tape stays decorative while the
+ * field itself remains flat.
+ */
+.app-input-appearance-inline.app-input-decoration-tape .app-input-control-shell {
+    box-shadow: none;
+}
+
+
+/*
+ * Readonly inline fields should look like plain text instead of a disabled
+ * form control. Disabled still uses the global reduced-opacity state.
+ */
+.app-input-appearance-inline.app-input-readonly .app-input-control-shell {
+    background: transparent;
+    background-image: none;
+
+    border-color: transparent;
+
+    box-shadow: none;
+}
+
+
+/*
+ * Touch devices do not have hover, so keep rest state transparent and let
+ * focus reveal the editable control.
+ */
+@media (hover: none),
+(pointer: coarse) {
+
+    .app-input-appearance-inline .app-input-control-shell {
+        background: transparent;
+        border-color: transparent;
+    }
+
+
+    .app-input-appearance-inline.app-input-focused .app-input-control-shell {
+        background:
+            color-mix(in srgb,
+                var(--app-input-background) 72%,
+                transparent);
+
+        border-color:
+            var(--app-input-inline-focus-border);
+    }
+}
+
 
 /* Sticky tape decoration - visual only; does not change field behavior */
 .app-input-decoration-tape {

@@ -1,0 +1,42 @@
+<div class="email-chip-input" [class.is-disabled]="disabled" [class.has-error]="validationMessage()">
+    <div class="email-chip-input-shell" (click)="emailInput.focus()">
+        <app-icon class="email-chip-leading-icon" [icon]="LucideMail" size="xs" />
+
+        <div class="email-chip-content">
+            @for (email of emails; track email) {
+            <span class="email-chip">
+                <span class="email-chip-text">{{ email }}</span>
+                <button type="button" class="email-chip-remove" [attr.aria-label]="'Remove ' + email"
+                    [disabled]="disabled" (click)="$event.stopPropagation(); removeEmail(email)">
+                    <app-icon [icon]="LucideX" size="xs" />
+                </button>
+            </span>
+            }
+
+            @if (emails.length
+            < maxEmails) { <input #emailInput class="email-chip-native-input" [id]="inputId" type="email"
+                inputmode="email" autocomplete="off" [value]="draft()"
+                [placeholder]="emails.length ? 'Add another email...' : placeholder" [attr.aria-label]="ariaLabel"
+                [disabled]="disabled" (input)="updateDraft($event)" (keydown)="onKeydown($event)"
+                (paste)="onPaste($event)" (blur)="commitDraft()" />
+            }
+        </div>
+
+        @if (emails.length) {
+        <button type="button" class="email-chip-clear" aria-label="Clear all email addresses" title="Clear all"
+            [disabled]="disabled" (click)="$event.stopPropagation(); clear()">
+            Clear
+        </button>
+        }
+    </div>
+
+    <div class="email-chip-meta">
+        @if (validationMessage()) {
+        <small class="email-chip-error" role="alert">{{ validationMessage() }}</small>
+        } @else {
+        <small>{{ emails.length ? emails.length + (emails.length === 1 ? ' recipient' : ' recipients') :
+            'Separate addresses with Enter, comma or paste a list.' }}</small>
+        }
+        <small>{{ emails.length }}/{{ maxEmails }}</small>
+    </div>
+</div>

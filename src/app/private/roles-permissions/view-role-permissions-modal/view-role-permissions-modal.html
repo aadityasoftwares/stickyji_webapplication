@@ -1,0 +1,439 @@
+<app-modal [open]="open" [title]="modalTitle" eyebrow="Workspace permissions" [description]="modalDescription"
+    headerNote="Read only" [icon]="LucideShieldCheck" tone="yellow" size="full" [showFooter]="true"
+    [fullscreenOnMobile]="true" ariaLabel="View workspace role permissions" (closed)="close()">
+
+    @if (role) {
+
+    <section modal-body class="role-permissions-viewer" aria-label="Assigned role permissions">
+
+        <div class="role-permissions-layout">
+
+            <!-- =====================================================
+                 LEFT PERMISSION NAVIGATION
+                 ===================================================== -->
+
+            <aside class="permission-sidebar" aria-label="Permission areas">
+
+                <header class="permission-sidebar-header">
+
+                    <div class="permission-sidebar-heading">
+                        <strong>Permission areas</strong>
+                        <span>Jump to a section</span>
+                    </div>
+
+                    @if (visibleGroups().length > 0) {
+                    <span class="permission-sidebar-total">
+                        {{ visibleGroups().length }}
+                    </span>
+                    }
+
+                </header>
+
+
+                <nav #permissionNavigation class="permission-sidebar-list" aria-label="Permission area navigation">
+
+                    @if (loading) {
+
+                    <div class="permission-sidebar-message">
+                        Loading areas...
+                    </div>
+
+                    } @else if (visibleGroups().length > 0) {
+
+                    @for (
+                    group of visibleGroups();
+                    track group.module
+                    ) {
+
+                    <button type="button" class="permission-sidebar-item"
+                        [class.is-active]="activeModule() === group.module"
+                        [attr.aria-current]="activeModule() === group.module ? 'true' : null"
+                        [attr.aria-controls]="moduleDomId(group.module)" [attr.data-permission-module]="group.module"
+                        (click)="scrollToModule(group.module)">
+
+                        <span class="permission-sidebar-icon" aria-hidden="true">
+
+                            <app-icon [icon]="LucideKey" size="xs" />
+
+                        </span>
+
+                        <span class="permission-sidebar-copy">
+
+                            <strong>
+                                {{ group.label }}
+                            </strong>
+
+                            <small>
+                                {{ group.permissions.length }}
+                                {{
+                                group.permissions.length === 1
+                                ? 'permission'
+                                : 'permissions'
+                                }}
+                            </small>
+
+                        </span>
+
+                        <span class="permission-sidebar-count">
+                            {{ group.permissions.length }}
+                        </span>
+
+                    </button>
+
+                    }
+
+                    } @else {
+
+                    <div class="permission-sidebar-message">
+                        No permission areas found.
+                    </div>
+
+                    }
+
+                </nav>
+
+            </aside>
+
+
+            <!-- =====================================================
+                 RIGHT CONTENT
+                 ===================================================== -->
+
+            <section class="permission-main" aria-label="Role permissions">
+                <!-- =================================================
+                     PERMISSION SEARCH
+                     ================================================= -->
+
+                <div class="permission-toolbar" aria-label="Permission tools">
+
+                    <div class="permission-search">
+
+                        <app-input type="search" label="Search permissions" labelMode="hidden"
+                            placeholder="Search permissions" variant="paper" appearance="outlined" shape="rounded"
+                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [fullWidth]="true"
+                            [disabled]="loading" [value]="searchTerm()" ariaLabel="Search assigned permissions"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ONLY SCROLL AREA
+                     ================================================= -->
+
+                <div #permissionScroll class="permission-scroll" (scroll)="onPermissionScroll()">
+
+                    @if (loading) {
+
+                    <div class="permission-state">
+
+                        <app-loader mode="section" size="md" tone="colorful" label="Loading permissions..."
+                            description="Getting this role ready." [minHeight]="240" />
+
+                    </div>
+
+                    } @else if (error) {
+
+                    <div class="permission-state">
+
+                        <span class="permission-state-icon is-error" aria-hidden="true">
+
+                            <app-icon [icon]="LucideX" size="lg" />
+
+                        </span>
+
+                        <strong>
+                            Couldn’t load permissions
+                        </strong>
+
+                        <p>
+                            {{ error }}
+                        </p>
+
+                        <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                            (buttonClick)="retryPermissions()" />
+
+                    </div>
+
+                    } @else if (
+                    assignedPermissions().length === 0
+                    ) {
+
+                    <div class="permission-state">
+
+                        <span class="permission-state-icon" aria-hidden="true">
+
+                            <app-icon [icon]="LucideKey" size="lg" />
+
+                        </span>
+
+                        <strong>
+                            No permissions assigned
+                        </strong>
+
+                        <p>
+                            This role does not have any permissions yet.
+                        </p>
+
+                    </div>
+
+                    } @else if (
+                    visibleGroups().length === 0
+                    ) {
+
+                    <div class="permission-state">
+
+                        <span class="permission-state-icon" aria-hidden="true">
+
+                            <app-icon [icon]="LucideSearch" size="lg" />
+
+                        </span>
+
+                        <strong>
+                            No permissions found
+                        </strong>
+
+                        <p>
+                            Try searching with another word.
+                        </p>
+
+                        <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+
+                    </div>
+
+                    } @else {
+
+                    <div class="permission-groups">
+
+                        @for (
+                        group of visibleGroups();
+                        track group.module
+                        ) {
+
+                        <section class="permission-group" [id]="moduleDomId(group.module)"
+                            [attr.aria-labelledby]="moduleTitleDomId(group.module)">
+
+
+                            <!-- =============================
+                                 MODULE HEADER
+                                 ============================= -->
+
+                            <header class="permission-group-header">
+
+                                <div class="permission-group-title">
+
+                                    <span class="permission-group-icon" aria-hidden="true">
+                                        <app-icon [icon]="LucideKey" size="xs" />
+                                    </span>
+
+                                    <h4 [id]="moduleTitleDomId(group.module)">
+                                        {{ group.label }}
+                                    </h4>
+
+                                    <app-badge [label]="
+                                            group.permissions.length +
+                                            (group.permissions.length === 1
+                                                ? ' permission'
+                                                : ' permissions')
+                                        " variant="outline" size="xs" shape="pill" [ariaLabel]="
+                                            group.label +
+                                            ': ' +
+                                            group.permissions.length +
+                                            (group.permissions.length === 1
+                                                ? ' permission'
+                                                : ' permissions')
+                                        " />
+
+                                </div>
+
+                            </header>
+
+
+                            <!-- =============================
+                                 TABLE HEADER
+                                 ============================= -->
+
+                            <div class="permission-list-header" aria-hidden="true">
+
+                                <span>
+                                    Permission
+                                </span>
+
+                                <span>
+                                    What it allows
+                                </span>
+
+                                <span>
+                                    Action
+                                </span>
+
+                                <span>
+                                    Access
+                                </span>
+
+                                <span>
+                                    Status
+                                </span>
+
+                            </div>
+
+
+                            <!-- =============================
+                                 PERMISSION ROWS
+                                 ============================= -->
+
+                            <div class="permission-list">
+
+                                @for (
+                                permission of group.permissions;
+                                track permissionId(permission)
+                                ) {
+
+                                <article class="permission-row">
+
+
+                                    <!-- =========================
+                                         REUSABLE CHECKBOX
+                                         ========================= -->
+
+                                    <div class="permission-name">
+
+                                        <app-checkbox class="permission-checkbox" [label]="permission.displayName"
+                                            variant="noteGreen" size="md" [checked]="true" [readonly]="true"
+                                            [fullWidth]="true" [tabIndex]="-1"
+                                            [ariaLabel]="permission.displayName + ' is assigned to this role'" />
+
+                                    </div>
+
+
+                                    <!-- =========================
+                                         DESCRIPTION
+                                         ========================= -->
+
+                                    <p class="permission-description">
+
+                                        {{
+                                        permission.description ||
+                                        permissionSimpleDescription(permission)
+                                        }}
+
+                                    </p>
+
+
+                                    <!-- =========================
+                                         ACTION - MOBILE
+                                         ========================= -->
+
+                                    <div class="permission-mobile-field">
+
+                                        <span>
+                                            Action
+                                        </span>
+
+                                        <strong>
+                                            {{ actionLabel(permission.action) }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <!-- ACTION - DESKTOP -->
+
+                                    <span class="permission-desktop-value">
+                                        {{ actionLabel(permission.action) }}
+                                    </span>
+
+
+                                    <!-- =========================
+                                         ACCESS - MOBILE
+                                         ========================= -->
+
+                                    <div class="permission-mobile-field">
+
+                                        <span>
+                                            Access
+                                        </span>
+
+                                        <strong>
+                                            {{ permissionAccessLabel(permission) }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <!-- ACCESS - DESKTOP -->
+
+                                    <span class="permission-desktop-value">
+                                        {{ permissionAccessLabel(permission) }}
+                                    </span>
+
+
+                                    <!-- =========================
+                                         STATUS - MOBILE
+                                         ========================= -->
+
+                                    <div class="permission-mobile-field">
+
+                                        <span>
+                                            Status
+                                        </span>
+
+                                        <app-badge [label]="permission.isActive === false ? 'Inactive' : 'Active'"
+                                            [variant]="permissionStatusVariant(permission)" size="xs" shape="pill"
+                                            [dot]="true" />
+
+                                    </div>
+
+
+                                    <!-- STATUS - DESKTOP -->
+
+                                    <div class="permission-desktop-status">
+
+                                        <app-badge [label]="permission.isActive === false ? 'Inactive' : 'Active'"
+                                            [variant]="permissionStatusVariant(permission)" size="xs" shape="pill"
+                                            [dot]="true" />
+
+                                    </div>
+
+                                </article>
+
+                                }
+
+                            </div>
+
+                        </section>
+
+                        }
+
+                    </div>
+
+                    }
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+    }
+
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+
+    <div modal-footer class="permission-modal-footer">
+
+        <span>
+            {{ footerNote }}
+        </span>
+
+        <app-button label="Close" variant="secondary" size="sm" (buttonClick)="close()" />
+
+    </div>
+
+</app-modal>

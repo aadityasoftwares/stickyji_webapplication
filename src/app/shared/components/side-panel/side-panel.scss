@@ -1,0 +1,519 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* ==========================================================
+   Side Panel Layer
+   ========================================================== */
+
+.app-side-panel-layer {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+
+    display: flex;
+    justify-content: flex-end;
+
+    overflow: hidden;
+}
+
+/* ==========================================================
+   Backdrop
+   ========================================================== */
+
+.app-side-panel-backdrop {
+    position: absolute;
+    inset: 0;
+
+    cursor: default;
+
+    background: rgba($heading, 0.24);
+
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+
+    animation: panel-backdrop-in 160ms ease-out both;
+}
+
+/* ==========================================================
+   Main Panel
+   ========================================================== */
+
+.app-side-panel {
+    --panel-accent: #{$accent};
+    --panel-icon: #ffe990;
+
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 45vw;
+    max-width: 45vw;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+
+    color: $text-primary;
+    background: $paper;
+
+    border-left: 1px solid rgba($border, 0.96);
+
+    outline: none;
+
+    box-shadow: -12px 0 36px rgba($heading, 0.12);
+
+    animation: panel-enter 200ms cubic-bezier(0.22, 0.8, 0.22, 1) both;
+}
+
+/* ==========================================================
+   Panel Tones
+   ========================================================== */
+
+.app-side-panel[data-tone='paper'] {
+    --panel-accent: #{$secondary};
+    --panel-icon: #ece2d2;
+}
+
+.app-side-panel[data-tone='blue'] {
+    --panel-accent: #{$info};
+    --panel-icon: #d8ebff;
+}
+
+.app-side-panel[data-tone='pink'] {
+    --panel-accent: #b83c70;
+    --panel-icon: #ffdce9;
+}
+
+.app-side-panel[data-tone='green'] {
+    --panel-accent: #{$success};
+    --panel-icon: #dcf1d4;
+}
+
+.app-side-panel[data-tone='purple'] {
+    --panel-accent: #7652a7;
+    --panel-icon: #e9def8;
+}
+
+/* ==========================================================
+   Header
+   ========================================================== */
+
+.app-side-panel-header {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+
+    flex: 0 0 auto;
+
+    gap: 12px;
+
+    padding: 15px 16px 13px;
+
+    overflow: hidden;
+
+    /* Page background for top bar */
+    background: $page-bg;
+
+    border-bottom: 1px solid rgba($border, 0.88);
+}
+
+/* ==========================================================
+   Decorative Tape
+   ========================================================== */
+
+.app-side-panel-tape {
+    position: absolute;
+    z-index: 0;
+
+    top: -5px;
+    left: 48%;
+
+    width: 54px;
+    height: 13px;
+
+    background: rgba($accent, 0.13);
+
+    box-shadow:
+        inset 0 0 0 1px rgba($accent, 0.045);
+
+    transform: rotate(3deg);
+
+    pointer-events: none;
+}
+
+/* ==========================================================
+   Heading
+   ========================================================== */
+
+.app-side-panel-heading {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: flex-start;
+
+    min-width: 0;
+
+    gap: 10px;
+}
+
+.app-side-panel-icon {
+    display: grid;
+
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 auto;
+
+    color: $heading;
+
+    background: var(--panel-icon);
+
+    border: 1px solid rgba($heading, 0.07);
+    border-radius: 9px;
+
+    box-shadow:
+        0 2px 7px rgba($heading, 0.06),
+        inset 0 1px rgba($paper, 0.72);
+
+    place-items: center;
+}
+
+.app-side-panel-heading-copy,
+.app-side-panel-title-copy {
+    min-width: 0;
+}
+
+.app-side-panel-title-row {
+    display: flex;
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 9px;
+}
+
+/* ==========================================================
+   Eyebrow
+   ========================================================== */
+
+.app-side-panel-eyebrow {
+    display: block;
+
+    margin: 0 0 2px;
+
+    overflow: hidden;
+
+    color: var(--panel-accent);
+
+    font-family: $font-body;
+    font-size: 0.56rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.075em;
+
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   Title
+   ========================================================== */
+
+.app-side-panel-title {
+    margin: 0;
+
+    overflow: hidden;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: 1rem;
+    font-weight: 780;
+    line-height: 1.2;
+    letter-spacing: -0.022em;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   Header Note
+   ========================================================== */
+
+.app-side-panel-note {
+    display: inline-flex;
+    align-items: center;
+
+    max-width: 130px;
+    min-height: 21px;
+
+    flex: 0 1 auto;
+
+    padding: 3px 7px;
+
+    overflow: hidden;
+
+    color: var(--panel-accent);
+
+    background: $paper;
+
+    border: 1px solid rgba($border, 0.72);
+    border-radius: 999px;
+
+    font-family: $font-note;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   Description
+   ========================================================== */
+
+.app-side-panel-description {
+    max-width: 440px;
+
+    margin: 4px 0 0;
+
+    overflow: hidden;
+
+    color: $text-secondary;
+
+    font-family: $font-body;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.38;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   Header Actions
+   ========================================================== */
+
+.app-side-panel-header-actions {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+
+    flex: 0 0 auto;
+
+    gap: 4px;
+
+    margin: -3px -4px 0 0;
+}
+
+.app-side-panel-header-actions::ng-deep app-button .app-button-wrapper,
+.app-side-panel-header-actions::ng-deep app-button button,
+.app-side-panel-header-actions::ng-deep app-button .app-button {
+    min-width: 30px !important;
+    min-height: 30px !important;
+}
+
+/* ==========================================================
+   Body
+   ========================================================== */
+
+.app-side-panel-body {
+    min-height: 0;
+
+    flex: 1 1 auto;
+
+    padding: 15px 16px 20px;
+
+    overflow: hidden auto;
+
+    /* White/paper working area */
+    background: $paper;
+
+    overscroll-behavior: contain;
+
+    scrollbar-gutter: stable;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================================
+   Footer
+   ========================================================== */
+
+.app-side-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-height: 58px;
+
+    flex: 0 0 auto;
+
+    padding: 9px 16px;
+
+    /* Page background for bottom bar */
+    background: $page-bg;
+
+    border-top: 1px solid rgba($border, 0.88);
+
+    box-shadow: 0 -3px 10px rgba($heading, 0.025);
+}
+
+/* ==========================================================
+   Closing
+   ========================================================== */
+
+.is-closing {
+    .app-side-panel {
+        animation: panel-exit 170ms ease-in both;
+    }
+
+    .app-side-panel-backdrop {
+        animation: panel-backdrop-out 170ms ease-in both;
+    }
+}
+
+/* ==========================================================
+   Animations
+   ========================================================== */
+
+@keyframes panel-enter {
+    from {
+        transform: translateX(102%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes panel-exit {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(102%);
+    }
+}
+
+@keyframes panel-backdrop-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes panel-backdrop-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   Tablet
+   ========================================================== */
+
+@media (max-width: 991.98px) {
+    .app-side-panel {
+        width: 60vw;
+        max-width: 60vw;
+    }
+}
+
+/* ==========================================================
+   Mobile
+   ========================================================== */
+
+@media (max-width: 575.98px) {
+    .app-side-panel {
+        width: 100%;
+        max-width: none;
+
+        border-left: 0;
+    }
+
+    .app-side-panel-header {
+        gap: 8px;
+
+        padding: 13px 12px 11px;
+    }
+
+    .app-side-panel-heading {
+        gap: 8px;
+    }
+
+    .app-side-panel-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .app-side-panel-note {
+        display: none;
+    }
+
+    .app-side-panel-title {
+        font-size: 0.94rem;
+    }
+
+    .app-side-panel-description {
+        max-width: min(68vw, 300px);
+
+        font-size: 0.64rem;
+    }
+
+    .app-side-panel-body {
+        padding: 12px 12px 16px;
+
+        scrollbar-gutter: auto;
+    }
+
+    .app-side-panel-footer {
+        min-height: 56px;
+
+        padding: 8px 12px;
+    }
+}
+
+/* ==========================================================
+   Reduced Motion
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-side-panel,
+    .app-side-panel-backdrop {
+        animation-duration: 1ms !important;
+    }
+}

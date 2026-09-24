@@ -1,0 +1,1818 @@
+@use '../../../styles/variables' as *;
+
+/* ==========================================================
+   WORKSPACE MEMBERS
+   - Same page/explorer rhythm as Workspace
+   - 13px / 14px / 15px type scale
+   - Page itself never scrolls; grid/list owns scrolling
+   - Member cards use a people/access-pass visual language
+   ========================================================== */
+
+:host {
+    --members-font-13: 0.8125rem;
+    --members-font-14: 0.875rem;
+    --members-font-15: 0.9375rem;
+
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    color: $text-primary;
+    font-family: $font-body;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+button,
+input {
+    color: inherit;
+    font: inherit;
+}
+
+/* ==========================================================
+   PAGE / MAIN — intentionally matches Workspace
+   ========================================================== */
+
+.workspace-members-page {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    padding:
+        clamp(0.875rem, 1.5vw, 1.375rem) clamp(0.875rem, 1.8vw, 1.75rem) 0;
+    overflow: hidden;
+    background: $page-bg;
+}
+
+.workspace-members-main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    width: min(100%, 96rem);
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin-inline: auto;
+    overflow: hidden;
+}
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+.workspace-members-header {
+    display: grid;
+    grid-template-columns: minmax(15rem, 1fr) auto;
+    align-items: end;
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 0.875rem 1.25rem;
+}
+
+.workspace-members-intro {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.75rem;
+}
+
+.workspace-members-intro>div {
+    min-width: 0;
+}
+
+.workspace-members-intro h1 {
+    max-width: 46rem;
+    margin: 0.1875rem 0 0;
+    overflow: hidden;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: var(--members-font-15);
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-members-intro h1 span {
+    color: inherit;
+}
+
+.workspace-members-intro-mark {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    width: 3.375rem;
+    height: 3.375rem;
+    overflow: hidden;
+    color: $heading;
+    background: $paper;
+    border: 1px solid rgba($accent, 0.32);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.125rem 0.5rem rgba($heading, 0.04);
+}
+
+/* Team mark: distinct from the folder visual used on Workspace. */
+.workspace-members-person-icon {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.62rem;
+    width: 1.65rem;
+    height: 2rem;
+}
+
+.workspace-members-person-icon.is-secondary {
+    top: 0.95rem;
+    right: 0.52rem;
+    left: auto;
+    width: 1.35rem;
+    height: 1.7rem;
+    opacity: 0.72;
+}
+
+.workspace-members-person-head {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0.72rem;
+    height: 0.72rem;
+    background: rgba($accent, 0.88);
+    border: 0.125rem solid $paper;
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+.workspace-members-person-body {
+    position: absolute;
+    right: 0.05rem;
+    bottom: 0;
+    left: 0.05rem;
+    height: 1.15rem;
+    background: linear-gradient(135deg, rgba($note-yellow, 0.95), rgba($note-yellow, 0.48));
+    border: 1px solid rgba($accent, 0.2);
+    border-radius: 0.7rem 0.7rem 0.38rem 0.38rem;
+}
+
+.workspace-members-person-icon.is-secondary .workspace-members-person-head {
+    width: 0.62rem;
+    height: 0.62rem;
+    background: rgba($heading, 0.72);
+}
+
+.workspace-members-person-icon.is-secondary .workspace-members-person-body {
+    background: rgba($heading, 0.11);
+    border-color: rgba($heading, 0.14);
+}
+
+.workspace-members-kicker,
+.workspace-members-empty-note {
+    color: $accent;
+    font-weight: 700;
+}
+
+.workspace-members-kicker {
+    display: block;
+    overflow: hidden;
+    font-family: $font-note;
+    font-size: var(--members-font-14);
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-members-header-actions {
+    display: grid;
+    grid-template-columns: auto minmax(12rem, 15rem) auto auto;
+    align-items: center;
+    justify-content: end;
+    min-width: 0;
+    gap: 0.5rem;
+}
+
+.workspace-members-count-slot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 5.75rem;
+    min-height: 2.25rem;
+}
+
+.workspace-members-count-placeholder {
+    display: block;
+    width: 5.75rem;
+    height: 1.5rem;
+    visibility: hidden;
+}
+
+.workspace-members-workspace-picker {
+    width: 100%;
+    min-width: 0;
+}
+
+.workspace-members-new-button {
+    min-width: 0;
+}
+
+/* ==========================================================
+   EXPLORER — same shell behavior as Workspace
+   ========================================================== */
+
+.workspace-members-explorer {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    margin-top: 0.875rem;
+    overflow: hidden;
+    background: $paper;
+    border: 1px solid rgba($border, 0.82);
+    border-bottom: 0;
+    border-radius: 0.875rem 0.875rem 0 0;
+    box-shadow: 0 0.375rem 1.25rem rgba($heading, 0.03);
+}
+
+.workspace-members-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 1rem;
+    padding: 0.625rem 0.75rem;
+    background: $page-bg;
+    border-bottom: 1px solid rgba($border, 0.82);
+}
+
+.workspace-members-status-tabs {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.workspace-members-toolbar-actions {
+    display: grid;
+    grid-template-columns: minmax(13rem, 26rem) 11rem auto;
+    align-items: center;
+    justify-content: end;
+    min-width: 0;
+    gap: 0.5rem;
+}
+
+.workspace-members-search,
+.workspace-members-sort,
+.workspace-members-view-tabs {
+    min-width: 0;
+}
+
+.workspace-members-search {
+    width: 100%;
+}
+
+.workspace-members-sort {
+    width: 11rem;
+}
+
+.workspace-members-explorer-body {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.75rem;
+    overflow: hidden;
+    background: $paper;
+}
+
+.workspace-members-explorer-body.is-list {
+    padding: 0;
+}
+
+/* ==========================================================
+   LOADING / EMPTY STATES
+   ========================================================== */
+
+.workspace-members-loader-state {
+    display: grid;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    place-items: center;
+}
+
+.workspace-members-loader-state app-loader {
+    display: block;
+    width: min(100%, 35rem);
+}
+
+.workspace-members-empty-state {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+}
+
+.workspace-members-empty-state.is-compact {
+    min-height: 15rem;
+}
+
+.workspace-members-empty-state h2 {
+    margin: 0.625rem 0 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: var(--members-font-15);
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+}
+
+.workspace-members-empty-state p {
+    max-width: 28rem;
+    margin: 0.375rem 0 1rem;
+    color: $text-light;
+    font-size: var(--members-font-13);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.workspace-members-empty-icon {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    color: #765500;
+    background: rgba($note-yellow, 0.34);
+    border: 1px solid rgba(#8c6800, 0.1);
+    border-radius: 0.75rem;
+    place-items: center;
+}
+
+.workspace-members-empty-icon.is-error {
+    color: $danger;
+    background: rgba($danger, 0.07);
+    border-color: rgba($danger, 0.14);
+}
+
+.workspace-members-empty-note {
+    margin-top: 0.75rem;
+    font-family: $font-note;
+    font-size: var(--members-font-14);
+    line-height: 1.35;
+}
+
+/* ==========================================================
+   SHARED GRID
+   ========================================================== */
+
+.workspace-access-grid {
+    display: grid;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    align-content: start;
+    gap: 0.75rem;
+    padding: 0.125rem 0.125rem 0.75rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba($heading, 0.22) transparent;
+}
+
+.workspace-access-grid::-webkit-scrollbar,
+.workspace-access-list-scroll::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.workspace-access-grid::-webkit-scrollbar-track,
+.workspace-access-list-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.workspace-access-grid::-webkit-scrollbar-thumb,
+.workspace-access-list-scroll::-webkit-scrollbar-thumb {
+    background: rgba($heading, 0.2);
+    border: 0.125rem solid $paper;
+    border-radius: 999px;
+}
+
+.workspace-access-grid::-webkit-scrollbar-button,
+.workspace-access-list-scroll::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* ==========================================================
+   MEMBER + INVITATION GRIDS
+   - Optimized for large workspaces (100+ people)
+   - Compact cards, predictable scanning
+   - One plain StickyCard color for the whole card
+   - Only essential data stays in grid view
+   ========================================================== */
+
+.workspace-member-grid,
+.workspace-invitation-grid {
+    grid-template-columns:
+        repeat(auto-fill, minmax(14.75rem, 15.75rem));
+
+    justify-content: start;
+    align-content: start;
+
+    gap: 0.75rem;
+}
+
+.workspace-member-profile-card,
+.workspace-invitation-profile-card,
+.workspace-member-add-card {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+
+    aspect-ratio: 1 / 0.92;
+}
+
+.workspace-member-profile-card.is-busy,
+.workspace-invitation-profile-card.is-busy {
+    pointer-events: none;
+    opacity: 0.56;
+}
+
+.workspace-member-profile-card.is-removed,
+.workspace-invitation-profile-card.is-closed {
+    filter: saturate(0.68);
+    opacity: 0.78;
+}
+
+/* ==========================================================
+   MEMBER CARD
+   ========================================================== */
+
+.workspace-member-card {
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    padding: 0.75rem;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    color: $text-primary;
+    background: transparent;
+}
+
+.workspace-member-card-top,
+.workspace-invitation-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-width: 0;
+
+    gap: 0.45rem;
+}
+
+.workspace-member-card-type,
+.workspace-invitation-card-type {
+    min-width: 0;
+    overflow: hidden;
+
+    color: rgba($heading, 0.62);
+
+    font-family: $font-note;
+    font-size: var(--members-font-13);
+    font-weight: 700;
+    line-height: 1.2;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-card-menu,
+.workspace-invitation-card-menu {
+    flex: 0 0 auto;
+}
+
+.workspace-member-card-main {
+    display: grid;
+
+    min-width: 0;
+
+    grid-template-columns:
+        auto minmax(0, 1fr);
+
+    align-items: center;
+
+    gap: 0.65rem;
+
+    margin-top: 0.45rem;
+}
+
+.workspace-member-card-avatar-wrap {
+    position: relative;
+
+    display: grid;
+
+    width: 3.35rem;
+    height: 3.35rem;
+
+    flex: 0 0 auto;
+
+    place-items: center;
+}
+
+.workspace-member-card-avatar {
+    display: grid;
+
+    width: 3.2rem;
+    height: 3.2rem;
+
+    padding: 0.14rem;
+
+    overflow: hidden;
+
+    background: rgba($paper, 0.62);
+
+    border:
+        1px solid rgba($heading, 0.08);
+
+    border-radius: 0.85rem;
+
+    place-items: center;
+}
+
+.workspace-member-card-avatar app-avatar {
+    display: block;
+}
+
+.workspace-member-card-presence {
+    position: absolute;
+
+    right: -0.02rem;
+    bottom: 0.02rem;
+
+    width: 0.7rem;
+    height: 0.7rem;
+
+    background: $success;
+
+    border:
+        0.13rem solid rgba($paper, 0.96);
+
+    border-radius: 50%;
+}
+
+.workspace-member-card-presence.is-removed {
+    background: $text-light;
+}
+
+.workspace-member-card-copy {
+    display: grid;
+
+    min-width: 0;
+
+    gap: 0.1rem;
+}
+
+.workspace-member-card-name-row {
+    display: flex;
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 0.3rem;
+}
+
+.workspace-member-card-name {
+    min-width: 0;
+    overflow: hidden;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--members-font-15);
+    font-weight: 760;
+    line-height: 1.25;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-you {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+
+    min-height: 1.08rem;
+
+    padding:
+        0.08rem 0.34rem;
+
+    color: $heading;
+    background: rgba($paper, 0.46);
+
+    border:
+        1px solid rgba($heading, 0.08);
+
+    border-radius: 999px;
+
+    font-size: 0.65rem;
+    font-weight: 750;
+    line-height: 1;
+}
+
+.workspace-member-card-email {
+    min-width: 0;
+    overflow: hidden;
+
+    color: rgba($text-secondary, 0.88);
+
+    font-size: var(--members-font-13);
+    font-weight: 500;
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-card-access-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-width: 0;
+
+    gap: 0.45rem;
+
+    margin-top: 0.65rem;
+    padding:
+        0.5rem 0;
+
+    border-top:
+        1px solid rgba($heading, 0.08);
+
+    border-bottom:
+        1px solid rgba($heading, 0.08);
+}
+
+.workspace-member-card-role,
+.workspace-invitation-card-role {
+    display: inline-flex;
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 0.3rem;
+
+    overflow: hidden;
+
+    color: $text-secondary;
+
+    font-size: var(--members-font-13);
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-card-meta {
+    display: grid;
+
+    width: 100%;
+    min-width: 0;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 0.45rem;
+
+    margin-top: 0.6rem;
+}
+
+.workspace-member-card-meta-item,
+.workspace-invitation-card-meta-item {
+    display: grid;
+
+    min-width: 0;
+
+    gap: 0.08rem;
+
+    padding:
+        0.45rem 0.5rem;
+
+    background:
+        rgba($paper, 0.30);
+
+    border:
+        1px solid rgba($heading, 0.06);
+
+    border-radius: 0.45rem;
+}
+
+.workspace-member-card-meta-item span,
+.workspace-member-card-meta-item strong,
+.workspace-invitation-card-meta-item span,
+.workspace-invitation-card-meta-item strong {
+    min-width: 0;
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-card-meta-item span,
+.workspace-invitation-card-meta-item span {
+    color: rgba($text-secondary, 0.74);
+
+    font-size: 0.66rem;
+    font-weight: 650;
+    line-height: 1.15;
+}
+
+.workspace-member-card-meta-item strong,
+.workspace-invitation-card-meta-item strong {
+    color: $text-secondary;
+
+    font-size: var(--members-font-13);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.workspace-member-card-meta-item.is-secondary {
+    opacity: 0.92;
+}
+
+.workspace-member-card-footer {
+    display: grid;
+
+    width: 100%;
+    min-width: 0;
+
+    grid-template-columns:
+        minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 0.4rem;
+
+    margin-top: auto;
+    padding-top: 0.55rem;
+}
+
+.workspace-member-card-primary-action {
+    min-width: 0;
+}
+
+.workspace-member-card-edit-action {
+    flex: 0 0 auto;
+}
+
+/* ==========================================================
+   INVITATION CARD
+   ========================================================== */
+
+.workspace-invitation-card {
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    padding: 0.75rem;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    color: $text-primary;
+    background: transparent;
+}
+
+.workspace-invitation-card-identity {
+    display: grid;
+
+    min-width: 0;
+
+    justify-items: center;
+
+    gap: 0.12rem;
+
+    margin-top: 0.45rem;
+
+    text-align: center;
+}
+
+.workspace-invitation-card-icon {
+    display: grid;
+
+    width: 3.25rem;
+    height: 3.25rem;
+
+    margin-bottom: 0.28rem;
+
+    color: #765500;
+    background: rgba($paper, 0.38);
+
+    border:
+        1px solid rgba(#8c6800, 0.11);
+
+    border-radius: 0.85rem;
+
+    place-items: center;
+}
+
+.workspace-invitation-card-email {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--members-font-14);
+    font-weight: 750;
+    line-height: 1.25;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-invitation-card-secondary {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+
+    color: $text-secondary;
+
+    font-size: var(--members-font-13);
+    font-weight: 500;
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-invitation-card-access {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-width: 0;
+
+    gap: 0.45rem;
+
+    margin-top: 0.6rem;
+    padding:
+        0.5rem 0;
+
+    border-top:
+        1px solid rgba($heading, 0.08);
+
+    border-bottom:
+        1px solid rgba($heading, 0.08);
+}
+
+.workspace-invitation-card-meta {
+    display: grid;
+
+    width: 100%;
+    min-width: 0;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 0.45rem;
+
+    margin-top: 0.6rem;
+}
+
+.workspace-invitation-card-meta-divider {
+    display: none;
+}
+
+.workspace-invitation-card-footer {
+    display: grid;
+
+    width: 100%;
+    min-width: 0;
+
+    grid-template-columns:
+        minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 0.4rem;
+
+    margin-top: auto;
+    padding-top: 0.55rem;
+}
+
+.workspace-invitation-card-by {
+    display: grid;
+
+    min-width: 0;
+
+    gap: 0.05rem;
+}
+
+.workspace-invitation-card-by span,
+.workspace-invitation-card-by strong {
+    min-width: 0;
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-invitation-card-by span {
+    color: rgba($text-secondary, 0.74);
+
+    font-size: 0.66rem;
+    font-weight: 650;
+}
+
+.workspace-invitation-card-by strong {
+    color: $text-secondary;
+
+    font-size: var(--members-font-13);
+    font-weight: 700;
+}
+
+.workspace-invitation-card-cancel {
+    flex: 0 0 auto;
+}
+
+/* ==========================================================
+   ADD MEMBER / SEND INVITE CARD
+   ========================================================== */
+
+.workspace-member-add-card-content {
+    display: grid;
+
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    padding: 1rem;
+
+    cursor: pointer;
+
+    place-content: center;
+    justify-items: center;
+
+    text-align: center;
+
+    background: transparent;
+}
+
+.workspace-member-add-icon {
+    display: grid;
+
+    width: 3.25rem;
+    height: 3.25rem;
+
+    margin-bottom: 0.65rem;
+
+    color: #765500;
+    background: rgba($paper, 0.38);
+
+    border:
+        1px solid rgba(#8c6800, 0.11);
+
+    border-radius: 0.85rem;
+
+    place-items: center;
+}
+
+.workspace-member-add-card-content strong {
+    color: $heading;
+
+    font-family: $font-heading;
+    font-size: var(--members-font-14);
+    font-weight: 760;
+    line-height: 1.3;
+}
+
+.workspace-member-add-card-content small {
+    max-width: 12rem;
+
+    margin-top: 0.25rem;
+
+    color: $text-secondary;
+
+    font-size: var(--members-font-13);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.workspace-member-add-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 0.3rem;
+
+    margin-top: 0.7rem;
+
+    color: $heading;
+
+    font-size: var(--members-font-13);
+    font-weight: 750;
+}
+
+/* No scale animation. */
+.workspace-member-profile-card,
+.workspace-invitation-profile-card,
+.workspace-member-add-card {
+    transition:
+        opacity 160ms ease,
+        filter 160ms ease;
+}
+
+/* ==========================================================
+   LIST VIEW
+   ========================================================== */
+
+.workspace-access-list-scroll {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba($heading, 0.22) transparent;
+}
+
+.workspace-access-table {
+    width: 100%;
+    min-width: 64rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: $text-primary;
+    font-size: var(--members-font-13);
+    table-layout: fixed;
+}
+
+.workspace-access-table:not(.workspace-invitation-table) {
+    min-width: 66rem;
+}
+
+.workspace-access-table th,
+.workspace-access-table td {
+    padding: 0.62rem 0.72rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba($border, 0.7);
+}
+
+.workspace-access-table thead th {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    color: $text-light;
+    background: $page-bg;
+    font-size: var(--members-font-13);
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.workspace-access-table tbody tr {
+    transition:
+        background-color 150ms ease,
+        opacity 150ms ease;
+}
+
+.workspace-access-table tbody tr:hover {
+    background: rgba($note-yellow, 0.08);
+}
+
+.workspace-access-table tbody tr.is-removed,
+.workspace-access-table tbody tr.is-muted {
+    opacity: 0.72;
+}
+
+.workspace-access-table tbody tr.is-busy {
+    pointer-events: none;
+    opacity: 0.52;
+}
+
+.workspace-access-primary {
+    width: 23rem;
+}
+
+.workspace-access-person {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.6rem;
+}
+
+.workspace-access-person-copy {
+    display: grid;
+    min-width: 0;
+    gap: 0.12rem;
+}
+
+.workspace-access-person-copy strong,
+.workspace-access-person-copy small {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-access-person-copy strong {
+    color: $heading;
+    font-size: var(--members-font-14);
+    font-weight: 700;
+}
+
+.workspace-access-person-copy small {
+    color: $text-light;
+    font-size: var(--members-font-13);
+}
+
+.workspace-access-role {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.35rem;
+    color: $text-secondary;
+}
+
+.workspace-access-role span {
+    overflow: hidden;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-access-date,
+.workspace-access-activity,
+.workspace-access-truncate {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: $text-secondary;
+    font-size: var(--members-font-13);
+    font-weight: 550;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-access-activity.is-empty {
+    color: $text-light;
+}
+
+.workspace-access-actions-heading,
+.workspace-access-actions {
+    width: 8rem;
+    text-align: right !important;
+}
+
+.workspace-access-actions .workspace-member-action-group {
+    justify-content: flex-end;
+}
+
+.workspace-access-no-action {
+    color: $text-light;
+}
+
+/* ==========================================================
+   MATERIAL MENU
+   ========================================================== */
+
+.workspace-access-menu-button {
+    display: inline-block;
+    flex: 0 0 auto;
+}
+
+::ng-deep .workspace-actions-menu.mat-mdc-menu-panel {
+    min-width: 14.5rem;
+    max-width: 15.5rem;
+    overflow: hidden;
+    background: $paper;
+    border: 1px solid rgba($border, 0.92);
+    border-radius: 0.75rem;
+    box-shadow:
+        0 1.125rem 2.625rem rgba($heading, 0.16),
+        0 0.1875rem 0.625rem rgba($heading, 0.06);
+}
+
+::ng-deep .workspace-actions-menu .mat-mdc-menu-content {
+    padding: 0.5rem;
+}
+
+::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item {
+    min-height: 3rem;
+    height: auto;
+    padding: 0.3rem 0.5rem;
+    color: $text-secondary;
+    border-radius: 0.5rem;
+    font-family: $font-body;
+    line-height: 1.2;
+}
+
+::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item:hover,
+::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item:focus-visible {
+    background: rgba($note-yellow, 0.18);
+}
+
+::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item.is-open {
+    background: rgba($note-yellow, 0.22);
+}
+
+::ng-deep .workspace-actions-menu .mat-mdc-menu-item-text {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.625rem;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-item-icon {
+    display: grid;
+    width: 1.875rem;
+    height: 1.875rem;
+    flex: 0 0 1.875rem;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.58);
+    border: 1px solid rgba($border, 0.72);
+    border-radius: 0.45rem;
+    place-items: center;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-item-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-item-copy strong {
+    color: $heading;
+    font-size: var(--members-font-13);
+    font-weight: 700;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-item-copy small {
+    color: $text-light;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-danger,
+::ng-deep .workspace-actions-menu .workspace-menu-danger .workspace-menu-item-copy strong {
+    color: $danger;
+}
+
+::ng-deep .workspace-actions-menu .workspace-menu-danger .workspace-menu-item-icon {
+    color: $danger;
+    background: rgba($danger, 0.065);
+    border-color: rgba($danger, 0.14);
+}
+
+/* ==========================================================
+   DIALOGS
+   ========================================================== */
+
+.workspace-members-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+    display: grid;
+    padding: 1.125rem;
+    overflow: auto;
+    background: rgba($heading, 0.38);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    place-items: center;
+}
+
+.workspace-members-dialog-shell {
+    width: min(100%, 29.5rem);
+}
+
+.workspace-members-dialog-note {
+    display: block;
+    width: 100%;
+}
+
+.workspace-members-dialog-icon {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: $danger;
+    background: rgba($danger, 0.08);
+    border: 1px solid rgba($danger, 0.17);
+    border-radius: 0.625rem;
+    place-items: center;
+}
+
+.workspace-members-dialog-icon.is-view {
+    color: $text-secondary;
+    background: rgba($note-blue, 0.3);
+    border-color: rgba($text-secondary, 0.14);
+}
+
+.workspace-members-dialog-kicker {
+    color: $danger;
+    font-family: $font-note;
+    font-size: var(--members-font-14);
+    font-weight: 700;
+}
+
+.workspace-members-dialog-kicker.is-view {
+    color: $text-secondary;
+}
+
+.workspace-members-dialog-title {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: var(--members-font-15);
+    font-weight: 750;
+}
+
+.workspace-members-dialog-subtitle {
+    margin: 0.375rem 0 0;
+    color: $text-secondary;
+    font-size: var(--members-font-13);
+    line-height: 1.5;
+}
+
+.workspace-member-view-subtitle {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.45rem;
+}
+
+.workspace-member-view-subtitle>span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-members-dialog-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+    padding: 0.625rem 0.7rem;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.4);
+    border: 1px solid rgba($border, 0.72);
+    border-radius: 0.56rem;
+    font-size: var(--members-font-13);
+    line-height: 1.45;
+}
+
+.workspace-members-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.workspace-member-view-shell {
+    width: min(100%, 32.5rem);
+}
+
+.workspace-member-view-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.workspace-member-view-grid>div {
+    display: grid;
+    min-width: 0;
+    gap: 0.2rem;
+    padding: 0.65rem 0.7rem;
+    background: rgba($paper-dark, 0.34);
+    border: 1px solid rgba($border, 0.62);
+    border-radius: 0.56rem;
+}
+
+.workspace-member-view-grid>div.is-wide {
+    grid-column: 1 / -1;
+}
+
+.workspace-member-view-grid span,
+.workspace-member-view-grid strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.workspace-member-view-grid span {
+    color: $text-light;
+    font-size: 0.6875rem;
+    font-weight: 650;
+}
+
+.workspace-member-view-grid strong {
+    color: $text-secondary;
+    font-size: var(--members-font-13);
+    font-weight: 650;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 75rem) {
+    .workspace-members-header {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .workspace-members-header-actions {
+        grid-template-columns: auto minmax(12rem, 1fr) auto auto;
+        justify-content: stretch;
+    }
+
+    .workspace-members-count-slot {
+        justify-content: flex-start;
+    }
+
+    .workspace-members-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-members-toolbar-actions {
+        grid-template-columns: minmax(12rem, 1fr) 11rem auto;
+        justify-content: stretch;
+    }
+}
+
+
+@media (max-width: 70rem) {
+
+    .workspace-member-grid,
+    .workspace-invitation-grid {
+        grid-template-columns:
+            repeat(auto-fill, minmax(14.5rem, 15.5rem));
+    }
+}
+
+@media (max-width: 62rem) {
+    .workspace-members-page {
+        padding-inline: 0.75rem;
+    }
+
+    .workspace-members-header-actions {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+
+    .workspace-members-count-slot {
+        display: none;
+    }
+
+    .workspace-members-toolbar-actions {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .workspace-members-sort {
+        display: none;
+    }
+
+    .workspace-member-grid,
+    .workspace-invitation-grid {
+        grid-template-columns:
+            repeat(auto-fill, minmax(14rem, 15rem));
+    }
+}
+
+@media (max-width: 52rem) {
+    .workspace-members-page {
+        padding-top: 0.75rem;
+    }
+
+    .workspace-members-header-actions {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .workspace-members-new-button {
+        grid-column: 1 / -1;
+    }
+
+    .workspace-members-toolbar-actions {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .workspace-members-explorer-body {
+        padding: 0.625rem;
+    }
+
+    .workspace-members-explorer-body.is-list {
+        padding: 0;
+    }
+}
+
+@media (max-width: 43.75rem) {
+    .workspace-members-page {
+        padding:
+            0.625rem 0.625rem 0;
+    }
+
+    .workspace-members-intro {
+        align-items: flex-start;
+    }
+
+    .workspace-members-intro-mark {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .workspace-members-header-actions {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .workspace-members-workspace-picker {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .workspace-members-new-button {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .workspace-members-header-actions>app-button:not(.workspace-members-new-button) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .workspace-members-toolbar {
+        gap: 0.625rem;
+        padding: 0.55rem 0.625rem;
+    }
+
+    .workspace-members-toolbar-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-members-view-tabs {
+        justify-self: stretch;
+    }
+
+    .workspace-access-grid {
+        grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+        gap: 0.625rem;
+    }
+}
+
+
+@media (max-width: 40rem) {
+
+    .workspace-member-grid,
+    .workspace-invitation-grid {
+        grid-template-columns:
+            repeat(auto-fill, minmax(13.75rem, 1fr));
+    }
+
+    .workspace-member-profile-card,
+    .workspace-invitation-profile-card,
+    .workspace-member-add-card {
+        aspect-ratio: auto;
+        min-height: 14rem;
+    }
+}
+
+@media (max-width: 32rem) {
+
+    .workspace-member-grid,
+    .workspace-invitation-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-member-profile-card,
+    .workspace-invitation-profile-card,
+    .workspace-member-add-card {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 36rem) {
+    .workspace-members-intro h1 {
+        white-space: normal;
+    }
+
+    .workspace-members-kicker {
+        white-space: normal;
+    }
+
+    .workspace-members-explorer {
+        margin-top: 0.625rem;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .workspace-members-status-tabs {
+        width: 100%;
+    }
+
+    .workspace-access-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-member-tile,
+    .workspace-member-invite-tile,
+    .workspace-invitation-tile {
+        min-height: 0;
+    }
+
+    .workspace-member-invite-tile {
+        padding-block: 1.25rem;
+    }
+
+    /* Tables become stacked data rows on small screens. */
+    .workspace-access-table,
+    .workspace-access-table:not(.workspace-invitation-table) {
+        min-width: 0;
+        table-layout: auto;
+    }
+
+    .workspace-access-table thead {
+        display: none;
+    }
+
+    .workspace-access-table,
+    .workspace-access-table tbody,
+    .workspace-access-table tr,
+    .workspace-access-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .workspace-access-table tbody {
+        padding: 0.625rem;
+    }
+
+    .workspace-access-table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0;
+        margin-bottom: 0.625rem;
+        overflow: hidden;
+        background: rgba($paper, 0.44);
+        border: 1px solid rgba($border, 0.7);
+        border-radius: 0.7rem;
+    }
+
+    .workspace-access-table td {
+        display: grid;
+        grid-template-columns: 5.5rem minmax(0, 1fr);
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 0.65rem;
+        border-bottom: 1px solid rgba($border, 0.52);
+    }
+
+    .workspace-access-table td::before {
+        content: attr(data-label);
+        color: $text-light;
+        font-size: 0.6875rem;
+        font-weight: 700;
+    }
+
+    .workspace-access-table .workspace-access-primary {
+        grid-column: 1 / -1;
+        grid-template-columns: minmax(0, 1fr);
+        width: auto;
+    }
+
+    .workspace-access-table .workspace-access-primary::before {
+        display: none;
+    }
+
+    .workspace-access-table .workspace-access-actions {
+        grid-column: 1 / -1;
+        grid-template-columns: minmax(0, 1fr) auto;
+        width: auto;
+        padding-block: 0.45rem;
+        border-bottom: 0;
+        text-align: right !important;
+    }
+
+    .workspace-access-table .workspace-access-actions::before {
+        content: 'Actions';
+    }
+
+    .workspace-member-view-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-member-view-grid>div,
+    .workspace-member-view-grid>div.is-wide {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 27rem) {
+    .workspace-members-page {
+        padding-inline: 0.5rem;
+    }
+
+    .workspace-members-intro-mark {
+        display: none;
+    }
+
+    .workspace-members-header-actions {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .workspace-members-new-button {
+        min-width: 0;
+    }
+
+    .workspace-member-facts,
+    .workspace-invitation-timeline {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .workspace-member-facts>div.is-wide {
+        grid-column: auto;
+    }
+
+    .workspace-member-card-actions {
+        align-items: flex-end;
+    }
+
+    .workspace-member-card-hint {
+        white-space: normal;
+    }
+
+    .workspace-members-dialog-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+}
+
+@media (max-height: 42rem) and (min-width: 43.751rem) {
+    .workspace-members-page {
+        padding-top: 0.625rem;
+    }
+
+    .workspace-members-explorer {
+        margin-top: 0.625rem;
+    }
+
+    .workspace-member-tile {
+        min-height: 13.5rem;
+    }
+}
+
+@media (hover: none) {
+
+    .workspace-member-tile:hover,
+    .workspace-invitation-tile:hover,
+    .workspace-member-invite-tile:hover {
+        box-shadow: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .workspace-member-tile,
+    .workspace-member-invite-tile,
+    .workspace-invitation-tile,
+    .workspace-access-table tbody tr {
+        transition: none;
+    }
+}

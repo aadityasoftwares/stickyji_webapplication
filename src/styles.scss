@@ -1,12 +1,12 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Angular Material theme entry.
 @use '@angular/material' as mat;
 @use './app/styles/variables' as *;
 
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/*
+ * UI fonts + 11 handwriting choices. DM Sans is also available as the clean
+ * note option, giving users 12 note styles in total.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Caveat:wght@500;600;700&family=Comic+Neue:wght@400;700&family=DM+Sans:wght@400;500;600;700;800&family=Gochi+Hand&family=Indie+Flower&family=JetBrains+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nanum+Pen+Script&family=Patrick+Hand&family=Shadows+Into+Light&family=Short+Stack&family=Sriracha&display=swap');
 
 :root {
   color-scheme: light;
@@ -16,21 +16,30 @@
   --app-font-note: #{$font-note};
   --app-font-mono: #{$font-mono};
 
+  --font-note-dm-sans: #{$font-note-dm-sans};
+  --font-note-caveat: #{$font-note-caveat};
+  --font-note-patrick-hand: #{$font-note-patrick-hand};
+  --font-note-kalam: #{$font-note-kalam};
+  --font-note-architects-daughter: #{$font-note-architects-daughter};
+  --font-note-indie-flower: #{$font-note-indie-flower};
+  --font-note-nanum-pen: #{$font-note-nanum-pen};
+  --font-note-shadows-into-light: #{$font-note-shadows-into-light};
+  --font-note-comic-neue: #{$font-note-comic-neue};
+  --font-note-sriracha: #{$font-note-sriracha};
+  --font-note-short-stack: #{$font-note-short-stack};
+  --font-note-gochi-hand: #{$font-note-gochi-hand};
+
   --app-background: #{$app-bg};
   --app-page-background: #{$page-bg};
   --app-paper: #{$paper};
   --app-paper-muted: #{$paper-dark};
-
   --app-text: #{$text-primary};
   --app-text-muted: #{$text-secondary};
   --app-text-light: #{$text-light};
-
   --app-border: #{$border};
   --app-border-light: #{$border-light};
-
   --app-focus-color: #{$accent};
   --app-focus-ring: 0 0 0 3px rgba(217, 119, 6, 0.22);
-
   --app-content-width: 1280px;
   --app-page-padding: clamp(16px, 3vw, 32px);
   --app-header-height: 72px;
@@ -41,10 +50,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-/* ==========================================================
-   Document foundation
-   ========================================================== */
 
 *,
 *::before,
@@ -84,10 +89,6 @@ app-root {
 main {
   display: block;
 }
-
-/* ==========================================================
-   Typography
-   ========================================================== */
 
 h1,
 h2,
@@ -166,10 +167,6 @@ p {
   }
 }
 
-/* ==========================================================
-   Accessibility and user preferences
-   ========================================================== */
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -201,16 +198,12 @@ p {
   }
 }
 
-/* ==========================================================
-   Print
-   ========================================================== */
-
 @media print {
 
   *,
   *::before,
   *::after {
-    color: #000000 !important;
+    color: #000 !important;
     background: transparent !important;
     box-shadow: none !important;
     text-shadow: none !important;

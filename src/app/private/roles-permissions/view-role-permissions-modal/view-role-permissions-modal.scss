@@ -1,0 +1,1337 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: contents;
+
+    --permission-font-13: 0.8125rem;
+    --permission-font-14: 0.875rem;
+    --permission-font-15: 0.9375rem;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   COMMON MODAL LAYOUT
+
+   Common app-modal owns the actual 90vw × 90vh sizing.
+   This screen only makes sure:
+   - header stays fixed
+   - footer stays fixed
+   - modal body never scrolls
+   - permission-scroll is the main vertical scroll area
+   ========================================================= */
+
+:host ::ng-deep app-modal .app-modal-dialog[data-size='full'] {
+    width: 90vw !important;
+    max-width: 90vw !important;
+
+    height: 90vh !important;
+    max-height: 90vh !important;
+
+    margin: 0 !important;
+}
+
+:host ::ng-deep app-modal .modal-content,
+:host ::ng-deep app-modal .app-modal {
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    max-height: 100% !important;
+
+    overflow: hidden !important;
+}
+
+:host ::ng-deep app-modal .modal-header,
+:host ::ng-deep app-modal .app-modal-header {
+    flex: 0 0 auto !important;
+
+    background: $page-bg !important;
+}
+
+:host ::ng-deep app-modal .modal-body,
+:host ::ng-deep app-modal .app-modal-body,
+:host ::ng-deep app-modal .modal-content-body,
+:host ::ng-deep app-modal .app-modal-content-body,
+:host ::ng-deep app-modal .modal-body-content {
+    flex: 1 1 auto !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    /*
+     * Important:
+     * the common modal body must not own scrolling on this screen.
+     * Only .permission-sidebar-list and .permission-scroll may scroll.
+     */
+    scrollbar-gutter: auto !important;
+
+    background: $paper !important;
+}
+
+:host ::ng-deep app-modal .modal-footer,
+:host ::ng-deep app-modal .app-modal-footer {
+    flex: 0 0 auto !important;
+
+    background: $page-bg !important;
+}
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+.role-permissions-viewer {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    /*
+     * Prevent grid children / scrollbar from widening the right pane.
+     */
+    max-width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    color: $text-primary;
+
+    font-family: $font-body;
+
+    background: $paper;
+}
+
+
+/* =========================================================
+   TWO COLUMN LAYOUT
+   ========================================================= */
+
+.role-permissions-layout {
+    display: grid;
+
+    grid-template-columns:
+        clamp(13.5rem, 16vw, 16rem) minmax(0, 1fr);
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: $paper;
+
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   LEFT SIDEBAR
+   ========================================================= */
+
+.permission-sidebar {
+    display: grid;
+
+    grid-template-rows:
+        auto minmax(0, 1fr);
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+
+    border-right:
+        1px solid $border-light;
+
+    background: $paper;
+}
+
+
+.permission-sidebar-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    height: 4.125rem;
+    min-height: 4.125rem;
+
+    gap: 0.75rem;
+
+    padding:
+        0.625rem 0.875rem;
+
+    border-bottom:
+        1px solid $border-light;
+
+    background: $page-bg;
+}
+
+
+.permission-sidebar-heading {
+    display: grid;
+
+    min-width: 0;
+
+    gap: 0.125rem;
+}
+
+
+.permission-sidebar-heading strong {
+    color: $heading;
+
+    font-size:
+        var(--permission-font-14);
+
+    font-weight: 700;
+
+    line-height: 1.35;
+}
+
+
+.permission-sidebar-heading span {
+    color: $text-light;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 500;
+
+    line-height: 1.3;
+}
+
+
+.permission-sidebar-total {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    min-width: 1.625rem;
+    height: 1.625rem;
+
+    padding:
+        0 0.375rem;
+
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 700;
+
+    border:
+        1px solid $border-light;
+
+    border-radius: 999px;
+
+    background: $paper;
+}
+
+
+.permission-sidebar-list {
+    display: grid;
+
+    align-content: start;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+
+    padding: 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba($heading, 0.24) transparent;
+
+    /*
+     * Keep the navigation body on the same paper surface
+     * as the permission content. This removes the different
+     * color block visible below the final sidebar item.
+     */
+    background: $paper;
+}
+
+
+/* Same compact scrollbar treatment for the left navigation. */
+.permission-sidebar-list::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.permission-sidebar-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.permission-sidebar-list::-webkit-scrollbar-thumb {
+    background: rgba($heading, 0.22);
+
+    border: 0.125rem solid $paper;
+    border-radius: 999px;
+}
+
+.permission-sidebar-list::-webkit-scrollbar-button {
+    display: none;
+
+    width: 0;
+    height: 0;
+}
+
+
+.permission-sidebar-list>.permission-sidebar-item:first-of-type {
+    margin-top: 0;
+}
+
+
+.permission-sidebar-list>.permission-sidebar-item:last-of-type {
+    margin-bottom: 0;
+}
+
+
+.permission-sidebar-item {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        1.75rem minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 3.5rem;
+
+    gap: 0.5rem;
+
+    margin: 0;
+
+    padding:
+        0.5rem 0.75rem;
+
+    color: $text-secondary;
+
+    font: inherit;
+
+    text-align: left;
+
+    border: 0;
+
+    border-radius: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+        color 120ms ease,
+        background-color 120ms ease;
+}
+
+
+.permission-sidebar-item::before {
+    content: '';
+
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    width: 0.1875rem;
+
+    background: transparent;
+}
+
+
+.permission-sidebar-item:hover {
+    color: $heading;
+
+    background: $paper-light;
+}
+
+
+.permission-sidebar-item.is-active {
+    color: $heading;
+
+    background:
+        rgba($accent, 0.085);
+}
+
+
+.permission-sidebar-item.is-active::before {
+    background: $accent;
+}
+
+
+.permission-sidebar-icon {
+    display: inline-grid;
+
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    width: 1.75rem;
+    height: 1.75rem;
+
+    color: $text-secondary;
+
+    border:
+        1px solid $border-light;
+
+    border-radius:
+        0.4375rem;
+
+    background: $paper;
+}
+
+
+.permission-sidebar-item.is-active .permission-sidebar-icon {
+    color: $accent;
+
+    border-color:
+        rgba($accent,
+            0.28);
+}
+
+
+.permission-sidebar-copy {
+    display: grid;
+
+    min-width: 0;
+
+    gap: 0.0625rem;
+}
+
+
+.permission-sidebar-copy strong {
+    overflow: hidden;
+
+    color: inherit;
+
+    font-size:
+        var(--permission-font-14);
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.permission-sidebar-copy small {
+    overflow: hidden;
+
+    color: $text-light;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 500;
+
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.permission-sidebar-count {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 1.625rem;
+    height: 1.625rem;
+
+    padding:
+        0 0.3125rem;
+
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 700;
+
+    border-radius: 999px;
+
+    background: $paper-dark;
+}
+
+
+.permission-sidebar-item.is-active .permission-sidebar-count {
+    color: $accent;
+
+    background:
+        rgba($accent,
+            0.1);
+}
+
+
+.permission-sidebar-message {
+    padding: 0.875rem;
+
+    color: $text-light;
+
+    font-size:
+        var(--permission-font-13);
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   RIGHT CONTENT
+   ========================================================= */
+
+.permission-main {
+    display: grid;
+
+    grid-template-rows:
+        auto minmax(0, 1fr);
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: $paper;
+}
+
+
+/* =========================================================
+   PERMISSION SEARCH BAR
+
+   The modal header already explains:
+   - workspace
+   - role
+   - purpose
+
+   Keep the body toolbar intentionally simple.
+   It aligns with the left "Permission areas" header.
+   ========================================================= */
+
+.permission-toolbar {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    height: 4.125rem;
+    min-height: 4.125rem;
+
+    margin: 0;
+
+    padding:
+        0.625rem 0.875rem;
+
+    overflow: hidden;
+
+    border-bottom:
+        1px solid $border-light;
+
+    background: $page-bg;
+}
+
+
+.permission-search {
+    width: min(23rem, 100%);
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   ONLY SCROLL AREA
+   ========================================================= */
+
+.permission-scroll {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+    padding: 0;
+
+    /*
+     * The desktop table fits inside the 90vw modal and smaller
+     * breakpoints switch to the stacked layout, so horizontal
+     * scrolling is unnecessary here.
+     */
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+
+    scrollbar-gutter: auto;
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba($heading, 0.26) transparent;
+
+    background: $paper;
+}
+
+
+/*
+ * Custom scrollbar removes the native Windows arrow buttons /
+ * thick track that looked like it was sitting outside the content.
+ */
+.permission-scroll::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.permission-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.permission-scroll::-webkit-scrollbar-thumb {
+    background: rgba($heading, 0.24);
+
+    border: 0.125rem solid $paper;
+    border-radius: 999px;
+}
+
+.permission-scroll::-webkit-scrollbar-button {
+    display: none;
+
+    width: 0;
+    height: 0;
+}
+
+
+
+/* =========================================================
+   GROUP
+   ========================================================= */
+
+.permission-groups {
+    display: block;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background: $paper;
+}
+
+
+.permission-group {
+    display: block;
+
+    width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    scroll-margin-top: 0;
+
+    border-bottom:
+        1px solid $border;
+
+    background: $paper;
+}
+
+
+.permission-group:last-child {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   GROUP HEADER
+
+   Compact single-row section heading:
+   icon + module title + common permission-count badge.
+   ========================================================= */
+
+.permission-group-header {
+    display: flex;
+    align-items: center;
+
+    min-height: 2.875rem;
+
+    margin: 0;
+
+    padding:
+        0.4375rem 0.875rem;
+
+    background: $paper;
+
+    border-bottom:
+        1px solid $border-light;
+}
+
+
+.permission-group-title {
+    display: flex;
+    align-items: center;
+
+    min-width: 0;
+
+    gap: 0.5rem;
+}
+
+
+.permission-group-icon {
+    display: inline-grid;
+
+    place-items: center;
+
+    flex: 0 0 auto;
+
+    width: 1.75rem;
+    height: 1.75rem;
+
+    color: $info;
+
+    background: $paper;
+
+    border:
+        1px solid rgba($info, 0.18);
+
+    border-radius:
+        0.4375rem;
+}
+
+
+.permission-group-title h4 {
+    min-width: 0;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    color: $heading;
+
+    font-size:
+        var(--permission-font-15);
+
+    font-weight: 750;
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.permission-group-title app-badge {
+    display: inline-flex;
+
+    flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.permission-list-header {
+    display: grid;
+
+    grid-template-columns:
+        minmax(15rem, 1.3fr) minmax(17rem, 1.8fr) 7rem 7rem 7rem;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-width: 55rem;
+
+    min-height: 2.25rem;
+
+    padding:
+        0 0.875rem;
+
+    color: $text-light;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 650;
+
+    line-height: 1.25;
+
+    border-bottom:
+        1px solid $border-light;
+
+    background: $page-bg;
+}
+
+
+/* =========================================================
+   ROWS
+   ========================================================= */
+
+.permission-list {
+    width: 100%;
+
+    min-width: 55rem;
+
+    margin: 0;
+    padding: 0;
+
+    background: $paper;
+}
+
+
+.permission-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(15rem, 1.3fr) minmax(17rem, 1.8fr) 7rem 7rem 7rem;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 3.75rem;
+
+    margin: 0;
+
+    padding:
+        0.4375rem 0.875rem;
+
+    border-bottom:
+        1px solid $border-light;
+
+    background: $paper;
+
+    transition:
+        background-color 120ms ease;
+}
+
+
+.permission-row:last-child {
+    border-bottom: 0;
+}
+
+
+.permission-row:hover {
+    background: $paper-light;
+}
+
+
+/* =========================================================
+   REUSABLE CHECKBOX COLUMN
+   ========================================================= */
+
+.permission-name {
+    display: flex;
+
+    align-items: center;
+
+    min-width: 0;
+
+    padding-right: 1rem;
+}
+
+
+/*
+ * app-checkbox itself already handles:
+ *
+ * - checkmark
+ * - readonly
+ * - keyboard semantics
+ * - size
+ * - variant
+ * - accessibility
+ *
+ * We only make sure it can shrink correctly in the table.
+ */
+
+.permission-checkbox {
+    display: flex;
+
+    width: 100%;
+
+    min-width: 0;
+}
+
+
+.permission-name::ng-deep .permission-checkbox .app-checkbox {
+    width: 100%;
+
+    min-width: 0;
+
+    align-items: center;
+
+    gap: 0.5rem;
+}
+
+
+.permission-name::ng-deep .permission-checkbox .app-checkbox-control {
+    flex: 0 0 auto;
+
+    margin-top: 0;
+}
+
+
+.permission-name::ng-deep .permission-checkbox .app-checkbox-content {
+    min-width: 0;
+
+    overflow: hidden;
+}
+
+
+.permission-name::ng-deep .permission-checkbox .app-checkbox-label {
+    display: block;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: $heading;
+
+    font-size:
+        var(--permission-font-14);
+
+    font-weight: 700;
+
+    line-height: 1.4;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/*
+ * It is readonly information,
+ * so don't make it visually feel clickable.
+ */
+
+.permission-name::ng-deep .permission-checkbox .app-checkbox-readonly {
+    cursor: default;
+}
+
+
+/*
+ * Your common checkbox has a hover effect only when
+ * it isn't readonly, so no additional hover override
+ * is necessary.
+ */
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.permission-description {
+    display: -webkit-box;
+
+    overflow: hidden;
+
+    margin: 0;
+
+    padding-right: 1rem;
+
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 500;
+
+    line-height: 1.45;
+
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 2;
+}
+
+
+/* =========================================================
+   VALUES
+   ========================================================= */
+
+.permission-desktop-value {
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 600;
+
+    line-height: 1.35;
+}
+
+
+.permission-desktop-status {
+    display: flex;
+
+    align-items: center;
+}
+
+
+.permission-mobile-field {
+    display: none;
+}
+
+
+/* =========================================================
+   EMPTY / ERROR STATES
+   ========================================================= */
+
+.permission-state {
+    display: grid;
+
+    place-items: center;
+
+    align-content: center;
+
+    min-height: 20rem;
+
+    padding: 2rem;
+
+    text-align: center;
+
+    background: $paper;
+}
+
+
+.permission-state-icon {
+    display: inline-grid;
+
+    place-items: center;
+
+    width: 2.75rem;
+    height: 2.75rem;
+
+    margin-bottom:
+        0.625rem;
+
+    color: $text-secondary;
+
+    border:
+        1px solid $border;
+
+    border-radius:
+        0.625rem;
+
+    background: $paper;
+}
+
+
+.permission-state-icon.is-error {
+    color: $danger;
+
+    border-color:
+        rgba($danger,
+            0.3);
+}
+
+
+.permission-state>strong {
+    color: $heading;
+
+    font-size:
+        var(--permission-font-15);
+
+    font-weight: 750;
+
+    line-height: 1.35;
+}
+
+
+.permission-state p {
+    max-width: 30rem;
+
+    margin:
+        0.375rem 0 0.875rem;
+
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-14);
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.permission-modal-footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    gap: 1rem;
+}
+
+
+.permission-modal-footer>span {
+    color: $text-secondary;
+
+    font-size:
+        var(--permission-font-13);
+
+    font-weight: 500;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 62rem) {
+
+    .role-permissions-layout {
+        grid-template-columns:
+            12.5rem minmax(0, 1fr);
+    }
+}
+
+
+/* =========================================================
+   SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 52rem) {
+    .permission-search {
+        width: min(22rem, 100%);
+    }
+
+
+    .permission-list-header {
+        display: none;
+    }
+
+
+    .permission-list {
+        min-width: 0;
+    }
+
+
+    .permission-row {
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        align-items: stretch;
+
+        gap: 0.375rem;
+
+        min-width: 0;
+
+        padding:
+            0.75rem 0.875rem;
+    }
+
+
+    .permission-name {
+        padding-right: 0;
+    }
+
+
+    .permission-description {
+        padding:
+            0 0 0.375rem 1.75rem;
+    }
+
+
+    .permission-desktop-value,
+    .permission-desktop-status {
+        display: none;
+    }
+
+
+    .permission-mobile-field {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 1rem;
+
+        padding-left:
+            1.75rem;
+    }
+
+
+    .permission-mobile-field>span {
+        color: $text-light;
+
+        font-size:
+            var(--permission-font-13);
+
+        font-weight: 500;
+    }
+
+
+    .permission-mobile-field>strong {
+        color: $text-secondary;
+
+        font-size:
+            var(--permission-font-13);
+
+        font-weight: 650;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 44rem) {
+
+    :host ::ng-deep app-modal .app-modal-dialog[data-size='full'] {
+        width: 100vw !important;
+        max-width: 100vw !important;
+
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+    }
+
+
+    .role-permissions-layout {
+        grid-template-columns:
+            minmax(0, 1fr);
+    }
+
+
+    .permission-sidebar {
+        grid-template-rows:
+            auto auto;
+
+        height: auto;
+
+        border-right: 0;
+
+        border-bottom:
+            1px solid $border;
+    }
+
+
+    .permission-sidebar-header {
+        min-height: auto;
+
+        padding:
+            0.5rem 0.75rem;
+    }
+
+
+    .permission-sidebar-heading span {
+        display: none;
+    }
+
+
+    .permission-sidebar-list {
+        display: flex;
+
+        padding: 0;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+
+    .permission-sidebar-item {
+        flex:
+            0 0 10.5rem;
+
+        min-height: 3rem;
+
+        border-right:
+            1px solid $border-light;
+    }
+
+
+    .permission-sidebar-item::before {
+        top: auto;
+        right: 0;
+        bottom: 0;
+
+        width: auto;
+        height: 0.1875rem;
+    }
+
+
+    .permission-sidebar-count {
+        display: none;
+    }
+
+
+    .permission-toolbar {
+        min-height: 3.75rem;
+
+        padding:
+            0.5rem 0.75rem;
+    }
+
+
+    .permission-search {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .permission-sidebar-item,
+    .permission-row {
+        transition: none;
+    }
+}

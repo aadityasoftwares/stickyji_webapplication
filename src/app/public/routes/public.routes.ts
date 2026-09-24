@@ -12,7 +12,8 @@ export const PUBLIC_ROUTES: Routes = [
                     import('../auth/routes/auth.routes').then(
                         m => m.AUTH_ROUTES
                     )
-            }
+            },
+
         ]
     }
 ];

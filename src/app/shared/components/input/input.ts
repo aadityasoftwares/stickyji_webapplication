@@ -62,7 +62,7 @@ export type InputVariant =
   | 'noteBrown'
   | 'noteBlack';
 
-export type InputAppearance = 'outlined' | 'filled' | 'underlined';
+export type InputAppearance = 'outlined' | 'filled' | 'underlined' | 'inline';
 export type InputDecoration = 'standard' | 'tape';
 export type InputShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type InputStatus = 'default' | 'success' | 'warning' | 'danger';
@@ -158,6 +158,16 @@ export class Input implements ControlValueAccessor {
   @AngularInput() paddingX?: number;
   @AngularInput() radius?: number;
   @AngularInput() customClass = '';
+
+  /**
+   * Inline appearance tuning.
+   *
+   * These only affect appearance="inline" and keep the other
+   * appearances fully backward-compatible.
+   */
+  @AngularInput() inlineHoverBorder = true;
+  @AngularInput() inlineFocusRing = true;
+  @AngularInput() inlineBackgroundOnHover = true;
 
   @Output() valueChange = new EventEmitter<InputValue>();
   @Output() inputEvent = new EventEmitter<Event>();
@@ -342,6 +352,15 @@ export class Input implements ControlValueAccessor {
       'app-input-readonly': this.readonly,
       'app-input-loading': this.loading,
       'app-input-multiline': this.multiline,
+      'app-input-inline-hover-border':
+        this.appearance === 'inline' &&
+        this.inlineHoverBorder,
+      'app-input-inline-focus-ring':
+        this.appearance === 'inline' &&
+        this.inlineFocusRing,
+      'app-input-inline-hover-background':
+        this.appearance === 'inline' &&
+        this.inlineBackgroundOnHover,
     };
 
     for (const className of this.customClass.split(/\s+/).filter(Boolean)) {

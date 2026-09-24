@@ -1,44 +1,51 @@
 @use '../../../styles/variables' as *;
 
-app-tooltip-panel {
-    position: fixed;
-    inset: 0 auto auto 0;
-    z-index: $z-toast + 10;
-    display: block;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-
+/*
+ * Tooltip is appended directly to document.body by the directive.
+ * Keep these styles global. Do NOT scope them under :host.
+ */
 .app-tooltip-panel {
     --app-tooltip-bg: #{$primary};
     --app-tooltip-color: #ffffff;
     --app-tooltip-border: #000000;
 
     position: fixed;
-    isolation: isolate;
+    z-index: 2147483000;
+
     box-sizing: border-box;
     width: max-content;
     min-width: 44px;
+    max-width: 280px;
+
+    margin: 0;
     padding: 8px 11px;
+
     border: 1px solid var(--app-tooltip-border);
     border-radius: 8px;
+
     color: var(--app-tooltip-color);
     background: var(--app-tooltip-bg);
+
     box-shadow:
-        0 2px 0 rgba(17, 17, 17, 0.13),
+        0 2px 0 rgba(17, 17, 17, 0.12),
         0 8px 20px rgba(17, 17, 17, 0.18);
+
     font-family: $font-body;
     font-size: 12px;
     font-weight: 700;
     line-height: 1.4;
     text-align: center;
+
     white-space: normal;
     overflow-wrap: anywhere;
+
+    pointer-events: none;
+
     opacity: 0;
     visibility: hidden;
-    transform: translateY(2px) scale(0.97);
+    transform: translateY(2px) scale(0.98);
     transform-origin: center;
+
     transition:
         opacity 120ms ease,
         transform 120ms ease,
@@ -49,12 +56,16 @@ app-tooltip-panel {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     border-radius: inherit;
-    opacity: 0.2;
+    opacity: 0.18;
     background-image:
-        radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.55) 0, transparent 1px),
-        radial-gradient(circle at 75% 70%, rgba(17, 17, 17, 0.13) 0, transparent 1px);
+        radial-gradient(circle at 20% 25%,
+            rgba(255, 255, 255, 0.55) 0,
+            transparent 1px),
+        radial-gradient(circle at 75% 70%,
+            rgba(17, 17, 17, 0.13) 0,
+            transparent 1px);
     background-size: 11px 11px, 13px 13px;
     pointer-events: none;
 }
@@ -67,25 +78,32 @@ app-tooltip-panel {
 
 .app-tooltip-text {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    display: block;
 }
 
 .app-tooltip-arrow {
     position: absolute;
-    z-index: -1;
+    z-index: 1;
     width: 9px;
     height: 9px;
+    border: 1px solid var(--app-tooltip-border);
     background: var(--app-tooltip-bg);
     transform: rotate(45deg);
+    pointer-events: none;
 }
 
 /* Sizes */
-
 .app-tooltip-sm {
-    max-width: 220px;
     padding: 6px 9px;
     border-radius: 7px;
     font-size: 11px;
+}
+
+.app-tooltip-md {
+    padding: 8px 11px;
+    border-radius: 8px;
+    font-size: 12px;
 }
 
 .app-tooltip-lg {
@@ -96,7 +114,6 @@ app-tooltip-panel {
 }
 
 /* Tones */
-
 .app-tooltip-dark,
 .app-tooltip-primary {
     --app-tooltip-bg: #{$primary};
@@ -194,20 +211,25 @@ app-tooltip-panel {
     --app-tooltip-border: #000000;
 }
 
-/* Arrow placement */
-
+/* Arrow: top */
 .app-tooltip-placement-top .app-tooltip-arrow,
 .app-tooltip-placement-top-start .app-tooltip-arrow,
 .app-tooltip-placement-top-end .app-tooltip-arrow {
     bottom: -5px;
+    border-top: 0;
+    border-left: 0;
 }
 
+/* Arrow: bottom */
 .app-tooltip-placement-bottom .app-tooltip-arrow,
 .app-tooltip-placement-bottom-start .app-tooltip-arrow,
 .app-tooltip-placement-bottom-end .app-tooltip-arrow {
     top: -5px;
+    border-right: 0;
+    border-bottom: 0;
 }
 
+/* Horizontal alignment */
 .app-tooltip-placement-top .app-tooltip-arrow,
 .app-tooltip-placement-bottom .app-tooltip-arrow {
     left: 50%;
@@ -224,18 +246,25 @@ app-tooltip-panel {
     right: 15px;
 }
 
+/* Arrow: left */
 .app-tooltip-placement-left .app-tooltip-arrow,
 .app-tooltip-placement-left-start .app-tooltip-arrow,
 .app-tooltip-placement-left-end .app-tooltip-arrow {
     right: -5px;
+    border-left: 0;
+    border-bottom: 0;
 }
 
+/* Arrow: right */
 .app-tooltip-placement-right .app-tooltip-arrow,
 .app-tooltip-placement-right-start .app-tooltip-arrow,
 .app-tooltip-placement-right-end .app-tooltip-arrow {
     left: -5px;
+    border-top: 0;
+    border-right: 0;
 }
 
+/* Vertical alignment */
 .app-tooltip-placement-left .app-tooltip-arrow,
 .app-tooltip-placement-right .app-tooltip-arrow {
     top: 50%;
@@ -266,6 +295,7 @@ app-tooltip-panel {
     }
 
     .app-tooltip-arrow {
+        border-color: ButtonText;
         background: Canvas;
     }
 }

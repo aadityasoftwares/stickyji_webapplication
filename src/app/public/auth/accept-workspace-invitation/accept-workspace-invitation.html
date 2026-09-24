@@ -1,0 +1,541 @@
+<main id="workspace-invitation-main" class="sign-up-page">
+
+    <section class="auth-layout" aria-labelledby="workspace-invitation-title">
+
+        <aside class="story-panel" aria-label="Join a shared workspace">
+
+            <div class="story-grid" aria-hidden="true">
+            </div>
+
+            <header class="story-topbar">
+                <a class="brand-link" [routerLink]="brandHref" [attr.aria-label]="brandName + ' home'">
+
+                    @if (logoSrc) {
+                    <img class="brand-logo" [src]="logoSrc" [alt]="logoAlt || brandName" />
+                    } @else {
+                    <span class="brand-mark" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+
+                    <strong>
+                        {{ brandName }}
+                    </strong>
+                    }
+                </a>
+
+                <app-badge label="Workspace invitation" variant="notePink" size="md" shape="pill"
+                    [icon]="LucideSparkles" role="status" />
+            </header>
+
+            <div class="story-content">
+                <span class="handwritten-kicker">
+                    You’ve been invited.
+                </span>
+
+                <h2>
+                    Join the conversation.
+                    <span>Keep ideas moving.</span>
+                </h2>
+
+                <p class="story-description">
+                    Accept your invitation, join the shared workspace,
+                    and keep notes, plans, and progress together.
+                </p>
+
+                <div class="thought-flow" aria-label="Workspace invitation steps">
+
+                    <app-sticky-card class="thought-note thought-note-pink" variant="notePink" appearance="flat"
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="150" [padding]="16">
+
+                        <div class="thought-note-content">
+                            <div class="thought-note-heading">
+                                <span class="thought-note-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideMail" size="sm" />
+                                </span>
+
+                                <div class="thought-note-heading-copy">
+                                    <span class="thought-note-eyebrow">
+                                        INVITED
+                                    </span>
+
+                                    <strong class="thought-note-title" [title]="workspaceName">
+                                        {{ workspaceName }}
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <p>
+                                Your invitation is tied securely to your email.
+                            </p>
+                        </div>
+                    </app-sticky-card>
+
+                    <div class="flow-line" aria-hidden="true">
+                        <span></span>
+                    </div>
+
+                    <app-sticky-card class="thought-note thought-note-purple" variant="notePurple" appearance="flat"
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="150" [padding]="16">
+
+                        <div class="thought-note-content">
+                            <div class="thought-note-heading">
+                                <span class="thought-note-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideUsers" size="sm" />
+                                </span>
+
+                                <div class="thought-note-heading-copy">
+                                    <span class="thought-note-eyebrow">
+                                        ACCESS
+                                    </span>
+
+                                    <strong class="thought-note-title" [title]="roleName">
+                                        {{ roleName }}
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <p>
+                                Your workspace role is already prepared.
+                            </p>
+                        </div>
+                    </app-sticky-card>
+
+                    <div class="flow-line" aria-hidden="true">
+                        <span></span>
+                    </div>
+
+                    <app-sticky-card class="thought-note thought-note-green" variant="noteGreen" appearance="flat"
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="150" [padding]="16">
+
+                        <div class="thought-note-content">
+                            <div class="thought-note-heading">
+                                <span class="thought-note-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucideCheckCircle2" size="sm" />
+                                </span>
+
+                                <div class="thought-note-heading-copy">
+                                    <span class="thought-note-eyebrow">
+                                        JOIN
+                                    </span>
+
+                                    <strong class="thought-note-title">
+                                        Start collaborating
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <p>
+                                Sign in or create your account and you’re in.
+                            </p>
+                        </div>
+                    </app-sticky-card>
+                </div>
+
+                @if (
+                pageState() === 'ready' &&
+                invitationMessage
+                ) {
+                <div class="invite-message-note">
+                    <span>
+                        Message from {{ inviterName }}
+                    </span>
+
+                    <p>
+                        “{{ invitationMessage }}”
+                    </p>
+                </div>
+                }
+            </div>
+
+            <footer class="story-footer">
+                <span>
+                    <app-icon [icon]="LucideShieldCheck" size="xs" />
+
+                    Invitation protected by a secure token
+                </span>
+
+                <span>
+                    <app-icon [icon]="LucideClock3" size="xs" />
+
+                    Expires {{ invitationExpiry }}
+                </span>
+            </footer>
+        </aside>
+
+        <section class="form-panel">
+            <header class="form-topbar">
+                <a class="back-home" [routerLink]="brandHref">
+
+                    <app-icon [icon]="LucideArrowLeft" size="xs" />
+
+                    <span>
+                        Back to home
+                    </span>
+                </a>
+
+                @if (
+                pageState() === 'ready' &&
+                !authCompleted() &&
+                isExistingUser
+                ) {
+                <div class="signin-shortcut">
+                    <span>
+                        Existing account
+                    </span>
+
+                    <app-badge label="Sign in" variant="notePurple" size="sm" shape="pill" [icon]="LucideUserRound" />
+                </div>
+                }
+
+                @if (
+                pageState() === 'ready' &&
+                !authCompleted() &&
+                !isExistingUser
+                ) {
+                <div class="signin-shortcut">
+                    <span>
+                        New here?
+                    </span>
+
+                    <app-badge label="Create account" variant="notePink" size="sm" shape="pill"
+                        [icon]="LucideSparkles" />
+                </div>
+                }
+            </header>
+
+            <div class="form-area">
+                <div class="form-container">
+
+                    @if (pageState() === 'loading') {
+                    <section class="invitation-state" aria-live="polite">
+
+                        <span class="state-icon state-icon-loading" aria-hidden="true">
+                            <app-icon [icon]="LucideClock3" size="lg" />
+                        </span>
+
+                        <span class="signup-kicker">
+                            Just a moment.
+                        </span>
+
+                        <h1 id="workspace-invitation-title">
+                            Opening your invitation…
+                        </h1>
+
+                        <p>
+                            We’re checking the workspace, role, and invited email.
+                        </p>
+                    </section>
+
+                    } @else if (pageState() === 'invalid') {
+                    <section class="invitation-state" aria-live="polite">
+
+                        <span class="state-icon state-icon-error" aria-hidden="true">
+                            <app-icon [icon]="LucideShieldCheck" size="lg" />
+                        </span>
+
+                        <span class="signup-kicker">
+                            Link unavailable.
+                        </span>
+
+                        <h1 id="workspace-invitation-title">
+                            This invitation can’t be used.
+                        </h1>
+
+                        <p>
+                            {{ pageError() }}
+                        </p>
+
+                        <div class="state-actions">
+                            <app-button label="Check invitation again" variant="outline" size="md" type="button"
+                                [disabled]="loading()" (buttonClick)="loadInvitation()" />
+
+                            <app-button label="Go to sign in" variant="notePink" size="md" type="button"
+                                [hasIcon]="true" iconPosition="right" (buttonClick)="onSignIn()">
+
+                                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                            </app-button>
+                        </div>
+                    </section>
+
+                    } @else if (pageState() === 'accepted') {
+                    <section class="invitation-state invitation-success" aria-live="polite">
+
+                        <span class="state-icon state-icon-success" aria-hidden="true">
+                            <app-icon [icon]="LucideCheckCircle2" size="lg" />
+                        </span>
+
+                        <span class="signup-kicker">
+                            You’re in!
+                        </span>
+
+                        <h1 id="workspace-invitation-title">
+                            Welcome to {{ workspaceName }}.
+                        </h1>
+
+                        <p>
+                            Your invitation has been accepted and your
+                            workspace access is ready.
+                        </p>
+
+                        <div class="accepted-summary">
+                            <div>
+                                <span>Workspace</span>
+                                <strong [title]="workspaceName">
+                                    {{ workspaceName }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Role</span>
+                                <strong>
+                                    {{ accepted()?.roleName || roleName }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <app-button class="signup-submit" label="Open workspace" loadingText="Opening workspace…"
+                            variant="noteGreen" appearance="tape" size="lg" type="button" [height]="50"
+                            [fullWidth]="true" [hasIcon]="true" iconPosition="right" (buttonClick)="openWorkspace()">
+
+                            <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                        </app-button>
+                    </section>
+
+                    } @else {
+
+                    <header class="signup-heading">
+                        <span class="signup-kicker">
+                            @if (authCompleted()) {
+                            Account ready.
+                            } @else if (isExistingUser) {
+                            Welcome back!
+                            } @else {
+                            One quick setup.
+                            }
+                        </span>
+
+                        <h1 id="workspace-invitation-title">
+                            @if (authCompleted()) {
+                            Finish joining {{ workspaceName }}.
+                            } @else if (isExistingUser) {
+                            Sign in to join {{ workspaceName }}.
+                            } @else {
+                            Create your account to join.
+                            }
+                        </h1>
+
+                        <p>
+                            @if (authCompleted()) {
+                            Your account is ready. We’re finishing your workspace access now.
+                            } @else if (isExistingUser) {
+                            This invitation matches your existing account.
+                            Enter your password and we’ll add you to the workspace.
+                            } @else {
+                            Your invitation already has the workspace and role.
+                            Create your account and we’ll join you automatically.
+                            }
+                        </p>
+                    </header>
+
+                    <div class="invitation-summary">
+                        <div class="invitation-summary-main">
+                            <span class="invitation-summary-icon">
+                                <app-icon [icon]="LucideMail" size="sm" />
+                            </span>
+
+                            <div>
+                                <span>
+                                    Invitation for
+                                </span>
+
+                                <strong [title]="invitationEmail">
+                                    {{ invitationEmail }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <app-badge [label]="roleName" variant="outline" size="sm" shape="pill" />
+                    </div>
+
+                    @if (authCompleted()) {
+                    <section class="join-finish-card" [class.has-error]="!!pageError()" aria-live="polite">
+
+                        <span class="join-finish-icon" [class.is-loading]="loading()" aria-hidden="true">
+                            <app-icon [icon]="loading() ? LucideClock3 : LucideCheckCircle2" size="md" />
+                        </span>
+
+                        <div class="join-finish-copy">
+                            <span class="join-finish-kicker">
+                                Signed in as
+                            </span>
+
+                            <strong [title]="invitationEmail">
+                                {{ invitationEmail }}
+                            </strong>
+
+                            <p>
+                                @if (loading()) {
+                                Activating your {{ roleName }} access to {{ workspaceName }}…
+                                } @else if (pageError()) {
+                                {{ pageError() }}
+                                } @else {
+                                Your account is ready. Continue to finish joining the workspace.
+                                }
+                            </p>
+                        </div>
+                    </section>
+
+                    @if (!loading()) {
+                    <app-button class="signup-submit retry-join-button" label="Try joining again"
+                        loadingText="Joining workspace…" variant="notePink" appearance="tape" size="lg" type="button"
+                        [height]="50" [fullWidth]="true" [hasIcon]="true" iconPosition="right" [loading]="loading()"
+                        (buttonClick)="retryAccept()">
+
+                        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                    </app-button>
+                    }
+
+                    } @else {
+
+                    @if (pageError()) {
+                    <div class="form-error" role="alert">
+
+                        <app-icon [icon]="LucideShieldCheck" size="xs" />
+
+                        <span>
+                            {{ pageError() }}
+                        </span>
+                    </div>
+                    }
+
+                    <form class="sign-up-form" [formGroup]="invitationForm" [attr.aria-busy]="loading()"
+                        (ngSubmit)="submit()" novalidate>
+
+                        @if (!isExistingUser) {
+                        <div class="name-fields">
+                            <div class="auth-field">
+                                <label class="field-label" for="invitation-first-name">
+                                    First name
+                                </label>
+
+                                <app-input inputId="invitation-first-name" name="firstName" type="text"
+                                    label="First name" labelMode="hidden" placeholder="First name"
+                                    autocomplete="given-name" variant="notePurple" appearance="underlined"
+                                    shape="square" size="md" [leadingIcon]="LucideUserRound" [required]="true"
+                                    [fullWidth]="true" [formControl]="firstNameControl"
+                                    [status]="firstNameError ? 'danger' : 'default'" [errorText]="firstNameError" />
+                            </div>
+
+                            <div class="auth-field">
+                                <label class="field-label" for="invitation-last-name">
+                                    Last name
+                                </label>
+
+                                <app-input inputId="invitation-last-name" name="lastName" type="text" label="Last name"
+                                    labelMode="hidden" placeholder="Last name" autocomplete="family-name"
+                                    variant="notePurple" appearance="underlined" shape="square" size="md"
+                                    [leadingIcon]="LucideUserRound" [required]="true" [fullWidth]="true"
+                                    [formControl]="lastNameControl" [status]="lastNameError ? 'danger' : 'default'"
+                                    [errorText]="lastNameError" />
+                            </div>
+                        </div>
+                        }
+
+                        <div class="auth-field">
+                            <div class="field-heading">
+                                <label class="field-label" for="invitation-email">
+                                    Email address
+                                </label>
+
+                                <span class="field-hint">
+                                    Invitation email
+                                </span>
+                            </div>
+
+                            <app-input inputId="invitation-email" name="email" type="email" label="Email address"
+                                labelMode="hidden" placeholder="you@example.com" autocomplete="email"
+                                variant="notePurple" appearance="underlined" shape="square" size="md"
+                                [leadingIcon]="LucideMail" [fullWidth]="true" [formControl]="emailControl" />
+
+                            <span class="locked-email-hint">
+                                <app-icon [icon]="LucideShieldCheck" size="xs" />
+
+                                This email comes from the invitation and cannot be changed.
+                            </span>
+                        </div>
+
+                        <div class="auth-field">
+                            <div class="field-heading">
+                                <label class="field-label" for="invitation-password">
+                                    Password
+                                </label>
+
+                                <span class="field-hint">
+                                    @if (isExistingUser) {
+                                    Your account password
+                                    } @else {
+                                    8–128 characters
+                                    }
+                                </span>
+                            </div>
+
+                            <app-input inputId="invitation-password" name="password" type="password" label="Password"
+                                labelMode="hidden"
+                                [placeholder]="isExistingUser ? 'Enter your password' : 'Create a password'"
+                                [autocomplete]="isExistingUser ? 'current-password' : 'new-password'"
+                                variant="notePurple" appearance="underlined" shape="square" size="md"
+                                [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
+                                [fullWidth]="true" [formControl]="passwordControl"
+                                [status]="passwordError ? 'danger' : 'default'" [errorText]="passwordError" />
+                        </div>
+
+                        @if (!isExistingUser) {
+                        <div class="terms-block">
+                            <app-checkbox inputId="invitation-terms"
+                                label="I agree to the Terms of Service and Privacy Policy" variant="primary" size="sm"
+                                formControlName="acceptTerms" />
+
+                            @if (termsError) {
+                            <span class="terms-error" role="alert">
+                                {{ termsError }}
+                            </span>
+                            }
+                        </div>
+                        } @else {
+                        <app-checkbox inputId="invitation-remember" label="Keep me signed in on this device"
+                            variant="primary" size="sm" formControlName="rememberMe" />
+                        }
+
+                        <app-button class="signup-submit" [label]="primaryActionLabel"
+                            [loadingText]="primaryLoadingLabel" variant="notePink" appearance="tape" size="lg"
+                            type="submit" [height]="50" [fullWidth]="true" [hasIcon]="true" iconPosition="right"
+                            [loading]="loading()">
+
+                            <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                        </app-button>
+                    </form>
+
+                    @if (isExistingUser) {
+                    <p class="mobile-signin">
+                        Prefer the normal sign-in page?
+
+                        <button type="button" [disabled]="loading()" (click)="onSignIn()">
+                            Sign in there
+                        </button>
+                    </p>
+                    }
+                    }
+
+                    <p class="privacy-note">
+                        <app-icon [icon]="LucideShieldCheck" size="xs" />
+
+                        Only the invited email can accept this workspace invitation.
+                    </p>
+                    }
+                </div>
+            </div>
+        </section>
+    </section>
+</main>

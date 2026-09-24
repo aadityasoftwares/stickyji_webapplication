@@ -2,6 +2,7 @@
 @use '../../../styles/variables' as *;
 
 :host {
+    min-width: 0;
     display: inline-block;
     max-width: 100%;
     vertical-align: top;
@@ -16,7 +17,6 @@
     --app-select-height: 42px;
     --app-select-radius: 12px;
     --app-select-padding-x: 12px;
-
     --app-select-background: #{$paper};
     --app-select-border: #{$border};
     --app-select-color: #{$text-primary};
@@ -28,7 +28,24 @@
 }
 
 ;
-
+/*
+     * Inline appearance tokens.
+     * They derive from the active variant variables so inline works
+     * with default / paper / filled / workspace without duplicating
+     * palette logic.
+     */
+--app-select-inline-hover-background: color-mix(in srgb,
+    var(--app-select-background) 56%,
+    transparent);
+--app-select-inline-hover-border: color-mix(in srgb,
+    var(--app-select-border) 68%,
+    transparent);
+--app-select-inline-active-background: color-mix(in srgb,
+    var(--app-select-background) 76%,
+    transparent);
+--app-select-inline-active-border: color-mix(in srgb,
+    #{$accent} 68%,
+    var(--app-select-border));
 position: relative;
 display: flex;
 flex-direction: column;
@@ -37,8 +54,19 @@ color: var(--app-select-color);
 font-family: $font-body;
 }
 
-/* Label */
+/* Include borders and padding in the available control width. */
+.app-select-wrapper,
+.app-select-wrapper *,
+.app-select-dropdown,
+.app-select-dropdown * {
+    box-sizing: border-box;
+}
 
+.app-select-has-secondary-action .app-select-trigger {
+    padding-right: 70px;
+}
+
+/* Label */
 .app-select-label-row {
     display: flex;
     align-items: baseline;
@@ -98,7 +126,6 @@ font-family: $font-body;
 }
 
 /* Trigger */
-
 .app-select-control-shell {
     position: relative;
     width: 100%;
@@ -114,8 +141,7 @@ font-family: $font-body;
     min-width: 0;
     min-height: var(--app-select-height);
     padding:
-        0 70px 0 var(--app-select-padding-x);
-
+        0 40px 0 var(--app-select-padding-x);
     overflow: hidden;
     color: var(--app-select-color);
     font: inherit;
@@ -124,28 +150,21 @@ font-family: $font-body;
     line-height: 1.35;
     text-align: left;
     cursor: pointer;
-
     background-color:
         var(--app-select-background);
-
     background-image:
         linear-gradient(145deg,
             rgba(255, 255, 255, 0.34) 0%,
             rgba(255, 255, 255, 0.07) 52%,
             rgba(17, 17, 17, 0.025) 100%);
-
     border:
         1px solid var(--app-select-border);
-
     border-radius:
         var(--app-select-radius);
-
     outline: none;
-
     box-shadow:
         0 2px 0 var(--app-select-depth),
         0 5px 11px rgba(46, 38, 25, 0.09);
-
     transition:
         transform 150ms ease,
         border-color 160ms ease,
@@ -160,7 +179,6 @@ font-family: $font-body;
         content: '';
         pointer-events: none;
         opacity: 0.13;
-
         background-image:
             radial-gradient(circle at 18% 25%,
                 rgba(255, 255, 255, 0.7) 0 0.7px,
@@ -168,7 +186,6 @@ font-family: $font-body;
             radial-gradient(circle at 70% 72%,
                 rgba(17, 17, 17, 0.13) 0 0.65px,
                 transparent 0.9px);
-
         background-size:
             13px 13px,
             17px 17px;
@@ -178,9 +195,7 @@ font-family: $font-body;
         border-color:
             color.adjust($border,
                 $lightness: -10%);
-
         transform: translateY(-1px);
-
         box-shadow:
             0 2px 0 var(--app-select-depth),
             0 7px 14px rgba(46, 38, 25, 0.11);
@@ -188,7 +203,6 @@ font-family: $font-body;
 
     &:focus-visible {
         border-color: $accent;
-
         box-shadow:
             0 0 0 3px rgba($accent, 0.16),
             0 3px 0 color.adjust($accent,
@@ -206,7 +220,6 @@ font-family: $font-body;
         z-index: 3;
         border-color: $accent;
         transform: translateY(-1px);
-
         box-shadow:
             0 0 0 3px rgba($accent, 0.16),
             0 3px 0 color.adjust($accent,
@@ -258,8 +271,226 @@ font-family: $font-body;
     opacity: 0.62;
 }
 
-/* Value */
+/* =========================================================
+   Appearance: inline
+   ========================================================= */
+/*
+ * Transparent resting state.
+ *
+ * The dropdown itself is NOT changed here. Only the trigger is
+ * presented like lightweight inline text until the user interacts.
+ */
+.app-select-appearance-inline .app-select-trigger {
+    background: transparent;
+    background-image: none;
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+}
 
+.app-select-appearance-inline .app-select-trigger::after {
+    display: none;
+}
+
+/*
+ * Keep the chevron visible but quiet while the control is idle.
+ */
+.app-select-appearance-inline .app-select-chevron {
+    opacity: 0.62;
+    transition:
+        color 140ms ease,
+        opacity 140ms ease,
+        transform 160ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease;
+}
+
+/*
+ * Hover reveals that the value is editable.
+ */
+@media (hover: hover) and (pointer: fine) {
+
+    .app-select-appearance-inline.app-select-inline-hover-border:not(.app-select-disabled,
+        .app-select-open) .app-select-trigger:hover {
+        border-color:
+            var(--app-select-inline-hover-border);
+    }
+
+    .app-select-appearance-inline.app-select-inline-hover-background:not(.app-select-disabled,
+        .app-select-open) .app-select-trigger:hover {
+        background:
+            var(--app-select-inline-hover-background);
+    }
+
+    /*
+     * Remove the default lifted Select hover treatment.
+     */
+    .app-select-appearance-inline:not(.app-select-disabled) .app-select-trigger:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .app-select-appearance-inline:not(.app-select-disabled) .app-select-trigger:hover~.app-select-actions .app-select-chevron {
+        opacity: 0.94;
+    }
+}
+
+/*
+ * Keyboard focus before the dropdown opens.
+ */
+.app-select-appearance-inline .app-select-trigger:focus-visible {
+    background:
+        var(--app-select-inline-active-background);
+    border-color:
+        var(--app-select-inline-active-border);
+    transform: none;
+    box-shadow: none;
+}
+
+.app-select-appearance-inline.app-select-inline-focus-ring .app-select-trigger:focus-visible {
+    box-shadow:
+        0 0 0 3px rgba($accent,
+            0.09);
+}
+
+/*
+ * Open state is equivalent to the focused state of app-input.
+ */
+.app-select-appearance-inline.app-select-open .app-select-trigger {
+    z-index: 3;
+    background:
+        var(--app-select-inline-active-background);
+    border-color:
+        var(--app-select-inline-active-border);
+    transform: none;
+    box-shadow: none;
+}
+
+.app-select-appearance-inline.app-select-inline-focus-ring.app-select-open .app-select-trigger {
+    box-shadow:
+        0 0 0 3px rgba($accent,
+            0.09);
+}
+
+.app-select-appearance-inline.app-select-open .app-select-chevron {
+    opacity: 1;
+}
+
+/*
+ * Validation remains visible.
+ * We do not hide status feedback just because the Select is inline.
+ */
+.app-select-appearance-inline.app-select-status-success .app-select-trigger {
+    border-color: color-mix(in srgb,
+        #{$success} 58%,
+        transparent);
+}
+
+.app-select-appearance-inline.app-select-status-warning .app-select-trigger {
+    border-color: color-mix(in srgb,
+        #{$warning} 62%,
+        transparent);
+}
+
+.app-select-appearance-inline.app-select-status-danger .app-select-trigger {
+    border-color: color-mix(in srgb,
+        #{$danger} 64%,
+        transparent);
+}
+
+.app-select-appearance-inline.app-select-status-success.app-select-open .app-select-trigger,
+.app-select-appearance-inline.app-select-status-success .app-select-trigger:focus-visible {
+    border-color: $success;
+}
+
+.app-select-appearance-inline.app-select-status-warning.app-select-open .app-select-trigger,
+.app-select-appearance-inline.app-select-status-warning .app-select-trigger:focus-visible {
+    border-color: $warning;
+}
+
+.app-select-appearance-inline.app-select-status-danger.app-select-open .app-select-trigger,
+.app-select-appearance-inline.app-select-status-danger .app-select-trigger:focus-visible {
+    border-color: $danger;
+}
+
+/*
+ * Workspace has a decorated chevron in the standard design.
+ * Inline workspace keeps that large identity layout, but removes
+ * the permanent chevron box until hover/open.
+ */
+.app-select-appearance-inline.app-select-workspace .app-select-chevron {
+    background: transparent;
+    border-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .app-select-appearance-inline.app-select-workspace:not(.app-select-disabled):hover .app-select-chevron {
+        background:
+            color-mix(in srgb,
+                var(--app-select-background) 68%,
+                transparent);
+        border-color:
+            color-mix(in srgb,
+                var(--app-select-border) 56%,
+                transparent);
+    }
+}
+
+.app-select-appearance-inline.app-select-workspace.app-select-open .app-select-chevron {
+    background:
+        color-mix(in srgb,
+            var(--app-select-background) 68%,
+            transparent);
+    border-color:
+        color-mix(in srgb,
+            var(--app-select-border) 56%,
+            transparent);
+}
+
+/*
+ * Clear stays functional but visually secondary.
+ */
+.app-select-appearance-inline .app-select-clear {
+    opacity: 0.68;
+}
+
+.app-select-appearance-inline .app-select-clear:hover,
+.app-select-appearance-inline.app-select-open .app-select-clear {
+    opacity: 1;
+}
+
+/*
+ * On touch there is no hover. Rest stays transparent and the
+ * visual field appears when it is opened/focused.
+ */
+@media (hover: none),
+(pointer: coarse) {
+    .app-select-appearance-inline:not(.app-select-open) .app-select-trigger {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .app-select-appearance-inline.app-select-status-success:not(.app-select-open) .app-select-trigger {
+        border-color: color-mix(in srgb,
+            #{$success} 58%,
+            transparent);
+    }
+
+    .app-select-appearance-inline.app-select-status-warning:not(.app-select-open) .app-select-trigger {
+        border-color: color-mix(in srgb,
+            #{$warning} 62%,
+            transparent);
+    }
+
+    .app-select-appearance-inline.app-select-status-danger:not(.app-select-open) .app-select-trigger {
+        border-color: color-mix(in srgb,
+            #{$danger} 64%,
+            transparent);
+    }
+}
+
+/* Value */
 .app-select-value {
     display: flex;
     flex: 1 1 auto;
@@ -276,9 +507,16 @@ font-family: $font-body;
 
 .app-select-placeholder,
 .app-select-single-value {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.app-select-leading-icon {
+    margin-right: 8px;
 }
 
 .app-select-leading-icon,
@@ -303,7 +541,6 @@ font-family: $font-body;
 }
 
 /* Actions */
-
 .app-select-actions {
     position: absolute;
     top: 0;
@@ -362,7 +599,6 @@ font-family: $font-body;
 }
 
 /* Multiple selection */
-
 .app-select-chips {
     display: flex;
     align-items: center;
@@ -412,7 +648,6 @@ font-family: $font-body;
 }
 
 /* Workspace variant */
-
 .app-select-workspace {
     --app-select-height: 58px;
     --app-select-radius: 14px;
@@ -421,7 +656,7 @@ font-family: $font-body;
 
     .app-select-trigger {
         padding:
-            7px 50px 7px 8px;
+            7px 44px 7px 8px;
     }
 
     .app-select-actions {
@@ -478,7 +713,6 @@ font-family: $font-body;
 }
 
 /* Message */
-
 .app-select-message {
     min-height: 17px;
     margin: 6px 2px 0;
@@ -497,29 +731,23 @@ font-family: $font-body;
  * It is position: fixed because trigger bounds are
  * measured with getBoundingClientRect().
  */
-
 .app-select-dropdown {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 10000;
-
     display: none;
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-
     color: $text-primary;
     font-family: $font-body;
-
     background: $paper;
     border: 1px solid $border;
     border-radius: $radius-sm;
-
     box-shadow:
         0 18px 45px rgba(46, 38, 25, 0.18),
         0 4px 12px rgba(46, 38, 25, 0.08);
-
     visibility: hidden;
     opacity: 0;
 
@@ -553,7 +781,6 @@ font-family: $font-body;
 
 .app-select-dropdown-workspace {
     border-radius: 15px;
-
     box-shadow:
         0 22px 54px rgba(46, 38, 25, 0.2);
 }
@@ -586,7 +813,6 @@ font-family: $font-body;
 }
 
 /* Search */
-
 .app-select-search {
     display: grid;
     flex: 0 0 auto;
@@ -648,7 +874,6 @@ font-family: $font-body;
 }
 
 /* Options */
-
 .app-select-options {
     flex: 1 1 auto;
     min-height: 0;
@@ -744,6 +969,7 @@ font-family: $font-body;
 }
 
 .app-select-option-copy {
+    grid-column: 2;
     display: grid;
     min-width: 0;
     gap: 2px;
@@ -768,6 +994,7 @@ font-family: $font-body;
 }
 
 .app-select-option-end {
+    grid-column: 3;
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
@@ -806,7 +1033,6 @@ font-family: $font-body;
 }
 
 /* Spinner */
-
 .app-select-spinner {
     display: inline-block;
     width: 16px;
@@ -820,7 +1046,6 @@ font-family: $font-body;
 }
 
 /* Animations */
-
 @keyframes select-enter-bottom {
     from {
         opacity: 0;
@@ -876,4 +1101,80 @@ font-family: $font-body;
         animation: none;
         transition: none;
     }
+}
+
+/* Additional flat appearances. Existing standard/inline styles stay available. */
+.app-select-appearance-outlined .app-select-trigger,
+.app-select-appearance-transparent .app-select-trigger {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+.app-select-appearance-outlined .app-select-trigger::after,
+.app-select-appearance-transparent .app-select-trigger::after {
+    display: none;
+}
+
+.app-select-appearance-transparent:not(.app-select-open) .app-select-trigger {
+    border-color: transparent;
+}
+
+.app-select-appearance-outlined .app-select-trigger:hover:not(:disabled),
+.app-select-appearance-transparent .app-select-trigger:hover:not(:disabled) {
+    background: var(--app-select-inline-hover-background);
+    border-color: var(--app-select-border);
+    box-shadow: none;
+    transform: none;
+}
+
+.app-select-appearance-outlined.app-select-open .app-select-trigger,
+.app-select-appearance-transparent.app-select-open .app-select-trigger,
+.app-select-appearance-outlined .app-select-trigger:focus-visible,
+.app-select-appearance-transparent .app-select-trigger:focus-visible {
+    border-color: var(--app-select-inline-active-border);
+    box-shadow: 0 0 0 2px rgba($accent, 0.12);
+    transform: none;
+}
+
+.app-select-appearance-transparent.app-select-status-danger .app-select-trigger,
+.app-select-appearance-transparent.app-select-status-warning .app-select-trigger,
+.app-select-appearance-transparent.app-select-status-success .app-select-trigger {
+    border-color: var(--app-select-border);
+}
+
+.app-select-workspace.app-select-has-secondary-action .app-select-trigger {
+    padding-right: 74px;
+}
+
+/* Defined on the swatch itself so body-mounted menus retain the palette. */
+.app-select-color-swatch {
+    --app-select-swatch-white: #{$paper};
+    --app-select-swatch-yellow: #{color.mix($note-yellow, $paper, 30%)};
+    --app-select-swatch-orange: #{color.mix($note-orange, $paper, 20%)};
+    --app-select-swatch-pink: #{color.mix($note-pink, $paper, 34%)};
+    --app-select-swatch-red: #{color.mix($note-red, $paper, 20%)};
+    --app-select-swatch-green: #{color.mix($note-green, $paper, 18%)};
+    --app-select-swatch-blue: #{color.mix($note-blue, $paper, 16%)};
+    --app-select-swatch-purple: #{color.mix($note-purple, $paper, 14%)};
+    --app-select-swatch-brown: #{color.mix($note-brown, $paper, 18%)};
+    --app-select-swatch-black: #{$note-jet-black};
+    display: inline-block;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgb(127 127 127 / 0.45);
+    border-radius: 50%;
+}
+
+.app-select-option>.app-select-color-swatch {
+    width: 22px;
+    height: 22px;
+    margin-inline: 4px;
+}
+
+.app-select-chip .app-select-color-swatch {
+    flex-basis: 12px;
+    width: 12px;
+    height: 12px;
 }

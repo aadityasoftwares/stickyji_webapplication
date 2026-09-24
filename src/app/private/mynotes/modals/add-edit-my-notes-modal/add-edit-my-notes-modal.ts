@@ -16,16 +16,17 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LucideCheck, LucidePencil, LucidePlus, LucideStickyNote, LucideTrash2, LucideX } from '@lucide/angular';
+import { LucideCheck, LucidePencil, LucidePlus, LucideStickyNote, LucideTrash2, LucideUserRound, LucideX } from '@lucide/angular';
 import { concatMap, finalize, forkJoin, from, map, Observable, of, switchMap, tap, toArray } from 'rxjs';
 
 import { Button } from '../../../../shared/components/button/button';
 import { Divider } from '../../../../shared/components/divider/divider';
+import { DatepickerInput } from '../../../../shared/components/datepicker-input/datepicker-input';
 import { AppIcon } from '../../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../../shared/components/input/input';
 import { Label } from '../../../../shared/components/label/label';
 import { Loader } from '../../../../shared/components/loader/loader';
-import { Select } from '../../../../shared/components/select/select';
+import { Select, type SelectOption } from '../../../../shared/components/select/select';
 import { Switch } from '../../../../shared/components/switch/switch';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 
@@ -33,6 +34,9 @@ import { StickyNoteColumnApiService } from '../../services/sticky-note-column.se
 import { StickyNoteChecklistItemApiService } from '../../services/sticky-note-checklist-item.service';
 import { StickyNoteChecklistApiService } from '../../services/sticky-note-checklist.service';
 import { StickyNoteApiService } from '../../services/sticky-notes.service';
+
+import type { WorkspaceMemberListItem } from '../../../workspace-members/models/workspace-member.models';
+import { WorkspaceMemberApiService } from '../../../workspace-members/services/workspace-member.service';
 
 @Component({
   selector: 'app-add-edit-my-notes-modal',
@@ -44,6 +48,7 @@ import { StickyNoteApiService } from '../../services/sticky-notes.service';
     AppInput,
     Button,
     Divider,
+    DatepickerInput,
     Label,
     Loader,
     Select,
@@ -60,11 +65,13 @@ export class AddEditMyNotesModal implements OnChanges {
   private readonly columnApi = inject(StickyNoteColumnApiService);
   private readonly checklistApi = inject(StickyNoteChecklistApiService);
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
+  private readonly workspaceMemberApi = inject(WorkspaceMemberApiService);
   private readonly toastService = inject(ToastService);
 
   private workspaceId = '';
   private workspaceFolderId = '';
   private savedNoteId = '';
+  private workspaceMemberRequestVersion = 0;
   private readonly originalChecklistIds = new Set<string>();
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
 
@@ -83,6 +90,7 @@ export class AddEditMyNotesModal implements OnChanges {
   readonly LucidePlus = LucidePlus;
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
+  readonly LucideUserRound = LucideUserRound;
   readonly LucideX = LucideX;
 
   readonly titleMaxLength = 120;
@@ -93,8 +101,10 @@ export class AddEditMyNotesModal implements OnChanges {
   readonly loading = signal(false);
   readonly loadingData = signal(false);
   readonly loadingChecklist = signal(false);
+  readonly loadingWorkspaceMembers = signal(false);
   readonly error = signal('');
   readonly columns = signal<any[]>([]);
+  readonly workspaceMembers = signal<readonly WorkspaceMemberListItem[]>([]);
   readonly workspaceLabel = signal('');
   readonly folderLabel = signal('');
 
@@ -103,6 +113,45 @@ export class AddEditMyNotesModal implements OnChanges {
       label: column.name || 'Untitled column',
       value: this.idOf(column)
     }))
+  );
+
+  readonly workspaceMemberOptions = computed<readonly SelectOption[]>(() =>
+    [...this.workspaceMembers()]
+      .sort((first, second) => {
+        if (first.isCurrentUser !== second.isCurrentUser) {
+          return first.isCurrentUser ? -1 : 1;
+        }
+
+        return this.workspaceMemberName(first).localeCompare(
+          this.workspaceMemberName(second),
+          undefined,
+          { sensitivity: 'base' }
+        );
+      })
+      .map(member => {
+        const name = this.workspaceMemberName(member);
+        const role = this.workspaceMemberRole(member);
+        const email = String(member.user?.email ?? '').trim();
+
+        return {
+          label: name,
+          value: member.id,
+          description: member.isCurrentUser
+            ? `You · ${role}`
+            : email
+              ? `${role} · ${email}`
+              : role,
+          avatar: {
+            src: this.workspaceMemberAvatar(member),
+            name,
+            initials: this.initials(name),
+            shape: 'circle',
+            bordered: true,
+            elevated: false
+          }
+        } satisfies SelectOption;
+      })
+      .filter(option => Boolean(String(option.value ?? '').trim()))
   );
 
   readonly colorOptions = [
@@ -122,6 +171,8 @@ export class AddEditMyNotesModal implements OnChanges {
     content: ['', [Validators.maxLength(this.contentMaxLength)]],
     columnId: ['', Validators.required],
     color: ['YELLOW', Validators.required],
+    noteDate: [''],
+    workspaceMemberId: [''],
     withChecklist: [false],
     checklists: this.fb.array([])
   });
@@ -184,10 +235,20 @@ export class AddEditMyNotesModal implements OnChanges {
     this.form.get(controlName)?.setValue(String(value ?? ''));
   }
 
-  updateSelect(controlName: 'columnId' | 'color', value: unknown): void {
-    if (typeof value !== 'string') return;
-
+  updateSelect(
+    controlName: 'columnId' | 'color' | 'workspaceMemberId',
+    value: unknown
+  ): void {
     this.error.set('');
+
+    if (controlName === 'workspaceMemberId') {
+      this.form.get(controlName)?.setValue(
+        typeof value === 'string' ? value : ''
+      );
+      return;
+    }
+
+    if (typeof value !== 'string') return;
 
     if (controlName === 'color') {
       this.form.get(controlName)?.setValue(this.normalizeColor(value));
@@ -281,7 +342,15 @@ export class AddEditMyNotesModal implements OnChanges {
     return this.checklistItemGroup(checklistIndex, itemIndex)?.get('isCompleted')?.value === true;
   }
 
-  controlString(controlName: 'title' | 'content' | 'columnId' | 'color'): string {
+  controlString(
+    controlName:
+      | 'title'
+      | 'content'
+      | 'columnId'
+      | 'color'
+      | 'noteDate'
+      | 'workspaceMemberId'
+  ): string {
     return String(this.form.get(controlName)?.value ?? '');
   }
 
@@ -307,6 +376,16 @@ export class AddEditMyNotesModal implements OnChanges {
     const content = this.controlString('content').trim();
     const columnId = this.controlString('columnId').trim();
     const color = this.normalizeColor(this.controlString('color'));
+    const noteDate = this.toDateKey(this.controlString('noteDate'));
+
+    /*
+     * workspaceMemberId is intentionally kept as editor state only.
+     * The supplied sticky-note API contract currently has no assignment/
+     * workspaceMemberId field. Sending it now would make strict backend
+     * validation reject an otherwise valid note save.
+     */
+    const workspaceMemberId = this.controlString('workspaceMemberId').trim();
+    void workspaceMemberId;
 
     const createPayload = {
       workspaceId: this.workspaceId,
@@ -314,14 +393,16 @@ export class AddEditMyNotesModal implements OnChanges {
       columnId,
       title,
       content: content || title,
-      color
+      color,
+      noteDate
     };
 
     const updatePayload = {
       columnId,
       title,
       content: content || title,
-      color
+      color,
+      noteDate
     };
 
     this.loading.set(true);
@@ -421,6 +502,8 @@ export class AddEditMyNotesModal implements OnChanges {
             content: this.noteContent(note),
             columnId: this.referenceId(note?.columnId),
             color: this.normalizeColor(note?.color),
+            noteDate: this.toDateKey(note?.noteDate) ?? '',
+            workspaceMemberId: '',
             withChecklist: false
           });
 
@@ -430,6 +513,7 @@ export class AddEditMyNotesModal implements OnChanges {
             return;
           }
 
+          this.loadWorkspaceMembers(this.workspaceId);
           this.loadColumns(this.referenceId(note?.columnId));
           this.loadChecklists(note, noteId);
         },
@@ -464,11 +548,62 @@ export class AddEditMyNotesModal implements OnChanges {
             return;
           }
 
+          this.loadWorkspaceMembers(this.workspaceId);
           this.loadColumns(this.idOf(column) || columnId);
         },
         error: error => {
           this.loadingData.set(false);
           this.handleLoadError(error, 'Unable to load the selected column.');
+        }
+      });
+  }
+
+  private loadWorkspaceMembers(workspaceId: string): void {
+    const id = String(workspaceId ?? '').trim();
+    const requestVersion = ++this.workspaceMemberRequestVersion;
+
+    this.workspaceMembers.set([]);
+
+    if (!id) {
+      this.loadingWorkspaceMembers.set(false);
+      return;
+    }
+
+    this.loadingWorkspaceMembers.set(true);
+
+    this.workspaceMemberApi
+      .getAll({
+        workspaceId: id,
+        status: 'ACTIVE',
+        page: 1,
+        limit: 100,
+        sortBy: 'updatedAt',
+        sortOrder: 'desc'
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          if (
+            requestVersion !== this.workspaceMemberRequestVersion ||
+            this.workspaceId !== id
+          ) {
+            return;
+          }
+
+          this.workspaceMembers.set(response.data ?? []);
+          this.loadingWorkspaceMembers.set(false);
+        },
+        error: error => {
+          if (
+            requestVersion !== this.workspaceMemberRequestVersion ||
+            this.workspaceId !== id
+          ) {
+            return;
+          }
+
+          console.error(error);
+          this.workspaceMembers.set([]);
+          this.loadingWorkspaceMembers.set(false);
         }
       });
   }
@@ -951,6 +1086,9 @@ export class AddEditMyNotesModal implements OnChanges {
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
     this.columns.set([]);
+    this.workspaceMembers.set([]);
+    this.workspaceMemberRequestVersion++;
+    this.loadingWorkspaceMembers.set(false);
     this.workspaceLabel.set('');
     this.folderLabel.set('');
     this.error.set('');
@@ -963,6 +1101,8 @@ export class AddEditMyNotesModal implements OnChanges {
       content: '',
       columnId: '',
       color: 'YELLOW',
+      noteDate: '',
+      workspaceMemberId: '',
       withChecklist: false
     });
   }
@@ -1005,6 +1145,71 @@ export class AddEditMyNotesModal implements OnChanges {
     if (!value || typeof value === 'string') return '';
 
     return String(value.name ?? value.label ?? '').trim();
+  }
+
+  private workspaceMemberName(member: WorkspaceMemberListItem): string {
+    const displayName = String(member.user?.displayName ?? '').trim();
+    const email = String(member.user?.email ?? '').trim();
+
+    if (displayName) return displayName;
+    if (email) return email.split('@')[0] || email;
+
+    return 'Workspace member';
+  }
+
+  private workspaceMemberRole(member: WorkspaceMemberListItem): string {
+    return String(
+      member.role?.name ??
+      member.role?.code ??
+      'Member'
+    ).trim();
+  }
+
+  private workspaceMemberAvatar(member: WorkspaceMemberListItem): string | null {
+    /*
+     * The lightweight member contract currently does not require an avatar,
+     * but this fallback makes the dropdown automatically use one if the API
+     * starts returning it later. Otherwise app-select shows initials.
+     */
+    const user = member.user as unknown as Record<string, unknown>;
+    const profile = user?.['profile'] as Record<string, unknown> | undefined;
+
+    const value =
+      user?.['avatarUrl'] ??
+      user?.['profileImage'] ??
+      user?.['imageUrl'] ??
+      profile?.['avatarUrl'] ??
+      profile?.['profileImage'];
+
+    return typeof value === 'string' && value.trim()
+      ? value.trim()
+      : null;
+  }
+
+  private initials(name: string): string {
+    const words = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (!words.length) return '?';
+
+    return words
+      .slice(0, 2)
+      .map(word => word.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  private toDateKey(value: unknown): string | null {
+    const normalized = String(value ?? '').trim();
+
+    if (!normalized) return null;
+
+    const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    return match
+      ? `${match[1]}-${match[2]}-${match[3]}`
+      : null;
   }
 
   private normalizeColor(value: unknown):

@@ -1,0 +1,385 @@
+<app-side-panel [open]="open" [title]="title" [eyebrow]="eyebrow" [description]="description" [headerNote]="headerNote"
+    [icon]="headerIcon" tone="yellow" [width]="panelWidth" [busy]="isBusy" ariaLabel="Workspace member invitation"
+    (closed)="close()">
+
+    <form panel-body class="member-request-editor" (ngSubmit)="submit()" novalidate>
+
+        @if (!isEdit) {
+
+        <!-- ================================================================
+             ROLE ASSIGNMENT MODE
+             ================================================================ -->
+
+        <section class="member-request-mode" aria-label="Invitation role assignment">
+
+            <div class="member-request-mode-copy">
+                <strong>Role assignment</strong>
+
+                <span>
+                    Use one role for everyone or choose roles individually.
+                </span>
+            </div>
+
+            <app-tabs [items]="invitationModeTabs" [value]="invitationMode()" variant="segmented" shape="rounded"
+                size="sm" density="compact" [fullWidth]="true" ariaLabel="Invitation role assignment mode"
+                [disabled]="isBusy" (valueChange)="updateInvitationMode($event)" />
+
+        </section>
+
+        <!-- ================================================================
+             EMAIL RECIPIENT COMPOSER
+             ================================================================ -->
+
+        <section class="member-request-section member-request-email-section" aria-label="Invitation recipients">
+
+            <app-input id="workspace-member-email" type="email" label="Email address"
+                labelDescription="Press Enter to add the email to this invitation." placeholder="name@example.com"
+                variant="paper" appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideMail"
+                [value]="emailDraft()" [disabled]="isBusy || emails().length >= maxInviteEmails" [clearable]="true"
+                [fullWidth]="true" autocomplete="off" inputMode="email" [errorText]="emailInputError() ?? ''"
+                (valueChange)="updateEmailDraft($event)" (enterKey)="addEmail($event)" (cleared)="clearEmailDraft()" />
+
+            <div class="member-request-email-meta">
+
+                <span>
+                    Press Enter to add
+                </span>
+
+                <span>
+                    {{ emails().length }}/{{ maxInviteEmails }}
+                </span>
+
+            </div>
+
+            <!-- ============================================================
+                 SAME ROLE: EMAIL BADGES
+                 ============================================================ -->
+
+            @if (
+            invitationMode() === 'same' &&
+            emails().length
+            ) {
+
+            <div class="member-request-email-badges" aria-label="Invitation recipients">
+
+                @for (email of emails(); track email) {
+
+                <app-badge [label]="email" variant="noteYellow" size="sm" shape="rounded" [maxWidth]="260"
+                    [removable]="true" [disabled]="saving()" [removeAriaLabel]="'Remove ' + email" [title]="email"
+                    (removed)="removeEmail(email)" />
+
+                }
+
+            </div>
+
+            }
+
+        </section>
+
+        <!-- ================================================================
+             SAME ROLE
+             ================================================================ -->
+
+        @if (invitationMode() === 'same') {
+
+        <section class="member-request-section member-request-role-section" aria-label="Shared workspace role">
+
+            <div class="member-request-field">
+
+                <div class="member-request-label-row">
+
+                    <span class="member-request-label">
+                        Workspace role
+
+                        <span class="member-request-required" aria-hidden="true">
+                            *
+                        </span>
+                    </span>
+
+                    @if (emails().length > 1) {
+
+                    <span class="member-request-field-meta">
+                        Applies to all {{ emails().length }}
+                    </span>
+
+                    }
+
+                </div>
+
+                <app-select id="workspace-member-role" name="workspace-member-role" [options]="availableRoleOptions()"
+                    [ngModel]="roleId()" [ngModelOptions]="{ standalone: true }" [placeholder]="
+                        loadingRoles()
+                            ? 'Loading roles...'
+                            : 'Choose role'
+                    " ariaLabel="Choose workspace role" variant="paper" shape="rounded" size="md"
+                    [iconLeft]="LucideShield" [disabled]="isBusy" [clearable]="false" [searchable]="true"
+                    [fullWidth]="true" (ngModelChange)="updateRoleId($event)" />
+
+                <small class="member-request-help">
+
+                    {{
+                    availableRoleOptions().length
+                    ? (
+                    emails().length > 1
+                    ? 'Everyone will receive this role after accepting.'
+                    : 'Sets what this member can view and manage.'
+                    )
+                    : !loadingRoles()
+                    ? 'No assignable workspace role is available.'
+                    : 'Finding available roles...'
+                    }}
+
+                </small>
+
+            </div>
+
+        </section>
+
+        }
+
+        <!-- ================================================================
+             INDIVIDUAL ROLES
+             ================================================================ -->
+
+        @if (invitationMode() === 'individual') {
+
+        <section class="member-request-individual-section" aria-label="Individual workspace roles">
+
+            <div class="member-request-section-heading">
+
+                <div class="member-request-section-copy">
+
+                    <strong>
+                        Roles by recipient
+                    </strong>
+
+                    <span>
+                        Choose a workspace role for each person.
+                    </span>
+
+                </div>
+
+                @if (emails().length) {
+
+                <app-badge [count]="emails().length" variant="neutral" size="xs"
+                    [ariaLabel]="emails().length + ' recipients'" />
+
+                }
+
+            </div>
+
+            @if (!emails().length) {
+
+            <div class="member-request-empty">
+
+                <span class="member-request-empty-icon" aria-hidden="true">
+
+                    <app-icon [icon]="LucideMail" size="sm" />
+
+                </span>
+
+                <div>
+
+                    <strong>
+                        Add recipients first
+                    </strong>
+
+                    <span>
+                        Press Enter after each email. Its role selector will appear here.
+                    </span>
+
+                </div>
+
+            </div>
+
+            } @else {
+
+            <div class="member-request-role-list">
+
+                @for (email of emails(); track email) {
+
+                <div class="member-request-role-row">
+
+                    <!-- Common removable badge -->
+                    <div class="member-request-role-email">
+
+                        <app-badge [label]="email" variant="noteYellow" size="sm" shape="rounded" [maxWidth]="250"
+                            [removable]="true" [disabled]="saving()" [removeAriaLabel]="'Remove ' + email"
+                            [title]="email" (removed)="removeEmail(email)" />
+
+                    </div>
+
+                    <!-- Common role select -->
+                    <app-select class="member-request-recipient-role" [id]="'workspace-member-role-' + $index"
+                        [name]="'workspace-member-role-' + $index" [options]="availableRoleOptions()"
+                        [ngModel]="individualRoleId(email)" [ngModelOptions]="{ standalone: true }" [placeholder]="
+                            loadingRoles()
+                                ? 'Loading...'
+                                : 'Choose role'
+                        " [ariaLabel]="'Choose workspace role for ' + email" variant="paper" shape="rounded" size="sm"
+                        [iconLeft]="LucideShield" [disabled]="isBusy" [clearable]="false" [searchable]="true"
+                        [fullWidth]="true" (ngModelChange)="updateIndividualRole(email, $event)" />
+
+                </div>
+
+                }
+
+            </div>
+
+            }
+
+        </section>
+
+        }
+
+        <!-- ================================================================
+             PERSONAL MESSAGE
+             COMMON APP INPUT
+             ================================================================ -->
+
+        <section class="member-request-message-section" aria-label="Invitation message">
+
+            <app-input id="workspace-member-message" label="Personal message"
+                labelDescription="Optional. The same message is included with every invitation."
+                placeholder="Add a short welcome message..." variant="paper" appearance="outlined" shape="rounded"
+                size="md" [multiline]="true" [rows]="3" [maxLength]="messageMaxLength" [showCounter]="true"
+                [clearable]="true" [value]="message()" [disabled]="isBusy" [fullWidth]="true"
+                (valueChange)="updateMessage($event)" />
+
+        </section>
+
+        <!-- ================================================================
+             ACCESS INFO
+             ================================================================ -->
+
+        <section class="member-request-access-note" aria-label="Invitation access information">
+
+            <span class="member-request-access-icon" aria-hidden="true">
+
+                <app-icon [icon]="LucideShield" size="xs" />
+
+            </span>
+
+            <div>
+
+                <strong>
+                    Access starts after acceptance
+                </strong>
+
+                <span>
+
+                    @if (
+                    invitationMode() ===
+                    'individual'
+                    ) {
+
+                    Each recipient gets the role selected beside their email after accepting.
+
+                    } @else {
+
+                    Recipients get the selected workspace role after accepting.
+
+                    }
+
+                </span>
+
+            </div>
+
+        </section>
+
+        } @else {
+
+        <!-- ================================================================
+             EDIT EXISTING MEMBER
+             ================================================================ -->
+
+        <section class="member-request-section member-request-edit-section" aria-label="Workspace member details">
+
+            <div class="member-request-field">
+
+                <div class="member-request-label-row">
+
+                    <span class="member-request-label">
+
+                        Workspace role
+
+                        <span class="member-request-required" aria-hidden="true">
+                            *
+                        </span>
+
+                    </span>
+
+                </div>
+
+                <app-select id="workspace-member-role" name="workspace-member-role" [options]="availableRoleOptions()"
+                    [ngModel]="roleId()" [ngModelOptions]="{ standalone: true }" [placeholder]="
+                        loadingRoles()
+                            ? 'Loading roles...'
+                            : 'Choose role'
+                    " ariaLabel="Choose workspace role" variant="paper" shape="rounded" size="md"
+                    [iconLeft]="LucideShield" [disabled]="isBusy" [clearable]="false" [searchable]="true"
+                    [fullWidth]="true" (ngModelChange)="updateRoleId($event)" />
+
+                <small class="member-request-help">
+
+                    {{
+                    availableRoleOptions().length
+                    ? 'Sets what this member can view and manage.'
+                    : !loadingRoles()
+                    ? 'No assignable workspace role is available.'
+                    : 'Finding available roles...'
+                    }}
+
+                </small>
+
+            </div>
+
+        </section>
+
+        }
+
+        <!-- ================================================================
+             ERROR
+             ================================================================ -->
+
+        @if (error()) {
+
+        <div class="member-request-error" role="alert">
+
+            {{ error() }}
+
+        </div>
+
+        }
+
+    </form>
+
+    <!-- ======================================================================
+         FOOTER
+         ====================================================================== -->
+
+    <div panel-footer class="member-request-footer">
+
+        <span class="member-request-status" [title]="statusText">
+
+            {{ statusText }}
+
+        </span>
+
+        <div class="member-request-actions">
+
+            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="saving()"
+                (buttonClick)="close()" />
+
+            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
+                size="sm" [loading]="saving()" [loadingText]="
+                    isEdit
+                        ? 'Updating...'
+                        : 'Sending...'
+                " [disabled]="!canSubmit" (buttonClick)="submit()" />
+
+        </div>
+
+    </div>
+
+</app-side-panel>

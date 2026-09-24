@@ -75,6 +75,7 @@
     line-height: 1;
     white-space: nowrap;
     -webkit-tap-highlight-color: transparent;
+
     transition:
         color 150ms ease,
         background-color 150ms ease,
@@ -120,18 +121,26 @@
     min-width: 19px;
     height: 18px;
     padding-inline: 5px;
+
     color: $text-light;
     background: rgba($heading, 0.055);
+
     border: 1px solid rgba($heading, 0.035);
     border-radius: 999px;
+
     font-family: $font-mono;
     font-size: 0.54rem;
     font-weight: 700;
     line-height: 1;
+
     place-items: center;
 }
 
-/* Sizes */
+
+/* ==========================================================
+   Sizes
+   ========================================================== */
+
 .app-tabs-sm .app-tab {
     height: 34px;
     padding-inline: 10px;
@@ -149,7 +158,11 @@
     font-size: 0.79rem;
 }
 
-/* Density */
+
+/* ==========================================================
+   Density
+   ========================================================== */
+
 .app-tabs-density-compact {
     gap: 2px;
 
@@ -187,13 +200,24 @@
     border-radius: 999px;
 }
 
-/* Segmented */
+
+/* ==========================================================
+   Segmented
+   ========================================================== */
+
 .app-tabs-segmented {
     padding: 3px;
-    background: rgba($heading, 0.045);
-    border: 1px solid rgba($border, 0.66);
+
+    background:
+        rgba($heading, 0.045);
+
+    border:
+        1px solid rgba($border, 0.66);
+
     border-radius: 11px;
-    box-shadow: inset 0 1px 2px rgba($heading, 0.025);
+
+    box-shadow:
+        inset 0 1px 2px rgba($heading, 0.025);
 
     &.app-tabs-density-compact {
         padding: 2px;
@@ -207,26 +231,42 @@
     .app-tab.is-active {
         color: $heading;
         background: $paper;
-        border-color: rgba($border, 0.76);
+
+        border-color:
+            rgba($border, 0.76);
+
         box-shadow:
             0 1px 2px rgba($heading, 0.06),
             0 4px 10px rgba($heading, 0.055);
 
         .app-tab-count {
             color: #654e00;
-            background: rgba($note-button-yellow, 0.44);
-            border-color: rgba(#8b6800, 0.07);
+
+            background:
+                rgba($note-button-yellow, 0.44);
+
+            border-color:
+                rgba(#8b6800, 0.07);
         }
     }
 }
 
-/* Paper */
+
+/* ==========================================================
+   Paper
+   ========================================================== */
+
 .app-tabs-paper {
     padding: 3px;
+
     background:
-        linear-gradient(rgba($paper, 0.28), rgba($paper, 0.28)),
+        linear-gradient(rgba($paper, 0.28),
+            rgba($paper, 0.28)),
         rgba($paper-dark, 0.62);
-    border: 1px solid rgba($border, 0.58);
+
+    border:
+        1px solid rgba($border, 0.58);
+
     border-radius: 11px;
 
     &.app-tabs-density-compact {
@@ -241,22 +281,33 @@
     .app-tab.is-active {
         color: $heading;
         background: $paper;
-        border-color: rgba($border, 0.82);
+
+        border-color:
+            rgba($border, 0.82);
+
         box-shadow:
             0 1px 1px rgba($heading, 0.05),
             0 4px 10px rgba($heading, 0.065);
 
         .app-tab-count {
             color: #654e00;
-            background: rgba($note-button-yellow, 0.48);
+
+            background:
+                rgba($note-button-yellow, 0.48);
         }
     }
 }
 
-/* Underline */
+
+/* ==========================================================
+   Underline
+   ========================================================== */
+
 .app-tabs-underline {
     gap: 13px;
-    border-bottom: 1px solid $border-light;
+
+    border-bottom:
+        1px solid $border-light;
 
     &.app-tabs-density-compact {
         gap: 10px;
@@ -275,10 +326,15 @@
             right: 0;
             bottom: -1px;
             left: 0;
+
             height: 2px;
+
             content: '';
+
             background: transparent;
-            border-radius: 999px 999px 0 0;
+
+            border-radius:
+                999px 999px 0 0;
         }
 
         &.is-active {
@@ -290,14 +346,19 @@
 
             .app-tab-count {
                 color: #654e00;
-                background: rgba($note-button-yellow, 0.42);
+
+                background:
+                    rgba($note-button-yellow, 0.42);
             }
         }
     }
 
     &.is-vertical {
         gap: 4px;
-        border-right: 1px solid $border-light;
+
+        border-right:
+            1px solid $border-light;
+
         border-bottom: 0;
 
         .app-tab::after {
@@ -305,12 +366,159 @@
             right: -1px;
             bottom: 3px;
             left: auto;
+
             width: 2px;
             height: auto;
-            border-radius: 999px 0 0 999px;
+
+            border-radius:
+                999px 0 0 999px;
         }
     }
 }
+
+
+/* ==========================================================
+   Danger / Trash tab
+   ----------------------------------------------------------
+   Per-item styling:
+   { tone: 'danger' }
+
+   This visually separates Trash from navigation tabs while
+   keeping the component generic for any danger-style view.
+   ========================================================== */
+
+.app-tab.is-danger {
+    color: rgba($danger, 0.88);
+
+    .app-tab-icon {
+        color: currentColor;
+    }
+
+    .app-tab-count {
+        color: $danger;
+
+        background:
+            rgba($danger, 0.075);
+
+        border-color:
+            rgba($danger, 0.10);
+    }
+
+    &:hover:not(:disabled) {
+        color: $danger;
+
+        background:
+            rgba($danger, 0.065);
+
+        border-color:
+            rgba($danger, 0.10);
+    }
+
+    &:focus-visible {
+        box-shadow:
+            0 0 0 3px rgba($danger, 0.14);
+    }
+}
+
+
+/* Danger + segmented */
+
+.app-tabs-segmented {
+    .app-tab.is-danger.is-active {
+        color: $danger;
+
+        background:
+            rgba($danger, 0.085);
+
+        border-color:
+            rgba($danger, 0.18);
+
+        box-shadow:
+            0 1px 2px rgba($danger, 0.055),
+            0 4px 10px rgba($danger, 0.06);
+
+        .app-tab-count {
+            color: $danger;
+
+            background:
+                rgba($danger, 0.11);
+
+            border-color:
+                rgba($danger, 0.13);
+        }
+    }
+}
+
+
+/* Danger + paper */
+
+.app-tabs-paper {
+    .app-tab.is-danger.is-active {
+        color: $danger;
+
+        background:
+            rgba($danger, 0.07);
+
+        border-color:
+            rgba($danger, 0.18);
+
+        box-shadow:
+            0 1px 1px rgba($danger, 0.04),
+            0 4px 10px rgba($danger, 0.055);
+
+        .app-tab-count {
+            color: $danger;
+
+            background:
+                rgba($danger, 0.105);
+
+            border-color:
+                rgba($danger, 0.12);
+        }
+    }
+}
+
+
+/* Danger + underline */
+
+.app-tabs-underline {
+    .app-tab.is-danger {
+        &:hover:not(:disabled) {
+            color: $danger;
+            background: transparent;
+        }
+
+        &.is-active {
+            color: $danger;
+
+            &::after {
+                background: $danger;
+            }
+
+            .app-tab-count {
+                color: $danger;
+
+                background:
+                    rgba($danger, 0.09);
+
+                border-color:
+                    rgba($danger, 0.10);
+            }
+        }
+    }
+}
+
+
+/* Disabled danger tabs remain visibly disabled */
+
+.app-tab.is-danger:disabled {
+    color: rgba($danger, 0.56);
+}
+
+
+/* ==========================================================
+   Reduced motion
+   ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
     .app-tab {

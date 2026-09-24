@@ -1,0 +1,28 @@
+<div class="folder" [class.folder--personal]="personal" [class.folder--archived]="status === 'ARCHIVED'"
+    [class.folder--interactive]="interactive" [attr.aria-busy]="busy">
+    <svg class="folder__paper" viewBox="0 0 400 250" preserveAspectRatio="none" aria-hidden="true">
+        <path class="folder__outline"
+            d="M24 1 H144 C160 1 165 7 177 19 C185 27 193 30 211 30 H376 Q399 30 399 54 V226 Q399 249 376 249 H24 Q1 249 1 226 V25 Q1 1 24 1 Z" />
+        <path class="folder__tab-tint" d="M24 2 H144 C160 2 165 8 176 20 C181 25 185 28 192 30 H2 V25 Q2 2 24 2 Z" />
+    </svg>
+    <div class="folder__tab"><app-icon [icon]="Folder" size="xs" />{{ personal ? 'Personal' : 'Team' }}</div>
+    <div class="folder__actions"><ng-content select="[folder-actions]" /></div>
+    <div class="folder__content" [attr.role]="interactive ? 'button' : null"
+        [attr.tabindex]="interactive && !busy ? 0 : null" [attr.aria-disabled]="interactive ? busy : null"
+        [attr.aria-label]="interactive ? 'Open ' + name : null" (click)="interactive && !busy && opened.emit($event)"
+        (dblclick)="interactive && !busy && edited.emit($event)" (keydown)="onKeydown($event)">
+        <div class="folder__title">
+            <ng-content select="[folder-title]">{{ name.trim() || 'Workspace name' }}</ng-content>
+        </div>
+        <div class="folder__metadata">
+            <span><app-icon [icon]="Shield" size="xs" />{{ roleLabel }}</span>
+            <span [attr.title]="updatedAt ? 'Last updated' : null"><app-icon [icon]="Calendar" size="xs" />{{ dateLabel
+                }}</span>
+        </div>
+        <p class="folder__description">{{ description.trim() || 'Keep your notes, folders and ideas together.' }}</p>
+        <div class="folder__footer">
+            <span><app-icon [icon]="visibilityIcon" size="xs" />{{ visibilityLabel }}</span>
+            <span><i class="folder__status-dot" aria-hidden="true"></i>{{ statusLabel }}</span>
+        </div>
+    </div>
+</div>

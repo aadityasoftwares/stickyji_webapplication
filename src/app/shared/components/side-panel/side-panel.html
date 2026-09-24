@@ -1,0 +1,67 @@
+@if (rendered()) {
+<div class="app-side-panel-layer" [class.is-closing]="closing()">
+    <div class="app-side-panel-backdrop" aria-hidden="true" (mousedown)="onBackdropMouseDown($event)"></div>
+
+    <aside #panel class="app-side-panel" [attr.data-tone]="tone" [style.--app-side-panel-width.px]="resolvedWidth"
+        role="dialog" aria-modal="true" [attr.aria-label]="title ? null : ariaLabel"
+        [attr.aria-labelledby]="title ? titleId : null" [attr.aria-describedby]="description ? descriptionId : null"
+        tabindex="-1">
+        <header class="app-side-panel-header">
+            <span class="app-side-panel-tape" aria-hidden="true"></span>
+
+            <div class="app-side-panel-heading">
+                @if (icon) {
+                <span class="app-side-panel-icon" aria-hidden="true">
+                    <app-icon [icon]="icon" size="sm" />
+                </span>
+                }
+
+                <div class="app-side-panel-heading-copy">
+                    <div class="app-side-panel-title-row">
+                        <div class="app-side-panel-title-copy">
+                            @if (eyebrow) {
+                            <span class="app-side-panel-eyebrow">
+                                {{ eyebrow }}
+                            </span>
+                            }
+
+                            <h2 class="app-side-panel-title" [id]="titleId">
+                                {{ title }}
+                            </h2>
+                        </div>
+
+                        @if (headerNote) {
+                        <span class="app-side-panel-note">
+                            {{ headerNote }}
+                        </span>
+                        }
+                    </div>
+
+                    @if (description) {
+                    <p class="app-side-panel-description" [id]="descriptionId">
+                        {{ description }}
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <div class="app-side-panel-header-actions">
+                <ng-content select="[panel-header-action]" />
+
+                <app-button [icon]="LucideX" [iconOnly]="true" variant="danger" appearance="standard" size="sm"
+                    ariaLabel="Close side panel" title="Close" [disabled]="busy" (buttonClick)="requestClose()" />
+            </div>
+        </header>
+
+        <main class="app-side-panel-body">
+            <ng-content select="[panel-body]" />
+        </main>
+
+        @if (showFooter) {
+        <footer class="app-side-panel-footer">
+            <ng-content select="[panel-footer]" />
+        </footer>
+        }
+    </aside>
+</div>
+}

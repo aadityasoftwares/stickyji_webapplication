@@ -1,0 +1,127 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: inline-flex;
+    min-width: 0;
+    vertical-align: middle;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.members-stack {
+    --members-stack-overlap: 0.5625rem;
+    --members-stack-size: 2rem;
+
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    min-height: var(--members-stack-size);
+    isolation: isolate;
+}
+
+.members-stack[data-size='xs'] {
+    --members-stack-size: 1.5rem;
+}
+
+.members-stack[data-size='sm'] {
+    --members-stack-size: 2rem;
+}
+
+.members-stack[data-size='md'] {
+    --members-stack-size: 2.5rem;
+}
+
+.members-stack[data-size='lg'] {
+    --members-stack-size: 3rem;
+}
+
+.members-stack[data-size='xl'] {
+    --members-stack-size: 4rem;
+}
+
+.members-stack[data-size='2xl'] {
+    --members-stack-size: 5rem;
+}
+
+.members-stack:not([data-size]) {
+    --members-stack-size: var(--members-stack-custom-size,
+            2rem);
+}
+
+.members-stack-item {
+    position: relative;
+    display: inline-grid;
+    flex: 0 0 auto;
+    width: var(--members-stack-size);
+    height: var(--members-stack-size);
+    min-width: 0;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    outline: 0;
+    place-items: center;
+    transition:
+        transform 150ms ease,
+        filter 150ms ease;
+}
+
+.members-stack[data-shape='rounded'] .members-stack-item {
+    border-radius: 28%;
+}
+
+.members-stack[data-shape='square'] .members-stack-item {
+    border-radius: 0.375rem;
+}
+
+.members-stack-item+.members-stack-item {
+    margin-inline-start: calc(var(--members-stack-overlap) * -1);
+}
+
+.members-stack-item app-avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+button.members-stack-item {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.is-interactive button.members-stack-item:hover:not(:disabled),
+.is-interactive button.members-stack-item:focus-visible:not(:disabled) {
+    z-index: 50 !important;
+    transform: translateY(-0.125rem);
+}
+
+.is-interactive button.members-stack-item:focus-visible {
+    outline: 0.125rem solid rgba($accent, 0.5);
+    outline-offset: 0.125rem;
+}
+
+button.members-stack-item:disabled,
+.members-stack.is-disabled {
+    cursor: default;
+}
+
+button.members-stack-item:disabled {
+    filter: grayscale(0.16);
+    opacity: 0.62;
+}
+
+.members-stack-overflow {
+    font-size: 0.75rem;
+    font-weight: 750;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .members-stack-item {
+        transition: none;
+    }
+}

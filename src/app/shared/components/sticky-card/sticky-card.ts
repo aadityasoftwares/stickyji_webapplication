@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +6,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { UI } from '../../constants/ui.constants';
 
 export type CardSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -22,7 +23,8 @@ export type CardVariant =
   | 'noteGreen'
   | 'noteBlue'
   | 'notePurple'
-  | 'noteBrown';
+  | 'noteBrown'
+  | 'noteBlack';
 
 export type CardAppearance = 'elevated' | 'outlined' | 'flat';
 
@@ -33,11 +35,68 @@ export type CardShape =
   | 'note'
   | 'cut'
   | 'ticket'
-  | 'folded';
+  | 'folded'
+  | 'stickyFold';
+
+export type BackendCardShape =
+  | 'ROUNDED'
+  | 'SOFT'
+  | 'SQUARE'
+  | 'NOTE'
+  | 'CUT'
+  | 'TICKET'
+  | 'FOLDED'
+  | 'STICKY_FOLD';
+
+export type CardShapeInput =
+  | CardShape
+  | BackendCardShape
+  | string
+  | null
+  | undefined;
 
 export type CardLayout = 'vertical' | 'horizontal';
-
 export type CardShadow = 'none' | 'sm' | 'md' | 'lg';
+
+const CARD_SHAPES = new Set<CardShape>([
+  'rounded',
+  'soft',
+  'square',
+  'note',
+  'cut',
+  'ticket',
+  'folded',
+  'stickyFold',
+]);
+
+const CARD_SHAPE_ALIASES: Readonly<Record<string, CardShape>> = {
+  rounded: 'rounded',
+  soft: 'soft',
+  square: 'square',
+  note: 'note',
+  cut: 'cut',
+  ticket: 'ticket',
+  folded: 'folded',
+  stickyfold: 'stickyFold',
+  'sticky-fold': 'stickyFold',
+  sticky_fold: 'stickyFold',
+  cornerfold: 'stickyFold',
+  'corner-fold': 'stickyFold',
+  corner_fold: 'stickyFold',
+  peel: 'stickyFold',
+  peeled: 'stickyFold',
+};
+
+/** Converts backend enum values and UI aliases to one supported card shape. */
+export function resolveCardShape(value: CardShapeInput): CardShape {
+  const normalized = String(value ?? 'stickyFold').trim().toLowerCase();
+  return (
+    CARD_SHAPE_ALIASES[normalized] ??
+    (CARD_SHAPES.has(normalized as CardShape)
+      ? (normalized as CardShape)
+      : 'stickyFold')
+  );
+}
 
 @Component({
   selector: 'app-sticky-card',
@@ -50,11 +109,10 @@ export type CardShadow = 'none' | 'sm' | 'md' | 'lg';
     '[class.app-card-host-full]': 'fullWidth',
   },
 })
-
 export class StickyCard {
   @Input() variant: CardVariant = 'default';
   @Input() appearance: CardAppearance = 'elevated';
-  @Input() shape: CardShape = 'rounded';
+  @Input() shape: CardShapeInput = 'stickyFold';
   @Input() size: CardSize = 'md';
   @Input() layout: CardLayout = 'vertical';
   @Input() shadow: CardShadow = 'md';
@@ -70,6 +128,7 @@ export class StickyCard {
   @Input() minHeight?: number;
   @Input() padding?: number;
   @Input() radius?: number;
+  @Input() foldSize = 18;
   @Input() mediaWidth = 220;
   @Input() bodyMaxHeight?: number;
 
@@ -90,30 +149,33 @@ export class StickyCard {
   @Input() ariaLabelledBy?: string;
   @Input() ariaDescribedBy?: string;
 
-  @Output() cardClick = new EventEmitter<MouseEvent | KeyboardEvent>();
+  @Output() readonly cardClick =
+    new EventEmitter<MouseEvent | KeyboardEvent>();
+
+  get resolvedShape(): CardShape {
+    return resolveCardShape(this.shape);
+  }
 
   get cardPadding(): number {
     return this.padding ?? UI.card.padding[this.size];
   }
 
   get cardRadius(): number {
-    if (this.radius !== undefined) {
-      return this.radius;
-    }
+    if (this.radius !== undefined) return this.radius;
 
-    switch (this.shape) {
+    switch (this.resolvedShape) {
       case 'square':
       case 'cut':
       case 'ticket':
         return 0;
-
       case 'note':
       case 'folded':
-        return 4;
-
+        return 5;
+      case 'stickyFold':
+        return 3;
       case 'soft':
         return UI.card.radius.sm;
-
+      case 'rounded':
       default:
         return UI.card.radius.md;
     }
@@ -121,6 +183,10 @@ export class StickyCard {
 
   get resolvedMinHeight(): number {
     return this.minHeight ?? UI.card.minHeight;
+  }
+
+  get resolvedFoldSize(): number {
+    return Math.max(12, Math.min(40, this.foldSize));
   }
 
   get isDisabled(): boolean {
@@ -139,15 +205,25 @@ export class StickyCard {
     return this.isInteractive ? 0 : null;
   }
 
+  get shellClasses(): Record<string, boolean> {
+    return {
+      [`app-card-${this.variant}`]: true,
+      [`app-card-shell-shape-${this.resolvedShape}`]: true,
+      [`app-card-shell-shadow-${this.shadow}`]: true,
+      'app-card-shell-hoverable': this.hoverable || this.clickable,
+      'app-card-shell-selected': this.selected,
+      'app-card-shell-disabled': this.isDisabled,
+    };
+  }
+
   get cardClasses(): Record<string, boolean> {
     const classes: Record<string, boolean> = {
       [`app-card-${this.variant}`]: true,
       [`app-card-appearance-${this.appearance}`]: true,
-      [`app-card-shape-${this.shape}`]: true,
+      [`app-card-shape-${this.resolvedShape}`]: true,
       [`app-card-size-${this.size}`]: true,
       [`app-card-layout-${this.layout}`]: true,
       [`app-card-shadow-${this.shadow}`]: true,
-
       'app-card-clickable': this.clickable,
       'app-card-hoverable': this.hoverable || this.clickable,
       'app-card-selected': this.selected,
@@ -178,13 +254,8 @@ export class StickyCard {
   }
 
   onCardKeydown(event: KeyboardEvent): void {
-    if (!this.isInteractive || event.target !== event.currentTarget) {
-      return;
-    }
-
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
+    if (!this.isInteractive || event.target !== event.currentTarget) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
 
     event.preventDefault();
     this.cardClick.emit(event);
@@ -192,14 +263,21 @@ export class StickyCard {
 
   private isNestedInteractiveElement(
     target: EventTarget | null,
-    currentTarget: EventTarget | null
+    currentTarget: EventTarget | null,
   ): boolean {
-    if (!(target instanceof Element)) {
-      return false;
-    }
+    if (!(target instanceof Element)) return false;
 
     const interactiveElement = target.closest(
-      'a, button, input, select, textarea, summary, [role="button"], [data-card-interactive]'
+      [
+        'a',
+        'button',
+        'input',
+        'select',
+        'textarea',
+        'summary',
+        '[role="button"]',
+        '[data-card-interactive]',
+      ].join(', '),
     );
 
     return Boolean(interactiveElement && interactiveElement !== currentTarget);

@@ -47,7 +47,8 @@
                         [maxLength]="contentMaxLength" [value]="controlString('content')" [disabled]="isBusy"
                         [fullWidth]="true" (valueChange)="updateText('content', $event)" />
 
-                    <div class="my-notes-modal-select-row">
+                    <!-- Column stays separate so the metadata row remains clean and readable. -->
+                    <div class="my-notes-modal-column-row">
                         <div class="my-notes-modal-select-field">
                             <app-label for="my-notes-column" text="Column" />
                             <app-select id="my-notes-column" [options]="columnOptions()"
@@ -57,7 +58,10 @@
                                 shape="rounded" size="md" [disabled]="isBusy" [clearable]="false" [searchable]="false"
                                 [fullWidth]="true" />
                         </div>
+                    </div>
 
+                    <!-- Sticky color + note date + workspace member in one row on desktop. -->
+                    <div class="my-notes-modal-meta-row">
                         <div class="my-notes-modal-select-field">
                             <app-label for="my-notes-color" text="Sticky color" />
                             <app-select id="my-notes-color" [options]="colorOptions" [ngModel]="controlString('color')"
@@ -65,6 +69,27 @@
                                 name="my-notes-color" placeholder="Choose color" ariaLabel="Choose sticky note color"
                                 variant="paper" shape="rounded" size="md" [disabled]="isBusy" [clearable]="false"
                                 [searchable]="false" [fullWidth]="true" />
+                        </div>
+
+                        <div class="my-notes-modal-select-field my-notes-modal-date-field">
+                            <app-datepicker-input formControlName="noteDate" label="Note date"
+                                labelDescription="Optional" placeholder="dd-mm-yyyy" variant="paper"
+                                appearance="outlined" shape="rounded" size="md" [optional]="true" [disabled]="isBusy"
+                                [fullWidth]="true" />
+                        </div>
+
+                        <div class="my-notes-modal-select-field">
+                            <app-label for="my-notes-workspace-member" text="Workspace member" />
+                            <app-select id="my-notes-workspace-member" [options]="workspaceMemberOptions()"
+                                [ngModel]="controlString('workspaceMemberId')" [ngModelOptions]="{ standalone: true }"
+                                (ngModelChange)="updateSelect('workspaceMemberId', $event)"
+                                name="my-notes-workspace-member"
+                                [placeholder]="loadingWorkspaceMembers() ? 'Loading members...' : workspaceMemberOptions().length ? 'Select member' : 'No active members'"
+                                searchPlaceholder="Search workspace members..." emptyText="No workspace members found"
+                                loadingText="Loading workspace members..." ariaLabel="Select workspace member"
+                                variant="paper" shape="rounded" size="md" [iconLeft]="LucideUserRound"
+                                [loading]="loadingWorkspaceMembers()" [disabled]="isBusy" [clearable]="true"
+                                [searchable]="true" [fullWidth]="true" />
                         </div>
                     </div>
 

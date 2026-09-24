@@ -2,7 +2,10 @@
     <div class="showcase-intro">
         <p class="showcase-kicker">Common component</p>
         <h1>Cards for every kind of note</h1>
-        <p>One API for content cards, dashboard metrics, selectable items, media cards, and sticky notes.</p>
+        <p>
+            One API for content cards, dashboard metrics, selectable items, media
+            cards, and sticky notes.
+        </p>
     </div>
 
     <section class="showcase-section">
@@ -14,10 +17,11 @@
                 <span card-icon aria-hidden="true">✦</span>
 
                 <app-button card-header-action variant="ghost" size="sm" label="•••" ariaLabel="More card actions"
-                    [minWidth]="36"></app-button>
+                    [minWidth]="36" />
 
                 <p class="card-copy">
-                    Keep research, decisions, and follow-ups together without losing the handmade sticky-note feel.
+                    Keep research, decisions, and follow-ups together without losing the
+                    handmade sticky-note feel.
                 </p>
 
                 <div class="tag-row">
@@ -27,8 +31,8 @@
                 </div>
 
                 <div card-footer>
-                    <app-button variant="ghost" size="sm" label="Archive"></app-button>
-                    <app-button variant="primary" size="sm" label="Open note"></app-button>
+                    <app-button variant="ghost" size="sm" label="Archive" />
+                    <app-button variant="primary" size="sm" label="Open note" />
                 </div>
             </app-sticky-card>
 
@@ -39,9 +43,44 @@
                 </div>
 
                 <p class="card-copy">
-                    Use <code>layout="horizontal"</code> for files, people, products, or compact preview cards.
+                    Use <code>layout="horizontal"</code> for files, people, products, or
+                    compact preview cards.
                 </p>
             </app-sticky-card>
+        </div>
+    </section>
+
+    <!-- Dedicated default corner-fold example. -->
+    <section class="showcase-section folded-showcase-section">
+        <div class="section-heading-row">
+            <div>
+                <p class="section-kicker">Default sticky shape</p>
+                <h2>Corner folded sticky notes</h2>
+            </div>
+
+            <code class="shape-code">shape="stickyFold"</code>
+        </div>
+
+        <p class="section-description">
+            The main card is clipped at the bottom-right and the folded triangle is
+            rendered outside the clipped surface, so no white corner appears.
+        </p>
+
+        <div class="showcase-grid showcase-grid-folded">
+            @for (note of foldedNotes; track note.id) {
+            <app-sticky-card class="folded-demo-card" [variant]="note.variant" appearance="elevated" shape="stickyFold"
+                size="sm" shadow="md" [foldSize]="note.foldSize" [minHeight]="164" [fullWidth]="true"
+                [cardTitle]="note.title" [subtitle]="note.subtitle">
+                <p class="card-copy folded-card-copy">
+                    {{ note.description }}
+                </p>
+
+                <div class="folded-note-meta" aria-label="Example metadata">
+                    <span class="folded-note-dot" aria-hidden="true"></span>
+                    <span>{{ note.label }}</span>
+                </div>
+            </app-sticky-card>
+            }
         </div>
     </section>
 
@@ -54,7 +93,9 @@
                 shape="note" appearance="elevated" size="sm" [clickable]="true" [selected]="selectedCard === item"
                 [cardTitle]="displayName(item) + ' notes'" subtitle="Click or press Enter to select"
                 (cardClick)="selectCard(item)">
-                <p class="card-copy">A keyboard-accessible selection surface with a visible selected state.</p>
+                <p class="card-copy">
+                    A keyboard-accessible selection surface with a visible selected state.
+                </p>
             </app-sticky-card>
             }
         </div>
@@ -102,8 +143,9 @@
             <app-sticky-card cardTitle="Scrollable body" subtitle="Header and footer remain visible"
                 [bodyScrollable]="true" [bodyMaxHeight]="90" [footerDivider]="true">
                 <p class="mini-copy long-copy">
-                    Long content can scroll inside the card. This is useful for activity logs, compact task lists, and
-                    small dashboard panels where the page itself should remain stable.
+                    Long content can scroll inside the card. This is useful for activity
+                    logs, compact task lists, and small dashboard panels where the page
+                    itself should remain stable.
                 </p>
                 <div card-footer>Fixed footer area</div>
             </app-sticky-card>
