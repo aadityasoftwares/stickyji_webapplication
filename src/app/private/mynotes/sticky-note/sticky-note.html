@@ -1,6 +1,6 @@
-<article class="sticky-note" [ngClass]="cardClasses" [attr.data-note-id]="noteId" [attr.aria-label]="title"
-    [attr.inert]="preview ? '' : null" [attr.aria-busy]="isSaving" [attr.aria-disabled]="disabled"
-    (click)="onCardClick($event)">
+<article class="sticky-note" [ngClass]="cardClasses" [style.--note-font-size]="fontSize + 'px'"
+    [attr.data-note-id]="noteId" [attr.aria-label]="title" [attr.inert]="preview ? '' : null"
+    [attr.aria-busy]="isSaving" [attr.aria-disabled]="disabled" (click)="onCardClick($event)">
     <span class="sticky-note__paper" aria-hidden="true">
         <span class="sticky-note__surface">
             <span class="sticky-note__paper-pattern"></span>
@@ -25,24 +25,56 @@
         </span>
         }
         @if (!preview) {
-        <div class="sticky-note__menu-wrap">
-            <app-button class="sticky-note__menu-trigger" [icon]="LucideEllipsis" [iconOnly]="true"
-                appearance="standard" variant="ghost" size="xs" [rounded]="true" ariaLabel="Open note actions"
-                title="Note actions" [disabled]="disabled" (buttonClick)="toggleMenu($event)" />
-            @if (menuOpen) {
-            <div class="sticky-note__menu" role="menu" (click)="$event.stopPropagation()">
-                <app-button label="Edit note" [iconLeft]="LucidePencil" appearance="standard" variant="ghost" size="sm"
-                    width="full" (buttonClick)="requestEdit($event)" />
+        <div class="sticky-note__header-actions">
+            <app-button class="sticky-note__quick-edit" [icon]="LucidePencil" [iconOnly]="true" appearance="standard"
+                variant="ghost" size="xs" [rounded]="true" [ariaLabel]="'Edit ' + title" [title]="'Edit ' + title"
+                [disabled]="disabled" (buttonClick)="requestEdit($event)" />
+
+            <button type="button" class="sticky-note__menu-trigger" [matMenuTriggerFor]="noteActionsMenu"
+                [disabled]="disabled" [attr.aria-label]="'More actions for ' + title" title="More note actions"
+                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+            </button>
+
+            <mat-menu #noteActionsMenu="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
+                class="sticky-note-actions-menu">
                 @if (data?.showMoveActions !== false) {
-                <app-button label="Move left" [iconLeft]="LucideArrowLeft" appearance="standard" variant="ghost"
-                    size="sm" width="full" [disabled]="data?.canMoveBackward === false"
-                    (buttonClick)="requestMove('backward', $event)" />
-                <app-button label="Move right" [iconLeft]="LucideArrowRight" appearance="standard" variant="ghost"
-                    size="sm" width="full" [disabled]="data?.canMoveForward === false"
-                    (buttonClick)="requestMove('forward', $event)" />
+                <button mat-menu-item type="button" class="sticky-note-action-item"
+                    [disabled]="data?.canMoveBackward === false" (click)="requestMove('backward', $event)">
+                    <span class="sticky-note-menu-item-icon" aria-hidden="true">
+                        <app-icon [icon]="LucideArrowLeft" size="xs" />
+                    </span>
+                    <span class="sticky-note-menu-item-copy">
+                        <strong>Move left</strong>
+                        <small>Send to previous column</small>
+                    </span>
+                </button>
+
+                <button mat-menu-item type="button" class="sticky-note-action-item"
+                    [disabled]="data?.canMoveForward === false" (click)="requestMove('forward', $event)">
+                    <span class="sticky-note-menu-item-icon is-forward" aria-hidden="true">
+                        <app-icon [icon]="LucideArrowRight" size="xs" />
+                    </span>
+                    <span class="sticky-note-menu-item-copy">
+                        <strong>Move right</strong>
+                        <small>Send to next column</small>
+                    </span>
+                </button>
+
+                <mat-divider />
                 }
-            </div>
-            }
+
+                <button mat-menu-item type="button" class="sticky-note-action-item sticky-note-menu-danger"
+                    (click)="requestDelete($event)">
+                    <span class="sticky-note-menu-item-icon" aria-hidden="true">
+                        <app-icon [icon]="LucideTrash2" size="xs" />
+                    </span>
+                    <span class="sticky-note-menu-item-copy">
+                        <strong>Move to trash</strong>
+                        <small>Recoverable for 60 days</small>
+                    </span>
+                </button>
+            </mat-menu>
         </div>
         }
     </header>

@@ -24,6 +24,7 @@
   --note-radius: 0.2rem;
   --cut-size: 40px;
   --note-pattern-opacity: 0.085;
+  --note-font-size: 14px;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -39,6 +40,7 @@
   border-radius: var(--note-radius);
   box-shadow: $shadow-sm;
   font-family: $font-body;
+  font-size: var(--note-font-size);
   transform: translateZ(0);
   transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
@@ -123,30 +125,155 @@
   font-weight: 700;
 }
 
-.sticky-note__menu-wrap {
-  position: relative;
+.sticky-note__header-actions {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.28rem;
   margin-left: auto;
 }
 
-.sticky-note__menu {
-  position: absolute;
-  z-index: 30;
-  top: calc(100% + 0.35rem);
-  right: 0;
-  display: grid;
-  width: 9.5rem;
-  gap: 0.1rem;
-  padding: 0.3rem;
-  background: $paper;
-  border: 1px solid $border;
-  border-radius: $radius-sm;
-  box-shadow: $shadow-lg;
+.sticky-note__quick-edit {
+  display: inline-flex;
+  flex: 0 0 auto;
 }
 
-.sticky-note__menu app-button,
+.sticky-note__menu-trigger {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  color: var(--note-muted);
+  background: color-mix(in srgb, var(--note-paper) 88%, #{$paper});
+  border: 1px solid color-mix(in srgb, var(--note-border) 82%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  place-items: center;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.sticky-note__menu-trigger:hover:not(:disabled) {
+  color: var(--note-ink);
+  background: color-mix(in srgb, var(--note-accent) 11%, var(--note-paper));
+  border-color: color-mix(in srgb, var(--note-accent) 24%, var(--note-border));
+}
+
+.sticky-note__menu-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--app-focus-ring);
+}
+
+.sticky-note__menu-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .sticky-note__editor app-input {
   display: block;
   width: 100%;
+}
+
+::ng-deep .sticky-note-actions-menu.mat-mdc-menu-panel {
+  min-width: 14.75rem;
+  max-width: 17rem;
+  overflow: hidden;
+  background: $paper;
+  border: 1px solid rgba($border, 0.85);
+  border-radius: 0.75rem;
+  box-shadow: $shadow-lg;
+}
+
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-content {
+  padding: 0.35rem;
+}
+
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item.sticky-note-action-item {
+  min-height: 3.2rem;
+  padding: 0.45rem 0.5rem;
+  color: $text-secondary;
+  border-radius: 0.5rem;
+  font-family: $font-body;
+  line-height: 1.2;
+}
+
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item.sticky-note-action-item+.sticky-note-action-item {
+  margin-top: 0.125rem;
+}
+
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item.sticky-note-action-item:hover,
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item.sticky-note-action-item:focus-visible {
+  background: rgba($note-yellow, 0.18);
+}
+
+::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item-text {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.625rem;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-item-icon {
+  display: grid;
+  flex: 0 0 1.875rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  color: $text-secondary;
+  background: rgba($paper-dark, 0.58);
+  border: 1px solid rgba($border, 0.72);
+  border-radius: 0.4375rem;
+  place-items: center;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-item-icon.is-forward {
+  color: $note-button-yellow-text;
+  background: rgba($note-button-yellow, 0.32);
+  border-color: rgba($note-button-yellow-text, 0.12);
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-item-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-item-copy strong {
+  color: $heading;
+  font-size: 0.8125rem;
+  font-weight: 730;
+  line-height: 1.25;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-item-copy small {
+  color: $text-light;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-danger {
+  color: $danger;
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-danger .sticky-note-menu-item-icon {
+  color: $danger;
+  background: rgba($danger, 0.065);
+  border-color: rgba($danger, 0.14);
+}
+
+::ng-deep .sticky-note-actions-menu .sticky-note-menu-danger .sticky-note-menu-item-copy strong {
+  color: $danger;
+}
+
+::ng-deep .sticky-note-actions-menu .mat-divider {
+  margin-block: 0.25rem;
+  border-color: $border-light;
 }
 
 .sticky-note__content {
@@ -159,7 +286,7 @@
   margin: 0;
   color: var(--note-ink);
   font: inherit;
-  font-size: 1.02rem;
+  font-size: calc(var(--note-font-size) + 3px);
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.018em;
@@ -172,7 +299,7 @@
   margin: 0.38rem 0 0;
   overflow: hidden;
   color: var(--note-muted);
-  font-size: 0.78rem;
+  font-size: var(--note-font-size);
   font-weight: 500;
   line-height: 1.48;
   overflow-wrap: anywhere;
@@ -246,7 +373,7 @@
 .sticky-note__check-item {
   min-width: 0;
   color: var(--note-ink);
-  font-size: 0.73rem;
+  font-size: var(--note-font-size);
   line-height: 1.35;
 }
 
@@ -263,13 +390,13 @@
   min-width: 0;
   gap: 0.5rem;
   color: var(--note-muted);
-  font-size: 0.66rem;
+  font-size: calc(var(--note-font-size) - 2px);
 }
 
 .sticky-note__checklist-heading strong {
   overflow: hidden;
   color: var(--note-ink);
-  font-size: 0.7rem;
+  font-size: calc(var(--note-font-size) - 1px);
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -601,13 +728,29 @@
   font-family: $font-note-gochi-hand;
 }
 
-.sticky-note[class*='is-font-']:not(.is-font-dmSans) .sticky-note__title {
-  font-size: 1.18rem;
-  letter-spacing: 0;
+.sticky-note__content,
+.sticky-note__checklists,
+.sticky-note__checklist,
+.sticky-note__checklist-heading,
+.sticky-note__checklist-items,
+.sticky-note__progress,
+.sticky-note__progress-label,
+.sticky-note__footer,
+.sticky-note__meta,
+.sticky-note__preview-more {
+  font-family: inherit;
 }
 
-.sticky-note[class*='is-font-']:not(.is-font-dmSans) .sticky-note__description {
-  font-size: 0.9rem;
+:host ::ng-deep .sticky-note__check-item,
+:host ::ng-deep .sticky-note__check-item *,
+:host ::ng-deep .sticky-note__check-item label,
+:host ::ng-deep .sticky-note__check-item span {
+  font-family: inherit !important;
+  font-size: var(--note-font-size) !important;
+}
+
+.sticky-note[class*='is-font-']:not(.is-font-dmSans) .sticky-note__title {
+  letter-spacing: 0;
 }
 
 .is-completed .sticky-note__title,
@@ -683,11 +826,23 @@
 
 .sticky-note__preview-more {
   color: var(--note-muted);
-  font-size: 11px;
+  font-size: calc(var(--note-font-size) - 2px);
 }
 
 .sticky-note__column-badge {
   display: inline-flex;
   min-width: 0;
   max-width: 100%;
+}
+
+
+@media (max-width: 30rem) {
+  .sticky-note__header-actions {
+    gap: 0.2rem;
+  }
+
+  .sticky-note__menu-trigger {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
 }

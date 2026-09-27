@@ -1,11 +1,14 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, ViewChild, inject, signal, effect, untracked } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { LucideCheck, LucideChevronDown, LucideArrowLeft, LucideArrowRight, LucideFolderOpen, LucideGrid2X2, LucideList, LucidePanelsTopLeft, LucidePencil, LucidePlus, LucideRefreshCw, LucideSearch, LucideTrash2, LucideX } from '@lucide/angular';
+import { Router } from '@angular/router';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
+import { LucideCheck, LucideChevronDown, LucideArrowLeft, LucideArrowRight, LucideFolderOpen, LucideGrid2X2, LucideList, LucideMoreHorizontal, LucidePanelsTopLeft, LucidePencil, LucidePlus, LucideRefreshCw, LucideSearch, LucideTrash2, LucideX } from '@lucide/angular';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
@@ -22,13 +25,17 @@ import { StickyNoteColumnApiService } from '../mynotes/services/sticky-note-colu
 import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.store';
 import { StickyNoteChecklistItemApiService } from '../mynotes/services/sticky-note-checklist-item.service';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
-import { WorkspaceApiService } from '../workspace/services/workspace.service';
+import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
-import { WorkspaceFolderApiService } from '../workspacefolders/services/workspace-folder.service';
+import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { AddEditStickyNoteColumnSidePanel } from '../sticky-note-columns/add-edit-sticky-note-column-side-panel/add-edit-sticky-note-column-side-panel';
+import { STICKY_NOTE_LAYOUT_OPTIONS, STICKY_NOTE_FONT_OPTIONS, STICKY_NOTE_FONT_SIZE_OPTIONS, USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 @Component({
   selector: 'app-today',
   standalone: true,
@@ -41,163 +48,113 @@ import { WorkspaceMemberApiService } from '../workspace-members/services/workspa
     FormsModule,
     DragDropModule,
     OverlayModule,
+    MatDividerModule,
+    MatMenuModule,
     AppIcon,
     AppInput,
     Badge,
     Button,
     Checkbox,
     Divider,
-    Label,
     Loader,
     MembersStack,
     Select,
     StickyNote,
+    DeleteConfirmModal,
     Tabs,
-    AddEditNoteSidePanel
+    AddEditNoteSidePanel,
+    AddEditStickyNoteColumnSidePanel
   ]
 })
+
 export class Today {
+
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
-  private readonly workspaceApiService = inject(WorkspaceApiService);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
+  private readonly workspaceApiService = inject(WorkspaceService);
   private readonly workspaceMemberApiService = inject(WorkspaceMemberApiService);
-  private readonly workspaceFolderApiService = inject(WorkspaceFolderApiService);
+  private readonly workspaceFolderApiService = inject(WorkspaceFolderService);
   private readonly stickyNoteColumnApiService = inject(StickyNoteColumnApiService);
   private readonly stickyNoteColumnStore = inject(StickyNoteColumnStore);
   private readonly stickyNoteChecklistItemApiService = inject(StickyNoteChecklistItemApiService);
   private readonly stickyNoteApiService = inject(StickyNoteApiService);
+  private readonly stickyNoteTrashApiService = inject(StickyNoteApiService);
   private readonly toastService = inject(ToastService);
+
   private workspaceMemberRequestVersion = 0;
-  private readonly stickyNoteFontStorageKey = 'mystickynotes.note-font';
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideList = LucideList;
+  readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideSearch = LucideSearch;
+  readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+
   readonly today = signal(new Date());
   readonly view = signal<any>('kanban');
   readonly searchTerm = signal('');
-  /**
-   * Sticky-note information density.
-   * This is intentionally separate from the page Kanban/List view.
-   */
-  readonly stickyNoteLayout = signal<any>('plain');
-  readonly stickyNoteLayoutOptions: any[] = [
-    {
-      label: 'Plan',
-      value: 'plain',
-      icon: LucideList
-    },
-    {
-      label: 'Detail',
-      value: 'detail',
-      icon: LucidePanelsTopLeft
+
+  readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
+  readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS;
+  readonly stickyNoteFontSizeOptions: any[] = STICKY_NOTE_FONT_SIZE_OPTIONS;
+
+  readonly stickyNoteLayout = this.userPreferenceStore.stickyNoteLayout;
+  readonly stickyNoteFont = this.userPreferenceStore.stickyNoteFont;
+  readonly stickyNoteFontSize = this.userPreferenceStore.stickyNoteFontSize;
+
+  readonly workspaceOptions = computed<any[]>(() => this.workspaceStore.workspaces().map(workspace => ({ label: workspace.name, value: workspace.id })));
+  readonly activeWorkspaceId = this.workspaceStore.selectedId;
+  readonly loadingWorkspaces = this.workspaceStore.loading;
+
+  private readonly syncPreferredWorkspace = effect(() => {
+    if (!this.userPreferenceStore.loaded() || !this.workspaceStore.loaded()) return;
+
+    const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
+    if (!preferredWorkspaceId) return;
+
+    const exists = this.workspaceStore.workspaces().some(
+      workspace => workspace.id === preferredWorkspaceId
+    );
+    if (!exists) return;
+
+    const currentWorkspaceId = this.activeWorkspaceId();
+
+    if (currentWorkspaceId !== preferredWorkspaceId) {
+      this.workspaceStore.select(preferredWorkspaceId);
+      this.workspaceFolderStore.clear();
+      this.stickyNoteColumnStore.clear();
+      this.clearWorkspaceMembers();
+      this.clearBoard();
     }
-  ];
-  readonly stickyNoteFontOptions: any[] = [
-    { label: 'Clean · DM Sans', value: 'dmSans' },
-    { label: 'Caveat', value: 'caveat' },
-    { label: 'Patrick Hand', value: 'patrickHand' },
-    { label: 'Kalam', value: 'kalam' },
-    { label: 'Architects Daughter', value: 'architectsDaughter' },
-    { label: 'Indie Flower', value: 'indieFlower' },
-    { label: 'Nanum Pen', value: 'nanumPen' },
-    { label: 'Shadows Into Light', value: 'shadowsIntoLight' },
-    { label: 'Comic Neue', value: 'comicNeue' },
-    { label: 'Sriracha', value: 'sriracha' },
-    { label: 'Short Stack', value: 'shortStack' },
-    { label: 'Gochi Hand', value: 'gochiHand' }
-  ];
-  // Options must exist before restoring the saved font preference.
-  readonly stickyNoteFont = signal<any>(this.readStoredStickyNoteFont());
-  readonly selectedFontOption = computed(() =>
-    this.stickyNoteFontOptions.find(option => option.value === this.stickyNoteFont()) ?? this.stickyNoteFontOptions[0]
-  );
-  readonly LucideCheck = LucideCheck;
-  readonly LucideChevronDown = LucideChevronDown;
-  readonly fontMenuOpen = signal(false);
-  private activeFontIndex = 0;
-  @ViewChild('fontTrigger') private fontTrigger?: ElementRef<HTMLButtonElement>;
-  @ViewChild('fontMenu') private fontMenu?: ElementRef<HTMLElement>;
-  readonly fontFamilies: Record<string, string> = {
-    dmSans: '"DM Sans", sans-serif',
-    caveat: '"Caveat", cursive',
-    patrickHand: '"Patrick Hand", cursive',
-    kalam: '"Kalam", cursive',
-    architectsDaughter: '"Architects Daughter", cursive',
-    indieFlower: '"Indie Flower", cursive',
-    nanumPen: '"Nanum Pen Script", cursive',
-    shadowsIntoLight: '"Shadows Into Light", cursive',
-    comicNeue: '"Comic Neue", cursive',
-    sriracha: '"Sriracha", cursive',
-    shortStack: '"Short Stack", cursive',
-    gochiHand: '"Gochi Hand", cursive'
-  };
-  fontFamilyFor(value: string): string {
-    return this.fontFamilies[value] ?? this.fontFamilies['dmSans'];
-  }
-  toggleFontMenu(): void {
-    if (this.fontMenuOpen()) { this.closeFontMenu(); return; }
-    this.activeFontIndex = Math.max(0, this.stickyNoteFontOptions.findIndex(option => option.value === this.stickyNoteFont()));
-    this.fontMenuOpen.set(true);
-  }
-  closeFontMenu(restoreFocus = true): void {
-    this.fontMenuOpen.set(false);
-    if (restoreFocus) this.fontTrigger?.nativeElement.focus();
-  }
-  chooseFont(value: string): void {
-    this.onStickyNoteFontSelection(value);
-    this.closeFontMenu();
-  }
-  onFontTriggerKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-    event.preventDefault();
-    this.activeFontIndex = event.key === 'ArrowUp' ? this.stickyNoteFontOptions.length - 1 : 0;
-    this.fontMenuOpen.set(true);
-    this.focusFontOption();
-  }
-  focusFontOption(): void {
-    queueMicrotask(() => {
-      if (this.destroyRef.destroyed || !this.fontMenuOpen()) return;
-      const option = this.fontMenu?.nativeElement.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]')[this.activeFontIndex];
-      option?.focus({ preventScroll: true });
-      option?.scrollIntoView({ block: 'nearest' });
+
+    untracked(() => {
+      this.loadWorkspaceMembers(preferredWorkspaceId);
+      this.getWorkspaceFolders(preferredWorkspaceId);
     });
-  }
-  onFontMenuKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      event.stopPropagation();
-      this.closeFontMenu();
-      return;
-    }
-    if (event.key === 'Tab') { this.closeFontMenu(); return; }
-    const count = this.stickyNoteFontOptions.length;
-    switch (event.key) {
-      case 'ArrowDown': this.activeFontIndex = (this.activeFontIndex + 1) % count; break;
-      case 'ArrowUp': this.activeFontIndex = (this.activeFontIndex - 1 + count) % count; break;
-      case 'Home': this.activeFontIndex = 0; break;
-      case 'End': this.activeFontIndex = count - 1; break;
-      default: return;
-    }
-    event.preventDefault();
-    this.focusFontOption();
-  }
-  onFontOptionFocus(index: number): void { this.activeFontIndex = index; }
+  });
+
+  readonly activeFolder = this.workspaceFolderStore.selectedId;
+  readonly loadingFolders = this.workspaceFolderStore.loading;
+  readonly folders = this.workspaceFolderStore.activeFolders;
+  readonly foldersError = this.workspaceFolderStore.error;
+  readonly folderOptions = computed<any[]>(() => this.folders().map(folder => ({ label: folder.name, value: folder.id })));
+
   readonly stickyNotes = signal<any[]>([]);
   readonly loadingNotes = signal(false);
   readonly workspaceMembers = signal<readonly any[]>([]);
   readonly loadingWorkspaceMembers = signal(false);
-  readonly stickyNoteColumns = computed(() => this.stickyNoteColumnStore
-    .orderedColumns()
-    .map(column => this.mapColumn(column)));
+  readonly stickyNoteColumns = computed(() => this.stickyNoteColumnStore.orderedColumns().map(column => this.mapColumn(column)));
   readonly loadingColumns = this.stickyNoteColumnStore.loading;
   readonly boardError = signal<string | null>(null);
   readonly movingNoteId = signal<string | null>(null);
@@ -209,14 +166,11 @@ export class Today {
   readonly notePanelOpen = signal(false);
   readonly notePanelMode = signal<'create' | 'edit'>('create');
   readonly notePanelId = signal('');
-  readonly activeWorkspaceId = this.workspaceStore.selectedId;
-  readonly loadingWorkspaces = this.workspaceStore.loading;
-  readonly activeFolder = this.workspaceFolderStore.selectedId;
-  readonly loadingFolders = this.workspaceFolderStore.loading;
-  readonly folders = this.workspaceFolderStore.activeFolders;
-  readonly foldersError = this.workspaceFolderStore.error;
-  readonly workspaceOptions = computed<any[]>(() => this.workspaceStore.workspaces().map(workspace => ({ label: workspace.name, value: workspace.id })));
-  readonly folderOptions = computed<any[]>(() => this.folders().map(folder => ({ label: folder.name, value: folder.id })));
+  readonly columnPanelOpen = signal(false);
+  readonly columnPanelId = signal('');
+  readonly columnPanelColumn = signal<any | null>(null);
+  readonly trashTarget = signal<any | null>(null);
+  readonly trashingNoteId = signal<string | null>(null);
   readonly workspaceMemberStack = computed<readonly any[]>(() => this.workspaceMembers().map(member => ({
     id: this.workspaceMemberId(member),
     name: this.workspaceMemberName(member),
@@ -244,35 +198,65 @@ export class Today {
       label: 'List',
       icon: LucideList,
     },
-    {
-      value: 'trash',
-      label: 'Trash',
-      icon: LucideTrash2,
-      tone: 'danger',
-    },
   ] as any;
+
   ngOnInit(): void {
+    this.userPreferenceStore.load();
     this.getWorkspaces();
   }
-  getWorkspaces(): void {
-    if (this.workspaceStore.initialized() &&
-      this.workspaceStore.workspaces().length > 0) {
-      const workspaceId = this.activeWorkspaceId() ?? this.workspaceStore.workspaces()[0]?.id ?? null;
-      if (workspaceId) {
-        this.workspaceStore.select(workspaceId);
-        this.loadWorkspaceMembers(workspaceId);
-        this.getWorkspaceFolders(workspaceId);
+
+  fontFamilyFor(value: string): string {
+    return this.stickyNoteFontOptions.find(option => option.value === value)?.family ?? this.stickyNoteFontOptions[0]?.family ?? '"DM Sans", sans-serif';
+  }
+
+  chooseFont(value: string): void {
+    this.onStickyNoteFontSelection(value);
+  }
+
+  onStickyNoteFontSelection(value: any): void {
+    const font = String(value ?? '')?.trim();
+    if (!this.isStickyNoteFont(font)) return;
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, font);
+  }
+
+  getWorkspaces(force = false): void {
+    if (this.workspaceStore.loaded() && !force) {
+      const workspaceId = this.resolveWorkspaceSelection();
+
+      if (!workspaceId) {
+        this.workspaceFolderStore.clear();
+        this.stickyNoteColumnStore.clear();
+        this.clearWorkspaceMembers();
+        this.clearBoard();
+        return;
       }
+
+      this.activateWorkspace(workspaceId);
       return;
     }
+
+    if (this.workspaceStore.loading()) return;
+
     this.workspaceStore.setLoading(true);
+    this.workspaceStore.clearError();
+
     this.workspaceApiService.getMyWorkspaces()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.workspaceStore.setLoading(false))
+      )
       .subscribe({
-        next: response => {
-          const workspaces = response.data ?? [];
-          this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
-          const workspaceId = this.activeWorkspaceId() ?? workspaces[0]?.id ?? null;
+        next: (response: any) => {
+          const workspaces = response?.data ?? [];
+          const pagination = response?.data?.meta ?? null;
+
+          this.workspaceStore.setWorkspaces(
+            Array.isArray(workspaces) ? workspaces : [],
+            pagination
+          );
+
+          const workspaceId = this.resolveWorkspaceSelection();
+
           if (!workspaceId) {
             this.workspaceFolderStore.clear();
             this.stickyNoteColumnStore.clear();
@@ -280,13 +264,14 @@ export class Today {
             this.clearBoard();
             return;
           }
-          this.workspaceStore.select(workspaceId);
-          this.loadWorkspaceMembers(workspaceId);
-          this.getWorkspaceFolders(workspaceId);
+
+          this.activateWorkspace(workspaceId);
         },
-        error: error => {
+        error: (error: any) => {
           console.error(error);
-          this.workspaceStore.setError(this.errorMessage(error, 'Failed to load workspaces'));
+          this.workspaceStore.setError(
+            this.errorMessage(error, 'Failed to load workspaces')
+          );
           this.workspaceFolderStore.clear();
           this.stickyNoteColumnStore.clear();
           this.clearWorkspaceMembers();
@@ -294,18 +279,57 @@ export class Today {
         }
       });
   }
-  onWorkspaceSelection(value: any): void {
-    const workspaceId = value ? String(value) : null;
+
+  private resolveWorkspaceSelection(): string | null {
+    const workspaces = this.workspaceStore.workspaces();
+    if (!workspaces.length) return null;
+
+    const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
+
+    if (
+      preferredWorkspaceId &&
+      workspaces.some(workspace => workspace.id === preferredWorkspaceId)
+    ) {
+      return preferredWorkspaceId;
+    }
+
+    const currentWorkspaceId = this.workspaceStore.selectedId();
+
+    if (
+      currentWorkspaceId &&
+      workspaces.some(workspace => workspace.id === currentWorkspaceId)
+    ) {
+      return currentWorkspaceId;
+    }
+
+    return workspaces[0]?.id ?? null;
+  }
+
+  private activateWorkspace(workspaceId: string): void {
     this.workspaceStore.select(workspaceId);
+    this.loadWorkspaceMembers(workspaceId);
+    this.getWorkspaceFolders(workspaceId);
+  }
+
+  onWorkspaceSelection(value: any): void {
+    const workspaceId = String(value ?? '').trim();
+    if (!workspaceId || workspaceId === this.activeWorkspaceId()) return;
+
+    this.workspaceStore.select(workspaceId);
+    this.userPreferenceStore.setAndSave(
+      USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID,
+      workspaceId
+    );
+
     this.workspaceFolderStore.clear();
     this.stickyNoteColumnStore.clear();
     this.clearWorkspaceMembers();
     this.clearBoard();
-    if (workspaceId) {
-      this.loadWorkspaceMembers(workspaceId);
-      this.getWorkspaceFolders(workspaceId);
-    }
+
+    this.loadWorkspaceMembers(workspaceId);
+    this.getWorkspaceFolders(workspaceId);
   }
+
   loadWorkspaceMembers(workspaceId: string): void {
     const id = workspaceId.trim();
     const requestVersion = ++this.workspaceMemberRequestVersion;
@@ -343,6 +367,7 @@ export class Today {
         }
       });
   }
+
   getWorkspaceFolders(workspaceId: string): void {
     if (this.workspaceFolderStore.initialized() &&
       !this.workspaceFolderStore.error() &&
@@ -376,6 +401,7 @@ export class Today {
         }
       });
   }
+
   onFolderSelection(value: any): void {
     const folderId = value ? String(value) : null;
     this.workspaceFolderStore.select(folderId);
@@ -439,7 +465,7 @@ export class Today {
       status: 'ACTIVE',
       datePreset: 'TODAY',
       sortBy: 'position',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
     }))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -474,8 +500,18 @@ export class Today {
     this.loadBoard(true);
   }
   setView(value: string | number | null): void {
-    if (value === 'kanban' || value === 'list')
+    if (value === 'kanban' || value === 'list') {
       this.view.set(value);
+      this.searchTerm.set('');
+    }
+  }
+  openStickyNoteTrash(): void {
+    const workspaceId = this.activeWorkspaceId();
+    this.router.navigate(['/mynotes/trash'], {
+      queryParams: workspaceId
+        ? { workspaceId }
+        : undefined
+    });
   }
   updateSearch(value: any): void {
     this.searchTerm.set(value ?? '');
@@ -485,20 +521,13 @@ export class Today {
   }
   onStickyNoteLayoutSelection(value: any): void {
     const layout = String(value ?? '').trim();
-    if (layout === 'detail' || layout === 'plain') {
-      this.stickyNoteLayout.set(layout);
-    }
+    if (!this.isStickyNoteLayout(layout)) return;
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, layout);
   }
-  onStickyNoteFontSelection(value: any): void {
-    if (!this.isStickyNoteFont(value))
-      return;
-    this.stickyNoteFont.set(value);
-    try {
-      localStorage.setItem(this.stickyNoteFontStorageKey, value);
-    }
-    catch {
-      // Storage can be unavailable in private browsing or during SSR.
-    }
+  onStickyNoteFontSizeSelection(value: any): void {
+    const size = Number(value);
+    if (!this.isStickyNoteFontSize(size)) return;
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT_SIZE, size);
   }
   isNoteTitleUpdating(noteId: string): boolean {
     return this.updatingTitleIds().includes(noteId);
@@ -620,7 +649,30 @@ export class Today {
     return 'Note';
   }
   noteColumnLabel(note: any): string {
-    return this.stickyNoteColumns().find(column => column.id === note.columnId)?.label ?? 'Unknown';
+    return this.stickyNoteColumns().find(column => column.id === note.columnId)?.label
+      ?? note?.columnName
+      ?? 'Note';
+  }
+  noteDateLabel(value: unknown): string {
+    const dateKey = String(value ?? '').trim();
+    if (!dateKey) return 'No date';
+    const parts = dateKey.split('-').map(Number);
+    if (parts.length !== 3 || parts.some(part => !Number.isFinite(part))) {
+      return dateKey;
+    }
+    const [year, month, day] = parts;
+    const date = new Date(year, month - 1, day);
+    return new Intl.DateTimeFormat('en', {
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
+  }
+  todayDateKey(): string {
+    const date = this.today();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
   noteColumnAccent(note: any): string {
     return this.stickyNoteColumns().find(column => column.id === note.columnId)?.accent ?? this.columnAccent('YELLOW');
@@ -664,6 +716,7 @@ export class Today {
       showEditAction: true,
       layout: this.stickyNoteLayout(),
       font: this.stickyNoteFont(),
+      fontSize: this.stickyNoteFontSize(),
       showMoveActions: true,
       canMoveBackward: this.canMoveBackward(note),
       canMoveForward: this.canMoveForward(note),
@@ -822,11 +875,66 @@ export class Today {
         }
       });
   }
+  requestTrashNote(note: any, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (this.trashingNoteId()) return;
+    this.trashTarget.set(note);
+  }
+  closeTrashConfirm(): void {
+    if (!this.trashingNoteId()) this.trashTarget.set(null);
+  }
+  confirmTrashNote(): void {
+    const note = this.trashTarget();
+    const noteId = String(note?.id ?? note?._id ?? '').trim();
+    if (!noteId || this.trashingNoteId()) return;
+    this.trashingNoteId.set(noteId);
+    this.stickyNoteTrashApiService.moveToTrash(noteId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.stickyNotes.update(notes => notes.filter(item => item.id !== noteId));
+          this.trashingNoteId.set(null);
+          this.trashTarget.set(null);
+          this.toastService.success('Moved to Trash. You can restore this note for 60 days.', {
+            title: 'Note safely moved',
+            dedupeKey: `trash-note-${noteId}`
+          });
+        },
+        error: error => {
+          this.trashingNoteId.set(null);
+          this.toastService.error(this.errorMessage(error, 'Unable to move note to Trash.'), {
+            title: 'Note not moved',
+            dedupeKey: `trash-note-${noteId}`
+          });
+        }
+      });
+  }
   requestWorkspaceEdit(): void { }
   requestFolderEdit(): void { }
   openFolderCreateModal(): void { }
-  openColumnCreateModal(): void { }
-  requestColumnEdit(_column: any): void { }
+  openColumnCreateModal(): void {
+    if (!this.activeWorkspaceId() || !this.activeFolder() || this.boardLoading()) return;
+    this.columnPanelId.set('');
+    this.columnPanelColumn.set(null);
+    this.columnPanelOpen.set(true);
+  }
+  requestColumnEdit(column: any): void {
+    const id = String(column?.id ?? column?._id ?? '').trim();
+    if (!id || this.boardLoading()) return;
+    this.columnPanelId.set(id);
+    this.columnPanelColumn.set(column);
+    this.columnPanelOpen.set(true);
+  }
+  closeColumnPanel(): void {
+    this.columnPanelOpen.set(false);
+    this.columnPanelId.set('');
+    this.columnPanelColumn.set(null);
+  }
+  onColumnSaved(_columnId: string): void {
+    this.closeColumnPanel();
+    this.loadBoard(true);
+  }
   openNoteCreatePanel(columnId: string): void {
     if (!columnId || this.movingNoteId())
       return;
@@ -936,6 +1044,7 @@ export class Today {
   }
   private clearBoard(): void {
     this.closeNotePanel();
+    this.closeColumnPanel();
     this.stickyNotes.set([]);
     this.boardError.set(null);
     this.loadingNotes.set(false);
@@ -946,6 +1055,7 @@ export class Today {
     this.tableEditingTitleId.set(null);
     this.tableTitleDraft.set('');
   }
+
   private clearWorkspaceMembers(): void {
     this.workspaceMemberRequestVersion += 1;
     this.workspaceMembers.set([]);
@@ -1023,6 +1133,11 @@ export class Today {
       id: note?.id ?? note?._id,
       columnId: this.referenceId(note?.columnId),
       folderId: this.referenceId(note?.workspaceFolderId),
+      columnName: this.referenceName(note?.columnId, 'Note'),
+      folderName: this.referenceName(note?.workspaceFolderId, 'My Notes'),
+      workspaceName: this.referenceName(note?.workspaceId, 'Workspace'),
+      creatorEmail: String(note?.createdBy?.email ?? '').trim(),
+      updatedByEmail: String(note?.updatedBy?.email ?? '').trim(),
       title,
       content,
       description: content && content !== title ? content : '',
@@ -1125,6 +1240,11 @@ export class Today {
       return '';
     return typeof value === 'string' ? value : value.id ?? value._id ?? '';
   }
+  private referenceName(value: any, fallback = ''): string {
+    if (!value || typeof value !== 'object')
+      return fallback;
+    return String(value.name ?? value.title ?? fallback).trim() || fallback;
+  }
   private noteVariant(color: string): any {
     const variants: Record<string, string> = {
       YELLOW: 'noteYellow',
@@ -1162,17 +1282,16 @@ export class Today {
     return params;
   }
   private isStickyNoteFont(value: any): boolean {
-    const normalized = String(value ?? '').trim();
-    return this.stickyNoteFontOptions.some(option => option.value === normalized);
+    const font = String(value ?? '').trim();
+    return this.stickyNoteFontOptions.some(option => option.value === font);
   }
-  private readStoredStickyNoteFont(): any {
-    try {
-      const value = localStorage.getItem(this.stickyNoteFontStorageKey);
-      return this.isStickyNoteFont(value) ? value : 'dmSans';
-    }
-    catch {
-      return 'dmSans';
-    }
+  private isStickyNoteFontSize(value: any): boolean {
+    const size = Number(value);
+    return this.stickyNoteFontSizeOptions.some(option => Number(option.value) === size);
+  }
+  private isStickyNoteLayout(value: any): boolean {
+    const layout = String(value ?? '').trim();
+    return this.stickyNoteLayoutOptions.some(option => option.value === layout);
   }
   private errorMessage(error: any, fallback: string): string {
     return error?.error?.message || error?.message || fallback;

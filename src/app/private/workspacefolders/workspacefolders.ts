@@ -68,7 +68,7 @@ import type {
   PaginatedApiResponse as WorkspacePaginatedApiResponse,
   Workspace as WorkspaceModel
 } from '../workspace/models/workspace.models';
-import { WorkspaceApiService } from '../workspace/services/workspace.service';
+import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 
 type FolderTab = 'all' | 'active' | 'archived';
@@ -104,7 +104,7 @@ interface FolderTheme {
 })
 export class Workspacefolders implements OnInit, OnChanges {
   private readonly folderApi = inject(WorkspaceFolderApiService);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  // private readonly workspaceApi = inject(WorkspaceApiService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly folderStore = inject(WorkspaceFolderStore);
   private readonly destroyRef = inject(DestroyRef);
@@ -288,11 +288,11 @@ export class Workspacefolders implements OnInit, OnChanges {
   ngOnInit(): void {
     this.initialized = true;
 
-    if (this.workspaceStore.initialized()) {
-      this.ensureWorkspaceSelection();
-    } else {
-      this.loadWorkspaces();
-    }
+    // if (this.workspaceStore.initialized()) {
+    //   this.ensureWorkspaceSelection();
+    // } else {
+    //   this.loadWorkspaces();
+    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -301,27 +301,27 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   loadWorkspaces(): void {
-    this.workspaceStore.setLoading(true);
-    const query: MyWorkspaceQuery = { page: 1, limit: 100 };
+    // this.workspaceStore.setLoading(true);
+    // const query: MyWorkspaceQuery = { page: 1, limit: 100 };
 
-    this.workspaceApi
-      .getMyWorkspaces(query)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          const workspaces = this.extractWorkspaces(response);
-          this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
-          this.ensureWorkspaceSelection();
-        },
-        error: error => {
-          const message = this.errorMessage(error, 'Unable to load your workspaces.');
-          this.workspaceStore.setError(message);
-          this.toastService.error(message, {
-            title: 'Could not load workspaces',
-            dedupeKey: 'workspace-folder-workspace-load-error'
-          });
-        }
-      });
+    // this.workspaceApi
+    //   .getMyWorkspaces(query)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: response => {
+    //       const workspaces = this.extractWorkspaces(response);
+    //       this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
+    //       this.ensureWorkspaceSelection();
+    //     },
+    //     error: error => {
+    //       const message = this.errorMessage(error, 'Unable to load your workspaces.');
+    //       this.workspaceStore.setError(message);
+    //       this.toastService.error(message, {
+    //         title: 'Could not load workspaces',
+    //         dedupeKey: 'workspace-folder-workspace-load-error'
+    //       });
+    //     }
+    //   });
   }
 
   loadFolders(savedId = '', created = false, workspaceId = this.selectedWorkspaceId()): void {

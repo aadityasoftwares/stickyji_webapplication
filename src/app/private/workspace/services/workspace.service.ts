@@ -1,40 +1,41 @@
-import { HttpClient, HttpParams, } from '@angular/common/http';
-import { Injectable, inject, } from '@angular/core';
-import { Observable, } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from '../../../../Environments/environments';
 
-import {
-    ApiResponse,
-    MyWorkspaceQuery,
-    PaginatedApiResponse,
-    Workspace,
-    WorkspaceCreateRequest,
-    WorkspaceStatus,
-    WorkspaceUpdateRequest,
-} from '../models/workspace.models';
+const WORKSPACE_ENDPOINTS = {
+    create: '/workspaces/create',
+    get: '/workspaces/get',
+    getAll: '/workspaces/getall',
+    my: '/workspaces/my',
+    update: '/workspaces/update',
+    status: '/workspaces/status',
+    delete: '/workspaces/delete',
+    restore: '/workspaces/restore',
+} as const;
 
 @Injectable({
     providedIn: 'root',
 })
-
-export class WorkspaceApiService {
+export class WorkspaceService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
-    private readonly workspaceBaseUrl = `${this.baseUrl}/workspaces`;
-    private readonly createWorkspaceUrl = `${this.workspaceBaseUrl}/create`;
-    private readonly getWorkspaceUrl = `${this.workspaceBaseUrl}/get`;
-    private readonly getMyWorkspacesUrl = `${this.workspaceBaseUrl}/my`;
-    private readonly updateWorkspaceUrl = `${this.workspaceBaseUrl}/update`;
-    private readonly updateWorkspaceStatusUrl = `${this.workspaceBaseUrl}/status`;
-    private readonly deleteWorkspaceUrl = `${this.workspaceBaseUrl}/delete`;
-    private readonly restoreWorkspaceUrl = `${this.workspaceBaseUrl}/restore`;
+    private readonly apiUrl = environment.apiUrl.replace(/\/+$/, '');
 
-    getMyWorkspaces(query: MyWorkspaceQuery = {},): Observable<PaginatedApiResponse<Workspace>> {
+    getAllWorkspaces(query: any = {}): Observable<any> {
+        return this.http.post<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.getAll}`,
+            query,
+            {
+                withCredentials: true,
+            },
+        );
+    }
 
+    getMyWorkspaces(query: any = {}): Observable<any> {
         const params = this.createHttpParams(query);
 
-        return this.http.get<PaginatedApiResponse<Workspace>>(
-            this.getMyWorkspacesUrl,
+        return this.http.get<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.my}`,
             {
                 params,
                 withCredentials: true,
@@ -42,18 +43,18 @@ export class WorkspaceApiService {
         );
     }
 
-    getById(id: string,): Observable<ApiResponse<Workspace>> {
-        return this.http.get<ApiResponse<Workspace>>(
-            `${this.getWorkspaceUrl}/${encodeURIComponent(id)}`,
+    getById(id: any = ''): Observable<any> {
+        return this.http.get<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.get}/${encodeURIComponent(id)}`,
             {
                 withCredentials: true,
             },
         );
     }
 
-    create(payload: WorkspaceCreateRequest,): Observable<ApiResponse<Workspace>> {
-        return this.http.post<ApiResponse<Workspace>>(
-            this.createWorkspaceUrl,
+    create(payload: any): Observable<any> {
+        return this.http.post<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.create}`,
             payload,
             {
                 withCredentials: true,
@@ -61,9 +62,9 @@ export class WorkspaceApiService {
         );
     }
 
-    update(id: string, payload: WorkspaceUpdateRequest,): Observable<ApiResponse<Workspace>> {
-        return this.http.put<ApiResponse<Workspace>>(
-            `${this.updateWorkspaceUrl}/${encodeURIComponent(id)}`,
+    update(id: any = '', payload: any = {}): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.update}/${encodeURIComponent(id)}`,
             payload,
             {
                 withCredentials: true,
@@ -71,30 +72,28 @@ export class WorkspaceApiService {
         );
     }
 
-    updateStatus(id: string, status: WorkspaceStatus,): Observable<ApiResponse<Workspace>> {
-        return this.http.put<ApiResponse<Workspace>>(
-            `${this.updateWorkspaceStatusUrl}/${encodeURIComponent(id)}`,
-            {
-                status,
-            },
+    updateStatus(id: any = '', status: any): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.status}/${encodeURIComponent(id)}`,
+            { status },
             {
                 withCredentials: true,
             },
         );
     }
 
-    delete(id: string,): Observable<ApiResponse<null>> {
-        return this.http.delete<ApiResponse<null>>(
-            `${this.deleteWorkspaceUrl}/${encodeURIComponent(id)}`,
+    delete(id: any = ''): Observable<any> {
+        return this.http.delete<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.delete}/${encodeURIComponent(id)}`,
             {
                 withCredentials: true,
             },
         );
     }
 
-    restore(id: string,): Observable<ApiResponse<Workspace>> {
-        return this.http.put<ApiResponse<Workspace>>(
-            `${this.restoreWorkspaceUrl}/${encodeURIComponent(id)}`,
+    restore(id: any = ''): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_ENDPOINTS.restore}/${encodeURIComponent(id)}`,
             {},
             {
                 withCredentials: true,
@@ -102,14 +101,15 @@ export class WorkspaceApiService {
         );
     }
 
-    private createHttpParams(query: MyWorkspaceQuery,): HttpParams {
+    private createHttpParams(query: any = {}): HttpParams {
         let params = new HttpParams();
 
         for (const [key, value] of Object.entries(query)) {
             if (value === undefined || value === null || value === '') {
                 continue;
             }
-            params = params.set(key, String(value),);
+
+            params = params.set(key, String(value));
         }
 
         return params;

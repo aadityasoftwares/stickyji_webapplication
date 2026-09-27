@@ -1,0 +1,188 @@
+<section class="sticky-trash-page" aria-labelledby="sticky-trash-page-title">
+    <main class="sticky-trash-main">
+        <header class="sticky-trash-header">
+            <div class="sticky-trash-intro">
+                <span class="sticky-trash-intro-mark" aria-hidden="true">
+                    <app-icon [icon]="LucideTrash2" size="md" />
+                </span>
+                <div>
+                    <span class="sticky-trash-kicker">Recovery space</span>
+                    <h1 id="sticky-trash-page-title">Sticky note trash</h1>
+                    <p>Deleted notes stay recoverable for 60 days before automatic permanent cleanup.</p>
+                </div>
+            </div>
+
+            <div class="sticky-trash-header-actions">
+                <div class="sticky-trash-count-slot" aria-live="polite">
+                    @if (!loading() && !error()) {
+                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' note' : ' notes')" variant="noteYellow"
+                        size="sm" shape="pill" />
+                    } @else {
+                    <span class="sticky-trash-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh sticky note trash" title="Refresh trash" [loading]="loading()"
+                    [disabled]="!workspaceId()" (buttonClick)="loadTrash()" />
+
+                <app-button label="Back to Today" [iconLeft]="LucideArrowLeft" appearance="standard"
+                    variant="noteYellow" size="md" (buttonClick)="goBackToToday()" />
+            </div>
+        </header>
+
+        <section class="sticky-trash-explorer" [attr.aria-busy]="loading()">
+            <div class="sticky-trash-toolbar">
+                <div class="sticky-trash-retention">
+                    <span class="sticky-trash-retention-icon" aria-hidden="true">
+                        <app-icon [icon]="LucideClock3" size="xs" />
+                    </span>
+                    <span>60-day recovery</span>
+                </div>
+
+                <div class="sticky-trash-toolbar-actions">
+                    <div class="sticky-trash-search">
+                        <app-input type="search" label="Search deleted notes" labelMode="hidden"
+                            placeholder="Search deleted notes" variant="paper" appearance="outlined" shape="rounded"
+                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
+                            [fullWidth]="true" ariaLabel="Search deleted sticky notes"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                    </div>
+
+                    <app-select class="sticky-trash-sort" [options]="sortOptions" [ngModel]="sortBy()"
+                        (ngModelChange)="setSort($event)" name="sticky-trash-sort" placeholder="Sort"
+                        ariaLabel="Sort deleted sticky notes" variant="paper" shape="rounded" size="sm"
+                        [clearable]="false" [searchable]="false" [fullWidth]="true" />
+
+                    <app-tabs class="sticky-trash-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
+                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
+                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setView($event)" />
+                </div>
+            </div>
+
+            <div class="sticky-trash-explorer-body" [class.is-list]="view() === 'list'">
+                @if (loading()) {
+                <div class="sticky-trash-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening sticky note trash..."
+                        description="Finding notes that can still be restored." [minHeight]="360" />
+                </div>
+                } @else if (error()) {
+                <div class="sticky-trash-empty-state">
+                    <span class="sticky-trash-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="sticky-trash-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load Trash</h2>
+                    <p>{{ error() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadTrash()" />
+                </div>
+                } @else if (!workspaceId()) {
+                <div class="sticky-trash-empty-state">
+                    <span class="sticky-trash-empty-icon">
+                        <app-icon [icon]="LucideTrash2" size="lg" />
+                    </span>
+                    <span class="sticky-trash-empty-note">No workspace selected</span>
+                    <h2>Open Trash from Today</h2>
+                    <p>Return to Today, choose a workspace, then open its sticky note Trash.</p>
+                    <app-button label="Back to Today" [iconLeft]="LucideArrowLeft" variant="noteYellow" size="sm"
+                        (buttonClick)="goBackToToday()" />
+                </div>
+                } @else if (searchTerm() && visibleNotes().length === 0) {
+                <div class="sticky-trash-empty-state is-compact">
+                    <span class="sticky-trash-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+                    <span class="sticky-trash-empty-note">No deleted note matches</span>
+                    <h2>No note found</h2>
+                    <p>Try another title, note text, folder, or column name.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+                } @else if (visibleNotes().length === 0) {
+                <div class="sticky-trash-empty-state">
+                    <span class="sticky-trash-empty-icon">
+                        <app-icon [icon]="LucideArchiveRestore" size="lg" />
+                    </span>
+                    <span class="sticky-trash-empty-note">Nothing waiting for recovery</span>
+                    <h2>Trash is clear</h2>
+                    <p>Notes moved to Trash will stay here for up to 60 days before permanent cleanup.</p>
+                    <app-button label="Back to Today" [iconLeft]="LucideArrowLeft" variant="noteYellow" size="sm"
+                        (buttonClick)="goBackToToday()" />
+                </div>
+                } @else if (view() === 'grid') {
+                <div class="sticky-trash-grid" role="list">
+                    @for (note of visibleNotes(); track noteId(note)) {
+                    <article class="sticky-trash-tile" role="listitem" [class.is-busy]="isBusy(note)">
+                        <div class="sticky-trash-note-shell">
+                            <app-sticky-note [data]="stickyNoteData(note)" [preview]="true" />
+                        </div>
+
+                        <div class="sticky-trash-card-meta">
+                            <div class="sticky-trash-card-meta-copy">
+                                <span class="sticky-trash-days" [class.is-urgent]="daysRemaining(note) <= 7">
+                                    <app-icon [icon]="LucideClock3" size="xs" />
+                                    {{ purgeLabel(note) }}
+                                </span>
+                                @if (note?.deletedAt) {
+                                <span>Deleted {{ note.deletedAt | date:'mediumDate' }}</span>
+                                }
+                            </div>
+
+                            <div class="sticky-trash-card-actions">
+                                <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                                    appearance="standard" size="xs" [loading]="isBusy(note)"
+                                    [disabled]="!!actionId() && !isBusy(note)" (buttonClick)="restore(note)" />
+                                <app-button [icon]="LucideTrash2" [iconOnly]="true" variant="danger"
+                                    appearance="standard" size="xs" [rounded]="true"
+                                    [ariaLabel]="'Delete ' + noteTitle(note) + ' permanently'"
+                                    [title]="'Delete permanently'" [disabled]="!!actionId()"
+                                    (buttonClick)="requestPermanentDelete(note)" />
+                            </div>
+                        </div>
+                    </article>
+                    }
+                </div>
+                } @else {
+                <div class="sticky-trash-list" role="list">
+                    @for (note of visibleNotes(); track noteId(note)) {
+                    <article class="sticky-trash-list-row" role="listitem" [class.is-busy]="isBusy(note)">
+                        <div class="sticky-trash-list-note">
+                            <app-sticky-note [data]="stickyNoteData(note)" [preview]="true" />
+                        </div>
+
+                        <div class="sticky-trash-list-info">
+                            <strong>{{ noteTitle(note) }}</strong>
+                            <span>{{ folderLabel(note) }} · {{ columnLabel(note) }}</span>
+                            <span class="sticky-trash-days" [class.is-urgent]="daysRemaining(note) <= 7">
+                                <app-icon [icon]="LucideClock3" size="xs" />
+                                {{ purgeLabel(note) }}
+                            </span>
+                            @if (note?.purgeAfter) {
+                            <small>Permanent deletion {{ note.purgeAfter | date:'mediumDate' }}</small>
+                            }
+                        </div>
+
+                        <div class="sticky-trash-list-actions">
+                            <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                                appearance="standard" size="sm" [loading]="isBusy(note)"
+                                [disabled]="!!actionId() && !isBusy(note)" (buttonClick)="restore(note)" />
+                            <app-button label="Delete permanently" [iconLeft]="LucideTrash2" variant="danger"
+                                appearance="standard" size="sm" [disabled]="!!actionId()"
+                                (buttonClick)="requestPermanentDelete(note)" />
+                        </div>
+                    </article>
+                    }
+                </div>
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+<app-delete-confirm-modal [open]="!!permanentTarget()" mode="permanent" title="Delete this note permanently?"
+    [itemName]="permanentTarget() ? noteTitle(permanentTarget()) : ''"
+    message="This permanently removes the sticky note and its related sticky-note data. You cannot restore it afterward."
+    supportingText="Use Restore instead if there is any chance you may need this note again."
+    confirmLabel="Delete permanently" cancelLabel="Keep in trash"
+    [busy]="!!permanentTarget() && actionId() === noteId(permanentTarget())" (closed)="closePermanentDelete()"
+    (confirmed)="confirmPermanentDelete()" />

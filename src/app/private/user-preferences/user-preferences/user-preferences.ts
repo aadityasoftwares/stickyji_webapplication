@@ -390,44 +390,44 @@ export class UserPreferences implements OnInit {
       );
 
 
-    this.preferenceService
-      .updateMyPreferences(
-        preferences,
-      )
-      .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
+    // this.preferenceService
+    //   .updateMyPreferences(
+    //     preferences,
+    //   )
+    //   .pipe(
+    //     takeUntilDestroyed(
+    //       this.destroyRef,
+    //     ),
 
-        finalize(() =>
-          this.saving.set(false),
-        ),
-      )
-      .subscribe({
+    //     finalize(() =>
+    //       this.saving.set(false),
+    //     ),
+    //   )
+    //   .subscribe({
 
-        next: savedPreferences => {
+    //     next: savedPreferences => {
 
-          this.savedPreferences.set(
-            savedPreferences,
-          );
+    //       this.savedPreferences.set(
+    //         savedPreferences,
+    //       );
 
-          this.patchForm(
-            savedPreferences,
-          );
+    //       this.patchForm(
+    //         savedPreferences,
+    //       );
 
-          this.saved.set(true);
+    //       this.saved.set(true);
 
-          this.changedCount.set(0);
-        },
+    //       this.changedCount.set(0);
+    //     },
 
-        error: error => {
+    //     error: error => {
 
-          this.saveError.set(
-            error?.error?.message ??
-            'We could not save your preferences. Please try again.',
-          );
-        },
-      });
+    //       this.saveError.set(
+    //         error?.error?.message ??
+    //         'We could not save your preferences. Please try again.',
+    //       );
+    //     },
+    //   });
   }
 
 

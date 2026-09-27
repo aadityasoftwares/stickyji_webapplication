@@ -53,7 +53,7 @@ import type {
   Workspace as WorkspaceModel,
   PaginatedApiResponse as WorkspacePaginatedApiResponse
 } from '../../workspace/models/workspace.models';
-import { WorkspaceApiService } from '../../workspace/services/workspace.service';
+import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 
 import type {
@@ -123,7 +123,7 @@ type BadgeVariant =
 export class WorkspaceMembers implements OnInit, OnChanges {
   private readonly memberApi = inject(WorkspaceMemberApiService);
   private readonly invitationApi = inject(WorkspaceInvitationApiService);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
@@ -466,11 +466,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   ngOnInit(): void {
     this.initialized = true;
 
-    if (this.workspaceStore.initialized()) {
-      this.ensureWorkspaceSelection();
-    } else {
-      this.loadWorkspaces();
-    }
+    // if (this.workspaceStore.initialized()) {
+    //   this.ensureWorkspaceSelection();
+    // } else {
+    //   this.loadWorkspaces();
+    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -486,50 +486,50 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   loadWorkspaces(): void {
-    this.workspaceStore.setLoading(true);
+    // this.workspaceStore.setLoading(true);
 
     const query: MyWorkspaceQuery = {
       page: 1,
       limit: 100
     };
 
-    this.workspaceApi
-      .getMyWorkspaces(query)
-      .pipe(
-        finalize(() =>
-          this.workspaceStore.setLoading(false)
-        ),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: response => {
-          const workspaces =
-            this.extractWorkspaces(response);
+    // this.workspaceApi
+    //   .getMyWorkspaces(query)
+    //   .pipe(
+    //     finalize(() =>
+    //       this.workspaceStore.setLoading(false)
+    //     ),
+    //     takeUntilDestroyed(this.destroyRef)
+    //   )
+    //   .subscribe({
+    //     next: response => {
+    //       const workspaces =
+    //         this.extractWorkspaces(response);
 
-          this.workspaceStore.setWorkspaces(
-            workspaces,
-            response.pagination ?? null
-          );
+    //       this.workspaceStore.setWorkspaces(
+    //         workspaces,
+    //         response.pagination ?? null
+    //       );
 
-          this.ensureWorkspaceSelection();
-        },
-        error: error => {
-          const message = this.errorMessage(
-            error,
-            'Unable to load your workspaces.'
-          );
+    //       this.ensureWorkspaceSelection();
+    //     },
+    //     error: error => {
+    //       const message = this.errorMessage(
+    //         error,
+    //         'Unable to load your workspaces.'
+    //       );
 
-          this.workspaceStore.setError(message);
+    //       this.workspaceStore.setError(message);
 
-          this.toastService.error(
-            message,
-            {
-              title: 'Could not load workspaces',
-              dedupeKey: 'workspace-members-workspace-load-error'
-            }
-          );
-        }
-      });
+    //       this.toastService.error(
+    //         message,
+    //         {
+    //           title: 'Could not load workspaces',
+    //           dedupeKey: 'workspace-members-workspace-load-error'
+    //         }
+    //       );
+    //     }
+    //   });
   }
 
   loadWorkspaceAccess(

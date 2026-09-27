@@ -15,7 +15,7 @@ import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
-import { WorkspaceApiService } from '../workspace/services/workspace.service';
+import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderApiService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
@@ -51,7 +51,7 @@ export class MyNotes implements OnInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly folderApi = inject(WorkspaceFolderApiService);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly stickyNoteColumnApi = inject(StickyNoteColumnApiService);
@@ -201,37 +201,37 @@ export class MyNotes implements OnInit, OnChanges {
     }
   }
   loadWorkspaces(force = false): void {
-    if (!force && this.workspaceStore.initialized() && this.workspaces().length) {
-      this.selectInitialWorkspace();
-      return;
-    }
-    const requestVersion = ++this.workspaceRequestVersion;
-    this.workspaceStore.setLoading(true);
-    const query: any = { page: 1, limit: 100 };
-    this.workspaceApi
-      .getMyWorkspaces(query)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          if (requestVersion !== this.workspaceRequestVersion)
-            return;
-          const workspaces = this.extractWorkspaces(response);
-          this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
-          this.selectInitialWorkspace();
-        },
-        error: error => {
-          if (requestVersion !== this.workspaceRequestVersion)
-            return;
-          const message = this.errorMessage(error, 'Unable to load your workspaces.');
-          this.workspaceStore.setError(message);
-          this.workspaceFolderStore.clear();
-          this.clearNotesState();
-          this.toastService.error(message, {
-            title: 'Could not load workspaces',
-            dedupeKey: 'notes-workspaces-load-error'
-          });
-        }
-      });
+    // if (!force && this.workspaceStore.initialized() && this.workspaces().length) {
+    //   this.selectInitialWorkspace();
+    //   return;
+    // }
+    // const requestVersion = ++this.workspaceRequestVersion;
+    // this.workspaceStore.setLoading(true);
+    // const query: any = { page: 1, limit: 100 };
+    // this.workspaceApi
+    //   .getMyWorkspaces(query)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: response => {
+    //       if (requestVersion !== this.workspaceRequestVersion)
+    //         return;
+    //       const workspaces = this.extractWorkspaces(response);
+    //       this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
+    //       this.selectInitialWorkspace();
+    //     },
+    //     error: error => {
+    //       if (requestVersion !== this.workspaceRequestVersion)
+    //         return;
+    //       const message = this.errorMessage(error, 'Unable to load your workspaces.');
+    //       this.workspaceStore.setError(message);
+    //       this.workspaceFolderStore.clear();
+    //       this.clearNotesState();
+    //       this.toastService.error(message, {
+    //         title: 'Could not load workspaces',
+    //         dedupeKey: 'notes-workspaces-load-error'
+    //       });
+    //     }
+    //   });
   }
   onWorkspaceChange(value: any | any[] | null): void {
     if (typeof value !== 'string' || !value.trim())

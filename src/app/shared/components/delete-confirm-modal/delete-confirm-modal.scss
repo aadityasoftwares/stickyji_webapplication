@@ -1,0 +1,154 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: contents;
+}
+
+.delete-confirm-backdrop {
+    position: fixed;
+    z-index: $z-modal;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba($heading, 0.26);
+    backdrop-filter: blur(3px);
+}
+
+.delete-confirm-modal {
+    position: relative;
+    width: min(100%, 28rem);
+    padding: 1.25rem;
+    color: $text-primary;
+    background: $paper;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    box-shadow: $shadow-lg;
+    font-family: $font-body;
+}
+
+.delete-confirm-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    color: $text-light;
+    background: transparent;
+    border: 0;
+    border-radius: $radius-xs;
+    cursor: pointer;
+}
+
+.delete-confirm-close:hover:not(:disabled) {
+    color: $heading;
+    background: $paper-dark;
+}
+
+.delete-confirm-close:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.delete-confirm-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin-bottom: 0.75rem;
+    color: $note-button-yellow-text;
+    background: color-mix(in srgb, $note-button-yellow 55%, $paper);
+    border: 1px solid color-mix(in srgb, $note-button-yellow 62%, $border);
+    border-radius: $radius-sm;
+}
+
+.delete-confirm-icon.is-permanent {
+    color: $danger;
+    background: color-mix(in srgb, $danger 8%, $paper);
+    border-color: color-mix(in srgb, $danger 22%, $border);
+}
+
+.delete-confirm-kicker {
+    display: block;
+    color: $accent;
+    font-family: $font-note;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.delete-confirm-modal h2 {
+    margin: 0.2rem 2rem 0;
+    margin-left: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 1.15rem;
+    line-height: 1.3;
+}
+
+.delete-confirm-item {
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.45rem 0.65rem;
+    overflow: hidden;
+    color: $heading;
+    background: $page-bg;
+    border: 1px solid $border-light;
+    border-radius: $radius-xs;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-confirm-modal p {
+    margin: 0.75rem 0 0;
+    color: $text-secondary;
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+.delete-confirm-support {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.75rem;
+    color: $text-secondary;
+    background: color-mix(in srgb, $note-yellow 12%, $paper);
+    border: 1px solid color-mix(in srgb, $note-yellow 18%, $border);
+    border-radius: $radius-sm;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.delete-confirm-support.is-permanent {
+    color: $danger;
+    background: color-mix(in srgb, $danger 5%, $paper);
+    border-color: color-mix(in srgb, $danger 16%, $border);
+}
+
+.delete-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+}
+
+@media (max-width: 36rem) {
+    .delete-confirm-modal {
+        padding: 1rem;
+    }
+
+    .delete-confirm-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .delete-confirm-actions app-button {
+        width: 100%;
+    }
+}

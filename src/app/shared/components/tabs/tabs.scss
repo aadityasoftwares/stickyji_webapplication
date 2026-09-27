@@ -525,3 +525,152 @@
         transition: none;
     }
 }
+
+/* ==========================================================
+   ACTIVE VARIANTS
+   Button-style active colors for reusable tab groups.
+   Use [activeVariant] on app-tabs or variant on TabItem.
+   ========================================================== */
+
+.app-tab.is-active[data-variant='primary'] {
+    color: $paper;
+    background: $heading;
+    border-color: $heading;
+}
+
+.app-tab.is-active[data-variant='secondary'] {
+    color: $heading;
+    background: $paper;
+    border-color: rgba($border, 0.9);
+}
+
+.app-tab.is-active[data-variant='accent'] {
+    color: $paper;
+    background: $accent;
+    border-color: color-mix(in srgb, $accent 86%, $heading);
+}
+
+.app-tab.is-active[data-variant='success'] {
+    color: $heading;
+    background: color-mix(in srgb, $note-green 72%, $paper);
+    border-color: color-mix(in srgb, $note-green 72%, $border);
+}
+
+.app-tab.is-active[data-variant='warning'] {
+    color: $heading;
+    background: color-mix(in srgb, $note-orange 72%, $paper);
+    border-color: color-mix(in srgb, $note-orange 72%, $border);
+}
+
+.app-tab.is-active[data-variant='danger'] {
+    color: $danger;
+    background: color-mix(in srgb, $danger 9%, $paper);
+    border-color: color-mix(in srgb, $danger 22%, $border);
+}
+
+.app-tab.is-active[data-variant='info'] {
+    color: $heading;
+    background: color-mix(in srgb, $note-blue 66%, $paper);
+    border-color: color-mix(in srgb, $note-blue 70%, $border);
+}
+
+.app-tab.is-active[data-variant='outline'] {
+    color: $heading;
+    background: transparent;
+    border-color: $heading;
+    box-shadow: none;
+}
+
+.app-tab.is-active[data-variant='ghost'] {
+    color: $heading;
+    background: rgba($heading, 0.07);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.app-tab.is-active[data-variant='noteYellow'] {
+    color: $note-button-yellow-text;
+    background: $note-button-yellow;
+    border-color: color-mix(in srgb, $note-button-yellow 78%, $border);
+}
+
+.app-tab.is-active[data-variant='noteOrange'] {
+    color: $heading;
+    background: $note-orange;
+    border-color: color-mix(in srgb, $note-orange 76%, $border);
+}
+
+.app-tab.is-active[data-variant='notePink'] {
+    color: $heading;
+    background: $note-pink;
+    border-color: color-mix(in srgb, $note-pink 76%, $border);
+}
+
+.app-tab.is-active[data-variant='noteRed'] {
+    color: $heading;
+    background: $note-red;
+    border-color: color-mix(in srgb, $note-red 76%, $border);
+}
+
+.app-tab.is-active[data-variant='noteGreen'] {
+    color: $heading;
+    background: $note-green;
+    border-color: color-mix(in srgb, $note-green 76%, $border);
+}
+
+.app-tab.is-active[data-variant='noteBlue'] {
+    color: $heading;
+    background: $note-blue;
+    border-color: color-mix(in srgb, $note-blue 76%, $border);
+}
+
+.app-tab.is-active[data-variant='notePurple'] {
+    color: $heading;
+    background: $note-purple;
+    border-color: color-mix(in srgb, $note-purple 76%, $border);
+}
+
+.app-tab.is-active[data-variant='noteBrown'] {
+    color: $heading;
+    background: $note-brown;
+    border-color: color-mix(in srgb, $note-brown 76%, $border);
+}
+
+.app-tab.is-active[data-variant='noteBlack'] {
+    color: $paper;
+    background: $note-black;
+    border-color: $note-black;
+}
+
+/* Selected count follows the active tab instead of staying yellow. */
+.app-tab.is-active[data-variant='primary'] .app-tab-count,
+.app-tab.is-active[data-variant='accent'] .app-tab-count,
+.app-tab.is-active[data-variant='noteBlack'] .app-tab-count {
+    color: currentColor;
+    background: rgba($paper, 0.14);
+    border-color: rgba($paper, 0.12);
+}
+
+.app-tab.is-active[data-variant='noteYellow'] .app-tab-count {
+    color: $note-button-yellow-text;
+    background: color-mix(in srgb, $paper 38%, transparent);
+    border-color: color-mix(in srgb, $note-button-yellow-text 10%, transparent);
+}
+
+/* Segmented treatment matching the compact reference. */
+.app-tabs-segmented .app-tab.is-active[data-variant='noteYellow'] {
+    box-shadow:
+        0 1px 2px rgba($heading, 0.08),
+        0 4px 9px rgba($heading, 0.07);
+}
+
+/* Underline keeps its layout language while using the selected variant color. */
+.app-tabs-underline .app-tab.is-active[data-variant='noteYellow'] {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.app-tabs-underline .app-tab.is-active[data-variant='noteYellow']::after {
+    background: $note-button-yellow-text;
+}

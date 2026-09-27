@@ -14,4 +14,12 @@ export const MYNOTES_ROUTES: Routes = [
             ),
         title: 'MyNotes | MyStickyNotes',
     },
+    {
+        path: 'trash',
+        loadComponent: () =>
+            import('../sticky-note-trash/sticky-note-trash').then(
+                component => component.StickyNoteTrash,
+            ),
+        title: 'Sticky Note Trash | MyStickyNotes',
+    },
 ];

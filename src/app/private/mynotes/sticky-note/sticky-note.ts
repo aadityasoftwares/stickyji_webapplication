@@ -3,11 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  HostListener,
   Input,
   Output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
 import {
   LucideArrowLeft,
   LucideArrowRight,
@@ -17,9 +18,10 @@ import {
   LucideChevronDown,
   LucideChevronUp,
   LucideClock3,
-  LucideEllipsis,
+  LucideMoreHorizontal,
   LucideGrip,
   LucidePencil,
+  LucideTrash2,
   LucideX
 } from '@lucide/angular';
 import { Badge } from '../../../shared/components/badge/badge';
@@ -34,6 +36,8 @@ import { Input as AppInput } from '../../../shared/components/input/input';
   imports: [
     CommonModule,
     FormsModule,
+    MatDividerModule,
+    MatMenuModule,
     AppIcon,
     AppInput,
     Badge,
@@ -54,6 +58,7 @@ export class StickyNote {
   @Output() readonly checklistChange = new EventEmitter<any>();
   @Output() readonly titleChangeRequested = new EventEmitter<any>();
   @Output() readonly descriptionChangeRequested = new EventEmitter<any>();
+  @Output() readonly deleteRequested = new EventEmitter<any>();
   @Output() readonly noteClick = new EventEmitter<any>();
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
@@ -63,11 +68,11 @@ export class StickyNote {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronUp = LucideChevronUp;
   readonly LucideClock3 = LucideClock3;
-  readonly LucideEllipsis = LucideEllipsis;
+  readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucideGrip = LucideGrip;
   readonly LucidePencil = LucidePencil;
+  readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
-  menuOpen = false;
   editingTitle = false;
   editingDescription = false;
   titleDraft = '';
@@ -96,6 +101,10 @@ export class StickyNote {
   }
   get font(): string {
     return String(this.data?.font ?? 'dmSans').trim() || 'dmSans';
+  }
+  get fontSize(): number {
+    const value = Number(this.data?.fontSize);
+    return [13, 14, 15, 16].includes(value) ? value : 14;
   }
   get layout(): string {
     return String(this.data?.layout ?? 'detail');
@@ -179,25 +188,19 @@ export class StickyNote {
       'is-compact': this.data?.compact === true || this.isPlainLayout
     };
   }
-  @HostListener('document:click')
-  closeMenu(): void {
-    this.menuOpen = false;
-  }
-  toggleMenu(event: Event): void {
-    if (this.preview) return;
-    this.stop(event);
-    if (!this.disabled) this.menuOpen = !this.menuOpen;
-  }
   requestEdit(event: Event): void {
     if (this.preview) return;
     this.stop(event);
-    this.menuOpen = false;
     if (!this.disabled) this.editRequested.emit(this.data);
+  }
+  requestDelete(event: Event): void {
+    if (this.preview) return;
+    this.stop(event);
+    if (!this.disabled) this.deleteRequested.emit(this.data);
   }
   requestMove(direction: 'backward' | 'forward', event: Event): void {
     if (this.preview) return;
     this.stop(event);
-    this.menuOpen = false;
     if (this.disabled) return;
     if (direction === 'backward' && this.data?.canMoveBackward !== false) {
       this.moveBackwardRequested.emit(this.data);
@@ -210,7 +213,6 @@ export class StickyNote {
     if (this.preview) return;
     this.stop(event);
     if (this.disabled || this.data?.titleUpdating || this.data?.inlineEditing === false) return;
-    this.menuOpen = false;
     this.titleDraft = this.title === 'Untitled note' ? '' : this.title;
     this.editingTitle = true;
   }
@@ -243,7 +245,6 @@ export class StickyNote {
     if (this.preview) return;
     this.stop(event);
     if (this.disabled || this.data?.descriptionUpdating || this.data?.inlineEditing === false) return;
-    this.menuOpen = false;
     this.descriptionDraft = this.description;
     this.editingDescription = true;
   }

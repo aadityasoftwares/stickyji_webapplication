@@ -32,7 +32,7 @@ import { StickyNoteChecklistItemApiService } from '../services/sticky-note-check
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
 import { StickyNoteColumnApiService } from '../services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../services/sticky-note-column.store';
-import { WorkspaceApiService } from '../../workspace/services/workspace.service';
+import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderApiService } from '../../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
@@ -176,7 +176,7 @@ export class AddEditNoteSidePanel implements OnChanges, AfterViewInit {
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly columnApi = inject(StickyNoteColumnApiService);
   private readonly columnStore = inject(StickyNoteColumnStore);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderApi = inject(WorkspaceFolderApiService);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);

@@ -18,7 +18,7 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { Workspace as WorkspaceModel, WorkspaceVisibility } from '../models/workspace.models';
-import { WorkspaceApiService } from '../services/workspace.service';
+import { WorkspaceService } from '../services/workspace.service';
 import { WorkspaceFolderWrapper } from '../workspace-folder-wrapper/workspace-folder-wrapper';
 
 @Component({
@@ -73,7 +73,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     }
   }
 
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly toastService = inject(ToastService);
   private readonly sessionEnd$ = new Subject<void>();
   private editorId = '';

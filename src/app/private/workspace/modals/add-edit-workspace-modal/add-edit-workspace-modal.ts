@@ -32,7 +32,7 @@ import {
   WorkspaceUpdateRequest,
   WorkspaceVisibility
 } from '../../models/workspace.models';
-import { WorkspaceApiService } from '../../services/workspace.service';
+import { WorkspaceService } from '../../services/workspace.service';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -46,7 +46,7 @@ type UnknownRecord = Record<string, unknown>;
 })
 export class AddEditWorkspaceModal implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly toastService = inject(ToastService);
 
   @ViewChild('workspaceNameInput', { read: ElementRef })

@@ -2,20 +2,19 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   HostListener,
   PLATFORM_ID,
   computed,
+  effect,
   inject,
   signal
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { LucideUserRound, LucideUsersRound } from '@lucide/angular';
 
 import { Sidebar } from '../sidebar/sidebar';
-import { WorkspaceApiService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { AppSessionStore } from '../../shared/functions/app-session.store';
 
 @Component({
   selector: 'app-private',
@@ -26,9 +25,9 @@ import { WorkspaceStore } from '../workspace/services/workspace.store';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Private {
+
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly workspaceApiService = inject(WorkspaceApiService);
+  private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
 
   private readonly isBrowser = isPlatformBrowser(this.platformId);
@@ -37,6 +36,9 @@ export class Private {
 
   readonly sidebarCollapsed = signal(false);
   readonly mobileSidebarOpen = signal(false);
+
+  readonly initializing = this.appSessionStore.initializing;
+  readonly initializationError = this.appSessionStore.error;
 
   readonly activeWorkspaceId = computed(
     () => this.workspaceStore.selectedId() ?? ''
@@ -57,17 +59,31 @@ export class Private {
   );
 
   constructor() {
+
     if (this.isBrowser) {
       this.sidebarCollapsed.set(
         localStorage.getItem(this.sidebarStorageKey) === 'true'
       );
     }
 
-    this.loadWorkspaces();
+    effect(() => {
+
+      const loaded = this.workspaceStore.loaded();
+      const workspaces = this.workspaceStore.workspaces();
+
+      if (!loaded) {
+        return;
+      }
+
+      this.ensureWorkspaceSelected(workspaces);
+    });
+
+    this.appSessionStore.initialize();
   }
 
   @HostListener('document:keydown.escape')
   closeOnEscape(): void {
+
     if (this.mobileSidebarOpen()) {
       this.closeMobileSidebar();
     }
@@ -75,6 +91,7 @@ export class Private {
 
   @HostListener('window:resize', ['$event'])
   closeOnDesktop(event: Event): void {
+
     const width = (event.target as Window | null)?.innerWidth ?? 0;
 
     if (width >= 1024 && this.mobileSidebarOpen()) {
@@ -83,10 +100,14 @@ export class Private {
   }
 
   setSidebarCollapsed(collapsed: boolean): void {
+
     this.sidebarCollapsed.set(collapsed);
 
     if (this.isBrowser) {
-      localStorage.setItem(this.sidebarStorageKey, String(collapsed));
+      localStorage.setItem(
+        this.sidebarStorageKey,
+        String(collapsed)
+      );
     }
   }
 
@@ -95,6 +116,7 @@ export class Private {
   }
 
   onWorkspaceChange(workspaceId: string): void {
+
     if (
       !workspaceId ||
       workspaceId === this.workspaceStore.selectedId()
@@ -113,73 +135,48 @@ export class Private {
     this.workspaceStore.select(workspaceId);
 
     if (this.isBrowser) {
-      localStorage.setItem(this.workspaceStorageKey, workspaceId);
+      localStorage.setItem(
+        this.workspaceStorageKey,
+        workspaceId
+      );
     }
 
     this.closeMobileSidebar();
   }
 
-  logout(): void { }
+  logout(): void {
+    this.appSessionStore.reset();
 
-  private loadWorkspaces(): void {
-    if (this.workspaceStore.initialized()) {
-      this.ensureWorkspaceSelected();
-      return;
+    if (this.isBrowser) {
+      localStorage.removeItem(this.workspaceStorageKey);
     }
-
-    if (this.workspaceStore.loading()) {
-      return;
-    }
-
-    this.workspaceStore.setLoading(true);
-
-    this.workspaceApiService
-      .getMyWorkspaces({
-        page: 1,
-        limit: 100
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          const workspaces = response.data ?? [];
-
-          this.workspaceStore.setWorkspaces(
-            workspaces,
-            response.pagination ?? null
-          );
-
-          this.ensureWorkspaceSelected();
-        },
-        error: error => {
-          console.error(error);
-
-          this.workspaceStore.setError(
-            error?.error?.message ||
-            error?.message ||
-            'Unable to load workspaces.'
-          );
-        }
-      });
   }
 
-  private ensureWorkspaceSelected(): void {
-    const workspaces = this.workspaceStore.workspaces();
+  private ensureWorkspaceSelected(
+    workspaces: readonly any[]
+  ): void {
 
     if (!workspaces.length) {
+
       this.workspaceStore.select(null);
 
       if (this.isBrowser) {
-        localStorage.removeItem(this.workspaceStorageKey);
+        localStorage.removeItem(
+          this.workspaceStorageKey
+        );
       }
 
       return;
     }
 
-    const currentId = this.workspaceStore.selectedId();
+    const currentId =
+      this.workspaceStore.selectedId();
 
     if (
       currentId &&
-      workspaces.some(workspace => workspace.id === currentId)
+      workspaces.some(
+        workspace => workspace.id === currentId
+      )
     ) {
       return;
     }
@@ -189,11 +186,17 @@ export class Private {
       : null;
 
     const selectedWorkspace =
-      workspaces.find(workspace => workspace.id === storedId) ??
-      workspaces.find(workspace => workspace.isPersonal) ??
+      workspaces.find(
+        workspace => workspace.id === storedId
+      ) ??
+      workspaces.find(
+        workspace => workspace.isPersonal
+      ) ??
       workspaces[0];
 
-    this.workspaceStore.select(selectedWorkspace.id);
+    this.workspaceStore.select(
+      selectedWorkspace.id
+    );
 
     if (this.isBrowser) {
       localStorage.setItem(
@@ -202,4 +205,5 @@ export class Private {
       );
     }
   }
+
 }

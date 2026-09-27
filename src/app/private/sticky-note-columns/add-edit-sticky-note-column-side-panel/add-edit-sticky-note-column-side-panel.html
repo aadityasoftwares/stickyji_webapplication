@@ -1,0 +1,156 @@
+<ng-template #desktopPreview>
+    <aside class="column-external-preview" [style.display]="loadingData() || loadFailed() ? 'none' : null"
+        aria-label="Live column preview" inert>
+        <app-badge label="Live preview" variant="neutral" size="sm" />
+        <div class="column-preview-card" [attr.data-column-color]="color()">
+            <header class="column-preview-header">
+                <div class="column-preview-title">
+                    <span class="column-preview-dot" aria-hidden="true"></span>
+                    <strong>{{ name().trim() || 'New column' }}</strong>
+                    <app-badge label="0 notes" variant="neutral" size="xs" shape="pill" />
+                </div>
+                <span class="column-preview-add" aria-hidden="true">
+                    <app-icon [icon]="LucideColumns3" size="xs" />
+                </span>
+            </header>
+            <div class="column-preview-rule"></div>
+            <div class="column-preview-empty">
+                <span></span>
+                <span></span>
+                <span></span>
+                <small>Notes will appear here</small>
+            </div>
+        </div>
+    </aside>
+</ng-template>
+
+<app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
+    [headerNote]="statusText" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="isBusy"
+    ariaLabel="Sticky note column editor" (closed)="close()">
+
+
+    <form panel-body class="column-editor" (ngSubmit)="$event.preventDefault()" novalidate>
+
+        @if (loadingData()) {
+        <app-loader mode="section" size="md" tone="colorful" label="Loading column..."
+            description="Getting the board column ready." [minHeight]="280" />
+
+        } @else {
+
+        <section class="column-fields">
+            <div class="column-field">
+                <app-label forId="column-name" text="Name" />
+
+                <div class="column-field-control">
+                    <app-input #columnNameInput inputId="column-name" label="Column name" labelMode="hidden"
+                        placeholder="Example: Review" variant="paper" appearance="inline" size="md" [required]="true"
+                        [maxLength]="nameMaxLength" [value]="name()" [disabled]="isBusy || loadFailed()"
+                        [fullWidth]="true" [clearable]="false" autocomplete="off" (valueChange)="updateName($event)"
+                        (enterKey)="submit()" />
+
+                    <span class="column-field-counter">
+                        {{ name().length }}/{{ nameMaxLength }}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="column-color-section">
+            <div class="column-color-heading">
+                <app-label forId="column-color-options" text="Color" />
+                <span>{{ colorLabel(color()) }}</span>
+            </div>
+
+            <div id="column-color-options" class="column-color-options" role="radiogroup"
+                aria-label="Choose column color">
+
+                @for (option of colorOptions; track option.value) {
+                <button type="button" class="column-color-option" [class.is-selected]="color() === option.value"
+                    [attr.data-column-color]="option.value" [attr.aria-checked]="color() === option.value"
+                    [disabled]="isBusy || loadFailed()" role="radio" (click)="selectColor(option.value)">
+                    <span class="column-color-swatch" aria-hidden="true"></span>
+                    <span>{{ option.label }}</span>
+                </button>
+                }
+
+            </div>
+        </section>
+
+        @if (isEdit) {
+        <section class="column-meta">
+            <div>
+                <span>Type</span>
+                <strong>{{ columnTypeLabel }}</strong>
+            </div>
+
+            <div>
+                <span>Position</span>
+                <strong>{{ (previewSource()?.position ?? 0) + 1 }}</strong>
+            </div>
+
+            <div>
+                <span>Kind</span>
+                <strong>{{ isSystemColumn ? 'System' : 'Custom' }}</strong>
+            </div>
+        </section>
+
+        @if (isSystemColumn) {
+        <p class="column-system-note">
+            System column role and position are managed automatically. You can change its name and color.
+        </p>
+        }
+        }
+
+        @if (!loadFailed()) {
+        <section class="column-mobile-preview">
+            <app-badge label="Live preview" variant="neutral" size="sm" />
+
+            <div class="column-preview-card" [attr.data-column-color]="color()">
+                <header class="column-preview-header">
+                    <div class="column-preview-title">
+                        <span class="column-preview-dot" aria-hidden="true"></span>
+                        <strong>{{ name().trim() || 'New column' }}</strong>
+                        <app-badge label="0 notes" variant="neutral" size="xs" shape="pill" />
+                    </div>
+
+                    <span class="column-preview-add" aria-hidden="true">
+                        <app-icon [icon]="LucideColumns3" size="xs" />
+                    </span>
+                </header>
+
+                <div class="column-preview-rule"></div>
+
+                <div class="column-preview-empty">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <small>Notes will appear here</small>
+                </div>
+            </div>
+        </section>
+        }
+
+        @if (error()) {
+        <div class="column-editor-error" role="alert">
+            {{ error() }}
+        </div>
+        }
+
+        }
+
+    </form>
+
+    <div panel-footer class="column-editor-footer">
+        <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
+
+        <div class="column-editor-footer-actions">
+            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
+                (buttonClick)="close()" />
+
+            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
+                size="sm" [loading]="loading()" [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
+                [disabled]="!canSubmit" (buttonClick)="submit()" />
+        </div>
+    </div>
+
+</app-side-panel>

@@ -47,7 +47,7 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import { WorkspaceApiService } from '../../workspace/services/workspace.service';
+import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
 import { ViewRolePermissionsModal } from '../view-role-permissions-modal/view-role-permissions-modal';
@@ -89,7 +89,7 @@ type BadgeVariant = 'success' | 'neutral' | 'noteYellow' | 'warning' | 'danger';
 export class RolesPermissions implements OnInit, OnChanges {
   private readonly roleApi = inject(WorkspaceRoleApiService);
   private readonly permissionApi = inject(PermissionApiService);
-  private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly workspaceApi = inject(WorkspaceService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
@@ -322,45 +322,45 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   loadWorkspaces(force = false): void {
-    if (
-      !force &&
-      this.workspaceStore.initialized() &&
-      this.workspaceStore.workspaces().length > 0
-    ) {
-      this.ensureWorkspaceSelection();
-      return;
-    }
+    // if (
+    //   !force &&
+    //   this.workspaceStore.initialized() &&
+    //   this.workspaceStore.workspaces().length > 0
+    // ) {
+    //   this.ensureWorkspaceSelection();
+    //   return;
+    // }
 
-    this.workspaceStore.setLoading(true);
+    // this.workspaceStore.setLoading(true);
 
-    this.workspaceApi
-      .getMyWorkspaces()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          const workspaces = response.data ?? [];
+    // this.workspaceApi
+    //   .getMyWorkspaces()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: response => {
+    //       const workspaces = response.data ?? [];
 
-          this.workspaceStore.setWorkspaces(
-            workspaces,
-            response.pagination ?? null
-          );
+    //       this.workspaceStore.setWorkspaces(
+    //         workspaces,
+    //         response.pagination ?? null
+    //       );
 
-          this.ensureWorkspaceSelection();
-        },
-        error: error => {
-          const message = this.errorMessage(
-            error,
-            'Unable to load your workspaces.'
-          );
+    //       this.ensureWorkspaceSelection();
+    //     },
+    //     error: error => {
+    //       const message = this.errorMessage(
+    //         error,
+    //         'Unable to load your workspaces.'
+    //       );
 
-          this.workspaceStore.setError(message);
+    //       this.workspaceStore.setError(message);
 
-          this.toastService.error(message, {
-            title: 'Could not load workspaces',
-            dedupeKey: 'roles-workspace-load-error'
-          });
-        }
-      });
+    //       this.toastService.error(message, {
+    //         title: 'Could not load workspaces',
+    //         dedupeKey: 'roles-workspace-load-error'
+    //       });
+    //     }
+    //   });
   }
 
   loadRoles(workspaceId = this.selectedWorkspaceId()): void {

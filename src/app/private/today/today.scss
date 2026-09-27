@@ -249,7 +249,7 @@
 
 .today-toolbar {
     display: grid;
-    grid-template-columns: minmax(19rem, 1fr) minmax(14rem, 26rem) minmax(18rem, auto);
+    grid-template-columns: minmax(19rem, 1fr) minmax(14rem, 24rem) minmax(24rem, auto);
     align-items: center;
     flex: 0 0 auto;
     min-width: 0;
@@ -642,14 +642,15 @@
 
 .today-add-column-inner small {
     color: $text-light;
-    font-size: var(--today-font-13);
+    font-family: var(--today-note-font-family, #{$font-body});
+    font-size: max(12px, calc(var(--today-note-font-size, 14px) - 1px));
+    font-weight: 500;
     line-height: 1.4;
     text-align: center;
 }
 
 /* List view */
 .today-notes-table {
-    --table-columns: 3rem minmax(0, 1fr) 8rem 10rem;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -665,16 +666,22 @@
     border-spacing: 0;
     --bs-table-bg: transparent;
     --bs-table-color: #{$text-primary};
-    --bs-table-hover-bg: #{$paper-light};
-    --bs-table-hover-color: #{$text-primary};
     --bs-table-border-color: #{rgba($border, 0.62)};
+}
+
+.today-notes-table.is-plan {
+    --table-columns: minmax(22rem, 1fr) 7.5rem 7.5rem 6.5rem;
+}
+
+.today-notes-table.is-detail {
+    --table-columns: 2.75rem minmax(18rem, 1fr) 9rem 8.5rem 7.5rem 8.5rem 7.5rem 6.5rem;
 }
 
 .today-notes-table thead {
     display: block;
     flex: 0 0 auto;
     width: 100%;
-    background: $page-bg;
+    background: $paper;
     border-bottom: 1px solid rgba($border, 0.82);
 }
 
@@ -688,14 +695,19 @@
 
 .today-notes-table thead th {
     width: auto !important;
-    height: 2.625rem;
-    padding: 0.5rem 0.75rem;
-    color: $text-light;
-    background: transparent;
+    min-width: 0;
+    height: 2.7rem;
+    padding: 0.55rem 0.75rem;
+    color: $text-secondary;
+    background: $paper;
     border: 0;
+    font-family: $font-body;
     font-size: var(--today-font-13);
     font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0;
     text-align: left;
+    text-transform: none;
 }
 
 .today-notes-table tbody {
@@ -707,22 +719,37 @@
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: rgba($heading, 0.18) transparent;
+}
+
+.today-notes-table tbody::-webkit-scrollbar {
+    width: 0.45rem;
+}
+
+.today-notes-table tbody::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.today-notes-table tbody::-webkit-scrollbar-thumb {
+    background: rgba($heading, 0.16);
+    border: 0.1rem solid $paper;
+    border-radius: 999px;
 }
 
 .today-notes-table tbody tr {
     --note-accent: #e8b11f;
-    min-height: 4rem;
+    min-height: 4.5rem;
     background: $paper;
-    border-bottom: 1px solid rgba($border, 0.62);
+    border-bottom: 1px solid rgba($border, 0.58);
     transition: background-color 120ms ease;
 }
 
 .today-notes-table tbody tr:hover {
-    background: $paper-light;
+    background: color-mix(in srgb, $note-yellow 4%, $paper);
 }
 
 .today-notes-table tbody tr.is-completed {
-    background: rgba($paper-dark, 0.34);
+    background: color-mix(in srgb, $paper-dark 32%, $paper);
 }
 
 .today-notes-table tbody tr:last-child {
@@ -765,16 +792,23 @@
     --note-accent: #424242;
 }
 
+.today-notes-table tbody tr[data-note-color='WHITE'] {
+    --note-accent: #b9b3a8;
+}
+
 .today-notes-table tbody td {
     width: auto !important;
     min-width: 0;
-    min-height: 4rem;
-    padding: 0.625rem 0.75rem;
+    min-height: 4.5rem;
+    padding: 0.65rem 0.75rem;
     background: transparent;
     border: 0;
+    vertical-align: middle;
 }
 
 .today-table-check {
+    display: grid;
+    place-items: center;
     text-align: center !important;
 }
 
@@ -782,17 +816,17 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    gap: 0.625rem;
+    gap: 0.7rem;
 }
 
-.today-table-note-main>div {
+.today-table-note-copy {
     min-width: 0;
 }
 
 .today-table-note-mark {
     flex: 0 0 0.25rem;
     width: 0.25rem;
-    height: 2.25rem;
+    height: 2.7rem;
     background: var(--note-accent);
     border-radius: 999px;
 }
@@ -801,15 +835,21 @@
     display: block;
     overflow: hidden;
     color: $heading;
-    font-size: var(--today-font-14);
+    font-family: var(--today-note-font-family, #{$font-body});
+    font-size: var(--today-note-font-size, 14px);
     font-weight: 700;
+    line-height: 1.32;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+.today-table-note strong[role='button'] {
+    cursor: text;
+}
+
 .today-table-note p {
     display: -webkit-box;
-    margin: 0.1875rem 0 0;
+    margin: 0.22rem 0 0;
     overflow: hidden;
     color: $text-light;
     font-size: var(--today-font-13);
@@ -818,22 +858,122 @@
     -webkit-line-clamp: 1;
 }
 
-.today-table-checklist {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    margin-top: 0.1875rem;
-    gap: 0.3125rem;
+.today-table-owner {
+    display: block;
+    max-width: 100%;
+    margin-top: 0.18rem;
     overflow: hidden;
     color: $text-light;
-    font-size: var(--today-font-13);
+    font-family: $font-body;
+    font-size: 0.675rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.today-table-status {
+.today-table-title-input {
+    width: min(100%, 34rem);
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
+    color: $heading;
+    background: $paper;
+    border: 1px solid $accent;
+    border-radius: $radius-xs;
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+    font-family: var(--today-note-font-family, #{$font-body});
+    font-size: var(--today-note-font-size, 14px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.today-table-folder,
+.today-table-date,
+.today-table-updated,
+.today-table-status,
+.today-table-actions {
     display: flex;
     align-items: center;
     min-width: 0;
+}
+
+.today-table-folder-name {
+    overflow: hidden;
+    color: $text-secondary;
+    font-size: var(--today-font-13);
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.today-table-progress-wrap {
+    display: grid;
+    width: 100%;
+    max-width: 7rem;
+    gap: 0.32rem;
+}
+
+.today-table-progress-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: $text-light;
+    font-size: 0.68rem;
+    line-height: 1;
+}
+
+.today-table-progress-label strong {
+    color: $text-secondary;
+    font-weight: 750;
+}
+
+.today-table-progress-track {
+    display: block;
+    width: 100%;
+    height: 0.28rem;
+    overflow: hidden;
+    background: color-mix(in srgb, $border 72%, $paper);
+    border-radius: 999px;
+}
+
+.today-table-progress-track>span {
+    display: block;
+    height: 100%;
+    background: $success;
+    border-radius: inherit;
+}
+
+.today-table-date-copy {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.today-table-date-copy strong,
+.today-table-updated strong {
+    color: $text-secondary;
+    font-size: var(--today-font-13);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.today-table-date-copy small,
+.today-table-updated small {
+    color: $text-light;
+    font-size: 0.66rem;
+    line-height: 1.25;
+}
+
+.today-table-updated {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.1rem;
+}
+
+.today-table-muted {
+    color: $text-light;
+    font-size: var(--today-font-13);
 }
 
 .today-table-actions-heading,
@@ -843,7 +983,6 @@
 
 .today-table-actions {
     justify-content: flex-end;
-    min-width: 0;
     white-space: nowrap;
 }
 
@@ -851,11 +990,150 @@
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.25rem;
-    padding: 0.25rem;
+    gap: 0.3rem;
+    padding: 0.2rem;
     background: $paper;
-    border: 1px solid rgba($border, 0.74);
-    border-radius: 0.625rem;
+    border: 1px solid rgba($border, 0.72);
+    border-radius: 0.65rem;
+    box-shadow: 0 0.1rem 0.35rem rgba($heading, 0.025);
+}
+
+.today-note-quick-edit {
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.today-note-menu-trigger {
+    display: inline-grid;
+    flex: 0 0 auto;
+    width: 1.875rem;
+    height: 1.875rem;
+    padding: 0;
+    color: $text-secondary;
+    background: color-mix(in srgb, $paper 88%, $page-bg);
+    border: 1px solid rgba($border, 0.82);
+    border-radius: 999px;
+    cursor: pointer;
+    place-items: center;
+    transition:
+        color 140ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease,
+        box-shadow 140ms ease;
+}
+
+.today-note-menu-trigger:hover:not(:disabled) {
+    color: $heading;
+    background: color-mix(in srgb, $note-yellow 14%, $paper);
+    border-color: color-mix(in srgb, $note-yellow 28%, $border);
+}
+
+.today-note-menu-trigger:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+}
+
+.today-note-menu-trigger:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+::ng-deep .today-note-actions-menu.mat-mdc-menu-panel {
+    min-width: 15rem;
+    max-width: 17rem;
+    overflow: hidden;
+    background: $paper;
+    border: 1px solid rgba($border, 0.82);
+    border-radius: 0.75rem;
+    box-shadow: $shadow-lg;
+}
+
+::ng-deep .today-note-actions-menu .mat-mdc-menu-content {
+    padding: 0.35rem;
+}
+
+::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item {
+    min-height: 3.25rem;
+    padding: 0.45rem 0.5rem;
+    color: $text-secondary;
+    border-radius: 0.5rem;
+    font-family: $font-body;
+    line-height: 1.2;
+}
+
+::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item+.today-note-action-item {
+    margin-top: 0.125rem;
+}
+
+::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:hover,
+::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:focus-visible {
+    background: rgba($note-yellow, 0.18);
+}
+
+::ng-deep .today-note-actions-menu .mat-mdc-menu-item-text {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.625rem;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-item-icon {
+    display: grid;
+    flex: 0 0 1.875rem;
+    width: 1.875rem;
+    height: 1.875rem;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.58);
+    border: 1px solid rgba($border, 0.72);
+    border-radius: 0.4375rem;
+    place-items: center;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-item-icon.is-forward {
+    color: $note-button-yellow-text;
+    background: rgba($note-button-yellow, 0.32);
+    border-color: rgba($note-button-yellow-text, 0.12);
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-item-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.125rem;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-item-copy strong {
+    color: $heading;
+    font-size: var(--today-font-14);
+    font-weight: 730;
+    line-height: 1.25;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-item-copy small {
+    color: $text-light;
+    font-size: var(--today-font-12);
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-danger {
+    color: $danger;
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-danger .today-note-menu-item-icon {
+    color: $danger;
+    background: rgba($danger, 0.065);
+    border-color: rgba($danger, 0.14);
+}
+
+::ng-deep .today-note-actions-menu .today-note-menu-danger .today-note-menu-item-copy strong {
+    color: $danger;
+}
+
+::ng-deep .today-note-actions-menu .mat-divider {
+    margin-block: 0.25rem;
+    border-color: $border-light;
 }
 
 /* Drag and drop */
@@ -1295,4 +1573,316 @@
 
 .today-draggable-note {
     flex-shrink: 0;
+}
+
+.today-trash-view {
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+}
+
+.today-explorer-body:has(.today-trash-view) {
+    padding: 0;
+}
+
+/* ==========================================================
+   TRASH / RECOVERY UTILITY
+   Trash stays separate from Kanban/List view tabs.
+   ========================================================== */
+.today-toolbar-utility-divider {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 1.75rem;
+    margin-inline: 0.15rem;
+    background: rgba($border, 0.95);
+}
+
+@media (max-width: 75rem) {
+    .today-toolbar-controls {
+        flex-wrap: wrap;
+    }
+
+    .today-toolbar-utility-divider {
+        display: none;
+    }
+}
+
+@media (max-width: 52rem) {
+    .today-toolbar-controls app-button {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 36rem) {
+    .today-toolbar-controls app-button {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* ==========================================================
+   TODAY LIST TABLE V2 RESPONSIVE OVERRIDES
+   ========================================================== */
+@media (max-width: 80rem) {
+    .today-notes-table.is-detail {
+        --table-columns: 2.6rem minmax(16rem, 1fr) 8rem 7.5rem 6.75rem 7.5rem 6.75rem 6.5rem;
+    }
+
+    .today-notes-table thead th,
+    .today-notes-table tbody td {
+        padding-inline: 0.6rem;
+    }
+}
+
+@media (max-width: 68rem) {
+    .today-notes-table.is-detail {
+        --table-columns: 2.6rem minmax(15rem, 1fr) 7.5rem 7rem 6.5rem 6.75rem 6.5rem;
+    }
+
+    .today-notes-table.is-detail thead th:nth-child(6),
+    .today-notes-table.is-detail tbody td.today-table-updated {
+        display: none;
+    }
+}
+
+@media (max-width: 52rem) {
+    .today-explorer-body.is-list {
+        padding: 0.55rem;
+        background: color-mix(in srgb, $page-bg 72%, $paper);
+    }
+
+    .today-notes-table {
+        display: block;
+        height: 100%;
+        background: transparent;
+    }
+
+    .today-notes-table thead {
+        display: none;
+    }
+
+    .today-notes-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        padding: 0;
+    }
+
+    .today-notes-table tbody tr,
+    .today-notes-table.is-plan tbody tr,
+    .today-notes-table.is-detail tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            'note note'
+            'date status'
+            'actions actions';
+        align-items: center;
+        gap: 0.6rem 1rem;
+        min-height: 0;
+        padding: 0.75rem;
+        background: $paper;
+        border: 1px solid rgba($border, 0.78);
+        border-radius: 0.75rem;
+        box-shadow: 0 0.2rem 0.7rem rgba($heading, 0.035);
+    }
+
+    .today-notes-table.is-detail tbody tr {
+        grid-template-columns: 2.25rem minmax(0, 1fr);
+        grid-template-areas:
+            'check note'
+            'folder folder'
+            'progress progress'
+            'date updated'
+            'status status'
+            'actions actions';
+    }
+
+    .today-notes-table tbody td {
+        min-height: 0;
+        padding: 0;
+    }
+
+    .today-table-check {
+        grid-area: check;
+    }
+
+    .today-table-note {
+        grid-area: note;
+    }
+
+    .today-table-folder {
+        grid-area: folder;
+    }
+
+    .today-table-progress {
+        grid-area: progress;
+    }
+
+    .today-table-date {
+        grid-area: date;
+    }
+
+    .today-table-updated {
+        grid-area: updated;
+    }
+
+    .today-table-status {
+        grid-area: status;
+    }
+
+    .today-table-actions {
+        grid-area: actions;
+    }
+
+    .today-notes-table.is-detail tbody td.today-table-updated {
+        display: flex;
+    }
+
+    .today-table-folder,
+    .today-table-progress,
+    .today-table-date,
+    .today-table-updated,
+    .today-table-status {
+        position: relative;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-width: 0;
+        padding-top: 0.55rem !important;
+        border-top: 1px dashed rgba($border, 0.72) !important;
+    }
+
+    .today-table-folder::before,
+    .today-table-progress::before,
+    .today-table-date::before,
+    .today-table-updated::before,
+    .today-table-status::before {
+        flex: 0 0 auto;
+        color: $text-light;
+        content: attr(data-label);
+        font-size: 0.66rem;
+        font-weight: 750;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+    }
+
+    .today-table-folder-name,
+    .today-table-date-copy,
+    .today-table-updated,
+    .today-table-progress-wrap {
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .today-table-progress-wrap {
+        width: min(100%, 9rem);
+    }
+
+    .today-table-actions {
+        justify-content: flex-end;
+        padding-top: 0.65rem !important;
+        border-top: 1px solid rgba($border, 0.62) !important;
+    }
+
+    .today-table-action-group {
+        width: auto;
+        margin-left: auto;
+    }
+
+    .today-table-note-mark {
+        height: 3rem;
+    }
+
+    .today-table-note p {
+        -webkit-line-clamp: 2;
+    }
+}
+
+@media (max-width: 36rem) {
+
+    .today-notes-table tbody tr,
+    .today-notes-table.is-plan tbody tr {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            'note'
+            'date'
+            'status'
+            'actions';
+    }
+
+    .today-notes-table.is-detail tbody tr {
+        grid-template-columns: 2.1rem minmax(0, 1fr);
+        grid-template-areas:
+            'check note'
+            'folder folder'
+            'progress progress'
+            'date date'
+            'updated updated'
+            'status status'
+            'actions actions';
+    }
+
+    .today-table-action-group {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .today-table-note strong {
+        white-space: normal;
+    }
+
+    .today-table-note p {
+        -webkit-line-clamp: 2;
+    }
+}
+
+/* Table UI metadata always stays in the application font.
+   Only the note's own title/content use the selected sticky-note font. */
+.today-table-folder,
+.today-table-progress,
+.today-table-date,
+.today-table-updated,
+.today-table-status,
+.today-table-actions,
+.today-table-folder-name,
+.today-table-progress-label,
+.today-table-date-copy,
+.today-table-muted {
+    font-family: $font-body;
+}
+
+
+.today-notes-table thead {
+    box-shadow: 0 1px 0 rgba($border, 0.72);
+}
+
+.today-notes-table thead th:first-child {
+    padding-left: 0.85rem;
+}
+
+.today-notes-table thead th:last-child {
+    padding-right: 0.85rem;
+}
+
+/* Today note action menu responsive alignment */
+@media (max-width: 52rem) {
+    .today-table-action-group {
+        width: auto;
+        margin-left: auto;
+    }
+
+    .today-note-menu-trigger {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+@media (max-width: 36rem) {
+    .today-table-action-group {
+        width: fit-content;
+        margin-left: auto;
+    }
 }
