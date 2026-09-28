@@ -278,8 +278,8 @@ export class UserPreferences implements OnInit {
         value: 'GRID',
       },
       {
-        label: 'List',
-        value: 'LIST',
+        label: 'Table',
+        value: 'TABLE',
       },
       {
         label: 'Kanban',
@@ -675,7 +675,7 @@ export class UserPreferences implements OnInit {
         preferences.defaultNoteColor,
 
       noteView:
-        preferences.noteView,
+        preferences.noteView === 'LIST' ? 'TABLE' : preferences.noteView,
 
       autosaveEnabled:
         preferences.autosaveEnabled,

@@ -1,5 +1,7 @@
 export const USER_PREFERENCE_KEYS = {
     THEME: 'theme',
+    SELECTED_WORKSPACE_ID: 'selectedWorkspaceId',
+    SELECTED_FOLDER_ID: 'selectedFolderId',
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     NOTE_VIEW: 'noteView',
     WORKSPACE_VIEW: 'workspaceView',
@@ -40,6 +42,7 @@ export type DefaultNoteColor =
 export type NoteView =
     | 'GRID'
     | 'LIST'
+    | 'TABLE'
     | 'KANBAN';
 
 export type WorkspacePreferenceView =
@@ -90,6 +93,8 @@ export interface UserPreferenceRecord {
 export interface UserPreferencesM {
 
     theme: UserTheme;
+    selectedWorkspaceId?: string;
+    selectedFolderId?: string;
     workspaceView: WorkspacePreferenceView;
     workspaceSort: WorkspacePreferenceSort;
     defaultNoteColor: DefaultNoteColor;
@@ -136,6 +141,8 @@ export const DEFAULT_USER_PREFERENCES:
     Readonly<UserPreferencesM> = {
 
     theme: 'SYSTEM',
+    selectedWorkspaceId: '',
+    selectedFolderId: '',
     workspaceView: 'GRID',
     workspaceSort: 'UPDATED_AT',
     defaultNoteColor: 'YELLOW',

@@ -58,6 +58,7 @@ export interface WorkspaceFolderUpdateRequest {
 }
 
 export interface WorkspaceFolderQuery {
+    workspaceId?: string;
     page?: number;
     limit?: number;
     search?: string;

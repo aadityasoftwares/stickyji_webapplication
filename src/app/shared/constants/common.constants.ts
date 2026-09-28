@@ -1,8 +1,28 @@
-import { LucideList, LucidePanelsTopLeft } from "@lucide/angular";
+import {
+    LucideCircle,
+    LucideFrame,
+    LucideLayers,
+    LucideList,
+    LucidePanelsTopLeft,
+    LucideScissors,
+    LucideSquare,
+    LucideStickyNote,
+    LucideTicket
+} from "@lucide/angular";
+
+export const VIEW = {
+    KANBAN: 'kanban',
+    TABLE: 'table',
+    GRID: 'grid',
+} as const;
+
+export type View = (typeof VIEW)[keyof typeof VIEW];
+export type ViewMode = View;
 
 export const USER_PREFERENCE_KEYS = {
     THEME: 'theme',
     SELECTED_WORKSPACE_ID: 'selectedWorkspaceId',
+    SELECTED_FOLDER_ID: 'selectedFolderId',
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     WORKSPACE_VIEW: 'workspaceView',
     WORKSPACE_SORT: 'workspaceSort',
@@ -24,6 +44,8 @@ export const USER_PREFERENCE_KEYS = {
 
 export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     theme: 'SYSTEM',
+    selectedWorkspaceId: '',
+    selectedFolderId: '',
     workspaceView: 'GRID',
     workspaceSort: 'UPDATED_AT',
     defaultNoteColor: 'YELLOW',
@@ -38,7 +60,27 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     showOnlineStatus: true,
     reduceMotion: false,
     highContrast: false,
+    stickyNoteFont: 'DM_SANS',
+    stickyNoteFontSize: 14,
+    stickyNoteLayout: 'DETAIL',
 };
+
+export const STICKY_NOTE_VIEW_OPTIONS: any[] = [
+    {
+        label: 'Kanban',
+        value: VIEW.KANBAN,
+        icon: LucidePanelsTopLeft,
+        ariaLabel: 'Kanban view',
+    },
+    {
+        label: 'Table',
+        value: VIEW.TABLE,
+        icon: LucideList,
+        ariaLabel: 'Table view',
+    },
+];
+
+export const VIEW_OPTIONS = STICKY_NOTE_VIEW_OPTIONS;
 
 export const STICKY_NOTE_LAYOUT_OPTIONS: any[] = [
     {
@@ -74,3 +116,86 @@ export const STICKY_NOTE_FONT_SIZE_OPTIONS: any[] = [
     { label: '15 px', value: 15 },
     { label: '16 px', value: 16 },
 ];
+
+export const STICKY_NOTE_COLORS = {
+    WHITE: 'WHITE',
+    YELLOW: 'YELLOW',
+    ORANGE: 'ORANGE',
+    PINK: 'PINK',
+    RED: 'RED',
+    GREEN: 'GREEN',
+    BLUE: 'BLUE',
+    PURPLE: 'PURPLE',
+    BROWN: 'BROWN',
+    BLACK: 'BLACK',
+} as const;
+
+export const STICKY_NOTE_COLOR_OPTIONS: any[] = [
+    { label: 'White', value: 'WHITE', description: 'Neutral white paper', color: 'var(--app-select-swatch-white)' },
+    { label: 'Yellow', value: 'YELLOW', description: 'Classic sticky yellow', color: 'var(--app-select-swatch-yellow)' },
+    { label: 'Orange', value: 'ORANGE', description: 'Warm orange note', color: 'var(--app-select-swatch-orange)' },
+    { label: 'Pink', value: 'PINK', description: 'Soft pink note', color: 'var(--app-select-swatch-pink)' },
+    { label: 'Red', value: 'RED', description: 'Attention red note', color: 'var(--app-select-swatch-red)' },
+    { label: 'Green', value: 'GREEN', description: 'Fresh green note', color: 'var(--app-select-swatch-green)' },
+    { label: 'Blue', value: 'BLUE', description: 'Calm blue note', color: 'var(--app-select-swatch-blue)' },
+    { label: 'Purple', value: 'PURPLE', description: 'Soft purple note', color: 'var(--app-select-swatch-purple)' },
+    { label: 'Brown', value: 'BROWN', description: 'Earthy brown note', color: 'var(--app-select-swatch-brown)' },
+    { label: 'Black', value: 'BLACK', description: 'Dark paper', color: 'var(--app-select-swatch-black)' },
+];
+
+export const NOTE_COLOR_OPTIONS = STICKY_NOTE_COLOR_OPTIONS;
+
+export const STICKY_NOTE_SHAPES = {
+    SQUARE: 'SQUARE',
+    RECTANGLE: 'RECTANGLE',
+    PORTRAIT: 'PORTRAIT',
+    LANDSCAPE: 'LANDSCAPE',
+    STRIP: 'STRIP',
+} as const;
+
+export const STICKY_NOTE_SHAPE_OPTIONS: any[] = [
+    { label: 'Strip', value: 'STRIP', description: 'Narrow paper strip', icon: LucideFrame },
+    { label: 'Square', value: 'SQUARE', description: 'Classic square note', icon: LucideSquare },
+    { label: 'Rectangle', value: 'RECTANGLE', description: 'Rectangular note', icon: LucideFrame },
+    { label: 'Portrait', value: 'PORTRAIT', description: 'Tall note', icon: LucideFrame },
+    { label: 'Landscape', value: 'LANDSCAPE', description: 'Wide note', icon: LucideFrame },
+];
+
+export const STICKY_NOTE_VARIANTS = {
+    PLAIN: 'PLAIN',
+    ROUNDED: 'ROUNDED',
+    SOFT: 'SOFT',
+    FOLDED: 'FOLDED',
+    CUT_CORNER: 'CUT_CORNER',
+    TICKET: 'TICKET',
+} as const;
+
+export const STICKY_NOTE_VARIANT_OPTIONS: any[] = [
+    { label: 'Plain', value: 'PLAIN', description: 'Simple paper edges', icon: LucideStickyNote },
+    { label: 'Rounded', value: 'ROUNDED', description: 'Rounded corners', icon: LucideCircle },
+    { label: 'Soft', value: 'SOFT', description: 'Soft modern edges', icon: LucideFrame },
+    { label: 'Folded', value: 'FOLDED', description: 'Folded paper corner', icon: LucideLayers },
+    { label: 'Cut corner', value: 'CUT_CORNER', description: 'Trimmed paper corner', icon: LucideScissors },
+    { label: 'Ticket', value: 'TICKET', description: 'Ticket-style edges', icon: LucideTicket },
+];
+
+export const STICKY_NOTE_BACKGROUND_PATTERNS = {
+    NONE: 'NONE',
+    HORIZONTAL_LINES: 'HORIZONTAL_LINES',
+    VERTICAL_LINES: 'VERTICAL_LINES',
+    GRID: 'GRID',
+} as const;
+
+export const STICKY_NOTE_BACKGROUND_PATTERN_OPTIONS: any[] = [
+    { label: 'None', value: 'NONE', description: 'Unprinted paper', icon: LucideSquare },
+    { label: 'Horizontal lines', value: 'HORIZONTAL_LINES', description: 'Ruled paper', icon: LucideLayers },
+    { label: 'Vertical lines', value: 'VERTICAL_LINES', description: 'Vertical ruling', icon: LucideFrame },
+    { label: 'Grid', value: 'GRID', description: 'Grid paper', icon: LucidePanelsTopLeft },
+];
+
+export const NOTE_LIMITS = {
+    TITLE_MAX_LENGTH: 200,
+    CONTENT_MAX_LENGTH: 10000,
+    CHECKLIST_TITLE_MAX_LENGTH: 120,
+    CHECKLIST_ITEM_TITLE_MAX_LENGTH: 300,
+} as const;

@@ -36,6 +36,10 @@ export class UserPreferenceStore {
         String(this._preferences()[USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID] ?? '').trim()
     );
 
+    readonly selectedFolderId = computed(() =>
+        String(this._preferences()[USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID] ?? '').trim()
+    );
+
     readonly defaultNoteColor = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR]
     );

@@ -39,7 +39,7 @@
   border: 1px solid var(--note-border);
   border-radius: var(--note-radius);
   box-shadow: $shadow-sm;
-  font-family: $font-body;
+  font-family: var(--note-font-family, #{$font-body});
   font-size: var(--note-font-size);
   transform: translateZ(0);
   transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
@@ -680,7 +680,8 @@
   --note-pattern-size: 20px 20px;
 }
 
-.is-font-dmSans {
+.is-font-dmSans,
+.is-font-dm-sans {
   font-family: $font-note-dm-sans;
 }
 
@@ -688,7 +689,8 @@
   font-family: $font-note-caveat;
 }
 
-.is-font-patrickHand {
+.is-font-patrickHand,
+.is-font-patrick-hand {
   font-family: $font-note-patrick-hand;
 }
 
@@ -696,23 +698,28 @@
   font-family: $font-note-kalam;
 }
 
-.is-font-architectsDaughter {
+.is-font-architectsDaughter,
+.is-font-architects-daughter {
   font-family: $font-note-architects-daughter;
 }
 
-.is-font-indieFlower {
+.is-font-indieFlower,
+.is-font-indie-flower {
   font-family: $font-note-indie-flower;
 }
 
-.is-font-nanumPen {
+.is-font-nanumPen,
+.is-font-nanum-pen {
   font-family: $font-note-nanum-pen;
 }
 
-.is-font-shadowsIntoLight {
+.is-font-shadowsIntoLight,
+.is-font-shadows-into-light {
   font-family: $font-note-shadows-into-light;
 }
 
-.is-font-comicNeue {
+.is-font-comicNeue,
+.is-font-comic-neue {
   font-family: $font-note-comic-neue;
 }
 
@@ -720,11 +727,13 @@
   font-family: $font-note-sriracha;
 }
 
-.is-font-shortStack {
+.is-font-shortStack,
+.is-font-short-stack {
   font-family: $font-note-short-stack;
 }
 
-.is-font-gochiHand {
+.is-font-gochiHand,
+.is-font-gochi-hand {
   font-family: $font-note-gochi-hand;
 }
 

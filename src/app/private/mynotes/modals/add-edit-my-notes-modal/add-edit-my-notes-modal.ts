@@ -37,6 +37,7 @@ import { StickyNoteApiService } from '../../services/sticky-notes.service';
 
 import type { WorkspaceMemberListItem } from '../../../workspace-members/models/workspace-member.models';
 import { WorkspaceMemberApiService } from '../../../workspace-members/services/workspace-member.service';
+import { extractList, idOf } from '../../../../shared/functions/common.function';
 
 @Component({
   selector: 'app-add-edit-my-notes-modal',
@@ -1115,26 +1116,11 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   private extractList(response: any): any[] {
-    const data = response?.data;
-
-    if (Array.isArray(data)) return data;
-    if (!data || typeof data !== 'object') return [];
-
-    return (
-      data.items ||
-      data.checklists ||
-      data.checklistItems ||
-      data.docs ||
-      data.results ||
-      []
-    );
+    return extractList(response);
   }
 
   private idOf(value: any): string {
-    if (!value) return '';
-    if (typeof value === 'string') return value;
-
-    return String(value.id ?? value._id ?? '');
+    return idOf(value);
   }
 
   private referenceId(value: any): string {

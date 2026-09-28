@@ -108,7 +108,6 @@ export interface SelectOption {
   label: string;
   value: SelectValue;
   description?: string;
-  /** Optional CSS color, e.g. '#DDEFD7' or 'var(--app-select-swatch-green)'. */
   color?: string;
   group?: string;
   icon?: AppIconDefinition;

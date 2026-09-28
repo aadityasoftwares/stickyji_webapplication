@@ -3,30 +3,41 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../Environments/environments';
-import { WorkspaceFolderQuery, PaginatedApiResponse, WorkspaceFolder, ApiResponse, WorkspaceFolderCreateRequest, WorkspaceFolderUpdateRequest, WorkspaceFolderStatus } from '../models/workspace-folder.models';
 
+const WORKSPACE_FOLDER_ENDPOINTS = {
+    create: '/workspacefolders/create',
+    get: '/workspacefolders/get',
+    getAll: '/workspacefolders/getall',
+    my: '/workspacefolders/my',
+    update: '/workspacefolders/update',
+    status: '/workspacefolders/status',
+    delete: '/workspacefolders/delete',
+    restore: '/workspacefolders/restore',
+} as const;
 
 @Injectable({
     providedIn: 'root',
 })
-export class WorkspaceFolderApiService {
+export class WorkspaceFolderService {
     private readonly http = inject(HttpClient);
 
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
-    private readonly workspaceFolderBaseUrl = `${this.baseUrl}/workspacefolders`;
-    private readonly createWorkspaceFolderUrl = `${this.workspaceFolderBaseUrl}/create`;
-    private readonly getWorkspaceFolderUrl = `${this.workspaceFolderBaseUrl}/get`;
-    private readonly getWorkspaceFoldersByWorkspaceUrl = `${this.workspaceFolderBaseUrl}/workspace`;
-    private readonly updateWorkspaceFolderUrl = `${this.workspaceFolderBaseUrl}/update`;
-    private readonly updateWorkspaceFolderStatusUrl = `${this.workspaceFolderBaseUrl}/status`;
-    private readonly deleteWorkspaceFolderUrl = `${this.workspaceFolderBaseUrl}/delete`;
-    private readonly restoreWorkspaceFolderUrl = `${this.workspaceFolderBaseUrl}/restore`;
+    private readonly apiUrl = environment.apiUrl.replace(/\/+$/, '');
 
-    getByWorkspace(workspaceId: string, query: WorkspaceFolderQuery = {},): Observable<PaginatedApiResponse<WorkspaceFolder>> {
+    getAllWorkspaceFolders(query: any = {}): Observable<any> {
+        return this.http.post<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.getAll}`,
+            query,
+            {
+                withCredentials: true,
+            },
+        );
+    }
+
+    getMyWorkspaceFolders(query: any = {}): Observable<any> {
         const params = this.createHttpParams(query);
 
-        return this.http.get<PaginatedApiResponse<WorkspaceFolder>>(
-            `${this.getWorkspaceFoldersByWorkspaceUrl}/${encodeURIComponent(workspaceId)}`,
+        return this.http.get<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.my}`,
             {
                 params,
                 withCredentials: true,
@@ -34,20 +45,18 @@ export class WorkspaceFolderApiService {
         );
     }
 
-    getById(id: string): Observable<ApiResponse<WorkspaceFolder>> {
-        return this.http.get<ApiResponse<WorkspaceFolder>>(
-            `${this.getWorkspaceFolderUrl}/${encodeURIComponent(id)}`,
+    getById(id: any = ''): Observable<any> {
+        return this.http.get<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.get}/${encodeURIComponent(id)}`,
             {
                 withCredentials: true,
             },
         );
     }
 
-    create(
-        payload: WorkspaceFolderCreateRequest,
-    ): Observable<ApiResponse<WorkspaceFolder>> {
-        return this.http.post<ApiResponse<WorkspaceFolder>>(
-            this.createWorkspaceFolderUrl,
+    create(payload: any): Observable<any> {
+        return this.http.post<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.create}`,
             payload,
             {
                 withCredentials: true,
@@ -55,12 +64,9 @@ export class WorkspaceFolderApiService {
         );
     }
 
-    update(
-        id: string,
-        payload: WorkspaceFolderUpdateRequest,
-    ): Observable<ApiResponse<WorkspaceFolder>> {
-        return this.http.put<ApiResponse<WorkspaceFolder>>(
-            `${this.updateWorkspaceFolderUrl}/${encodeURIComponent(id)}`,
+    update(id: any = '', payload: any = {}): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.update}/${encodeURIComponent(id)}`,
             payload,
             {
                 withCredentials: true,
@@ -68,12 +74,9 @@ export class WorkspaceFolderApiService {
         );
     }
 
-    updateStatus(
-        id: string,
-        status: WorkspaceFolderStatus,
-    ): Observable<ApiResponse<WorkspaceFolder>> {
-        return this.http.put<ApiResponse<WorkspaceFolder>>(
-            `${this.updateWorkspaceFolderStatusUrl}/${encodeURIComponent(id)}`,
+    updateStatus(id: any = '', status: any): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.status}/${encodeURIComponent(id)}`,
             { status },
             {
                 withCredentials: true,
@@ -81,18 +84,18 @@ export class WorkspaceFolderApiService {
         );
     }
 
-    delete(id: string): Observable<ApiResponse<null>> {
-        return this.http.delete<ApiResponse<null>>(
-            `${this.deleteWorkspaceFolderUrl}/${encodeURIComponent(id)}`,
+    delete(id: any = ''): Observable<any> {
+        return this.http.delete<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.delete}/${encodeURIComponent(id)}`,
             {
                 withCredentials: true,
             },
         );
     }
 
-    restore(id: string): Observable<ApiResponse<WorkspaceFolder>> {
-        return this.http.put<ApiResponse<WorkspaceFolder>>(
-            `${this.restoreWorkspaceFolderUrl}/${encodeURIComponent(id)}`,
+    restore(id: any = ''): Observable<any> {
+        return this.http.put<any>(
+            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.restore}/${encodeURIComponent(id)}`,
             {},
             {
                 withCredentials: true,
@@ -100,11 +103,15 @@ export class WorkspaceFolderApiService {
         );
     }
 
-    private createHttpParams(query: WorkspaceFolderQuery): HttpParams {
+    private createHttpParams(query: any = {}): HttpParams {
         let params = new HttpParams();
 
         for (const [key, value] of Object.entries(query)) {
-            if (value === undefined || value === null || value === '') {
+            if (
+                value === undefined ||
+                value === null ||
+                value === ''
+            ) {
                 continue;
             }
 

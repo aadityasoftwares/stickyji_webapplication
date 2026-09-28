@@ -17,8 +17,10 @@ import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
-import { WorkspaceFolderApiService } from '../workspacefolders/services/workspace-folder.service';
+import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { USER_PREFERENCE_KEYS, VIEW, View } from '../../shared/constants/common.constants';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
 import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
 import { StickyNoteApiService } from './services/sticky-notes.service';
@@ -51,8 +53,9 @@ export class MyNotes implements OnInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly workspaceApi = inject(WorkspaceService);
-  private readonly folderApi = inject(WorkspaceFolderApiService);
+  private readonly folderApi = inject(WorkspaceFolderService);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly stickyNoteColumnApi = inject(StickyNoteColumnApiService);
   private readonly stickyNoteChecklistItemApi = inject(StickyNoteChecklistItemApiService);
@@ -103,7 +106,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly loadingNotes = signal(false);
   readonly notesError = signal<string | null>(null);
   readonly activeTab = signal<any>('all');
-  readonly view = signal<any>('grid');
+  readonly view = signal<View>(VIEW.GRID);
   readonly searchTerm = signal('');
   readonly sortBy = signal<any>('updatedAt');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
@@ -146,8 +149,8 @@ export class MyNotes implements OnInit, OnChanges {
     { value: 'archived', label: 'Archived', count: this.archivedCount(), icon: LucideArchive, ariaLabel: 'Archived notes' }
   ]);
   readonly viewTabs: readonly any[] = [
-    { value: 'grid', label: 'Grid', icon: LucideLayoutGrid, ariaLabel: 'Grid view' },
-    { value: 'table', label: 'Table', icon: LucideList, ariaLabel: 'Table view' }
+    { value: VIEW.GRID, label: 'Grid', icon: LucideLayoutGrid, ariaLabel: 'Grid view' },
+    { value: VIEW.TABLE, label: 'Table', icon: LucideList, ariaLabel: 'Table view' }
   ];
   readonly visibleNotes = computed(() => {
     const tab = this.activeTab();
@@ -255,6 +258,7 @@ export class MyNotes implements OnInit, OnChanges {
     this.workspaceFolderStore.resetForWorkspace(workspaceId);
     this.workspaceFolderStore.setLoading(true);
     const query: any = {
+      workspaceId,
       page: 1,
       limit: 100,
       status: 'ACTIVE',
@@ -262,14 +266,20 @@ export class MyNotes implements OnInit, OnChanges {
       sortOrder: 'asc'
     };
     this.folderApi
-      .getByWorkspace(workspaceId, query)
+      .getAllWorkspaceFolders(query)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
           if (requestVersion !== this.folderRequestVersion || this.selectedWorkspaceId() !== workspaceId)
             return;
           const folders = this.extractFolders(response);
-          this.workspaceFolderStore.setFolders(workspaceId, folders, response.pagination ?? null);
+          const pagination =
+            response?.meta ??
+            response?.data?.meta ??
+            response?.pagination ??
+            response?.data?.pagination ??
+            null;
+          this.workspaceFolderStore.setFolders(workspaceId, folders, pagination);
           this.selectInitialFolder();
         },
         error: error => {
@@ -355,7 +365,7 @@ export class MyNotes implements OnInit, OnChanges {
       this.activeTab.set(value);
   }
   setNoteView(value: any): void {
-    if (value === 'grid' || value === 'table')
+    if (value === VIEW.GRID || value === VIEW.TABLE)
       this.view.set(value);
   }
   updateSearch(value: any): void {
@@ -738,6 +748,10 @@ export class MyNotes implements OnInit, OnChanges {
     const changed = id !== this.selectedWorkspaceId();
     this.workspaceStore.select(id);
     if (changed) {
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID,
+        id
+      );
       this.workspaceFolderStore.clear();
       this.clearNotesState();
     }
@@ -750,6 +764,12 @@ export class MyNotes implements OnInit, OnChanges {
       return;
     const changed = id !== this.selectedFolderId();
     this.workspaceFolderStore.select(id);
+    if (changed) {
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID,
+        id
+      );
+    }
     this.clearNotesState(false);
     this.activeTab.set('all');
     this.searchTerm.set('');
@@ -767,8 +787,15 @@ export class MyNotes implements OnInit, OnChanges {
     }
     const requestedId = this.workspaceId.trim();
     const currentId = this.selectedWorkspaceId();
+    const preferredId = this.userPreferenceStore.selectedWorkspaceId();
     const exists = (id: string) => !!id && workspaces.some(item => this.workspaceRecordId(item) === id);
-    const nextId = exists(requestedId) ? requestedId : exists(currentId) ? currentId : this.workspaceRecordId(workspaces[0]);
+    const nextId = exists(requestedId)
+      ? requestedId
+      : exists(preferredId)
+        ? preferredId
+        : exists(currentId)
+          ? currentId
+          : this.workspaceRecordId(workspaces[0]);
     this.selectWorkspace(nextId, false);
   }
   private selectInitialFolder(): void {
@@ -780,13 +807,16 @@ export class MyNotes implements OnInit, OnChanges {
     }
     const requestedId = this.workspaceFolderId.trim();
     const currentId = this.selectedFolderId();
+    const preferredId = this.userPreferenceStore.selectedFolderId();
     const exists = (id: string) => !!id && folders.some(item => this.folderId(item) === id);
     const defaultFolder = folders.find(folder => Boolean(folder.isDefault));
     const nextId = exists(requestedId)
       ? requestedId
-      : exists(currentId)
-        ? currentId
-        : this.folderId(defaultFolder ?? folders[0]);
+      : exists(preferredId)
+        ? preferredId
+        : exists(currentId)
+          ? currentId
+          : this.folderId(defaultFolder ?? folders[0]);
     this.selectFolder(nextId, false);
   }
   private replaceNote(updated: any): void {

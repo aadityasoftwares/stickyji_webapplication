@@ -11,6 +11,156 @@
     box-sizing: border-box;
 }
 
+/* ==========================================================================
+   Full Side Panel Body Background Color Dynamic Styling
+   ========================================================================== */
+
+:host ::ng-deep app-side-panel {
+    .app-side-panel-body {
+        background-color: var(--editor-body, #{$paper}) !important;
+        color: var(--editor-ink, #{$text-primary});
+        transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    &[data-color='white'] .app-side-panel-body,
+    .note-editor[data-color='white'] {
+        --editor-paper: #{$paper};
+        --editor-paper-deep: #{$paper-dark};
+        --editor-body: #{$paper};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$secondary};
+    }
+
+    &[data-color='yellow'] .app-side-panel-body,
+    .note-editor[data-color='yellow'] {
+        --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
+        --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
+        --editor-body: #{color.mix($note-yellow, $paper, 30%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-mustard};
+    }
+
+    &[data-color='orange'] .app-side-panel-body,
+    .note-editor[data-color='orange'] {
+        --editor-paper: #{color.mix($note-orange, $paper, 20%)};
+        --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
+        --editor-body: #{color.mix($note-orange, $paper, 20%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-burnt-orange};
+    }
+
+    &[data-color='pink'] .app-side-panel-body,
+    .note-editor[data-color='pink'] {
+        --editor-paper: #{color.mix($note-pink, $paper, 34%)};
+        --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
+        --editor-body: #{color.mix($note-pink, $paper, 34%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-blush};
+    }
+
+    &[data-color='red'] .app-side-panel-body,
+    .note-editor[data-color='red'] {
+        --editor-paper: #{color.mix($note-red, $paper, 20%)};
+        --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
+        --editor-body: #{color.mix($note-red, $paper, 20%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-dark-red};
+    }
+
+    &[data-color='green'] .app-side-panel-body,
+    .note-editor[data-color='green'] {
+        --editor-paper: #{color.mix($note-green, $paper, 18%)};
+        --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
+        --editor-body: #{color.mix($note-green, $paper, 18%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-forest-green};
+    }
+
+    &[data-color='blue'] .app-side-panel-body,
+    .note-editor[data-color='blue'] {
+        --editor-paper: #{color.mix($note-blue, $paper, 16%)};
+        --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
+        --editor-body: #{color.mix($note-blue, $paper, 16%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-steel-blue};
+    }
+
+    &[data-color='purple'] .app-side-panel-body,
+    .note-editor[data-color='purple'] {
+        --editor-paper: #{color.mix($note-purple, $paper, 14%)};
+        --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
+        --editor-body: #{color.mix($note-purple, $paper, 14%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-grape};
+    }
+
+    &[data-color='brown'] .app-side-panel-body,
+    .note-editor[data-color='brown'] {
+        --editor-paper: #{color.mix($note-brown, $paper, 18%)};
+        --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
+        --editor-body: #{color.mix($note-brown, $paper, 18%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-coffee};
+    }
+
+    &[data-color='black'] .app-side-panel-body,
+    .note-editor[data-color='black'] {
+        --editor-paper: #{$note-jet-black};
+        --editor-paper-deep: #{$note-black};
+        --editor-body: #{$note-jet-black};
+        --editor-ink: #{$paper};
+        --editor-muted: #{rgba($paper, 0.72)};
+        --editor-rule: #{rgba($paper, 0.18)};
+        --note-accent: #{$note-gold};
+        --note-check: #{$note-mint};
+
+        .app-input-wrapper {
+            --app-input-background: #{$note-black};
+            --app-input-color: #{$paper};
+            --app-input-border: #{rgba($paper, 0.22)};
+            --app-input-muted: #{rgba($paper, 0.72)};
+            --app-input-placeholder: #{rgba($paper, 0.45)};
+        }
+
+        .app-select-wrapper {
+            --app-select-background: #{$note-black};
+            --app-select-color: #{$paper};
+            --app-select-border: #{rgba($paper, 0.22)};
+            --app-select-muted: #{rgba($paper, 0.72)};
+        }
+
+        .app-datepicker-wrapper {
+            --app-datepicker-background: #{$note-black};
+            --app-datepicker-color: #{$paper};
+            --app-datepicker-border: #{rgba($paper, 0.22)};
+            --app-datepicker-muted: #{rgba($paper, 0.72)};
+            --app-datepicker-placeholder: #{rgba($paper, 0.45)};
+        }
+    }
+}
+
+/* ==========================================================================
+   Note Editor Form
+   ========================================================================== */
+
 .note-editor {
     --editor-paper: #{$paper};
     --editor-body: var(--editor-paper);
@@ -22,76 +172,10 @@
     gap: 18px;
     width: 100%;
     min-width: 0;
-    padding: 16px;
-    border-radius: 12px;
+    padding: 0;
     color: var(--editor-ink);
-    background: var(--editor-body);
+    background: transparent;
     font-family: $font-body;
-    transition: background-color 140ms ease;
-}
-
-.note-editor[data-color='white'] {
-    --editor-paper: #{$paper};
-    --editor-paper-deep: #{$paper-dark};
-    --note-accent: #{$secondary};
-}
-
-.note-editor[data-color='yellow'] {
-    --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
-    --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
-    --note-accent: #{$note-mustard};
-}
-
-.note-editor[data-color='orange'] {
-    --editor-paper: #{color.mix($note-orange, $paper, 20%)};
-    --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
-    --note-accent: #{$note-burnt-orange};
-}
-
-.note-editor[data-color='pink'] {
-    --editor-paper: #{color.mix($note-pink, $paper, 34%)};
-    --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
-    --note-accent: #{$note-blush};
-}
-
-.note-editor[data-color='red'] {
-    --editor-paper: #{color.mix($note-red, $paper, 20%)};
-    --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
-    --note-accent: #{$note-dark-red};
-}
-
-.note-editor[data-color='green'] {
-    --editor-paper: #{color.mix($note-green, $paper, 18%)};
-    --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
-    --note-accent: #{$note-forest-green};
-}
-
-.note-editor[data-color='blue'] {
-    --editor-paper: #{color.mix($note-blue, $paper, 16%)};
-    --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
-    --note-accent: #{$note-steel-blue};
-}
-
-.note-editor[data-color='purple'] {
-    --editor-paper: #{color.mix($note-purple, $paper, 14%)};
-    --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
-    --note-accent: #{$note-grape};
-}
-
-.note-editor[data-color='brown'] {
-    --editor-paper: #{color.mix($note-brown, $paper, 18%)};
-    --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
-    --note-accent: #{$note-coffee};
-}
-
-.note-editor[data-color='black'] {
-    --editor-paper: #{$note-jet-black};
-    --editor-paper-deep: #{$note-black};
-    --editor-ink: #{$paper};
-    --editor-muted: #{$border};
-    --editor-rule: #{rgba($paper, 0.18)};
-    --note-accent: #{$note-gold};
-    --note-check: #{$note-mint};
 }
 
 .note-editor app-input,
@@ -102,11 +186,14 @@
     width: 100%;
 }
 
-/* The three pill selectors in the drawing: workspace, folder, column. */
+/* ==========================================================================
+   Dropdowns: Context Selection (Workspace, Folder, Column / Todo)
+   ========================================================================== */
+
 .note-context {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(10ch + 84px)), 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     align-items: center;
     min-width: 0;
 }
@@ -115,10 +202,13 @@
     min-width: 0;
 }
 
-/* Labels sit beside fields, exactly as in the sketch. */
+/* ==========================================================================
+   Input Fields: Title and Details (Description)
+   ========================================================================== */
+
 .note-fields {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
 }
 
@@ -129,7 +219,7 @@
     align-items: start;
 }
 
-.note-field>app-label {
+.note-field > app-label {
     padding-top: 10px;
 }
 
@@ -137,44 +227,8 @@
     min-width: 0;
 }
 
-.note-date-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    min-width: 0;
-}
-
-.note-date-row>app-label {
-    padding-top: 0;
-}
-
-.note-date-control {
-    width: 100%;
-    max-width: 240px;
-    min-width: 0;
-}
-
-.note-date-row ::ng-deep .app-datepicker-wrapper {
-    --app-datepicker-background: var(--editor-body);
-    --app-datepicker-border: var(--editor-rule);
-    --app-datepicker-color: var(--editor-ink);
-    --app-datepicker-muted: var(--editor-muted);
-    --app-datepicker-placeholder: var(--editor-muted);
-    --app-datepicker-depth: transparent;
-}
-
-.note-date-row ::ng-deep .app-datepicker-control-shell {
-    background: transparent;
-    box-shadow: none;
-}
-
-.note-date-row ::ng-deep .app-datepicker-control {
-    color: var(--editor-ink);
-}
-
 .note-title-field ::ng-deep .app-input-control {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -191,72 +245,48 @@
     font-size: 10px;
 }
 
-.note-fields ::ng-deep .app-input-wrapper {
-    --app-input-background: var(--editor-body);
-    --app-input-color: var(--editor-ink);
-    --app-input-border: var(--editor-rule);
-    --app-input-muted: var(--editor-muted);
-    --app-input-placeholder: var(--editor-muted);
-    --app-input-inline-hover-background: rgba(127, 127, 127, 0.06);
-}
-
-.note-fields ::ng-deep .app-input-control-shell {
-    background: transparent;
-}
-
-.note-fields ::ng-deep .app-input-control {
-    color: var(--editor-ink);
-}
-
-.note-fields ::ng-deep .app-input-control::placeholder {
-    color: var(--editor-muted);
-    opacity: 0.8;
-}
-
 .note-editor ::ng-deep .app-label {
     color: var(--editor-muted);
     font-size: 12px;
 }
 
-.note-context ::ng-deep .app-select-trigger,
-.note-appearance ::ng-deep .app-select-trigger {
-    color: var(--editor-ink);
-}
+/* ==========================================================================
+   Date Row
+   ========================================================================== */
 
-.note-context ::ng-deep .app-select-single-value,
-.note-appearance ::ng-deep .app-select-single-value {
-    color: inherit;
-}
-
-.note-context ::ng-deep .app-select-placeholder,
-.note-context ::ng-deep .app-select-chevron,
-.note-appearance ::ng-deep .app-select-chevron {
-    color: var(--editor-muted);
-}
-
-.note-context ::ng-deep .app-select-trigger:hover:not(:disabled),
-.note-appearance ::ng-deep .app-select-trigger:hover:not(:disabled) {
-    background: rgba(127, 127, 127, 0.10);
-}
-
-/* Color / Shape / Variant occupy a single compact row. */
-
-.note-appearance ::ng-deep .app-select-trigger {
-    background: transparent;
-}
-
-.note-extra-grid {
+.note-date-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding-top: 12px;
-}
-
-.note-extra-field {
-    display: grid;
-    gap: 6px;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
     min-width: 0;
 }
+
+.note-date-row > app-label {
+    padding-top: 0;
+}
+
+.note-date-control {
+    width: 100%;
+    max-width: 240px;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Appearance: Color, Shape, Variant, Pattern Dropdowns
+   ========================================================================== */
+
+.note-appearance {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Checklists
+   ========================================================================== */
 
 .checklist-editor {
     display: grid;
@@ -271,7 +301,7 @@
     gap: 10px;
 }
 
-.checklist-header>div {
+.checklist-header > div {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -301,7 +331,7 @@
     cursor: pointer;
 }
 
-.checklist-empty>span:last-child {
+.checklist-empty > span:last-child {
     display: grid;
     gap: 2px;
 }
@@ -331,7 +361,7 @@
     gap: 6px;
 }
 
-.checklist-group+.checklist-group {
+.checklist-group + .checklist-group {
     padding-top: 10px;
     border-top: 1px dashed var(--editor-rule);
 }
@@ -389,13 +419,16 @@
     margin-left: 28px;
 }
 
+/* ==========================================================================
+   Preview and Footer
+   ========================================================================== */
+
 /* Floating preview is a sibling, not part of the panel's scrolling body. */
 .note-external-preview {
     position: fixed;
     z-index: 2147483000;
     top: 90px;
     right: 720px;
-    /* Keep the preview fully outside the side-panel shell. */
     width: min(320px, calc(100vw - 760px));
     max-height: calc(100dvh - 120px);
     overflow: hidden;
@@ -435,7 +468,12 @@
     color: #9B2626;
     background: #FDEAE7;
     font-size: 12px;
+    border-radius: 8px;
 }
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
 
 @media (max-width: 1199.98px) {
     .note-external-preview {
@@ -451,12 +489,17 @@
     }
 }
 
-@media (max-width: 575.98px) {
-    .note-editor {
-        padding: 12px;
-        gap: 14px;
+@media (max-width: 640px) {
+    .note-context {
+        grid-template-columns: 1fr;
     }
 
+    .note-appearance {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
     .note-field,
     .note-date-row {
         grid-template-columns: 48px minmax(0, 1fr);
@@ -467,22 +510,20 @@
         max-width: none;
     }
 
-    .note-extra-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
     .checklist-items {
         padding-left: 0;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
+    :host ::ng-deep .app-side-panel-body,
     .note-editor {
         transition: none;
     }
 }
 
 @media (forced-colors: active) {
+    :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
     .note-editor[data-color] {
         --editor-body: Canvas;
         --editor-paper: Canvas;
@@ -490,26 +531,4 @@
         --editor-muted: CanvasText;
         --editor-rule: CanvasText;
     }
-}
-
-/* Allocate readable label space; wrap controls rather than squeeze their text. */
-.note-context,
-.note-appearance {
-    font-size: 14px;
-}
-
-.note-appearance {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(10ch + 84px)), 1fr));
-    align-items: center;
-    gap: 6px 8px;
-    min-width: 0;
-}
-
-.note-editor ::ng-deep .app-select-wrapper {
-    --app-select-background: var(--editor-paper);
-    --app-select-color: var(--editor-ink);
-    --app-select-muted: var(--editor-muted);
-    --app-select-border: var(--editor-rule);
-    --app-select-inline-hover-background: rgba(127, 127, 127, 0.08);
 }

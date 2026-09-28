@@ -45,7 +45,11 @@ import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
+import { Router } from '@angular/router';
 import { WorkspaceService } from './services/workspace.service';
+import { WorkspaceStore } from './services/workspace.store';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
 import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
 
@@ -74,6 +78,9 @@ import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-fol
 })
 export class Workspace implements OnInit {
   private readonly workspaceApi = inject(WorkspaceService);
+  private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
@@ -248,6 +255,7 @@ export class Workspace implements OnInit {
         next: (response: any) => {
           const workspaces = this.extractWorkspaces(response);
           this.workspaces.set(workspaces);
+          this.workspaceStore.setWorkspaces(workspaces);
 
           if (!savedId) return;
 
@@ -313,7 +321,13 @@ export class Workspace implements OnInit {
 
   openWorkspace(workspace: any): void {
     if (!workspace?.id || this.isBusy(workspace)) return;
+    this.workspaceStore.select(workspace.id);
+    this.userPreferenceStore.setAndSave(
+      USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID,
+      workspace.id
+    );
     this.workspaceOpened.emit(workspace);
+    this.router.navigate(['/app/workspacefolders/my']);
   }
 
   handleWorkspaceClick(workspace: any, event: MouseEvent): void {

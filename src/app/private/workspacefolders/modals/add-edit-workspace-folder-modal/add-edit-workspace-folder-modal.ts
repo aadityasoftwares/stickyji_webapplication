@@ -34,7 +34,7 @@ import type {
   WorkspaceFolderCreateRequest,
   WorkspaceFolderUpdateRequest
 } from '../../models/workspace-folder.models';
-import { WorkspaceFolderApiService } from '../../services/workspace-folder.service';
+import { WorkspaceFolderService } from '../../services/workspace-folder.service';
 
 @Component({
   selector: 'app-add-edit-workspace-folder-modal',
@@ -46,7 +46,7 @@ import { WorkspaceFolderApiService } from '../../services/workspace-folder.servi
 })
 export class AddEditWorkspaceFolderModal implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly folderApi = inject(WorkspaceFolderApiService);
+  private readonly folderApi = inject(WorkspaceFolderService);
   private readonly toastService = inject(ToastService);
 
   @ViewChild('folderNameInput', { read: ElementRef })

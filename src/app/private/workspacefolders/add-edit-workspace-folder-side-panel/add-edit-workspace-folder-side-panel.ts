@@ -39,7 +39,7 @@ import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import { WorkspaceFolderApiService } from '../services/workspace-folder.service';
+import { WorkspaceFolderService } from '../services/workspace-folder.service';
 
 @Component({
   selector: 'app-add-edit-workspace-folder-side-panel',
@@ -59,7 +59,7 @@ import { WorkspaceFolderApiService } from '../services/workspace-folder.service'
 })
 export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly folderApi = inject(WorkspaceFolderApiService);
+  private readonly folderApi = inject(WorkspaceFolderService);
   private readonly toastService = inject(ToastService);
   private readonly previewDocument = inject(DOCUMENT);
   private readonly previewRenderer = inject(Renderer2);

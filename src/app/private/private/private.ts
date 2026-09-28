@@ -14,6 +14,7 @@ import { LucideUserRound, LucideUsersRound } from '@lucide/angular';
 
 import { Sidebar } from '../sidebar/sidebar';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { AppSessionStore } from '../../shared/functions/app-session.store';
 
 @Component({
@@ -29,6 +30,7 @@ export class Private {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
 
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly sidebarStorageKey = 'mystickynotes.sidebar-collapsed';
@@ -42,6 +44,10 @@ export class Private {
 
   readonly activeWorkspaceId = computed(
     () => this.workspaceStore.selectedId() ?? ''
+  );
+  readonly selectedWorkspaceId = this.activeWorkspaceId;
+  readonly selectedFolderId = computed(
+    () => this.workspaceFolderStore.selectedId() ?? ''
   );
 
   readonly loadingWorkspaces = this.workspaceStore.loading;
@@ -133,6 +139,7 @@ export class Private {
     }
 
     this.workspaceStore.select(workspaceId);
+    this.workspaceFolderStore.resetForWorkspace(workspaceId);
 
     if (this.isBrowser) {
       localStorage.setItem(
@@ -146,6 +153,7 @@ export class Private {
 
   logout(): void {
     this.appSessionStore.reset();
+    this.workspaceFolderStore.clear();
 
     if (this.isBrowser) {
       localStorage.removeItem(this.workspaceStorageKey);

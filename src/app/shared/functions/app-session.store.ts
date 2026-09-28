@@ -1,6 +1,7 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
 import { UserPreferenceStore } from '../../private/user-preferences/services/user-preference.store';
 import { WorkspaceStore } from '../../private/workspace/services/workspace.store';
+import { WorkspaceFolderStore } from '../../private/workspacefolders/services/workspace-folder.store';
 
 @Injectable({
     providedIn: 'root',
@@ -9,6 +10,7 @@ export class AppSessionStore {
 
     private readonly userPreferenceStore = inject(UserPreferenceStore);
     private readonly workspaceStore = inject(WorkspaceStore);
+    private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
 
     private readonly _initializing = signal(false);
     private readonly _initialized = signal(false);
@@ -78,6 +80,7 @@ export class AppSessionStore {
 
         this.userPreferenceStore.reset();
         this.workspaceStore.reset();
+        this.workspaceFolderStore.clear();
     }
 
 }

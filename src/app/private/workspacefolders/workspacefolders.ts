@@ -17,6 +17,7 @@ import {
   signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
@@ -59,9 +60,11 @@ import type {
   WorkspaceFolderStatus,
   WorkspaceFolderUpdateRequest
 } from './models/workspace-folder.models';
-import { WorkspaceFolderApiService } from './services/workspace-folder.service';
+import { WorkspaceFolderService } from './services/workspace-folder.service';
 import { WorkspaceFolderStore } from './services/workspace-folder.store';
 import { AddEditWorkspaceFolderModal } from './modals/add-edit-workspace-folder-modal/add-edit-workspace-folder-modal';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 
 import type {
   MyWorkspaceQuery,
@@ -103,10 +106,11 @@ interface FolderTheme {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Workspacefolders implements OnInit, OnChanges {
-  private readonly folderApi = inject(WorkspaceFolderApiService);
-  // private readonly workspaceApi = inject(WorkspaceApiService);
+  private readonly folderApi = inject(WorkspaceFolderService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly folderStore = inject(WorkspaceFolderStore);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
 
@@ -147,6 +151,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly loadingWorkspaces = this.workspaceStore.loading;
   readonly workspaceError = this.workspaceStore.error;
   readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
+  readonly selectedFolderId = computed(() => this.folderStore.selectedId() ?? '');
 
   readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
     this.workspaces().map(workspace => ({
@@ -288,11 +293,11 @@ export class Workspacefolders implements OnInit, OnChanges {
   ngOnInit(): void {
     this.initialized = true;
 
-    // if (this.workspaceStore.initialized()) {
-    //   this.ensureWorkspaceSelection();
-    // } else {
-    //   this.loadWorkspaces();
-    // }
+    if (!this.workspaceStore.loaded() && !this.workspaceStore.loading()) {
+      this.workspaceStore.load();
+    } else {
+      this.ensureWorkspaceSelection();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -301,27 +306,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   loadWorkspaces(): void {
-    // this.workspaceStore.setLoading(true);
-    // const query: MyWorkspaceQuery = { page: 1, limit: 100 };
-
-    // this.workspaceApi
-    //   .getMyWorkspaces(query)
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe({
-    //     next: response => {
-    //       const workspaces = this.extractWorkspaces(response);
-    //       this.workspaceStore.setWorkspaces(workspaces, response.pagination ?? null);
-    //       this.ensureWorkspaceSelection();
-    //     },
-    //     error: error => {
-    //       const message = this.errorMessage(error, 'Unable to load your workspaces.');
-    //       this.workspaceStore.setError(message);
-    //       this.toastService.error(message, {
-    //         title: 'Could not load workspaces',
-    //         dedupeKey: 'workspace-folder-workspace-load-error'
-    //       });
-    //     }
-    //   });
+    this.workspaceStore.load(true);
   }
 
   loadFolders(savedId = '', created = false, workspaceId = this.selectedWorkspaceId()): void {
@@ -340,7 +325,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     const query: WorkspaceFolderQuery = { page: 1, limit: 100 };
 
     this.folderApi
-      .getByWorkspace(id, query)
+      .getAllWorkspaceFolders(query)
       .pipe(
         finalize(() => {
           if (requestVersion === this.folderRequestVersion) this.loading.set(false);
@@ -389,7 +374,11 @@ export class Workspacefolders implements OnInit, OnChanges {
     if (id === this.selectedWorkspaceId()) return;
 
     this.workspaceStore.select(id);
-    this.folderStore.select(null);
+    this.userPreferenceStore.setAndSave(
+      USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID,
+      id
+    );
+    this.folderStore.resetForWorkspace(id);
     this.workspaceChange.emit(id);
   }
 
@@ -420,8 +409,16 @@ export class Workspacefolders implements OnInit, OnChanges {
   openFolder(folder: WorkspaceFolder): void {
     if (this.isBusy(folder) || this.isDeleted(folder)) return;
 
-    this.folderStore.select(this.folderId(folder));
+    const id = this.folderId(folder);
+    this.folderStore.select(id);
+    if (id) {
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID,
+        id
+      );
+    }
     this.folderOpened.emit(folder);
+    this.router.navigate(['/app/sticky-notes/my']);
   }
 
   handleFolderClick(folder: WorkspaceFolder, event: MouseEvent): void {
@@ -879,19 +876,22 @@ export class Workspacefolders implements OnInit, OnChanges {
 
     const requestedId = this.workspaceId.trim();
     const currentId = this.selectedWorkspaceId();
+    const preferredId = this.userPreferenceStore.selectedWorkspaceId();
     const valid = (id: string) =>
       !!id && workspaces.some(workspace => this.workspaceRecordId(workspace) === id);
 
-    const preferredId = valid(requestedId)
+    const nextId = valid(requestedId)
       ? requestedId
-      : valid(currentId)
-        ? currentId
-        : this.workspaceRecordId(workspaces[0]);
+      : valid(preferredId)
+        ? preferredId
+        : valid(currentId)
+          ? currentId
+          : this.workspaceRecordId(workspaces[0]);
 
-    if (preferredId !== currentId) {
-      this.workspaceStore.select(preferredId);
-    } else if (this.loadedWorkspaceId !== preferredId) {
-      this.loadFolders('', false, preferredId);
+    if (nextId !== currentId) {
+      this.workspaceStore.select(nextId);
+    } else if (this.loadedWorkspaceId !== nextId) {
+      this.loadFolders('', false, nextId);
     }
   }
 
@@ -915,12 +915,22 @@ export class Workspacefolders implements OnInit, OnChanges {
       return;
     }
 
+    const preferredFolderId = this.userPreferenceStore.selectedFolderId();
+    if (
+      preferredFolderId &&
+      folders.some(folder => this.folderId(folder) === preferredFolderId && this.isActive(folder))
+    ) {
+      this.folderStore.select(preferredFolderId);
+      return;
+    }
+
     const preferred =
       folders.find(folder => this.isActive(folder) && this.isDefault(folder)) ??
       folders.find(folder => this.isActive(folder)) ??
       null;
 
-    this.folderStore.select(preferred ? this.folderId(preferred) : null);
+    const nextId = preferred ? this.folderId(preferred) : null;
+    this.folderStore.select(nextId);
   }
 
   private validateFolderName(name: string): string | null {

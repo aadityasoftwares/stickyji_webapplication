@@ -356,9 +356,10 @@
     min-height: 0;
     padding: 0.75rem;
     overflow: hidden;
-    background: rgba($paper, 0.88);
+    background: color-mix(in srgb, $page-bg 76%, $paper);
 }
 
+.today-explorer-body.is-table,
 .today-explorer-body.is-list {
     padding: 0;
 }
@@ -669,7 +670,8 @@
     --bs-table-border-color: #{rgba($border, 0.62)};
 }
 
-.today-notes-table.is-plan {
+.today-notes-table.is-plan,
+.today-notes-table.is-compact {
     --table-columns: minmax(22rem, 1fr) 7.5rem 7.5rem 6.5rem;
 }
 
@@ -1339,6 +1341,7 @@
         padding: 0.5rem;
     }
 
+    .today-explorer-body.is-table,
     .today-explorer-body.is-list {
         padding: 0;
     }
@@ -1648,6 +1651,8 @@
 }
 
 @media (max-width: 52rem) {
+
+    .today-explorer-body.is-table,
     .today-explorer-body.is-list {
         padding: 0.55rem;
         background: color-mix(in srgb, $page-bg 72%, $paper);
@@ -1672,6 +1677,7 @@
 
     .today-notes-table tbody tr,
     .today-notes-table.is-plan tbody tr,
+    .today-notes-table.is-compact tbody tr,
     .today-notes-table.is-detail tbody tr {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
@@ -1804,7 +1810,8 @@
 @media (max-width: 36rem) {
 
     .today-notes-table tbody tr,
-    .today-notes-table.is-plan tbody tr {
+    .today-notes-table.is-plan tbody tr,
+    .today-notes-table.is-compact tbody tr {
         grid-template-columns: 1fr;
         grid-template-areas:
             'note'

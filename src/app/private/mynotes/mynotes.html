@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <div class="notes-explorer-body" [class.is-list]="view() === 'table'">
+            <div class="notes-explorer-body" [class.is-table]="view() === 'table'" [class.is-list]="view() === 'table'">
                 @if (loadingWorkspaces() && workspaces().length === 0) {
                 <div class="notes-loader-state">
                     <app-loader mode="section" size="md" tone="colorful" label="Opening your workspaces..."

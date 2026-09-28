@@ -79,20 +79,21 @@
                     <div class="today-font-select">
                         <app-select [options]="stickyNoteFontOptions" [ngModel]="stickyNoteFont()"
                             (ngModelChange)="chooseFont($event)" name="today-note-font" placeholder="Note font"
-                            ariaLabel="Choose note font" variant="paper" shape="rounded" size="sm" [clearable]="false"
-                            [searchable]="false" [fullWidth]="true" />
+                            ariaLabel="Choose note font" variant="paper" shape="rounded" size="sm" [iconLeft]="LucideType"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
                     </div>
                     <div class="today-layout-select">
                         <app-select [options]="stickyNoteFontSizeOptions" [ngModel]="stickyNoteFontSize()"
                             (ngModelChange)="onStickyNoteFontSizeSelection($event)" name="today-note-font-size"
                             placeholder="Font size" ariaLabel="Choose note font size" variant="paper" shape="rounded"
-                            size="sm" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                            size="sm" [iconLeft]="LucideAArrowUp" [clearable]="false" [searchable]="false" [fullWidth]="true" />
                     </div>
                     <div class="today-layout-select">
                         <app-select [options]="stickyNoteLayoutOptions" [ngModel]="stickyNoteLayout()"
                             (ngModelChange)="onStickyNoteLayoutSelection($event)" name="today-sticky-note-layout"
                             placeholder="Note layout" ariaLabel="Choose sticky note layout" variant="paper"
-                            shape="rounded" size="sm" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                            shape="rounded" size="sm" [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
                     </div>
                     <span class="today-toolbar-utility-divider" aria-hidden="true"></span>
                     <app-button size="sm" [iconLeft]="LucideTrash2" [disabled]="!activeWorkspaceId()" label="Trash"
@@ -101,7 +102,7 @@
                         (buttonClick)="openStickyNoteTrash()" />
                 </div>
             </div>
-            <div class="today-explorer-body" [class.is-list]="view() === 'list'">
+            <div class="today-explorer-body" [class.is-table]="isTableView()" [class.is-list]="isTableView()">
                 @if (loadingWorkspaces() || (loadingFolders() && folders().length === 0)) {
                 <div class="today-loader-state">
                     <app-loader mode="section" size="md" tone="colorful"
@@ -114,6 +115,8 @@
                     <span class="today-empty-note">Couldn’t open your folders</span>
                     <h2>Folders are unavailable</h2>
                     <p>{{ foldersError() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="retryFolders()" />
                 </div>
                 } @else if (folders().length === 0) {
                 <div class="today-empty-state">
@@ -154,7 +157,7 @@
                     <app-button label="Add column" [iconLeft]="LucidePlus" variant="outline" size="sm"
                         (buttonClick)="openColumnCreateModal()" />
                 </div>
-                } @else if (view() === 'kanban') {
+                } @else if (isKanbanView()) {
                 <div class="today-kanban" cdkDropListGroup aria-label="Today Kanban board">
                     @for (column of stickyNoteColumns(); track column.id) {
                     <section class="today-kanban-column" [style.--column-accent]="column.accent"
@@ -182,16 +185,13 @@
                             [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
                             (cdkDropListDropped)="dropNote($event, column.id)">
                             @for (note of visibleNotesFor(column.id); track note.id) {
-                            <!-- Replace the existing app-sticky-note block inside Today only. -->
                             <app-sticky-note class="today-draggable-note" cdkDrag [cdkDragData]="note"
                                 [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
                                 [cdkDragStartDelay]="{ touch: 320, mouse: 120 }" cdkDragBoundary=".today-kanban"
                                 [data]="stickyNoteData(note, column)" (editRequested)="openNoteEditPanel(note)"
-                                (deleteRequested)="requestTrashNote(note)" (moveBackwardRequested)="moveBackward(note)"
-                                (moveForwardRequested)="moveForward(note)"
-                                (checklistChange)="updateChecklistItemStatus($event.noteId, $event.itemId, $event.checked)"
-                                (titleChangeRequested)="updateNoteTitle($event)"
-                                (descriptionChangeRequested)="updateNoteDescription($event)" />
+                                (deleted)="onNoteDeleted($event)" (deleteRequested)="onNoteDeleted(note.id)"
+                                (noteUpdated)="onNoteUpdated($event)" (moveBackwardRequested)="moveBackward(note)"
+                                (moveForwardRequested)="moveForward(note)" />
                             } @empty {
                             <div class="today-empty-column">
                                 <span class="today-empty-column-visual" aria-hidden="true">
@@ -249,25 +249,25 @@
                     }
                 </div>
                 } @else {
-                <table class="table mb-0 today-notes-table" [class.is-plan]="stickyNoteLayout() === 'plain'"
-                    [class.is-detail]="stickyNoteLayout() === 'detail'"
+                <table class="table mb-0 today-notes-table" [class.is-compact]="isCompactLayout()" [class.is-plan]="isCompactLayout()"
+                    [class.is-detail]="isDetailLayout()"
                     [style.--today-note-font-family]="fontFamilyFor(stickyNoteFont())"
                     [style.--today-note-font-size.px]="stickyNoteFontSize()" aria-label="Today notes table">
                     <thead>
                         <tr>
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <th class="today-table-check" scope="col">
                                 <app-checkbox label="" size="sm" variant="noteYellow"
                                     ariaLabel="Select all visible notes" [checked]="false" />
                             </th>
                             }
                             <th scope="col">Note</th>
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <th scope="col">Folder</th>
                             <th scope="col">Progress</th>
                             }
                             <th scope="col">Date</th>
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <th scope="col">Updated</th>
                             }
                             <th scope="col">Status</th>
@@ -278,7 +278,7 @@
                         @for (note of visibleListNotes(); track note.id) {
                         <tr [attr.data-note-color]="note.color || 'YELLOW'" [class.is-completed]="isNoteCompleted(note)"
                             (dblclick)="openNoteEditPanel(note, $event)">
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <td class="today-table-check" data-label="Select">
                                 <app-checkbox label="" size="sm" variant="noteYellow"
                                     [ariaLabel]="'Select ' + note.title" [checked]="false" />
@@ -290,16 +290,14 @@
                                     <div class="today-table-note-copy">
                                         @if (tableEditingTitleId() === note.id) {
                                         <input type="text" class="today-table-title-input" autocomplete="off"
-                                            spellcheck="true" data-inline-note-title [value]="tableTitleDraft()"
-                                            [disabled]="isNoteTitleUpdating(note.id)"
+                                             spellcheck="true" data-inline-note-title [value]="tableTitleDraft()"
                                             [attr.aria-label]="'Rename ' + note.title"
                                             (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()"
                                             (input)="onTableTitleInput($event)"
                                             (keydown)="onTableTitleKeydown($event, note)"
                                             (blur)="commitTableTitleEdit(note)" />
                                         } @else {
-                                        <strong tabindex="0" role="button"
-                                            [attr.title]="isNoteTitleUpdating(note.id) ? 'Saving title…' : 'Click to rename'"
+                                        <strong tabindex="0" role="button" title="Click to rename"
                                             (click)="startTableTitleEdit(note, $event)"
                                             (dblclick)="$event.stopPropagation()"
                                             (keydown.enter)="startTableTitleEdit(note, $event)"
@@ -310,13 +308,13 @@
                                         @if (note.description) {
                                         <p>{{ note.description }}</p>
                                         }
-                                        @if (stickyNoteLayout() === 'detail' && note.creatorEmail) {
+                                        @if (isDetailLayout() && note.creatorEmail) {
                                         <small class="today-table-owner">{{ note.creatorEmail }}</small>
                                         }
                                     </div>
                                 </div>
                             </td>
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <td class="today-table-folder" data-label="Folder">
                                 <span class="today-table-folder-name">{{ note.folderName || 'My Notes' }}</span>
                             </td>
@@ -340,12 +338,12 @@
                             <td class="today-table-date" data-label="Date">
                                 <div class="today-table-date-copy">
                                     <strong>{{ noteDateLabel(note.noteDate) }}</strong>
-                                    @if (stickyNoteLayout() === 'detail' && note.noteDate) {
+                                    @if (isDetailLayout() && note.noteDate) {
                                     <small>{{ note.noteDate === todayDateKey() ? 'Today' : 'Scheduled' }}</small>
                                     }
                                 </div>
                             </td>
-                            @if (stickyNoteLayout() === 'detail') {
+                            @if (isDetailLayout()) {
                             <td class="today-table-updated" data-label="Updated">
                                 @if (note.updatedAt) {
                                 <strong>{{ note.updatedAt | date:'MMM d' }}</strong>
@@ -363,12 +361,12 @@
                                     <app-button class="today-note-quick-edit" [icon]="LucidePencil" [iconOnly]="true"
                                         variant="noteBlue" appearance="standard" size="xs" [rounded]="true"
                                         [ariaLabel]="'Edit ' + note.title" [title]="'Edit ' + note.title"
-                                        [disabled]="!!movingNoteId() || !!trashingNoteId()"
+                                        [disabled]="!!movingNoteId()"
                                         (buttonClick)="openNoteEditPanel(note, $event)" />
 
                                     <button type="button" class="today-note-menu-trigger"
                                         [matMenuTriggerFor]="noteActionsMenu"
-                                        [disabled]="!!movingNoteId() || !!trashingNoteId()"
+                                        [disabled]="!!movingNoteId()"
                                         [attr.aria-label]="'More actions for ' + note.title" title="More note actions"
                                         (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
                                         <app-icon [icon]="LucideMoreHorizontal" size="sm" />
@@ -380,7 +378,7 @@
                                             [disabled]="!canMoveBackward(note) || !!movingNoteId()"
                                             (click)="moveBackward(note)">
                                             <span class="today-note-menu-item-icon" aria-hidden="true">
-                                                <app-icon [icon]="LucideArrowLeft" size="xs" />
+                                                 <app-icon [icon]="LucideArrowLeft" size="xs" />
                                             </span>
                                             <span class="today-note-menu-item-copy">
                                                 <strong>Move backward</strong>
@@ -404,8 +402,8 @@
 
                                         <button mat-menu-item type="button"
                                             class="today-note-action-item today-note-menu-danger"
-                                            [disabled]="!!movingNoteId() || !!trashingNoteId()"
-                                            (click)="requestTrashNote(note, $event)">
+                                            [disabled]="!!movingNoteId()"
+                                            (click)="deleteNote(note)">
                                             <span class="today-note-menu-item-icon" aria-hidden="true">
                                                 <app-icon [icon]="LucideTrash2" size="xs" />
                                             </span>
@@ -434,9 +432,3 @@
 
 <app-add-edit-note-side-panel [open]="notePanelOpen()" [mode]="notePanelMode()" [id]="notePanelId()"
     (closed)="closeNotePanel()" (saved)="onNoteSaved($event)" />
-<app-delete-confirm-modal [open]="!!trashTarget()" mode="trash" title="Move this note to Trash?"
-    [itemName]="trashTarget()?.title || 'Untitled note'"
-    message="It will disappear from Today, but it is not gone permanently."
-    supportingText="You can restore it from Sticky Note Trash for up to 60 days." confirmLabel="Move to trash"
-    cancelLabel="Keep note" [busy]="!!trashTarget() && trashingNoteId() === (trashTarget()?.id || trashTarget()?._id)"
-    (closed)="closeTrashConfirm()" (confirmed)="confirmTrashNote()" />
