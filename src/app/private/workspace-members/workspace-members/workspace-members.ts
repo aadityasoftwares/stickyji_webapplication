@@ -74,6 +74,8 @@ import type {
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 
 import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-request-side-panel/send-workspace-member-request-side-panel';
+import { MemberCardWrapper } from '../member-card-wrapper/member-card-wrapper';
+import { InvitationCardWrapper } from '../invitation-card-wrapper/invitation-card-wrapper';
 
 type MemberTab =
   | 'all'
@@ -114,7 +116,9 @@ type BadgeVariant =
     Select,
     StickyCard,
     Tabs,
-    SendWorkspaceMemberRequestSidePanel
+    SendWorkspaceMemberRequestSidePanel,
+    MemberCardWrapper,
+    InvitationCardWrapper
   ],
   templateUrl: './workspace-members.html',
   styleUrl: './workspace-members.scss',

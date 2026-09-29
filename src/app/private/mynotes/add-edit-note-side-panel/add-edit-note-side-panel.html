@@ -21,7 +21,7 @@
                     [options]="workspaceOptions()" [ngModel]="controlString('workspaceId')"
                     [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateWorkspace($event)"
                     [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
-                    ariaLabel="Choose workspace for this note" variant="paper" shape="rounded"
+                    ariaLabel="Choose workspace for this note" variant="paper" appearance="simple" shape="rounded"
                     size="sm" [dropdownMatchTriggerWidth]="false" [iconLeft]="LucidePanelsTopLeft" [disabled]="isBusy"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
             </div>
@@ -31,7 +31,7 @@
                     [options]="folderOptions()" [ngModel]="controlString('workspaceFolderId')"
                     [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateFolder($event)"
                     [placeholder]="loadingFolders() ? 'Loading folders...' : folderOptions().length ? 'Select folder' : 'No folders available'"
-                    ariaLabel="Choose folder for this note" variant="paper" shape="rounded" size="sm"
+                    ariaLabel="Choose folder for this note" variant="paper" appearance="simple" shape="rounded" size="sm"
                     [dropdownMatchTriggerWidth]="false" [iconLeft]="LucideFolderOpen"
                     [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
@@ -42,7 +42,7 @@
                     [options]="columnOptions()" [ngModel]="controlString('columnId')"
                     [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('columnId', $event)"
                     [placeholder]="loadingColumns() ? 'Loading columns...' : columnOptions().length ? 'Select column' : 'No columns available'"
-                    ariaLabel="Select a column" variant="paper" shape="rounded" size="sm"
+                    ariaLabel="Select a column" variant="paper" appearance="simple" shape="rounded" size="sm"
                     [dropdownMatchTriggerWidth]="false"
                     [disabled]="isBusy || !controlString('workspaceFolderId') || columnOptions().length === 0"
                     [clearable]="false" [searchable]="false" [fullWidth]="true" />
@@ -53,7 +53,7 @@
                 <app-label forId="note-title" text="Title" />
                 <div class="note-field-control">
                     <app-input #noteTitleInput inputId="note-title" label="Title" labelMode="hidden"
-                        placeholder="Give your note a title" variant="paper" appearance="outlined" shape="rounded" size="md"
+                        placeholder="Give your note a title" variant="paper" appearance="simple" shape="rounded" size="md"
                         [maxLength]="titleMaxLength" [value]="controlString('title')" [disabled]="isBusy"
                         [fullWidth]="true" [clearable]="false" autocomplete="off"
                         (valueChange)="updateText('title', $event)" (enterKey)="onTitleEnter($event)" />
@@ -63,7 +63,7 @@
                 <app-label forId="note-content" text="Details" [required]="true" />
                 <div class="note-field-control">
                     <app-input inputId="note-content" label="Details" labelMode="hidden" [required]="true"
-                        placeholder="Write something worth remembering…" variant="paper" appearance="outlined" shape="rounded" size="md"
+                        placeholder="Write something worth remembering…" variant="paper" appearance="simple" shape="rounded" size="md"
                         [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
                         [maxLength]="contentMaxLength" [value]="controlString('content')" [disabled]="isBusy"
                         [fullWidth]="true" (valueChange)="updateText('content', $event)" />
@@ -75,7 +75,7 @@
             <app-label forId="note-date" text="Date" />
             <div class="note-date-control">
                 <app-datepicker-input inputId="note-date" label="Note date" labelMode="hidden" placeholder="dd-mm-yyyy"
-                    variant="paper" appearance="outlined" shape="rounded" size="sm" formControlName="noteDate"
+                    variant="paper" appearance="simple" shape="rounded" size="sm" formControlName="noteDate"
                     [showLeadingIcon]="false" [disabled]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
             </div>
         </section>
@@ -83,22 +83,22 @@
             <app-select class="note-color-select" selectId="note-color" name="note-color" [options]="colorOptions"
                 [ngModel]="controlString('color')" [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="updateSelect('color', $event)" ariaLabel="Note color" dropdownTitle="Note color"
-                variant="paper" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
+                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
                 [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
             <app-select selectId="note-shape" name="note-shape" [options]="shapeOptions"
                 [ngModel]="controlString('shape')" [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="updateSelect('shape', $event)" ariaLabel="Note shape" dropdownTitle="Note shape"
-                variant="paper" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
+                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
                 [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
             <app-select selectId="note-variant" name="note-variant" [options]="variantOptions"
                 [ngModel]="controlString('variant')" [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="updateSelect('variant', $event)" ariaLabel="Note variant" dropdownTitle="Paper variant"
-                variant="paper" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
+                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
                 [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
             <app-select class="note-pattern-inline" selectId="note-pattern" name="note-pattern"
                 [options]="backgroundPatternOptions" [ngModel]="controlString('backgroundPattern')"
                 [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('backgroundPattern', $event)"
-                ariaLabel="Paper pattern" dropdownTitle="Paper pattern" variant="paper" shape="rounded"
+                ariaLabel="Paper pattern" dropdownTitle="Paper pattern" variant="paper" appearance="simple" shape="rounded"
                 size="sm" [disabled]="isBusy" [clearable]="false" [searchable]="false" [fullWidth]="true"
                 [dropdownMatchTriggerWidth]="false" />
         </section>

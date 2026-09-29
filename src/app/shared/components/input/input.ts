@@ -62,7 +62,7 @@ export type InputVariant =
   | 'noteBrown'
   | 'noteBlack';
 
-export type InputAppearance = 'outlined' | 'filled' | 'underlined' | 'inline';
+export type InputAppearance = 'outlined' | 'filled' | 'underlined' | 'inline' | 'simple';
 export type InputDecoration = 'standard' | 'tape';
 export type InputShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type InputStatus = 'default' | 'success' | 'warning' | 'danger';

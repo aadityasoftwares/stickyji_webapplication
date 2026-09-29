@@ -18,10 +18,10 @@
         } @else {
         <section class="workspace-fields" aria-label="Workspace details">
             <div class="workspace-field workspace-name-field">
-                <app-label forId="workspace-name" text="Name" />
+                <app-label forId="workspace-name" text="Name" [required]="true" />
                 <div class="workspace-field-control">
                     <app-input #workspaceNameInput inputId="workspace-name" label="Workspace name" labelMode="hidden"
-                        placeholder="Give your workspace a name" variant="paper" appearance="inline" size="md"
+                        placeholder="Give your workspace a name" variant="paper" appearance="simple" shape="rounded" size="md"
                         [required]="true" [maxLength]="nameMaxLength" [value]="name()"
                         [disabled]="isBusy || loadFailed()" [fullWidth]="true" [clearable]="false" autocomplete="off"
                         (valueChange)="updateName($event)" (enterKey)="submit()" />
@@ -33,7 +33,7 @@
                 <app-label forId="workspace-description" text="Details" />
                 <div class="workspace-field-control">
                     <app-input inputId="workspace-description" label="Description" labelMode="hidden"
-                        placeholder="What is this workspace for?" variant="paper" appearance="inline" size="md"
+                        placeholder="What is this workspace for?" variant="paper" appearance="simple" shape="rounded" size="md"
                         [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
                         [value]="workspaceDescription()" [disabled]="isBusy || loadFailed()" [fullWidth]="true"
                         (valueChange)="updateDescription($event)" />
@@ -42,24 +42,22 @@
             </div>
         </section>
 
-        <section class="workspace-access" aria-label="Workspace access">
-            <div class="workspace-access-row">
-                <app-label forId="workspace-visibility" text="Access" />
-                <div class="workspace-access-control">
-                    <app-select selectId="workspace-visibility" name="workspace-visibility"
-                        dropdownTitle="Workspace visibility" dropdownDescription="Choose who can open this workspace."
-                        [options]="visibilityOptions" [ngModel]="visibility()" [ngModelOptions]="{ standalone: true }"
-                        (ngModelChange)="updateVisibility($event)" placeholder="Choose visibility"
-                        ariaLabel="Choose workspace visibility" variant="paper" appearance="outlined" shape="pill"
-                        size="sm" [disabled]="isBusy || isPersonal() || loadFailed()" [clearable]="false"
-                        [searchable]="false" [fullWidth]="true" />
-                </div>
+        <section class="workspace-access-row" aria-label="Workspace access">
+            <app-label forId="workspace-visibility" text="Access" />
+            <div class="workspace-access-control">
+                <app-select selectId="workspace-visibility" name="workspace-visibility"
+                    dropdownTitle="Workspace visibility" dropdownDescription="Choose who can open this workspace."
+                    [options]="visibilityOptions" [ngModel]="visibility()" [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateVisibility($event)" placeholder="Choose visibility"
+                    ariaLabel="Choose workspace visibility" variant="paper" appearance="simple" shape="rounded"
+                    size="sm" [disabled]="isBusy || isPersonal() || loadFailed()" [clearable]="false"
+                    [searchable]="false" [fullWidth]="true" />
+                @if (isPersonal()) {
+                <span class="workspace-access-hint">Personal workspaces always stay private.</span>
+                } @else {
+                <span class="workspace-access-hint">Choose who can open this workspace.</span>
+                }
             </div>
-            @if (isPersonal()) {
-            <p class="workspace-access-note">Personal workspaces always stay private.</p>
-            } @else {
-            <p class="workspace-access-note">Choose who can open this workspace.</p>
-            }
         </section>
 
         @if (!loadFailed()) {

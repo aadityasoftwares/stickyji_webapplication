@@ -2,27 +2,10 @@
     <aside class="workspace-folder-external-preview" [style.display]="loadingData() || loadFailed() ? 'none' : null"
         aria-label="Live workspace folder preview" inert>
         <app-badge label="Live preview" variant="neutral" size="sm" />
-        <div class="workspace-folder-preview" [class.is-default]="isDefaultFolder">
-            <span class="workspace-folder-preview-visual" aria-hidden="true">
-                <span class="workspace-folder-preview-tab"></span>
-                <span class="workspace-folder-preview-paper">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-                <span class="workspace-folder-preview-front">
-                    <app-icon [icon]="isDefaultFolder ? LucideStar : LucideFolder" size="sm" />
-                </span>
-            </span>
-            <div class="workspace-folder-preview-copy">
-                <strong>{{ name().trim() || 'New folder' }}</strong>
-                <p>{{ folderDescription().trim() || 'A folder inside this workspace.' }}</p>
-            </div>
-            <div class="workspace-folder-preview-meta">
-                <app-badge [label]="isDefaultFolder ? 'Default' : 'Folder'" variant="neutral" size="xs" shape="pill" />
-                <span>#{{ previewPosition }}</span>
-            </div>
-        </div>
+        <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
+            [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+            [roleLabel]="isDefaultFolder ? 'Default' : ('#' + previewPosition)"
+            [status]="'ACTIVE'" [countLabel]="'0 notes'" [interactive]="false" />
     </aside>
 </ng-template>
 
@@ -37,16 +20,14 @@
         } @else {
         <section class="workspace-folder-fields" aria-label="Folder details">
             <div class="workspace-folder-field workspace-folder-name-field">
-                <app-label forId="workspace-folder-name" text="Name" />
+                <app-label forId="workspace-folder-name" text="Name" [required]="true" />
                 <div class="workspace-folder-field-control">
                     <app-input #folderNameInput inputId="workspace-folder-name" label="Folder name" labelMode="hidden"
-                        placeholder="Give your folder a name" variant="paper" appearance="inline" size="md"
+                        placeholder="Give your folder a name" variant="paper" appearance="simple" shape="rounded" size="md"
                         [required]="true" [maxLength]="nameMaxLength" [value]="name()"
                         [disabled]="isBusy || loadFailed()" [fullWidth]="true" [clearable]="false" autocomplete="off"
                         (valueChange)="updateName($event)" (enterKey)="submit()" />
-                    <span class="workspace-folder-field-counter">
-                        {{ name().length }}/{{ nameMaxLength }}
-                    </span>
+                    <span class="workspace-folder-field-counter">{{ name().length }}/{{ nameMaxLength }}</span>
                 </div>
             </div>
 
@@ -54,14 +35,12 @@
                 <app-label forId="workspace-folder-description" text="Details" />
                 <div class="workspace-folder-field-control">
                     <app-input inputId="workspace-folder-description" label="Description" labelMode="hidden"
-                        placeholder="What kind of notes belong here?" variant="paper" appearance="inline" size="md"
+                        placeholder="What kind of notes belong here?" variant="paper" appearance="simple" shape="rounded" size="md"
                         [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
                         [maxLength]="descriptionMaxLength" [value]="folderDescription()"
                         [disabled]="isBusy || loadFailed()" [fullWidth]="true"
                         (valueChange)="updateDescription($event)" />
-                    <span class="workspace-folder-field-hint">
-                        {{ folderDescription().length }}/{{ descriptionMaxLength }} · Optional
-                    </span>
+                    <span class="workspace-folder-field-hint">Optional</span>
                 </div>
             </div>
         </section>
@@ -105,28 +84,10 @@
         @if (!loadFailed()) {
         <section class="workspace-folder-mobile-preview" aria-label="Live workspace folder preview" inert>
             <app-badge label="Live preview" variant="neutral" size="sm" />
-            <div class="workspace-folder-preview" [class.is-default]="isDefaultFolder">
-                <span class="workspace-folder-preview-visual" aria-hidden="true">
-                    <span class="workspace-folder-preview-tab"></span>
-                    <span class="workspace-folder-preview-paper">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                    <span class="workspace-folder-preview-front">
-                        <app-icon [icon]="isDefaultFolder ? LucideStar : LucideFolder" size="sm" />
-                    </span>
-                </span>
-                <div class="workspace-folder-preview-copy">
-                    <strong>{{ name().trim() || 'New folder' }}</strong>
-                    <p>{{ folderDescription().trim() || 'A folder inside this workspace.' }}</p>
-                </div>
-                <div class="workspace-folder-preview-meta">
-                    <app-badge [label]="isDefaultFolder ? 'Default' : 'Folder'" variant="neutral" size="xs"
-                        shape="pill" />
-                    <span>#{{ previewPosition }}</span>
-                </div>
-            </div>
+            <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
+                [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+                [roleLabel]="isDefaultFolder ? 'Default' : ('#' + previewPosition)"
+                [status]="'ACTIVE'" [countLabel]="'0 notes'" [interactive]="false" />
         </section>
         }
 

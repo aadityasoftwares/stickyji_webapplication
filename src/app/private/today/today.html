@@ -159,69 +159,79 @@
                 </div>
                 } @else if (isKanbanView()) {
                 <div class="today-kanban" cdkDropListGroup aria-label="Today Kanban board">
-                    @for (column of stickyNoteColumns(); track column.id) {
-                    <section class="today-kanban-column" [style.--column-accent]="column.accent"
-                        [attr.aria-labelledby]="column.id + '-heading'">
-                        <header class="today-column-header">
-                            <div class="today-column-title">
-                                <span class="today-column-dot" aria-hidden="true"></span>
-                                <h3 [id]="column.id + '-heading'">{{ column.label | uppercase }}</h3>
-                                <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs"
-                                    shape="pill" [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
-                            </div>
-                            <div class="today-column-actions">
-                                <app-button [icon]="LucidePlus" [iconOnly]="true" variant="secondary" size="sm"
-                                    [ariaLabel]="'Add note to ' + column.label" [title]="'Add note to ' + column.label"
-                                    (buttonClick)="openNoteCreatePanel(column.id)" />
-                                <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
-                                    [ariaLabel]="'Edit ' + column.label + ' column'"
-                                    [title]="'Edit ' + column.label + ' column'"
-                                    (buttonClick)="requestColumnEdit(column)" />
-                            </div>
-                        </header>
-                        <app-divider variant="neutral" lineStyle="dashed" spacing="none" [thickness]="1" />
-                        <div class="today-column-notes" cdkDropList [id]="column.id + '-drop-list'"
-                            [cdkDropListData]="visibleNotesFor(column.id)"
-                            [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
-                            (cdkDropListDropped)="dropNote($event, column.id)">
-                            @for (note of visibleNotesFor(column.id); track note.id) {
-                            <app-sticky-note class="today-draggable-note" cdkDrag [cdkDragData]="note"
-                                [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
-                                [cdkDragStartDelay]="{ touch: 320, mouse: 120 }" cdkDragBoundary=".today-kanban"
-                                [data]="stickyNoteData(note, column)" (editRequested)="openNoteEditPanel(note)"
-                                (deleted)="onNoteDeleted($event)" (deleteRequested)="onNoteDeleted(note.id)"
-                                (noteUpdated)="onNoteUpdated($event)" (moveBackwardRequested)="moveBackward(note)"
-                                (moveForwardRequested)="moveForward(note)" />
-                            } @empty {
-                            <div class="today-empty-column">
-                                <span class="today-empty-column-visual" aria-hidden="true">
-                                    <span></span><span></span><span></span>
-                                </span>
-                                <strong>
-                                    {{ searchTerm() ? 'No matching notes' : column.type === 'COMPLETED' ? 'Nothing
-                                    completed yet' : 'No notes here yet' }}
-                                </strong>
-                                <small>
-                                    {{ searchTerm() ? 'Try another search or clear the filter.' : column.type ===
-                                    'COMPLETED' ? 'Move notes here when they’re done.' : 'Add a note or drag one into
-                                    this column.' }}
-                                </small>
-                                @if (searchTerm()) {
-                                <app-button label="Clear search" variant="outline" size="xs"
-                                    (buttonClick)="clearSearch()" />
-                                } @else {
-                                <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="xs"
-                                    (buttonClick)="openNoteCreatePanel(column.id)" />
+                    <div class="today-kanban-columns" cdkDropList cdkDropListOrientation="horizontal"
+                        [cdkDropListData]="stickyNoteColumns()"
+                        [cdkDropListDisabled]="boardLoading() || movingColumn()"
+                        [cdkDropListEnterPredicate]="canDropColumn"
+                        (cdkDropListDropped)="dropColumn($event)">
+                        @for (column of stickyNoteColumns(); track column.id) {
+                        <section class="today-kanban-column" cdkDrag [cdkDragData]="column"
+                            [cdkDragDisabled]="boardLoading() || movingColumn()"
+                            [cdkDragStartDelay]="{ touch: 150, mouse: 0 }"
+                            [style.--column-accent]="column.accent"
+                            [attr.aria-labelledby]="column.id + '-heading'">
+                            <header class="today-column-header">
+                                <div class="today-column-title">
+                                    <span class="today-column-dot" aria-hidden="true"></span>
+                                    <h3 [id]="column.id + '-heading'">{{ column.label | uppercase }}</h3>
+                                    <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs"
+                                        shape="pill" [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
+                                </div>
+                                <div class="today-column-actions">
+                                    <app-button class="today-column-drag-handle" cdkDragHandle [icon]="LucideGrip"
+                                        [iconOnly]="true" variant="secondary" size="sm"
+                                        [ariaLabel]="'Hold to rearrange ' + column.label + ' column'"
+                                        [title]="'Hold to rearrange ' + column.label + ' column'" />
+                                    <app-button [icon]="LucidePlus" [iconOnly]="true" variant="secondary" size="sm"
+                                        [ariaLabel]="'Add note to ' + column.label" [title]="'Add note to ' + column.label"
+                                        (buttonClick)="openNoteCreatePanel(column.id)" />
+                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
+                                        [ariaLabel]="'Edit ' + column.label + ' column'"
+                                        [title]="'Edit ' + column.label + ' column'"
+                                        (buttonClick)="requestColumnEdit(column, $event)" />
+                                </div>
+                            </header>
+                            <app-divider variant="neutral" lineStyle="dashed" spacing="none" [thickness]="1" />
+                            <div class="today-column-notes" cdkDropList [id]="column.id + '-drop-list'"
+                                [cdkDropListData]="visibleNotesFor(column.id)"
+                                [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
+                                [cdkDropListEnterPredicate]="canDropNote"
+                                (cdkDropListDropped)="dropNote($event, column.id)">
+                                @for (note of visibleNotesFor(column.id); track note.id) {
+                                <app-sticky-note class="today-draggable-note" cdkDrag [cdkDragData]="note"
+                                    [cdkDragDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
+                                    [cdkDragStartDelay]="{ touch: 320, mouse: 120 }" cdkDragBoundary=".today-kanban"
+                                    [data]="stickyNoteData(note, column)" (editRequested)="openNoteEditPanel(note)"
+                                    (deleted)="onNoteDeleted($event)" (deleteRequested)="onNoteDeleted(note.id)"
+                                    (noteUpdated)="onNoteUpdated($event)" (moveBackwardRequested)="moveBackward(note)"
+                                    (moveForwardRequested)="moveForward(note)" />
+                                } @empty {
+                                <div class="today-empty-column">
+                                    <span class="today-empty-column-visual" aria-hidden="true">
+                                        <span></span><span></span><span></span>
+                                    </span>
+                                    <strong>
+                                        {{ searchTerm() ? 'No matching notes' : column.type === 'COMPLETED' ? 'Nothing
+                                        completed yet' : 'No notes here yet' }}
+                                    </strong>
+                                    <small>
+                                        {{ searchTerm() ? 'Try another search or clear the filter.' : column.type ===
+                                        'COMPLETED' ? 'Move notes here when they’re done.' : 'Add a note or drag one into
+                                        this column.' }}
+                                    </small>
+                                    @if (searchTerm()) {
+                                    <app-button label="Clear search" variant="outline" size="xs"
+                                        (buttonClick)="clearSearch()" />
+                                    } @else {
+                                    <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="xs"
+                                        (buttonClick)="openNoteCreatePanel(column.id)" />
+                                    }
+                                </div>
                                 }
                             </div>
-                            }
-                        </div>
-                    </section>
-                    <div class="today-kanban-divider" aria-hidden="true">
-                        <app-divider orientation="vertical" variant="neutral" lineStyle="dashed" spacing="none"
-                            [thickness]="1" />
+                        </section>
+                        }
                     </div>
-                    }
                     <aside class="today-add-column-rail" aria-label="Add another column">
                         <div class="today-add-column-inner">
                             <app-button label="Add column" [iconLeft]="LucidePlus" variant="outline" size="sm"
@@ -426,9 +436,9 @@
     </main>
 </section>
 
-<app-add-edit-sticky-note-column-side-panel [open]="columnPanelOpen()" [id]="columnPanelId()"
-    [column]="columnPanelColumn()" [workspaceId]="activeWorkspaceId() || ''" [workspaceFolderId]="activeFolder() || ''"
-    (closed)="closeColumnPanel()" (saved)="onColumnSaved($event)" />
+<app-add-edit-sticky-note-column-side-panel [open]="columnPanelOpen()" [mode]="columnPanelMode()"
+    [id]="columnPanelId()" [column]="columnPanelColumn()" [workspaceId]="activeWorkspaceId() || ''"
+    [workspaceFolderId]="activeFolder() || ''" (closed)="closeColumnPanel()" (saved)="onColumnSaved($event)" />
 
 <app-add-edit-note-side-panel [open]="notePanelOpen()" [mode]="notePanelMode()" [id]="notePanelId()"
     (closed)="closeNotePanel()" (saved)="onNoteSaved($event)" />

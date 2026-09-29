@@ -1,0 +1,105 @@
+<article class="member-card" [ngClass]="themeClasses" [class.is-busy]="busy"
+    [class.is-interactive]="interactive" (click)="onCardClick($event)"
+    (dblclick)="onCardDblClick($event)">
+
+    <!-- Curved Header Band — status badge lives here -->
+    <div class="member-card__band" aria-hidden="true">
+        <div class="member-card__band-badge" (click)="$event.stopPropagation()">
+            <app-badge [label]="statusLabel" [variant]="statusBadgeVariant" size="xs" shape="pill" [dot]="true" />
+        </div>
+    </div>
+
+    <!-- Avatar (overlaps the band) -->
+    <div class="member-card__avatar-zone">
+        <div class="member-card__avatar-frame">
+            <app-avatar [name]="resolvedName" [src]="resolvedAvatar" [size]="56" shape="circle"
+                [status]="avatarStatus" />
+        </div>
+        @if (resolvedIsOwner) {
+        <span class="member-card__crown" title="Workspace Owner" aria-label="Workspace Owner">
+            <app-icon [icon]="LucideCrown" size="xs" />
+        </span>
+        }
+    </div>
+
+    <!-- Identity (name + role) -->
+    <div class="member-card__identity">
+        <div class="member-card__name-row">
+            <h3 class="member-card__name" [title]="resolvedName">{{ resolvedName }}</h3>
+            @if (resolvedIsCurrentUser) {
+            <span class="member-card__you-pill">You</span>
+            }
+        </div>
+
+        <div class="member-card__role-row">
+            <app-icon [icon]="roleIcon" size="xs" />
+            <span class="member-card__role">{{ roleBadgeLabel }}</span>
+        </div>
+    </div>
+
+    <!-- Dashed divider with member ID -->
+    <div class="member-card__divider" aria-hidden="true">
+        <span class="member-card__mid-id">{{ displayId }}</span>
+    </div>
+
+    <!-- Field rows -->
+    <div class="member-card__fields" role="group" aria-label="Member details">
+
+        @if (resolvedEmail) {
+        <div class="member-card__field" (click)="$event.stopPropagation()">
+            <span class="member-card__field-label">
+                <app-icon [icon]="LucideMail" size="xs" />
+                Email
+            </span>
+            <span class="member-card__field-value" [title]="resolvedEmail">{{ resolvedEmail }}</span>
+            <button class="member-card__copy-btn" [class.is-copied]="emailCopied"
+                (click)="copyEmail($event)" [title]="emailCopied ? 'Copied!' : 'Copy email'"
+                aria-label="Copy email address">
+                <app-icon [icon]="emailCopied ? LucideCheck : LucideCopy" size="xs" />
+            </button>
+        </div>
+        }
+
+        <div class="member-card__field">
+            <span class="member-card__field-label">
+                <app-icon [icon]="LucideUserCheck" size="xs" />
+                Added by
+            </span>
+            <span class="member-card__field-value" [title]="addedByLabel">{{ addedByLabel }}</span>
+        </div>
+
+        <div class="member-card__field">
+            <span class="member-card__field-label">
+                <app-icon [icon]="LucideCalendar" size="xs" />
+                Joined
+            </span>
+            <span class="member-card__field-value" [title]="joinedDateLabel">{{ joinedDateLabel }}</span>
+        </div>
+
+        <div class="member-card__field">
+            <span class="member-card__field-label">
+                <app-icon [icon]="LucideClock" size="xs" />
+                Last active
+            </span>
+            <span class="member-card__field-value" [class.is-muted]="!hasLastActive"
+                [title]="lastActiveLabel">{{ lastActiveLabel }}</span>
+        </div>
+
+    </div>
+
+    <!-- Optional extra content -->
+    <ng-content select="[card-extra]" />
+
+    <!-- Footer — all action buttons live here (primary + edit + menu) -->
+    <div class="member-card__footer" (click)="$event.stopPropagation()">
+        <!-- grows: [card-footer] = View access + Edit -->
+        <div class="member-card__footer-main">
+            <ng-content select="[card-footer]" />
+        </div>
+        <!-- fixed: [card-actions] = 3-dot menu -->
+        <div class="member-card__footer-extra">
+            <ng-content select="[card-actions]" />
+        </div>
+    </div>
+
+</article>

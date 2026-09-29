@@ -186,6 +186,23 @@
     width: 100%;
 }
 
+.note-editor ::ng-deep {
+    .app-input-wrapper {
+        --app-input-background: #ffffff;
+        --app-input-border: #{$border};
+    }
+
+    .app-select-wrapper {
+        --app-select-background: #ffffff;
+        --app-select-border: #{$border};
+    }
+
+    .app-datepicker-wrapper {
+        --app-datepicker-background: #ffffff;
+        --app-datepicker-border: #{$border};
+    }
+}
+
 /* ==========================================================================
    Dropdowns: Context Selection (Workspace, Folder, Column / Todo)
    ========================================================================== */
@@ -225,11 +242,6 @@
 
 .note-field-control {
     min-width: 0;
-}
-
-.note-title-field ::ng-deep .app-input-control {
-    font-size: 16px;
-    font-weight: 600;
 }
 
 .note-details-field ::ng-deep .app-input-textarea {

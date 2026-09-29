@@ -1,6 +1,7 @@
 import {
     LucideCircle,
     LucideFrame,
+    LucideGrid2X2,
     LucideLayers,
     LucideList,
     LucidePanelsTopLeft,
@@ -81,6 +82,38 @@ export const STICKY_NOTE_VIEW_OPTIONS: any[] = [
 ];
 
 export const VIEW_OPTIONS = STICKY_NOTE_VIEW_OPTIONS;
+
+export const VIEW_TABS: any[] = [
+    { value: 'grid', label: 'Grid', icon: LucideGrid2X2, ariaLabel: 'Grid view' },
+    { value: 'list', label: 'List', icon: LucideList, ariaLabel: 'List view' },
+];
+
+export const GRID_LIST_VIEW_OPTIONS = VIEW_TABS;
+
+export const COMMON_SORT_OPTIONS: any[] = [
+    { label: 'Recently updated', value: 'recent' },
+    { label: 'Name (A to Z)', value: 'name-asc' },
+    { label: 'Name (Z to A)', value: 'name-desc' },
+    { label: 'Oldest first', value: 'oldest' },
+];
+
+export const SORT_OPTIONS = COMMON_SORT_OPTIONS;
+
+export const COMMON_STATUS_TABS: any[] = [
+    { value: 'all', label: 'All' },
+    { value: 'active', label: 'Active' },
+    { value: 'archived', label: 'Archived' },
+];
+
+export const STATUS_TABS = COMMON_STATUS_TABS;
+
+export function buildStatusTabs(counts: { all?: number; active?: number; archived?: number } = {}): any[] {
+    return [
+        { value: 'all', label: 'All', count: counts.all ?? 0 },
+        { value: 'active', label: 'Active', count: counts.active ?? 0 },
+        { value: 'archived', label: 'Archived', count: counts.archived ?? 0 },
+    ];
+}
 
 export const STICKY_NOTE_LAYOUT_OPTIONS: any[] = [
     {
@@ -199,3 +232,28 @@ export const NOTE_LIMITS = {
     CHECKLIST_TITLE_MAX_LENGTH: 120,
     CHECKLIST_ITEM_TITLE_MAX_LENGTH: 300,
 } as const;
+
+export const COLUMN_LIMITS = {
+    NAME_MIN_LENGTH: 1,
+    NAME_MAX_LENGTH: 50,
+} as const;
+
+export const STICKY_NOTE_COLUMN_COLORS = {
+    YELLOW: 'YELLOW',
+    BLUE: 'BLUE',
+    GREEN: 'GREEN',
+    PINK: 'PINK',
+    PURPLE: 'PURPLE',
+    ORANGE: 'ORANGE',
+} as const;
+
+export const STICKY_NOTE_COLUMN_COLOR_OPTIONS: any[] = [
+    { label: 'Yellow', value: 'YELLOW', description: 'Classic sticky yellow', color: 'var(--app-select-swatch-yellow)' },
+    { label: 'Blue', value: 'BLUE', description: 'Calm blue note', color: 'var(--app-select-swatch-blue)' },
+    { label: 'Green', value: 'GREEN', description: 'Fresh green note', color: 'var(--app-select-swatch-green)' },
+    { label: 'Pink', value: 'PINK', description: 'Soft pink note', color: 'var(--app-select-swatch-pink)' },
+    { label: 'Purple', value: 'PURPLE', description: 'Soft purple note', color: 'var(--app-select-swatch-purple)' },
+    { label: 'Orange', value: 'ORANGE', description: 'Warm orange note', color: 'var(--app-select-swatch-orange)' },
+];
+
+export const COLUMN_COLOR_OPTIONS = STICKY_NOTE_COLUMN_COLOR_OPTIONS;

@@ -535,6 +535,37 @@ font-family: $font-body;
     }
 }
 
+.app-datepicker-appearance-simple {
+    --app-datepicker-background: #ffffff;
+
+    .app-datepicker-control-shell {
+        background-color: var(--app-datepicker-background, #ffffff);
+        background-image: none;
+        border: 1px solid var(--app-datepicker-border);
+        border-radius: var(--app-datepicker-radius);
+        box-shadow: none;
+        transform: none;
+        transition: border-color 160ms ease, background-color 160ms ease;
+
+        &::after {
+            display: none;
+        }
+    }
+
+    &:not(.app-datepicker-disabled, .app-datepicker-readonly, .app-datepicker-loading):hover .app-datepicker-control-shell {
+        border-color: color.adjust($border, $lightness: -10%);
+        box-shadow: none;
+        transform: none;
+    }
+
+    &.app-datepicker-focused .app-datepicker-control-shell {
+        z-index: 2;
+        border-color: $accent;
+        box-shadow: none;
+        transform: none;
+    }
+}
+
 /* Disabled and readonly */
 .app-datepicker-disabled {
     opacity: 0.58;

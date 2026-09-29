@@ -78,7 +78,8 @@ export type DatepickerAppearance =
   | 'underlined'
   | 'inline'
   | 'transparent'
-  | 'bordered';
+  | 'bordered'
+  | 'simple';
 export type DatepickerDecoration =
   | 'standard'
   | 'tape';

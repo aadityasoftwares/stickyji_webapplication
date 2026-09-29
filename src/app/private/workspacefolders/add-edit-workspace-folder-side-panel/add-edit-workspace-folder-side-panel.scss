@@ -10,27 +10,51 @@
     box-sizing: border-box;
 }
 
+:host ::ng-deep app-side-panel {
+    .app-side-panel-body {
+        background-color: var(--editor-body, #{$paper}) !important;
+        color: var(--editor-ink, #{$text-primary});
+    }
+}
+
 .workspace-folder-editor {
     --editor-paper: #{$paper};
     --editor-body: var(--editor-paper);
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading,0.14)};
+    --editor-rule: #{rgba($heading, 0.14)};
     display: grid;
     align-content: start;
     gap: 18px;
     width: 100%;
     min-width: 0;
-    padding: 16px;
-    border-radius: 12px;
+    padding: 0;
     color: var(--editor-ink);
-    background: var(--editor-body);
+    background: transparent;
     font-family: $font-body;
+}
+
+.workspace-folder-editor app-input {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
+
+.workspace-folder-editor ::ng-deep {
+    .app-input-wrapper {
+        --app-input-background: #ffffff;
+        --app-input-border: #{$border};
+    }
+
+    .app-label {
+        color: var(--editor-muted);
+        font-size: 12px;
+    }
 }
 
 .workspace-folder-fields {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
 }
 
@@ -42,28 +66,12 @@
     min-width: 0;
 }
 
-.workspace-folder-field>app-label {
+.workspace-folder-field > app-label {
     padding-top: 10px;
 }
 
 .workspace-folder-field-control {
     min-width: 0;
-}
-
-.workspace-folder-editor app-input,
-.workspace-folder-editor app-label {
-    display: block;
-    min-width: 0;
-}
-
-.workspace-folder-editor app-input {
-    width: 100%;
-}
-
-.workspace-folder-name-field ::ng-deep .app-input-control {
-    font-family: $font-heading;
-    font-size: 18px;
-    font-weight: 600;
 }
 
 .workspace-folder-details-field ::ng-deep .app-input-textarea {
@@ -74,45 +82,17 @@
 .workspace-folder-field-counter,
 .workspace-folder-field-hint {
     display: block;
+    text-align: right;
     padding: 3px 8px 0;
     color: var(--editor-muted);
-    font-size: 11px;
-    text-align: right;
-}
-
-.workspace-folder-fields ::ng-deep .app-input-wrapper {
-    --app-input-background: var(--editor-body);
-    --app-input-color: var(--editor-ink);
-    --app-input-border: var(--editor-rule);
-    --app-input-muted: var(--editor-muted);
-    --app-input-placeholder: var(--editor-muted);
-    --app-input-inline-hover-background: rgba(127, 127, 127, 0.06);
-}
-
-.workspace-folder-fields ::ng-deep .app-input-control-shell {
-    background: transparent;
-}
-
-.workspace-folder-fields ::ng-deep .app-input-control {
-    color: var(--editor-ink);
-}
-
-.workspace-folder-fields ::ng-deep .app-input-control::placeholder {
-    color: var(--editor-muted);
-    opacity: 0.8;
-}
-
-.workspace-folder-editor ::ng-deep .app-label {
-    color: var(--editor-muted);
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .workspace-folder-context {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    padding-top: 16px;
-    border-top: 1px solid var(--editor-rule);
+    min-width: 0;
 }
 
 .workspace-folder-context-row {
@@ -198,130 +178,13 @@
     justify-self: start;
 }
 
-.workspace-folder-preview {
-    position: relative;
-    display: grid;
-    grid-template-columns: 82px minmax(0, 1fr);
-    align-items: center;
-    gap: 14px;
+.workspace-folder-external-preview app-workspace-folder-wrapper,
+.workspace-folder-mobile-preview app-workspace-folder-wrapper {
+    display: block;
     width: 100%;
     min-width: 0;
-    min-height: 150px;
-    padding: 18px;
-    overflow: hidden;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: $radius-md;
-    box-shadow: $shadow;
 }
 
-.workspace-folder-preview.is-default {
-    background: color-mix(in srgb, $note-yellow 9%, $paper);
-}
-
-.workspace-folder-preview-visual {
-    position: relative;
-    display: block;
-    width: 78px;
-    height: 62px;
-}
-
-.workspace-folder-preview-tab {
-    position: absolute;
-    top: 0;
-    left: 4px;
-    width: 34px;
-    height: 15px;
-    background: #f2b82f;
-    border: 1px solid rgba($heading, 0.12);
-    border-bottom: 0;
-    border-radius: 7px 8px 0 0;
-}
-
-.workspace-folder-preview-paper {
-    position: absolute;
-    top: 12px;
-    right: 7px;
-    left: 7px;
-    display: grid;
-    gap: 5px;
-    height: 37px;
-    padding: 8px 10px;
-    background: $paper;
-    border: 1px solid $border-light;
-    border-radius: 5px;
-}
-
-.workspace-folder-preview-paper span {
-    display: block;
-    height: 3px;
-    background: $border-light;
-    border-radius: 999px;
-}
-
-.workspace-folder-preview-paper span:nth-child(2) {
-    width: 78%;
-}
-
-.workspace-folder-preview-paper span:nth-child(3) {
-    width: 58%;
-}
-
-.workspace-folder-preview-front {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: grid;
-    height: 44px;
-    color: #755400;
-    background: #ffd45d;
-    border: 1px solid rgba(#8c6800, 0.25);
-    border-radius: 5px 7px 10px 10px;
-    place-items: center;
-}
-
-.workspace-folder-preview-copy {
-    min-width: 0;
-}
-
-.workspace-folder-preview-copy strong {
-    display: block;
-    overflow: hidden;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: 15px;
-    font-weight: 750;
-    line-height: 1.3;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.workspace-folder-preview-copy p {
-    display: -webkit-box;
-    margin: 5px 0 0;
-    overflow: hidden;
-    color: $text-secondary;
-    font-size: 12px;
-    line-height: 1.5;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-.workspace-folder-preview-meta {
-    position: absolute;
-    right: 12px;
-    bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.workspace-folder-preview-meta>span {
-    color: $text-light;
-    font-size: 10px;
-    font-weight: 700;
-}
 
 .workspace-folder-mobile-preview {
     display: none;
@@ -348,14 +211,14 @@
 
 .workspace-folder-editor-error {
     padding: 10px;
-    color: $danger;
-    background: rgba($danger, 0.07);
-    border-radius: 6px;
+    color: #9B2626;
+    background: #FDEAE7;
+    border-radius: 8px;
     font-size: 12px;
     line-height: 1.5;
 }
 
-@media (max-width:1199.98px) {
+@media (max-width: 1199.98px) {
     .workspace-folder-external-preview {
         display: none;
     }
@@ -369,10 +232,9 @@
     }
 }
 
-@media (max-width:575.98px) {
+@media (max-width: 575.98px) {
     .workspace-folder-editor {
         gap: 14px;
-        padding: 12px;
     }
 
     .workspace-folder-field {
@@ -382,15 +244,5 @@
 
     .workspace-folder-context {
         grid-template-columns: 1fr;
-    }
-
-    .workspace-folder-preview {
-        grid-template-columns: 68px minmax(0, 1fr);
-        padding: 14px;
-    }
-
-    .workspace-folder-preview-visual {
-        width: 64px;
-        height: 54px;
     }
 }

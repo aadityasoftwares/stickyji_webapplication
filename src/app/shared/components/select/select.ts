@@ -78,7 +78,8 @@ export type SelectAppearance =
   | 'standard'
   | 'inline'
   | 'transparent'
-  | 'outlined';
+  | 'outlined'
+  | 'simple';
 export type SelectShape =
   | 'rounded'
   | 'soft'

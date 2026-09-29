@@ -11,7 +11,7 @@ import {
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
@@ -26,6 +26,7 @@ import {
   LucideChevronDown,
   LucideFolderOpen,
   LucideGrid2X2,
+  LucideGrip,
   LucideList,
   LucideMoreHorizontal,
   LucidePanelsTopLeft,
@@ -75,6 +76,8 @@ import {
 import {
   getNoteColorAccent,
   getNoteColumnEyebrow,
+  isColumnDragItem,
+  isNoteDragItem,
   mapStickyNoteChecklists,
   mapStickyNoteColumn
 } from '../../shared/functions/sticky-note.function';
@@ -166,11 +169,13 @@ export class Today {
   readonly LucideX = LucideX;
   readonly LucideCheck = LucideCheck;
   readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideGrip = LucideGrip;
 
   readonly today = signal(new Date());
   readonly VIEW = VIEW;
   readonly view = signal<View>(VIEW.KANBAN);
   readonly searchTerm = signal('');
+  readonly movingColumn = signal(false);
 
   readonly stickyNoteViewOptions: any[] = STICKY_NOTE_VIEW_OPTIONS;
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
@@ -233,6 +238,7 @@ export class Today {
   readonly notePanelId = signal('');
 
   readonly columnPanelOpen = signal(false);
+  readonly columnPanelMode = signal<'create' | 'edit'>('create');
   readonly columnPanelId = signal('');
   readonly columnPanelColumn = signal<any | null>(null);
 
@@ -775,6 +781,57 @@ export class Today {
     return index >= 0 && index < this.stickyNoteColumns().length - 1;
   }
 
+  readonly canDropColumn = (drag: any) => isColumnDragItem(drag?.data);
+  readonly canDropNote = (drag: any) => isNoteDragItem(drag?.data);
+
+  dropColumn(event: CdkDragDrop<any[]>): void {
+    if (event.previousIndex === event.currentIndex || this.movingColumn() || this.boardLoading()) {
+      return;
+    }
+
+    const workspaceId = this.activeWorkspaceId();
+    const folderId = this.activeFolder();
+    if (!workspaceId || !folderId) return;
+
+    const previousColumns = [...this.stickyNoteColumns()];
+    const reordered = [...previousColumns];
+    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+
+    const updatedColumns = reordered.map((col, idx) => ({ ...col, position: idx }));
+    this.stickyNoteColumnStore.setColumns(workspaceId, folderId, updatedColumns as any);
+    this.movingColumn.set(true);
+
+    const columnIds = updatedColumns.map(col => col.id);
+    this.stickyNoteColumnApiService.reorder({
+      workspaceId,
+      workspaceFolderId: folderId,
+      columnIds
+    })
+      .pipe(
+        finalize(() => this.movingColumn.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: any) => {
+          const items = extractList(response);
+          if (items.length > 0) {
+            this.stickyNoteColumnStore.setColumns(workspaceId, folderId, items);
+          }
+          this.toastService.success('Columns rearranged successfully.', {
+            title: 'Column order updated',
+            dedupeKey: 'columns-reordered'
+          });
+        },
+        error: (error: any) => {
+          this.stickyNoteColumnStore.setColumns(workspaceId, folderId, previousColumns as any);
+          this.toastService.error(extractErrorMessage(error, 'Unable to rearrange columns.'), {
+            title: 'Rearrange failed',
+            dedupeKey: 'columns-reorder-error'
+          });
+        }
+      });
+  }
+
   dropNote(event: any, targetColumnId: string): void {
     if (this.searchTerm().trim() || this.movingNoteId()) return;
 
@@ -893,14 +950,18 @@ export class Today {
 
   openColumnCreateModal(): void {
     if (!this.activeWorkspaceId() || !this.activeFolder() || this.boardLoading()) return;
+    this.columnPanelMode.set('create');
     this.columnPanelId.set('');
     this.columnPanelColumn.set(null);
     this.columnPanelOpen.set(true);
   }
 
-  requestColumnEdit(column: any): void {
+  requestColumnEdit(column: any, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     const id = idOf(column);
     if (!id || this.boardLoading()) return;
+    this.columnPanelMode.set('edit');
     this.columnPanelId.set(id);
     this.columnPanelColumn.set(column);
     this.columnPanelOpen.set(true);

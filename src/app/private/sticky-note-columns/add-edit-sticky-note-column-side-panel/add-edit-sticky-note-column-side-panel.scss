@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../../styles/variables' as *;
 
 :host {
@@ -10,33 +11,215 @@
     box-sizing: border-box;
 }
 
+/* ==========================================================================
+   Full Side Panel Body Background Color Dynamic Styling
+   ========================================================================== */
+
+:host ::ng-deep app-side-panel {
+    .app-side-panel-body {
+        background-color: var(--editor-body, #{$paper}) !important;
+        color: var(--editor-ink, #{$text-primary});
+        transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    &[data-color='white'] .app-side-panel-body,
+    .column-editor[data-color='white'] {
+        --editor-paper: #{$paper};
+        --editor-paper-deep: #{$paper-dark};
+        --editor-body: #{$paper};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$secondary};
+        --column-color: #{$secondary};
+    }
+
+    &[data-color='yellow'] .app-side-panel-body,
+    .column-editor[data-color='yellow'] {
+        --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
+        --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
+        --editor-body: #{color.mix($note-yellow, $paper, 30%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-mustard};
+        --column-color: #{$note-yellow};
+    }
+
+    &[data-color='orange'] .app-side-panel-body,
+    .column-editor[data-color='orange'] {
+        --editor-paper: #{color.mix($note-orange, $paper, 20%)};
+        --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
+        --editor-body: #{color.mix($note-orange, $paper, 20%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-burnt-orange};
+        --column-color: #{$note-orange};
+    }
+
+    &[data-color='pink'] .app-side-panel-body,
+    .column-editor[data-color='pink'] {
+        --editor-paper: #{color.mix($note-pink, $paper, 34%)};
+        --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
+        --editor-body: #{color.mix($note-pink, $paper, 34%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-blush};
+        --column-color: #{$note-pink};
+    }
+
+    &[data-color='red'] .app-side-panel-body,
+    .column-editor[data-color='red'] {
+        --editor-paper: #{color.mix($note-red, $paper, 20%)};
+        --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
+        --editor-body: #{color.mix($note-red, $paper, 20%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-dark-red};
+        --column-color: #{$note-red};
+    }
+
+    &[data-color='green'] .app-side-panel-body,
+    .column-editor[data-color='green'] {
+        --editor-paper: #{color.mix($note-green, $paper, 18%)};
+        --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
+        --editor-body: #{color.mix($note-green, $paper, 18%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-forest-green};
+        --column-color: #{$note-green};
+    }
+
+    &[data-color='blue'] .app-side-panel-body,
+    .column-editor[data-color='blue'] {
+        --editor-paper: #{color.mix($note-blue, $paper, 16%)};
+        --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
+        --editor-body: #{color.mix($note-blue, $paper, 16%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-steel-blue};
+        --column-color: #{$note-blue};
+    }
+
+    &[data-color='purple'] .app-side-panel-body,
+    .column-editor[data-color='purple'] {
+        --editor-paper: #{color.mix($note-purple, $paper, 14%)};
+        --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
+        --editor-body: #{color.mix($note-purple, $paper, 14%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-grape};
+        --column-color: #{$note-purple};
+    }
+
+    &[data-color='brown'] .app-side-panel-body,
+    .column-editor[data-color='brown'] {
+        --editor-paper: #{color.mix($note-brown, $paper, 18%)};
+        --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
+        --editor-body: #{color.mix($note-brown, $paper, 18%)};
+        --editor-ink: #{$text-primary};
+        --editor-muted: #{$text-secondary};
+        --editor-rule: #{rgba($heading, 0.14)};
+        --note-accent: #{$note-coffee};
+        --column-color: #{$note-brown};
+    }
+
+    &[data-color='black'] .app-side-panel-body,
+    .column-editor[data-color='black'] {
+        --editor-paper: #{$note-jet-black};
+        --editor-paper-deep: #{$note-black};
+        --editor-body: #{$note-jet-black};
+        --editor-ink: #{$paper};
+        --editor-muted: #{rgba($paper, 0.72)};
+        --editor-rule: #{rgba($paper, 0.18)};
+        --note-accent: #{$note-gold};
+        --column-color: #{$note-black};
+
+        .app-input-wrapper {
+            --app-input-background: #{$note-black};
+            --app-input-color: #{$paper};
+            --app-input-border: #{rgba($paper, 0.22)};
+            --app-input-muted: #{rgba($paper, 0.72)};
+            --app-input-placeholder: #{rgba($paper, 0.45)};
+        }
+
+        .app-select-wrapper {
+            --app-select-background: #{$note-black};
+            --app-select-color: #{$paper};
+            --app-select-border: #{rgba($paper, 0.22)};
+            --app-select-muted: #{rgba($paper, 0.72)};
+        }
+    }
+}
+
+/* ==========================================================================
+   Column Editor Form
+   ========================================================================== */
+
 .column-editor {
+    --editor-paper: #{$paper};
+    --editor-body: var(--editor-paper);
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
     display: grid;
     align-content: start;
     gap: 18px;
     width: 100%;
     min-width: 0;
-    padding: 16px;
-    color: $text-primary;
-    background: $paper;
+    padding: 0;
+    color: var(--editor-ink);
+    background: transparent;
     font-family: $font-body;
 }
 
+.column-editor app-input,
+.column-editor app-select {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
+
+/* ==========================================================================
+   Dropdowns: Context Selection (Workspace, Folder)
+   ========================================================================== */
+
+.column-context {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+}
+
+.column-context-field {
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Input Fields: Name
+   ========================================================================== */
+
 .column-fields {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     min-width: 0;
 }
 
 .column-field {
     display: grid;
     grid-template-columns: 62px minmax(0, 1fr);
-    align-items: start;
     gap: 10px;
-    min-width: 0;
+    align-items: start;
 }
 
-.column-field>app-label {
+.column-field > app-label {
     padding-top: 10px;
 }
 
@@ -44,43 +227,44 @@
     min-width: 0;
 }
 
-.column-field-control app-input {
-    display: block;
-    width: 100%;
-}
-
-.column-field ::ng-deep .app-input-control {
-    font-family: $font-heading;
-    font-size: 18px;
+.column-name-field ::ng-deep .app-input-control {
+    font-size: 16px;
     font-weight: 600;
 }
 
 .column-field-counter {
     display: block;
-    padding: 3px 8px 0;
-    color: $text-secondary;
-    font-size: 11px;
     text-align: right;
+    padding: 3px 8px 0;
+    color: var(--editor-muted);
+    font-size: 10px;
 }
 
-.column-color-section {
+.column-editor ::ng-deep .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   Color Selection & Swatches
+   ========================================================================== */
+
+.column-appearance {
     display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
     gap: 10px;
-    padding-top: 16px;
-    border-top: 1px solid rgba($heading, 0.14);
-}
-
-.column-color-heading {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    min-width: 0;
 }
 
-.column-color-heading>span {
-    color: $text-secondary;
-    font-size: 11px;
-    font-weight: 600;
+.column-color-control {
+    min-width: 0;
+}
+
+.column-color-swatches {
+    display: grid;
+    gap: 8px;
+    padding-top: 4px;
 }
 
 .column-color-options {
@@ -95,16 +279,17 @@
     min-height: 38px;
     gap: 8px;
     padding: 7px 9px;
-    color: $text-secondary;
-    background: $paper;
-    border: 1px solid $border-light;
+    color: var(--editor-ink);
+    background: var(--editor-paper, #{$paper});
+    border: 1px solid rgba($heading, 0.12);
     border-radius: $radius-sm;
     font: 600 12px/1.2 $font-body;
     cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .column-color-option:hover:not(:disabled) {
-    background: $page-bg;
+    background: rgba($heading, 0.04);
 }
 
 .column-color-option:focus-visible {
@@ -114,8 +299,8 @@
 
 .column-color-option.is-selected {
     color: $heading;
-    border-color: color-mix(in srgb, var(--column-color) 55%, $border);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--column-color) 18%, transparent);
+    border-color: color-mix(in srgb, var(--column-swatch-color, #{$primary}) 55%, $border);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--column-swatch-color, #{$primary}) 22%, transparent);
 }
 
 .column-color-option:disabled {
@@ -125,128 +310,132 @@
 
 .column-color-swatch {
     flex: 0 0 auto;
-    width: 15px;
-    height: 15px;
-    background: var(--column-color);
-    border: 1px solid rgba($heading, 0.12);
+    width: 14px;
+    height: 14px;
+    background: var(--column-swatch-color);
+    border: 1px solid rgba($heading, 0.14);
     border-radius: 50%;
 }
 
-[data-column-color='YELLOW'] {
+[data-column-color='yellow'] {
+    --column-swatch-color: #{$note-yellow};
     --column-color: #{$note-yellow};
 }
 
-[data-column-color='BLUE'] {
+[data-column-color='blue'] {
+    --column-swatch-color: #{$note-blue};
     --column-color: #{$note-blue};
 }
 
-[data-column-color='GREEN'] {
+[data-column-color='green'] {
+    --column-swatch-color: #{$note-green};
     --column-color: #{$note-green};
 }
 
-[data-column-color='PINK'] {
+[data-column-color='pink'] {
+    --column-swatch-color: #{$note-pink};
     --column-color: #{$note-pink};
 }
 
-[data-column-color='PURPLE'] {
+[data-column-color='purple'] {
+    --column-swatch-color: #{$note-purple};
     --column-color: #{$note-purple};
 }
 
-[data-column-color='ORANGE'] {
+[data-column-color='orange'] {
+    --column-swatch-color: #{$note-orange};
     --column-color: #{$note-orange};
 }
+
+/* ==========================================================================
+   Metadata Section
+   ========================================================================== */
 
 .column-meta {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    padding-top: 16px;
-    border-top: 1px solid rgba($heading, 0.14);
-}
-
-.column-meta>div {
-    display: grid;
-    gap: 3px;
-    padding: 9px 10px;
-    background: $page-bg;
-    border: 1px solid $border-light;
+    padding: 10px 12px;
+    background: rgba($heading, 0.035);
+    border: 1px solid var(--editor-rule);
     border-radius: $radius-sm;
 }
 
-.column-meta span {
-    color: $text-light;
+.column-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.column-meta-item span {
+    color: var(--editor-muted);
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.column-meta strong {
-    overflow: hidden;
-    color: $heading;
-    font-size: 12px;
+.column-meta-item strong {
+    color: var(--editor-ink);
+    font-size: 13px;
     font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .column-system-note {
     margin: 0;
-    padding: 9px 10px;
-    color: $text-secondary;
-    background: color-mix(in srgb, $note-blue 12%, $paper);
-    border: 1px solid color-mix(in srgb, $note-blue 22%, $border);
-    border-radius: $radius-sm;
+    padding: 6px 10px;
+    color: var(--editor-muted);
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.4;
+    background: rgba($note-blue, 0.1);
+    border-left: 3px solid #{$note-blue};
+    border-radius: 0 4px 4px 0;
 }
 
+/* ==========================================================================
+   Preview and Footer
+   ========================================================================== */
+
+/* Floating preview is a fixed sibling, matching note-external-preview */
 .column-external-preview {
     position: fixed;
     z-index: 2147483000;
     top: 90px;
     right: 720px;
-    display: grid;
-    gap: 12px;
     width: min(320px, calc(100vw - 760px));
     max-height: calc(100dvh - 120px);
     overflow: hidden;
-    color: $text-primary;
-    font-family: $font-body;
+    display: grid;
+    gap: 12px;
     pointer-events: none;
 }
 
-.column-external-preview>app-badge,
-.column-mobile-preview>app-badge {
+.column-external-preview app-badge {
     justify-self: start;
 }
 
 .column-preview-card {
     display: grid;
-    gap: 8px;
-    width: 100%;
-    min-width: 0;
-    padding: 11px;
+    gap: 10px;
+    padding: 12px;
     background: $paper;
-    border: 1px solid $border;
-    border-top: 3px solid var(--column-color);
-    border-radius: $radius-md;
-    box-shadow: $shadow;
-}
-
-.column-preview-header,
-.column-preview-title {
-    display: flex;
-    align-items: center;
-    min-width: 0;
+    border: 1px solid rgba($heading, 0.12);
+    border-radius: $radius-sm;
+    box-shadow: 0 0.5rem 1.6rem rgba($heading, 0.08);
 }
 
 .column-preview-header {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
 }
 
 .column-preview-title {
+    display: flex;
+    align-items: center;
     gap: 7px;
+    min-width: 0;
 }
 
 .column-preview-title strong {
@@ -263,7 +452,7 @@
     flex: 0 0 auto;
     width: 8px;
     height: 8px;
-    background: var(--column-color);
+    background: var(--column-color, #{$note-yellow});
     border-radius: 50%;
 }
 
@@ -286,25 +475,25 @@
 
 .column-preview-empty {
     display: grid;
-    min-height: 130px;
+    min-height: 120px;
     place-content: center;
     justify-items: center;
     gap: 5px;
 }
 
-.column-preview-empty>span {
+.column-preview-empty > span {
     display: block;
     width: 74px;
     height: 8px;
-    background: color-mix(in srgb, var(--column-color) 20%, $paper-dark);
+    background: color-mix(in srgb, var(--column-color, #{$note-yellow}) 22%, $paper-dark);
     border-radius: 999px;
 }
 
-.column-preview-empty>span:nth-child(2) {
+.column-preview-empty > span:nth-child(2) {
     width: 96px;
 }
 
-.column-preview-empty>span:nth-child(3) {
+.column-preview-empty > span:nth-child(3) {
     width: 58px;
 }
 
@@ -330,7 +519,6 @@
 
 .column-editor-footer-actions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
@@ -339,14 +527,17 @@
 
 .column-editor-error {
     padding: 10px;
-    color: $danger;
-    background: rgba($danger, 0.07);
-    border-radius: 6px;
+    color: #9B2626;
+    background: #FDEAE7;
     font-size: 12px;
-    line-height: 1.5;
+    border-radius: 8px;
 }
 
-@media (max-width:1199.98px) {
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1199.98px) {
     .column-external-preview {
         display: none;
     }
@@ -354,28 +545,48 @@
     .column-mobile-preview {
         display: grid;
         gap: 12px;
-        width: 100%;
         max-width: 340px;
+        width: 100%;
         justify-self: center;
     }
 }
 
-@media (max-width:575.98px) {
-    .column-editor {
-        gap: 14px;
-        padding: 12px;
-    }
-
-    .column-field {
-        grid-template-columns: 48px minmax(0, 1fr);
-        gap: 6px;
+@media (max-width: 640px) {
+    .column-context {
+        grid-template-columns: 1fr;
     }
 
     .column-color-options {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+@media (max-width: 575.98px) {
+    .column-field,
+    .column-appearance {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 6px;
+    }
 
     .column-meta {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :host ::ng-deep .app-side-panel-body,
+    .column-editor {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
+    .column-editor[data-color] {
+        --editor-body: Canvas;
+        --editor-paper: Canvas;
+        --editor-ink: CanvasText;
+        --editor-muted: CanvasText;
+        --editor-rule: CanvasText;
     }
 }

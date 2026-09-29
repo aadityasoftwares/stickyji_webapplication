@@ -96,10 +96,13 @@
                             [description]="workspace.description || ''" [personal]="!!workspace.isPersonal"
                             [visibility]="workspaceVisibility(workspace)" [roleLabel]="workspaceRoleLabel(workspace)"
                             [status]="workspace.status" [updatedAt]="workspace.updatedAt || workspace.createdAt"
+                            [folderCount]="workspaceFolderCount(workspace)"
+                            [members]="workspaceMembers(workspace)"
+                            [memberCount]="workspaceMemberCount(workspace)"
                             [interactive]="!isInlineRenaming(workspace)" [busy]="isBusy(workspace)"
                             (opened)="handleWorkspaceClick(workspace, $event)"
                             (edited)="handleWorkspaceDoubleClick(workspace, $event)"
-                            (keyboardOpened)="openWorkspace(workspace)">
+                            (keyboardOpened)="handleWorkspaceClick(workspace)">
                             <div folder-title>
                                 @if (isInlineRenaming(workspace)) {
                                 <input #renameInput class="workspace-inline-rename"
@@ -127,6 +130,17 @@
 
                         <mat-menu #workspaceActions="matMenu" xPosition="before" yPosition="below"
                             [overlapTrigger]="false" class="workspace-actions-menu">
+                            <button mat-menu-item type="button" class="workspace-action-item is-edit"
+                                (click)="openEditEditor(workspace)">
+                                <span class="workspace-menu-item-icon" aria-hidden="true">
+                                    <app-icon [icon]="LucidePencil" size="xs" />
+                                </span>
+                                <span class="workspace-menu-item-copy">
+                                    <strong>Edit workspace</strong>
+                                    <small>Change workspace details</small>
+                                </span>
+                            </button>
+
                             <button mat-menu-item type="button" class="workspace-action-item is-open"
                                 (click)="openWorkspace(workspace)">
                                 <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -135,17 +149,6 @@
                                 <span class="workspace-menu-item-copy">
                                     <strong>Open</strong>
                                     <small>Go to workspace</small>
-                                </span>
-                            </button>
-
-                            <button mat-menu-item type="button" class="workspace-action-item is-edit"
-                                (click)="openEditEditor(workspace)">
-                                <span class="workspace-menu-item-icon" aria-hidden="true">
-                                    <app-icon [icon]="LucidePencil" size="xs" />
-                                </span>
-                                <span class="workspace-menu-item-copy">
-                                    <strong>Edit workspace</strong>
-                                    <small>Change workspace name</small>
                                 </span>
                             </button>
 
@@ -231,9 +234,9 @@
                             <td class="workspace-table-name" data-label="Workspace">
                                 <div class="workspace-table-name-main" role="button"
                                     [attr.tabindex]="isInlineRenaming(workspace) || isBusy(workspace) ? -1 : 0"
-                                    [attr.aria-label]="isInlineRenaming(workspace) ? null : 'Open ' + workspaceName(workspace)"
+                                    [attr.aria-label]="isInlineRenaming(workspace) ? null : 'Select ' + workspaceName(workspace)"
                                     (click)="handleWorkspaceClick(workspace, $event)"
-                                    (keydown.enter)="$event.target === $event.currentTarget && openWorkspace(workspace)">
+                                    (keydown.enter)="$event.target === $event.currentTarget && handleWorkspaceClick(workspace)">
 
                                     <span [class]="'workspace-folder-thumbnail ' + workspaceTheme(workspace).variant"
                                         aria-hidden="true">
@@ -304,17 +307,6 @@
 
                                 <mat-menu #workspaceListActions="matMenu" xPosition="before" yPosition="below"
                                     [overlapTrigger]="false" class="workspace-actions-menu">
-                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
-                                        (click)="openWorkspace(workspace)">
-                                        <span class="workspace-menu-item-icon" aria-hidden="true">
-                                            <app-icon [icon]="LucideArrowRight" size="xs" />
-                                        </span>
-                                        <span class="workspace-menu-item-copy">
-                                            <strong>Open</strong>
-                                            <small>Go to workspace</small>
-                                        </span>
-                                    </button>
-
                                     <button mat-menu-item type="button" class="workspace-action-item is-edit"
                                         (click)="openEditEditor(workspace)">
                                         <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -323,6 +315,17 @@
                                         <span class="workspace-menu-item-copy">
                                             <strong>Edit workspace</strong>
                                             <small>Change workspace details</small>
+                                        </span>
+                                    </button>
+
+                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                        (click)="openWorkspace(workspace)">
+                                        <span class="workspace-menu-item-icon" aria-hidden="true">
+                                            <app-icon [icon]="LucideArrowRight" size="xs" />
+                                        </span>
+                                        <span class="workspace-menu-item-copy">
+                                            <strong>Open</strong>
+                                            <small>Go to workspace</small>
                                         </span>
                                     </button>
 

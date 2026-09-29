@@ -524,6 +524,91 @@ $input-note-black: #252525;
 }
 
 /* =========================================================
+   Simple appearance
+   Clean, flat input without box-shadow or 3D lift.
+   Has a crisp border matching common selects and inputs,
+   and highlights only the border on focus.
+   ========================================================= */
+
+.app-input-appearance-simple {
+    --app-input-background: #ffffff;
+}
+
+.app-input-appearance-simple .app-input-control-shell {
+    background-color: var(--app-input-background, #ffffff);
+    background-image: none;
+    border: 1px solid var(--app-input-border);
+    border-radius: var(--app-input-radius);
+    box-shadow: none;
+    transform: none;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.app-input-appearance-simple .app-input-control-shell::after {
+    display: none;
+}
+
+.app-input-appearance-simple .app-input-control {
+    background: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .app-input-appearance-simple:not(.app-input-disabled,
+        .app-input-readonly,
+        .app-input-loading,
+        .app-input-focused):hover .app-input-control-shell {
+        border-color: color.adjust($border, $lightness: -10%);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+.app-input-appearance-simple.app-input-focused .app-input-control-shell {
+    z-index: 2;
+    border-color: $accent;
+    box-shadow: none;
+    transform: none;
+}
+
+.app-input-appearance-simple.app-input-status-danger .app-input-control-shell {
+    border-color: $danger;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-status-warning .app-input-control-shell {
+    border-color: $warning;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-status-success .app-input-control-shell {
+    border-color: $success;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-status-danger.app-input-focused .app-input-control-shell {
+    border-color: $danger;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-status-warning.app-input-focused .app-input-control-shell {
+    border-color: $warning;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-status-success.app-input-focused .app-input-control-shell {
+    border-color: $success;
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-decoration-tape .app-input-control-shell {
+    box-shadow: none;
+}
+
+.app-input-appearance-simple.app-input-multiline .app-input-control-shell {
+    align-items: flex-start;
+}
+
+/* =========================================================
    Inline appearance
    ========================================================= */
 

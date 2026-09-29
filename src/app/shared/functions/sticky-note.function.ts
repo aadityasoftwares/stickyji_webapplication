@@ -1,8 +1,11 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import type { BadgeVariant } from '../components/badge/badge';
 import type { SidePanelTone } from '../components/side-panel/side-panel';
-import type { SelectOption } from '../components/select/select';
-import { NOTE_LIMITS } from '../constants/common.constants';
+import {
+  COLUMN_LIMITS,
+  NOTE_LIMITS,
+  STICKY_NOTE_COLUMN_COLOR_OPTIONS
+} from '../constants/common.constants';
 import { idOf } from './common.function';
 
 /**
@@ -594,3 +597,139 @@ export function mapStickyNoteColumn(column: any): any {
     return column ? { ...column, id: idOf(column) } : null;
   }
 }
+
+/**
+ * Validates a sticky note column form:
+ * - Checks workspace and folder presence
+ * - Checks column name presence and length limits
+ *
+ * @param input Form values object.
+ * @returns Error message string or null if validation passes.
+ */
+export function validateColumnForm(input: any, limits?: any): string | null {
+  try {
+    if (!input || typeof input !== 'object') {
+      return null;
+    }
+
+    const workspaceId = String(input.workspaceId ?? '').trim();
+    if (!workspaceId) {
+      return 'Choose a workspace for this column.';
+    }
+
+    const folderId = String(input.workspaceFolderId ?? '').trim();
+    if (!folderId) {
+      return 'Choose a folder for this column.';
+    }
+
+    const name = String(input.name ?? '').trim();
+    if (!name) {
+      return 'Give your column a name.';
+    }
+
+    const nameMin = Number(limits?.NAME_MIN_LENGTH || input.nameMinLength) || COLUMN_LIMITS.NAME_MIN_LENGTH;
+    if (name.length < nameMin) {
+      return `Column name must be at least ${nameMin} character.`;
+    }
+
+    const nameMax = Number(limits?.NAME_MAX_LENGTH || input.nameMaxLength) || COLUMN_LIMITS.NAME_MAX_LENGTH;
+    if (name.length > nameMax) {
+      return `Column name cannot exceed ${nameMax} characters.`;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in validateColumnForm:', error);
+    return 'Please check column details.';
+  }
+}
+
+/**
+ * Formats a column type enum value into a user-friendly display string.
+ *
+ * @param type Column type ('TODO', 'IN_PROGRESS', 'COMPLETED', etc.)
+ * @returns Formatted label ('To do', 'In progress', 'Completed', or 'Custom').
+ */
+export function getColumnTypeLabel(type?: any): string {
+  try {
+    const normalized = String(type ?? 'CUSTOM').toUpperCase();
+    if (normalized === 'TODO') return 'To do';
+    if (normalized === 'IN_PROGRESS') return 'In progress';
+    if (normalized === 'COMPLETED') return 'Completed';
+    return 'Custom';
+  } catch (error) {
+    console.error('Error in getColumnTypeLabel:', error);
+    return 'Custom';
+  }
+}
+
+/**
+ * Returns a human-friendly label for a column color code.
+ *
+ * @param color Column color code ('YELLOW', 'BLUE', etc.)
+ * @param options Color options list.
+ * @returns Color label string.
+ */
+export function getColumnColorLabel(
+  color?: any,
+  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS
+): string {
+  try {
+    const key = String(color ?? '').toUpperCase();
+    const match = options.find((opt: any) => String(opt.value).toUpperCase() === key);
+    return match?.label || color || 'Yellow';
+  } catch (error) {
+    console.error('Error in getColumnColorLabel:', error);
+    return String(color ?? 'Yellow');
+  }
+}
+
+/**
+ * Checks whether a given color code is valid for columns.
+ *
+ * @param color Color code to validate.
+ * @param options Valid color options.
+ * @returns True if valid, false otherwise.
+ */
+export function isValidColumnColor(
+  color?: any,
+  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS
+): boolean {
+  try {
+    const key = String(color ?? '').toUpperCase();
+    return options.some((opt: any) => String(opt.value).toUpperCase() === key);
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Converts a color name into a normalized lowercase CSS class/attribute string.
+ *
+ * @param color Color value.
+ * @returns Lowercase string (e.g. 'yellow', 'blue').
+ */
+export function toColorCssClass(color?: any): string {
+  return String(color ?? '').trim().toLowerCase();
+}
+
+/**
+ * Predicate to check if a drag item represents a column (and not a note).
+ *
+ * @param dragData Dragged item payload.
+ * @returns True if the item is a column.
+ */
+export function isColumnDragItem(dragData: any): boolean {
+  return Boolean(dragData && !('columnId' in dragData));
+}
+
+/**
+ * Predicate to check if a drag item represents a note.
+ *
+ * @param dragData Dragged item payload.
+ * @returns True if the item is a note.
+ */
+export function isNoteDragItem(dragData: any): boolean {
+  return Boolean(dragData && 'columnId' in dragData);
+}
+

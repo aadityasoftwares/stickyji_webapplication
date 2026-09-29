@@ -2555,3 +2555,124 @@ textarea {
         transition: none;
     }
 }
+
+/* ==========================================================
+   WORKSPACE FOLDER WRAPPER INTEGRATION
+   The wrapper supplies the card surface and its own content.
+   ========================================================== */
+
+.workspace-folder-grid--cards {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr)) !important;
+    grid-auto-rows: minmax(14.75rem, auto) !important;
+    align-items: stretch;
+    gap: 1.125rem;
+}
+
+.workspace-folder-grid--cards .workspace-folder-tile--card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 14.75rem;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.workspace-folder-grid--cards .workspace-folder-tile--card:hover,
+.workspace-folder-grid--cards .workspace-folder-tile--card:focus-within {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.workspace-folder-tile--card app-workspace-folder-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 14.75rem;
+}
+
+.workspace-folder-grid--cards .workspace-create-folder {
+    min-height: 14.75rem;
+    height: 100%;
+}
+
+/* The projected action slot positions this button. */
+.workspace-folder-tile--card .workspace-menu-trigger {
+    position: static;
+    z-index: auto;
+    inset: auto;
+    opacity: 1;
+    color: $text-light;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.workspace-folder-tile--card .workspace-menu-trigger:hover,
+.workspace-folder-tile--card .workspace-menu-trigger[aria-expanded='true'] {
+    color: $heading;
+    background: rgba($border, 0.25);
+}
+
+.workspace-folder-tile--card .workspace-menu-trigger:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+}
+
+.workspace-folder-tile--card [folder-title] {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.workspace-folder-tile--card .workspace-name-editable {
+    display: block;
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 750;
+    line-height: 1.45;
+    color: $heading;
+    font-family: $font-heading;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.workspace-folder-tile--card .workspace-inline-rename {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    text-align: left;
+}
+
+@media (max-width: 62rem) {
+    .workspace-folder-grid--cards {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr)) !important;
+        grid-auto-rows: minmax(14.75rem, auto) !important;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 40rem) {
+    .workspace-folder-grid--cards {
+        grid-template-columns: 100% !important;
+        grid-auto-rows: minmax(14.75rem, auto) !important;
+        gap: 0.875rem;
+    }
+}
+
+@media (max-width: 25rem) {
+    .workspace-folder-grid--cards {
+        grid-template-columns: 100% !important;
+        grid-auto-rows: minmax(14.75rem, auto) !important;
+        gap: 0.75rem;
+    }
+}

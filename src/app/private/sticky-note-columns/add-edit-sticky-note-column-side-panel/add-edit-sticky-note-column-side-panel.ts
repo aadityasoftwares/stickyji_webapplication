@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
@@ -9,38 +10,80 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  computed,
   inject,
   signal
 } from '@angular/core';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import {
   LucideCheck,
   LucideColumns3,
+  LucideFolderOpen,
+  LucidePanelsTopLeft,
   LucidePencil,
-  LucidePlus
+  LucidePlus,
+  LucideTrash2
 } from '@lucide/angular';
 
+import { AppIcon } from '../../../shared/components/icon/icon';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
-import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
-import { SidePanel } from '../../../shared/components/side-panel/side-panel';
+import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
+import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+
+import {
+  extractErrorMessage,
+  extractList,
+  idOf
+} from '../../../shared/functions/common.function';
+import {
+  COLUMN_LIMITS,
+  STICKY_NOTE_COLUMN_COLOR_OPTIONS
+} from '../../../shared/constants/common.constants';
+import {
+  getColumnColorLabel,
+  getColumnTypeLabel,
+  getNotePanelTone,
+  isValidColumnColor,
+  resolveDefaultFolderId,
+  toColorCssClass,
+  validateColumnForm
+} from '../../../shared/functions/sticky-note.function';
+
+import type {
+  StickyNoteColumnColor
+} from '../../mynotes/models/mynotes.interface';
 import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-column.service';
+import { StickyNoteColumnStore } from '../../mynotes/services/sticky-note-column.store';
+import { WorkspaceService } from '../../workspace/services/workspace.service';
+import { WorkspaceStore } from '../../workspace/services/workspace.store';
+import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
+import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
 
 @Component({
   selector: 'app-add-edit-sticky-note-column-side-panel',
   standalone: true,
   imports: [
-    Badge,
-    Button,
+    FormsModule,
+    ReactiveFormsModule,
     AppIcon,
     AppInput,
+    Badge,
+    Button,
     Label,
     Loader,
+    Select,
     SidePanel
   ],
   templateUrl: './add-edit-sticky-note-column-side-panel.html',
@@ -48,15 +91,20 @@ import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-c
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddEditStickyNoteColumnSidePanel implements OnChanges {
+  private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly columnApi = inject(StickyNoteColumnApiService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(ToastService);
-  private editorId = '';
 
-  @ViewChild('columnNameInput', { read: ElementRef })
-  private columnNameInput?: ElementRef<HTMLElement>;
+  private readonly columnApi = inject(StickyNoteColumnApiService);
+  private readonly columnStore = inject(StickyNoteColumnStore);
+  private readonly workspaceApi = inject(WorkspaceService);
+  private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly workspaceFolderApi = inject(WorkspaceFolderService);
+  private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
 
   @Input() open = false;
+  @Input() mode: 'create' | 'edit' = 'create';
   @Input() id = '';
   @Input() workspaceId = '';
   @Input() workspaceFolderId = '';
@@ -65,271 +113,485 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly saved = new EventEmitter<string>();
 
+  @ViewChild('columnNameInput', { read: ElementRef })
+  private columnNameInput?: ElementRef<HTMLElement>;
+
+  readonly LucideCheck = LucideCheck;
   readonly LucideColumns3 = LucideColumns3;
-  readonly nameMinLength = 1;
-  readonly nameMaxLength = 50;
+  readonly LucideFolderOpen = LucideFolderOpen;
+  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
+  readonly LucidePencil = LucidePencil;
+  readonly LucidePlus = LucidePlus;
+  readonly LucideTrash2 = LucideTrash2;
+
+  readonly nameMinLength = COLUMN_LIMITS.NAME_MIN_LENGTH;
+  readonly nameMaxLength = COLUMN_LIMITS.NAME_MAX_LENGTH;
+
+  readonly colorOptions: readonly SelectOption[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS;
 
   readonly loading = signal(false);
   readonly loadingData = signal(false);
-  readonly loadFailed = signal(false);
+  readonly loadingWorkspaces = signal(false);
+  readonly loadingFolders = signal(false);
   readonly error = signal('');
-  readonly dirty = signal(false);
-  readonly name = signal('');
-  readonly color = signal('YELLOW');
-  readonly previewSource = signal<any>(null);
+  readonly saveState = signal<'idle' | 'editing' | 'saving' | 'saved' | 'error'>('idle');
 
-  readonly colorOptions = [
-    { label: 'Yellow', value: 'YELLOW' },
-    { label: 'Blue', value: 'BLUE' },
-    { label: 'Green', value: 'GREEN' },
-    { label: 'Pink', value: 'PINK' },
-    { label: 'Purple', value: 'PURPLE' },
-    { label: 'Orange', value: 'ORANGE' }
-  ];
+  readonly panelWorkspaces = signal<any[]>([]);
+  readonly panelFolders = signal<any[]>([]);
+  readonly columnMeta = signal<any>(null);
+
+  private editorId = '';
+
+  readonly workspaceOptions = computed<SelectOption[]>(() =>
+    this.panelWorkspaces()
+      .filter(item => item?.status !== 'DELETED')
+      .map(item => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
+      .filter(item => Boolean(item.value))
+  );
+
+  readonly folderOptions = computed<SelectOption[]>(() =>
+    this.panelFolders()
+      .filter(item => item?.status === 'ACTIVE')
+      .map(item => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
+      .filter(item => Boolean(item.value))
+  );
+
+  readonly form = this.fb.group({
+    workspaceId: ['', Validators.required],
+    workspaceFolderId: ['', Validators.required],
+    name: ['', [Validators.required, Validators.maxLength(this.nameMaxLength)]],
+    color: ['YELLOW', Validators.required]
+  });
+
+  get isBusy(): boolean {
+    return (
+      this.loading() ||
+      this.loadingData() ||
+      this.loadingWorkspaces() ||
+      this.loadingFolders()
+    );
+  }
+
+  get isEdit(): boolean {
+    return this.mode === 'edit';
+  }
+
+  get panelTitle(): string {
+    return this.mode === 'edit' ? 'Edit column' : 'Create column';
+  }
+
+  get eyebrow(): string {
+    return this.mode === 'edit' ? 'Update board stage' : 'Add board stage';
+  }
+
+  get description(): string {
+    return this.mode === 'edit'
+      ? 'Update the column details and visual tone.'
+      : 'Organise your sticky notes across workflows.';
+  }
+
+  get headerIcon() {
+    return this.mode === 'edit' ? LucidePencil : LucideColumns3;
+  }
+
+  get submitIcon() {
+    return this.mode === 'edit' ? LucideCheck : LucidePlus;
+  }
+
+  get submitLabel(): string {
+    return this.mode === 'edit' ? 'Save column' : 'Create column';
+  }
+
+  get panelTone(): SidePanelTone {
+    return getNotePanelTone(this.previewColor);
+  }
+
+  get previewColor(): string {
+    return this.controlString('color').toLowerCase();
+  }
+
+  readonly saveIndicatorLabel = computed(() => {
+    switch (this.saveState()) {
+      case 'editing':
+        return 'Unsaved changes';
+      case 'saving':
+        return 'Saving…';
+      case 'saved':
+        return 'Saved';
+      case 'error':
+        return 'Save failed';
+      default:
+        return this.mode === 'edit' ? 'Saved' : 'New column';
+    }
+  });
+
+  get isSystemColumn(): boolean {
+    return this.columnMeta()?.isSystem === true;
+  }
+
+  get columnTypeLabel(): string {
+    return getColumnTypeLabel(this.columnMeta()?.type);
+  }
+
+  get canSubmit(): boolean {
+    const validationError = validateColumnForm({
+      name: this.controlString('name'),
+      workspaceId: this.controlString('workspaceId'),
+      workspaceFolderId: this.controlString('workspaceFolderId')
+    }, {
+      NAME_MIN_LENGTH: this.nameMinLength,
+      NAME_MAX_LENGTH: this.nameMaxLength
+    });
+
+    return !this.isBusy && !validationError;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.open) return;
-
     if (
-      changes['open'] ||
-      changes['id'] ||
-      changes['workspaceId'] ||
-      changes['workspaceFolderId'] ||
-      changes['column']
+      this.open &&
+      (changes['open']?.currentValue === true ||
+        changes['id'] ||
+        changes['mode'] ||
+        changes['column'] ||
+        changes['workspaceId'] ||
+        changes['workspaceFolderId'])
     ) {
       this.initialize();
     }
   }
 
-  get isEdit(): boolean {
-    return !!this.editorId;
+  controlString(controlName: string): string {
+    const value = this.form.get(controlName)?.value;
+    return typeof value === 'string' ? value : '';
   }
 
-  get panelTitle(): string {
-    return this.isEdit ? 'Edit column' : 'Create column';
+  updateText(controlName: 'name', value: unknown): void {
+    if (this.isBusy) return;
+    this.error.set('');
+    this.form.controls[controlName].setValue(String(value ?? ''));
+    this.saveState.set('editing');
+    this.cdr.markForCheck();
   }
 
-  get eyebrow(): string {
-    return this.isEdit ? 'Update board stage' : 'Add board stage';
+  updateSelect(controlName: string, value: unknown): void {
+    if (this.isBusy || typeof value !== 'string') return;
+    this.error.set('');
+
+    if (controlName === 'color') {
+      this.form.controls.color.setValue(value);
+    }
+
+    this.saveState.set('editing');
+    this.cdr.markForCheck();
   }
 
-  get description(): string {
-    return 'Give the column a clear name and color.';
+  updateWorkspace(value: SelectValue): void {
+    if (this.isBusy) return;
+    const workspaceId = value ? String(value) : '';
+    if (workspaceId === this.form.controls.workspaceId.value) return;
+
+    this.error.set('');
+    this.form.controls.workspaceId.setValue(workspaceId);
+    this.form.controls.workspaceFolderId.setValue('');
+    this.panelFolders.set([]);
+    this.saveState.set('editing');
+
+    if (workspaceId) {
+      this.loadFolders(workspaceId);
+    }
   }
 
-  get headerIcon() {
-    return this.isEdit ? LucidePencil : LucideColumns3;
-  }
+  updateFolder(value: SelectValue): void {
+    if (this.isBusy) return;
+    const folderId = value ? String(value) : '';
+    if (folderId === this.form.controls.workspaceFolderId.value) return;
 
-  get submitIcon() {
-    return this.isEdit ? LucideCheck : LucidePlus;
-  }
-
-  get submitLabel(): string {
-    return this.isEdit ? 'Save changes' : 'Create column';
-  }
-
-  get statusText(): string {
-    if (this.dirty()) return 'Not saved';
-    return this.isEdit ? 'Saved' : 'New column';
-  }
-
-  get isBusy(): boolean {
-    return this.loading() || this.loadingData();
-  }
-
-  get canSubmit(): boolean {
-    const name = this.name().trim();
-
-    return (
-      !this.isBusy &&
-      !this.loadFailed() &&
-      !!this.workspaceId &&
-      !!this.workspaceFolderId &&
-      name.length >= this.nameMinLength &&
-      name.length <= this.nameMaxLength
-    );
-  }
-
-  get isSystemColumn(): boolean {
-    return this.previewSource()?.isSystem === true;
-  }
-
-  get columnTypeLabel(): string {
-    const type = String(this.previewSource()?.type || 'CUSTOM');
-
-    if (type === 'TODO') return 'To do';
-    if (type === 'IN_PROGRESS') return 'In progress';
-    if (type === 'COMPLETED') return 'Completed';
-
-    return 'Custom';
-  }
-
-  updateName(value: any): void {
-    this.name.set(String(value ?? ''));
-    this.markDirty();
-  }
-
-  selectColor(value: string): void {
-    if (this.isBusy || this.loadFailed()) return;
-    if (this.color() === value) return;
-
-    this.color.set(value);
-    this.markDirty();
+    this.error.set('');
+    this.form.controls.workspaceFolderId.setValue(folderId);
+    this.saveState.set('editing');
   }
 
   colorLabel(value: string): string {
-    return this.colorOptions.find(option => option.value === value)?.label || value;
+    return getColumnColorLabel(value, this.colorOptions);
+  }
+
+  colorClass(value: unknown): string {
+    return toColorCssClass(value);
+  }
+
+  onNameEnter(event: KeyboardEvent): void {
+    event.preventDefault();
+    (event.target as HTMLElement | null)?.blur();
+    if (this.canSubmit) {
+      this.submit();
+    }
+  }
+
+  close(): void {
+    if (this.isBusy) return;
+    this.error.set('');
+    this.closed.emit();
   }
 
   submit(): void {
     if (!this.canSubmit) return;
 
-    const name = this.name().trim().replace(/\s+/g, ' ');
+    const workspaceId = this.controlString('workspaceId');
+    const workspaceFolderId = this.controlString('workspaceFolderId');
+    const name = this.controlString('name').trim().replace(/\s+/g, ' ');
+    const color = (this.controlString('color') || 'YELLOW') as StickyNoteColumnColor;
     const id = this.editorId;
 
+    const isEdit = this.isEdit;
+
     this.loading.set(true);
+    this.saveState.set('saving');
     this.error.set('');
 
-    const request$ = id
-      ? this.columnApi.update(id, {
-        name,
-        color: this.color()
-      } as any)
-      : this.columnApi.create({
-        workspaceId: this.workspaceId,
-        workspaceFolderId: this.workspaceFolderId,
-        name,
-        color: this.color()
-      } as any);
+    const request$ = (isEdit && id)
+      ? this.columnApi.update(id, { name, color })
+      : this.columnApi.create({ workspaceId, workspaceFolderId, name, color });
 
     request$
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false))
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: any) => {
-          const savedId = response?.data?.id || id;
-
-          this.dirty.set(false);
+          const savedId = response?.data?.id || response?.data?._id || id;
+          this.saveState.set('saved');
+          this.form.markAsPristine();
 
           this.toastService.success(
-            id
+            isEdit
               ? 'Column updated successfully.'
               : 'Column created successfully.',
             {
-              title: id ? 'Column updated' : 'Column created',
+              title: isEdit ? 'Column updated' : 'Column created',
               dedupeKey: `column-${savedId || 'new'}`
             }
           );
 
           this.saved.emit(savedId);
         },
-        error: error => {
-          this.showError(
+        error: (error: any) => {
+          this.saveState.set('error');
+          const message = extractErrorMessage(
             error,
-            id
-              ? 'Unable to update column.'
-              : 'Unable to create column.'
+            isEdit ? 'Unable to update column.' : 'Unable to create column.'
           );
+          this.error.set(message);
+          this.toastService.error(message, {
+            title: isEdit ? 'Column update failed' : 'Column creation failed',
+            dedupeKey: `column-error-${id || 'new'}`
+          });
         }
       });
   }
 
-  close(): void {
-    if (this.isBusy) return;
-
+  private resetEditor(): void {
+    this.editorId = '';
+    this.saveState.set(this.mode === 'edit' ? 'saved' : 'idle');
+    this.panelFolders.set([]);
+    this.loadingWorkspaces.set(false);
+    this.loadingFolders.set(false);
+    this.loadingData.set(false);
+    this.loading.set(false);
     this.error.set('');
-    this.closed.emit();
+    this.columnMeta.set(null);
+    this.form.reset(
+      {
+        workspaceId: '',
+        workspaceFolderId: '',
+        name: '',
+        color: 'YELLOW'
+      },
+      { emitEvent: false }
+    );
   }
 
   private initialize(): void {
-    this.error.set('');
-    this.loadFailed.set(false);
-    this.loading.set(false);
-    this.dirty.set(false);
+    this.resetEditor();
 
-    this.editorId = String(this.id || this.column?.id || '').trim();
+    this.editorId = String(this.id || this.column?.id || this.column?._id || '').trim();
+    const effectiveWorkspaceId =
+      this.workspaceId || idOf(this.column?.workspaceId) || this.columnStore.workspaceId() || '';
+    const effectiveFolderId =
+      this.workspaceFolderId || idOf(this.column?.workspaceFolderId) || this.columnStore.workspaceFolderId() || '';
 
-    if (!this.editorId) {
-      this.name.set('');
-      this.color.set('YELLOW');
-      this.previewSource.set({
-        type: 'CUSTOM',
-        position: 0,
-        isSystem: false
-      });
+    this.loadWorkspaces();
+
+    if (this.mode === 'create') {
+      this.setupCreateForm(effectiveWorkspaceId, effectiveFolderId);
       this.focusName();
       return;
     }
 
     if (this.column) {
-      this.setColumn(this.column);
+      this.setColumnData(this.column, effectiveWorkspaceId, effectiveFolderId);
       this.focusName();
       return;
     }
 
-    this.loadColumn();
+    if (this.editorId) {
+      this.loadColumn(this.editorId, effectiveWorkspaceId, effectiveFolderId);
+    }
   }
 
-  private loadColumn(): void {
+  private setupCreateForm(workspaceId: string, folderId: string): void {
+    this.columnMeta.set({
+      type: 'CUSTOM',
+      position: 0,
+      isSystem: false
+    });
+    this.form.reset(
+      {
+        workspaceId,
+        workspaceFolderId: folderId,
+        name: '',
+        color: 'YELLOW'
+      },
+      { emitEvent: false }
+    );
+
+    if (workspaceId) {
+      this.loadFolders(workspaceId, folderId);
+    }
+  }
+
+  private setColumnData(column: any, fallbackWorkspaceId = '', fallbackFolderId = ''): void {
+    this.columnMeta.set(column);
+
+    const workspaceId = idOf(column?.workspaceId) || fallbackWorkspaceId;
+    const folderId = idOf(column?.workspaceFolderId) || fallbackFolderId;
+    const name = column?.name || column?.label || '';
+    const color = this.validColor(column?.color) ? column.color : 'YELLOW';
+
+    this.form.patchValue(
+      {
+        workspaceId,
+        workspaceFolderId: folderId,
+        name,
+        color
+      },
+      { emitEvent: false }
+    );
+
+    if (workspaceId) {
+      this.loadFolders(workspaceId, folderId);
+    }
+  }
+
+  private loadColumn(columnId: string, fallbackWorkspaceId = '', fallbackFolderId = ''): void {
     this.loadingData.set(true);
 
     this.columnApi
-      .getById(this.editorId)
+      .getById(columnId)
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loadingData.set(false))
+        finalize(() => this.loadingData.set(false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: response => {
-          this.setColumn(response.data);
+          this.setColumnData(response.data, fallbackWorkspaceId, fallbackFolderId);
           this.focusName();
         },
         error: error => {
-          this.loadFailed.set(true);
-          this.showError(error, 'Unable to load column.');
+          const message = extractErrorMessage(error, 'Unable to load column details.');
+          this.error.set(message);
+          this.toastService.error(message, {
+            title: 'Column not loaded',
+            dedupeKey: `column-load-${columnId}`
+          });
         }
       });
   }
 
-  private setColumn(column: any): void {
-    this.previewSource.set(column);
-    this.name.set(column?.name || column?.label || '');
-    this.color.set(this.validColor(column?.color) ? column.color : 'YELLOW');
-    this.dirty.set(false);
+  private loadWorkspaces(): void {
+    const stored = this.workspaceStore.workspaces();
+    if (stored.length > 0) {
+      this.panelWorkspaces.set(stored.filter(item => item?.status !== 'DELETED'));
+      return;
+    }
+
+    this.loadingWorkspaces.set(true);
+    this.workspaceApi
+      .getMyWorkspaces({ page: 1, limit: 100, status: 'ACTIVE' })
+      .pipe(
+        finalize(() => this.loadingWorkspaces.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
+          const list = extractList(response);
+          this.panelWorkspaces.set(list.filter((item: any) => item?.status !== 'DELETED'));
+        },
+        error: error => {
+          this.error.set(extractErrorMessage(error, 'Unable to load workspaces.'));
+        }
+      });
+  }
+
+  private loadFolders(workspaceId: string, preferredFolderId?: string): void {
+    if (!workspaceId) {
+      this.panelFolders.set([]);
+      return;
+    }
+
+    if (this.workspaceFolderStore.initialized() && this.workspaceFolderStore.workspaceId() === workspaceId) {
+      this.setFoldersAndSelect(workspaceId, this.workspaceFolderStore.activeFolders(), preferredFolderId);
+      return;
+    }
+
+    this.loadingFolders.set(true);
+    this.workspaceFolderApi
+      .getAllWorkspaceFolders({
+        workspaceId,
+        page: 1,
+        limit: 100,
+        status: 'ACTIVE',
+        sortBy: 'position',
+        sortOrder: 'asc'
+      })
+      .pipe(
+        finalize(() => this.loadingFolders.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
+          const list = extractList(response);
+          const active = list.filter((folder: any) => folder?.status === 'ACTIVE');
+          this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
+        },
+        error: error => {
+          this.error.set(extractErrorMessage(error, 'Unable to load workspace folders.'));
+        }
+      });
+  }
+
+  private setFoldersAndSelect(workspaceId: string, folders: readonly any[], preferredFolderId?: string): void {
+    const folderList = [...folders];
+    this.panelFolders.set(folderList);
+
+    const currentFolderId = this.form.controls.workspaceFolderId.value;
+    const resolvedFolderId = resolveDefaultFolderId(folderList, preferredFolderId || currentFolderId);
+    this.form.controls.workspaceFolderId.setValue(resolvedFolderId);
   }
 
   private validColor(value: any): boolean {
-    return this.colorOptions.some(option => option.value === value);
-  }
-
-  private markDirty(): void {
-    this.error.set('');
-    this.dirty.set(true);
-  }
-
-  private showError(error: any, fallback: string): void {
-    const message =
-      error?.error?.message ||
-      error?.message ||
-      fallback;
-
-    this.error.set(message);
-
-    this.toastService.error(message, {
-      title: 'Board column',
-      dedupeKey: `column-error-${this.editorId || 'new'}`
-    });
+    return isValidColumnColor(value, this.colorOptions);
   }
 
   private focusName(): void {
     setTimeout(() => {
-      const input =
-        this.columnNameInput?.nativeElement.querySelector<HTMLInputElement>('input');
-
-      input?.focus();
-    });
+      if (!this.open) return;
+      const input = this.columnNameInput?.nativeElement.querySelector('input:not([disabled])') as HTMLInputElement | null;
+      if (!input || document.activeElement === input) return;
+      input.focus({ preventScroll: true });
+      if (this.mode === 'edit' && input.value) {
+        input.setSelectionRange(0, input.value.length);
+      }
+    }, 100);
   }
 }

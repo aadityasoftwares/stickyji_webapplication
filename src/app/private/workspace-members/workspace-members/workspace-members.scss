@@ -430,7 +430,6 @@ input {
    - Only essential data stays in grid view
    ========================================================== */
 
-.workspace-member-grid,
 .workspace-invitation-grid {
     grid-template-columns:
         repeat(auto-fill, minmax(14.75rem, 15.75rem));
@@ -441,28 +440,109 @@ input {
     gap: 0.75rem;
 }
 
-.workspace-member-profile-card,
-.workspace-invitation-profile-card,
-.workspace-member-add-card {
+.workspace-invitation-profile-card {
     display: block;
-
     width: 100%;
     min-width: 0;
-
     aspect-ratio: 1 / 0.92;
 }
 
-.workspace-member-profile-card.is-busy,
-.workspace-invitation-profile-card.is-busy {
-    pointer-events: none;
-    opacity: 0.56;
+/* ==========================================================
+   ID CARD BADGE MEMBER GRID
+   ========================================================== */
+
+.workspace-member-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.75rem), 1fr)) !important;
+    align-items: stretch;
+    gap: 1rem;
 }
 
-.workspace-member-profile-card.is-removed,
-.workspace-invitation-profile-card.is-closed {
-    filter: saturate(0.68);
-    opacity: 0.78;
+.workspace-member-grid app-member-card-wrapper,
+.workspace-member-grid app-invitation-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 21.5rem;
 }
+
+/* ==========================================================
+   INVITE ADD CARD (replaces old sticky-card add-card)
+   ========================================================== */
+
+.invite-add-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    height: 100%;
+    min-height: 18rem;
+    padding: 1.75rem 1rem;
+    background: transparent;
+    border: 1.5px dashed rgba($border, 0.85);
+    border-radius: 0.875rem;
+    color: $text-secondary;
+    cursor: pointer;
+    text-align: center;
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+
+    &:hover {
+        background: rgba($note-yellow, 0.18);
+        border-color: rgba($accent, 0.5);
+        color: $heading;
+
+        .invite-add-card__icon {
+            background: rgba($accent, 0.14);
+            border-color: rgba($accent, 0.35);
+            color: $accent;
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent;
+        outline-offset: 2px;
+    }
+}
+
+.invite-add-card__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: rgba($page-bg, 0.85);
+    border: 1px solid rgba($border, 0.8);
+    border-radius: 50%;
+    color: $text-light;
+    margin-bottom: 0.25rem;
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+}
+
+.invite-add-card__title {
+    color: $heading;
+    font-family: $font-heading;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.invite-add-card__sub {
+    color: $text-light;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
 
 /* ==========================================================
    MEMBER CARD

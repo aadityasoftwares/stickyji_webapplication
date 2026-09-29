@@ -272,6 +272,44 @@ font-family: $font-body;
 }
 
 /* =========================================================
+   Appearance: simple
+   Flat select without box-shadow or 3D depth.
+   Highlights border on focus / open.
+   ========================================================= */
+.app-select-appearance-simple {
+    --app-select-background: #ffffff;
+}
+
+.app-select-appearance-simple .app-select-trigger {
+    background-color: var(--app-select-background, #ffffff);
+    background-image: none;
+    border: 1px solid var(--app-select-border);
+    border-radius: var(--app-select-radius);
+    box-shadow: none;
+    transform: none;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.app-select-appearance-simple .app-select-trigger::after {
+    display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .app-select-appearance-simple:not(.app-select-disabled, .app-select-open) .app-select-trigger:hover {
+        border-color: color.adjust($border, $lightness: -10%);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+.app-select-appearance-simple.app-select-open .app-select-trigger,
+.app-select-appearance-simple .app-select-trigger:focus-visible {
+    border-color: $accent;
+    box-shadow: none;
+    transform: none;
+}
+
+/* =========================================================
    Appearance: inline
    ========================================================= */
 /*
