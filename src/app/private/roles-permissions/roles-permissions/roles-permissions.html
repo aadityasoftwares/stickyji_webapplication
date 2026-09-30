@@ -276,36 +276,37 @@
                             (opened)="openRole(role)"
                             (keyboardOpened)="openRole(role)">
 
-                            <!-- Menu trigger using standard app-button -->
-                            <app-button role-actions class="workspace-role-card-menu"
-                                [icon]="LucideMoreHorizontal" [iconOnly]="true"
-                                appearance="standard" variant="outline" size="sm" [rounded]="true"
-                                [ariaLabel]="'Actions for ' + roleDisplayName(role)"
-                                [title]="'Actions for ' + roleDisplayName(role)"
-                                [disabled]="isRoleBusy(role)"
-                                [matMenuTriggerFor]="roleCardMenu"
-                                (click)="$event.stopPropagation()" />
+                            <!-- Action buttons at the top right end side after the badge -->
+                            <div role-actions class="workspace-role-card-actions">
 
-                            <!-- Footer action buttons using standard app-button -->
-                            <div role-footer class="workspace-role-card-footer-buttons">
-
-                                <app-button class="workspace-role-primary-btn"
-                                    [label]="role.isSystem ? 'View' : 'Manage'"
-                                    [iconLeft]="role.isSystem ? LucideEye : LucidePencil"
-                                    variant="outline" appearance="standard" size="sm"
+                                <app-button class="workspace-role-action-btn"
+                                    [icon]="role.isSystem ? LucideEye : LucidePencil"
+                                    [iconOnly]="true"
+                                    variant="ghost" appearance="standard" size="xs" [rounded]="true"
+                                    [title]="role.isSystem ? 'View permissions' : 'Manage role'"
+                                    [ariaLabel]="role.isSystem ? 'View permissions' : 'Manage role'"
                                     [disabled]="isRoleBusy(role)"
                                     (buttonClick)="openRole(role)" />
 
                                 @if (!role.isSystem) {
-                                <app-button class="workspace-role-toggle-btn"
+                                <app-button class="workspace-role-action-btn"
                                     [icon]="role.isActive === false ? LucideRotateCcw : LucidePower"
-                                    [iconOnly]="true" variant="outline" appearance="standard" size="sm"
+                                    [iconOnly]="true" variant="ghost" appearance="standard" size="xs"
                                     [rounded]="true"
                                     [ariaLabel]="role.isActive === false ? 'Activate ' + roleDisplayName(role) : 'Deactivate ' + roleDisplayName(role)"
                                     [title]="role.isActive === false ? 'Activate role' : 'Deactivate role'"
                                     [disabled]="isRoleBusy(role)"
                                     (buttonClick)="changeRoleStatus(role, role.isActive === false)" />
                                 }
+
+                                <app-button class="workspace-role-action-btn"
+                                    [icon]="LucideMoreHorizontal" [iconOnly]="true"
+                                    appearance="standard" variant="ghost" size="xs" [rounded]="true"
+                                    [ariaLabel]="'Actions for ' + roleDisplayName(role)"
+                                    [title]="'Actions for ' + roleDisplayName(role)"
+                                    [disabled]="isRoleBusy(role)"
+                                    [matMenuTriggerFor]="roleCardMenu"
+                                    (click)="$event.stopPropagation()" />
 
                             </div>
 

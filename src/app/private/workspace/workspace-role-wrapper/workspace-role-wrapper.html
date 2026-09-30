@@ -25,10 +25,10 @@
          ========================================================= -->
     <div class="role-wrapper__content">
 
-        <!-- Top Header: Role Type Badge + Menu actions -->
+        <!-- Top Header: Role Type Badge on left, Action buttons on right -->
         <div class="role-wrapper__header">
             <app-badge [label]="typeLabel" [variant]="typeBadgeVariant" size="xs" shape="pill" [icon]="typeIcon" />
-            <div class="role-wrapper__actions">
+            <div class="role-wrapper__actions" (click)="$event.stopPropagation()">
                 <ng-content select="[role-actions]" />
             </div>
         </div>
@@ -85,12 +85,10 @@
 
         </div>
 
-        <!-- Footer: Status badge & Footer actions -->
-        <div class="role-wrapper__footer">
+        <!-- Bottom Footer: Active / Inactive Status badge at the bottom end -->
+        <div class="role-wrapper__footer" (click)="$event.stopPropagation()">
             <app-badge [label]="statusLabel" [variant]="resolvedStatusVariant" size="xs" shape="pill" [dot]="true" />
-            <div class="role-wrapper__footer-actions">
-                <ng-content select="[role-footer]" />
-            </div>
+            <ng-content select="[role-footer]" />
         </div>
 
     </div>

@@ -66,27 +66,60 @@
 
         <section class="notes-explorer" [attr.aria-busy]="loadingWorkspaces() || loadingFolders() || loadingNotes()">
             <div class="notes-toolbar">
-                <app-tabs class="notes-status-tabs" [items]="noteTabs()" [value]="activeTab()" variant="segmented"
-                    shape="rounded" size="sm" density="compact" ariaLabel="Filter notes by status" [fullWidth]="false"
-                    [scrollable]="true" (valueChange)="setNoteTab($event)" />
+                <div class="notes-toolbar-left">
+                    <app-tabs class="notes-status-tabs" [items]="noteTabs()" [value]="activeTab()" variant="segmented"
+                        activeVariant="noteYellow" shape="rounded" size="sm" density="compact"
+                        ariaLabel="Filter notes by status" [scrollable]="false" (valueChange)="setNoteTab($event)" />
+                </div>
 
-                <div class="notes-toolbar-actions">
-                    <div class="notes-search">
-                        <app-input type="search" label="Search notes" labelMode="hidden"
-                            placeholder="Search title, content or column" variant="paper" appearance="outlined"
-                            shape="rounded" size="sm" [leadingIcon]="LucideSearch" [clearable]="true"
-                            [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search notes"
-                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                <div class="notes-search">
+                    <app-input type="search" label="Search notes" labelMode="hidden"
+                        placeholder="Search notes..." variant="paper" appearance="outlined"
+                        shape="rounded" size="sm" [leadingIcon]="LucideSearch" [clearable]="true"
+                        [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search notes"
+                        (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                </div>
+
+                <div class="notes-toolbar-controls">
+                    <div class="notes-sort-select">
+                        <app-select [options]="sortOptions" [ngModel]="sortBy()"
+                            (ngModelChange)="setSort($event)" name="notes-sort" placeholder="Sort notes"
+                            ariaLabel="Sort notes" variant="paper" shape="rounded" size="sm" [iconLeft]="LucideClock3"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
                     </div>
 
-                    <app-select class="notes-sort" [options]="sortOptions" [ngModel]="sortBy()"
-                        (ngModelChange)="setSort($event)" name="notes-sort" placeholder="Sort notes"
-                        ariaLabel="Sort notes" variant="paper" shape="rounded" size="sm" [clearable]="false"
-                        [searchable]="false" [fullWidth]="true" />
+                    <div class="notes-font-select">
+                        <app-select [options]="stickyNoteFontOptions" [ngModel]="stickyNoteFont()"
+                            (ngModelChange)="chooseFont($event)" name="notes-font" placeholder="Note font"
+                            ariaLabel="Choose note font" variant="paper" shape="rounded" size="sm" [iconLeft]="LucideType"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    </div>
+
+                    <div class="notes-layout-select">
+                        <app-select [options]="stickyNoteFontSizeOptions" [ngModel]="stickyNoteFontSize()"
+                            (ngModelChange)="onStickyNoteFontSizeSelection($event)" name="notes-font-size"
+                            placeholder="Font size" ariaLabel="Choose note font size" variant="paper" shape="rounded"
+                            size="sm" [iconLeft]="LucideAArrowUp" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    </div>
+
+                    <div class="notes-layout-select">
+                        <app-select [options]="stickyNoteLayoutOptions" [ngModel]="stickyNoteLayout()"
+                            (ngModelChange)="onStickyNoteLayoutSelection($event)" name="notes-layout"
+                            placeholder="Note layout" ariaLabel="Choose sticky note layout" variant="paper"
+                            shape="rounded" size="sm" [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    </div>
 
                     <app-tabs class="notes-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
                         shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or table view"
                         [scrollable]="false" [minTabWidth]="64" (valueChange)="setNoteView($event)" />
+
+                    <span class="notes-toolbar-utility-divider" aria-hidden="true"></span>
+
+                    <app-button size="sm" [iconLeft]="LucideTrash2" [disabled]="!selectedWorkspaceId()" label="Trash"
+                        appearance="standard" variant="noteRed" [hasIcon]="true"
+                        ariaLabel="Open recently deleted sticky notes" title="Trash · Notes can be restored for 60 days"
+                        (buttonClick)="openStickyNoteTrash()" />
                 </div>
             </div>
 
@@ -185,7 +218,9 @@
                         <app-sticky-note [data]="stickyNoteData(note)" (editRequested)="openEditEditor(note)"
                             (titleChangeRequested)="updateNoteTitle($event)"
                             (descriptionChangeRequested)="updateNoteDescription($event)"
-                            (checklistChange)="updateChecklistItemStatus($event.noteId, $event.itemId, $event.checked)" />
+                            (checklistChange)="updateChecklistItemStatus($event.noteId, $event.itemId, $event.checked)"
+                            (deleted)="onNoteDeleted($event)"
+                            (noteUpdated)="onNoteUpdated($event)" />
 
                         <button type="button" class="note-menu-trigger" [matMenuTriggerFor]="noteActions"
                             [attr.aria-label]="'Actions for ' + noteTitle(note)" [disabled]="isBusy(note)"

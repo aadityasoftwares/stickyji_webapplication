@@ -1,12 +1,21 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  EmbeddedViewRef,
   EventEmitter,
   Input,
   OnChanges,
   Output,
+  PLATFORM_ID,
+  Renderer2,
   SimpleChanges,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
   computed,
   inject,
   signal
@@ -25,14 +34,17 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
+import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
+import { Label } from '../../../shared/components/label/label';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
+import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { PermissionGroup, Permission } from '../models/permission.models';
 import { WorkspaceRole, WorkspaceRoleCreateRequest, WorkspaceRoleUpdateRequest } from '../models/workspace-role.models';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
-
+import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
 
 type RoleEditorMode = 'create' | 'edit' | 'view';
 type UnknownRecord = Record<string, unknown>;
@@ -40,15 +52,38 @@ type UnknownRecord = Record<string, unknown>;
 @Component({
   selector: 'app-add-edit-workspace-role-side-panel',
   standalone: true,
-  imports: [FormsModule, AppIcon, AppInput, Button, SidePanel],
+  imports: [
+    FormsModule,
+    AppIcon,
+    AppInput,
+    Badge,
+    Button,
+    Label,
+    SidePanel,
+    Switch,
+    WorkspaceRoleWrapper
+  ],
   templateUrl: './add-edit-workspace-role-side-panel.html',
   styleUrl: './add-edit-workspace-role-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddEditWorkspaceRoleSidePanel implements OnChanges {
+export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   private readonly roleApi = inject(WorkspaceRoleApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
+  private readonly previewDocument = inject(DOCUMENT);
+  private readonly previewRenderer = inject(Renderer2);
+  private readonly previewContainer = inject(ViewContainerRef);
+  private readonly previewPlatform = inject(PLATFORM_ID);
+
+  private desktopPreviewView?: EmbeddedViewRef<unknown>;
+  private previewViewReady = false;
+
+  @ViewChild('desktopPreview', { static: true })
+  private desktopPreviewTemplate!: TemplateRef<unknown>;
+
+  @ViewChild('roleNameInput', { read: ElementRef })
+  private roleNameInput?: ElementRef<HTMLElement>;
 
   @Input() open = false;
   @Input() workspaceId = '';
@@ -86,6 +121,50 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
 
   readonly selectedCount = computed(() => this.selectedPermissionIds().size);
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.removeDesktopPreview();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.previewViewReady = true;
+    this.scheduleDesktopPreview();
+  }
+
+  private scheduleDesktopPreview(): void {
+    if (!this.previewViewReady || !isPlatformBrowser(this.previewPlatform)) return;
+    queueMicrotask(() => {
+      if (this.destroyRef.destroyed) return;
+      if (!this.open) {
+        this.removeDesktopPreview();
+        return;
+      }
+      if (this.desktopPreviewView) return;
+      const view = this.previewContainer.createEmbeddedView(this.desktopPreviewTemplate);
+      this.desktopPreviewView = view;
+      for (const node of view.rootNodes) {
+        this.previewRenderer.appendChild(this.previewDocument.body, node);
+      }
+      view.detectChanges();
+    });
+  }
+
+  private removeDesktopPreview(): void {
+    const view = this.desktopPreviewView;
+    if (!view) return;
+    this.desktopPreviewView = undefined;
+    const roots = [...view.rootNodes];
+    const index = this.previewContainer.indexOf(view);
+    if (index >= 0) this.previewContainer.remove(index);
+    else if (!view.destroyed) view.destroy();
+    for (const node of roots) {
+      if (node.parentNode === this.previewDocument.body) {
+        this.previewRenderer.removeChild(this.previewDocument.body, node);
+      }
+    }
+  }
+
   get mode(): RoleEditorMode {
     if (!this.role) return 'create';
     return this.role.isSystem ? 'view' : 'edit';
@@ -93,6 +172,16 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
 
   get isReadOnly(): boolean {
     return this.mode === 'view';
+  }
+
+  get isDefaultRole(): boolean {
+    return !!this.role?.isDefault;
+  }
+
+  get previewPriorityLabel(): string {
+    if (this.isDefaultRole) return 'Default role';
+    if (this.isReadOnly) return 'System role';
+    return 'Custom role';
   }
 
   get panelTitle(): string {
@@ -162,7 +251,11 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.open) return;
+    this.scheduleDesktopPreview();
+    if (!this.open) {
+      this.removeDesktopPreview();
+      return;
+    }
 
     if (
       changes['open']?.currentValue === true ||
@@ -171,7 +264,16 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
       changes['permissionGroups']
     ) {
       this.initialize();
+      this.focusInput();
     }
+  }
+
+  private focusInput(): void {
+    if (this.isReadOnly || !isPlatformBrowser(this.previewPlatform)) return;
+    setTimeout(() => {
+      const inputEl = this.roleNameInput?.nativeElement?.querySelector('input') as HTMLInputElement | null;
+      inputEl?.focus();
+    }, 120);
   }
 
   updateDisplayName(value: InputValue): void {
@@ -291,6 +393,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
               dedupeKey: 'workspace-role-create-success'
             });
 
+            this.removeDesktopPreview();
             this.saved.emit(response.data);
             this.closed.emit();
           },
@@ -329,6 +432,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
             dedupeKey: 'workspace-role-update-success'
           });
 
+          this.removeDesktopPreview();
           this.saved.emit(response.data);
           this.closed.emit();
         },
@@ -337,7 +441,10 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges {
   }
 
   close(): void {
-    if (!this.saving()) this.closed.emit();
+    if (!this.saving()) {
+      this.removeDesktopPreview();
+      this.closed.emit();
+    }
   }
 
   permissionAccessLabel(permission: Permission): string {

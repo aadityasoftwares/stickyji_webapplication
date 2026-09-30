@@ -10,25 +10,120 @@
     box-sizing: border-box;
 }
 
-.role-editor {
+:host ::ng-deep app-side-panel {
+    .app-side-panel-body {
+        background-color: var(--editor-body, #{$paper}) !important;
+        color: var(--editor-ink, #{$text-primary});
+    }
+}
+
+.workspace-editor {
+    --editor-paper: #{$paper};
+    --editor-body: var(--editor-paper);
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+
     display: grid;
+    align-content: start;
+    gap: 18px;
     width: 100%;
-    color: $text-primary;
+    min-width: 0;
+    padding: 0;
+    color: var(--editor-ink);
+    background: transparent;
     font-family: $font-body;
 }
 
+.workspace-editor app-input {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
+
+.workspace-editor ::ng-deep {
+    .app-input-wrapper {
+        --app-input-background: #ffffff;
+        --app-input-border: #{$border};
+    }
+
+    .app-label {
+        color: var(--editor-muted);
+        font-size: 12px;
+    }
+}
+
+/* ==========================================================
+   FORM FIELDS — 2-Column rhythm matching workspace panel
+   ========================================================== */
+.workspace-fields {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+.workspace-field {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.workspace-field > app-label {
+    padding-top: 10px;
+}
+
+.workspace-field-control {
+    min-width: 0;
+}
+
+.workspace-details-field ::ng-deep .app-input-textarea {
+    min-height: 84px;
+    line-height: 1.5;
+}
+
+.workspace-field-counter,
+.workspace-field-hint {
+    display: block;
+    text-align: right;
+    padding: 3px 8px 0;
+    color: var(--editor-muted);
+    font-size: 10px;
+}
+
+/* Status / Switch row */
+.workspace-access-row {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.workspace-access-row > app-label {
+    padding-top: 6px;
+}
+
+.workspace-access-control {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Protected system role notice */
 .role-editor-protected-note {
     display: flex;
     align-items: flex-start;
     gap: 9px;
-    margin-bottom: 14px;
-    padding: 10px 11px;
+    padding: 10px 12px;
     color: $text-secondary;
     background: rgba($note-yellow, 0.2);
     border: 1px solid rgba($accent, 0.2);
     border-radius: 10px;
 
-    >span {
+    > span {
         display: grid;
         width: 26px;
         height: 26px;
@@ -39,7 +134,7 @@
         place-items: center;
     }
 
-    >div {
+    > div {
         display: grid;
         min-width: 0;
         gap: 2px;
@@ -47,182 +142,26 @@
 
     strong {
         color: $heading;
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 760;
     }
 
     small {
         color: $text-light;
-        font-size: 0.63rem;
-        font-weight: 550;
-        line-height: 1.42;
-    }
-}
-
-.role-editor-fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding: 0 1px 16px;
-    border-bottom: 1px solid rgba($border, 0.72);
-}
-
-.role-editor-field {
-    display: grid;
-    min-width: 0;
-    gap: 6px;
-
-    &.is-full {
-        grid-column: 1 / -1;
-    }
-}
-
-.role-editor-label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-width: 0;
-    gap: 10px;
-}
-
-.role-editor-label {
-    color: $text-secondary;
-    font-size: 0.68rem;
-    font-weight: 720;
-}
-
-.role-editor-required {
-    color: $danger;
-}
-
-.role-editor-counter {
-    color: $text-light;
-    font-family: $font-mono;
-    font-size: 0.58rem;
-}
-
-.role-editor-help {
-    color: $text-light;
-    font-size: 0.61rem;
-    font-weight: 550;
-    line-height: 1.4;
-}
-
-.role-editor-textarea {
-    display: block;
-    width: 100%;
-    min-height: 82px;
-    padding: 10px 12px;
-    resize: vertical;
-    color: $text-primary;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: $radius-sm;
-    outline: none;
-    box-shadow: inset 0 1px 2px rgba($heading, 0.025);
-    font-family: $font-body;
-    font-size: 0.76rem;
-    line-height: 1.48;
-    transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
-
-    &::placeholder {
-        color: $text-light;
-    }
-
-    &:hover:not(:disabled) {
-        border-color: rgba($secondary, 0.55);
-    }
-
-    &:focus {
-        background: $paper-light;
-        border-color: rgba($accent, 0.72);
-        box-shadow: 0 0 0 3px rgba($accent, 0.1);
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.72;
-    }
-}
-
-.role-editor-status-card {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-    gap: 10px;
-    padding: 10px 11px;
-    color: $text-secondary;
-    cursor: pointer;
-    background: rgba($paper-dark, 0.34);
-    border: 1px solid rgba($border, 0.72);
-    border-radius: 10px;
-    text-align: left;
-    transition: border-color 140ms ease, background 140ms ease;
-
-    &:hover:not(:disabled) {
-        background: rgba($note-yellow, 0.14);
-        border-color: rgba($accent, 0.34);
-    }
-
-    &.is-active .role-editor-status-check {
-        color: #ffffff;
-        background: $success;
-        border-color: $success;
-    }
-
-    &.is-readonly {
-        cursor: default;
-    }
-
-    &:disabled {
-        opacity: 0.72;
-    }
-
-    >span:last-child {
-        display: grid;
-        min-width: 0;
-        gap: 2px;
-    }
-
-    strong {
-        color: $heading;
-        font-size: 0.69rem;
-        font-weight: 750;
-    }
-
-    small {
-        color: $text-light;
-        font-size: 0.61rem;
+        font-size: 0.65rem;
         font-weight: 550;
         line-height: 1.4;
     }
 }
 
-.role-editor-status-check,
-.role-editor-checkbox {
-    display: grid;
-    flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    color: transparent;
-    background: $paper;
-    border: 1px solid rgba($border, 0.95);
-    border-radius: 6px;
-    place-items: center;
-}
-
-.role-editor-status-check {
-    width: 22px;
-    height: 22px;
-    border-radius: 7px;
-}
-
+/* ==========================================================
+   PERMISSIONS SECTION
+   ========================================================== */
 .role-editor-permissions {
     display: grid;
     gap: 12px;
-    padding-top: 15px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba($border, 0.8);
 }
 
 .role-editor-section-heading {
@@ -232,7 +171,7 @@
     min-width: 0;
     gap: 14px;
 
-    >div {
+    > div {
         display: flex;
         align-items: center;
         min-width: 0;
@@ -243,7 +182,7 @@
         margin: 0;
         color: $heading;
         font-family: $font-heading;
-        font-size: 0.83rem;
+        font-size: 0.875rem;
         font-weight: 760;
     }
 
@@ -251,7 +190,7 @@
         display: block;
         margin-top: 1px;
         color: $text-light;
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 550;
     }
 }
@@ -270,14 +209,35 @@
 
 .role-editor-permission-count {
     flex: 0 0 auto;
-    padding: 4px 8px;
+    padding: 3px 8px;
     color: $text-secondary;
     background: rgba($paper-dark, 0.52);
     border: 1px solid rgba($border, 0.72);
     border-radius: 999px;
     font-family: $font-mono;
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     font-weight: 700;
+}
+
+.role-editor-permissions-empty {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    padding: 24px 16px;
+    text-align: center;
+    color: $text-light;
+    background: rgba($paper-dark, 0.35);
+    border: 1px dashed rgba($border, 0.8);
+    border-radius: 10px;
+
+    strong {
+        color: $heading;
+        font-size: 0.8125rem;
+    }
+
+    small {
+        font-size: 0.6875rem;
+    }
 }
 
 .role-editor-groups {
@@ -287,15 +247,15 @@
 
 .role-editor-group {
     overflow: hidden;
-    background: rgba($paper, 0.68);
-    border: 1px solid rgba($border, 0.74);
-    border-radius: 11px;
+    background: rgba(#ffffff, 0.65);
+    border: 1px solid rgba($border, 0.85);
+    border-radius: 10px;
 }
 
 .role-editor-group-header {
-    padding: 7px;
-    background: rgba($paper-dark, 0.36);
-    border-bottom: 1px solid rgba($border, 0.62);
+    padding: 6px 8px;
+    background: rgba($paper-dark, 0.42);
+    border-bottom: 1px solid rgba($border, 0.65);
 }
 
 .role-editor-group-toggle {
@@ -325,7 +285,7 @@
 
     strong {
         color: $heading;
-        font-size: 0.67rem;
+        font-size: 0.72rem;
         font-weight: 780;
         letter-spacing: 0.02em;
         text-transform: uppercase;
@@ -333,15 +293,21 @@
 
     small {
         color: $text-light;
-        font-size: 0.58rem;
+        font-size: 0.62rem;
         font-weight: 600;
     }
 }
 
 .role-editor-checkbox {
+    display: grid;
+    flex: 0 0 auto;
     width: 18px;
     height: 18px;
+    color: transparent;
+    background: #ffffff;
+    border: 1px solid rgba($border, 0.95);
     border-radius: 5px;
+    place-items: center;
 
     &.is-checked {
         color: #ffffff;
@@ -359,42 +325,39 @@
 .role-editor-checkbox-dash {
     width: 8px;
     height: 2px;
-    background: currentColor;
-    border-radius: 999px;
+    background: $heading;
+    border-radius: 1px;
 }
 
 .role-editor-permission-list {
     display: grid;
+    gap: 1px;
+    background: rgba($border, 0.25);
 }
 
 .role-editor-permission {
     display: flex;
     align-items: flex-start;
-    width: 100%;
     gap: 9px;
-    padding: 9px 11px;
+    padding: 8px 10px;
     color: inherit;
     cursor: pointer;
-    background: transparent;
+    background: #ffffff;
     border: 0;
-    border-bottom: 1px solid rgba($border, 0.48);
     text-align: left;
-    transition: background 130ms ease;
-
-    &:last-child {
-        border-bottom: 0;
-    }
+    transition: background-color 120ms ease;
 
     &:hover:not(:disabled) {
-        background: rgba($note-yellow, 0.1);
+        background: rgba($paper-dark, 0.4);
     }
 
     &.is-selected {
-        background: rgba($note-yellow, 0.075);
+        background: rgba($note-yellow, 0.09);
     }
 
     &:disabled {
         cursor: default;
+        opacity: 0.7;
     }
 }
 
@@ -402,134 +365,133 @@
     display: grid;
     flex: 1 1 auto;
     min-width: 0;
-    gap: 3px;
+    gap: 2px;
 
-    >small {
+    small {
         color: $text-light;
-        font-size: 0.59rem;
-        font-weight: 520;
-        line-height: 1.38;
+        font-size: 0.62rem;
+        line-height: 1.35;
     }
 }
 
 .role-editor-permission-title-row {
     display: flex;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: baseline;
     justify-content: space-between;
-    min-width: 0;
-    gap: 10px;
+    gap: 6px;
 
     strong {
         color: $heading;
-        font-size: 0.66rem;
+        font-size: 0.72rem;
         font-weight: 720;
     }
 
-    >span {
-        flex: 0 0 auto;
+    span {
         color: $text-light;
-        font-family: $font-mono;
-        font-size: 0.53rem;
-        font-weight: 650;
+        font-size: 0.58rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
     }
 }
 
-.role-editor-permissions-empty {
+/* ==========================================================
+   LIVE PREVIEW (Desktop body-mounted + Inline mobile)
+   ========================================================== */
+.workspace-external-preview {
+    position: fixed;
+    z-index: 2147483000;
+    top: 90px;
+    right: 620px;
     display: grid;
-    min-height: 150px;
-    padding: 18px;
-    color: $text-light;
-    text-align: center;
-    place-content: center;
-    justify-items: center;
-
-    strong {
-        margin-top: 8px;
-        color: $heading;
-        font-size: 0.72rem;
-    }
-
-    small {
-        margin-top: 3px;
-        font-size: 0.61rem;
-    }
+    gap: 12px;
+    width: min(290px, calc(100vw - 640px));
+    max-height: calc(100dvh - 120px);
+    overflow: hidden;
+    color: $text-primary;
+    font-family: $font-body;
+    pointer-events: none;
 }
 
-.role-editor-error {
-    margin-top: 12px;
-    padding: 8px 10px;
-    color: $danger;
-    background: rgba($danger, 0.06);
-    border-left: 3px solid rgba($danger, 0.65);
-    font-size: 0.67rem;
-    font-weight: 700;
-    line-height: 1.4;
+.workspace-external-preview app-badge,
+.workspace-mobile-preview app-badge {
+    justify-self: start;
 }
 
-.role-editor-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.workspace-external-preview app-workspace-role-wrapper,
+.workspace-mobile-preview app-workspace-role-wrapper {
+    display: block;
     width: 100%;
     min-width: 0;
-    gap: 12px;
 }
 
-.role-editor-footer-status {
-    overflow: hidden;
-    color: $text-light;
-    font-family: $font-note;
-    font-size: 0.76rem;
-    font-weight: 650;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.workspace-mobile-preview {
+    display: none;
 }
 
-.role-editor-actions {
+/* ==========================================================
+   FOOTER & ERROR
+   ========================================================== */
+.workspace-editor-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 7px;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
 }
 
-@media (max-width: 575.98px) {
-    .role-editor-fields {
-        grid-template-columns: 1fr;
-    }
+.workspace-editor-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-left: auto;
+}
 
-    .role-editor-field.is-full,
-    .role-editor-status-card {
-        grid-column: auto;
-    }
+.workspace-editor-error {
+    padding: 10px;
+    color: #9B2626;
+    background: #FDEAE7;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+}
 
-    .role-editor-group-copy,
-    .role-editor-permission-title-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .role-editor-footer-status {
+/* ==========================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================== */
+@media (max-width: 1199.98px) {
+    .workspace-external-preview {
         display: none;
     }
 
-    .role-editor-actions,
-    .role-editor-actions app-button {
+    .workspace-mobile-preview {
+        display: grid;
+        gap: 12px;
         width: 100%;
-        min-width: 0;
-    }
-
-    .role-editor-actions::ng-deep app-button .app-button-wrapper,
-    .role-editor-actions::ng-deep app-button button,
-    .role-editor-actions::ng-deep app-button .app-button {
-        width: 100% !important;
+        max-width: 300px;
+        justify-self: center;
+        padding-top: 8px;
+        border-top: 1px dashed rgba($border, 0.8);
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 575.98px) {
+    .workspace-editor {
+        gap: 14px;
+    }
 
-    .role-editor-status-card,
-    .role-editor-textarea,
-    .role-editor-permission {
-        transition: none !important;
+    .workspace-field,
+    .workspace-access-row {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .workspace-access-control {
+        max-width: none;
     }
 }

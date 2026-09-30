@@ -7,6 +7,7 @@ import {
   STICKY_NOTE_COLUMN_COLOR_OPTIONS
 } from '../constants/common.constants';
 import { idOf } from './common.function';
+import { LucideClock3, LucideType } from '@lucide/angular';
 
 /**
  * Map of note/column color names to corresponding badge variants.
@@ -732,4 +733,103 @@ export function isColumnDragItem(dragData: any): boolean {
 export function isNoteDragItem(dragData: any): boolean {
   return Boolean(dragData && 'columnId' in dragData);
 }
+
+// ─── Shared note status predicates ───────────────────────────────────────────
+
+/**
+ * Returns true when a sticky-note is in ACTIVE status.
+ */
+export function isNoteActive(note: any): boolean {
+  return String(note?.status ?? '').toUpperCase() === 'ACTIVE';
+}
+
+/**
+ * Returns true when a sticky-note is in ARCHIVED status.
+ */
+export function isNoteArchived(note: any): boolean {
+  return String(note?.status ?? '').toUpperCase() === 'ARCHIVED';
+}
+
+/**
+ * Returns true when a sticky-note is trashed or permanently deleted.
+ */
+export function isNoteDeleted(note: any): boolean {
+  const status = String(note?.status ?? '').toUpperCase();
+  return status === 'TRASHED' || status === 'DELETED';
+}
+
+// ─── Shared note field accessors ─────────────────────────────────────────────
+
+/**
+ * Returns the note title, falling back to 'Untitled note'.
+ */
+export function getNoteTitle(note: any): string {
+  return String(note?.title ?? '').trim() || 'Untitled note';
+}
+
+/**
+ * Returns the note content, excluding it when it duplicates the title.
+ */
+export function getNoteContent(note: any): string {
+  const content = String(note?.content ?? '').trim();
+  const title = String(note?.title ?? '').trim();
+  return content === title ? '' : content;
+}
+
+/**
+ * Returns note content for preview display, with a placeholder when empty.
+ */
+export function getNotePreview(note: any): string {
+  return getNoteContent(note) || 'A quick thought pinned for later.';
+}
+
+// ─── Shared timestamp / label helpers ────────────────────────────────────────
+
+/**
+ * Extracts a numeric UTC timestamp from a note's updatedAt or createdAt field.
+ * Returns 0 when the value is missing or unparseable.
+ */
+export function getNoteTimestamp(note: any, field: 'updatedAt' | 'createdAt'): number {
+  try {
+    const value = (note as any)?.[field];
+    if (typeof value !== 'string' && !(value instanceof Date)) return 0;
+    const ts = new Date(value).getTime();
+    return Number.isNaN(ts) ? 0 : ts;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Converts a note's updatedAt timestamp into a human-readable recency label
+ * (e.g. "Just now", "5m ago", "3h ago", "2d ago", "Sep 28").
+ */
+export function getNoteUpdatedLabel(note: any): string {
+  try {
+    const timestamp = getNoteTimestamp(note, 'updatedAt');
+    if (!timestamp) return 'Recently';
+    const date = new Date(timestamp);
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
+  } catch {
+    return 'Recently';
+  }
+}
+
+// ─── Sort options constant ────────────────────────────────────────────────────
+
+/**
+ * Standard note sort options shared across My Notes, Today, and similar views.
+ */
+export const NOTE_SORT_OPTIONS: readonly any[] = [
+  { label: 'Recently updated', value: 'updatedAt', icon: LucideClock3 },
+  { label: 'Recently created', value: 'createdAt', icon: LucideClock3 },
+  { label: 'Title A–Z',        value: 'title',     icon: LucideType   }
+] as const;
 
