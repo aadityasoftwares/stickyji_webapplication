@@ -16,15 +16,18 @@ import { finalize } from 'rxjs';
 import {
   LucideCheck,
   LucideMail,
+  LucidePencil,
   LucideSend,
   LucideShield,
-  LucideUserPlus
+  LucideUserPlus,
+  LucideX
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
+import { Label } from '../../../shared/components/label/label';
 import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
@@ -46,7 +49,7 @@ type InvitationRoleMode = 'same' | 'individual';
 @Component({
   selector: 'app-send-workspace-member-request-side-panel',
   standalone: true,
-  imports: [FormsModule, AppIcon, AppInput, Badge, Button, Select, SidePanel, Tabs],
+  imports: [FormsModule, AppIcon, AppInput, Badge, Button, Label, Select, SidePanel, Tabs],
   templateUrl: './send-workspace-member-request-side-panel.html',
   styleUrl: './send-workspace-member-request-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -68,9 +71,11 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
 
   readonly LucideCheck = LucideCheck;
   readonly LucideMail = LucideMail;
+  readonly LucidePencil = LucidePencil;
   readonly LucideSend = LucideSend;
   readonly LucideShield = LucideShield;
   readonly LucideUserPlus = LucideUserPlus;
+  readonly LucideX = LucideX;
 
   readonly messageMaxLength = 500;
   readonly maxInviteEmails = 50;
@@ -253,6 +258,14 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     );
 
     this.syncIndividualRoles();
+    this.emailInputError.set(null);
+    this.error.set(null);
+  }
+
+  editEmail(email: string): void {
+    if (this.saving()) return;
+    this.removeEmail(email);
+    this.emailDraft.set(email.trim().toLowerCase());
     this.emailInputError.set(null);
     this.error.set(null);
   }

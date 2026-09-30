@@ -51,6 +51,7 @@ import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
 import { ViewRolePermissionsModal } from '../view-role-permissions-modal/view-role-permissions-modal';
+import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
 import type { PermissionGroup, Permission } from '../models/permission.models';
 import type { WorkspaceRole } from '../models/workspace-role.models';
 import { PermissionApiService } from '../services/permission.service';
@@ -80,7 +81,8 @@ type BadgeVariant = 'success' | 'neutral' | 'noteYellow' | 'warning' | 'danger';
     StickyCard,
     Tabs,
     AddEditWorkspaceRoleSidePanel,
-    ViewRolePermissionsModal
+    ViewRolePermissionsModal,
+    WorkspaceRoleWrapper
   ],
   templateUrl: './roles-permissions.html',
   styleUrl: './roles-permissions.scss',

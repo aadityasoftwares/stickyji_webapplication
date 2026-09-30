@@ -1994,3 +1994,297 @@ input {
         padding: 0.65rem;
     }
 }
+
+
+/* ==========================================================
+   NEW SHIELD-CARD TILE LAYOUT
+   ========================================================== */
+
+/* article wrapper — same grid slot as the old sticky-card */
+.rp-role-tile {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    min-width: 0;
+
+    /* aspect-ratio matches the grid cell rhythm */
+    aspect-ratio: 3 / 3.8;
+
+    transition: none;
+}
+
+.rp-role-tile.is-inactive {
+    opacity: 0.68;
+}
+
+.rp-role-tile.is-busy {
+    pointer-events: none;
+    opacity: 0.54;
+}
+
+/* The role-wrapper fills the article */
+.rp-role-tile app-workspace-role-wrapper {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+}
+
+/* Kebab menu trigger — sits in the top-right action slot of the wrapper */
+.rp-menu-trigger {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+
+    padding: 0;
+
+    color: $text-secondary;
+    background: transparent;
+    border: 0;
+    border-radius: 0.5rem;
+    outline: none;
+    cursor: pointer;
+    opacity: 0.6;
+
+    transition: background-color 140ms ease, opacity 140ms ease;
+}
+
+.rp-menu-trigger:hover:not(:disabled) {
+    background: rgba($heading, 0.08);
+    opacity: 1;
+}
+
+.rp-menu-trigger:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+    opacity: 1;
+}
+
+.rp-menu-trigger:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Footer actions row — projected into role-wrapper footer slot */
+.rp-card-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.3125rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+}
+
+/* Shared button base for Manage / View / Toggle */
+.rp-card-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+
+    padding: 0.25rem 0.625rem;
+    min-height: 1.625rem;
+
+    color: $text-secondary;
+    background: rgba($heading, 0.05);
+
+    border: 1px solid rgba($heading, 0.1);
+    border-radius: 0.5rem;
+    outline: none;
+
+    font-family: $font-body;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+
+    &:hover:not(:disabled) {
+        background: rgba($heading, 0.09);
+        border-color: rgba($heading, 0.18);
+        color: $heading;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent;
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+    }
+}
+
+/* Primary action (Manage / View) */
+.rp-card-action-primary {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+/* Toggle (Activate / Deactivate) icon-only */
+.rp-card-action-toggle {
+    flex: 0 0 auto;
+    width: 1.75rem;
+    padding: 0;
+    justify-content: center;
+}
+
+.rp-card-action-toggle.is-inactive {
+    color: $success;
+    border-color: rgba($success, 0.32);
+    background: rgba($success, 0.06);
+
+    &:hover:not(:disabled) {
+        background: rgba($success, 0.12);
+        border-color: rgba($success, 0.48);
+        color: darken($success, 8%);
+    }
+}
+
+/* Create-new tile — visually echoes the role shape without SVG */
+.rp-create-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4375rem;
+
+    width: 100%;
+    height: 100%;
+    min-height: 15rem;
+    aspect-ratio: 3 / 3.8;
+
+    padding: 1.25rem;
+
+    color: $text-secondary;
+    background: rgba($note-green, 0.22);
+
+    border: 1.5px dashed rgba($success, 0.4);
+    border-radius: 1.25rem;
+    outline: none;
+
+    font-family: $font-body;
+    text-align: center;
+
+    cursor: pointer;
+
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+
+    &:hover {
+        background: rgba($note-green, 0.38);
+        border-color: rgba($success, 0.64);
+        color: $text-primary;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $success;
+        outline-offset: 2px;
+    }
+
+    strong {
+        display: block;
+        color: inherit;
+        font-size: 0.8125rem;
+        font-weight: 750;
+        line-height: 1.3;
+    }
+
+    small {
+        display: block;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        line-height: 1.4;
+        color: $text-light;
+    }
+}
+
+.rp-create-icon {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    color: $success;
+    background: rgba($success, 0.1);
+    border-radius: 0.75rem;
+    margin-bottom: 0.125rem;
+}
+
+
+/* ==========================================================
+   GRID — RESPONSIVE BREAKPOINTS
+   ========================================================== */
+
+/* Wide desktop — 5 columns max */
+@media (min-width: 90rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(13.5rem, 15rem));
+    }
+}
+
+/* Standard desktop (default) */
+@media (max-width: 89.99rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(13rem, 15.25rem));
+    }
+}
+
+/* Small laptop / large tablet */
+@media (max-width: 68rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    }
+}
+
+/* Tablet portrait */
+@media (max-width: 48rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.625rem;
+    }
+
+    .rp-role-tile,
+    .rp-create-tile {
+        aspect-ratio: auto;
+        min-height: 13rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 36rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+    }
+
+    .rp-role-tile,
+    .rp-create-tile {
+        min-height: 12rem;
+    }
+
+    .rp-card-action-btn {
+        font-size: 0.625rem;
+        padding: 0.2rem 0.5rem;
+    }
+}
+
+/* Very small mobile — single column */
+@media (max-width: 25rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-role-tile,
+    .rp-create-tile {
+        aspect-ratio: auto;
+        min-height: 11rem;
+    }
+}

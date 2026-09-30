@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../../styles/variables' as *;
 
 :host {
@@ -11,632 +12,515 @@
 }
 
 // ============================================================================
-// Root
+// Side panel body background override
 // ============================================================================
 
-.member-request-editor {
-    display: grid;
+:host ::ng-deep app-side-panel {
+    .app-side-panel-body {
+        background-color: var(--editor-body, #{$paper}) !important;
+        color: var(--editor-ink, #{$text-primary});
+    }
+}
 
+// ============================================================================
+// Editor root
+// ============================================================================
+
+.invite-editor {
+    --editor-paper: #{$paper};
+    --editor-body: var(--editor-paper);
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+
+    display: grid;
+    align-content: start;
+    gap: 0;
     width: 100%;
     min-width: 0;
-
-    color: $text-primary;
-
+    padding: 0;
+    color: var(--editor-ink);
+    background: transparent;
     font-family: $font-body;
 }
 
-.member-request-editor app-input,
-.member-request-editor app-select,
-.member-request-editor app-tabs {
+.invite-editor app-input,
+.invite-editor app-select {
     display: block;
-
+    min-width: 0;
     width: 100%;
-    min-width: 0;
+}
+
+.invite-editor ::ng-deep {
+    .app-input-wrapper {
+        --app-input-background: #ffffff;
+        --app-input-border: #{$border};
+    }
+
+    .app-select-wrapper {
+        --app-select-background: #ffffff;
+        --app-select-border: #{$border};
+    }
+
+    .app-label {
+        color: var(--editor-muted);
+        font-size: 12px;
+    }
 }
 
 // ============================================================================
-// Shared sections
+// Field rows — label | control two-column grid (matches note editor pattern)
 // ============================================================================
 
-.member-request-section {
+.invite-field {
     display: grid;
-
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
     min-width: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--editor-rule);
 
-    padding: 12px 1px;
+    &:last-of-type {
+        border-bottom: none;
+    }
 }
 
-.member-request-field {
-    display: grid;
-
+.invite-field-label {
+    padding-top: 9px;
     min-width: 0;
+}
 
+.invite-field-control {
+    display: grid;
     gap: 6px;
-}
-
-.member-request-label-row {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
     min-width: 0;
+}
 
-    gap: 12px;
-
+.invite-field-hint {
     padding-inline: 1px;
-}
-
-.member-request-label {
-    color: $text-secondary;
-
-    font-size: 0.72rem;
-    font-weight: 750;
-    line-height: 1.25;
-}
-
-.member-request-required {
-    color: $danger;
-}
-
-.member-request-field-meta {
-    flex: 0 0 auto;
-
     color: $text-light;
-
-    font-size: 0.62rem;
-    font-weight: 650;
-    line-height: 1.2;
-}
-
-.member-request-help {
-    padding-inline: 1px;
-
-    color: $text-light;
-
     font-size: 0.63rem;
     font-weight: 600;
     line-height: 1.4;
 }
 
 // ============================================================================
-// Role assignment mode
+// MODE ROW — plain toggle, content-fit-width, caption below
 // ============================================================================
 
-.member-request-mode {
-    display: grid;
-
-    min-width: 0;
-
-    gap: 9px;
-
-    padding: 10px;
-
-    background:
-        linear-gradient(135deg,
-            rgba($note-yellow, 0.2),
-            rgba($paper, 0.74));
-
-    border:
-        1px solid rgba($border, 0.68);
-
-    border-radius: 10px;
+.invite-mode-field .invite-field-label {
+    // align with the tabs center line
+    padding-top: 7px;
 }
 
-.member-request-mode-copy,
-.member-request-section-copy {
-    display: grid;
+// Tabs shrink to content width — don't stretch to full block
+.invite-mode-field app-tabs {
+    display: inline-flex;
+    width: auto;
+}
 
-    min-width: 0;
-
-    gap: 2px;
-
-    strong {
-        color: $heading;
-
-        font-size: 0.7rem;
-        font-weight: 760;
-        line-height: 1.3;
-    }
-
-    span {
-        color: $text-light;
-
-        font-size: 0.62rem;
-        font-weight: 600;
-        line-height: 1.4;
-    }
+.invite-mode-caption {
+    margin: 0;
+    padding-inline: 1px;
+    color: $text-light;
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
 // ============================================================================
-// Email composer
+// EMAIL META COUNTER
 // ============================================================================
 
-.member-request-email-section {
-    gap: 6px;
-}
-
-.member-request-email-meta {
+.invite-email-meta {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
-    min-width: 0;
-
     gap: 12px;
-
     padding-inline: 2px;
-
     color: $text-light;
-
     font-size: 0.61rem;
     font-weight: 600;
     line-height: 1.35;
 }
 
 // ============================================================================
-// Email badges
+// EMAIL CHIPS — custom chips with edit + remove actions
 // ============================================================================
 
-.member-request-email-badges {
+.invite-email-chips {
     display: flex;
-
     align-items: center;
     flex-wrap: wrap;
-
-    min-width: 0;
-
     gap: 6px;
-
-    padding-top: 3px;
-}
-
-// Badge itself owns:
-// - background
-// - border
-// - radius
-// - remove/cancel icon
-// - disabled state
-// - hover state
-//
-// This component only controls layout.
-
-// ============================================================================
-// Same role
-// ============================================================================
-
-.member-request-role-section {
-    padding-top: 1px;
-}
-
-// ============================================================================
-// Individual role area
-// ============================================================================
-
-.member-request-individual-section {
-    display: grid;
-
     min-width: 0;
-
-    gap: 9px;
-
-    padding:
-        2px 1px 13px;
 }
 
-.member-request-section-heading {
-    display: flex;
-
+// The chip itself
+.invite-chip {
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0;
 
+    max-width: 100%;
+    height: 26px;
+    padding: 0 0 0 9px;
+
+    color: #614900;
+    background: $note-button-yellow;
+    border: 1px solid rgba(97, 73, 0, 0.22);
+    border-radius: 8px;
+
+    font-family: $font-body;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.012em;
+    line-height: 1;
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    transition: background-color 160ms ease, border-color 160ms ease;
+
+    // When hovering the REMOVE button, tint the whole chip red
+    &:has(.invite-chip-remove:hover:not(:disabled)) {
+        background: #ffe4e1;
+        border-color: rgba($danger, 0.36);
+
+        .invite-chip-label {
+            color: #7f1d1d;
+        }
+    }
+
+    // When hovering the EDIT button, tint chip subtly blue-grey
+    &:has(.invite-chip-edit:hover:not(:disabled)) {
+        background: color.mix(#e8f0fe, $note-button-yellow, 40%);
+        border-color: rgba(37, 99, 235, 0.24);
+    }
+}
+
+.invite-chip-label {
+    display: inline-block;
     min-width: 0;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 160ms ease;
+}
 
-    gap: 10px;
+// Shared button base
+.invite-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    padding-inline: 1px;
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin: 0 1px;
+
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    outline: none;
+
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.65;
+
+    font-size: 10px;
+
+    transition: background-color 150ms ease, opacity 150ms ease, color 150ms ease;
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.35;
+    }
+}
+
+// Edit button — pencil
+.invite-chip-edit {
+    margin-left: 3px;
+
+    &:hover:not(:disabled) {
+        background: rgba(37, 99, 235, 0.12);
+        color: #1d4ed8;
+        opacity: 1;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.88);
+    }
+}
+
+// Remove button — X, right-edge
+.invite-chip-remove {
+    margin-right: 3px;
+
+    &:hover:not(:disabled) {
+        background: rgba($danger, 0.14);
+        color: $danger;
+        opacity: 1;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.88);
+    }
 }
 
 // ============================================================================
-// Empty state
+// INDIVIDUAL ROLES — label column with count badge
 // ============================================================================
 
-.member-request-empty {
+.invite-individual-label-col {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding-top: 9px;
+    min-width: 0;
+}
 
+.invite-individual-label-text {
+    color: $text-secondary;
+    font-size: 0.72rem;
+    font-weight: 760;
+    line-height: 1.25;
+    letter-spacing: 0.005em;
+}
+
+// ============================================================================
+// EMPTY STATE
+// ============================================================================
+
+.invite-empty-state {
+    display: flex;
     align-items: center;
-
-    min-height: 58px;
-
     gap: 9px;
-
     padding: 9px 10px;
-
-    background:
-        rgba($paper,
-            0.72);
-
-    border:
-        1px dashed rgba($border,
-            0.9);
-
+    min-height: 54px;
+    background: rgba($paper, 0.72);
+    border: 1px dashed rgba($border, 0.9);
     border-radius: 9px;
 
-    >div {
+    > div {
         display: grid;
-
-        min-width: 0;
-
         gap: 1px;
+        min-width: 0;
     }
 
     strong {
-        color:
-            $text-secondary;
-
-        font-size:
-            0.67rem;
-
-        font-weight:
-            720;
-
-        line-height:
-            1.3;
+        color: $text-secondary;
+        font-size: 0.67rem;
+        font-weight: 720;
+        line-height: 1.3;
     }
 
-    span:not(.member-request-empty-icon) {
-        color:
-            $text-light;
-
-        font-size:
-            0.61rem;
-
-        font-weight:
-            600;
-
-        line-height:
-            1.4;
+    span {
+        color: $text-light;
+        font-size: 0.61rem;
+        font-weight: 600;
+        line-height: 1.4;
     }
 }
 
-.member-request-empty-icon {
+.invite-empty-icon {
     display: grid;
-
     width: 30px;
     height: 30px;
-
     flex: 0 0 auto;
-
-    color:
-        $text-secondary;
-
-    background:
-        rgba($note-yellow,
-            0.34);
-
-    border-radius: 8px;
-
     place-items: center;
+    color: $text-secondary;
+    background: rgba($note-yellow, 0.34);
+    border-radius: 8px;
 }
 
 // ============================================================================
-// Individual role list
+// INDIVIDUAL ROLE LIST
 // ============================================================================
 
-.member-request-role-list {
+.invite-role-list {
     display: grid;
-
-    min-width: 0;
-
-    max-height: 285px;
-
     gap: 7px;
-
+    min-width: 0;
+    max-height: 280px;
     overflow-x: hidden;
     overflow-y: auto;
-
-    overscroll-behavior:
-        contain;
-
+    overscroll-behavior: contain;
     padding-right: 3px;
-
     scrollbar-width: thin;
 }
 
-.member-request-role-row {
+.invite-role-row {
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1fr) minmax(190px, 0.72fr);
-
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 0.65fr);
     align-items: center;
-
+    gap: 10px;
     min-width: 0;
-
-    gap: 12px;
-
-    padding: 8px 9px;
-
-    background:
-        rgba($paper,
-            0.76);
-
-    border:
-        1px solid rgba($border,
-            0.7);
-
+    padding: 6px 8px;
+    background: rgba($paper, 0.76);
+    border: 1px solid rgba($border, 0.7);
     border-radius: 9px;
-
-    transition:
-        background 140ms ease,
-        border-color 140ms ease;
+    transition: background 140ms ease, border-color 140ms ease;
 
     &:hover {
         background: $paper;
-
-        border-color:
-            rgba($secondary,
-                0.36);
+        border-color: rgba($secondary, 0.36);
     }
 }
 
-.member-request-role-email {
+.invite-role-email {
     display: flex;
-
     align-items: center;
-
     min-width: 0;
-
     overflow: hidden;
+
+    .invite-chip {
+        max-width: 100%;
+    }
 }
 
-.member-request-role-email app-badge {
-    max-width: 100%;
-}
-
-.member-request-recipient-role {
+.invite-recipient-role {
     display: block;
-
     width: 100%;
     min-width: 0;
 }
 
 // ============================================================================
-// Message
+// ACCESS BANNER
 // ============================================================================
 
-.member-request-message-section {
-    display: grid;
-
-    min-width: 0;
-
-    padding:
-        12px 1px 13px;
-
-    border-top:
-        1px solid rgba($border,
-            0.7);
-}
-
-// app-input owns multiline textarea styling.
-
-// ============================================================================
-// Access information
-// ============================================================================
-
-.member-request-access-note {
+.invite-access-banner {
     display: flex;
-
     align-items: flex-start;
-
     gap: 9px;
+    padding: 10px 0 2px;
 
-    padding:
-        10px 2px 11px;
-
-    border-top:
-        1px solid rgba($border,
-            0.7);
-
-    >div {
+    > div {
         display: grid;
-
-        min-width: 0;
-
         gap: 2px;
+        min-width: 0;
     }
 
     strong {
         color: $heading;
-
         font-size: 0.68rem;
         font-weight: 760;
         line-height: 1.3;
     }
 
-    span:not(.member-request-access-icon) {
+    span {
         color: $text-light;
-
         font-size: 0.62rem;
         font-weight: 600;
         line-height: 1.42;
     }
 }
 
-.member-request-access-icon {
+.invite-access-icon {
     display: grid;
-
     width: 24px;
     height: 24px;
-
     flex: 0 0 auto;
-
-    color: $heading;
-
-    background:
-        rgba($note-button-yellow,
-            0.58);
-
-    border-radius: 7px;
-
     place-items: center;
+    color: $heading;
+    background: rgba($note-button-yellow, 0.58);
+    border-radius: 7px;
 }
 
 // ============================================================================
-// Edit member
+// ERROR
 // ============================================================================
 
-.member-request-edit-section {
-    padding-top: 1px;
-}
-
-// ============================================================================
-// Error
-// ============================================================================
-
-.member-request-error {
-    margin-top: 9px;
-
+.invite-error {
+    margin-top: 6px;
     padding: 8px 10px;
-
     color: $danger;
-
-    background:
-        rgba($danger,
-            0.06);
-
-    border-left:
-        3px solid rgba($danger,
-            0.65);
-
-    border-radius:
-        0 7px 7px 0;
-
+    background: rgba($danger, 0.06);
+    border-left: 3px solid rgba($danger, 0.65);
+    border-radius: 0 7px 7px 0;
     font-size: 0.67rem;
     font-weight: 700;
     line-height: 1.4;
 }
 
 // ============================================================================
-// Footer
+// FOOTER
 // ============================================================================
 
-.member-request-footer {
+.invite-footer {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
     width: 100%;
     min-width: 0;
-
     gap: 12px;
 }
 
-.member-request-status {
+.invite-status {
     overflow: hidden;
-
     color: $text-light;
-
     font-family: $font-note;
     font-size: 0.76rem;
     font-weight: 650;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.member-request-actions {
+.invite-actions {
     display: flex;
-
     align-items: center;
-
     flex: 0 0 auto;
-
     gap: 7px;
 }
 
 // ============================================================================
-// Tablet
+// RESPONSIVE
 // ============================================================================
 
 @media (max-width: 680px) {
-
-    .member-request-role-row {
-        grid-template-columns:
-            minmax(0,
-                1fr);
-
+    .invite-role-row {
+        grid-template-columns: minmax(0, 1fr);
         gap: 7px;
     }
 }
 
-// ============================================================================
-// Mobile
-// ============================================================================
-
 @media (max-width: 575.98px) {
-
-    .member-request-mode {
-        padding: 9px;
+    .invite-field {
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 6px;
     }
 
-    .member-request-section {
-        padding-top: 11px;
-        padding-bottom: 11px;
+    .invite-role-list {
+        max-height: 220px;
     }
 
-    .member-request-email-badges {
-        gap: 5px;
-    }
-
-    .member-request-individual-section {
-        padding-bottom: 12px;
-    }
-
-    .member-request-role-list {
-        max-height: 250px;
-
-        padding-right: 1px;
-    }
-
-    .member-request-role-row {
-        padding: 8px;
-    }
-
-    .member-request-message-section {
-        padding-top: 11px;
-        padding-bottom: 12px;
-    }
-
-    .member-request-status {
+    .invite-status {
         display: none;
     }
 
-    .member-request-actions,
-    .member-request-actions app-button {
+    .invite-actions,
+    .invite-actions app-button {
         width: 100%;
         min-width: 0;
     }
-
-    .member-request-actions::ng-deep app-button .app-button-wrapper,
-    .member-request-actions::ng-deep app-button button,
-    .member-request-actions::ng-deep app-button .app-button {
-        width: 100% !important;
-    }
 }
 
-// ============================================================================
 // Reduced motion
-// ============================================================================
-
 @media (prefers-reduced-motion: reduce) {
-
-    .member-request-role-row {
+    .invite-chip,
+    .invite-chip-btn,
+    .invite-chip-label,
+    .invite-role-row {
         transition: none;
     }
 }
