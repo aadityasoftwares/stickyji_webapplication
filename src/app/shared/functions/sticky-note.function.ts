@@ -833,3 +833,86 @@ export const NOTE_SORT_OPTIONS: readonly any[] = [
   { label: 'Title A–Z',        value: 'title',     icon: LucideType   }
 ] as const;
 
+// ─── Rank-based ordering & sequence helpers ───────────────────────────────────
+
+/**
+ * Compares two sticky notes by their LexoRank / rank string in ascending order.
+ * Falls back to position, then createdAt.
+ */
+export function compareNotesByRank(a: any, b: any): number {
+  const rankA = typeof a?.rank === 'string' ? a.rank.trim() : null;
+  const rankB = typeof b?.rank === 'string' ? b.rank.trim() : null;
+
+  if (rankA && rankB && rankA !== rankB) {
+    return rankA < rankB ? -1 : 1;
+  }
+  if (rankA && !rankB) return -1;
+  if (!rankA && rankB) return 1;
+
+  const posA = Number(a?.position) || 0;
+  const posB = Number(b?.position) || 0;
+  if (posA !== posB) return posA - posB;
+
+  const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+  const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+  return timeA - timeB;
+}
+
+/**
+ * Sorts an array of sticky notes based on their rank (ascending).
+ */
+export function sortNotesByRank<T = any>(items: any): T[] {
+  try {
+    if (!items || !Array.isArray(items)) return [];
+    return [...items].sort(compareNotesByRank);
+  } catch (error) {
+    console.error('Error in sortNotesByRank:', error);
+    return Array.isArray(items) ? [...items] : [];
+  }
+}
+
+/**
+ * Calculates beforeId and afterId for rank-based reordering based on target insertion index.
+ *
+ * @param items List of notes currently in target column (ordered by rank).
+ * @param targetIndex Index where the moved note is being inserted.
+ * @param movedNoteId ID of the note being moved (to exclude from neighbors).
+ */
+export function getNeighborNoteIds(
+  items: any[],
+  targetIndex: number,
+  movedNoteId?: string
+): { beforeId: string | null; afterId: string | null } {
+  const filtered = Array.isArray(items)
+    ? items.filter((item: any) => !movedNoteId || idOf(item) !== movedNoteId)
+    : [];
+
+  if (filtered.length === 0) {
+    return { beforeId: null, afterId: null };
+  }
+
+  const boundedIndex = Math.max(0, Math.min(targetIndex, filtered.length));
+
+  if (boundedIndex <= 0) {
+    return {
+      beforeId: null,
+      afterId: idOf(filtered[0]) || null
+    };
+  }
+
+  if (boundedIndex >= filtered.length) {
+    return {
+      beforeId: idOf(filtered[filtered.length - 1]) || null,
+      afterId: null
+    };
+  }
+
+  const beforeId = idOf(filtered[boundedIndex - 1]) || null;
+  const afterId = idOf(filtered[boundedIndex]) || null;
+
+  return {
+    beforeId,
+    afterId: beforeId === afterId ? null : afterId
+  };
+}
+

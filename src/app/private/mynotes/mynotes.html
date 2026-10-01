@@ -211,10 +211,25 @@
                     }
                 </div>
                 } @else if (view() === 'grid') {
+                @if (sortBy() === 'rank') {
+                <p class="notes-drag-hint" aria-live="polite">
+                    <span>Drag notes to reorder</span>
+                </p>
+                }
                 <div class="notes-grid" role="list" aria-label="Sticky notes">
-                    @for (note of visibleNotes(); track noteId(note)) {
-                    <article class="notes-grid-item" role="listitem" [class.is-archived]="isArchived(note)"
-                        [class.is-busy]="isBusy(note)" (dblclick)="openEditEditor(note, $event)">
+                    @for (note of visibleNotes(); track noteId(note); let i = $index) {
+                    <article class="notes-grid-item" role="listitem"
+                        [class.is-archived]="isArchived(note)"
+                        [class.is-busy]="isBusy(note)"
+                        [class.is-dragging]="isDragging(note)"
+                        [class.is-drop-target]="isDragTarget(i)"
+                        [attr.draggable]="sortBy() === 'rank' ? 'true' : null"
+                        (dragstart)="onNoteDragStart($event, note)"
+                        (dragover)="onNoteDragOver($event, i)"
+                        (dragleave)="onNoteDragLeave($event)"
+                        (drop)="onNoteDrop($event, i)"
+                        (dragend)="onNoteDragEnd($event)"
+                        (dblclick)="openEditEditor(note, $event)">
                         <app-sticky-note [data]="stickyNoteData(note)" (editRequested)="openEditEditor(note)"
                             (titleChangeRequested)="updateNoteTitle($event)"
                             (descriptionChangeRequested)="updateNoteDescription($event)"

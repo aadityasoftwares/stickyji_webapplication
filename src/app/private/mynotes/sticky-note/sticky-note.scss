@@ -838,10 +838,17 @@
   font-size: calc(var(--note-font-size) - 2px);
 }
 
-.sticky-note__column-badge {
+.sticky-note__column-badge,
+.sticky-note__key-badge {
   display: inline-flex;
   min-width: 0;
   max-width: 100%;
+}
+
+.sticky-note__key-badge {
+  font-family: $font-mono;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 

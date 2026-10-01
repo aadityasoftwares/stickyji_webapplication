@@ -245,6 +245,18 @@ export class StickyNote {
       this.data?.titleUpdating === true || this.data?.descriptionUpdating === true;
   }
 
+  get noteKey(): string {
+    const rawKey = this.data?.noteKey;
+    if (rawKey && String(rawKey).trim()) {
+      return String(rawKey).trim();
+    }
+    const num = Number(this.data?.stickyNoteNumber);
+    if (!isNaN(num) && num > 0) {
+      return `ST-${String(num).padStart(6, '0')}`;
+    }
+    return '';
+  }
+
   get columnLabel(): string {
     return String(this.data?.columnLabel ?? '').trim();
   }

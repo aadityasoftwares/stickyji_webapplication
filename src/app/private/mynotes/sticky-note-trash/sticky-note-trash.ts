@@ -277,6 +277,7 @@ export class StickyNoteTrash implements OnInit {
     return {
       ...note,
       id: this.noteId(note),
+      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : undefined),
       title: this.noteTitle(note),
       content,
       description: content || undefined,

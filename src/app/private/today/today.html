@@ -194,13 +194,14 @@
                             <app-divider variant="neutral" lineStyle="dashed" spacing="none" [thickness]="1" />
                             <div class="today-column-notes" cdkDropList [id]="column.id + '-drop-list'"
                                 [cdkDropListData]="visibleNotesFor(column.id)"
+                                [cdkDropListConnectedTo]="columnDropListIds()"
                                 [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
                                 [cdkDropListEnterPredicate]="canDropNote"
                                 (cdkDropListDropped)="dropNote($event, column.id)">
                                 @for (note of visibleNotesFor(column.id); track note.id) {
                                 <app-sticky-note class="today-draggable-note" cdkDrag [cdkDragData]="note"
                                     [cdkDragDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
-                                    [cdkDragStartDelay]="{ touch: 320, mouse: 120 }" cdkDragBoundary=".today-kanban"
+                                    [cdkDragStartDelay]="{ touch: 300, mouse: 0 }"
                                     [data]="stickyNoteData(note, column)" (editRequested)="openNoteEditPanel(note)"
                                     (deleted)="onNoteDeleted($event)" (deleteRequested)="onNoteDeleted(note.id)"
                                     (noteUpdated)="onNoteUpdated($event)" (moveBackwardRequested)="moveBackward(note)"

@@ -69,6 +69,7 @@ import {
   sortItemsByPosition
 } from '../../shared/functions/common.function';
 import {
+  compareNotesByRank,
   getNoteColorAccent,
   getNoteColumnEyebrow,
   getNoteContent,
@@ -76,11 +77,13 @@ import {
   getNoteTimestamp,
   getNoteTitle,
   getNoteUpdatedLabel,
+  getNeighborNoteIds,
   isNoteActive,
   isNoteArchived,
   isNoteDeleted,
   mapStickyNoteChecklists,
   NOTE_SORT_OPTIONS,
+  sortNotesByRank,
   toColorCssClass
 } from '../../shared/functions/sticky-note.function';
 import { formatDateKeyDisplay } from '../../shared/functions/date.function';
@@ -197,6 +200,10 @@ export class MyNotes implements OnInit, OnChanges {
   readonly sortBy = signal<any>('updatedAt');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
 
+  /* Drag-and-drop state */
+  readonly draggedNoteId = signal<string | null>(null);
+  readonly dropTargetIndex = signal<number | null>(null);
+
   /* One editor contract for create and edit side-panel flows */
   readonly notePanelOpen = signal(false);
   readonly notePanelMode = signal<any>('create');
@@ -260,6 +267,9 @@ export class MyNotes implements OnInit, OnChanges {
       .sort((first, second) => {
         if (sort === 'title') {
           return this.noteTitle(first).localeCompare(this.noteTitle(second), undefined, { sensitivity: 'base' });
+        }
+        if (sort === 'rank' || sort === 'position') {
+          return compareNotesByRank(first, second);
         }
         return getNoteTimestamp(second, sort) - getNoteTimestamp(first, sort);
       });
@@ -442,7 +452,7 @@ export class MyNotes implements OnInit, OnChanges {
     this.notesError.set(null);
     forkJoin({
       columns: this.stickyNoteColumnApi.getByWorkspaceFolder(workspaceId, workspaceFolderId),
-      notes: this.stickyNoteApi.getByWorkspaceFolder(workspaceId, workspaceFolderId, { page: 1, limit: 100 })
+      notes: this.stickyNoteApi.getByWorkspaceFolder(workspaceId, workspaceFolderId, { page: 1, limit: 100, sortBy: 'position', sortOrder: 'asc' })
     })
       .pipe(finalize(() => {
         if (requestVersion === this.noteRequestVersion) this.loadingNotes.set(false);
@@ -454,7 +464,7 @@ export class MyNotes implements OnInit, OnChanges {
             this.selectedFolderId() !== workspaceFolderId)
             return;
           const nextColumns = sortItemsByPosition(extractList(columns));
-          const nextNotes = extractList(notes);
+          const nextNotes = sortNotesByRank(extractList(notes));
           this.columns.set(nextColumns);
           this.notes.set(nextNotes);
           if (!savedId) return;
@@ -503,7 +513,7 @@ export class MyNotes implements OnInit, OnChanges {
 
   setSort(value: any | any[] | null): void {
     if (Array.isArray(value) || value === null) return;
-    if (value === 'updatedAt' || value === 'createdAt' || value === 'title') this.sortBy.set(value);
+    if (value === 'updatedAt' || value === 'createdAt' || value === 'title' || value === 'rank' || value === 'position') this.sortBy.set(value);
   }
 
   openCreateEditor(): void {
@@ -703,6 +713,7 @@ export class MyNotes implements OnInit, OnChanges {
     return {
       ...note,
       id: idOf(note),
+      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : undefined),
       title,
       content,
       description: content && content !== title ? content : '',
@@ -726,7 +737,7 @@ export class MyNotes implements OnInit, OnChanges {
       tagVariant: isNoteArchived(note) ? 'neutral' : 'success',
       assignees: note?.assignees ?? [],
       checklists: note?.checklists ?? [],
-      showDragHandle: false,
+      showDragHandle: this.view() === VIEW.GRID && this.sortBy() === 'rank',
       showEditAction: true,
       showMoveActions: false,
       actionsDisabled: this.isBusy(note),
@@ -809,6 +820,105 @@ export class MyNotes implements OnInit, OnChanges {
           );
         }
       });
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /*                         Drag-and-Drop Handlers                          */
+  /* ---------------------------------------------------------------------- */
+
+  onNoteDragStart(event: DragEvent, note: any): void {
+    if (this.sortBy() !== 'rank') return;
+    const id = idOf(note);
+    if (!id || this.isBusy(note)) {
+      event.preventDefault();
+      return;
+    }
+    this.draggedNoteId.set(id);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', id);
+    }
+  }
+
+  onNoteDragOver(event: DragEvent, index: number): void {
+    if (!this.draggedNoteId()) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    this.dropTargetIndex.set(index);
+  }
+
+  onNoteDragLeave(_event: DragEvent): void {
+    // intentionally left empty – dropTargetIndex cleared in dragEnd/drop
+  }
+
+  onNoteDrop(event: DragEvent, targetIndex: number): void {
+    event.preventDefault();
+    const draggedId = this.draggedNoteId();
+    if (!draggedId) return;
+
+    const currentNotes = [...this.visibleNotes()];
+    const draggedNote = currentNotes.find(n => idOf(n) === draggedId);
+    if (!draggedNote) { this.resetDragState(); return; }
+
+    const sourceIndex = currentNotes.findIndex(n => idOf(n) === draggedId);
+    if (sourceIndex === targetIndex || sourceIndex === -1) {
+      this.resetDragState();
+      return;
+    }
+
+    // Build reordered list optimistically
+    const reordered = [...currentNotes];
+    reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, draggedNote);
+
+    // Calculate neighbour IDs for the backend (using full notes list ordered by rank)
+    const { beforeId, afterId } = getNeighborNoteIds(reordered, targetIndex, draggedId);
+
+    // Optimistic UI update
+    const allNotes = this.notes();
+    const visibleIds = new Set(currentNotes.map(n => idOf(n)));
+    const reorderedAll = [
+      ...reordered,
+      ...allNotes.filter(n => !visibleIds.has(idOf(n)))
+    ];
+    this.notes.set(reorderedAll);
+    this.resetDragState();
+
+    // Persist to backend
+    this.setBusy(draggedId, true);
+    this.stickyNoteApi
+      .reorder(draggedId, { beforeId, afterId })
+      .pipe(finalize(() => this.setBusy(draggedId, false)), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          if (response?.data) this.replaceNote(response.data);
+        },
+        error: error => {
+          // Roll back to original order
+          this.notes.set(allNotes);
+          this.toastService.error(
+            extractErrorMessage(error, 'Unable to reorder notes.'),
+            { title: 'Reorder failed', dedupeKey: `note-reorder-${draggedId}` }
+          );
+        }
+      });
+  }
+
+  onNoteDragEnd(_event: DragEvent): void {
+    this.resetDragState();
+  }
+
+  isDragTarget(index: number): boolean {
+    return this.dropTargetIndex() === index && this.draggedNoteId() !== null;
+  }
+
+  isDragging(note: any): boolean {
+    return this.draggedNoteId() === idOf(note);
+  }
+
+  private resetDragState(): void {
+    this.draggedNoteId.set(null);
+    this.dropTargetIndex.set(null);
   }
 
   updateChecklistItemStatus(noteId: string, itemId: string, checked: boolean): void {

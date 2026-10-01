@@ -1,85 +1,76 @@
-import { HttpClient, HttpParams, } from '@angular/common/http';
-import { Injectable, inject, } from '@angular/core';
-import type { Observable, } from 'rxjs';
-import { environment, } from '../../../../Environments/environments';
-import {
-    StickyNoteColumnResponse,
-    StickyNoteColumnsResponse,
-    StickyNoteColumnCreateRequest,
-    StickyNoteColumnUpdateRequest,
-    StickyNoteColumnReorderRequest,
-    DeleteStickyNoteColumnResponse
-} from '../models/mynotes.interface';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import type { Observable } from 'rxjs';
+import { environment } from '../../../../Environments/environments';
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
-
 export class StickyNoteColumnApiService {
     private readonly http = inject(HttpClient);
 
     private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
     private readonly columnBaseUrl = `${this.baseUrl}/stickynotescolumns`;
 
-    getById(id: string,): Observable<StickyNoteColumnResponse> {
-        return this.http.get<StickyNoteColumnResponse>(
+    getById(id: string): Observable<any> {
+        return this.http.get<any>(
             `${this.columnBaseUrl}/get/${encodeURIComponent(id)}`,
             {
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 
-    getByWorkspaceFolder(workspaceId: string, workspaceFolderId: string,): Observable<StickyNoteColumnsResponse> {
+    getByWorkspaceFolder(workspaceId: string, workspaceFolderId: string): Observable<any> {
         const params = new HttpParams()
-            .set('workspaceId', workspaceId,)
-            .set('workspaceFolderId', workspaceFolderId,);
+            .set('workspaceId', workspaceId)
+            .set('workspaceFolderId', workspaceFolderId);
 
-        return this.http.get<StickyNoteColumnsResponse>(
+        return this.http.get<any>(
             `${this.columnBaseUrl}/getall`,
             {
                 params,
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 
-    create(payload: StickyNoteColumnCreateRequest,): Observable<StickyNoteColumnResponse> {
-        return this.http.post<StickyNoteColumnResponse>(
+    create(payload: any): Observable<any> {
+        return this.http.post<any>(
             `${this.columnBaseUrl}/create`,
             payload,
             {
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 
-    update(id: string, payload: StickyNoteColumnUpdateRequest,): Observable<StickyNoteColumnResponse> {
-        return this.http.put<StickyNoteColumnResponse>(
+    update(id: string, payload: any): Observable<any> {
+        return this.http.put<any>(
             `${this.columnBaseUrl}/update/${encodeURIComponent(id)}`,
             payload,
             {
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 
-    reorder(payload: StickyNoteColumnReorderRequest,): Observable<StickyNoteColumnsResponse> {
-        return this.http.put<StickyNoteColumnsResponse>(
+    reorder(payload: any): Observable<any> {
+        return this.http.put<any>(
             `${this.columnBaseUrl}/reorder`,
             payload,
             {
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 
-    delete(id: string,): Observable<DeleteStickyNoteColumnResponse> {
-        return this.http.delete<DeleteStickyNoteColumnResponse>(
+    delete(id: string): Observable<any> {
+        return this.http.delete<any>(
             `${this.columnBaseUrl}/delete/${encodeURIComponent(id)}`,
             {
-                withCredentials: true,
-            },
+                withCredentials: true
+            }
         );
     }
 }

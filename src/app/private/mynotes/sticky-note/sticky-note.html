@@ -18,10 +18,10 @@
             <app-icon [icon]="LucideGrip" size="sm" />
         </span>
         }
-        @if (columnLabel) {
-        <app-badge class="sticky-note__column-badge" [label]="columnLabel"
-            [variant]="columnBadgeVariant" size="xs" shape="pill"
-            [ariaLabel]="'Column: ' + columnLabel" />
+        @if (noteKey) {
+        <app-badge class="sticky-note__key-badge" [label]="noteKey"
+            variant="neutral" size="xs" shape="pill"
+            [ariaLabel]="'Note key: ' + noteKey" />
         }
         @if (isSaving) {
         <span class="sticky-note__saving-label" role="status">

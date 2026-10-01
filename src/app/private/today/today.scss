@@ -1155,32 +1155,61 @@
     border-color: $border-light;
 }
 
-/* Drag and drop */
+/* Drag and drop – Note cards */
 .today-draggable-note {
     display: block;
     width: 100%;
     min-width: 0;
     cursor: grab;
+    transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.today-draggable-note:active {
+    cursor: grabbing;
 }
 
 .today-draggable-note.cdk-drag-dragging {
     z-index: 50;
     cursor: grabbing;
+    opacity: 0.4;
+    transform: scale(0.975);
 }
 
 .today-draggable-note.cdk-drag-preview {
     box-sizing: border-box;
-    border-radius: 0.55rem;
-    box-shadow: 0 1rem 2.25rem rgba($heading, 0.18);
-    opacity: 0.97;
+    border-radius: 0.6rem;
+    box-shadow:
+        0 0.5rem 1.25rem rgba($heading, 0.12),
+        0 1.5rem 3rem rgba($heading, 0.18);
+    opacity: 0.98;
+    transform: rotate(1.2deg) scale(1.02);
+    transition: box-shadow 100ms ease;
 }
 
 .today-draggable-note.cdk-drag-placeholder {
-    opacity: 0.2;
+    opacity: 0;
+    min-height: 4rem;
+    border-radius: 0.6rem;
+    background: rgba($note-yellow, 0.08);
+    border: 2px dashed rgba($note-yellow, 0.4);
+    animation: today-placeholder-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes today-placeholder-pulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
 }
 
 .today-column-notes.cdk-drop-list-dragging .today-draggable-note:not(.cdk-drag-placeholder) {
     transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Highlight the column drop zone when a note hovers over it */
+.today-column-notes.cdk-drop-list-receiving {
+    border-radius: 0.5rem;
+    background: rgba($note-yellow, 0.06);
+    outline: 2px dashed rgba($note-yellow, 0.35);
+    outline-offset: 2px;
 }
 
 /* Column Drag and drop */

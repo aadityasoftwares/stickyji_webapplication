@@ -163,6 +163,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly panelColumns = signal<any[]>([]);
 
   private savedNoteId = '';
+  private savedNoteKey = '';
   private readonly originalChecklistIds = new Set<string>();
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
 
@@ -291,6 +292,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
     return {
       id: 'editor-live-preview',
+      noteKey: this.savedNoteKey,
       columnLabel: this.previewColumnLabel,
       columnBadgeVariant: this.previewColumnBadgeVariant,
       title: this.controlString('title'),
@@ -703,6 +705,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       next: response => {
         const note: any = response.data;
         this.savedNoteId = idOf(note) || noteId;
+        this.savedNoteKey = note?.noteKey || (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : '');
 
         const workspaceId = idOf(note?.workspaceId);
         const folderId = idOf(note?.workspaceFolderId);
@@ -956,6 +959,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   private resetEditor(): void {
     this.savedNoteId = '';
+    this.savedNoteKey = '';
     this.saveState.set(this.mode === 'edit' ? 'saved' : 'idle');
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();

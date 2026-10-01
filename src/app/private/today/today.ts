@@ -74,12 +74,15 @@ import {
   sortItemsByPosition
 } from '../../shared/functions/common.function';
 import {
+  compareNotesByRank,
+  getNeighborNoteIds,
   getNoteColorAccent,
   getNoteColumnEyebrow,
   isColumnDragItem,
   isNoteDragItem,
   mapStickyNoteChecklists,
-  mapStickyNoteColumn
+  mapStickyNoteColumn,
+  sortNotesByRank
 } from '../../shared/functions/sticky-note.function';
 import {
   getWorkspaceMemberAvatar,
@@ -262,6 +265,13 @@ export class Today {
   readonly noteCount = computed(() => this.stickyNotes().length);
   readonly hasColumns = computed(() => this.stickyNoteColumns().length > 0);
   readonly firstActionColumnId = computed(() => this.stickyNoteColumns()[0]?.id ?? '');
+
+  /** IDs of all note drop-lists — used by [cdkDropListConnectedTo] so that
+   *  notes can be dragged across columns even when the drop lists are nested
+   *  inside cdkDrag column elements (cdkDropListGroup cannot reach them). */
+  readonly columnDropListIds = computed<string[]>(() =>
+    this.stickyNoteColumns().map(col => col.id + '-drop-list')
+  );
 
   readonly visibleListNotes = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();
@@ -616,7 +626,7 @@ export class Today {
 
     this.loadingNotes.set(true);
 
-    this.stickyNoteApiService.getAll(buildQueryParams({
+    this.stickyNoteApiService.getAll({
       workspaceId,
       workspaceFolderId: folderId,
       page: 1,
@@ -625,14 +635,14 @@ export class Today {
       datePreset: 'TODAY',
       sortBy: 'position',
       sortOrder: 'asc',
-    }))
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
           if (this.activeWorkspaceId() !== workspaceId || this.activeFolder() !== folderId) {
             return;
           }
-          const notes = sortItemsByPosition(extractList(response))
+          const notes = sortNotesByRank(extractList(response))
             .map(note => this.mapNote(note));
           this.stickyNotes.set(notes);
           this.loadingNotes.set(false);
@@ -765,11 +775,11 @@ export class Today {
 
   visibleNotesFor(columnId: string): any[] {
     const search = this.searchTerm().trim().toLowerCase();
-    return this.stickyNotes().filter(note => {
-      if (note.columnId !== columnId) return false;
-      if (!search) return true;
-      return `${note.title ?? ''} ${note.description ?? ''}`.toLowerCase().includes(search);
-    });
+    const notesInCol = this.notesInColumn(columnId);
+    if (!search) return notesInCol;
+    return notesInCol.filter(note =>
+      `${note.title ?? ''} ${note.description ?? ''}`.toLowerCase().includes(search)
+    );
   }
 
   canMoveBackward(note: any): boolean {
@@ -836,25 +846,40 @@ export class Today {
     if (this.searchTerm().trim() || this.movingNoteId()) return;
 
     const note = event.item.data;
-    if (!note?.id || !targetColumnId) return;
+    const noteId = idOf(note);
+    const colId = idOf(targetColumnId);
+    if (!noteId || !colId) return;
 
-    this.moveNote(note, targetColumnId, event.currentIndex);
+    if (
+      event.previousContainer === event.container &&
+      event.previousIndex === event.currentIndex
+    ) {
+      return;
+    }
+
+    this.moveNote(note, colId, event.currentIndex);
   }
 
   moveBackward(note: any): void {
-    const index = this.columnIndex(note.columnId);
+    const colId = idOf(note?.columnId);
+    const index = this.columnIndex(colId);
     if (index <= 0) return;
 
     const targetColumn = this.stickyNoteColumns()[index - 1];
-    this.moveNote(note, targetColumn.id, this.notesInColumn(targetColumn.id).length);
+    const targetColId = idOf(targetColumn?.id);
+    if (!targetColId) return;
+    this.moveNote(note, targetColId, this.notesInColumn(targetColId).length);
   }
 
   moveForward(note: any): void {
-    const index = this.columnIndex(note.columnId);
+    const colId = idOf(note?.columnId);
+    const index = this.columnIndex(colId);
     if (index < 0 || index >= this.stickyNoteColumns().length - 1) return;
 
     const targetColumn = this.stickyNoteColumns()[index + 1];
-    this.moveNote(note, targetColumn.id, this.notesInColumn(targetColumn.id).length);
+    const targetColId = idOf(targetColumn?.id);
+    if (!targetColId) return;
+    this.moveNote(note, targetColId, this.notesInColumn(targetColId).length);
   }
 
   isNoteCompleted(note: any): boolean {
@@ -895,6 +920,8 @@ export class Today {
       layout: this.stickyNoteLayout(),
       font: this.stickyNoteFont(),
       fontSize: this.stickyNoteFontSize(),
+      showDragHandle: !this.searchTerm().trim() && !this.movingNoteId(),
+      showMoveActions: true,
       canMoveBackward: this.canMoveBackward(note),
       canMoveForward: this.canMoveForward(note),
       actionsDisabled: this.movingNoteId() === (note?.id ?? note?._id)
@@ -1008,76 +1035,73 @@ export class Today {
   }
 
   private moveNote(note: any, targetColumnId: string, targetIndex: number): void {
-    if (this.movingNoteId()) return;
+    const noteId = idOf(note);
+    const targetColId = idOf(targetColumnId);
+    if (!noteId || !targetColId || this.movingNoteId()) return;
 
-    const snapshot = this.stickyNotes().map(item => ({ ...item }));
-    const sourceColumnId = note.columnId;
-    const sourceNotes = this.notesInColumn(sourceColumnId).filter(item => item.id !== note.id);
-    const targetNotes = sourceColumnId === targetColumnId
-      ? sourceNotes
-      : this.notesInColumn(targetColumnId).filter(item => item.id !== note.id);
+    const previousNotes = [...this.stickyNotes()];
 
-    const index = Math.max(0, Math.min(targetIndex, targetNotes.length));
-    targetNotes.splice(index, 0, { ...note, columnId: targetColumnId });
+    // Get sorted notes in target column excluding the note being moved
+    const targetColumnNotes = this.notesInColumn(targetColId).filter(item => idOf(item) !== noteId);
+    const boundedIndex = Math.max(0, Math.min(targetIndex, targetColumnNotes.length));
 
-    const changed = new Map<string, any>();
-    targetNotes.forEach((item, itemIndex) => {
-      changed.set(item.id, {
-        ...item,
-        columnId: targetColumnId,
-        position: itemIndex + 1
-      });
-    });
+    const { beforeId, afterId } = getNeighborNoteIds(targetColumnNotes, boundedIndex, noteId);
 
-    if (sourceColumnId !== targetColumnId) {
-      sourceNotes.forEach((item, itemIndex) => {
-        changed.set(item.id, {
-          ...item,
-          columnId: sourceColumnId,
-          position: itemIndex + 1
-        });
-      });
-    }
+    // Optimistically update local array:
+    // keep every note that is neither the dragged note NOR in the target column,
+    // then insert the dragged note (with updated columnId) at the correct position
+    // in the target column's sorted list.
+    const optimisticTargetNotes = [...targetColumnNotes];
+    optimisticTargetNotes.splice(boundedIndex, 0, { ...note, columnId: targetColId });
 
-    const nextNotes = snapshot.map(item => changed.get(item.id) ?? item);
-    const updates = [...changed.values()].filter(item => {
-      const previous = snapshot.find(current => current.id === item.id);
-      return previous && (previous.columnId !== item.columnId ||
-        previous.position !== item.position);
-    });
-
-    if (!updates.length) return;
+    const otherNotes = previousNotes.filter(
+      item => idOf(item) !== noteId && idOf(item.columnId ?? item?.columnId) !== targetColId
+    );
+    const nextNotes = [...otherNotes, ...optimisticTargetNotes];
 
     this.stickyNotes.set(this.sortNotes(nextNotes));
-    this.movingNoteId.set(note.id);
+    this.movingNoteId.set(noteId);
     this.boardError.set(null);
 
-    forkJoin(updates.map(item => this.stickyNoteApiService.update(item.id, {
-      columnId: item.columnId,
-      position: item.position
-    })))
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.stickyNoteApiService.reorder(noteId, {
+      columnId: targetColId,
+      beforeId,
+      afterId
+    })
+      .pipe(
+        finalize(() => this.movingNoteId.set(null)),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
-        next: () => this.movingNoteId.set(null),
-        error: error => {
+        next: (response: any) => {
+          const updated = response?.data ?? response;
+          if (updated && idOf(updated) === noteId) {
+            const mapped = this.mapNote(updated);
+            this.stickyNotes.update(notes =>
+              this.sortNotes(notes.map(item => idOf(item) === noteId ? { ...item, ...mapped } : item))
+            );
+          }
+        },
+        error: (error: any) => {
           console.error(error);
-          this.movingNoteId.set(null);
-          this.boardError.set(extractErrorMessage(error, 'Failed to move note'));
+          this.stickyNotes.set(previousNotes);
+          this.boardError.set(extractErrorMessage(error, 'Unable to move note.'));
           this.getNotesForToday();
         }
       });
   }
 
   private notesInColumn(columnId: string): any[] {
-    return sortItemsByPosition(
-      this.stickyNotes().filter(note => note.columnId === columnId)
+    const colId = idOf(columnId);
+    return sortNotesByRank(
+      this.stickyNotes().filter(note => idOf(note.columnId) === colId)
     );
   }
 
   private sortNotes(notes: any[]): any[] {
     return [...notes].sort((a, b) => {
       const columnDifference = this.columnIndex(a.columnId) - this.columnIndex(b.columnId);
-      return columnDifference || (a.position ?? 0) - (b.position ?? 0);
+      return columnDifference || compareNotesByRank(a, b);
     });
   }
 
@@ -1185,7 +1209,8 @@ export class Today {
   }
 
   private columnIndex(columnId: string): number {
-    return this.stickyNoteColumns().findIndex(column => column.id === columnId);
+    const colId = idOf(columnId);
+    return this.stickyNoteColumns().findIndex(column => idOf(column.id) === colId);
   }
 
   private mapNote(note: any): any {
@@ -1209,6 +1234,7 @@ export class Today {
     return {
       ...note,
       id: idOf(note),
+      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : undefined),
       columnId: idOf(note?.columnId),
       folderId: idOf(note?.workspaceFolderId),
       columnName: entityNameOf(note?.columnId, 'Note'),
