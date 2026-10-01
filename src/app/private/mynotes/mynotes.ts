@@ -33,6 +33,8 @@ import {
   LucideRefreshCw,
   LucideRotateCcw,
   LucideSearch,
+  LucideStar,
+  LucideStarOff,
   LucideStickyNote,
   LucideTrash2,
   LucideType,
@@ -53,6 +55,7 @@ import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import {
   STICKY_NOTE_FONT_OPTIONS,
   STICKY_NOTE_FONT_SIZE_OPTIONS,
@@ -127,6 +130,7 @@ export class MyNotes implements OnInit, OnChanges {
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly stickyNoteColumnApi = inject(StickyNoteColumnApiService);
   private readonly stickyNoteChecklistItemApi = inject(StickyNoteChecklistItemApiService);
+  readonly favoriteApi = inject(StickyNotesFavouriteService);
   private readonly toastService = inject(ToastService);
 
   @Input()
@@ -161,6 +165,8 @@ export class MyNotes implements OnInit, OnChanges {
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideRotateCcw = LucideRotateCcw;
   readonly LucideSearch = LucideSearch;
+  readonly LucideStar = LucideStar;
+  readonly LucideStarOff = LucideStarOff;
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
@@ -450,6 +456,7 @@ export class MyNotes implements OnInit, OnChanges {
     const requestVersion = ++this.noteRequestVersion;
     this.loadingNotes.set(true);
     this.notesError.set(null);
+    this.favoriteApi.loadFavorites().subscribe();
     forkJoin({
       columns: this.stickyNoteColumnApi.getByWorkspaceFolder(workspaceId, workspaceFolderId),
       notes: this.stickyNoteApi.getByWorkspaceFolder(workspaceId, workspaceFolderId, { page: 1, limit: 100, sortBy: 'position', sortOrder: 'asc' })
@@ -735,6 +742,8 @@ export class MyNotes implements OnInit, OnChanges {
         : this.noteUpdatedLabel(note),
       tag: isNoteArchived(note) ? 'Archived' : 'Active',
       tagVariant: isNoteArchived(note) ? 'neutral' : 'success',
+      isFavorite: this.isNoteFavorite(note),
+      favoriteId: note?.favoriteId || this.favoriteApi.getFavoriteId(idOf(note)),
       assignees: note?.assignees ?? [],
       checklists: note?.checklists ?? [],
       showDragHandle: this.view() === VIEW.GRID && this.sortBy() === 'rank',
@@ -744,6 +753,33 @@ export class MyNotes implements OnInit, OnChanges {
       minHeight: 156,
       padding: 12
     };
+  }
+
+  isNoteFavorite(note: any): boolean {
+    const id = idOf(note);
+    if (!id) return false;
+    return this.favoriteApi.isFavorite(id) || note?.isFavorite === true;
+  }
+
+  toggleFavorite(note: any, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    const id = idOf(note);
+    if (!id || this.isBusy(note) || this.favoriteApi.isBusy(id)) return;
+
+    const currentFavoriteId = note?.favoriteId || this.favoriteApi.getFavoriteId(id);
+    const title = this.noteTitle(note);
+
+    this.favoriteApi
+      .toggleFavorite(id, currentFavoriteId, title)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          note.isFavorite = res.isFavorite;
+          note.favoriteId = res.favoriteId;
+          this.noteChanged.emit(note);
+        }
+      });
   }
 
   updateNoteTitle(change: any): void {

@@ -25,6 +25,8 @@ import {
   LucideMoreHorizontal,
   LucideGrip,
   LucidePencil,
+  LucideStar,
+  LucideStarOff,
   LucideTrash2,
   LucideX
 } from '@lucide/angular';
@@ -37,6 +39,7 @@ import { Input as AppInput } from '../../../shared/components/input/input';
 import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistItemApiService } from '../services/sticky-note-checklist-item.service';
+import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { getNoteColorBadgeVariant } from '../../../shared/functions/sticky-note.function';
 import {
@@ -91,6 +94,7 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
 export class StickyNote {
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
+  private readonly favoriteApi = inject(StickyNotesFavouriteService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -107,6 +111,7 @@ export class StickyNote {
   @Output() readonly checklistChange = new EventEmitter<any>();
   @Output() readonly titleChangeRequested = new EventEmitter<any>();
   @Output() readonly descriptionChangeRequested = new EventEmitter<any>();
+  @Output() readonly favoriteToggled = new EventEmitter<{ noteId: string; isFavorite: boolean; favoriteId?: string; note: any }>();
   @Output() readonly deleteRequested = new EventEmitter<any>();
   @Output() readonly deleted = new EventEmitter<string>();
   @Output() readonly noteUpdated = new EventEmitter<any>();
@@ -127,6 +132,8 @@ export class StickyNote {
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucideGrip = LucideGrip;
   readonly LucidePencil = LucidePencil;
+  readonly LucideStar = LucideStar;
+  readonly LucideStarOff = LucideStarOff;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
 
@@ -234,6 +241,21 @@ export class StickyNote {
 
   get isCompleted(): boolean {
     return this.data?.completed === true;
+  }
+
+  get isFavorite(): boolean {
+    if (this.data?.isFavorite !== undefined && this.data?.isFavorite !== null) {
+      return Boolean(this.data.isFavorite);
+    }
+    return this.favoriteApi.isFavorite(this.noteId);
+  }
+
+  get favoriteId(): string {
+    return String(this.data?.favoriteId || this.favoriteApi.getFavoriteId(this.noteId) || '').trim();
+  }
+
+  get isFavoriteBusy(): boolean {
+    return this.favoriteApi.isBusy(this.noteId);
   }
 
   get disabled(): boolean {
@@ -369,6 +391,35 @@ export class StickyNote {
     if (this.preview) return;
     this.stop(event);
     if (!this.disabled) this.editRequested.emit(this.data);
+  }
+
+  toggleFavorite(event?: Event): void {
+    if (this.preview) return;
+    if (event) this.stop(event);
+    const id = this.noteId;
+    if (!id || this.disabled || this.isFavoriteBusy) return;
+
+    const currentFavId = this.favoriteId;
+    this.favoriteApi
+      .toggleFavorite(id, currentFavId, this.title)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result: any) => {
+          const nextIsFavorite = result?.isFavorite ?? !this.isFavorite;
+          const nextFavId = result?.favoriteId ?? '';
+          if (this.data) {
+            this.data.isFavorite = nextIsFavorite;
+            this.data.favoriteId = nextFavId;
+          }
+          this.favoriteToggled.emit({
+            noteId: id,
+            isFavorite: nextIsFavorite,
+            favoriteId: nextFavId,
+            note: this.data
+          });
+          this.noteUpdated.emit(this.data);
+        }
+      });
   }
 
   requestDelete(event: Event): void {

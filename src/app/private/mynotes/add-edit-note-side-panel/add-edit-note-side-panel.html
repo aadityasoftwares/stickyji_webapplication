@@ -25,6 +25,7 @@
                     size="sm" [dropdownMatchTriggerWidth]="false" [iconLeft]="LucidePanelsTopLeft" [disabled]="isBusy"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
             </div>
+            <span class="note-context-slash" aria-hidden="true">/</span>
             <div class="note-context-field">
                 <app-select selectId="note-folder" dropdownTitle="Folder"
                     dropdownDescription="Choose a folder in the selected workspace." name="note-folder"
@@ -36,6 +37,7 @@
                     [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
             </div>
+            <span class="note-context-slash" aria-hidden="true">/</span>
             <div class="note-context-field">
                 <app-select selectId="note-column" dropdownTitle="Column / status"
                     dropdownDescription="Choose the status column for this note." name="note-column"
@@ -71,12 +73,22 @@
                 </div>
             </div>
         </section>
-        <section class="note-date-row" aria-label="Note date">
+        <section class="note-date-row" aria-label="Note date and favourite status">
             <app-label forId="note-date" text="Date" />
-            <div class="note-date-control">
-                <app-datepicker-input inputId="note-date" label="Note date" labelMode="hidden" placeholder="dd-mm-yyyy"
-                    variant="paper" appearance="simple" shape="rounded" size="sm" formControlName="noteDate"
-                    [showLeadingIcon]="false" [disabled]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
+            <div class="note-date-favorite-group">
+                <div class="note-date-control">
+                    <app-datepicker-input inputId="note-date" label="Note date" labelMode="hidden" placeholder="dd-mm-yyyy"
+                        variant="paper" appearance="simple" shape="rounded" size="sm" formControlName="noteDate"
+                        [showLeadingIcon]="false" [disabled]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
+                </div>
+                <button type="button" class="note-favorite-toggle-btn" [class.is-favorited]="isFavorite()"
+                    [disabled]="isBusy || togglingFavorite()"
+                    [attr.aria-label]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
+                    [title]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
+                    (click)="toggleFavorite()">
+                    <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite() ? 'currentColor' : 'none'" />
+                    <span>{{ isFavorite() ? 'Favourited' : 'Favourite' }}</span>
+                </button>
             </div>
         </section>
         <section class="note-appearance" aria-label="Color, shape, variant and paper pattern">

@@ -283,6 +283,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
         next: (response: any) => {
           const list = extractList(response);
           this.rawFavorites.set(list);
+          this.favouriteApi.populateFavorites(list);
           this.error.set(null);
         },
         error: (err: any) => {

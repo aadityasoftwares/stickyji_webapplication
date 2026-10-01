@@ -237,6 +237,15 @@
                             (deleted)="onNoteDeleted($event)"
                             (noteUpdated)="onNoteUpdated($event)" />
 
+                        <button type="button" class="note-favorite-trigger"
+                            [class.is-favorited]="isNoteFavorite(note)"
+                            [attr.aria-label]="isNoteFavorite(note) ? 'Remove ' + noteTitle(note) + ' from favourites' : 'Add ' + noteTitle(note) + ' to favourites'"
+                            [title]="isNoteFavorite(note) ? 'Remove from favourites' : 'Add to favourites'"
+                            [disabled]="isBusy(note) || favoriteApi.isBusy(noteId(note))"
+                            (click)="toggleFavorite(note, $event)">
+                            <app-icon [icon]="LucideStar" size="sm" [fill]="isNoteFavorite(note) ? 'currentColor' : 'none'" />
+                        </button>
+
                         <button type="button" class="note-menu-trigger" [matMenuTriggerFor]="noteActions"
                             [attr.aria-label]="'Actions for ' + noteTitle(note)" [disabled]="isBusy(note)"
                             (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
@@ -250,6 +259,17 @@
                                 <span class="notes-menu-item-icon"><app-icon [icon]="LucidePencil" size="xs" /></span>
                                 <span class="notes-menu-item-copy"><strong>Edit note</strong><small>Update note
                                         details</small></span>
+                            </button>
+                            <button mat-menu-item type="button" class="notes-action-item is-favorite"
+                                [disabled]="isBusy(note) || favoriteApi.isBusy(noteId(note))"
+                                (click)="toggleFavorite(note, $event)">
+                                <span class="notes-menu-item-icon is-fav-icon">
+                                    <app-icon [icon]="isNoteFavorite(note) ? LucideStarOff : LucideStar" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>{{ isNoteFavorite(note) ? 'Remove from favourites' : 'Add to favourites' }}</strong>
+                                    <small>{{ isNoteFavorite(note) ? 'Unstar this note' : 'Save to your favourites' }}</small>
+                                </span>
                             </button>
                             @if (isActive(note)) {
                             <button mat-menu-item type="button" class="notes-action-item" (click)="archiveNote(note)">
@@ -335,6 +355,14 @@
                                 </td>
                                 <td class="notes-table-actions-cell" data-label="Actions">
                                     <div class="notes-table-actions">
+                                        <button type="button" class="notes-table-fav-button"
+                                            [class.is-favorited]="isNoteFavorite(note)"
+                                            [attr.aria-label]="isNoteFavorite(note) ? 'Remove ' + noteTitle(note) + ' from favourites' : 'Add ' + noteTitle(note) + ' to favourites'"
+                                            [title]="isNoteFavorite(note) ? 'Remove from favourites' : 'Add to favourites'"
+                                            [disabled]="isBusy(note) || favoriteApi.isBusy(noteId(note))"
+                                            (click)="toggleFavorite(note, $event)">
+                                            <app-icon [icon]="LucideStar" size="sm" [fill]="isNoteFavorite(note) ? 'currentColor' : 'none'" />
+                                        </button>
                                         <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" size="xs"
                                             [rounded]="true" [ariaLabel]="'Edit ' + noteTitle(note)"
                                             [title]="'Edit ' + noteTitle(note)" [disabled]="isBusy(note)"
@@ -354,6 +382,17 @@
                                                         size="xs" /></span>
                                                 <span class="notes-menu-item-copy"><strong>Edit
                                                         note</strong><small>Update note details</small></span>
+                                            </button>
+                                            <button mat-menu-item type="button" class="notes-action-item is-favorite"
+                                                [disabled]="isBusy(note) || favoriteApi.isBusy(noteId(note))"
+                                                (click)="toggleFavorite(note, $event)">
+                                                <span class="notes-menu-item-icon is-fav-icon">
+                                                    <app-icon [icon]="isNoteFavorite(note) ? LucideStarOff : LucideStar" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>{{ isNoteFavorite(note) ? 'Remove from favourites' : 'Add to favourites' }}</strong>
+                                                    <small>{{ isNoteFavorite(note) ? 'Unstar this note' : 'Save to your favourites' }}</small>
+                                                </span>
                                             </button>
                                             @if (isActive(note)) {
                                             <button mat-menu-item type="button" class="notes-action-item"

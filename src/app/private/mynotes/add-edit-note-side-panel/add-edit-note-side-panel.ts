@@ -29,10 +29,12 @@ import {
   LucidePanelsTopLeft,
   LucidePencil,
   LucidePlus,
+  LucideStar,
+  LucideStarOff,
   LucideStickyNote,
   LucideTrash2
 } from '@lucide/angular';
-import { Observable, finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge';
@@ -77,6 +79,7 @@ import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist
 import { StickyNoteChecklistItemApiService } from '../services/sticky-note-checklist-item.service';
 import { StickyNoteColumnApiService } from '../services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../services/sticky-note-column.store';
+import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
@@ -120,6 +123,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
   private readonly checklistApi = inject(StickyNoteChecklistApiService);
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
+  readonly favoriteService = inject(StickyNotesFavouriteService);
 
   @Input() open = false;
   @Input() mode: 'create' | 'edit' = 'create';
@@ -136,6 +140,8 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
+  readonly LucideStar = LucideStar;
+  readonly LucideStarOff = LucideStarOff;
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
 
@@ -157,6 +163,9 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly loadingColumns = signal(false);
   readonly error = signal('');
   readonly saveState = signal<string>('idle');
+  readonly isFavorite = signal(false);
+  readonly favoriteId = signal<string | null>(null);
+  readonly togglingFavorite = signal(false);
 
   readonly panelWorkspaces = signal<any[]>([]);
   readonly panelFolders = signal<any[]>([]);
@@ -304,6 +313,8 @@ export class AddEditNoteSidePanel implements OnChanges {
       noteDate: this.previewDate,
       checklists,
       layout: 'detail',
+      isFavorite: this.isFavorite(),
+      favoriteId: this.favoriteId() || undefined,
       showDragHandle: false,
       showMoveActions: false,
       inlineEditing: false
@@ -531,6 +542,20 @@ export class AddEditNoteSidePanel implements OnChanges {
         this.savedNoteId = noteId;
       }),
       switchMap(response => this.syncChecklists(this.savedNoteId).pipe(map(() => response.data))),
+      switchMap(noteData => {
+        if (this.mode === 'create' && this.isFavorite() && this.savedNoteId) {
+          return this.favoriteService.addFavorite(this.savedNoteId).pipe(
+            tap(favRes => {
+              const favId = idOf(favRes?.data) || idOf(favRes);
+              this.favoriteId.set(favId);
+              this.favoriteService.setFavoriteLocal(this.savedNoteId, true, favId);
+            }),
+            catchError(() => of(null)),
+            map(() => noteData)
+          );
+        }
+        return of(noteData);
+      }),
       finalize(() => this.loading.set(false)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -733,10 +758,68 @@ export class AddEditNoteSidePanel implements OnChanges {
         }
 
         this.loadChecklists(note, noteId);
+        this.checkFavoriteStatus(note, noteId);
         this.focusTitle();
       },
       error: error => this.handleLoadError(error, 'Unable to load this note.')
     });
+  }
+
+  private checkFavoriteStatus(note: any, noteId: string): void {
+    if (this.favoriteService.isFavorite(noteId)) {
+      this.isFavorite.set(true);
+      this.favoriteId.set(this.favoriteService.getFavoriteId(noteId) || null);
+    } else {
+      this.favoriteService.getAll({ stickyNoteId: noteId, status: 'ACTIVE' }).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        next: (res: any) => {
+          const list = extractList(res);
+          if (list.length > 0) {
+            const favId = idOf(list[0]);
+            this.isFavorite.set(true);
+            this.favoriteId.set(favId);
+            this.favoriteService.setFavoriteLocal(noteId, true, favId);
+          } else {
+            const noteFav = Boolean(note?.isFavorite);
+            this.isFavorite.set(noteFav);
+            this.favoriteId.set(note?.favoriteId || null);
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          const noteFav = Boolean(note?.isFavorite);
+          this.isFavorite.set(noteFav);
+          this.favoriteId.set(note?.favoriteId || null);
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  toggleFavorite(): void {
+    if (this.isBusy || this.togglingFavorite()) return;
+
+    const noteId = this.savedNoteId || (this.mode === 'edit' ? this.id : '');
+    if (noteId) {
+      this.togglingFavorite.set(true);
+      const favId = this.favoriteId() || this.favoriteService.getFavoriteId(noteId);
+      const title = this.controlString('title') || 'Note';
+
+      this.favoriteService.toggleFavorite(noteId, favId || undefined, title).pipe(
+        finalize(() => this.togglingFavorite.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        next: res => {
+          this.isFavorite.set(res.isFavorite);
+          this.favoriteId.set(res.favoriteId || null);
+          this.cdr.markForCheck();
+        }
+      });
+    } else {
+      this.isFavorite.update(v => !v);
+      this.cdr.markForCheck();
+    }
   }
 
   private loadWorkspaces(): void {
@@ -961,6 +1044,9 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.savedNoteId = '';
     this.savedNoteKey = '';
     this.saveState.set(this.mode === 'edit' ? 'saved' : 'idle');
+    this.isFavorite.set(false);
+    this.favoriteId.set(null);
+    this.togglingFavorite.set(false);
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
     this.panelFolders.set([]);
