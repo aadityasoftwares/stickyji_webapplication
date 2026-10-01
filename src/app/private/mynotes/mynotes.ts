@@ -325,7 +325,7 @@ export class MyNotes implements OnInit, OnChanges {
 
   openStickyNoteTrash(): void {
     const workspaceId = this.selectedWorkspaceId();
-    this.router.navigate(['/mynotes/trash'], {
+    this.router.navigate(['/app/stickynotes/trash'], {
       queryParams: workspaceId ? { workspaceId } : undefined
     });
   }

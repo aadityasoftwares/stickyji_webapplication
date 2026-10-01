@@ -22,4 +22,12 @@ export const MYNOTES_ROUTES: Routes = [
             ),
         title: 'Sticky Note Trash | MyStickyNotes',
     },
+    {
+        path: 'favorites',
+        loadChildren: () =>
+            import('../../sticky-notes-favourites/routes/sticky-notes-favourites.routes').then(
+                m => m.STICKY_NOTES_FAVOURITES_ROUTES
+            ),
+        title: 'Sticky Note Favorites | MyStickyNotes'
+    },
 ];

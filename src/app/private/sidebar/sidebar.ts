@@ -188,13 +188,13 @@ export class Sidebar {
         items: [
           {
             label: 'Notes',
-            route: '/app/sticky-notes/my',
+            route: '/app/stickynotes/my',
             icon: LucideStickyNote,
           },
 
           {
             label: 'Favourites',
-            route: '/app/favorites',
+            route: '/app/stickynotes/favorites',
             icon: LucideStar,
           },
         ],

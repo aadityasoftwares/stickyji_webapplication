@@ -36,9 +36,14 @@ export const PRIVATE_ROUTES: Routes = [
                     import('../user-preferences/routes/user-preference.routes').then(m => m.USER_PREFERENCE_ROUTES),
             },
             {
-                path: 'sticky-notes',
+                path: 'stickynotes',
                 loadChildren: () =>
                     import('../mynotes/routes/mynotes.routes').then(m => m.MYNOTES_ROUTES),
+            },
+            {
+                path: 'sticky-notes',
+                redirectTo: 'stickynotes',
+                pathMatch: 'prefix'
             },
             {
                 path: 'workspace',

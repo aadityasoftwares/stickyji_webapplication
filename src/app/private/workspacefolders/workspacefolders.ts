@@ -375,7 +375,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.folderStore.select(id);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, id);
     this.folderOpened.emit(folder);
-    this.router.navigate(['/app/sticky-notes/my']);
+    this.router.navigate(['/app/stickynotes/my']);
   }
 
   handleFolderClick(folder: WorkspaceFolder, event: MouseEvent): void {

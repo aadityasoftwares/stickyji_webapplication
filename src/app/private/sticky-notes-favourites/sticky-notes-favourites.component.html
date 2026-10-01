@@ -1,0 +1,372 @@
+<section class="notes-page" aria-labelledby="favourites-page-title">
+    <main class="notes-main">
+        <header class="notes-header">
+            <div class="notes-intro">
+                <span class="notes-header-mark" aria-hidden="true">
+                    <span class="notes-header-mark-top">FAVOURITES</span>
+                    <app-icon [icon]="LucideStar" size="md" />
+                </span>
+
+                <div>
+                    <span class="notes-kicker">
+                        Sticky Notes · Starred collection
+                    </span>
+                    <h1 id="favourites-page-title">
+                        Your favourite notes,
+                        <span>always within easy reach.</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="notes-header-actions">
+                <div class="notes-count-slot" aria-live="polite">
+                    @if (!loading()) {
+                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')"
+                        variant="noteYellow" size="sm" shape="pill"
+                        [ariaLabel]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')" />
+                    } @else {
+                    <span class="notes-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <div class="notes-header-commands">
+                    <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                        size="md" ariaLabel="Refresh favourites" title="Refresh favourites" [loading]="loading()"
+                        (buttonClick)="refresh()" />
+                </div>
+            </div>
+        </header>
+
+        <section class="notes-explorer" [attr.aria-busy]="loading()">
+            <div class="notes-toolbar">
+                <div class="notes-toolbar-left">
+                    <app-tabs class="notes-status-tabs" [items]="noteTabs()" [value]="activeTab()" variant="segmented"
+                        activeVariant="noteYellow" shape="rounded" size="sm" density="compact"
+                        ariaLabel="Filter favourites by status" [scrollable]="false"
+                        (valueChange)="setNoteTab($event)" />
+                </div>
+
+                <div class="notes-search">
+                    <app-input type="search" label="Search favourites" labelMode="hidden"
+                        placeholder="Search favourite notes..." variant="paper" appearance="outlined" shape="rounded"
+                        size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
+                        [fullWidth]="true" ariaLabel="Search favourite notes" (valueChange)="updateSearch($event)"
+                        (cleared)="clearSearch()" />
+                </div>
+
+                <div class="notes-toolbar-controls">
+                    <div class="notes-sort-select">
+                        <app-select [options]="sortOptions" [ngModel]="sortBy()" (ngModelChange)="setSort($event)"
+                            name="favourites-sort" placeholder="Sort notes" ariaLabel="Sort favourite notes"
+                            variant="paper" shape="rounded" size="sm" [iconLeft]="LucideClock3" [clearable]="false"
+                            [searchable]="false" [fullWidth]="true" />
+                    </div>
+
+                    <div class="notes-font-select">
+                        <app-select [options]="stickyNoteFontOptions" [ngModel]="stickyNoteFont()"
+                            (ngModelChange)="chooseFont($event)" name="favourites-font" placeholder="Note font"
+                            ariaLabel="Choose note font" variant="paper" shape="rounded" size="sm"
+                            [iconLeft]="LucideType" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    </div>
+
+                    <div class="notes-layout-select">
+                        <app-select [options]="stickyNoteFontSizeOptions" [ngModel]="stickyNoteFontSize()"
+                            (ngModelChange)="onStickyNoteFontSizeSelection($event)" name="favourites-font-size"
+                            placeholder="Font size" ariaLabel="Choose note font size" variant="paper" shape="rounded"
+                            size="sm" [iconLeft]="LucideAArrowUp" [clearable]="false" [searchable]="false"
+                            [fullWidth]="true" />
+                    </div>
+
+                    <div class="notes-layout-select">
+                        <app-select [options]="stickyNoteLayoutOptions" [ngModel]="stickyNoteLayout()"
+                            (ngModelChange)="onStickyNoteLayoutSelection($event)" name="favourites-layout"
+                            placeholder="Note layout" ariaLabel="Choose sticky note layout" variant="paper"
+                            shape="rounded" size="sm"
+                            [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
+                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    </div>
+
+                    <app-tabs class="notes-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
+                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or table view"
+                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setNoteView($event)" />
+                </div>
+            </div>
+
+            <div class="notes-explorer-body" [class.is-table]="view() === 'table'" [class.is-list]="view() === 'table'">
+                @if (loading() && notes().length === 0) {
+                <div class="notes-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening favourite notes..."
+                        description="Gathering your starred sticky notes." [minHeight]="390" />
+                </div>
+                } @else if (error()) {
+                <div class="notes-empty-state">
+                    <span class="notes-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="notes-empty-note">Couldn’t open favourites</span>
+                    <h2>Favourites are unavailable</h2>
+                    <p>{{ error() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadFavourites(true)" />
+                </div>
+                } @else if (visibleNotes().length === 0) {
+                <div class="notes-empty-state is-compact">
+                    <span class="notes-empty-icon">
+                        <app-icon [icon]="searchTerm() ? LucideSearch : LucideStar" size="lg" />
+                    </span>
+                    <span class="notes-empty-note">
+                        {{ searchTerm() ? 'Nothing matches your search' : activeTab() === 'archived' ? 'No archived favourites' : 'No favourite notes yet' }}
+                    </span>
+                    <h2>
+                        {{ searchTerm() ? 'No notes found' : activeTab() === 'archived' ? 'No archived favourites' : 'Start starring your notes' }}
+                    </h2>
+                    <p>
+                        {{ searchTerm() ? 'Try another keyword or clear the search filter.' : activeTab() === 'archived' ? 'Archived notes marked as favourites will appear here.' : 'Pin and star important thoughts in My Notes or your Workspace to keep them easily accessible.' }}
+                    </p>
+                    @if (searchTerm()) {
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                    }
+                </div>
+                } @else if (view() === 'grid') {
+                <div class="notes-grid" role="list" aria-label="Favourite sticky notes">
+                    @for (note of visibleNotes(); track noteId(note)) {
+                    <article class="notes-grid-item" role="listitem" [class.is-archived]="isArchived(note)"
+                        [class.is-busy]="isBusy(note)" (dblclick)="openEditEditor(note, $event)">
+                        <app-sticky-note [data]="stickyNoteData(note)" (editRequested)="openEditEditor(note)"
+                            (titleChangeRequested)="updateNoteTitle($event)"
+                            (descriptionChangeRequested)="updateNoteDescription($event)"
+                            (deleted)="onNoteDeleted($event)" (noteUpdated)="onNoteUpdated($event)" />
+
+                        <!-- Quick Favorite Toggle Button (Star) -->
+                        <button type="button" class="note-favorite-trigger is-favorited"
+                            [attr.aria-label]="'Remove ' + noteTitle(note) + ' from favourites'"
+                            title="Remove from favourites" [disabled]="isBusy(note)"
+                            (click)="toggleFavorite(note, $event)">
+                            <app-icon [icon]="LucideStar" size="sm" />
+                        </button>
+
+                        <!-- Note Action Menu Trigger -->
+                        <button type="button" class="note-menu-trigger" [matMenuTriggerFor]="noteActions"
+                            [attr.aria-label]="'Actions for ' + noteTitle(note)" [disabled]="isBusy(note)"
+                            (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                        </button>
+
+                        <mat-menu #noteActions="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
+                            class="notes-actions-menu">
+                            <button mat-menu-item type="button" class="notes-action-item is-edit"
+                                (click)="openEditEditor(note)">
+                                <span class="notes-menu-item-icon"><app-icon [icon]="LucidePencil" size="xs" /></span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Edit note</strong>
+                                    <small>Update note details</small>
+                                </span>
+                            </button>
+
+                            <button mat-menu-item type="button" class="notes-action-item is-favorite"
+                                (click)="toggleFavorite(note, $event)">
+                                <span class="notes-menu-item-icon is-fav-icon">
+                                    <app-icon [icon]="LucideStarOff" size="xs" />
+                                </span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Remove from favourites</strong>
+                                    <small>Unstar this note</small>
+                                </span>
+                            </button>
+
+                            @if (isActive(note)) {
+                            <button mat-menu-item type="button" class="notes-action-item" (click)="archiveNote(note)">
+                                <span class="notes-menu-item-icon"><app-icon [icon]="LucideArchive" size="xs" /></span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Archive</strong>
+                                    <small>Move out of active notes</small>
+                                </span>
+                            </button>
+                            } @else {
+                            <button mat-menu-item type="button" class="notes-action-item" (click)="activateNote(note)">
+                                <span class="notes-menu-item-icon"><app-icon [icon]="LucideRotateCcw" size="xs" /></span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Restore</strong>
+                                    <small>Make this note active</small>
+                                </span>
+                            </button>
+                            }
+
+                            <mat-divider />
+
+                            <button mat-menu-item type="button" class="notes-action-item notes-menu-danger"
+                                (click)="requestDelete(note)">
+                                <span class="notes-menu-item-icon"><app-icon [icon]="LucideTrash2" size="xs" /></span>
+                                <span class="notes-menu-item-copy">
+                                    <strong>Move to trash</strong>
+                                    <small>Remove this note</small>
+                                </span>
+                            </button>
+                        </mat-menu>
+                    </article>
+                    }
+                </div>
+                } @else {
+                <div class="notes-table-shell" role="region" aria-label="Favourite notes table" tabindex="0">
+                    <table class="notes-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="notes-table-fav-col" aria-label="Favourite"></th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Color</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Updated</th>
+                                <th scope="col" class="notes-table-actions-heading">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (note of visibleNotes(); track noteId(note)) {
+                            <tr [class.is-archived]="isArchived(note)" [class.is-busy]="isBusy(note)"
+                                (dblclick)="openEditEditor(note, $event)">
+                                <td class="notes-table-fav-cell">
+                                    <button type="button" class="notes-table-fav-button is-favorited"
+                                        [attr.aria-label]="'Remove ' + noteTitle(note) + ' from favourites'"
+                                        title="Remove from favourites" [disabled]="isBusy(note)"
+                                        (click)="toggleFavorite(note, $event)">
+                                        <app-icon [icon]="LucideStar" size="sm" />
+                                    </button>
+                                </td>
+                                <td class="notes-table-note-cell" data-label="Note">
+                                    <div class="notes-table-note-main">
+                                        <span [class]="'notes-table-note-mark is-' + noteColorKey(note)"
+                                            aria-hidden="true"></span>
+                                        <div class="notes-table-note-copy">
+                                            <strong>{{ noteTitle(note) }}</strong>
+                                            <p>{{ notePreview(note) }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Color">
+                                    <span class="notes-table-color">
+                                        <span [class]="'notes-table-color-dot is-' + noteColorKey(note)"
+                                            aria-hidden="true"></span>
+                                        {{ noteColorLabel(note) }}
+                                    </span>
+                                </td>
+                                <td data-label="Status">
+                                    <app-badge [label]="isArchived(note) ? 'Archived' : 'Active'"
+                                        [variant]="isArchived(note) ? 'neutral' : 'success'" size="xs" shape="pill" />
+                                </td>
+                                <td data-label="Updated">
+                                    <span class="notes-table-updated">
+                                        <app-icon [icon]="LucideClock3" size="xs" />{{ noteUpdatedLabel(note) }}
+                                    </span>
+                                </td>
+                                <td class="notes-table-actions-cell" data-label="Actions">
+                                    <div class="notes-table-actions">
+                                        <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" size="xs"
+                                            [rounded]="true" [ariaLabel]="'Edit ' + noteTitle(note)"
+                                            [title]="'Edit ' + noteTitle(note)" [disabled]="isBusy(note)"
+                                            (buttonClick)="openEditEditor(note, $event)" />
+
+                                        <button type="button" class="note-menu-trigger notes-table-menu-trigger"
+                                            [matMenuTriggerFor]="tableActions" [disabled]="isBusy(note)"
+                                            [attr.aria-label]="'More actions for ' + noteTitle(note)"
+                                            (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                        </button>
+
+                                        <mat-menu #tableActions="matMenu" xPosition="before" yPosition="below"
+                                            [overlapTrigger]="false" class="notes-actions-menu">
+                                            <button mat-menu-item type="button" class="notes-action-item is-edit"
+                                                (click)="openEditEditor(note)">
+                                                <span class="notes-menu-item-icon">
+                                                    <app-icon [icon]="LucidePencil" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Edit note</strong>
+                                                    <small>Update note details</small>
+                                                </span>
+                                            </button>
+
+                                            <button mat-menu-item type="button" class="notes-action-item is-favorite"
+                                                (click)="toggleFavorite(note, $event)">
+                                                <span class="notes-menu-item-icon is-fav-icon">
+                                                    <app-icon [icon]="LucideStarOff" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Remove from favourites</strong>
+                                                    <small>Unstar this note</small>
+                                                </span>
+                                            </button>
+
+                                            @if (isActive(note)) {
+                                            <button mat-menu-item type="button" class="notes-action-item"
+                                                (click)="archiveNote(note)">
+                                                <span class="notes-menu-item-icon">
+                                                    <app-icon [icon]="LucideArchive" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Archive</strong>
+                                                    <small>Move out of active notes</small>
+                                                </span>
+                                            </button>
+                                            } @else {
+                                            <button mat-menu-item type="button" class="notes-action-item"
+                                                (click)="activateNote(note)">
+                                                <span class="notes-menu-item-icon">
+                                                    <app-icon [icon]="LucideRotateCcw" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Restore</strong>
+                                                    <small>Make this note active</small>
+                                                </span>
+                                            </button>
+                                            }
+
+                                            <mat-divider />
+
+                                            <button mat-menu-item type="button"
+                                                class="notes-action-item notes-menu-danger"
+                                                (click)="requestDelete(note)">
+                                                <span class="notes-menu-item-icon">
+                                                    <app-icon [icon]="LucideTrash2" size="xs" />
+                                                </span>
+                                                <span class="notes-menu-item-copy">
+                                                    <strong>Move to trash</strong>
+                                                    <small>Remove this note</small>
+                                                </span>
+                                            </button>
+                                        </mat-menu>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+            </div>
+        </section>
+    </main>
+</section>
+
+<!-- Reusable Side Panel for Edit Note -->
+<app-add-edit-note-side-panel [open]="notePanelOpen()" [mode]="notePanelMode()" [id]="notePanelId()"
+    (closed)="closeNotePanel()" (saved)="onNoteSaved($event)" />
+
+<!-- Move to Trash confirmation modal -->
+@if (deleteTarget(); as note) {
+<div class="notes-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section class="notes-delete-shell" role="alertdialog" aria-modal="true" aria-labelledby="notes-delete-title"
+        (mousedown)="$event.stopPropagation()">
+        <app-sticky-card class="notes-delete-note" variant="noteRed" appearance="elevated" shape="note" size="sm"
+            [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+            <span card-icon class="notes-delete-icon"><app-icon [icon]="LucideTrash2" size="sm" /></span>
+            <span card-eyebrow class="notes-dialog-kicker">Before you remove it</span>
+            <h2 card-title id="notes-delete-title" class="notes-dialog-title">Move note to trash?</h2>
+            <p card-subtitle class="notes-dialog-subtitle">“{{ noteTitle(note) }}” will be moved to trash.</p>
+            <p class="notes-delete-message">If you only want it out of the active list, you can archive it instead.</p>
+            <div card-footer class="notes-dialog-actions">
+                <app-button label="Keep note" variant="secondary" size="sm" [disabled]="deleting()"
+                    (buttonClick)="closeDeleteDialog()" />
+                <app-button label="Move to trash" variant="danger" size="sm" [loading]="deleting()"
+                    [disabled]="deleting()" (buttonClick)="confirmDelete()" />
+            </div>
+        </app-sticky-card>
+    </section>
+</div>
+}
