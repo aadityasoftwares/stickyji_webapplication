@@ -1,10 +1,14 @@
 import {
+    LucideBell,
     LucideCircle,
     LucideFrame,
     LucideGrid2X2,
     LucideLayers,
+    LucideLink,
     LucideList,
+    LucideListChecks,
     LucidePanelsTopLeft,
+    LucidePaperclip,
     LucideScissors,
     LucideSquare,
     LucideStickyNote,
@@ -257,3 +261,46 @@ export const STICKY_NOTE_COLUMN_COLOR_OPTIONS: any[] = [
 ];
 
 export const COLUMN_COLOR_OPTIONS = STICKY_NOTE_COLUMN_COLOR_OPTIONS;
+
+export const NOTE_BLOCK_TYPES = {
+    CHECKLIST: 'CHECKLIST',
+    REMINDER: 'REMINDER',
+    ATTACHMENT: 'ATTACHMENT',
+    LINK: 'LINK',
+} as const;
+
+export type NoteBlockType = (typeof NOTE_BLOCK_TYPES)[keyof typeof NOTE_BLOCK_TYPES];
+
+export interface NoteBlockOption {
+    type: NoteBlockType;
+    label: string;
+    description: string;
+    icon: any;
+}
+
+export const NOTE_BLOCK_OPTIONS: readonly NoteBlockOption[] = [
+    {
+        type: NOTE_BLOCK_TYPES.CHECKLIST,
+        label: 'Checklist',
+        description: 'Add tasks you can check off',
+        icon: LucideListChecks,
+    },
+    {
+        type: NOTE_BLOCK_TYPES.REMINDER,
+        label: 'Reminder',
+        description: 'Get reminded about this note',
+        icon: LucideBell,
+    },
+    {
+        type: NOTE_BLOCK_TYPES.ATTACHMENT,
+        label: 'Attachment',
+        description: 'Add files or images',
+        icon: LucidePaperclip,
+    },
+    {
+        type: NOTE_BLOCK_TYPES.LINK,
+        label: 'Link',
+        description: 'Save a useful URL',
+        icon: LucideLink,
+    },
+];

@@ -133,9 +133,41 @@
   margin-left: auto;
 }
 
-.sticky-note__quick-edit {
-  display: inline-flex;
+.sticky-note__edit-trigger {
+  display: inline-grid;
   flex: 0 0 auto;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  color: var(--note-muted);
+  background: color-mix(in srgb, var(--note-paper) 88%, #{$paper});
+  border: 1px solid color-mix(in srgb, var(--note-border) 82%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  place-items: center;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+
+  &:hover:not(:disabled) {
+    color: var(--note-ink);
+    background: color-mix(in srgb, var(--note-accent) 11%, var(--note-paper));
+    border-color: color-mix(in srgb, var(--note-accent) 24%, var(--note-border));
+    transform: scale(1.08);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
 }
 
 .sticky-note__menu-trigger {

@@ -38,9 +38,11 @@
                 <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
             </button>
 
-            <app-button class="sticky-note__quick-edit" [icon]="LucidePencil" [iconOnly]="true" appearance="standard"
-                variant="ghost" size="xs" [rounded]="true" [ariaLabel]="'Edit ' + title" [title]="'Edit ' + title"
-                [disabled]="disabled" (buttonClick)="requestEdit($event)" />
+            <button type="button" class="sticky-note__edit-trigger" [disabled]="disabled"
+                [attr.aria-label]="'Edit ' + title" [title]="'Edit ' + title"
+                (click)="requestEdit($event)">
+                <app-icon [icon]="LucidePencil" size="xs" />
+            </button>
 
             <button type="button" class="sticky-note__menu-trigger" [matMenuTriggerFor]="noteActionsMenu"
                 [disabled]="disabled" [attr.aria-label]="'More actions for ' + title" title="More note actions"

@@ -691,12 +691,45 @@ export class StickyNote {
       });
   }
 
+  /** Resolves the nested userId object (populated) or falls back to the flat assignee props. */
+  private resolveAssigneeUser(assignee: any): any {
+    const userId = assignee?.userId;
+    // userId may be a populated object or a plain string id
+    return userId && typeof userId === 'object' ? userId : assignee;
+  }
+
   avatarName(assignee: any): string {
-    return String(assignee?.name ?? assignee?.displayName ?? assignee?.email ?? 'Member');
+    const user = this.resolveAssigneeUser(assignee);
+    const profile = user?.profile;
+    const displayName =
+      profile?.displayName ??
+      user?.displayName ??
+      assignee?.name ??
+      assignee?.displayName;
+    if (displayName) return String(displayName).trim();
+
+    const firstName = profile?.firstName ?? user?.firstName ?? assignee?.firstName ?? '';
+    const lastName  = profile?.lastName  ?? user?.lastName  ?? assignee?.lastName  ?? '';
+    const fullName  = `${firstName} ${lastName}`.trim();
+    if (fullName) return fullName;
+
+    const email = user?.email ?? assignee?.email ?? '';
+    if (email) return String(email).split('@')[0];
+
+    return 'Member';
   }
 
   avatarImage(assignee: any): string {
-    return String(assignee?.src ?? assignee?.avatarUrl ?? assignee?.imageUrl ?? '');
+    const user = this.resolveAssigneeUser(assignee);
+    const profile = user?.profile;
+    return String(
+      profile?.avatarUrl ??
+      user?.avatarUrl ??
+      assignee?.src ??
+      assignee?.avatarUrl ??
+      assignee?.imageUrl ??
+      ''
+    );
   }
 
   avatarInitials(assignee: any): string {

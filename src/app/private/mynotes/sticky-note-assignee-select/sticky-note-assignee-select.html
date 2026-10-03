@@ -1,0 +1,25 @@
+<div class="note-assignee-select-root" [class.is-loading]="loading()">
+  @if (loadError()) {
+  <div class="note-assignee-error-banner" role="alert">
+    <div class="note-assignee-error-message">
+      <app-icon [icon]="LucideAlertCircle" size="xs" />
+      <span>{{ loadError() }}</span>
+    </div>
+    <app-button label="Retry" variant="secondary" appearance="standard" size="xs" [iconLeft]="LucideRefreshCw"
+      (buttonClick)="fetchMembers(workspaceId)" />
+  </div>
+  } @else {
+  <div class="note-assignee-control-wrapper">
+    <app-select selectId="note-assignees-select" name="note-assignees" [options]="memberOptions()"
+      [ngModel]="currentValues" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onSelectionChange($event)"
+      [placeholder]="loading() ? 'Loading members...' : (members().length === 0 && workspaceId ? 'No members found' : placeholder)"
+      searchPlaceholder="Search members..." emptyText="No members found" dropdownTitle="Assign members"
+      dropdownDescription="Select workspace members to assign to this note." [multiple]="true" [searchable]="true"
+      [closeOnSelect]="false" [clearable]="true" [loading]="loading()" loadingText="Loading members..." variant="paper"
+      appearance="simple" shape="rounded" size="sm" [height]="36" [iconLeft]="LucideUserPlus"
+      [disabled]="disabled || loading() || !workspaceId" [fullWidth]="true" [dropdownMatchTriggerWidth]="true"
+      [dropdownMinWidth]="360" [maxVisibleSelections]="3"
+      ariaLabel="Assign workspace members" />
+  </div>
+  }
+</div>

@@ -24,16 +24,22 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  LucideBell,
   LucideCheck,
   LucideFolderOpen,
+  LucideLink,
+  LucideListChecks,
   LucidePanelsTopLeft,
+  LucidePaperclip,
   LucidePencil,
   LucidePlus,
   LucideStar,
   LucideStarOff,
   LucideStickyNote,
-  LucideTrash2
+  LucideTrash2,
+  LucideX
 } from '@lucide/angular';
+import { MatMenuModule } from '@angular/material/menu';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
@@ -49,6 +55,9 @@ import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
 import {
+  NOTE_BLOCK_OPTIONS,
+  type NoteBlockOption,
+  type NoteBlockType,
   NOTE_LIMITS,
   STICKY_NOTE_BACKGROUND_PATTERN_OPTIONS,
   STICKY_NOTE_COLOR_OPTIONS,
@@ -80,6 +89,9 @@ import { StickyNoteChecklistItemApiService } from '../services/sticky-note-check
 import { StickyNoteColumnApiService } from '../services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../services/sticky-note-column.store';
 import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
+import { StickyNoteAssigneeApiService } from '../services/sticky-note-assignee.service';
+import { StickyNoteAssigneeSelect, type AssigneePreviewItem } from '../sticky-note-assignee-select/sticky-note-assignee-select';
+import type { StickyNoteAssignee } from '../models/sticky-note-assignee.interface';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
@@ -99,9 +111,11 @@ import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-
     DatepickerInput,
     Label,
     Loader,
+    MatMenuModule,
     Select,
     SidePanel,
-    StickyNote
+    StickyNote,
+    StickyNoteAssigneeSelect
   ],
   templateUrl: './add-edit-note-side-panel.html',
   styleUrl: './add-edit-note-side-panel.scss',
@@ -123,6 +137,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
   private readonly checklistApi = inject(StickyNoteChecklistApiService);
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
+  private readonly assigneeApi = inject(StickyNoteAssigneeApiService);
   readonly favoriteService = inject(StickyNotesFavouriteService);
 
   @Input() open = false;
@@ -135,15 +150,28 @@ export class AddEditNoteSidePanel implements OnChanges {
   @ViewChild('noteTitleInput', { read: ElementRef })
   private noteTitleInput?: ElementRef<HTMLElement>;
 
+  readonly LucideBell = LucideBell;
   readonly LucideCheck = LucideCheck;
   readonly LucideFolderOpen = LucideFolderOpen;
+  readonly LucideLink = LucideLink;
+  readonly LucideListChecks = LucideListChecks;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
+  readonly LucidePaperclip = LucidePaperclip;
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
   readonly LucideStar = LucideStar;
   readonly LucideStarOff = LucideStarOff;
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
+  readonly LucideX = LucideX;
+
+  readonly noteBlockOptions = NOTE_BLOCK_OPTIONS;
+  readonly selectedBlocks = signal<NoteBlockType[]>([]);
+  readonly isBlockSelected = (type: NoteBlockType): boolean => this.selectedBlocks().includes(type);
+  readonly availableBlocks = computed(() => {
+    const selected = new Set(this.selectedBlocks());
+    return this.noteBlockOptions.filter(item => !selected.has(item.type));
+  });
 
   readonly titleMaxLength = NOTE_LIMITS.TITLE_MAX_LENGTH;
   readonly contentMaxLength = NOTE_LIMITS.CONTENT_MAX_LENGTH;
@@ -170,6 +198,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly panelWorkspaces = signal<any[]>([]);
   readonly panelFolders = signal<any[]>([]);
   readonly panelColumns = signal<any[]>([]);
+
+  readonly selectedAssigneeIds = signal<string[]>([]);
+  readonly originalAssigneeIds = signal<string[]>([]);
+  readonly selectedAssignees = signal<AssigneePreviewItem[]>([]);
 
   private savedNoteId = '';
   private savedNoteKey = '';
@@ -297,7 +329,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   });
 
   get livePreviewData() {
-    const checklists = formatLivePreviewChecklists(this.checklists.controls as FormGroup[]);
+    const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
+    const checklists = isChecklistActive
+      ? formatLivePreviewChecklists(this.checklists.controls as FormGroup[])
+      : [];
 
     return {
       id: 'editor-live-preview',
@@ -312,6 +347,13 @@ export class AddEditNoteSidePanel implements OnChanges {
       backgroundPattern: this.controlString('backgroundPattern'),
       noteDate: this.previewDate,
       checklists,
+      assignees: this.selectedAssignees().map(item => ({
+        id: item.id,
+        name: item.displayName || item.name,
+        displayName: item.displayName,
+        email: item.email,
+        initials: item.initials
+      })),
       layout: 'detail',
       isFavorite: this.isFavorite(),
       favoriteId: this.favoriteId() || undefined,
@@ -371,6 +413,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.form.controls.columnId.setValue('');
     this.panelFolders.set([]);
     this.panelColumns.set([]);
+    this.selectedAssigneeIds.set([]);
+    this.selectedAssignees.set([]);
     this.saveState.set('editing');
 
     if (workspaceId) {
@@ -400,6 +444,23 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.saveState.set('editing');
   }
 
+  onAssigneeIdsChange(ids: string[]): void {
+    if (this.isBusy) return;
+    this.selectedAssigneeIds.set(ids);
+
+    const origSet = new Set(this.originalAssigneeIds());
+    const isDirty = ids.length !== origSet.size || ids.some(id => !origSet.has(id));
+    if (isDirty) {
+      this.saveState.set('editing');
+    }
+    this.cdr.markForCheck();
+  }
+
+  onAssigneeObjectsChange(items: AssigneePreviewItem[]): void {
+    this.selectedAssignees.set(items);
+    this.cdr.markForCheck();
+  }
+
   onTitleEnter(event: KeyboardEvent): void {
     event.preventDefault();
     (event.target as HTMLElement | null)?.blur();
@@ -410,11 +471,53 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.closed.emit();
   }
 
+  addBlock(type: NoteBlockType): void {
+    if (this.isBusy) return;
+    if (!this.selectedBlocks().includes(type)) {
+      this.selectedBlocks.update(blocks => [...blocks, type]);
+      if (type === 'CHECKLIST') {
+        this.form.controls.withChecklist.setValue(true);
+        if (this.checklists.length === 0) {
+          this.checklists.push(this.createChecklistGroup());
+        }
+      }
+      this.saveState.set('editing');
+      this.cdr.markForCheck();
+      this.scrollAndFocusNewBlock(type);
+    }
+  }
+
+  removeBlock(type: NoteBlockType): void {
+    if (this.isBusy) return;
+    this.selectedBlocks.update(blocks => blocks.filter(b => b !== type));
+    if (type === 'CHECKLIST') {
+      this.form.controls.withChecklist.setValue(false);
+      this.checklists.clear();
+    }
+    this.saveState.set('editing');
+    this.cdr.markForCheck();
+  }
+
   addChecklist(): void {
     if (this.isBusy) return;
+    if (!this.selectedBlocks().includes('CHECKLIST')) {
+      this.selectedBlocks.update(blocks => [...blocks, 'CHECKLIST']);
+    }
     this.form.controls.withChecklist.setValue(true);
     this.checklists.push(this.createChecklistGroup());
+    const newIndex = this.checklists.length - 1;
     this.saveState.set('editing');
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.scrollPanelToBottom();
+      const groups = document.querySelectorAll('.checklist-group');
+      const targetGroup = groups[newIndex] || groups[groups.length - 1];
+      if (targetGroup) {
+        targetGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        this.focusFirstInput(targetGroup);
+      }
+    }, 60);
   }
 
   removeChecklist(index: number): void {
@@ -433,10 +536,34 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.saveState.set('editing');
   }
 
+  onChecklistTitleEnter(event: KeyboardEvent, index: number): void {
+    event.preventDefault();
+    const group = (event.target as HTMLElement)?.closest('.checklist-group');
+    const firstTaskInput = group?.querySelector('.checklist-items input:not([disabled])') as HTMLInputElement | null;
+    if (firstTaskInput) {
+      firstTaskInput.focus();
+    } else {
+      this.addChecklistItem(index);
+    }
+  }
+
   addChecklistItem(index: number): void {
     if (this.isBusy) return;
     this.checklistItems(index)?.push(this.createChecklistItemGroup());
     this.saveState.set('editing');
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.scrollPanelToBottom();
+      const groups = document.querySelectorAll('.checklist-group');
+      const targetGroup = groups[index] || groups[groups.length - 1];
+      const items = targetGroup?.querySelectorAll('.checklist-item');
+      const lastItem = items && items.length > 0 ? items[items.length - 1] : null;
+      if (lastItem) {
+        lastItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        this.focusFirstInput(lastItem);
+      }
+    }, 60);
   }
 
   removeChecklistItem(index: number, itemIndex: number): void {
@@ -476,6 +603,37 @@ export class AddEditNoteSidePanel implements OnChanges {
   onChecklistItemEnter(event: KeyboardEvent, index: number): void {
     event.preventDefault();
     this.addChecklistItem(index);
+  }
+
+  private scrollPanelToBottom(): void {
+    const panelBody = document.querySelector('.app-side-panel-body');
+    if (panelBody) {
+      panelBody.scrollTo({
+        top: panelBody.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  private focusFirstInput(container: Element | null): void {
+    if (!container) return;
+    const input = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+      'input:not([disabled]):not([type="checkbox"]), textarea:not([disabled])'
+    );
+    if (input) {
+      input.focus();
+    }
+  }
+
+  private scrollAndFocusNewBlock(type: NoteBlockType): void {
+    setTimeout(() => {
+      this.scrollPanelToBottom();
+      const blockCard = document.querySelector(`.note-block-card[data-block-type="${type}"]`);
+      if (blockCard) {
+        blockCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        this.focusFirstInput(blockCard);
+      }
+    }, 60);
   }
 
   checklistTitle(index: number): string {
@@ -525,7 +683,8 @@ export class AddEditNoteSidePanel implements OnChanges {
       color: this.form.controls.color.value,
       shape: this.form.controls.shape.value,
       variant: this.form.controls.variant.value,
-      backgroundPattern: this.form.controls.backgroundPattern.value
+      backgroundPattern: this.form.controls.backgroundPattern.value,
+      assigneeIds: this.selectedAssigneeIds()
     };
 
     this.loading.set(true);
@@ -541,7 +700,14 @@ export class AddEditNoteSidePanel implements OnChanges {
         if (!noteId) throw new Error('Note ID was not returned by the server.');
         this.savedNoteId = noteId;
       }),
-      switchMap(response => this.syncChecklists(this.savedNoteId).pipe(map(() => response.data))),
+      switchMap(response =>
+        forkJoin({
+          checklists: this.syncChecklists(this.savedNoteId),
+          assignees: this.assigneeApi.sync(this.savedNoteId, { assigneeIds: this.selectedAssigneeIds() }).pipe(
+            catchError(() => of(null))
+          )
+        }).pipe(map(() => response.data))
+      ),
       switchMap(noteData => {
         if (this.mode === 'create' && this.isFavorite() && this.savedNoteId) {
           return this.favoriteService.addFavorite(this.savedNoteId).pipe(
@@ -562,6 +728,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       next: () => {
         this.error.set('');
         this.saveState.set('saved');
+        this.originalAssigneeIds.set([...this.selectedAssigneeIds()]);
         this.form.markAsPristine();
         this.toastService.success(
           this.mode === 'create' ? 'Your sticky note is ready.' : 'Your note changes were saved.',
@@ -580,9 +747,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   private syncChecklists(noteId: string): Observable<any> {
+    const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const formChecklists = this.checklists.controls as FormGroup[];
 
-    if (!this.withChecklist || formChecklists.length === 0) {
+    if (!isChecklistActive || !this.withChecklist || formChecklists.length === 0) {
       if (this.originalChecklistIds.size === 0) return of(null);
       const deleteTasks = [...this.originalChecklistIds].map(id => this.checklistApi.delete(id));
       return forkJoin(deleteTasks);
@@ -757,7 +925,18 @@ export class AddEditNoteSidePanel implements OnChanges {
           this.loadFolders(workspaceId, folderId);
         }
 
+        if (note?.reminder || (Array.isArray(note?.reminders) && note.reminders.length > 0)) {
+          this.selectedBlocks.update(b => b.includes('REMINDER') ? b : [...b, 'REMINDER']);
+        }
+        if (Array.isArray(note?.attachments) && note.attachments.length > 0) {
+          this.selectedBlocks.update(b => b.includes('ATTACHMENT') ? b : [...b, 'ATTACHMENT']);
+        }
+        if (Array.isArray(note?.links) && note.links.length > 0) {
+          this.selectedBlocks.update(b => b.includes('LINK') ? b : [...b, 'LINK']);
+        }
+
         this.loadChecklists(note, noteId);
+        this.loadAssignees(note, noteId);
         this.checkFavoriteStatus(note, noteId);
         this.focusTitle();
       },
@@ -991,16 +1170,23 @@ export class AddEditNoteSidePanel implements OnChanges {
       this.checklists.push(this.createChecklistGroup({ id, title: checklist.title ?? '', items }));
     }
 
-    this.form.controls.withChecklist.setValue(this.checklists.length > 0);
+    const hasLists = this.checklists.length > 0;
+    this.form.controls.withChecklist.setValue(hasLists);
+    if (hasLists) {
+      this.selectedBlocks.update(blocks => blocks.includes('CHECKLIST') ? blocks : [...blocks, 'CHECKLIST']);
+    }
   }
 
   private validateBeforeSave(): string | null {
-    const checklistsData = this.checklists.controls.map((_, index) => ({
-      title: this.checklistTitle(index),
-      items: (this.checklistItems(index)?.controls ?? []).map(control => ({
-        title: control.get('title')?.value
-      }))
-    }));
+    const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
+    const checklistsData = isChecklistActive
+      ? this.checklists.controls.map((_, index) => ({
+          title: this.checklistTitle(index),
+          items: (this.checklistItems(index)?.controls ?? []).map(control => ({
+            title: control.get('title')?.value
+          }))
+        }))
+      : [];
 
     return validateNoteForm({
       workspaceId: this.controlString('workspaceId'),
@@ -1012,7 +1198,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       shape: this.controlString('shape'),
       variant: this.controlString('variant'),
       backgroundPattern: this.controlString('backgroundPattern'),
-      withChecklist: this.withChecklist,
+      withChecklist: isChecklistActive && this.withChecklist,
       checklists: checklistsData,
       colorOptions: this.colorOptions,
       shapeOptions: this.shapeOptions,
@@ -1047,6 +1233,10 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.isFavorite.set(false);
     this.favoriteId.set(null);
     this.togglingFavorite.set(false);
+    this.selectedBlocks.set([]);
+    this.selectedAssigneeIds.set([]);
+    this.originalAssigneeIds.set([]);
+    this.selectedAssignees.set([]);
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
     this.panelFolders.set([]);
@@ -1075,6 +1265,44 @@ export class AddEditNoteSidePanel implements OnChanges {
       },
       { emitEvent: false }
     );
+  }
+
+  private loadAssignees(note: any, noteId: string): void {
+    if (Array.isArray(note?.assignees) && note.assignees.length > 0) {
+      const userIds = note.assignees.map((a: any) => {
+        if (typeof a.userId === 'object' && a.userId !== null) {
+          return a.userId._id || a.userId.id || String(a.userId);
+        }
+        return a.userId ? String(a.userId) : idOf(a);
+      }).filter(Boolean);
+
+      this.selectedAssigneeIds.set(userIds);
+      this.originalAssigneeIds.set([...userIds]);
+    }
+
+    this.assigneeApi.getByStickyNote(noteId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: res => {
+        const list = extractList(res) as StickyNoteAssignee[];
+        if (Array.isArray(list)) {
+          const userIds = list
+            .filter(item => item?.status !== 'REMOVED')
+            .map(item => {
+              if (typeof item.userId === 'object' && item.userId !== null) {
+                return (item.userId as any)._id || (item.userId as any).id || String(item.userId);
+              }
+              return String(item.userId);
+            })
+            .filter(Boolean);
+
+          this.selectedAssigneeIds.set(userIds);
+          this.originalAssigneeIds.set([...userIds]);
+          this.cdr.markForCheck();
+        }
+      },
+      error: () => {}
+    });
   }
 
   private handleLoadError(error: unknown, fallback: string): void {

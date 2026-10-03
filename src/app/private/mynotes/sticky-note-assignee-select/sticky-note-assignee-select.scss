@@ -1,0 +1,35 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.note-assignee-select-root {
+  display: block;
+  width: 100%;
+}
+
+.note-assignee-control-wrapper {
+  width: 100%;
+}
+
+.note-assignee-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, #{$danger} 8%, transparent);
+  border: 1px solid color-mix(in srgb, #{$danger} 25%, transparent);
+  color: #{$danger};
+  font-size: 0.78rem;
+
+  .note-assignee-error-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
