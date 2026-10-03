@@ -46,6 +46,7 @@ import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
 import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
@@ -338,7 +339,7 @@ export class Workspace implements OnInit {
 
     this.workspaceStore.select(id);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
-    this.router.navigate(['/app/workspacefolders/my']);
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_FOLDERS));
   }
 
   beginInlineRename(workspace: any, event?: Event): void {

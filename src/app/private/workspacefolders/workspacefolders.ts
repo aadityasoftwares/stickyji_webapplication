@@ -49,6 +49,7 @@ import { Select, type SelectOption, type SelectValue } from '../../shared/compon
 import { Tabs, type TabItem, type TabValue } from '../../shared/components/tabs/tabs';
 import { type CardVariant, StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { WorkspaceFolderWrapper } from '../workspace/workspace-folder-wrapper/workspace-folder-wrapper';
 import { AddEditWorkspaceFolderSidePanel } from './add-edit-workspace-folder-side-panel/add-edit-workspace-folder-side-panel';
 import { WorkspaceFolderService } from './services/workspace-folder.service';
@@ -375,7 +376,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.folderStore.select(id);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, id);
     this.folderOpened.emit(folder);
-    this.router.navigate(['/app/stickynotes/my']);
+    this.router.navigate(routeCommands(APP_ROUTES.MY_NOTES));
   }
 
   handleFolderClick(folder: WorkspaceFolder, event: MouseEvent): void {

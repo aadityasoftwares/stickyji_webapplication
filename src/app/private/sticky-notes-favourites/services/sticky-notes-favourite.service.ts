@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap, throwError } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
@@ -12,7 +12,7 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 export class StickyNotesFavouriteService {
   private readonly http = inject(HttpClient);
   private readonly toastService = inject(ToastService);
-  private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
+    private readonly baseUrl = API_BASE_URL;
   private readonly favoriteBaseUrl = `${this.baseUrl}/stickynotefavorites`;
 
   /** Reactive map of stickyNoteId -> favoriteId */

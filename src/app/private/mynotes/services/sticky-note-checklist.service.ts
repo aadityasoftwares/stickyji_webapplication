@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../Environments/environments';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import {
     ApiDeleteResponse,
     StickyNoteChecklistCreateRequest,
@@ -18,18 +18,16 @@ import {
 
 export class StickyNoteChecklistApiService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
-    private readonly base = `${this.baseUrl}/stickynoteschecklist`;
 
     getById(id: string): Observable<StickyNoteChecklistResponse> {
         return this.http.get<StickyNoteChecklistResponse>(
-            `${this.base}/get/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNoteChecklists.get(id),
             { withCredentials: true },
         );
     }
 
     getAll(filters: StickyNoteChecklistFilters = {}): Observable<StickyNoteChecklistsResponse> {
-        return this.http.get<StickyNoteChecklistsResponse>(`${this.base}/getall`, {
+        return this.http.get<StickyNoteChecklistsResponse>(API_ENDPOINTS.stickyNoteChecklists.getAll, {
             params: this.buildParams(filters),
             withCredentials: true,
         });
@@ -43,14 +41,14 @@ export class StickyNoteChecklistApiService {
     }
 
     create(payload: StickyNoteChecklistCreateRequest): Observable<StickyNoteChecklistResponse> {
-        return this.http.post<StickyNoteChecklistResponse>(`${this.base}/create`, payload, {
+        return this.http.post<StickyNoteChecklistResponse>(API_ENDPOINTS.stickyNoteChecklists.create, payload, {
             withCredentials: true,
         });
     }
 
     update(id: string, payload: StickyNoteChecklistUpdateRequest): Observable<StickyNoteChecklistResponse> {
         return this.http.put<StickyNoteChecklistResponse>(
-            `${this.base}/update/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNoteChecklists.update(id),
             payload,
             { withCredentials: true },
         );
@@ -58,7 +56,7 @@ export class StickyNoteChecklistApiService {
 
     updateStatus(id: string, status: StickyNoteChecklistStatus): Observable<StickyNoteChecklistResponse> {
         return this.http.put<StickyNoteChecklistResponse>(
-            `${this.base}/status/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNoteChecklists.status(id),
             { status },
             { withCredentials: true },
         );
@@ -70,14 +68,14 @@ export class StickyNoteChecklistApiService {
 
     delete(id: string): Observable<ApiDeleteResponse> {
         return this.http.delete<ApiDeleteResponse>(
-            `${this.base}/delete/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNoteChecklists.delete(id),
             { withCredentials: true },
         );
     }
 
     restore(id: string): Observable<StickyNoteChecklistResponse> {
         return this.http.put<StickyNoteChecklistResponse>(
-            `${this.base}/restore/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNoteChecklists.restore(id),
             {},
             { withCredentials: true },
         );

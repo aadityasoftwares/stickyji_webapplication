@@ -2,7 +2,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject, } from '@angular/core';
 import { Observable, catchError, map, of, tap, } from 'rxjs';
-import { environment } from '../../../../Environments/environments';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import {
     ApiResponse,
     AuthSession,
@@ -46,35 +47,6 @@ export class AuthService {
     private readonly refreshService = inject(AuthRefreshService);
     private readonly platformId = inject(PLATFORM_ID);
 
-    private readonly baseUrl =
-        environment.apiUrl.replace(/\/+$/, '');
-
-    private readonly loginUrl =
-        `${this.baseUrl}/auth/login`;
-
-    private readonly registerUrl =
-        `${this.baseUrl}/auth/register`;
-
-    private readonly verifyEmailUrl =
-        `${this.baseUrl}/auth/verifyemail`;
-
-    private readonly forgotPasswordUrl =
-        `${this.baseUrl}/auth/forgotpassword`;
-
-    private readonly resetPasswordUrl =
-        `${this.baseUrl}/auth/resetpassword`;
-
-    private readonly changePasswordUrl =
-        `${this.baseUrl}/auth/changepassword`;
-
-    private readonly logoutUrl =
-        `${this.baseUrl}/auth/logout`;
-
-    private readonly logoutAllUrl =
-        `${this.baseUrl}/auth/logoutall`;
-
-    private readonly sessionsUrl =
-        `${this.baseUrl}/auth/sessions`;
 
     login(
         credentials: LoginCredentials,
@@ -90,7 +62,7 @@ export class AuthService {
 
         return this.http
             .post<LoginResponse>(
-                this.loginUrl,
+                API_ENDPOINTS.auth.login,
                 payload,
                 {
                     withCredentials: true,
@@ -119,7 +91,7 @@ export class AuthService {
 
         return this.http
             .post<RegisterResponse>(
-                this.registerUrl,
+                API_ENDPOINTS.auth.register,
                 payload,
                 {
                     withCredentials: true,
@@ -171,7 +143,7 @@ export class AuthService {
         };
 
         return this.http.post<ForgotPasswordResponse>(
-            this.forgotPasswordUrl,
+            API_ENDPOINTS.auth.forgotPassword,
             payload,
             {
                 withCredentials: true,
@@ -190,7 +162,7 @@ export class AuthService {
 
         return this.http
             .post<ResetPasswordResponse>(
-                this.resetPasswordUrl,
+                API_ENDPOINTS.auth.resetPassword,
                 payload,
                 {
                     withCredentials: true,
@@ -210,7 +182,7 @@ export class AuthService {
     ): Observable<VerifyEmailResponse> {
         return this.http
             .post<VerifyEmailResponse>(
-                this.verifyEmailUrl,
+                API_ENDPOINTS.auth.verifyEmail,
                 {
                     token: token.trim(),
                 },
@@ -243,7 +215,7 @@ export class AuthService {
 
         return this.http
             .post<ChangePasswordResponse>(
-                this.changePasswordUrl,
+                API_ENDPOINTS.auth.changePassword,
                 payload,
                 {
                     withCredentials: true,
@@ -261,7 +233,7 @@ export class AuthService {
     logout(): Observable<LogoutResponse> {
         return this.http
             .post<LogoutResponse>(
-                this.logoutUrl,
+                API_ENDPOINTS.auth.logout,
                 {},
                 {
                     withCredentials: true,
@@ -279,7 +251,7 @@ export class AuthService {
     logoutAll(): Observable<LogoutResponse> {
         return this.http
             .post<LogoutResponse>(
-                this.logoutAllUrl,
+                API_ENDPOINTS.auth.logoutAll,
                 {},
                 {
                     withCredentials: true,
@@ -299,7 +271,7 @@ export class AuthService {
         return this.http.get<
             ApiResponse<unknown[]>
         >(
-            this.sessionsUrl,
+            API_ENDPOINTS.auth.sessions,
             {
                 withCredentials: true,
             },
@@ -338,11 +310,8 @@ export class AuthService {
             return undefined;
         }
 
-        const storageKey =
-            'mysticky_device_id';
-
         const existing =
-            localStorage.getItem(storageKey);
+            localStorage.getItem(STORAGE_KEYS.DEVICE_ID);
 
         if (existing) {
             return existing;
@@ -362,7 +331,7 @@ export class AuthService {
                 }`;
 
         localStorage.setItem(
-            storageKey,
+            STORAGE_KEYS.DEVICE_ID,
             deviceId,
         );
 

@@ -16,6 +16,7 @@ import { Sidebar } from '../sidebar/sidebar';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { AppSessionStore } from '../../shared/functions/app-session.store';
+import { STORAGE_KEYS } from '../../shared/constants/app.constants';
 
 @Component({
   selector: 'app-private',
@@ -33,8 +34,6 @@ export class Private {
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
 
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly sidebarStorageKey = 'mystickynotes.sidebar-collapsed';
-  private readonly workspaceStorageKey = 'mystickynotes.workspace-id';
 
   readonly sidebarCollapsed = signal(false);
   readonly mobileSidebarOpen = signal(false);
@@ -68,7 +67,7 @@ export class Private {
 
     if (this.isBrowser) {
       this.sidebarCollapsed.set(
-        localStorage.getItem(this.sidebarStorageKey) === 'true'
+        localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true'
       );
     }
 
@@ -111,7 +110,7 @@ export class Private {
 
     if (this.isBrowser) {
       localStorage.setItem(
-        this.sidebarStorageKey,
+        STORAGE_KEYS.SIDEBAR_COLLAPSED,
         String(collapsed)
       );
     }
@@ -143,7 +142,7 @@ export class Private {
 
     if (this.isBrowser) {
       localStorage.setItem(
-        this.workspaceStorageKey,
+        STORAGE_KEYS.WORKSPACE_ID,
         workspaceId
       );
     }
@@ -156,7 +155,7 @@ export class Private {
     this.workspaceFolderStore.clear();
 
     if (this.isBrowser) {
-      localStorage.removeItem(this.workspaceStorageKey);
+      localStorage.removeItem(STORAGE_KEYS.WORKSPACE_ID);
     }
   }
 
@@ -170,7 +169,7 @@ export class Private {
 
       if (this.isBrowser) {
         localStorage.removeItem(
-          this.workspaceStorageKey
+          STORAGE_KEYS.WORKSPACE_ID
         );
       }
 
@@ -190,7 +189,7 @@ export class Private {
     }
 
     const storedId = this.isBrowser
-      ? localStorage.getItem(this.workspaceStorageKey)
+      ? localStorage.getItem(STORAGE_KEYS.WORKSPACE_ID)
       : null;
 
     const selectedWorkspace =
@@ -208,7 +207,7 @@ export class Private {
 
     if (this.isBrowser) {
       localStorage.setItem(
-        this.workspaceStorageKey,
+        STORAGE_KEYS.WORKSPACE_ID,
         selectedWorkspace.id
       );
     }

@@ -18,6 +18,7 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideCheck, LucidePencil, LucidePlus, LucideStickyNote, LucideTrash2, LucideUserRound, LucideX } from '@lucide/angular';
 import { concatMap, finalize, forkJoin, from, map, Observable, of, switchMap, tap, toArray } from 'rxjs';
+import { extractErrorMessage } from '../../../../shared/functions/common.function';
 
 import { Button } from '../../../../shared/components/button/button';
 import { Divider } from '../../../../shared/components/divider/divider';
@@ -1232,7 +1233,7 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   private errorMessage(error: any, fallback: string): string {
-    return error?.error?.message || error?.message || fallback;
+    return extractErrorMessage(error, fallback);
   }
 
   private focusTitle(): void {

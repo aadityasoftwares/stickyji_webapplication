@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import {
     WorkspaceRole,
     WorkspaceRoleListResponse,
@@ -12,7 +12,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class WorkspaceRoleApiService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
+    private readonly baseUrl = API_BASE_URL;
     private readonly getAllUrl = `${this.baseUrl}/roles/getall`;
 
     getWorkspaceRoles(workspaceId: string): Observable<WorkspaceRole[]> {

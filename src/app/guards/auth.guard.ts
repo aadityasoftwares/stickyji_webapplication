@@ -4,6 +4,7 @@ import {
     Router,
 } from '@angular/router';
 import { AuthStore } from '../public/auth/state/auth.store';
+import { APP_ROUTES, routeCommands } from '../shared/constants/route.constants';
 
 
 export const authGuard: CanActivateFn = (
@@ -18,7 +19,7 @@ export const authGuard: CanActivateFn = (
     }
 
     return router.createUrlTree(
-        ['/auth/login'],
+        routeCommands(APP_ROUTES.LOGIN),
         {
             queryParams: {
                 redirectUrl: state.url,
@@ -35,5 +36,5 @@ export const guestGuard: CanActivateFn = () => {
         return true;
     }
 
-    return router.createUrlTree(['/app']);
+    return router.createUrlTree(routeCommands(APP_ROUTES.APP));
 };

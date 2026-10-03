@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { extractErrorMessage } from '../../../shared/functions/common.function';
 import {
   LucideArrowLeft,
   LucideArrowRight,
@@ -763,6 +764,6 @@ export class StickyNote {
   }
 
   private errorMessage(error: any, fallback: string): string {
-    return error?.error?.message || error?.message || fallback;
+    return extractErrorMessage(error, fallback);
   }
 }

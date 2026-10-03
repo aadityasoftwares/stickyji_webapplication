@@ -50,6 +50,7 @@ import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
@@ -675,7 +676,7 @@ export class Today {
 
   openStickyNoteTrash(): void {
     const workspaceId = this.activeWorkspaceId();
-    this.router.navigate(['/app/stickynotes/trash'], {
+    this.router.navigate(routeCommands(APP_ROUTES.TRASH), {
       queryParams: workspaceId
         ? { workspaceId }
         : undefined

@@ -50,6 +50,7 @@ import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
@@ -331,7 +332,7 @@ export class MyNotes implements OnInit, OnChanges {
 
   openStickyNoteTrash(): void {
     const workspaceId = this.selectedWorkspaceId();
-    this.router.navigate(['/app/stickynotes/trash'], {
+    this.router.navigate(routeCommands(APP_ROUTES.TRASH), {
       queryParams: workspaceId ? { workspaceId } : undefined
     });
   }

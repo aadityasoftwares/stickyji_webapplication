@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import type {
     ApiResponse,
     PaginatedApiResponse,
@@ -27,7 +27,7 @@ export class WorkspaceInvitationApiService {
     private readonly http = inject(HttpClient);
 
     private readonly baseUrl =
-        environment.apiUrl.replace(/\/+$/, '');
+        API_BASE_URL;
 
     /**
      * Keep this path equal to the prefix used when

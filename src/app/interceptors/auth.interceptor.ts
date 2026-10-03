@@ -9,18 +9,10 @@ import {
     switchMap,
     throwError,
 } from 'rxjs';
-import { environment } from '../../Environments/environments';
 import { AuthRefreshService } from '../public/auth/services/auth-refresh.service';
 import { AuthStore } from '../public/auth/state/auth.store';
-
-const PUBLIC_AUTH_ENDPOINTS = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/refreshtoken',
-    '/auth/forgotpassword',
-    '/auth/resetpassword',
-    '/auth/verifyemail',
-];
+import { API_BASE_URL, PUBLIC_AUTH_ENDPOINTS } from '../shared/constants/api.constants';
+import { APP_ROUTES, routeCommands } from '../shared/constants/route.constants';
 
 export const authInterceptor: HttpInterceptorFn = (
     request,
@@ -30,11 +22,8 @@ export const authInterceptor: HttpInterceptorFn = (
     const refreshService = inject(AuthRefreshService);
     const router = inject(Router);
 
-    const apiBaseUrl =
-        environment.apiUrl.replace(/\/+$/, '');
-
     const isOurApi =
-        request.url.startsWith(apiBaseUrl);
+        request.url.startsWith(API_BASE_URL);
 
     if (!isOurApi) {
         return next(request);
@@ -98,11 +87,11 @@ export const authInterceptor: HttpInterceptorFn = (
 
                             if (
                                 !currentUrl.startsWith(
-                                    '/auth/login',
+                                    APP_ROUTES.LOGIN,
                                 )
                             ) {
                                 void router.navigate(
-                                    ['/auth/login'],
+                                    routeCommands(APP_ROUTES.LOGIN),
                                     {
                                         queryParams: {
                                             redirectUrl:

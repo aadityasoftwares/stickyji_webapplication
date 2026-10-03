@@ -2,18 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
-
-const WORKSPACE_FOLDER_ENDPOINTS = {
-    create: '/workspacefolders/create',
-    get: '/workspacefolders/get',
-    getAll: '/workspacefolders/getall',
-    my: '/workspacefolders/my',
-    update: '/workspacefolders/update',
-    status: '/workspacefolders/status',
-    delete: '/workspacefolders/delete',
-    restore: '/workspacefolders/restore',
-} as const;
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 @Injectable({
     providedIn: 'root',
@@ -21,11 +10,10 @@ const WORKSPACE_FOLDER_ENDPOINTS = {
 export class WorkspaceFolderService {
     private readonly http = inject(HttpClient);
 
-    private readonly apiUrl = environment.apiUrl.replace(/\/+$/, '');
 
     getAllWorkspaceFolders(query: any = {}): Observable<any> {
         return this.http.post<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.getAll}`,
+            API_ENDPOINTS.workspaceFolders.getAll,
             query,
             {
                 withCredentials: true,
@@ -37,7 +25,7 @@ export class WorkspaceFolderService {
         const params = this.createHttpParams(query);
 
         return this.http.get<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.my}`,
+            API_ENDPOINTS.workspaceFolders.my,
             {
                 params,
                 withCredentials: true,
@@ -47,7 +35,7 @@ export class WorkspaceFolderService {
 
     getById(id: any = ''): Observable<any> {
         return this.http.get<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.get}/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.workspaceFolders.get(String(id)),
             {
                 withCredentials: true,
             },
@@ -56,7 +44,7 @@ export class WorkspaceFolderService {
 
     create(payload: any): Observable<any> {
         return this.http.post<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.create}`,
+            API_ENDPOINTS.workspaceFolders.create,
             payload,
             {
                 withCredentials: true,
@@ -66,7 +54,7 @@ export class WorkspaceFolderService {
 
     update(id: any = '', payload: any = {}): Observable<any> {
         return this.http.put<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.update}/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.workspaceFolders.update(String(id)),
             payload,
             {
                 withCredentials: true,
@@ -76,7 +64,7 @@ export class WorkspaceFolderService {
 
     updateStatus(id: any = '', status: any): Observable<any> {
         return this.http.put<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.status}/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.workspaceFolders.status(String(id)),
             { status },
             {
                 withCredentials: true,
@@ -86,7 +74,7 @@ export class WorkspaceFolderService {
 
     delete(id: any = ''): Observable<any> {
         return this.http.delete<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.delete}/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.workspaceFolders.delete(String(id)),
             {
                 withCredentials: true,
             },
@@ -95,7 +83,7 @@ export class WorkspaceFolderService {
 
     restore(id: any = ''): Observable<any> {
         return this.http.put<any>(
-            `${this.apiUrl}${WORKSPACE_FOLDER_ENDPOINTS.restore}/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.workspaceFolders.restore(String(id)),
             {},
             {
                 withCredentials: true,

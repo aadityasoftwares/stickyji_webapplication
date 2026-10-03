@@ -17,7 +17,7 @@ import {
     throwError,
 } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 import {
     AuthSession,
@@ -32,8 +32,6 @@ export class AuthRefreshService {
     private readonly httpBackend = inject(HttpBackend);
     private readonly authStore = inject(AuthStore);
     private readonly http = new HttpClient(this.httpBackend);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
-    private readonly refreshUrl = `${this.baseUrl}/auth/refreshtoken`;
 
     private refreshRequest$: Observable<AuthSession> | null = null;
 
@@ -44,7 +42,7 @@ export class AuthRefreshService {
 
         this.refreshRequest$ = this.http
             .post<AuthSessionResponse>(
-                this.refreshUrl,
+                API_ENDPOINTS.auth.refreshToken,
                 {},
                 {
                     withCredentials: true,
@@ -55,7 +53,7 @@ export class AuthRefreshService {
                     throw new HttpErrorResponse({
                         status: 401,
                         statusText: 'Unauthorized',
-                        url: this.refreshUrl,
+                        url: API_ENDPOINTS.auth.refreshToken,
                         error: {
                             success:
                                 response?.success ?? false,
