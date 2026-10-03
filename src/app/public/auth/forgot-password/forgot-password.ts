@@ -38,6 +38,7 @@ import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
   AuthService,
@@ -255,7 +256,7 @@ export class ForgotPassword implements OnInit {
     if (!response?.success) {
       this.serverError.set(
         response?.message ||
-        'We could not send the reset email.',
+        AUTH_MESSAGES.ERROR.RESET_EMAIL_FAILED,
       );
 
       return;
@@ -265,9 +266,9 @@ export class ForgotPassword implements OnInit {
 
     this.toastService.success(
       resend
-        ? 'A new password reset link has been requested.'
+        ? AUTH_MESSAGES.SUCCESS.RESET_LINK_REQUESTED_AGAIN
         : response.message ||
-        'Password reset instructions are on the way.',
+        AUTH_MESSAGES.SUCCESS.RESET_INSTRUCTIONS_SENT,
       {
         title: resend
           ? 'Reset link requested'

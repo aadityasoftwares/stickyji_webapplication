@@ -46,6 +46,7 @@ import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { WORKSPACE_MESSAGES } from './messages/workspace.messages';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
@@ -224,7 +225,7 @@ export class Workspace implements OnInit {
           }
         },
         error: (error: any) => {
-          const message = extractErrorMessage(error, 'Unable to load your workspaces right now.');
+          const message = extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.LOAD_FAILED);
           this.error.set(message);
           this.toastService.error(message, {
             title: 'Failed to load workspaces',
@@ -415,13 +416,13 @@ export class Workspace implements OnInit {
           );
           this.workspaceStore.updateWorkspace(id, { name: trimmed } as any);
 
-          this.toastService.success('Workspace renamed successfully.', {
+          this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.RENAMED, {
             title: 'Workspace updated',
             dedupeKey: `workspace-rename-${id}`,
           });
         },
         error: (error: any) => {
-          const message = extractErrorMessage(error, 'Could not rename this workspace.');
+          const message = extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.RENAME_FAILED);
           this.inlineRenameError.set(message);
           this.toastService.error(message, {
             title: 'Rename failed',
@@ -476,13 +477,13 @@ export class Workspace implements OnInit {
           this.workspaces.update((items) => items.filter((item) => idOf(item) !== id));
           this.workspaceStore.remove(id);
 
-          this.toastService.success(`“${this.workspaceName(workspace)}” moved to trash.`, {
+          this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)), {
             title: 'Workspace moved to trash',
             dedupeKey: `workspace-delete-${id}`,
           });
         },
         error: (error: any) => {
-          const message = extractErrorMessage(error, 'Unable to move workspace to trash.');
+          const message = extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED);
           this.toastService.error(message, {
             title: 'Could not move workspace',
             dedupeKey: 'workspace-delete-error',
@@ -733,7 +734,9 @@ export class Workspace implements OnInit {
 
           const isArchived = status === 'ARCHIVED';
           this.toastService.success(
-            isArchived ? `“${this.workspaceName(workspace)}” has been archived.` : `“${this.workspaceName(workspace)}” is active again.`,
+            isArchived
+              ? WORKSPACE_MESSAGES.SUCCESS.ARCHIVED(this.workspaceName(workspace))
+              : WORKSPACE_MESSAGES.SUCCESS.ACTIVATED(this.workspaceName(workspace)),
             {
               title: isArchived ? 'Workspace archived' : 'Workspace restored',
               dedupeKey: `workspace-status-${id}`,
@@ -741,7 +744,7 @@ export class Workspace implements OnInit {
           );
         },
         error: (error: any) => {
-          const message = extractErrorMessage(error, 'Unable to update workspace status.');
+          const message = extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.STATUS_UPDATE_FAILED);
           this.toastService.error(message, {
             title: 'Status update failed',
             dedupeKey: 'workspace-status-error',

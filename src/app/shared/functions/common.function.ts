@@ -1,3 +1,5 @@
+import { COMMON_MESSAGES } from '../constants/common.messages';
+
 /**
  * Shared generic utilities and helper functions.
  */
@@ -134,10 +136,10 @@ export function extractList<T = any>(response: any): T[] {
  */
 export function extractErrorMessage(
   error: any,
-  fallback: any = 'An unexpected error occurred.'
+  fallback: any = COMMON_MESSAGES.ERROR.GENERIC
 ): string {
   try {
-    const defaultFallback = String(fallback ?? 'An unexpected error occurred.');
+    const defaultFallback = String(fallback ?? COMMON_MESSAGES.ERROR.GENERIC);
     if (!error) {
       return defaultFallback;
     }
@@ -173,7 +175,7 @@ export function extractErrorMessage(
       : defaultFallback;
   } catch (err) {
     console.error('Error in extractErrorMessage:', err);
-    return String(fallback ?? 'An unexpected error occurred.');
+    return String(fallback ?? COMMON_MESSAGES.ERROR.GENERIC);
   }
 }
 

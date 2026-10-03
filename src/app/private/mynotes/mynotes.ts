@@ -51,6 +51,7 @@ import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { STICKY_NOTE_MESSAGES } from './messages/sticky-note.messages';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
@@ -369,7 +370,7 @@ export class MyNotes implements OnInit, OnChanges {
         },
         error: error => {
           if (requestVersion !== this.workspaceRequestVersion) return;
-          const message = extractErrorMessage(error, 'Unable to load your workspaces.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED);
           this.workspaceStore.setError(message);
           this.workspaceFolderStore.clear();
           this.clearNotesState();
@@ -431,7 +432,7 @@ export class MyNotes implements OnInit, OnChanges {
         },
         error: error => {
           if (requestVersion !== this.folderRequestVersion || this.selectedWorkspaceId() !== workspaceId) return;
-          const message = extractErrorMessage(error, 'Unable to load folders for this workspace.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.FOLDERS_LOAD_FAILED);
           this.workspaceFolderStore.setError(message);
           this.clearNotesState();
           this.toastService.error(message, {
@@ -485,7 +486,7 @@ export class MyNotes implements OnInit, OnChanges {
           if (requestVersion !== this.noteRequestVersion) return;
           this.columns.set([]);
           this.notes.set([]);
-          const message = extractErrorMessage(error, 'Unable to load notes for this folder.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.LOAD_FAILED);
           this.notesError.set(message);
           this.toastService.error(message, {
             title: 'Could not load notes',
@@ -527,12 +528,12 @@ export class MyNotes implements OnInit, OnChanges {
   openCreateEditor(): void {
     if (!this.canCreateNote()) {
       if (!this.selectedFolderId()) {
-        this.toastService.error('Select a folder before creating a note.', {
+        this.toastService.error(STICKY_NOTE_MESSAGES.VALIDATION.FOLDER_REQUIRED, {
           title: 'Folder required',
           dedupeKey: 'note-create-folder-required'
         });
       } else if (this.columns().length === 0) {
-        this.toastService.error('This folder does not have a note column yet.', {
+        this.toastService.error(STICKY_NOTE_MESSAGES.VALIDATION.COLUMN_REQUIRED, {
           title: 'Column required',
           dedupeKey: 'note-create-column-required'
         });
@@ -592,13 +593,13 @@ export class MyNotes implements OnInit, OnChanges {
         next: response => {
           this.replaceNote(response.data);
           this.noteChanged.emit(response.data);
-          this.toastService.success('The note was archived.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.ARCHIVED, {
             title: 'Note archived',
             dedupeKey: `note-archived-${id}`
           });
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to archive the note.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.ARCHIVE_FAILED);
           this.toastService.error(message, {
             title: 'Could not archive note',
             dedupeKey: `note-archive-error-${id}`
@@ -618,13 +619,13 @@ export class MyNotes implements OnInit, OnChanges {
         next: response => {
           this.replaceNote(response.data);
           this.noteChanged.emit(response.data);
-          this.toastService.success('The note is active again.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.RESTORED, {
             title: 'Note restored',
             dedupeKey: `note-restored-${id}`
           });
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to restore the note.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED);
           this.toastService.error(message, {
             title: 'Could not restore note',
             dedupeKey: `note-restore-error-${id}`
@@ -661,13 +662,13 @@ export class MyNotes implements OnInit, OnChanges {
         next: () => {
           this.onNoteDeleted(id);
           this.deleteTarget.set(null);
-          this.toastService.success('The note was moved to trash.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH, {
             title: 'Note removed',
             dedupeKey: `note-deleted-${id}`
           });
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to delete the note.');
+          const message = extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DELETE_FAILED);
           this.toastService.error(message, {
             title: 'Could not delete note',
             dedupeKey: `note-delete-error-${id}`
@@ -814,7 +815,7 @@ export class MyNotes implements OnInit, OnChanges {
             ? { ...item, title: previousTitle }
             : item));
           this.toastService.error(
-            extractErrorMessage(error, 'Unable to rename the note.'),
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED),
             { title: 'Title not updated', dedupeKey: `mynotes-title-${noteId}` }
           );
         }
@@ -852,7 +853,7 @@ export class MyNotes implements OnInit, OnChanges {
             ? { ...item, content: previousContent }
             : item));
           this.toastService.error(
-            extractErrorMessage(error, 'Unable to update the note description.'),
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED),
             { title: 'Description not updated', dedupeKey: `mynotes-description-${noteId}` }
           );
         }
@@ -934,7 +935,7 @@ export class MyNotes implements OnInit, OnChanges {
           // Roll back to original order
           this.notes.set(allNotes);
           this.toastService.error(
-            extractErrorMessage(error, 'Unable to reorder notes.'),
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.REORDER_FAILED),
             { title: 'Reorder failed', dedupeKey: `note-reorder-${draggedId}` }
           );
         }
@@ -980,7 +981,7 @@ export class MyNotes implements OnInit, OnChanges {
         error: error => {
           this.setChecklistItemCompletion(noteId, itemId, !checked);
           this.toastService.error(
-            extractErrorMessage(error, 'Unable to update the checklist item.'),
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED),
             { title: 'Checklist not updated', dedupeKey: `mynotes-checklist-${itemId}` }
           );
         }

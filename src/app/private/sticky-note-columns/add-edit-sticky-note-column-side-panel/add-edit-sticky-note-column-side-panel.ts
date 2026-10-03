@@ -41,6 +41,7 @@ import { Loader } from '../../../shared/components/loader/loader';
 import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
 import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { COMMON_MESSAGES } from '../../../shared/constants/common.messages';
 
 import {
   extractErrorMessage,
@@ -565,7 +566,9 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
           this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
         },
         error: error => {
-          this.error.set(extractErrorMessage(error, 'Unable to load workspace folders.'));
+        this.error.set(
+          extractErrorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders'))
+        );
         }
       });
   }

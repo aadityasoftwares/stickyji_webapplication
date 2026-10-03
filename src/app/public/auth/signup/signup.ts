@@ -45,6 +45,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
 import {
@@ -414,7 +415,7 @@ export class Signup {
     if (!response?.success) {
       this.toastService.error(
         response?.message ||
-        'We could not create your account. Please try again.',
+        AUTH_MESSAGES.ERROR.SIGN_UP_FAILED,
         {
           title: 'Sign-up failed',
         },
@@ -429,7 +430,7 @@ export class Signup {
 
     this.toastService.success(
       response.message ||
-      'Your workspace has been created.',
+      AUTH_MESSAGES.SUCCESS.ACCOUNT_CREATED,
       {
         title: 'Welcome to MyStickyNotes!',
       },
@@ -512,7 +513,7 @@ export class Signup {
 
     return (
       message ||
-      'We could not create your account. Please try again.'
+      AUTH_MESSAGES.ERROR.SIGN_UP_FAILED
     );
   }
 

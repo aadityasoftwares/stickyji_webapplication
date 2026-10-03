@@ -42,6 +42,8 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { WorkspaceFolderService } from '../services/workspace-folder.service';
 import { WorkspaceFolderWrapper } from '../../workspace/workspace-folder-wrapper/workspace-folder-wrapper';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
+import { VALIDATION_MESSAGES } from '../../../shared/constants/common.messages';
+import { WORKSPACE_FOLDER_MESSAGES } from '../messages/workspace-folder.messages';
 
 @Component({
   selector: 'app-add-edit-workspace-folder-side-panel',
@@ -208,7 +210,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   submit(): void {
     if (this.isBusy || this.loadFailed()) return;
     if (!this.canSubmit) {
-      this.error.set(`Folder name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`);
+      this.error.set(VALIDATION_MESSAGES.LENGTH_RANGE('Folder name', this.nameMinLength, this.nameMaxLength));
       this.focusName(false);
       return;
     }
@@ -240,13 +242,22 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
         next: (response: any) => {
           const savedId = idOf(response?.data) || id;
           this.dirty.set(false);
-          this.toastService.success(isEdit ? 'Folder changes were saved.' : 'Folder created successfully.', {
+          this.toastService.success(
+            isEdit
+              ? WORKSPACE_FOLDER_MESSAGES.SUCCESS.CHANGES_SAVED
+              : WORKSPACE_FOLDER_MESSAGES.SUCCESS.CREATED,
+            {
             title: isEdit ? 'Folder updated' : 'Folder created',
             dedupeKey: `workspace-folder-saved-${savedId || 'new'}`
           });
           this.saved.emit(savedId);
         },
-        error: error => this.showError(error, isEdit ? 'Unable to update folder.' : 'Unable to create folder.')
+        error: error => this.showError(
+          error,
+          isEdit
+            ? WORKSPACE_FOLDER_MESSAGES.ERROR.UPDATE_FAILED
+            : WORKSPACE_FOLDER_MESSAGES.ERROR.CREATE_FAILED
+        )
       });
   }
 

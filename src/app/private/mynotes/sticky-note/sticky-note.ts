@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
+import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
 import {
   LucideArrowLeft,
   LucideArrowRight,
@@ -453,7 +454,7 @@ export class StickyNote {
       )
       .subscribe({
         next: () => {
-          this.toastService.success('Moved to Trash. You can restore this note for 60 days.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH_WITH_RETENTION, {
             title: 'Note safely moved',
             dedupeKey: `trash-note-${id}`
           });
@@ -461,7 +462,7 @@ export class StickyNote {
           this.deleteRequested.emit(this.data);
         },
         error: (error: any) => {
-          this.toastService.error(this.errorMessage(error, 'Unable to move note to Trash.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
             title: 'Note not moved',
             dedupeKey: `trash-note-${id}`
           });
@@ -518,7 +519,7 @@ export class StickyNote {
         },
         error: (error: any) => {
           this.data.title = previousTitle;
-          this.toastService.error(this.errorMessage(error, 'Unable to rename note.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
             title: 'Title not updated',
             dedupeKey: `note-title-${this.noteId}`
           });
@@ -587,7 +588,7 @@ export class StickyNote {
           this.data.content = previousDescription;
           this.data.description = previousDescription;
           this.data.compact = !previousDescription;
-          this.toastService.error(this.errorMessage(error, 'Unable to update note description.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED), {
             title: 'Description not updated',
             dedupeKey: `note-description-${this.noteId}`
           });
@@ -683,7 +684,7 @@ export class StickyNote {
         error: (error: any) => {
           item.isCompleted = !checked;
           this.recalculateChecklists();
-          this.toastService.error(this.errorMessage(error, 'Unable to update checklist item.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED), {
             title: 'Checklist not updated',
             dedupeKey: `checklist-item-${itemId}`
           });
