@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import {
     ApiDeleteResponse,
     StickyNoteChecklistCreateRequest,
@@ -28,7 +29,7 @@ export class StickyNoteChecklistApiService {
 
     getAll(filters: StickyNoteChecklistFilters = {}): Observable<StickyNoteChecklistsResponse> {
         return this.http.get<StickyNoteChecklistsResponse>(API_ENDPOINTS.stickyNoteChecklists.getAll, {
-            params: this.buildParams(filters),
+            params: buildHttpParams(filters),
             withCredentials: true,
         });
     }
@@ -81,16 +82,4 @@ export class StickyNoteChecklistApiService {
         );
     }
 
-    private buildParams(filters: StickyNoteChecklistFilters): HttpParams {
-        let params = new HttpParams();
-
-        if (filters.stickyNoteId) params = params.set('stickyNoteId', filters.stickyNoteId);
-        if (filters.status) params = params.set('status', filters.status);
-        if (filters.page !== undefined) params = params.set('page', String(filters.page));
-        if (filters.limit !== undefined) params = params.set('limit', String(filters.limit));
-        if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
-        if (filters.sortOrder) params = params.set('sortOrder', filters.sortOrder);
-
-        return params;
-    }
 }

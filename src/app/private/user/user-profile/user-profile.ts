@@ -73,6 +73,7 @@ import {
 } from '../services/user-profile.service';
 import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
 import { AuthStore } from '../../../public/auth/state/auth.store';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 type ProfileControlName =
   | 'firstName'
@@ -280,8 +281,7 @@ export class UserProfileComponent implements OnInit {
 
         error: error => {
           this.saveError.set(
-            error?.error?.message ??
-            'We could not save your profile. Please try again.',
+            extractErrorMessage(error, 'We could not save your profile. Please try again.'),
           );
         },
       });
@@ -432,8 +432,7 @@ export class UserProfileComponent implements OnInit {
 
         error: error => {
           this.loadError.set(
-            error?.error?.message ??
-            'We could not load your profile right now.',
+            extractErrorMessage(error, 'We could not load your profile right now.'),
           );
         },
       });

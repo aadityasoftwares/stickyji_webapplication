@@ -26,6 +26,7 @@ import { Label } from '../../../../shared/components/label/label';
 import { Loader } from '../../../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../../shared/functions/api.functions';
 
 import {
   WorkspaceCreateRequest,
@@ -33,8 +34,6 @@ import {
   WorkspaceVisibility
 } from '../../models/workspace.models';
 import { WorkspaceService } from '../../services/workspace.service';
-
-type UnknownRecord = Record<string, unknown>;
 
 @Component({
   selector: 'app-add-edit-workspace-modal',
@@ -217,7 +216,7 @@ export class AddEditWorkspaceModal implements OnChanges {
         },
         error: error => {
           this.showError(
-            this.errorMessage(
+            extractErrorMessage(
               error,
               this.isEdit
                 ? 'Unable to update workspace.'
@@ -282,7 +281,7 @@ export class AddEditWorkspaceModal implements OnChanges {
         },
         error: error => {
           this.showError(
-            this.errorMessage(
+            extractErrorMessage(
               error,
               'Unable to load this workspace.'
             )
@@ -343,26 +342,4 @@ export class AddEditWorkspaceModal implements OnChanges {
     });
   }
 
-  private errorMessage(error: unknown, fallback: string): string {
-    if (!error || typeof error !== 'object') {
-      return fallback;
-    }
-
-    const record = error as UnknownRecord;
-    const nestedError = record['error'];
-
-    if (nestedError && typeof nestedError === 'object') {
-      const message = (nestedError as UnknownRecord)['message'];
-
-      if (typeof message === 'string' && message.trim()) {
-        return message;
-      }
-    }
-
-    const message = record['message'];
-
-    return typeof message === 'string' && message.trim()
-      ? message
-      : fallback;
-  }
 }

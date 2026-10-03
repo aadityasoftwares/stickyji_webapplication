@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +21,7 @@ export class WorkspaceService {
     }
 
     getMyWorkspaces(query: any = {}): Observable<any> {
-        const params = this.createHttpParams(query);
+        const params = buildHttpParams(query);
 
         return this.http.get<any>(
             API_ENDPOINTS.workspaces.my,
@@ -89,17 +90,4 @@ export class WorkspaceService {
         );
     }
 
-    private createHttpParams(query: any = {}): HttpParams {
-        let params = new HttpParams();
-
-        for (const [key, value] of Object.entries(query)) {
-            if (value === undefined || value === null || value === '') {
-                continue;
-            }
-
-            params = params.set(key, String(value));
-        }
-
-        return params;
-    }
 }

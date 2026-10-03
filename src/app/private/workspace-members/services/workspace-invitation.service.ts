@@ -1,6 +1,5 @@
 import {
     HttpClient,
-    HttpParams
 } from '@angular/common/http';
 import {
     Injectable,
@@ -9,6 +8,7 @@ import {
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import type {
     ApiResponse,
     PaginatedApiResponse,
@@ -109,7 +109,7 @@ export class WorkspaceInvitationApiService {
             this.getAllUrl,
             {
                 params:
-                    this.createHttpParams(query),
+                    buildHttpParams(query),
                 withCredentials: true
             }
         );
@@ -144,29 +144,4 @@ export class WorkspaceInvitationApiService {
         );
     }
 
-    private createHttpParams(
-        query: WorkspaceInvitationQuery
-    ): HttpParams {
-        let params = new HttpParams();
-
-        for (
-            const [key, value]
-            of Object.entries(query)
-        ) {
-            if (
-                value === undefined ||
-                value === null ||
-                value === ''
-            ) {
-                continue;
-            }
-
-            params = params.set(
-                key,
-                String(value)
-            );
-        }
-
-        return params;
-    }
 }

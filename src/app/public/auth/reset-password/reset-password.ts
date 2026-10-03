@@ -42,6 +42,7 @@ import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
@@ -379,7 +380,7 @@ export class ResetPassword implements OnInit {
       return false;
     }
 
-    const message = this.backendMessage(error)
+    const message = extractErrorMessage(error, '')
       .toLowerCase();
 
     return (
@@ -393,7 +394,7 @@ export class ResetPassword implements OnInit {
     error: HttpErrorResponse,
   ): string {
     const backendMessage =
-      this.backendMessage(error);
+      extractErrorMessage(error, '');
 
     if (error.status === 0) {
       return (
@@ -434,25 +435,6 @@ export class ResetPassword implements OnInit {
       backendMessage ||
       'We could not reset your password. Please try again.'
     );
-  }
-
-  private backendMessage(
-    error: HttpErrorResponse,
-  ): string {
-    if (
-      typeof error.error?.message === 'string'
-    ) {
-      return error.error.message;
-    }
-
-    if (
-      typeof error.error?.error?.message ===
-      'string'
-    ) {
-      return error.error.error.message;
-    }
-
-    return '';
   }
 
   private shouldShowError(

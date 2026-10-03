@@ -46,6 +46,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
@@ -385,7 +386,7 @@ export class Signin implements OnInit {
   private resolveErrorMessage(
     error: HttpErrorResponse,
   ): string {
-    const message = this.backendMessage(error);
+    const message = extractErrorMessage(error, '');
 
     if (error.status === 0) {
       return (
@@ -440,25 +441,6 @@ export class Signin implements OnInit {
       message ||
       AUTH_MESSAGES.ERROR.SIGN_IN_FAILED
     );
-  }
-
-  private backendMessage(
-    error: HttpErrorResponse,
-  ): string {
-    if (
-      typeof error.error?.message === 'string'
-    ) {
-      return error.error.message;
-    }
-
-    if (
-      typeof error.error?.error?.message ===
-      'string'
-    ) {
-      return error.error.error.message;
-    }
-
-    return '';
   }
 
   private safeRedirectUrl(): string {

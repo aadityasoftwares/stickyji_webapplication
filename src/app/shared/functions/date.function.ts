@@ -241,6 +241,37 @@ export function formatDateKeyDisplay(
     }
 }
 
+/**
+ * Formats a date/time value using Intl.DateTimeFormat with a safe fallback.
+ */
+export function formatDateTime(
+    value: any,
+    fallback: any = '',
+    locale: any = 'en-IN',
+    options: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    },
+): string {
+    try {
+        const defaultFallback = String(fallback ?? '');
+        if (!value) {
+            return defaultFallback;
+        }
+
+        const date = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return defaultFallback;
+        }
+
+        return new Intl.DateTimeFormat(String(locale || 'en-IN'), options).format(date);
+    } catch (error) {
+        console.error('Error in formatDateTime:', error);
+        return String(fallback ?? '');
+    }
+}
+
 function buildDateKey(
     year: any,
     month: any,

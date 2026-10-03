@@ -19,6 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideCheck, LucidePencil, LucidePlus, LucideStickyNote, LucideTrash2, LucideUserRound, LucideX } from '@lucide/angular';
 import { concatMap, finalize, forkJoin, from, map, Observable, of, switchMap, tap, toArray } from 'rxjs';
 import { extractErrorMessage } from '../../../../shared/functions/common.function';
+import { getInitials } from '../../../../shared/functions/string.functions';
 
 import { Button } from '../../../../shared/components/button/button';
 import { Divider } from '../../../../shared/components/divider/divider';
@@ -146,7 +147,7 @@ export class AddEditMyNotesModal implements OnChanges {
           avatar: {
             src: this.workspaceMemberAvatar(member),
             name,
-            initials: this.initials(name),
+            initials: getInitials(name, '?'),
             shape: 'circle',
             bordered: true,
             elevated: false
@@ -437,7 +438,7 @@ export class AddEditMyNotesModal implements OnChanges {
           this.saved.emit(noteId);
         },
         error: error => {
-          const message = this.errorMessage(error, 'Unable to save the note and its checklists.');
+          const message = extractErrorMessage(error, 'Unable to save the note and its checklists.');
           this.notifyError(message, 'Could not save note');
         }
       });
@@ -1173,20 +1174,6 @@ export class AddEditMyNotesModal implements OnChanges {
       : null;
   }
 
-  private initials(name: string): string {
-    const words = name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-
-    if (!words.length) return '?';
-
-    return words
-      .slice(0, 2)
-      .map(word => word.charAt(0).toUpperCase())
-      .join('');
-  }
-
   private toDateKey(value: unknown): string | null {
     const normalized = String(value ?? '').trim();
 
@@ -1218,7 +1205,7 @@ export class AddEditMyNotesModal implements OnChanges {
 
   private handleLoadError(error: unknown, fallback: string): void {
     this.notifyError(
-      this.errorMessage(error, fallback),
+      extractErrorMessage(error, fallback),
       'Could not open note editor'
     );
   }
@@ -1230,10 +1217,6 @@ export class AddEditMyNotesModal implements OnChanges {
       title,
       dedupeKey: `note-editor-${this.mode}-${this.id || 'new'}-${message}`
     });
-  }
-
-  private errorMessage(error: any, fallback: string): string {
-    return extractErrorMessage(error, fallback);
   }
 
   private focusTitle(): void {

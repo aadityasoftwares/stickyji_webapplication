@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 
 @Injectable({
     providedIn: 'root'
@@ -20,14 +21,10 @@ export class StickyNoteColumnApiService {
     }
 
     getByWorkspaceFolder(workspaceId: string, workspaceFolderId: string): Observable<any> {
-        const params = new HttpParams()
-            .set('workspaceId', workspaceId)
-            .set('workspaceFolderId', workspaceFolderId);
-
         return this.http.get<any>(
             API_ENDPOINTS.stickyNoteColumns.getAll,
             {
-                params,
+                params: buildHttpParams({ workspaceId, workspaceFolderId }),
                 withCredentials: true
             }
         );

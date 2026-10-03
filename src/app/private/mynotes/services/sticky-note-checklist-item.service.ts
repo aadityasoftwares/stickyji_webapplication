@@ -1,6 +1,5 @@
 import {
     HttpClient,
-    HttpParams,
 } from '@angular/common/http';
 
 import {
@@ -13,6 +12,7 @@ import type {
 } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import { StickyNoteChecklistItemResponse, StickyNoteChecklistItemFilters, StickyNoteChecklistItemsResponse, StickyNoteChecklistItemCreateRequest, StickyNoteChecklistItemUpdateRequest, StickyNoteChecklistItemStatus, ApiDeleteResponse } from '../models/sticky-note-checklist.interface';
 
 
@@ -52,7 +52,7 @@ export class StickyNoteChecklistItemApiService {
         return this.http.get<StickyNoteChecklistItemsResponse>(
             `${this.base}/getall`,
             {
-                params: this.buildParams(filters),
+                params: buildHttpParams(filters),
                 withCredentials: true,
             },
         );
@@ -156,62 +156,4 @@ export class StickyNoteChecklistItemApiService {
         );
     }
 
-    private buildParams(
-        filters: StickyNoteChecklistItemFilters,
-    ): HttpParams {
-
-        let params =
-            new HttpParams();
-
-        if (filters.checklistId) {
-            params = params.set(
-                'checklistId',
-                filters.checklistId,
-            );
-        }
-
-        if (filters.status) {
-            params = params.set(
-                'status',
-                filters.status,
-            );
-        }
-
-        if (filters.isCompleted !== undefined) {
-            params = params.set(
-                'isCompleted',
-                String(filters.isCompleted),
-            );
-        }
-
-        if (filters.page !== undefined) {
-            params = params.set(
-                'page',
-                String(filters.page),
-            );
-        }
-
-        if (filters.limit !== undefined) {
-            params = params.set(
-                'limit',
-                String(filters.limit),
-            );
-        }
-
-        if (filters.sortBy) {
-            params = params.set(
-                'sortBy',
-                filters.sortBy,
-            );
-        }
-
-        if (filters.sortOrder) {
-            params = params.set(
-                'sortOrder',
-                filters.sortOrder,
-            );
-        }
-
-        return params;
-    }
 }

@@ -514,7 +514,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
           this.availableRoleOptions.set(fallback);
 
           if (!fallback.length) {
-            this.error.set(this.errorMessage(error, 'Unable to load workspace roles.'));
+        this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
           }
         }
       });
@@ -592,7 +592,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   }
 
   private handleError(error: any, fallback: string, title: string): void {
-    const message = this.errorMessage(error, fallback);
+    const message = extractErrorMessage(error, fallback);
     this.error.set(message);
 
     this.toastService.error(message, {
@@ -603,7 +603,4 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     });
   }
 
-  private errorMessage(error: any, fallback: string): string {
-    return extractErrorMessage(error, fallback);
-  }
 }

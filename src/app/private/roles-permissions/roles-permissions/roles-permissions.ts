@@ -47,6 +47,7 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
@@ -61,7 +62,6 @@ type AccessSection = 'roles' | 'permissions';
 type AccessView = 'grid' | 'list';
 type RoleTab = 'all' | 'system' | 'custom' | 'inactive';
 type RoleSort = 'updatedAt' | 'name' | 'priority';
-type UnknownRecord = Record<string, unknown>;
 type BadgeVariant = 'success' | 'neutral' | 'noteYellow' | 'warning' | 'danger';
 
 
@@ -395,7 +395,7 @@ export class RolesPermissions implements OnInit, OnChanges {
           if (requestVersion !== this.roleRequestVersion || this.selectedWorkspaceId() !== id) return;
 
           this.roles.set([]);
-          const message = this.errorMessage(error, 'Unable to load workspace roles.');
+          const message = extractErrorMessage(error, 'Unable to load workspace roles.');
           this.roleError.set(message);
           this.toastService.error(message, {
             title: 'Could not load roles',
@@ -427,7 +427,7 @@ export class RolesPermissions implements OnInit, OnChanges {
           if (requestVersion !== this.permissionRequestVersion) return;
 
           this.permissionGroups.set([]);
-          const message = this.errorMessage(error, 'Unable to load permission definitions.');
+          const message = extractErrorMessage(error, 'Unable to load permission definitions.');
           this.permissionError.set(message);
           this.toastService.error(message, {
             title: 'Could not load permissions',
@@ -564,7 +564,7 @@ export class RolesPermissions implements OnInit, OnChanges {
           );
         },
         error: error => {
-          const message = this.errorMessage(error, 'Unable to update role status.');
+          const message = extractErrorMessage(error, 'Unable to update role status.');
           this.toastService.error(message, {
             title: 'Role status failed',
             dedupeKey: `workspace-role-status-error-${id}`
@@ -613,7 +613,7 @@ export class RolesPermissions implements OnInit, OnChanges {
         },
         error: error => {
           this.deleteTarget.set(null);
-          const message = this.errorMessage(error, 'Unable to delete workspace role.');
+          const message = extractErrorMessage(error, 'Unable to delete workspace role.');
           this.toastService.error(message, {
             title: 'Could not delete role',
             dedupeKey: 'workspace-role-delete-error'
@@ -783,18 +783,4 @@ export class RolesPermissions implements OnInit, OnChanges {
     return text ? text.charAt(0).toUpperCase() + text.slice(1) : '—';
   }
 
-  private errorMessage(error: unknown, fallback: string): string {
-    if (!error || typeof error !== 'object') return fallback;
-
-    const record = error as UnknownRecord;
-    const nested = record['error'];
-
-    if (nested && typeof nested === 'object') {
-      const message = (nested as UnknownRecord)['message'];
-      if (typeof message === 'string' && message.trim()) return message;
-    }
-
-    const message = record['message'];
-    return typeof message === 'string' && message.trim() ? message : fallback;
-  }
 }

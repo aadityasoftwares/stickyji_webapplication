@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 
 import { environment } from '../../../../Environments/environments';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import type {
   StickyNoteAssigneeCreateRequest,
   StickyNoteAssigneePaginatedResponse,
@@ -74,20 +75,9 @@ export class StickyNoteAssigneeApiService {
    * Backend route: GET /stickynotesassignees/getall
    */
   getAll(query: StickyNoteAssigneeQuery = {}): Observable<StickyNoteAssigneePaginatedResponse> {
-    let params = new HttpParams();
-
-    if (query.workspaceId) params = params.set('workspaceId', query.workspaceId);
-    if (query.stickyNoteId) params = params.set('stickyNoteId', query.stickyNoteId);
-    if (query.userId) params = params.set('userId', query.userId);
-    if (query.status) params = params.set('status', query.status);
-    if (query.page !== undefined) params = params.set('page', query.page.toString());
-    if (query.limit !== undefined) params = params.set('limit', query.limit.toString());
-    if (query.sortBy) params = params.set('sortBy', query.sortBy);
-    if (query.sortOrder) params = params.set('sortOrder', query.sortOrder);
-
     return this.http.get<StickyNoteAssigneePaginatedResponse>(
       `${this.assigneeBaseUrl}/getall`,
-      { params, withCredentials: true }
+      { params: buildHttpParams(query), withCredentials: true }
     );
   }
 }

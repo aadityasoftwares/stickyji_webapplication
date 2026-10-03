@@ -46,6 +46,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 import { AuthService } from '../services/auth-service';
 import {
@@ -988,7 +989,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
     error: HttpErrorResponse,
   ): string {
     const message =
-      this.backendMessage(error);
+      extractErrorMessage(error, '');
 
     if (error.status === 0) {
       return (
@@ -1022,7 +1023,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
   ): string {
     if (error instanceof HttpErrorResponse) {
       const message =
-        this.backendMessage(error);
+      extractErrorMessage(error, '');
 
       if (error.status === 0) {
         return authenticationAlreadyCompleted
@@ -1081,26 +1082,6 @@ export class AcceptWorkspaceInvitation implements OnInit {
     return existingUser
       ? 'We could not sign you in and join the workspace.'
       : 'We could not create your account and join the workspace.';
-  }
-
-  private backendMessage(
-    error: HttpErrorResponse,
-  ): string {
-    if (
-      typeof error.error?.message ===
-      'string'
-    ) {
-      return error.error.message;
-    }
-
-    if (
-      typeof error.error?.error?.message ===
-      'string'
-    ) {
-      return error.error.error.message;
-    }
-
-    return '';
   }
 
   private extractAccessToken(

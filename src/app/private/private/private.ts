@@ -17,6 +17,11 @@ import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { AppSessionStore } from '../../shared/functions/app-session.store';
 import { STORAGE_KEYS } from '../../shared/constants/app.constants';
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+  setLocalStorageItem
+} from '../../shared/functions/storage.functions';
 
 @Component({
   selector: 'app-private',
@@ -67,7 +72,7 @@ export class Private {
 
     if (this.isBrowser) {
       this.sidebarCollapsed.set(
-        localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true'
+        getLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true'
       );
     }
 
@@ -109,7 +114,7 @@ export class Private {
     this.sidebarCollapsed.set(collapsed);
 
     if (this.isBrowser) {
-      localStorage.setItem(
+      setLocalStorageItem(
         STORAGE_KEYS.SIDEBAR_COLLAPSED,
         String(collapsed)
       );
@@ -141,7 +146,7 @@ export class Private {
     this.workspaceFolderStore.resetForWorkspace(workspaceId);
 
     if (this.isBrowser) {
-      localStorage.setItem(
+      setLocalStorageItem(
         STORAGE_KEYS.WORKSPACE_ID,
         workspaceId
       );
@@ -155,7 +160,7 @@ export class Private {
     this.workspaceFolderStore.clear();
 
     if (this.isBrowser) {
-      localStorage.removeItem(STORAGE_KEYS.WORKSPACE_ID);
+        removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
     }
   }
 
@@ -168,7 +173,7 @@ export class Private {
       this.workspaceStore.select(null);
 
       if (this.isBrowser) {
-        localStorage.removeItem(
+        removeLocalStorageItem(
           STORAGE_KEYS.WORKSPACE_ID
         );
       }
@@ -189,7 +194,7 @@ export class Private {
     }
 
     const storedId = this.isBrowser
-      ? localStorage.getItem(STORAGE_KEYS.WORKSPACE_ID)
+      ? getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID)
       : null;
 
     const selectedWorkspace =
@@ -206,7 +211,7 @@ export class Private {
     );
 
     if (this.isBrowser) {
-      localStorage.setItem(
+      setLocalStorageItem(
         STORAGE_KEYS.WORKSPACE_ID,
         selectedWorkspace.id
       );

@@ -22,6 +22,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Button } from '../../../shared/components/button/button';
 import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
+import { getInitials } from '../../../shared/functions/string.functions';
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
 import type { WorkspaceMemberListItem } from '../../workspace-members/models/workspace-member.models';
 
@@ -87,7 +88,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         (member as any)?.name ||
         'Member';
       const email = user?.email || (member as any)?.email || '';
-      const initials = this.calculateInitials(displayName);
+      const initials = getInitials(displayName, 'M');
 
       return {
         label: displayName,
@@ -202,16 +203,10 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         name,
         displayName: name,
         email: member?.user?.email || (member as any)?.email || '',
-        initials: this.calculateInitials(name),
+        initials: getInitials(name, 'M'),
         roleName: member?.role?.name
       };
     });
   }
 
-  private calculateInitials(name: string): string {
-    if (!name) return 'M';
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
 }

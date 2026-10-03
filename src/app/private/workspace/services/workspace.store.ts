@@ -3,6 +3,7 @@ import { finalize } from 'rxjs';
 import { Pagination, Workspace } from '../models/workspace.models';
 import { WorkspaceService } from './workspace.service';
 import { WORKSPACE_MESSAGES } from '../messages/workspace.messages';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 @Injectable({
     providedIn: 'root',
@@ -84,11 +85,7 @@ export class WorkspaceStore {
 
                 error: (error: any) => {
 
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                    WORKSPACE_MESSAGES.ERROR.LOAD_FAILED
-                    );
+                    this._error.set(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.LOAD_FAILED));
                 },
             });
     }

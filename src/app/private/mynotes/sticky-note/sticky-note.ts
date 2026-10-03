@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
+import { getInitials } from '../../../shared/functions/string.functions';
 import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
 import {
   LucideArrowLeft,
@@ -462,7 +463,7 @@ export class StickyNote {
           this.deleteRequested.emit(this.data);
         },
         error: (error: any) => {
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
             title: 'Note not moved',
             dedupeKey: `trash-note-${id}`
           });
@@ -519,7 +520,7 @@ export class StickyNote {
         },
         error: (error: any) => {
           this.data.title = previousTitle;
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
             title: 'Title not updated',
             dedupeKey: `note-title-${this.noteId}`
           });
@@ -588,7 +589,7 @@ export class StickyNote {
           this.data.content = previousDescription;
           this.data.description = previousDescription;
           this.data.compact = !previousDescription;
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED), {
             title: 'Description not updated',
             dedupeKey: `note-description-${this.noteId}`
           });
@@ -684,7 +685,7 @@ export class StickyNote {
         error: (error: any) => {
           item.isCompleted = !checked;
           this.recalculateChecklists();
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED), {
             title: 'Checklist not updated',
             dedupeKey: `checklist-item-${itemId}`
           });
@@ -734,12 +735,7 @@ export class StickyNote {
   }
 
   avatarInitials(assignee: any): string {
-    return this.avatarName(assignee)
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part: string) => part.charAt(0).toUpperCase())
-      .join('');
+    return getInitials(this.avatarName(assignee), '');
   }
 
   onCardClick(event: Event): void {
@@ -797,7 +793,4 @@ export class StickyNote {
     event.stopPropagation();
   }
 
-  private errorMessage(error: any, fallback: string): string {
-    return extractErrorMessage(error, fallback);
-  }
 }

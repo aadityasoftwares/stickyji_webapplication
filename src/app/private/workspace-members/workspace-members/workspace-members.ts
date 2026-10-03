@@ -47,6 +47,8 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { formatDateTime } from '../../../shared/functions/date.function';
 
 import type {
   MyWorkspaceQuery,
@@ -609,7 +611,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
           this.members.set([]);
           this.memberMeta.set(null);
 
-          const message = this.errorMessage(
+          const message = extractErrorMessage(
             error,
             'Unable to load workspace members.'
           );
@@ -688,7 +690,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
           this.invitations.set([]);
 
-          const message = this.errorMessage(
+          const message = extractErrorMessage(
             error,
             'Unable to load workspace invitations.'
           );
@@ -930,7 +932,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
         error: error => {
           this.removeTarget.set(null);
 
-          const message = this.errorMessage(
+          const message = extractErrorMessage(
             error,
             'Unable to remove workspace member.'
           );
@@ -981,7 +983,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
           this.loadMembers();
         },
         error: error => {
-          const message = this.errorMessage(
+          const message = extractErrorMessage(
             error,
             'Unable to restore workspace member.'
           );
@@ -1059,7 +1061,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
         error: error => {
           this.cancelInvitationTarget.set(null);
 
-          const message = this.errorMessage(
+          const message = extractErrorMessage(
             error,
             'Unable to cancel workspace invitation.'
           );
@@ -1734,24 +1736,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       | null
       | undefined
   ): string {
-    if (!value) {
-      return '—';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return '—';
-    }
-
-    return new Intl.DateTimeFormat(
-      'en-IN',
-      {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }
-    ).format(date);
+    return formatDateTime(value, '—', 'en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
   private formatActivity(
@@ -1910,45 +1899,4 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       : value;
   }
 
-  private errorMessage(
-    error: unknown,
-    fallback: string
-  ): string {
-    if (
-      !error ||
-      typeof error !== 'object'
-    ) {
-      return fallback;
-    }
-
-    const record =
-      error as UnknownRecord;
-
-    const nested =
-      record['error'];
-
-    if (
-      nested &&
-      typeof nested === 'object'
-    ) {
-      const message =
-        (nested as UnknownRecord)['message'];
-
-      if (
-        typeof message === 'string' &&
-        message.trim()
-      ) {
-        return message;
-      }
-    }
-
-    const message = record['message'];
-
-    return (
-      typeof message === 'string' &&
-      message.trim()
-    )
-      ? message
-      : fallback;
-  }
 }

@@ -25,6 +25,7 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
+import { getLocalStorageItem } from '../../../shared/functions/storage.functions';
 import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
 import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.constants';
@@ -163,7 +164,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.notes.set([]);
           this.loading.set(false);
-          this.error.set(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.TRASH_LOAD_FAILED));
+          this.error.set(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.TRASH_LOAD_FAILED));
         }
       });
   }
@@ -220,7 +221,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.actionId.set(null);
 
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED), {
             title: 'Restore failed',
             dedupeKey: `restore-note-${id}`
           });
@@ -265,7 +266,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.actionId.set(null);
 
-          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
             title: 'Delete failed',
             dedupeKey: `permanent-note-${id}`
           });
@@ -378,7 +379,7 @@ export class StickyNoteTrash implements OnInit {
 
   private readStoredStickyNoteFont(): string {
     try {
-    return localStorage.getItem(STORAGE_KEYS.STICKY_NOTE_FONT) || 'dmSans';
+      return getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT, 'dmSans') || 'dmSans';
     } catch {
       return 'dmSans';
     }
@@ -386,14 +387,11 @@ export class StickyNoteTrash implements OnInit {
 
   private readStoredStickyNoteFontSize(): number {
     try {
-    const value = Number(localStorage.getItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
+    const value = Number(getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
       return [13, 14, 15, 16].includes(value) ? value : 14;
     } catch {
       return 14;
     }
   }
 
-  private errorMessage(error: any, fallback: string): string {
-    return extractErrorMessage(error, fallback);
-  }
 }

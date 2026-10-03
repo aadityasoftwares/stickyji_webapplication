@@ -41,6 +41,7 @@ import { Label } from '../../../shared/components/label/label';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { PermissionGroup, Permission } from '../models/permission.models';
 import { WorkspaceRole, WorkspaceRoleCreateRequest, WorkspaceRoleUpdateRequest } from '../models/workspace-role.models';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
@@ -545,7 +546,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   }
 
   private handleSubmitError(error: unknown, fallback: string, title: string): void {
-    const message = this.errorMessage(error, fallback);
+    const message = extractErrorMessage(error, fallback);
     this.error.set(message);
 
     this.toastService.error(message, {
@@ -554,18 +555,4 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
     });
   }
 
-  private errorMessage(error: unknown, fallback: string): string {
-    if (!error || typeof error !== 'object') return fallback;
-
-    const record = error as UnknownRecord;
-    const nested = record['error'];
-
-    if (nested && typeof nested === 'object') {
-      const message = (nested as UnknownRecord)['message'];
-      if (typeof message === 'string' && message.trim()) return message;
-    }
-
-    const message = record['message'];
-    return typeof message === 'string' && message.trim() ? message : fallback;
-  }
 }

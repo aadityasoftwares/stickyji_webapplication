@@ -31,6 +31,7 @@ import { Input as AppInput, type InputValue } from '../../../../shared/component
 import { Label } from '../../../../shared/components/label/label';
 import { Select, type SelectOption, type SelectValue } from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../../shared/functions/api.functions';
 import type { WorkspaceMember } from '../../models/workspace-member.models';
 import { WorkspaceInvitationApiService } from '../../services/workspace-invitation.service';
 import { WorkspaceMemberApiService } from '../../services/workspace-member.service';
@@ -302,7 +303,7 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
           this.availableRoleOptions.set(fallback);
 
           if (!fallback.length) {
-            this.error.set(this.errorMessage(error, 'Unable to load workspace roles.'));
+        this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
           }
         }
       });
@@ -324,7 +325,7 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
   }
 
   private handleSubmitError(error: unknown, fallback: string, title: string): void {
-    const message = this.errorMessage(error, fallback);
+    const message = extractErrorMessage(error, fallback);
     this.error.set(message);
     this.toastService.error(message, {
       title,
@@ -355,18 +356,4 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
     return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
-  private errorMessage(error: unknown, fallback: string): string {
-    if (!error || typeof error !== 'object') return fallback;
-
-    const record = error as UnknownRecord;
-    const nested = record['error'];
-
-    if (nested && typeof nested === 'object') {
-      const nestedMessage = (nested as UnknownRecord)['message'];
-      if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
-    }
-
-    const message = record['message'];
-    return typeof message === 'string' && message.trim() ? message : fallback;
-  }
 }

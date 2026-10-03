@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { LucideCheck, LucideFolder, LucidePencil, LucidePlus } from '@lucide/angular';
 import { Badge } from '../../../shared/components/badge/badge';
@@ -17,6 +16,7 @@ import { Loader } from '../../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { Workspace as WorkspaceModel, WorkspaceVisibility } from '../models/workspace.models';
 import { WorkspaceService } from '../services/workspace.service';
 import { WorkspaceFolderWrapper } from '../workspace-folder-wrapper/workspace-folder-wrapper';
@@ -260,9 +260,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   }
 
   private showError(error: unknown, fallback: string): void {
-    const response = error as HttpErrorResponse;
-    const message = response?.error?.message || response?.message;
-    const text = typeof message === 'string' && message.trim() ? message : fallback;
+    const text = extractErrorMessage(error, fallback);
     this.error.set(text);
     this.toastService.error(text, { title: 'Workspace', dedupeKey: `workspace-editor-${this.editorId || 'new'}` });
   }

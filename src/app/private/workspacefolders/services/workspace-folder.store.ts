@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { Pagination, WorkspaceFolder } from '../models/workspace-folder.models';
 import { WorkspaceFolderService } from './workspace-folder.service';
 
@@ -88,11 +89,7 @@ export class WorkspaceFolderStore {
                     );
                 },
                 error: (error: any) => {
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                        'Failed to load workspace folders'
-                    );
+                    this._error.set(extractErrorMessage(error, 'Failed to load workspace folders'));
                 }
             });
     }

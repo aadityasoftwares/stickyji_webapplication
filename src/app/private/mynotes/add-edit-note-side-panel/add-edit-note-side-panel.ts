@@ -742,7 +742,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       },
       error: error => {
         this.saveState.set('error');
-        this.notifyError(this.errorMessage(error, 'Unable to save the note changes.'), 'Save failed');
+        this.notifyError(extractErrorMessage(error, 'Unable to save the note changes.'), 'Save failed');
       }
     });
   }
@@ -1018,7 +1018,7 @@ export class AddEditNoteSidePanel implements OnChanges {
         const list = extractList(response);
         this.panelWorkspaces.set(list.filter((item: any) => item?.status !== 'DELETED'));
       },
-      error: error => this.notifyError(this.errorMessage(error, 'Unable to load workspaces.'), 'Error')
+      error: error => this.notifyError(extractErrorMessage(error, 'Unable to load workspaces.'), 'Error')
     });
   }
 
@@ -1052,7 +1052,7 @@ export class AddEditNoteSidePanel implements OnChanges {
         this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
       },
         error: error => this.notifyError(
-          this.errorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders')),
+          extractErrorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders')),
           'Error'
         )
     });
@@ -1093,7 +1093,7 @@ export class AddEditNoteSidePanel implements OnChanges {
         const list = extractList(response);
         this.setColumnsAndSelect(list, preferredColumnId);
       },
-      error: error => this.notifyError(this.errorMessage(error, 'Unable to load columns.'), 'Error')
+      error: error => this.notifyError(extractErrorMessage(error, 'Unable to load columns.'), 'Error')
     });
   }
 
@@ -1144,7 +1144,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: lists => this.applyChecklists(lists),
-      error: error => this.notifyError(this.errorMessage(error, 'Unable to load checklists.'), 'Checklists')
+      error: error => this.notifyError(extractErrorMessage(error, 'Unable to load checklists.'), 'Checklists')
     });
   }
 
@@ -1313,7 +1313,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.loadingWorkspaces.set(false);
     this.loadingFolders.set(false);
     this.loadingColumns.set(false);
-    this.notifyError(this.errorMessage(error, fallback), 'Could not open note editor');
+    this.notifyError(extractErrorMessage(error, fallback), 'Could not open note editor');
   }
 
   private notifyError(message: string, title: string): void {
@@ -1322,10 +1322,6 @@ export class AddEditNoteSidePanel implements OnChanges {
       title,
       dedupeKey: `note-editor-${this.mode}-${this.id || 'new'}-${message}`
     });
-  }
-
-  private errorMessage(error: any, fallback: string): string {
-    return extractErrorMessage(error, fallback);
   }
 
   private focusTitle(): void {

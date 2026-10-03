@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import type {
     ApiResponse,
     PaginatedApiResponse,
@@ -21,7 +22,7 @@ export class PermissionApiService {
 
     getAll(query: PermissionQuery = {}): Observable<PaginatedApiResponse<Permission>> {
         return this.http.get<PaginatedApiResponse<Permission>>(this.getAllUrl, {
-            params: this.createHttpParams(query),
+            params: buildHttpParams(query),
             withCredentials: true
         });
     }
@@ -90,14 +91,4 @@ export class PermissionApiService {
             .sort((first, second) => first.module.localeCompare(second.module));
     }
 
-    private createHttpParams(query: PermissionQuery): HttpParams {
-        let params = new HttpParams();
-
-        for (const [key, value] of Object.entries(query)) {
-            if (value === undefined || value === null || value === '') continue;
-            params = params.set(key, String(value));
-        }
-
-        return params;
-    }
 }

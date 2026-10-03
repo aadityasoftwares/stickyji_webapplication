@@ -5,6 +5,7 @@ import {
     DEFAULT_USER_PREFERENCES,
     USER_PREFERENCE_KEYS,
 } from '../../../shared/constants/common.constants';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { USER_PREFERENCE_MESSAGES } from '../messages/user-preference.messages';
 
 @Injectable({
@@ -152,11 +153,7 @@ export class UserPreferenceStore {
                     this._loaded.set(true);
                 },
                 error: (error: any) => {
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                        'Failed to load preferences'
-                    );
+                    this._error.set(extractErrorMessage(error, 'Failed to load preferences'));
                 },
             });
     }
@@ -229,11 +226,7 @@ export class UserPreferenceStore {
                         previousValue,
                     );
 
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                        USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE
-                    );
+                    this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
                 },
             });
     }
@@ -278,11 +271,7 @@ export class UserPreferenceStore {
                         previousValue,
                     );
 
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                        USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE
-                    );
+                    this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
                 },
             });
     }
@@ -331,11 +320,7 @@ export class UserPreferenceStore {
                     this._loaded.set(true);
                 },
                 error: (error: any) => {
-                    this._error.set(
-                        error?.error?.message ||
-                        error?.message ||
-                        USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE
-                    );
+                    this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
                 },
             });
     }

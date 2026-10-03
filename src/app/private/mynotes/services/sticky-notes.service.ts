@@ -1,10 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { PAGINATION } from '../../../shared/constants/app.constants';
 import { idOf } from '../../../shared/functions/common.function';
+import { removeEmptyValues } from '../../../shared/functions/object.functions';
 
 @Injectable({
     providedIn: 'root'
@@ -216,12 +217,6 @@ export class StickyNoteApiService {
 
     private sanitizeGetPayload(payload: any): any {
         if (!payload || typeof payload !== 'object') return {};
-        const cleaned: any = {};
-        for (const [key, value] of Object.entries(payload)) {
-            if (value !== undefined && value !== null && value !== '') {
-                cleaned[key] = value;
-            }
-        }
-        return cleaned;
+        return removeEmptyValues(payload);
     }
 }

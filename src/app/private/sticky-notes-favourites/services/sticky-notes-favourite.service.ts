@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
+import { buildHttpParams } from '../../../shared/functions/api.functions';
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
@@ -175,11 +176,10 @@ export class StickyNotesFavouriteService {
    * Query params: stickyNoteId, status, page, limit, sortBy, sortOrder
    */
   getAll(payload: any = {}): Observable<any> {
-    const params = this.createHttpParams(payload);
     return this.http.get<any>(
       `${this.favoriteBaseUrl}/getall`,
       {
-        params,
+        params: buildHttpParams(payload),
         withCredentials: true
       }
     );
@@ -275,19 +275,6 @@ export class StickyNotesFavouriteService {
     return this.addFavorite(stickyNoteId);
   }
 
-  private createHttpParams(payload: any): HttpParams {
-    let params = new HttpParams();
-    if (!payload || typeof payload !== 'object') {
-      return params;
-    }
-
-    for (const [key, value] of Object.entries(payload)) {
-      if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, String(value));
-      }
-    }
-    return params;
-  }
 }
 
 /** Export alias for consistency across components */

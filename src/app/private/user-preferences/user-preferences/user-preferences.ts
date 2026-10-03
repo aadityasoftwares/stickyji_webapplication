@@ -43,6 +43,7 @@ import {
 
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Switch } from '../../../shared/components/switch/switch';
+import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 import {
   DEFAULT_USER_PREFERENCES,
@@ -516,8 +517,7 @@ export class UserPreferences implements OnInit {
         error: error => {
 
           this.loadError.set(
-            error?.error?.message ??
-            'We could not load your preferences right now.',
+            extractErrorMessage(error, 'We could not load your preferences right now.'),
           );
         },
       });

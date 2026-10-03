@@ -5,6 +5,10 @@ import { Observable, catchError, map, of, tap, } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import {
+    getLocalStorageItem,
+    setLocalStorageItem
+} from '../../../shared/functions/storage.functions';
+import {
     ApiResponse,
     AuthSession,
     AuthSessionResponse,
@@ -311,7 +315,7 @@ export class AuthService {
         }
 
         const existing =
-            localStorage.getItem(STORAGE_KEYS.DEVICE_ID);
+            getLocalStorageItem(STORAGE_KEYS.DEVICE_ID);
 
         if (existing) {
             return existing;
@@ -330,7 +334,7 @@ export class AuthService {
                     .slice(2)
                 }`;
 
-        localStorage.setItem(
+        setLocalStorageItem(
             STORAGE_KEYS.DEVICE_ID,
             deviceId,
         );

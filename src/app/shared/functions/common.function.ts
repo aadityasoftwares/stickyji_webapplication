@@ -1,4 +1,5 @@
-import { COMMON_MESSAGES } from '../constants/common.messages';
+export { extractErrorMessage } from './api.functions';
+export { buildQueryParams, removeEmptyValues } from './object.functions';
 
 /**
  * Shared generic utilities and helper functions.
@@ -123,86 +124,6 @@ export function extractList<T = any>(response: any): T[] {
   } catch (error) {
     console.error('Error in extractList:', error);
     return [];
-  }
-}
-
-/**
- * Extracts a human-readable error message from HTTP errors, Error instances,
- * or error objects, falling back to a default message.
- *
- * @param error Error object or unknown caught value.
- * @param fallback Fallback string if no message is present.
- * @returns Formatted error string.
- */
-export function extractErrorMessage(
-  error: any,
-  fallback: any = COMMON_MESSAGES.ERROR.GENERIC
-): string {
-  try {
-    const defaultFallback = String(fallback ?? COMMON_MESSAGES.ERROR.GENERIC);
-    if (!error) {
-      return defaultFallback;
-    }
-
-    if (typeof error === 'string') {
-      return error.trim() || defaultFallback;
-    }
-
-    const err: any = error;
-
-    // Check if error.error is a direct string message
-    if (typeof err?.error === 'string' && err.error.trim()) {
-      return err.error.trim();
-    }
-
-    // Check nested validation errors array: error.error.errors[0].message
-    if (Array.isArray(err?.error?.errors) && err.error.errors.length > 0) {
-      const firstErr = err.error.errors[0];
-      const msg = typeof firstErr === 'string' ? firstErr : firstErr?.message || firstErr?.msg;
-      if (typeof msg === 'string' && msg.trim()) {
-        return msg.trim();
-      }
-    }
-
-    const nestedMessage =
-      err?.error?.message ||
-      err?.error?.error ||
-      err?.message ||
-      err?.statusText;
-
-    return typeof nestedMessage === 'string' && nestedMessage.trim()
-      ? nestedMessage.trim()
-      : defaultFallback;
-  } catch (err) {
-    console.error('Error in extractErrorMessage:', err);
-    return String(fallback ?? COMMON_MESSAGES.ERROR.GENERIC);
-  }
-}
-
-/**
- * Safely constructs an HTTP query parameters object from filter key-values,
- * omitting empty string, null, or undefined entries.
- *
- * @param filters Record of filter keys and values.
- * @returns Clean record of stringified query params.
- */
-export function buildQueryParams(filters: any): Record<string, string> {
-  const params: Record<string, string> = {};
-  try {
-    if (!filters || typeof filters !== 'object') {
-      return params;
-    }
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        params[key] = String(value);
-      }
-    });
-
-    return params;
-  } catch (error) {
-    console.error('Error in buildQueryParams:', error);
-    return params;
   }
 }
 
