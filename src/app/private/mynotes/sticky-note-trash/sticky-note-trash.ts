@@ -24,6 +24,9 @@ import { Loader } from '../../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { extractErrorMessage } from '../../../shared/functions/common.function';
+import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
+import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.constants';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { StickyNote } from '../sticky-note/sticky-note';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
@@ -59,8 +62,6 @@ export class StickyNoteTrash implements OnInit {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly toastService = inject(ToastService);
-  private readonly stickyNoteFontStorageKey = 'mystickynotes.note-font';
-  private readonly stickyNoteFontSizeStorageKey = 'mystickynotes.note-font-size';
 
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArchiveRestore = LucideArchiveRestore;
@@ -169,7 +170,7 @@ export class StickyNoteTrash implements OnInit {
   goBackToToday(): void {
     const workspaceId = this.workspaceId();
 
-    this.router.navigate(['/app/today'], {
+    this.router.navigate(routeCommands(APP_ROUTES.TODAY), {
       queryParams: workspaceId ? { workspaceId } : undefined
     });
   }
@@ -376,7 +377,7 @@ export class StickyNoteTrash implements OnInit {
 
   private readStoredStickyNoteFont(): string {
     try {
-      return localStorage.getItem(this.stickyNoteFontStorageKey) || 'dmSans';
+    return localStorage.getItem(STORAGE_KEYS.STICKY_NOTE_FONT) || 'dmSans';
     } catch {
       return 'dmSans';
     }
@@ -384,7 +385,7 @@ export class StickyNoteTrash implements OnInit {
 
   private readStoredStickyNoteFontSize(): number {
     try {
-      const value = Number(localStorage.getItem(this.stickyNoteFontSizeStorageKey));
+    const value = Number(localStorage.getItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
       return [13, 14, 15, 16].includes(value) ? value : 14;
     } catch {
       return 14;
@@ -392,6 +393,6 @@ export class StickyNoteTrash implements OnInit {
   }
 
   private errorMessage(error: any, fallback: string): string {
-    return error?.error?.message ?? error?.message ?? fallback;
+    return extractErrorMessage(error, fallback);
   }
 }

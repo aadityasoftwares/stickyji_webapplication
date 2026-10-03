@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import type {
     ApiResponse,
     PaginatedApiResponse,
@@ -14,7 +14,7 @@ import type {
 @Injectable({ providedIn: 'root' })
 export class PermissionApiService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
+    private readonly baseUrl = API_BASE_URL;
     private readonly permissionBaseUrl = `${this.baseUrl}/permissions`;
     private readonly getAllUrl = `${this.permissionBaseUrl}/getall`;
     private readonly groupedUrl = `${this.permissionBaseUrl}/grouped`;

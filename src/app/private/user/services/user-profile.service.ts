@@ -9,7 +9,7 @@ import {
     throwError,
 } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { ApiResponse, CountryReference, CurrencyReference, LanguageReference, ProfileReferenceData, TimezoneReference, UpdateUserProfilePayload, UserProfile } from '../models/user-profile.models';
 
 const PROFILE_ENDPOINTS = {
@@ -34,7 +34,7 @@ type CollectionResponse<T> = ApiResponse<
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
     private readonly http = inject(HttpClient);
-    private readonly apiUrl = environment.apiUrl.replace(/\/+$/, '');
+    private readonly apiUrl = API_BASE_URL;
 
     getMyProfile(): Observable<UserProfile | null> {
         return this.http

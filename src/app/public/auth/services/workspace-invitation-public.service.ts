@@ -8,9 +8,7 @@ import {
 } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import {
-    environment,
-} from '../../../../Environments/environments';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 export interface WorkspaceInvitationWorkspacePreview {
     id: string;
@@ -69,17 +67,6 @@ export interface WorkspaceInvitationApiResponse<T> {
 export class WorkspaceInvitationPublicService {
     private readonly http = inject(HttpClient);
 
-    private readonly baseUrl =
-        environment.apiUrl.replace(/\/+$/, '');
-
-    private readonly invitationBaseUrl =
-        `${this.baseUrl}/workspacememberinvitations`;
-
-    private readonly validateTokenUrl =
-        `${this.invitationBaseUrl}/validatetoken`;
-
-    private readonly acceptUrl =
-        `${this.invitationBaseUrl}/accept`;
 
     /**
      * PUBLIC endpoint.
@@ -93,7 +80,7 @@ export class WorkspaceInvitationPublicService {
         return this.http.post<
             WorkspaceInvitationApiResponse<WorkspaceInvitationPreview>
         >(
-            this.validateTokenUrl,
+            API_ENDPOINTS.workspaceInvitations.validateToken,
             {
                 token: token.trim(),
             },
@@ -127,7 +114,7 @@ export class WorkspaceInvitationPublicService {
         return this.http.post<
             WorkspaceInvitationApiResponse<WorkspaceInvitationAcceptResult>
         >(
-            this.acceptUrl,
+            API_ENDPOINTS.workspaceInvitations.accept,
             {
                 token: token.trim(),
             },

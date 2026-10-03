@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import type {
   ApiResponse,
   WorkspaceRole,
@@ -16,7 +16,7 @@ import type {
 @Injectable({ providedIn: 'root' })
 export class WorkspaceRoleApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
+    private readonly baseUrl = API_BASE_URL;
 
   /**
    * Change only this prefix if your Express role router is mounted elsewhere.

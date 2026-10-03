@@ -2,7 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 
-import { environment } from '../../../../Environments/environments';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { PAGINATION } from '../../../shared/constants/app.constants';
 import { idOf } from '../../../shared/functions/common.function';
 
 @Injectable({
@@ -10,19 +11,17 @@ import { idOf } from '../../../shared/functions/common.function';
 })
 export class StickyNoteApiService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = environment.apiUrl.replace(/\/+$/, '');
-    private readonly stickyNoteBaseUrl = `${this.baseUrl}/stickynotes`;
 
     getById(id: string): Observable<any> {
         return this.http.get<any>(
-            `${this.stickyNoteBaseUrl}/get/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNotes.get(id),
             { withCredentials: true }
         );
     }
 
     getAll(payload: any = {}): Observable<any> {
         return this.http.post<any>(
-            `${this.stickyNoteBaseUrl}/getall`,
+            API_ENDPOINTS.stickyNotes.getAll,
             this.sanitizeGetPayload(payload),
             { withCredentials: true }
         );
@@ -66,7 +65,7 @@ export class StickyNoteApiService {
 
     create(payload: any): Observable<any> {
         return this.http.post<any>(
-            `${this.stickyNoteBaseUrl}/create`,
+            API_ENDPOINTS.stickyNotes.create,
             this.sanitizeCreatePayload(payload),
             { withCredentials: true }
         );
@@ -77,7 +76,7 @@ export class StickyNoteApiService {
         payload: any
     ): Observable<any> {
         return this.http.put<any>(
-            `${this.stickyNoteBaseUrl}/update/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNotes.update(id),
             this.sanitizeUpdatePayload(payload),
             { withCredentials: true }
         );
@@ -88,7 +87,7 @@ export class StickyNoteApiService {
         status: any
     ): Observable<any> {
         return this.http.put<any>(
-            `${this.stickyNoteBaseUrl}/status/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNotes.status(id),
             { status },
             { withCredentials: true }
         );
@@ -110,7 +109,7 @@ export class StickyNoteApiService {
             body.afterId = payload.afterId ? idOf(payload.afterId) : null;
         }
         return this.http.put<any>(
-            `${this.stickyNoteBaseUrl}/reorder/${encodeURIComponent(idOf(id))}`,
+            `${API_ENDPOINTS.stickyNotes.base}/reorder/${encodeURIComponent(idOf(id))}`,
             body,
             { withCredentials: true }
         );
@@ -122,15 +121,15 @@ export class StickyNoteApiService {
 
     delete(id: string): Observable<any> {
         return this.http.delete<any>(
-            `${this.stickyNoteBaseUrl}/delete/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNotes.delete(id),
             { withCredentials: true }
         );
     }
 
     getTrash(
         workspaceId: string,
-        page = 1,
-        limit = 100
+        page = PAGINATION.DEFAULT_PAGE,
+        limit = PAGINATION.LARGE_LIMIT
     ): Observable<any> {
         return this.getAll({
             workspaceId,
@@ -144,7 +143,7 @@ export class StickyNoteApiService {
 
     moveToTrash(id: string): Observable<any> {
         return this.http.put<any>(
-            `${this.stickyNoteBaseUrl}/trash/${encodeURIComponent(id)}`,
+            `${API_ENDPOINTS.stickyNotes.base}/trash/${encodeURIComponent(id)}`,
             {},
             { withCredentials: true }
         );
@@ -152,7 +151,7 @@ export class StickyNoteApiService {
 
     restore(id: string): Observable<any> {
         return this.http.put<any>(
-            `${this.stickyNoteBaseUrl}/restore/${encodeURIComponent(id)}`,
+            API_ENDPOINTS.stickyNotes.restore(id),
             {},
             { withCredentials: true }
         );
@@ -160,7 +159,7 @@ export class StickyNoteApiService {
 
     permanentlyDelete(id: string): Observable<any> {
         return this.http.delete<any>(
-            `${this.stickyNoteBaseUrl}/permanent/${encodeURIComponent(id)}`,
+            `${API_ENDPOINTS.stickyNotes.base}/permanent/${encodeURIComponent(id)}`,
             { withCredentials: true }
         );
     }

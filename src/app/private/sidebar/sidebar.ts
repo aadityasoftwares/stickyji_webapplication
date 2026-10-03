@@ -43,6 +43,7 @@ import {
 import {
   Divider,
 } from '../../shared/components/divider/divider';
+import { APP_ROUTES } from '../../shared/constants/route.constants';
 
 
 interface SidebarItem {
@@ -146,7 +147,7 @@ export class Sidebar {
         items: [
           {
             label: 'Today',
-            route: '/app/today',
+      route: APP_ROUTES.TODAY,
             icon: LucideCalendarDays,
           },
         ],
@@ -158,25 +159,25 @@ export class Sidebar {
         items: [
           {
             label: 'Workspaces',
-            route: '/app/workspaces/my',
+      route: APP_ROUTES.WORKSPACES,
             icon: LucidePanelsTopLeft,
           },
 
           {
             label: 'Folders',
-            route: '/app/workspacefolders/my',
+      route: APP_ROUTES.WORKSPACE_FOLDERS,
             icon: LucideFolderOpen,
           },
 
           {
             label: 'Members',
-            route: '/app/workspace/members',
+      route: APP_ROUTES.WORKSPACE_MEMBERS,
             icon: LucideUsersRound,
           },
 
           {
             label: 'Roles & permissions',
-            route: '/app/workspace/roles-permissions',
+      route: APP_ROUTES.ROLES_PERMISSIONS,
             icon: LucideShieldCheck,
           },
         ],
@@ -188,13 +189,13 @@ export class Sidebar {
         items: [
           {
             label: 'Notes',
-            route: '/app/stickynotes/my',
+      route: APP_ROUTES.MY_NOTES,
             icon: LucideStickyNote,
           },
 
           {
             label: 'Favourites',
-            route: '/app/stickynotes/favorites',
+      route: APP_ROUTES.FAVORITE_NOTES,
             icon: LucideStar,
           },
         ],
@@ -206,13 +207,13 @@ export class Sidebar {
         items: [
           {
             label: 'Profile',
-            route: '/app/account/profile',
+      route: APP_ROUTES.PROFILE,
             icon: LucideCircleUserRound,
           },
 
           {
             label: 'Preferences',
-            route: '/app/account/preferences',
+      route: APP_ROUTES.PREFERENCES,
             icon: LucideSlidersHorizontal,
           },
         ],

@@ -12,9 +12,7 @@ import type {
     Observable,
 } from 'rxjs';
 
-import {
-    environment,
-} from '../../../../Environments/environments';
+import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { StickyNoteChecklistItemResponse, StickyNoteChecklistItemFilters, StickyNoteChecklistItemsResponse, StickyNoteChecklistItemCreateRequest, StickyNoteChecklistItemUpdateRequest, StickyNoteChecklistItemStatus, ApiDeleteResponse } from '../models/sticky-note-checklist.interface';
 
 
@@ -26,11 +24,7 @@ export class StickyNoteChecklistItemApiService {
     private readonly http =
         inject(HttpClient);
 
-    private readonly baseUrl =
-        environment.apiUrl.replace(
-            /\/+$/,
-            '',
-        );
+    private readonly baseUrl = API_BASE_URL;
 
     /**
      * This assumes your Express router is mounted as:

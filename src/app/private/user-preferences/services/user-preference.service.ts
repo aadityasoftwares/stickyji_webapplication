@@ -1,40 +1,31 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../Environments/environments';
-
-const USER_PREFERENCE_ENDPOINTS = {
-    my: '/userpreference/my',
-    create: '/userpreference/create',
-    update: '/userpreference/update',
-    reset: '/userpreference/reset',
-    resetAll: '/userpreference/resetall',
-} as const;
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 @Injectable({
     providedIn: 'root',
 })
 export class UserPreferenceService {
     private readonly http = inject(HttpClient);
-    private readonly apiUrl = environment.apiUrl.replace(/\/+$/, '');
 
     getMyPreferences(): Observable<any> {
         return this.http.get<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.my}`,
+            API_ENDPOINTS.userPreferences.my,
             { withCredentials: true },
         );
     }
 
     getPreference(key: string): Observable<any> {
         return this.http.get<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.my}/${encodeURIComponent(key)}`,
+            API_ENDPOINTS.userPreferences.byKey(key),
             { withCredentials: true },
         );
     }
 
     createPreference(key: string, value: any): Observable<any> {
         return this.http.post<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.create}`,
+            API_ENDPOINTS.userPreferences.create,
             { key, value },
             { withCredentials: true },
         );
@@ -42,7 +33,7 @@ export class UserPreferenceService {
 
     updatePreference(key: string, value: any): Observable<any> {
         return this.http.put<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.update}`,
+            API_ENDPOINTS.userPreferences.update,
             { key, value },
             { withCredentials: true },
         );
@@ -50,14 +41,14 @@ export class UserPreferenceService {
 
     deletePreference(key: string): Observable<any> {
         return this.http.delete<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.my}/${encodeURIComponent(key)}`,
+            API_ENDPOINTS.userPreferences.byKey(key),
             { withCredentials: true },
         );
     }
 
     resetPreference(key: string): Observable<any> {
         return this.http.post<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.reset}`,
+            API_ENDPOINTS.userPreferences.reset,
             { key },
             { withCredentials: true },
         );
@@ -65,7 +56,7 @@ export class UserPreferenceService {
 
     resetAllPreferences(): Observable<any> {
         return this.http.post<any>(
-            `${this.apiUrl}${USER_PREFERENCE_ENDPOINTS.resetAll}`,
+            API_ENDPOINTS.userPreferences.resetAll,
             {},
             { withCredentials: true },
         );

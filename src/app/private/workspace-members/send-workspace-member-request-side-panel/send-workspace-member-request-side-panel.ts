@@ -13,6 +13,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { extractErrorMessage } from '../../../shared/functions/common.function';
 import {
   LucideCheck,
   LucideMail,
@@ -603,6 +604,6 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   }
 
   private errorMessage(error: any, fallback: string): string {
-    return error?.error?.message || error?.message || fallback;
+    return extractErrorMessage(error, fallback);
   }
 }

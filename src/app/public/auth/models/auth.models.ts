@@ -1,3 +1,6 @@
+import type { ApiResponse } from '../../../shared/models/api.models';
+export type { ApiResponse } from '../../../shared/models/api.models';
+
 export enum SessionType {
   WEB = 'WEB',
   MOBILE = 'MOBILE',
@@ -52,12 +55,6 @@ export interface AuthSession {
   user: AuthenticatedUser;
   sessionId: string;
   tokens: AuthTokens;
-}
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  message: string;
-  data?: T;
 }
 
 export interface AuthSessionResponse
