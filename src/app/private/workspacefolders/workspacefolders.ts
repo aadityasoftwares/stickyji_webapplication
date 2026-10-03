@@ -68,6 +68,8 @@ import {
   idOf
 } from '../../shared/functions/common.function';
 import type { WorkspaceFolder, WorkspaceFolderStatus } from './models/workspace-folder.models';
+import { WORKSPACE_FOLDER_MESSAGES } from './messages/workspace-folder.messages';
+import { VALIDATION_MESSAGES } from '../../shared/constants/common.messages';
 
 type FolderTab = 'all' | 'active' | 'archived';
 type FolderView = 'grid' | 'list';
@@ -326,7 +328,7 @@ export class Workspacefolders implements OnInit, OnChanges {
         error: error => {
           if (this.selectedWorkspaceId() !== id) return;
           this.folders.set([]);
-          const message = extractErrorMessage(error, 'Unable to load workspace folders.');
+          const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.LOAD_FAILED);
           this.error.set(message);
           this.folderStore.setError(message);
           this.toastService.error(message, {
@@ -402,7 +404,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   openCreateEditor(): void {
     if (!this.selectedWorkspaceId()) {
-      this.toastService.warning('Select a workspace before creating a folder.', {
+      this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.WORKSPACE_REQUIRED, {
         title: 'Workspace required',
         dedupeKey: 'workspace-folder-workspace-required'
       });
@@ -480,15 +482,15 @@ export class Workspacefolders implements OnInit, OnChanges {
     const original = this.folderName(folder);
 
     if (!trimmed) {
-      this.inlineRenameError.set('Folder name cannot be empty');
+      this.inlineRenameError.set(WORKSPACE_FOLDER_MESSAGES.VALIDATION.NAME_REQUIRED);
       return;
     }
     if (trimmed.length < 2) {
-      this.inlineRenameError.set('Enter at least 2 characters.');
+      this.inlineRenameError.set(VALIDATION_MESSAGES.MIN_LENGTH(2));
       return;
     }
     if (trimmed.length > 80) {
-      this.inlineRenameError.set('Folder name cannot exceed 80 characters.');
+      this.inlineRenameError.set(VALIDATION_MESSAGES.MAX_LENGTH(80));
       return;
     }
     if (trimmed === original) {
@@ -517,13 +519,13 @@ export class Workspacefolders implements OnInit, OnChanges {
           );
           this.folderStore.upsert(updated);
           this.folderChanged.emit(updated);
-          this.toastService.success(`Folder renamed to “${trimmed}”.`, {
+          this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.RENAMED(trimmed), {
             title: 'Name updated',
             dedupeKey: `workspace-folder-inline-rename-${id}`
           });
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to rename folder.');
+          const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.RENAME_FAILED);
           this.inlineRenameError.set(message);
           this.toastService.error(message, {
             title: 'Rename failed',
@@ -535,7 +537,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   archiveFolder(folder: WorkspaceFolder): void {
     if (this.isDefault(folder)) {
-      this.toastService.warning('The default folder must remain active.', {
+      this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.DEFAULT_MUST_REMAIN_ACTIVE, {
         title: 'Default folder protected',
         dedupeKey: `workspace-folder-default-archive-${this.folderId(folder)}`
       });
@@ -550,7 +552,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   requestDelete(folder: WorkspaceFolder): void {
     if (this.isDefault(folder)) {
-      this.toastService.warning('The default folder cannot be moved to trash.', {
+      this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.DEFAULT_CANNOT_DELETE, {
         title: 'Default folder protected',
         dedupeKey: `workspace-folder-default-delete-${this.folderId(folder)}`
       });
@@ -585,14 +587,14 @@ export class Workspacefolders implements OnInit, OnChanges {
           this.deleteTarget.set(null);
           this.folders.update(items => items.filter(item => this.folderId(item) !== id));
           this.folderStore.remove(id);
-          this.toastService.success(`“${this.folderName(folder)}” moved to trash.`, {
+          this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.folderName(folder)), {
             title: 'Folder moved',
             dedupeKey: `workspace-folder-delete-${id}`
           });
         },
         error: error => {
           this.deleteTarget.set(null);
-          const message = extractErrorMessage(error, 'Unable to move folder to trash.');
+          const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED);
           this.toastService.error(message, {
             title: 'Could not move folder',
             dedupeKey: 'workspace-folder-delete-error'
@@ -617,14 +619,14 @@ export class Workspacefolders implements OnInit, OnChanges {
           const restored = response?.data || { ...folder, status: 'ACTIVE' };
           this.folderStore.upsert(restored);
           this.folderChanged.emit(restored);
-          this.toastService.success(`“${this.folderName(restored)}” was restored.`, {
+          this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.RESTORED(this.folderName(restored)), {
             title: 'Folder restored',
             dedupeKey: `workspace-folder-restore-${id}`
           });
           this.loadFolders();
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to restore folder.');
+          const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.RESTORE_FAILED);
           this.toastService.error(message, {
             title: 'Restore failed',
             dedupeKey: 'workspace-folder-restore-error'
@@ -762,7 +764,9 @@ export class Workspacefolders implements OnInit, OnChanges {
 
           const archived = status === 'ARCHIVED';
           this.toastService.success(
-            archived ? `“${this.folderName(folder)}” was archived.` : `“${this.folderName(folder)}” is active again.`,
+            archived
+              ? WORKSPACE_FOLDER_MESSAGES.SUCCESS.ARCHIVED(this.folderName(folder))
+              : WORKSPACE_FOLDER_MESSAGES.SUCCESS.ACTIVATED(this.folderName(folder)),
             {
               title: archived ? 'Folder archived' : 'Folder restored',
               dedupeKey: `workspace-folder-status-${id}`
@@ -770,7 +774,7 @@ export class Workspacefolders implements OnInit, OnChanges {
           );
         },
         error: error => {
-          const message = extractErrorMessage(error, 'Unable to update folder.');
+          const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.UPDATE_FAILED);
           this.toastService.error(message, {
             title: 'Folder update failed',
             dedupeKey: 'workspace-folder-status-error'

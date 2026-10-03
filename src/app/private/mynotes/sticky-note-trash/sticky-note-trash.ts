@@ -25,6 +25,7 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
+import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
 import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.constants';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
@@ -162,7 +163,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.notes.set([]);
           this.loading.set(false);
-          this.error.set(this.errorMessage(error, 'Unable to load sticky note trash.'));
+          this.error.set(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.TRASH_LOAD_FAILED));
         }
       });
   }
@@ -211,7 +212,7 @@ export class StickyNoteTrash implements OnInit {
           this.notes.update(notes => notes.filter(item => this.noteId(item) !== id));
           this.actionId.set(null);
 
-          this.toastService.success('Note restored successfully.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.RESTORED_FROM_TRASH, {
             title: 'Back in your notes',
             dedupeKey: `restore-note-${id}`
           });
@@ -219,7 +220,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.actionId.set(null);
 
-          this.toastService.error(this.errorMessage(error, 'Unable to restore note.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED), {
             title: 'Restore failed',
             dedupeKey: `restore-note-${id}`
           });
@@ -256,7 +257,7 @@ export class StickyNoteTrash implements OnInit {
           this.actionId.set(null);
           this.permanentTarget.set(null);
 
-          this.toastService.success('The note was permanently deleted.', {
+          this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.PERMANENTLY_DELETED, {
             title: 'Deleted permanently',
             dedupeKey: `permanent-note-${id}`
           });
@@ -264,7 +265,7 @@ export class StickyNoteTrash implements OnInit {
         error: error => {
           this.actionId.set(null);
 
-          this.toastService.error(this.errorMessage(error, 'Unable to permanently delete note.'), {
+          this.toastService.error(this.errorMessage(error, STICKY_NOTE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
             title: 'Delete failed',
             dedupeKey: `permanent-note-${id}`
           });

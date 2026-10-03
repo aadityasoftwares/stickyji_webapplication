@@ -53,6 +53,7 @@ import { Loader } from '../../../shared/components/loader/loader';
 import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
 import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { COMMON_MESSAGES } from '../../../shared/constants/common.messages';
 
 import {
   NOTE_BLOCK_OPTIONS,
@@ -1050,7 +1051,10 @@ export class AddEditNoteSidePanel implements OnChanges {
         const active = list.filter((folder: any) => folder?.status === 'ACTIVE');
         this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
       },
-      error: error => this.notifyError(this.errorMessage(error, 'Unable to load workspace folders.'), 'Error')
+        error: error => this.notifyError(
+          this.errorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders')),
+          'Error'
+        )
     });
   }
 

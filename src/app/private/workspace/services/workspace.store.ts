@@ -87,7 +87,7 @@ export class WorkspaceStore {
                     this._error.set(
                         error?.error?.message ||
                         error?.message ||
-                        WORKSPACE_MESSAGES.FAIL_TO_LOAD
+                    WORKSPACE_MESSAGES.ERROR.LOAD_FAILED
                     );
                 },
             });

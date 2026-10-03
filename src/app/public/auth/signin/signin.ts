@@ -46,6 +46,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
   LoginCredentials,
@@ -310,7 +311,7 @@ export class Signin implements OnInit {
     if (!response?.success) {
       this.toastService.error(
         response?.message ||
-        'We could not sign you in. Please try again.',
+        AUTH_MESSAGES.ERROR.SIGN_IN_FAILED,
         {
           title: 'Sign-in failed',
         },
@@ -321,7 +322,7 @@ export class Signin implements OnInit {
 
     this.toastService.success(
       response.message ||
-      'Your notes are ready when you are.',
+      AUTH_MESSAGES.SUCCESS.SIGNED_IN,
       {
         title: 'Welcome back!',
       },
@@ -437,7 +438,7 @@ export class Signin implements OnInit {
 
     return (
       message ||
-      'We could not sign you in. Please try again.'
+      AUTH_MESSAGES.ERROR.SIGN_IN_FAILED
     );
   }
 

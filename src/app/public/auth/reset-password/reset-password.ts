@@ -42,6 +42,7 @@ import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
   AuthService,
@@ -320,7 +321,7 @@ export class ResetPassword implements OnInit {
     if (!response?.success) {
       this.serverError.set(
         response?.message ||
-        'We could not reset your password.',
+        AUTH_MESSAGES.ERROR.RESET_FAILED,
       );
 
       this.resetPasswordForm.enable({
@@ -336,7 +337,7 @@ export class ResetPassword implements OnInit {
 
     this.toastService.success(
       response.message ||
-      'Your password has been reset successfully.',
+      AUTH_MESSAGES.SUCCESS.PASSWORD_RESET,
       {
         title: 'Password updated',
       },
