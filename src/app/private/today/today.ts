@@ -16,16 +16,13 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import {
   LucideAArrowUp,
   LucideArrowLeft,
   LucideArrowRight,
-  LucideCheck,
-  LucideChevronDown,
   LucideFolderOpen,
-  LucideGrid2X2,
   LucideGrip,
   LucideList,
   LucideMoreHorizontal,
@@ -45,12 +42,12 @@ import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { Divider } from '../../shared/components/divider/divider';
 import { Input as AppInput } from '../../shared/components/input/input';
-import { Label } from '../../shared/components/label/label';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { COMMON_MESSAGES } from '../../shared/constants/common.messages';
 
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
@@ -67,12 +64,10 @@ import {
   View
 } from '../../shared/constants/common.constants';
 import {
-  buildQueryParams,
   entityNameOf,
   extractErrorMessage,
   extractList,
-  idOf,
-  sortItemsByPosition
+  idOf
 } from '../../shared/functions/common.function';
 import {
   compareNotesByRank,
@@ -97,6 +92,7 @@ import {
 } from '../../shared/functions/date.function';
 
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
+import { STICKY_NOTE_MESSAGES } from '../mynotes/messages/sticky-note.messages';
 import { StickyNoteColumnApiService } from '../mynotes/services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
@@ -106,6 +102,14 @@ import { WorkspaceFolderService } from '../workspacefolders/services/workspace-f
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { WorkspaceFolder, WorkspaceFolderQuery } from '../workspacefolders/models/workspace-folder.models';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
+import { TODAY_MESSAGES } from './messages/today.messages';
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 100;
+const ACTIVE_STATUS = 'ACTIVE';
+const TODAY_DATE_PRESET = 'TODAY';
+const SORT_ASC = 'asc';
+const SORT_DESC = 'desc';
 
 @Component({
   selector: 'app-today',
@@ -155,12 +159,12 @@ export class Today {
 
   private folderRequestVersion = 0;
   private workspaceMemberRequestVersion = 0;
+  private notesRequestVersion = 0;
 
   readonly LucideAArrowUp = LucideAArrowUp;
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideFolderOpen = LucideFolderOpen;
-  readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideList = LucideList;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
@@ -171,8 +175,6 @@ export class Today {
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
   readonly LucideX = LucideX;
-  readonly LucideCheck = LucideCheck;
-  readonly LucideChevronDown = LucideChevronDown;
   readonly LucideGrip = LucideGrip;
 
   readonly today = signal(new Date());
@@ -181,7 +183,6 @@ export class Today {
   readonly searchTerm = signal('');
   readonly movingColumn = signal(false);
 
-  readonly stickyNoteViewOptions: any[] = STICKY_NOTE_VIEW_OPTIONS;
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
   readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map(option => ({
     ...option,
@@ -205,11 +206,9 @@ export class Today {
   );
 
   readonly activeWorkspaceId = this.workspaceStore.selectedId;
-  readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
   readonly loadingWorkspaces = this.workspaceStore.loading;
 
   readonly activeFolder = this.workspaceFolderStore.selectedId;
-  readonly selectedFolderId = computed(() => this.workspaceFolderStore.selectedId() ?? '');
   readonly loadingFolders = this.workspaceFolderStore.loading;
   readonly folders = this.workspaceFolderStore.activeFolders;
   readonly foldersError = this.workspaceFolderStore.error;
@@ -230,6 +229,16 @@ export class Today {
   readonly stickyNoteColumns = computed(() =>
     this.stickyNoteColumnStore.orderedColumns().map(column => mapStickyNoteColumn(column))
   );
+  readonly stickyNoteColumnById = computed(() => {
+    const columns = new Map<string, any>();
+    for (const column of this.stickyNoteColumns()) {
+      const id = idOf(column);
+      if (id) {
+        columns.set(id, column);
+      }
+    }
+    return columns;
+  });
   readonly loadingColumns = this.stickyNoteColumnStore.loading;
 
   readonly boardError = signal<string | null>(null);
@@ -276,12 +285,43 @@ export class Today {
 
   readonly visibleListNotes = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();
-    if (!search) {
-      return this.stickyNotes();
+    return search
+      ? this.stickyNotes().filter(note => this.noteMatchesSearch(note, search))
+      : this.stickyNotes();
+  });
+
+  readonly notesByColumn = computed(() => {
+    const grouped = new Map<string, any[]>();
+    for (const note of this.stickyNotes()) {
+      const columnId = idOf(note?.columnId);
+      if (!columnId) continue;
+
+      const notes = grouped.get(columnId) ?? [];
+      notes.push(note);
+      grouped.set(columnId, notes);
     }
-    return this.stickyNotes().filter(note =>
-      `${note.title ?? ''} ${note.description ?? ''}`.toLowerCase().includes(search)
-    );
+
+    for (const [columnId, notes] of grouped) {
+      grouped.set(columnId, sortNotesByRank(notes));
+    }
+
+    return grouped;
+  });
+
+  readonly visibleNotesByColumn = computed(() => {
+    const search = this.searchTerm().trim().toLowerCase();
+    if (!search) {
+      return this.notesByColumn();
+    }
+
+    const filtered = new Map<string, any[]>();
+    for (const [columnId, notes] of this.notesByColumn()) {
+      filtered.set(
+        columnId,
+        notes.filter(note => this.noteMatchesSearch(note, search))
+      );
+    }
+    return filtered;
   });
 
   readonly viewTabs = STICKY_NOTE_VIEW_OPTIONS;
@@ -357,10 +397,6 @@ export class Today {
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, font);
   }
 
-  onStickyNoteFontSelection(value: any): void {
-    this.chooseFont(value);
-  }
-
   onStickyNoteFontSizeSelection(value: any): void {
     const size = Number(value);
     if (!this.isStickyNoteFontSize(size)) return;
@@ -422,9 +458,8 @@ export class Today {
           this.activateWorkspace(workspaceId);
         },
         error: (error: any) => {
-          console.error(error);
           this.workspaceStore.setError(
-            extractErrorMessage(error, 'Failed to load workspaces')
+            extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED)
           );
           this.workspaceFolderStore.clear();
           this.stickyNoteColumnStore.clear();
@@ -455,23 +490,30 @@ export class Today {
 
   loadWorkspaceMembers(workspaceId: string): void {
     const id = workspaceId.trim();
-    const requestVersion = ++this.workspaceMemberRequestVersion;
     if (!id) {
       this.clearWorkspaceMembers();
       return;
     }
 
+    const requestVersion = ++this.workspaceMemberRequestVersion;
     this.loadingWorkspaceMembers.set(true);
 
     this.workspaceMemberApiService.getAll({
       workspaceId: id,
-      status: 'ACTIVE',
-      page: 1,
-      limit: 100,
+      status: ACTIVE_STATUS,
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_LIMIT,
       sortBy: 'updatedAt',
-      sortOrder: 'desc'
+      sortOrder: SORT_DESC
     })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => {
+          if (requestVersion === this.workspaceMemberRequestVersion) {
+            this.loadingWorkspaceMembers.set(false);
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response: any) => {
           if (requestVersion !== this.workspaceMemberRequestVersion ||
@@ -479,16 +521,13 @@ export class Today {
             return;
           }
           this.workspaceMembers.set(extractList(response));
-          this.loadingWorkspaceMembers.set(false);
         },
-        error: (error: any) => {
+        error: () => {
           if (requestVersion !== this.workspaceMemberRequestVersion ||
             this.activeWorkspaceId() !== id) {
             return;
           }
-          console.error(error);
           this.workspaceMembers.set([]);
-          this.loadingWorkspaceMembers.set(false);
         }
       });
   }
@@ -516,11 +555,11 @@ export class Today {
 
     const query: WorkspaceFolderQuery = {
       workspaceId: id,
-      page: 1,
-      limit: 100,
-      status: 'ACTIVE',
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_LIMIT,
+      status: ACTIVE_STATUS,
       sortBy: 'position',
-      sortOrder: 'asc'
+      sortOrder: SORT_ASC
     };
 
     this.workspaceFolderApiService.getAllWorkspaceFolders(query)
@@ -547,8 +586,7 @@ export class Today {
             return;
           }
 
-          console.error(error);
-          const message = extractErrorMessage(error, 'Failed to load workspace folders');
+          const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.FOLDERS_LOAD_FAILED);
           this.workspaceFolderStore.setError(message);
           this.clearBoard();
         }
@@ -609,8 +647,7 @@ export class Today {
             this.activeFolder() !== folderId) {
             return;
           }
-          console.error(error);
-          const message = extractErrorMessage(error, 'Failed to load columns');
+          const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_LOAD_FAILED);
           this.stickyNoteColumnStore.setError(message);
           this.boardError.set(message);
         }
@@ -621,41 +658,52 @@ export class Today {
     const workspaceId = this.activeWorkspaceId();
     const folderId = this.activeFolder();
     if (!workspaceId || !folderId) {
+      this.notesRequestVersion += 1;
       this.stickyNotes.set([]);
+      this.loadingNotes.set(false);
       return;
     }
 
+    const requestVersion = ++this.notesRequestVersion;
     this.loadingNotes.set(true);
 
     this.stickyNoteApiService.getAll({
       workspaceId,
       workspaceFolderId: folderId,
-      page: 1,
-      limit: 100,
-      status: 'ACTIVE',
-      datePreset: 'TODAY',
+      page: DEFAULT_PAGE,
+      limit: DEFAULT_LIMIT,
+      status: ACTIVE_STATUS,
+      datePreset: TODAY_DATE_PRESET,
       sortBy: 'position',
-      sortOrder: 'asc',
+      sortOrder: SORT_ASC,
     })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => {
+          if (requestVersion === this.notesRequestVersion) {
+            this.loadingNotes.set(false);
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: response => {
-          if (this.activeWorkspaceId() !== workspaceId || this.activeFolder() !== folderId) {
+          if (requestVersion !== this.notesRequestVersion ||
+            this.activeWorkspaceId() !== workspaceId ||
+            this.activeFolder() !== folderId) {
             return;
           }
           const notes = sortNotesByRank(extractList(response))
             .map(note => this.mapNote(note));
           this.stickyNotes.set(notes);
-          this.loadingNotes.set(false);
         },
         error: error => {
-          if (this.activeWorkspaceId() !== workspaceId || this.activeFolder() !== folderId) {
+          if (requestVersion !== this.notesRequestVersion ||
+            this.activeWorkspaceId() !== workspaceId ||
+            this.activeFolder() !== folderId) {
             return;
           }
-          console.error(error);
           this.stickyNotes.set([]);
-          this.boardError.set(extractErrorMessage(error, 'Failed to load notes'));
-          this.loadingNotes.set(false);
+          this.boardError.set(extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTES_LOAD_FAILED));
         }
       });
   }
@@ -758,7 +806,7 @@ export class Today {
           this.stickyNotes.update(notes =>
             notes.map(item => item.id === noteId ? { ...item, title: currentTitle } : item)
           );
-          this.toastService.error(extractErrorMessage(error, 'Unable to rename note.'), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
             title: 'Title not updated',
             dedupeKey: `note-title-${noteId}`
           });
@@ -775,12 +823,7 @@ export class Today {
   }
 
   visibleNotesFor(columnId: string): any[] {
-    const search = this.searchTerm().trim().toLowerCase();
-    const notesInCol = this.notesInColumn(columnId);
-    if (!search) return notesInCol;
-    return notesInCol.filter(note =>
-      `${note.title ?? ''} ${note.description ?? ''}`.toLowerCase().includes(search)
-    );
+    return this.visibleNotesByColumn().get(idOf(columnId)) ?? [];
   }
 
   canMoveBackward(note: any): boolean {
@@ -828,14 +871,14 @@ export class Today {
           if (items.length > 0) {
             this.stickyNoteColumnStore.setColumns(workspaceId, folderId, items);
           }
-          this.toastService.success('Columns rearranged successfully.', {
+          this.toastService.success(this.responseMessage(response, TODAY_MESSAGES.SUCCESS.COLUMNS_REORDERED), {
             title: 'Column order updated',
             dedupeKey: 'columns-reordered'
           });
         },
         error: (error: any) => {
           this.stickyNoteColumnStore.setColumns(workspaceId, folderId, previousColumns as any);
-          this.toastService.error(extractErrorMessage(error, 'Unable to rearrange columns.'), {
+          this.toastService.error(extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_REORDER_FAILED), {
             title: 'Rearrange failed',
             dedupeKey: 'columns-reorder-error'
           });
@@ -884,16 +927,15 @@ export class Today {
   }
 
   isNoteCompleted(note: any): boolean {
-    return this.stickyNoteColumns().find(column => column.id === note.columnId)?.type === 'COMPLETED';
+    return this.columnForNote(note)?.type === 'COMPLETED';
   }
 
   noteEyebrow(note: any): string {
-    const type = this.stickyNoteColumns().find(column => column.id === note.columnId)?.type;
-    return getNoteColumnEyebrow(type);
+    return getNoteColumnEyebrow(this.columnForNote(note)?.type);
   }
 
   noteColumnLabel(note: any): string {
-    return this.stickyNoteColumns().find(column => column.id === note.columnId)?.label
+    return this.columnForNote(note)?.label
       ?? note?.columnName
       ?? 'Note';
   }
@@ -907,7 +949,7 @@ export class Today {
   }
 
   noteColumnAccent(note: any): string {
-    return this.stickyNoteColumns().find(column => column.id === note.columnId)?.accent ?? getNoteColorAccent('YELLOW');
+    return this.columnForNote(note)?.accent ?? getNoteColorAccent('YELLOW');
   }
 
   stickyNoteData(note: any, column: any): any {
@@ -936,15 +978,15 @@ export class Today {
     this.stickyNoteApiService.moveToTrash(noteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response: any) => {
           this.onNoteDeleted(noteId);
-          this.toastService.success('Moved to Trash. You can restore this note for 60 days.', {
+          this.toastService.success(this.responseMessage(response, STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH_WITH_RETENTION), {
             title: 'Note safely moved',
             dedupeKey: `trash-note-${noteId}`
           });
         },
         error: (error: any) => {
-          this.toastService.error(extractErrorMessage(error, 'Unable to move note to Trash.'), {
+          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
             title: 'Note not moved',
             dedupeKey: `trash-note-${noteId}`
           });
@@ -971,7 +1013,7 @@ export class Today {
 
   openFolderCreateModal(): void {
     const workspaceId = this.activeWorkspaceId();
-    this.router.navigate(['/workspacefolders'], {
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_FOLDERS), {
       queryParams: workspaceId ? { workspaceId } : undefined
     });
   }
@@ -1042,16 +1084,11 @@ export class Today {
 
     const previousNotes = [...this.stickyNotes()];
 
-    // Get sorted notes in target column excluding the note being moved
     const targetColumnNotes = this.notesInColumn(targetColId).filter(item => idOf(item) !== noteId);
     const boundedIndex = Math.max(0, Math.min(targetIndex, targetColumnNotes.length));
 
     const { beforeId, afterId } = getNeighborNoteIds(targetColumnNotes, boundedIndex, noteId);
 
-    // Optimistically update local array:
-    // keep every note that is neither the dragged note NOR in the target column,
-    // then insert the dragged note (with updated columnId) at the correct position
-    // in the target column's sorted list.
     const optimisticTargetNotes = [...targetColumnNotes];
     optimisticTargetNotes.splice(boundedIndex, 0, { ...note, columnId: targetColId });
 
@@ -1084,19 +1121,15 @@ export class Today {
           }
         },
         error: (error: any) => {
-          console.error(error);
           this.stickyNotes.set(previousNotes);
-          this.boardError.set(extractErrorMessage(error, 'Unable to move note.'));
+          this.boardError.set(extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTE_MOVE_FAILED));
           this.getNotesForToday();
         }
       });
   }
 
   private notesInColumn(columnId: string): any[] {
-    const colId = idOf(columnId);
-    return sortNotesByRank(
-      this.stickyNotes().filter(note => idOf(note.columnId) === colId)
-    );
+    return this.notesByColumn().get(idOf(columnId)) ?? [];
   }
 
   private sortNotes(notes: any[]): any[] {
@@ -1193,6 +1226,7 @@ export class Today {
   }
 
   private clearBoard(): void {
+    this.notesRequestVersion += 1;
     this.closeNotePanel();
     this.closeColumnPanel();
     this.stickyNotes.set([]);
@@ -1212,6 +1246,20 @@ export class Today {
   private columnIndex(columnId: string): number {
     const colId = idOf(columnId);
     return this.stickyNoteColumns().findIndex(column => idOf(column.id) === colId);
+  }
+
+  private columnForNote(note: any): any | null {
+    return this.stickyNoteColumnById().get(idOf(note?.columnId)) ?? null;
+  }
+
+  private noteMatchesSearch(note: any, search: string): boolean {
+    if (!search) return true;
+    return `${note?.title ?? ''} ${note?.description ?? ''}`.toLowerCase().includes(search);
+  }
+
+  private responseMessage(response: any, fallback: string): string {
+    const message = String(response?.message ?? response?.data?.message ?? '').trim();
+    return message || fallback || COMMON_MESSAGES.ERROR.GENERIC;
   }
 
   private mapNote(note: any): any {
