@@ -110,6 +110,7 @@ const ACTIVE_STATUS = 'ACTIVE';
 const TODAY_DATE_PRESET = 'TODAY';
 const SORT_ASC = 'asc';
 const SORT_DESC = 'desc';
+type TodayLoadErrorKind = 'network' | 'server';
 
 @Component({
   selector: 'app-today',
@@ -179,6 +180,7 @@ export class Today {
 
   readonly today = signal(new Date());
   readonly VIEW = VIEW;
+  readonly TODAY_MESSAGES = TODAY_MESSAGES;
   readonly view = signal<View>(VIEW.KANBAN);
   readonly searchTerm = signal('');
   readonly movingColumn = signal(false);
@@ -207,11 +209,16 @@ export class Today {
 
   readonly activeWorkspaceId = this.workspaceStore.selectedId;
   readonly loadingWorkspaces = this.workspaceStore.loading;
+  readonly workspaceError = this.workspaceStore.error;
+  readonly workspacesLoaded = this.workspaceStore.loaded;
+  readonly hasWorkspaces = computed(() => this.workspaceStore.workspaces().length > 0);
+  readonly workspaceErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly activeFolder = this.workspaceFolderStore.selectedId;
   readonly loadingFolders = this.workspaceFolderStore.loading;
   readonly folders = this.workspaceFolderStore.activeFolders;
   readonly foldersError = this.workspaceFolderStore.error;
+  readonly foldersErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly folderOptions = computed<any[]>(() =>
     this.folders().map(folder => ({
@@ -242,6 +249,7 @@ export class Today {
   readonly loadingColumns = this.stickyNoteColumnStore.loading;
 
   readonly boardError = signal<string | null>(null);
+  readonly boardErrorKind = signal<TodayLoadErrorKind>('server');
   readonly movingNoteId = signal<string | null>(null);
   readonly tableEditingTitleId = signal<string | null>(null);
   readonly tableTitleDraft = signal('');
@@ -273,6 +281,9 @@ export class Today {
   );
 
   readonly noteCount = computed(() => this.stickyNotes().length);
+  readonly hasNotes = computed(() => this.noteCount() > 0);
+  readonly hasVisibleNotes = computed(() => this.visibleListNotes().length > 0);
+  readonly hasSearch = computed(() => !!this.searchTerm().trim());
   readonly hasColumns = computed(() => this.stickyNoteColumns().length > 0);
   readonly firstActionColumnId = computed(() => this.stickyNoteColumns()[0]?.id ?? '');
 
@@ -429,6 +440,7 @@ export class Today {
 
     this.workspaceStore.setLoading(true);
     this.workspaceStore.clearError();
+    this.workspaceErrorKind.set('server');
 
     this.workspaceApiService.getMyWorkspaces()
       .pipe(
@@ -458,6 +470,7 @@ export class Today {
           this.activateWorkspace(workspaceId);
         },
         error: (error: any) => {
+          this.workspaceErrorKind.set(this.errorKind(error));
           this.workspaceStore.setError(
             extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED)
           );
@@ -552,6 +565,7 @@ export class Today {
     const requestVersion = ++this.folderRequestVersion;
     this.workspaceFolderStore.resetForWorkspace(id);
     this.workspaceFolderStore.setLoading(true);
+    this.foldersErrorKind.set('server');
 
     const query: WorkspaceFolderQuery = {
       workspaceId: id,
@@ -587,6 +601,7 @@ export class Today {
           }
 
           const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.FOLDERS_LOAD_FAILED);
+          this.foldersErrorKind.set(this.errorKind(error));
           this.workspaceFolderStore.setError(message);
           this.clearBoard();
         }
@@ -630,6 +645,7 @@ export class Today {
 
     this.stickyNoteColumnStore.resetForContext(workspaceId, folderId);
     this.stickyNoteColumnStore.setLoading(true);
+    this.boardErrorKind.set('server');
 
     this.stickyNoteColumnApiService
       .getByWorkspaceFolder(workspaceId, folderId)
@@ -640,6 +656,7 @@ export class Today {
             this.activeFolder() !== folderId) {
             return;
           }
+          this.boardError.set(null);
           this.stickyNoteColumnStore.setColumns(workspaceId, folderId, extractList(response));
         },
         error: error => {
@@ -649,6 +666,14 @@ export class Today {
           }
           const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_LOAD_FAILED);
           this.stickyNoteColumnStore.setError(message);
+          this.boardErrorKind.set(this.errorKind(error));
+          if (this.hasNotes() || this.hasColumns()) {
+            this.toastService.error(message, {
+              title: this.errorTitle(this.boardErrorKind()),
+              dedupeKey: 'today-columns-load-error'
+            });
+            return;
+          }
           this.boardError.set(message);
         }
       });
@@ -665,6 +690,7 @@ export class Today {
     }
 
     const requestVersion = ++this.notesRequestVersion;
+    const hadNotes = this.hasNotes();
     this.loadingNotes.set(true);
 
     this.stickyNoteApiService.getAll({
@@ -694,6 +720,7 @@ export class Today {
           }
           const notes = sortNotesByRank(extractList(response))
             .map(note => this.mapNote(note));
+          this.boardError.set(null);
           this.stickyNotes.set(notes);
         },
         error: error => {
@@ -703,7 +730,16 @@ export class Today {
             return;
           }
           this.stickyNotes.set([]);
-          this.boardError.set(extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTES_LOAD_FAILED));
+          const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTES_LOAD_FAILED);
+          this.boardErrorKind.set(this.errorKind(error));
+          if (hadNotes) {
+            this.toastService.error(message, {
+              title: this.errorTitle(this.boardErrorKind()),
+              dedupeKey: 'today-notes-refresh-error'
+            });
+            return;
+          }
+          this.boardError.set(message);
         }
       });
   }
@@ -737,6 +773,16 @@ export class Today {
 
   clearSearch(): void {
     this.searchTerm.set('');
+  }
+
+  errorTitle(kind: TodayLoadErrorKind): string {
+    return kind === 'network' ? 'Unable to connect' : 'Could not load today';
+  }
+
+  errorMessage(kind: TodayLoadErrorKind, fallback: string | null): string {
+    return kind === 'network'
+      ? TODAY_MESSAGES.ERROR.NETWORK
+      : fallback || COMMON_MESSAGES.ERROR.GENERIC;
   }
 
   startTableTitleEdit(note: any, event?: Event): void {
@@ -824,6 +870,10 @@ export class Today {
 
   visibleNotesFor(columnId: string): any[] {
     return this.visibleNotesByColumn().get(idOf(columnId)) ?? [];
+  }
+
+  openWorkspaceCreatePage(): void {
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACES));
   }
 
   canMoveBackward(note: any): boolean {
@@ -1260,6 +1310,28 @@ export class Today {
   private responseMessage(response: any, fallback: string): string {
     const message = String(response?.message ?? response?.data?.message ?? '').trim();
     return message || fallback || COMMON_MESSAGES.ERROR.GENERIC;
+  }
+
+  private errorKind(error: any): TodayLoadErrorKind {
+    return this.isNetworkError(error) ? 'network' : 'server';
+  }
+
+  private isNetworkError(error: any): boolean {
+    const status = Number(error?.status);
+    if (status === 0) return true;
+
+    const message = String(
+      error?.message ??
+      error?.error?.message ??
+      error?.statusText ??
+      ''
+    ).toLowerCase();
+
+    return message.includes('network') ||
+      message.includes('internet') ||
+      message.includes('offline') ||
+      message.includes('timeout') ||
+      message.includes('connection');
   }
 
   private mapNote(note: any): any {

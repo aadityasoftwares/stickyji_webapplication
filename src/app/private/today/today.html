@@ -103,13 +103,51 @@
                 </div>
             </div>
             <div class="today-explorer-body" [class.is-table]="isTableView()" [class.is-list]="isTableView()">
-                @if (loadingWorkspaces() || (loadingFolders() && folders().length === 0)) {
+                @if (loadingWorkspaces() && !workspacesLoaded()) {
                 <div class="today-loader-state">
-                    <app-loader mode="section" size="md" tone="colorful"
-                        [label]="loadingWorkspaces() ? 'Opening your workspace...' : 'Opening your folders...'"
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening your workspace..."
                         description="Getting today’s workspace ready." [minHeight]="390" />
                 </div>
+                } @else if (workspaceError()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="today-empty-note">{{ errorTitle(workspaceErrorKind()) }}</span>
+                    <h2>{{ workspaceErrorKind() === 'network' ? 'Unable to connect' : 'Workspaces are unavailable' }}</h2>
+                    <p>{{ errorMessage(workspaceErrorKind(), workspaceError()) }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="getWorkspaces(true)" />
+                </div>
+                } @else if (!hasWorkspaces()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucidePanelsTopLeft" size="lg" /></span>
+                    <span class="today-empty-note">Start with a workspace</span>
+                    <h2>No workspace yet</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_WORKSPACE }}</p>
+                    <app-button label="New workspace" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openWorkspaceCreatePage()" />
+                </div>
+                } @else if (!activeWorkspaceId()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucidePanelsTopLeft" size="lg" /></span>
+                    <span class="today-empty-note">Choose a workspace</span>
+                    <h2>No workspace selected</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_WORKSPACE_SELECTED }}</p>
+                </div>
+                } @else if (loadingFolders() && folders().length === 0) {
+                <div class="today-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening your folders..."
+                        description="Getting todayâ€™s workspace ready." [minHeight]="390" />
+                </div>
                 } @else if (foldersError()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="today-empty-note">{{ errorTitle(foldersErrorKind()) }}</span>
+                    <h2>{{ foldersErrorKind() === 'network' ? 'Unable to connect' : 'Folders are unavailable' }}</h2>
+                    <p>{{ errorMessage(foldersErrorKind(), foldersError()) }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="retryFolders()" />
+                </div>
+                } @else if (false) {
                 <div class="today-empty-state">
                     <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
                     <span class="today-empty-note">Couldn’t open your folders</span>
@@ -119,6 +157,15 @@
                         (buttonClick)="retryFolders()" />
                 </div>
                 } @else if (folders().length === 0) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
+                    <span class="today-empty-note">Start with a folder</span>
+                    <h2>No folders yet</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_FOLDERS }}</p>
+                    <app-button label="New folder" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openFolderCreateModal()" />
+                </div>
+                } @else if (false) {
                 <div class="today-empty-state">
                     <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
                     <span class="today-empty-note">Start with a folder</span>
@@ -132,14 +179,30 @@
                     <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
                     <span class="today-empty-note">Choose where to work</span>
                     <h2>Select a folder</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_FOLDER_SELECTED }}</p>
+                </div>
+                } @else if (false) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
+                    <span class="today-empty-note">Choose where to work</span>
+                    <h2>Select a folder</h2>
                     <p>Your Kanban board and list will appear here.</p>
                 </div>
-                } @else if (loadingColumns() || loadingNotes()) {
+                } @else if ((loadingColumns() || loadingNotes()) && !hasNotes()) {
                 <div class="today-loader-state">
                     <app-loader mode="section" size="md" tone="colorful" label="Preparing today..."
                         description="Loading columns and sticky notes." [minHeight]="390" />
                 </div>
-                } @else if (boardError()) {
+                } @else if (boardError() && !hasNotes()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
+                    <span class="today-empty-note">{{ errorTitle(boardErrorKind()) }}</span>
+                    <h2>{{ boardErrorKind() === 'network' ? 'Unable to connect' : 'Couldnâ€™t load todayâ€™s notes' }}</h2>
+                    <p>{{ errorMessage(boardErrorKind(), boardError()) }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="refreshBoard()" />
+                </div>
+                } @else if (false) {
                 <div class="today-empty-state">
                     <span class="today-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
                     <span class="today-empty-note">Something slipped away</span>
@@ -156,6 +219,23 @@
                     <p>Create or configure columns before adding notes to this board.</p>
                     <app-button label="Add column" [iconLeft]="LucidePlus" variant="outline" size="sm"
                         (buttonClick)="openColumnCreateModal()" />
+                </div>
+                } @else if (!hasNotes()) {
+                <div class="today-empty-state">
+                    <span class="today-empty-icon"><app-icon [icon]="LucidePlus" size="lg" /></span>
+                    <span class="today-empty-note">A clear day</span>
+                    <h2>No notes yet</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_NOTES }}</p>
+                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        (buttonClick)="openNoteCreatePanel(firstActionColumnId())" />
+                </div>
+                } @else if (hasSearch() && !hasVisibleNotes()) {
+                <div class="today-empty-state is-compact">
+                    <span class="today-empty-icon"><app-icon [icon]="LucideSearch" size="lg" /></span>
+                    <span class="today-empty-note">Nothing matches your search</span>
+                    <h2>No matching notes found</h2>
+                    <p>{{ TODAY_MESSAGES.EMPTY.NO_SEARCH_RESULTS }}</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
                 </div>
                 } @else if (isKanbanView()) {
                 <div class="today-kanban" cdkDropListGroup aria-label="Today Kanban board">
