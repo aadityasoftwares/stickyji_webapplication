@@ -79,7 +79,7 @@
                 <div class="note-date-control">
                     <app-datepicker-input inputId="note-date" label="Note date" labelMode="hidden" placeholder="dd-mm-yyyy"
                         variant="paper" appearance="simple" shape="rounded" size="sm" formControlName="noteDate"
-                        [showLeadingIcon]="false" [disabled]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
+                        [showLeadingIcon]="false" [loading]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
                 </div>
                 <app-button class="note-favorite-toggle-btn" [class.is-favorited]="isFavorite()"
                     [iconLeft]="LucideStar"

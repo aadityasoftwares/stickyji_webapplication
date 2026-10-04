@@ -16,6 +16,12 @@ export const USER_PREFERENCE_KEYS = {
     SHOW_ONLINE_STATUS: 'showOnlineStatus',
     REDUCE_MOTION: 'reduceMotion',
     HIGH_CONTRAST: 'highContrast',
+    DATE_FORMAT: 'dateFormat',
+    LANGUAGE: 'language',
+    LOCALE: 'locale',
+    TIME_FORMAT: 'timeFormat',
+    TIMEZONE: 'timezone',
+    WEEK_STARTS_ON: 'weekStartsOn',
 } as const;
 
 export type UserPreferenceKey =
@@ -109,6 +115,12 @@ export interface UserPreferencesM {
     showOnlineStatus: boolean;
     reduceMotion: boolean;
     highContrast: boolean;
+    dateFormat: string;
+    language: string;
+    locale: string;
+    timeFormat: '12h' | '24h';
+    timezone: string;
+    weekStartsOn: string;
 }
 
 export interface UpdateUserPreferenceItem {
@@ -157,6 +169,12 @@ export const DEFAULT_USER_PREFERENCES:
     showOnlineStatus: true,
     reduceMotion: false,
     highContrast: false,
+    dateFormat: 'DD/MM/YYYY',
+    language: 'en',
+    locale: 'en-US',
+    timeFormat: '12h',
+    timezone: 'UTC',
+    weekStartsOn: 'monday',
 };
 
 export const USER_PREFERENCE_KEY_LIST =

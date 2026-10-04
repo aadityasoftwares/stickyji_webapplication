@@ -72,6 +72,7 @@ import {
   getWorkspaceMemberName,
   getWorkspaceMemberRole,
 } from '../../shared/functions/workspace-member.function';
+import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
 @Component({
   selector: 'app-workspace',
@@ -103,6 +104,7 @@ export class Workspace implements OnInit {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowRight = LucideArrowRight;
@@ -613,16 +615,7 @@ export class Workspace implements OnInit {
   workspaceDateLabel(workspace: any): string {
     if (workspace?._dateLabel) return workspace._dateLabel;
     const value = workspace?.updatedAt ?? workspace?.createdAt;
-    if (!value) return 'Not saved yet';
-
-    const date = new Date(value);
-    return Number.isNaN(date.getTime())
-      ? 'Date unavailable'
-      : new Intl.DateTimeFormat('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }).format(date);
+    return this.dateTimeFormatter.formatDate(value, 'Not saved yet') || 'Date unavailable';
   }
 
   workspaceStatusLabel(workspace: any): string {
@@ -658,24 +651,7 @@ export class Workspace implements OnInit {
     const value = workspace?.updatedAt ?? workspace?.createdAt;
     if (!value) return 'Recently';
 
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return 'Recently';
-
-    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-
-    const days = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days}d ago`;
-
-    return new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric',
-      month: 'short',
-    }).format(date);
+    return this.dateTimeFormatter.formatRelativeDate(value, 'Recently');
   }
 
   workspaceTheme(workspace: any): any {

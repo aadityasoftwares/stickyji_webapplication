@@ -66,13 +66,12 @@ import {
   getNotePreview,
   getNoteTimestamp,
   getNoteTitle,
-  getNoteUpdatedLabel,
   isNoteActive,
   isNoteArchived,
   isNoteDeleted,
   toColorCssClass
 } from '../../shared/functions/sticky-note.function';
-import { formatDateKeyDisplay } from '../../shared/functions/date.function';
+import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
 @Component({
   selector: 'app-sticky-notes-favourites',
@@ -104,6 +103,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   /* -------------------------------------------------------------------------- */
   /*                                    Icons                                   */
@@ -580,7 +580,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   noteUpdatedLabel(note: any): string {
-    return getNoteUpdatedLabel(note);
+    return this.dateTimeFormatter.formatRelativeDate(note?.updatedAt ?? note?.createdAt, 'Recently');
   }
 
   noteColorKey(note: any): string {
@@ -644,7 +644,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       backgroundPattern: note?.backgroundPattern ?? 'NONE',
       compact: this.isCompactLayout(),
       dueLabel: note?.noteDate
-        ? formatDateKeyDisplay(note.noteDate, '', 'en')
+        ? this.dateTimeFormatter.formatDateKey(note.noteDate, '')
         : this.noteUpdatedLabel(note),
       tag: isNoteArchived(note) ? 'Archived' : 'Active',
       tagVariant: isNoteArchived(note) ? 'neutral' : 'success',

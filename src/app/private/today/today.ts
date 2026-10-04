@@ -8,7 +8,7 @@ import {
   signal,
   untracked
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -86,10 +86,10 @@ import {
   getWorkspaceMemberName,
   getWorkspaceMemberRole
 } from '../../shared/functions/workspace-member.function';
-import {
-  formatDateKeyDisplay,
-  todayDateKey
-} from '../../shared/functions/date.function';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
+import { UserDateTimePipe } from '../../shared/pipes/user-date-time.pipe';
+import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { STICKY_NOTE_MESSAGES } from '../mynotes/messages/sticky-note.messages';
@@ -120,7 +120,6 @@ type TodayLoadErrorKind = 'network' | 'server';
   styleUrl: './today.scss',
   imports: [
     CommonModule,
-    DatePipe,
     FormsModule,
     DragDropModule,
     OverlayModule,
@@ -137,6 +136,9 @@ type TodayLoadErrorKind = 'network' | 'server';
     Select,
     StickyNote,
     Tabs,
+    UserDatePipe,
+    UserDateTimePipe,
+    UserTimePipe,
     AddEditNoteSidePanel,
     AddEditStickyNoteColumnSidePanel
   ]
@@ -146,6 +148,7 @@ export class Today {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
@@ -161,6 +164,7 @@ export class Today {
   private folderRequestVersion = 0;
   private workspaceMemberRequestVersion = 0;
   private notesRequestVersion = 0;
+  private readonly stickyNoteDataCache = new Map<string, { key: string; value: any }>();
 
   readonly LucideAArrowUp = LucideAArrowUp;
   readonly LucideArrowLeft = LucideArrowLeft;
@@ -180,7 +184,7 @@ export class Today {
 
   readonly today = signal(new Date());
   readonly VIEW = VIEW;
-  readonly TODAY_MESSAGES = TODAY_MESSAGES;
+  readonly TODAY_MESSAGES: any = TODAY_MESSAGES;
   readonly view = signal<View>(VIEW.KANBAN);
   readonly searchTerm = signal('');
   readonly movingColumn = signal(false);
@@ -991,11 +995,11 @@ export class Today {
   }
 
   noteDateLabel(value: unknown): string {
-    return formatDateKeyDisplay(value);
+    return this.dateTimeFormatter.formatDateKey(value, 'No date');
   }
 
   todayDateKey(): string {
-    return todayDateKey(this.today());
+    return this.dateTimeFormatter.todayDateKey();
   }
 
   noteColumnAccent(note: any): string {
@@ -1003,22 +1007,73 @@ export class Today {
   }
 
   stickyNoteData(note: any, column: any): any {
-    return {
+    const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
+    const columnLabel = column?.label ?? column?.name ?? 'Note';
+    const layout = this.stickyNoteLayout();
+    const font = this.stickyNoteFont();
+    const fontSize = this.stickyNoteFontSize();
+    const movingNoteId = this.movingNoteId();
+    const canMoveBackward = this.canMoveBackward(note);
+    const canMoveForward = this.canMoveForward(note);
+    const key = JSON.stringify([
+      noteId,
+      note?.title,
+      note?.content,
+      note?.description,
+      note?.columnId,
+      note?.color,
+      note?.shape,
+      note?.variant,
+      note?.backgroundPattern,
+      note?.noteDate,
+      note?.updatedAt,
+      note?.isFavorite,
+      note?.favoriteId,
+      note?.progress,
+      note?.checklistCount,
+      note?.checklistItemCount,
+      note?.completedChecklistItemCount,
+      note?.assignees?.length,
+      note?.checklists?.length,
+      column?.id,
+      columnLabel,
+      column?.checkboxVariant,
+      this.view(),
+      layout,
+      font,
+      fontSize,
+      Boolean(this.searchTerm().trim()),
+      movingNoteId,
+      canMoveBackward,
+      canMoveForward,
+      this.isNoteCompleted(note)
+    ]);
+    const cached = this.stickyNoteDataCache.get(noteId);
+    if (cached?.key === key) {
+      return cached.value;
+    }
+
+    const value = {
       ...note,
       eyebrow: this.noteEyebrow(note),
-      columnLabel: column?.label ?? column?.name ?? 'Note',
+      columnLabel,
       checkboxVariant: column?.checkboxVariant,
       completed: this.isNoteCompleted(note),
       view: this.view(),
-      layout: this.stickyNoteLayout(),
-      font: this.stickyNoteFont(),
-      fontSize: this.stickyNoteFontSize(),
+      layout,
+      font,
+      fontSize,
       showDragHandle: !this.searchTerm().trim() && !this.movingNoteId(),
       showMoveActions: true,
-      canMoveBackward: this.canMoveBackward(note),
-      canMoveForward: this.canMoveForward(note),
-      actionsDisabled: this.movingNoteId() === (note?.id ?? note?._id)
+      canMoveBackward,
+      canMoveForward,
+      actionsDisabled: movingNoteId === (note?.id ?? note?._id)
     };
+
+    if (noteId) {
+      this.stickyNoteDataCache.set(noteId, { key, value });
+    }
+    return value;
   }
 
   deleteNote(note: any): void {
@@ -1046,12 +1101,14 @@ export class Today {
 
   onNoteDeleted(noteId: string): void {
     if (!noteId) return;
+    this.stickyNoteDataCache.delete(noteId);
     this.stickyNotes.update(notes => notes.filter(item => idOf(item) !== noteId));
   }
 
   onNoteUpdated(updated: any): void {
     const id = idOf(updated);
     if (!id) return;
+    this.stickyNoteDataCache.delete(id);
     this.stickyNotes.update(notes => notes.map(item => idOf(item) === id ? { ...item, ...updated } : item));
   }
 
@@ -1068,7 +1125,7 @@ export class Today {
     });
   }
 
-  openColumnCreateModal(): void {
+  openColumnCreateSidePanel(): void {
     if (!this.activeWorkspaceId() || !this.activeFolder() || this.boardLoading()) return;
     this.columnPanelMode.set('create');
     this.columnPanelId.set('');
@@ -1277,6 +1334,7 @@ export class Today {
 
   private clearBoard(): void {
     this.notesRequestVersion += 1;
+    this.stickyNoteDataCache.clear();
     this.closeNotePanel();
     this.closeColumnPanel();
     this.stickyNotes.set([]);

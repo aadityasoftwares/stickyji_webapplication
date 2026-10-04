@@ -81,7 +81,6 @@ import {
   getNotePreview,
   getNoteTimestamp,
   getNoteTitle,
-  getNoteUpdatedLabel,
   getNeighborNoteIds,
   isNoteActive,
   isNoteArchived,
@@ -91,7 +90,7 @@ import {
   sortNotesByRank,
   toColorCssClass
 } from '../../shared/functions/sticky-note.function';
-import { formatDateKeyDisplay } from '../../shared/functions/date.function';
+import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
 import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
 import { StickyNoteApiService } from './services/sticky-notes.service';
@@ -134,6 +133,7 @@ export class MyNotes implements OnInit, OnChanges {
   private readonly stickyNoteChecklistItemApi = inject(StickyNoteChecklistItemApiService);
   readonly favoriteApi = inject(StickyNotesFavouriteService);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   @Input()
   workspaceId = '';
@@ -740,7 +740,7 @@ export class MyNotes implements OnInit, OnChanges {
       backgroundPattern: note?.backgroundPattern ?? 'NONE',
       compact: this.isCompactLayout(),
       dueLabel: note?.noteDate
-        ? formatDateKeyDisplay(note.noteDate, '', 'en')
+        ? this.dateTimeFormatter.formatDateKey(note.noteDate, '')
         : this.noteUpdatedLabel(note),
       tag: isNoteArchived(note) ? 'Archived' : 'Active',
       tagVariant: isNoteArchived(note) ? 'neutral' : 'success',
@@ -1012,9 +1012,8 @@ export class MyNotes implements OnInit, OnChanges {
     return value ? value.charAt(0).toUpperCase() + value.slice(1) : 'White';
   }
 
-  /** Delegates to shared getNoteUpdatedLabel from sticky-note.function.ts */
   noteUpdatedLabel(note: any): string {
-    return getNoteUpdatedLabel(note);
+    return this.dateTimeFormatter.formatRelativeDate(note?.updatedAt ?? note?.createdAt, 'Recently');
   }
 
   /** Delegates to shared isNoteActive from sticky-note.function.ts */

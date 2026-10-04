@@ -73,6 +73,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
   readonly loadError = signal<string | null>(null);
 
   private loadedWorkspaceId = '';
+  private readonly emptyAssigneeIds: readonly string[] = [];
 
   /**
    * Transformed options for app-select
@@ -104,8 +105,9 @@ export class StickyNoteAssigneeSelect implements OnChanges {
     });
   });
 
-  get currentValues(): string[] {
-    return Array.isArray(this.selectedAssigneeIds) ? [...this.selectedAssigneeIds] : [];
+  get currentValues(): readonly string[] {
+    // NgModel schedules a form update whenever this array's identity changes.
+    return Array.isArray(this.selectedAssigneeIds) ? this.selectedAssigneeIds : this.emptyAssigneeIds;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -183,7 +185,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
     this.selectedAssigneesChange.emit(previewItems);
   }
 
-  private buildPreviewItems(ids: string[], membersList: WorkspaceMemberListItem[]): AssigneePreviewItem[] {
+  private buildPreviewItems(ids: readonly string[], membersList: WorkspaceMemberListItem[]): AssigneePreviewItem[] {
     const membersMap = new Map<string, WorkspaceMemberListItem>();
     for (const m of membersList) {
       const uId = m.user?.id || idOf(m);

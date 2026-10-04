@@ -50,6 +50,7 @@ import {
   VIEW,
   View
 } from '../../../shared/constants/common.constants';
+import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -100,6 +101,7 @@ export class StickyNote {
   private readonly favoriteApi = inject(StickyNotesFavouriteService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   /* -------------------------------------------------------------------------- */
   /*                               Inputs / Outputs                             */
@@ -307,7 +309,12 @@ export class StickyNote {
   }
 
   get dueLabel(): string {
-    return String(this.data?.dueLabel || this.data?.noteDate || '').trim();
+    const explicitLabel = String(this.data?.dueLabel ?? '').trim();
+    if (explicitLabel) {
+      return this.dateTimeFormatter.formatDateKey(explicitLabel, '') || explicitLabel;
+    }
+
+    return this.dateTimeFormatter.formatDateKey(this.data?.noteDate, '');
   }
 
   get timeEstimate(): string {

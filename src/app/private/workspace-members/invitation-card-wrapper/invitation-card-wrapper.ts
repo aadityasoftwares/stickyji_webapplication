@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Input,
   Output
 } from '@angular/core';
@@ -23,6 +24,7 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { Avatar } from '../../../shared/components/avatar/avatar';
 import { Badge } from '../../../shared/components/badge/badge';
 import { idOf } from '../../../shared/functions/common.function';
+import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 import type {
   WorkspaceInvitation,
   WorkspaceInvitationStatus
@@ -42,6 +44,8 @@ import type {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InvitationCardWrapper {
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+
   @Input() invitation: WorkspaceInvitation | any = null;
   @Input() email = '';
   @Input() roleName = '';
@@ -170,27 +174,12 @@ export class InvitationCardWrapper {
 
   get createdDateLabel(): string {
     const val = this.createdAt ?? this.invitation?.createdAt;
-    if (!val) return 'Recently';
-    const date = new Date(val);
-    return Number.isNaN(date.getTime())
-      ? 'Recently'
-      : new Intl.DateTimeFormat('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        }).format(date);
+    return this.dateTimeFormatter.formatDate(val, 'Recently');
   }
 
   get expiresDateLabel(): string {
     const val = this.expiresAt ?? this.invitation?.expiresAt;
-    if (!val) return '—';
-    const date = new Date(val);
-    if (Number.isNaN(date.getTime())) return '—';
-    return new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
+    return this.dateTimeFormatter.formatDate(val, '—');
   }
 
   get resolvedMessage(): string {

@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.const
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { StickyNote } from '../sticky-note/sticky-note';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
+import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 
 type TrashView = 'grid' | 'list';
 type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
@@ -41,7 +42,6 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
   standalone: true,
   imports: [
     CommonModule,
-    DatePipe,
     FormsModule,
     AppIcon,
     AppInput,
@@ -51,7 +51,8 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
     Loader,
     Select,
     StickyNote,
-    Tabs
+    Tabs,
+    UserDatePipe
   ],
   templateUrl: './sticky-note-trash.html',
   styleUrl: './sticky-note-trash.scss',

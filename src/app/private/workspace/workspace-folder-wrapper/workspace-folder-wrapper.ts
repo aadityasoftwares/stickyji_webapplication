@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideCalendarDays,
@@ -13,6 +13,7 @@ import {
 } from '@lucide/angular';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { MembersStack } from '../../workspace-members/members-stack/members-stack';
+import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 @Component({
   standalone: true,
@@ -23,6 +24,8 @@ import { MembersStack } from '../../workspace-members/members-stack/members-stac
   templateUrl: './workspace-folder-wrapper.html',
 })
 export class WorkspaceFolderWrapper {
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+
   @Input() name = '';
   @Input() description = '';
   @Input() personal = false;
@@ -88,11 +91,7 @@ export class WorkspaceFolderWrapper {
   }
 
   get dateLabel(): string {
-    if (!this.updatedAt) return 'Not saved yet';
-    const date = this.updatedAt instanceof Date ? this.updatedAt : new Date(this.updatedAt);
-    return Number.isNaN(date.getTime()) ? 'Date unavailable' : new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric', month: 'short', year: 'numeric'
-    }).format(date);
+    return this.dateTimeFormatter.formatDate(this.updatedAt, 'Not saved yet');
   }
 
   get statusLabel(): string {

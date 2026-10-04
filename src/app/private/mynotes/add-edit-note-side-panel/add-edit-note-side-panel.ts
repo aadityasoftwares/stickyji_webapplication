@@ -206,6 +206,8 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   private savedNoteId = '';
   private savedNoteKey = '';
+  private livePreviewCacheKey = '';
+  private livePreviewCache: any = null;
   private readonly originalChecklistIds = new Set<string>();
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
 
@@ -334,34 +336,68 @@ export class AddEditNoteSidePanel implements OnChanges {
     const checklists = isChecklistActive
       ? formatLivePreviewChecklists(this.checklists.controls as FormGroup[])
       : [];
+    const previewDate = this.previewDate;
+    const columnLabel = this.previewColumnLabel;
+    const columnBadgeVariant = this.previewColumnBadgeVariant;
+    const title = this.controlString('title');
+    const content = this.controlString('content');
+    const color = this.controlString('color');
+    const shape = this.controlString('shape');
+    const variant = this.controlString('variant');
+    const backgroundPattern = this.controlString('backgroundPattern');
+    const favoriteId = this.favoriteId() || undefined;
+    const isFavorite = this.isFavorite();
+    const assignees = this.selectedAssignees().map(item => ({
+      id: item.id,
+      name: item.displayName || item.name,
+      displayName: item.displayName,
+      email: item.email,
+      initials: item.initials
+    }));
+    const cacheKey = JSON.stringify({
+      noteKey: this.savedNoteKey,
+      columnLabel,
+      columnBadgeVariant,
+      title,
+      content,
+      color,
+      shape,
+      variant,
+      backgroundPattern,
+      noteDate: previewDate,
+      checklists,
+      assignees,
+      isFavorite,
+      favoriteId
+    });
 
-    return {
+    if (cacheKey === this.livePreviewCacheKey && this.livePreviewCache) {
+      return this.livePreviewCache;
+    }
+
+    this.livePreviewCacheKey = cacheKey;
+    this.livePreviewCache = {
       id: 'editor-live-preview',
       noteKey: this.savedNoteKey,
-      columnLabel: this.previewColumnLabel,
-      columnBadgeVariant: this.previewColumnBadgeVariant,
-      title: this.controlString('title'),
-      content: this.controlString('content'),
-      color: this.controlString('color'),
-      shape: this.controlString('shape'),
-      variant: this.controlString('variant'),
-      backgroundPattern: this.controlString('backgroundPattern'),
-      noteDate: this.previewDate,
+      columnLabel,
+      columnBadgeVariant,
+      title,
+      content,
+      color,
+      shape,
+      variant,
+      backgroundPattern,
+      noteDate: previewDate,
       checklists,
-      assignees: this.selectedAssignees().map(item => ({
-        id: item.id,
-        name: item.displayName || item.name,
-        displayName: item.displayName,
-        email: item.email,
-        initials: item.initials
-      })),
+      assignees,
       layout: 'detail',
-      isFavorite: this.isFavorite(),
-      favoriteId: this.favoriteId() || undefined,
+      isFavorite,
+      favoriteId,
       showDragHandle: false,
       showMoveActions: false,
       inlineEditing: false
     };
+    return this.livePreviewCache;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -994,6 +1030,10 @@ export class AddEditNoteSidePanel implements OnChanges {
           this.isFavorite.set(res.isFavorite);
           this.favoriteId.set(res.favoriteId || null);
           this.cdr.markForCheck();
+        },
+        error: error => {
+          this.notifyError(extractErrorMessage(error, 'Unable to update favourite status.'), 'Favourite not updated');
+          this.cdr.markForCheck();
         }
       });
     } else {
@@ -1233,6 +1273,8 @@ export class AddEditNoteSidePanel implements OnChanges {
   private resetEditor(): void {
     this.savedNoteId = '';
     this.savedNoteKey = '';
+    this.livePreviewCacheKey = '';
+    this.livePreviewCache = null;
     this.saveState.set(this.mode === 'edit' ? 'saved' : 'idle');
     this.isFavorite.set(false);
     this.favoriteId.set(null);

@@ -124,7 +124,7 @@
                                     {{ purgeLabel(note) }}
                                 </span>
                                 @if (note?.deletedAt) {
-                                <span>Deleted {{ note.deletedAt | date:'mediumDate' }}</span>
+                                <span>Deleted {{ note.deletedAt | userDate }}</span>
                                 }
                             </div>
 
@@ -158,7 +158,7 @@
                                 {{ purgeLabel(note) }}
                             </span>
                             @if (note?.purgeAfter) {
-                            <small>Permanent deletion {{ note.purgeAfter | date:'mediumDate' }}</small>
+                            <small>Permanent deletion {{ note.purgeAfter | userDate }}</small>
                             }
                         </div>
 

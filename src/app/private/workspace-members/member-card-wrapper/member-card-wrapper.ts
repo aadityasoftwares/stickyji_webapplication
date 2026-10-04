@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Input,
   Output
 } from '@angular/core';
@@ -34,6 +35,7 @@ import {
 } from '../../../shared/functions/workspace-member.function';
 import { idOf } from '../../../shared/functions/common.function';
 import type { WorkspaceMemberStatus } from '../models/workspace-member.models';
+import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 @Component({
   selector: 'app-member-card-wrapper',
@@ -49,6 +51,8 @@ import type { WorkspaceMemberStatus } from '../models/workspace-member.models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MemberCardWrapper {
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+
   @Input() member: any = null;
   @Input() name = '';
   @Input() email = '';
@@ -181,15 +185,7 @@ export class MemberCardWrapper {
 
   get joinedDateLabel(): string {
     const val = this.joinedAt ?? this.member?.joinedAt ?? this.member?.createdAt;
-    if (!val) return 'Recently';
-    const date = new Date(val);
-    return Number.isNaN(date.getTime())
-      ? 'Recently'
-      : new Intl.DateTimeFormat('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        }).format(date);
+    return this.dateTimeFormatter.formatDate(val, 'Recently');
   }
 
   get hasLastActive(): boolean {
@@ -199,18 +195,7 @@ export class MemberCardWrapper {
   get lastActiveLabel(): string {
     const val = this.lastActiveAt ?? this.member?.lastActiveAt;
     if (!val) return 'Not active yet';
-    const date = new Date(val);
-    if (Number.isNaN(date.getTime())) return 'Not active yet';
-
-    const diffMin = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
-    if (diffMin < 1) return 'Active just now';
-    if (diffMin < 60) return `${diffMin}m ago`;
-    const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(date);
+    return this.dateTimeFormatter.formatRelativeDate(val, 'Not active yet');
   }
 
   get statusLabel(): string {

@@ -93,6 +93,26 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.HIGH_CONTRAST]
     );
 
+    readonly dateFormat = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.DATE_FORMAT]
+    );
+
+    readonly timeFormat = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.TIME_FORMAT]
+    );
+
+    readonly timezone = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.TIMEZONE]
+    );
+
+    readonly locale = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.LOCALE]
+    );
+
+    readonly weekStartsOn = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WEEK_STARTS_ON]
+    );
+
     readonly stickyNoteLayout = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT]
     );

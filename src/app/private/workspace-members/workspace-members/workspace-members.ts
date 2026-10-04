@@ -48,7 +48,7 @@ import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
-import { formatDateTime } from '../../../shared/functions/date.function';
+import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 import type {
   MyWorkspaceQuery,
@@ -133,6 +133,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   @Input() workspaceId = '';
   @Input() roleOptions: readonly SelectOption[] = [];
@@ -1736,11 +1737,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       | null
       | undefined
   ): string {
-    return formatDateTime(value, '—', 'en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    return this.dateTimeFormatter.formatDate(value, '—');
   }
 
   private formatActivity(

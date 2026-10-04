@@ -70,6 +70,7 @@ import {
 import type { WorkspaceFolder, WorkspaceFolderStatus } from './models/workspace-folder.models';
 import { WORKSPACE_FOLDER_MESSAGES } from './messages/workspace-folder.messages';
 import { VALIDATION_MESSAGES } from '../../shared/constants/common.messages';
+import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
 type FolderTab = 'all' | 'active' | 'archived';
 type FolderView = 'grid' | 'list';
@@ -111,6 +112,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly toastService = inject(ToastService);
+  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   @Input() workspaceId = '';
 
@@ -677,21 +679,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     const value = folder?.updatedAt ?? folder?.createdAt;
     if (!value) return 'Recently';
 
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return 'Recently';
-
-    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-
-    const days = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days}d ago`;
-
-    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(date);
+    return this.dateTimeFormatter.formatRelativeDate(value, 'Recently');
   }
 
   folderTheme(folder: any): FolderTheme {
