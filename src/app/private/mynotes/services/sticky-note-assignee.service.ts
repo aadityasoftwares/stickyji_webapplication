@@ -4,15 +4,6 @@ import type { Observable } from 'rxjs';
 
 import { environment } from '../../../../Environments/environments';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
-import type {
-  StickyNoteAssigneeCreateRequest,
-  StickyNoteAssigneePaginatedResponse,
-  StickyNoteAssigneeQuery,
-  StickyNoteAssigneeResponse,
-  StickyNoteAssigneeSyncRequest,
-  StickyNoteAssigneesListResponse
-} from '../models/sticky-note-assignee.interface';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -25,8 +16,8 @@ export class StickyNoteAssigneeApiService {
    * Fetch all active assignees for a specific sticky note.
    * Backend route: GET /stickynotesassignees/sticky-note/:stickyNoteId
    */
-  getByStickyNote(stickyNoteId: string): Observable<StickyNoteAssigneesListResponse> {
-    return this.http.get<StickyNoteAssigneesListResponse>(
+  getByStickyNote(stickyNoteId: string): Observable<any> {
+    return this.http.get<any>(
       `${this.assigneeBaseUrl}/sticky-note/${encodeURIComponent(stickyNoteId)}`,
       { withCredentials: true }
     );
@@ -38,9 +29,9 @@ export class StickyNoteAssigneeApiService {
    */
   sync(
     stickyNoteId: string,
-    payload: StickyNoteAssigneeSyncRequest
-  ): Observable<StickyNoteAssigneesListResponse> {
-    return this.http.put<StickyNoteAssigneesListResponse>(
+    payload: any
+  ): Observable<any> {
+    return this.http.put<any>(
       `${this.assigneeBaseUrl}/sync/${encodeURIComponent(stickyNoteId)}`,
       payload,
       { withCredentials: true }
@@ -51,8 +42,8 @@ export class StickyNoteAssigneeApiService {
    * Add a single assignee to a sticky note.
    * Backend route: POST /stickynotesassignees/create
    */
-  create(payload: StickyNoteAssigneeCreateRequest): Observable<StickyNoteAssigneeResponse> {
-    return this.http.post<StickyNoteAssigneeResponse>(
+  create(payload: any): Observable<any> {
+    return this.http.post<any>(
       `${this.assigneeBaseUrl}/create`,
       payload,
       { withCredentials: true }
@@ -63,8 +54,8 @@ export class StickyNoteAssigneeApiService {
    * Remove an assignee assignment by assignment record ID.
    * Backend route: DELETE /stickynotesassignees/delete/:id
    */
-  delete(id: string): Observable<StickyNoteAssigneeResponse> {
-    return this.http.delete<StickyNoteAssigneeResponse>(
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(
       `${this.assigneeBaseUrl}/delete/${encodeURIComponent(id)}`,
       { withCredentials: true }
     );
@@ -74,8 +65,8 @@ export class StickyNoteAssigneeApiService {
    * Query sticky note assignees with filters and pagination.
    * Backend route: GET /stickynotesassignees/getall
    */
-  getAll(query: StickyNoteAssigneeQuery = {}): Observable<StickyNoteAssigneePaginatedResponse> {
-    return this.http.get<StickyNoteAssigneePaginatedResponse>(
+  getAll(query: any = {}): Observable<any> {
+    return this.http.get<any>(
       `${this.assigneeBaseUrl}/getall`,
       { params: buildHttpParams(query), withCredentials: true }
     );

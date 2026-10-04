@@ -62,9 +62,6 @@ import {
   validateColumnForm
 } from '../../../shared/functions/sticky-note.function';
 
-import type {
-  StickyNoteColumnColor
-} from '../../mynotes/models/mynotes.interface';
 import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../../mynotes/services/sticky-note-column.store';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
@@ -340,7 +337,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const workspaceId = this.controlString('workspaceId');
     const workspaceFolderId = this.controlString('workspaceFolderId');
     const name = this.controlString('name').trim().replace(/\s+/g, ' ');
-    const color = (this.controlString('color') || 'YELLOW') as StickyNoteColumnColor;
+    const color = (this.controlString('color') || 'YELLOW') as any;
     const id = this.editorId;
 
     const isEdit = this.isEdit;

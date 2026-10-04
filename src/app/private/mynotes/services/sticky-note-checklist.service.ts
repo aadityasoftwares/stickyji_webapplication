@@ -3,16 +3,6 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
-import {
-    ApiDeleteResponse,
-    StickyNoteChecklistCreateRequest,
-    StickyNoteChecklistFilters,
-    StickyNoteChecklistResponse,
-    StickyNoteChecklistsResponse,
-    StickyNoteChecklistStatus,
-    StickyNoteChecklistUpdateRequest,
-} from '../models/sticky-note-checklist.interface';
-
 @Injectable({
     providedIn: 'root',
 })
@@ -20,15 +10,15 @@ import {
 export class StickyNoteChecklistApiService {
     private readonly http = inject(HttpClient);
 
-    getById(id: string): Observable<StickyNoteChecklistResponse> {
-        return this.http.get<StickyNoteChecklistResponse>(
+    getById(id: string): Observable<any> {
+        return this.http.get<any>(
             API_ENDPOINTS.stickyNoteChecklists.get(id),
             { withCredentials: true },
         );
     }
 
-    getAll(filters: StickyNoteChecklistFilters = {}): Observable<StickyNoteChecklistsResponse> {
-        return this.http.get<StickyNoteChecklistsResponse>(API_ENDPOINTS.stickyNoteChecklists.getAll, {
+    getAll(filters: any = {}): Observable<any> {
+        return this.http.get<any>(API_ENDPOINTS.stickyNoteChecklists.getAll, {
             params: buildHttpParams(filters),
             withCredentials: true,
         });
@@ -36,46 +26,46 @@ export class StickyNoteChecklistApiService {
 
     getByStickyNote(
         stickyNoteId: string,
-        filters: Omit<StickyNoteChecklistFilters, 'stickyNoteId'> = {},
-    ): Observable<StickyNoteChecklistsResponse> {
+        filters: any = {},
+    ): Observable<any> {
         return this.getAll({ ...filters, stickyNoteId });
     }
 
-    create(payload: StickyNoteChecklistCreateRequest): Observable<StickyNoteChecklistResponse> {
-        return this.http.post<StickyNoteChecklistResponse>(API_ENDPOINTS.stickyNoteChecklists.create, payload, {
+    create(payload: any): Observable<any> {
+        return this.http.post<any>(API_ENDPOINTS.stickyNoteChecklists.create, payload, {
             withCredentials: true,
         });
     }
 
-    update(id: string, payload: StickyNoteChecklistUpdateRequest): Observable<StickyNoteChecklistResponse> {
-        return this.http.put<StickyNoteChecklistResponse>(
+    update(id: string, payload: any): Observable<any> {
+        return this.http.put<any>(
             API_ENDPOINTS.stickyNoteChecklists.update(id),
             payload,
             { withCredentials: true },
         );
     }
 
-    updateStatus(id: string, status: StickyNoteChecklistStatus): Observable<StickyNoteChecklistResponse> {
-        return this.http.put<StickyNoteChecklistResponse>(
+    updateStatus(id: string, status: any): Observable<any> {
+        return this.http.put<any>(
             API_ENDPOINTS.stickyNoteChecklists.status(id),
             { status },
             { withCredentials: true },
         );
     }
 
-    archive(id: string): Observable<StickyNoteChecklistResponse> {
+    archive(id: string): Observable<any> {
         return this.updateStatus(id, 'ARCHIVED');
     }
 
-    delete(id: string): Observable<ApiDeleteResponse> {
-        return this.http.delete<ApiDeleteResponse>(
+    delete(id: string): Observable<any> {
+        return this.http.delete<any>(
             API_ENDPOINTS.stickyNoteChecklists.delete(id),
             { withCredentials: true },
         );
     }
 
-    restore(id: string): Observable<StickyNoteChecklistResponse> {
-        return this.http.put<StickyNoteChecklistResponse>(
+    restore(id: string): Observable<any> {
+        return this.http.put<any>(
             API_ENDPOINTS.stickyNoteChecklists.restore(id),
             {},
             { withCredentials: true },

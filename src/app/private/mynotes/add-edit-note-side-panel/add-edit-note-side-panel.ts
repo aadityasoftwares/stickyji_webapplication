@@ -92,7 +92,6 @@ import { StickyNoteColumnStore } from '../services/sticky-note-column.store';
 import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { StickyNoteAssigneeApiService } from '../services/sticky-note-assignee.service';
 import { StickyNoteAssigneeSelect, type AssigneePreviewItem } from '../sticky-note-assignee-select/sticky-note-assignee-select';
-import type { StickyNoteAssignee } from '../models/sticky-note-assignee.interface';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
@@ -1330,7 +1329,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: res => {
-        const list = extractList(res) as StickyNoteAssignee[];
+        const list = extractList(res) as any[];
         if (Array.isArray(list)) {
           const userIds = list
             .filter(item => item?.status !== 'REMOVED')

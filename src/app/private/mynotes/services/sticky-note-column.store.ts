@@ -4,12 +4,7 @@ import {
     signal,
 } from '@angular/core';
 
-import type {
-    StickyNoteColumn,
-} from '../models/mynotes.interface';
-
-export type StickyNoteColumnStoreItem =
-    StickyNoteColumn;
+export type StickyNoteColumnStoreItem = any;
 
 @Injectable({
     providedIn: 'root',

@@ -22,6 +22,10 @@ import {
   LucideAArrowUp,
   LucideArrowLeft,
   LucideArrowRight,
+  LucideCalendarDays,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideClock3,
   LucideFolderOpen,
   LucideGrip,
   LucideList,
@@ -31,6 +35,8 @@ import {
   LucidePlus,
   LucideRefreshCw,
   LucideSearch,
+  LucideStar,
+  LucideStarOff,
   LucideTrash2,
   LucideType,
   LucideX
@@ -39,7 +45,6 @@ import {
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
-import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { Divider } from '../../shared/components/divider/divider';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
@@ -73,6 +78,7 @@ import {
   compareNotesByRank,
   getNeighborNoteIds,
   getNoteColorAccent,
+  getNoteColorBadgeVariant,
   getNoteColumnEyebrow,
   isColumnDragItem,
   isNoteDragItem,
@@ -92,6 +98,7 @@ import { UserDateTimePipe } from '../../shared/pipes/user-date-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
+import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { STICKY_NOTE_MESSAGES } from '../mynotes/messages/sticky-note.messages';
 import { StickyNoteColumnApiService } from '../mynotes/services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.store';
@@ -129,7 +136,6 @@ type TodayLoadErrorKind = 'network' | 'server';
     AppInput,
     Badge,
     Button,
-    Checkbox,
     Divider,
     Loader,
     MembersStack,
@@ -160,6 +166,7 @@ export class Today {
   private readonly workspaceFolderApiService = inject(WorkspaceFolderService);
   private readonly stickyNoteColumnApiService = inject(StickyNoteColumnApiService);
   private readonly stickyNoteApiService = inject(StickyNoteApiService);
+  private readonly stickyNotesFavouriteService = inject(StickyNotesFavouriteService);
 
   private folderRequestVersion = 0;
   private workspaceMemberRequestVersion = 0;
@@ -169,6 +176,10 @@ export class Today {
   readonly LucideAArrowUp = LucideAArrowUp;
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
+  readonly LucideCalendarDays = LucideCalendarDays;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
+  readonly LucideClock3 = LucideClock3;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideList = LucideList;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
@@ -177,6 +188,8 @@ export class Today {
   readonly LucidePlus = LucidePlus;
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideSearch = LucideSearch;
+  readonly LucideStar = LucideStar;
+  readonly LucideStarOff = LucideStarOff;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
   readonly LucideX = LucideX;
@@ -257,6 +270,28 @@ export class Today {
   readonly movingNoteId = signal<string | null>(null);
   readonly tableEditingTitleId = signal<string | null>(null);
   readonly tableTitleDraft = signal('');
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+
+  /** Groups visible list notes by their column, preserving column order. */
+  readonly tableGroups = computed(() => {
+    const columns = this.stickyNoteColumns();
+    const grouped = this.visibleNotesByColumn();
+
+    return columns
+      .map(column => {
+        const colId = idOf(column) || '';
+        const columnNotes = grouped.get(colId) ?? [];
+        return {
+          id: colId,
+          label: column.label || 'Untitled',
+          type: column.type || 'CUSTOM',
+          accent: column.accent,
+          notes: columnNotes,
+          count: columnNotes.length
+        };
+      })
+      .filter(group => group.count > 0 || !this.hasSearch());
+  });
 
   readonly notePanelOpen = signal(false);
   readonly notePanelMode = signal<'create' | 'edit'>('create');
@@ -779,6 +814,22 @@ export class Today {
     this.searchTerm.set('');
   }
 
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update(set => {
+      const next = new Set(set);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
   errorTitle(kind: TodayLoadErrorKind): string {
     return kind === 'network' ? 'Unable to connect' : 'Could not load today';
   }
@@ -994,6 +1045,29 @@ export class Today {
       ?? 'Note';
   }
 
+  noteFolderName(note: any): string {
+    const rawName = String(note?.folderName ?? '').trim();
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(rawName);
+    if (rawName && !isObjectId) {
+      return rawName;
+    }
+
+    const targetFolderId = idOf(note?.workspaceFolderId || note?.folderId || note?.folder || rawName);
+    if (targetFolderId && this.folders().length > 0) {
+      const matchedFolder = this.folders().find((f: any) => idOf(f) === targetFolderId);
+      if (matchedFolder) {
+        return entityNameOf(matchedFolder, 'My Notes');
+      }
+    }
+
+    return rawName && !isObjectId ? rawName : 'My Notes';
+  }
+
+  noteColumnBadgeVariant(note: any): any {
+    const column = this.columnForNote(note);
+    return column?.checkboxVariant || getNoteColorBadgeVariant(column?.color || note?.color) || 'neutral';
+  }
+
   noteDateLabel(value: unknown): string {
     return this.dateTimeFormatter.formatDateKey(value, 'No date');
   }
@@ -1004,6 +1078,56 @@ export class Today {
 
   noteColumnAccent(note: any): string {
     return this.columnForNote(note)?.accent ?? getNoteColorAccent('YELLOW');
+  }
+
+  noteChecklistTotal(note: any): number {
+    return Number(note?.checklistSummary?.total ?? note?.checklistItemCount ?? 0) || 0;
+  }
+
+  noteChecklistCompleted(note: any): number {
+    return Number(note?.checklistSummary?.completed ?? note?.completedChecklistItemCount ?? 0) || 0;
+  }
+
+  noteProgressPct(note: any): number {
+    const total = this.noteChecklistTotal(note);
+    if (total <= 0) return 0;
+    const completed = this.noteChecklistCompleted(note);
+    return Math.round((completed / total) * 100);
+  }
+
+  isNoteFavorite(note: any): boolean {
+    const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
+    if (!noteId) return false;
+    if (note?.isFavorite !== undefined && note?.isFavorite !== null) {
+      return Boolean(note.isFavorite);
+    }
+    return this.stickyNotesFavouriteService.isFavorite(noteId);
+  }
+
+  isFavoriteBusy(note: any): boolean {
+    const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
+    return noteId ? this.stickyNotesFavouriteService.isBusy(noteId) : false;
+  }
+
+  toggleNoteFavorite(note: any, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
+    if (!noteId || this.isFavoriteBusy(note)) return;
+
+    const currentFavId = note?.favoriteId || this.stickyNotesFavouriteService.getFavoriteId(noteId);
+    const title = note?.title || 'note';
+    this.stickyNotesFavouriteService.toggleFavorite(noteId, currentFavId, title)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.stickyNotes.update(notes =>
+            notes.map(n => (idOf(n) === noteId || n?.id === noteId) ? { ...n, isFavorite: res.isFavorite, favoriteId: res.favoriteId } : n)
+          );
+          this.stickyNoteDataCache.delete(noteId);
+        }
+      });
   }
 
   stickyNoteData(note: any, column: any): any {
