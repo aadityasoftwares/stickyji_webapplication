@@ -27,6 +27,7 @@ import {
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
+  LucideClockAlert,
   LucideCopy,
   LucideFolderOpen,
   LucideGrip,
@@ -199,6 +200,7 @@ export class Today {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
+  readonly LucideClockAlert = LucideClockAlert;
   readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideList = LucideList;

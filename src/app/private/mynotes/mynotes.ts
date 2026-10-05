@@ -27,6 +27,7 @@ import {
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
+  LucideClockAlert,
   LucideColumns3,
   LucideCopy,
   LucideFolderOpen,
@@ -185,6 +186,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
+  readonly LucideClockAlert = LucideClockAlert;
   readonly LucideColumns3 = LucideColumns3;
   readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;

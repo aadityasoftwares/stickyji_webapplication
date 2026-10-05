@@ -125,6 +125,12 @@
                         appearance="standard" variant="noteRed" [hasIcon]="true"
                         ariaLabel="Open recently deleted sticky notes" title="Trash · Notes can be restored for 60 days"
                         (buttonClick)="openStickyNoteTrash()" />
+                    @if (overdue.dismissed() && !overdue.error() && (overdue.data()?.total ?? 0) > 0) {
+                    <app-button size="sm" [iconLeft]="LucideClockAlert" [label]="'Overdue (' + overdue.data().total + ')'"
+                        appearance="standard" variant="noteOrange"
+                        [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'" title="Review overdue notes"
+                        [ariaExpanded]="overdue.open()" (buttonClick)="overdue.open.set(true)" />
+                    }
                 </div>
             </div>
 
