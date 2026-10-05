@@ -51,6 +51,10 @@
                 </div>
             </div>
         </header>
+        @if (overdue.bannerVisible()) {
+        <app-overdue-topbar [total]="overdue.data()!.total" [byColumn]="overdue.data()!.byColumn"
+            (review)="overdue.open.set(true)" (dismiss)="overdue.dismissed.set(true)" />
+        }
         <section class="today-explorer" [attr.aria-busy]="boardLoading()">
             <div class="today-toolbar">
                 <div class="today-toolbar-left">
@@ -668,3 +672,10 @@
 
 <app-add-edit-note-side-panel [open]="notePanelOpen()" [mode]="notePanelMode()" [id]="notePanelId()"
     (closed)="closeNotePanel()" (saved)="onNoteSaved($event)" />
+
+<app-overdue-notes-panel [open]="overdue.open()" [data]="overdue.data()" [pagination]="overdue.pagination()"
+    [loading]="overdue.loading()" [busy]="overdue.busy()" [error]="overdue.error()"
+    [selectedIds]="overdue.selectedIds()" [columnFilter]="overdue.columnFilter()"
+    (closed)="overdue.open.set(false)" (selectionChange)="overdue.selectedIds.set($event)"
+    (filterChange)="overdue.columnFilter.set($event)" (pageChange)="overdue.changePage($event)"
+    (retry)="overdue.refresh()" (bringToToday)="bringOverdueToToday($event)" (openNote)="openOverdueNote($event)" />

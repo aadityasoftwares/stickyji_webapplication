@@ -1,0 +1,85 @@
+<app-side-panel [open]="open()" [title]="'Overdue notes' + (data() ? ' (' + data()!.total + ')' : '')"
+    description="Review notes planned for earlier dates." [icon]="LucideClock3" tone="paper" [width]="580"
+    [busy]="busy()" ariaLabel="Overdue notes" (closed)="closed.emit()" (afterClosed)="afterClosed()">
+    <div panel-body class="overdue-body" [attr.aria-busy]="loading() || busy()">
+        <p class="overdue-intro">These notes are past their planned date. Review them below and take action.</p>
+        @if (loading()) {
+        <app-loader mode="section" size="md" tone="colorful" label="Loading overdue notes..." [minHeight]="280" />
+        } @else if (error()) {
+        <div class="overdue-empty" role="status">
+            <h3>Could not load overdue notes</h3>
+            <p>{{ error() }}</p>
+            <app-button label="Try again" size="sm" variant="noteYellow" (buttonClick)="retry.emit()" />
+        </div>
+        } @else if (!data()?.total) {
+        <div class="overdue-empty" role="status">
+            <app-icon [icon]="LucideCheckCircle2" size="lg" />
+            <h3>You're all caught up</h3>
+            <p>No overdue notes right now.</p>
+        </div>
+        } @else {
+        <app-tabs [items]="filterTabs()" [value]="columnFilter()" variant="segmented" activeVariant="noteRed"
+            size="sm" density="compact" [scrollable]="true" [disabled]="busy()"
+            ariaLabel="Filter overdue notes by status" (valueChange)="changeFilter($event)" />
+        @if ((pagination()?.totalPages ?? 1) > 1) {
+        <p class="overdue-hint">Status counts include all pages. Filters and Select all apply to this page.</p>
+        }
+        <div class="overdue-selection">
+            <app-checkbox label="Select all visible" size="sm" variant="noteYellow" [checked]="allVisibleSelected()"
+                [indeterminate]="visibleSelectedCount() > 0 && !allVisibleSelected()"
+                [disabled]="busy() || !visibleNotes().length" (checkedChange)="selectVisible($event)" />
+            @if (selectedIds().size) {
+            <app-button label="Clear selection" size="xs" variant="ghost" [disabled]="busy()" (buttonClick)="clearSelection()" />
+            }
+        </div>
+        @for (group of groups(); track group.date) {
+        <section class="overdue-group" [attr.aria-label]="group.date | userDate">
+            <h3>{{ group.yesterday ? 'Yesterday' : (group.date | userDate) }} <span>({{ group.notes.length }})</span></h3>
+            @for (note of group.notes; track note.id) {
+            <article class="overdue-note">
+                <div class="overdue-note-heading">
+                    <app-checkbox [ariaLabel]="'Select ' + (note.title || note.noteKey)" size="sm" variant="noteYellow"
+                        [checked]="selectedIds().has(note.id)" [disabled]="busy()" (checkedChange)="selectNote(note.id, $event)" />
+                    <span class="overdue-key">{{ note.noteKey }}</span>
+                    <app-badge [label]="note.column.name" size="xs"
+                        [variant]="note.column.type === columnTypes.TODO ? 'noteYellow' : note.column.type === columnTypes.IN_PROGRESS ? 'noteBlue' : 'noteOrange'" />
+                </div>
+                <h4>{{ note.title || 'Untitled note' }}</h4>
+                <div class="overdue-date">
+                    <app-icon [icon]="LucideCalendarDays" size="xs" />
+                    <span>Planned: {{ note.noteDate | userDate }}</span>
+                    <span>· {{ note.daysOverdue }} {{ note.daysOverdue === 1 ? 'day' : 'days' }} overdue</span>
+                </div>
+                <div class="overdue-note-actions">
+                    <app-button label="Bring to Today" [iconLeft]="LucideCalendarDays" variant="secondary" size="xs"
+                        [disabled]="busy()" (buttonClick)="bringToToday.emit([note.id])" />
+                    <app-button label="Open" [iconLeft]="LucideExternalLink" variant="secondary" size="xs"
+                        [disabled]="busy()" [ariaLabel]="'Open ' + (note.title || note.noteKey) + ' to edit or reschedule'"
+                        (buttonClick)="requestOpen(note)" />
+                </div>
+            </article>
+            }
+        </section>
+        } @empty {
+        <div class="overdue-empty" role="status"><p>No notes in this status on this page.</p></div>
+        }
+        @if (pagination(); as page) {
+        @if ((page.totalPages ?? 1) > 1) {
+        <nav class="overdue-pagination" aria-label="Overdue notes pages">
+            <app-button label="Previous" size="xs" variant="secondary" [disabled]="busy() || page.page <= 1"
+                (buttonClick)="pageChange.emit(page.page - 1)" />
+            <span aria-live="polite">Page {{ page.page }} of {{ page.totalPages }}</span>
+            <app-button label="Next" size="xs" variant="secondary" [disabled]="busy() || page.page >= (page.totalPages ?? 1)"
+                (buttonClick)="pageChange.emit(page.page + 1)" />
+        </nav>
+        }
+        }
+        }
+    </div>
+    <div panel-footer class="overdue-footer">
+        <app-button label="Cancel" size="sm" variant="secondary" [disabled]="busy()" (buttonClick)="closed.emit()" />
+        <app-button [label]="'Bring selected to Today (' + selectedIds().size + ')'" variant="noteYellow" size="sm"
+            [loading]="busy()" loadingText="Bringing to Today..." [disabled]="disabled() || !selectedIds().size"
+            (buttonClick)="bringToToday.emit(selected())" />
+    </div>
+</app-side-panel>

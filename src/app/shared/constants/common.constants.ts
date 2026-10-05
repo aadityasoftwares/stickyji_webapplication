@@ -243,6 +243,7 @@ export const STICKY_NOTE_BACKGROUND_PATTERN_OPTIONS: any[] = [
 ];
 
 export const NOTE_LIMITS = {
+    BULK_UPDATE_MAX: 100,
     TITLE_MAX_LENGTH: 200,
     CONTENT_MAX_LENGTH: 10000,
     CHECKLIST_TITLE_MAX_LENGTH: 120,
@@ -252,6 +253,18 @@ export const NOTE_LIMITS = {
 export const COLUMN_LIMITS = {
     NAME_MIN_LENGTH: 1,
     NAME_MAX_LENGTH: 50,
+} as const;
+
+export const STICKY_NOTE_COLUMN_TYPES = {
+    TODO: 'TODO',
+    IN_PROGRESS: 'IN_PROGRESS',
+    COMPLETED: 'COMPLETED',
+    CUSTOM: 'CUSTOM',
+} as const;
+
+export const DATE_SORT_ORDER = {
+    OLDEST_FIRST: 'OLDEST_FIRST',
+    NEWEST_FIRST: 'NEWEST_FIRST',
 } as const;
 
 export const STICKY_NOTE_COLUMN_COLORS = {

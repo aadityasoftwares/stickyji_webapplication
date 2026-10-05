@@ -105,6 +105,9 @@ import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
+import { OverdueTopbar } from './overdue-topbar/overdue-topbar';
+import { OverdueNotesPanel } from './overdue-notes-panel/overdue-notes-panel';
+import { OverdueNotesStore } from './services/overdue-notes.store';
 import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
 import { StickyNoteApiService } from './services/sticky-notes.service';
 import { StickyNoteColumnApiService } from './services/sticky-note-column.service';
@@ -113,6 +116,7 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
 @Component({
   standalone: true,
   selector: 'app-mynotes',
+  providers: [OverdueNotesStore],
   imports: [
     FormsModule,
     MatDividerModule,
@@ -120,6 +124,8 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
     AppIcon,
     AppInput,
     AddEditNoteSidePanel,
+    OverdueTopbar,
+    OverdueNotesPanel,
     Badge,
     BulkActionPanel,
     Button,
@@ -138,6 +144,7 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyNotes implements OnInit, OnChanges {
+  readonly overdue = inject(OverdueNotesStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly workspaceStore = inject(WorkspaceStore);
@@ -246,7 +253,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly notePanelOpen = signal(false);
   readonly notePanelMode = signal<any>('create');
   readonly notePanelId = signal('');
-  readonly deleteTarget = signal<any | null>(null);
+  readonly deleteTarget = signal<any>(null);
   readonly deleting = signal(false);
 
   readonly workspaceOptions = computed<readonly any[]>(() => this.workspaces()
@@ -531,6 +538,7 @@ export class MyNotes implements OnInit, OnChanges {
       this.clearNotesState();
       return;
     }
+    this.overdue.refresh(workspaceId, workspaceFolderId);
     const requestVersion = ++this.noteRequestVersion;
     this.loadingNotes.set(true);
     this.notesError.set(null);
@@ -634,6 +642,15 @@ export class MyNotes implements OnInit, OnChanges {
     this.notePanelOpen.set(true);
   }
 
+  openOverdueNote(note: any): void {
+    if (note.workspaceId !== this.selectedWorkspaceId() || note.workspaceFolderId !== this.selectedFolderId()) return;
+    this.openEditEditor(note);
+  }
+
+  bringOverdueToToday(ids: readonly string[]): void {
+    this.overdue.bringToToday(ids, () => this.loadSelectedFolder());
+  }
+
   closeNotePanel(): void {
     this.notePanelOpen.set(false);
     this.notePanelId.set('');
@@ -648,6 +665,7 @@ export class MyNotes implements OnInit, OnChanges {
 
   onNoteDeleted(noteId: string): void {
     if (!noteId) return;
+    this.overdue.refresh();
     this.notes.update(notes => notes.filter(item => idOf(item) !== noteId));
     this.selectedNoteIds.update(set => {
       const next = new Set(set);
@@ -674,6 +692,7 @@ export class MyNotes implements OnInit, OnChanges {
         next: response => {
           this.replaceNote(response.data);
           this.noteChanged.emit(response.data);
+          this.overdue.refresh();
           this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.ARCHIVED, {
             title: 'Note archived',
             dedupeKey: `note-archived-${id}`
@@ -700,6 +719,7 @@ export class MyNotes implements OnInit, OnChanges {
         next: response => {
           this.replaceNote(response.data);
           this.noteChanged.emit(response.data);
+          this.overdue.refresh();
           this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.RESTORED, {
             title: 'Note restored',
             dedupeKey: `note-restored-${id}`
@@ -1318,6 +1338,7 @@ export class MyNotes implements OnInit, OnChanges {
               updatedCount++;
               if (completed === ids.length) {
                 if (updatedCount > 0) {
+                  this.overdue.refresh();
                   this.toastService.success(
                     `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
                   );
@@ -1329,6 +1350,7 @@ export class MyNotes implements OnInit, OnChanges {
               completed++;
               if (completed === ids.length) {
                 if (updatedCount > 0) {
+                  this.overdue.refresh();
                   this.toastService.success(
                     `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
                   );
@@ -1341,6 +1363,7 @@ export class MyNotes implements OnInit, OnChanges {
         completed++;
         if (completed === ids.length) {
           if (updatedCount > 0) {
+            this.overdue.refresh();
             this.toastService.success(
               `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
             );
@@ -1368,6 +1391,7 @@ export class MyNotes implements OnInit, OnChanges {
             deletedCount++;
             if (completed === ids.length) {
               if (deletedCount > 0) {
+                this.overdue.refresh();
                 this.toastService.success(
                   `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
                 );
@@ -1379,6 +1403,7 @@ export class MyNotes implements OnInit, OnChanges {
             completed++;
             if (completed === ids.length) {
               if (deletedCount > 0) {
+                this.overdue.refresh();
                 this.toastService.success(
                   `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
                 );
@@ -1422,6 +1447,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   private clearNotesState(closeOverlays = true): void {
+    if (closeOverlays) this.overdue.reset();
     ++this.noteRequestVersion;
     this.columns.set([]);
     this.notes.set([]);

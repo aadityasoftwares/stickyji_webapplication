@@ -68,12 +68,12 @@ describe('Today', () => {
     toggle.click();
     await fixture.whenStable();
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(fixture.nativeElement.querySelector('#group-body-todo')).toBeNull();
-    expect(fixture.nativeElement.querySelector('#group-body-doing')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#todo-table-drop-list')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#doing-table-drop-list')).not.toBeNull();
     toggle.click();
     await fixture.whenStable();
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(fixture.nativeElement.querySelector('#group-body-todo')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#todo-table-drop-list')).not.toBeNull();
   });
 
   it('keeps the add action independent from group collapse', () => {
@@ -84,11 +84,11 @@ describe('Today', () => {
   });
 
   it('preserves detail metadata and compact view columns', async () => {
-    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(8);
+    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(9);
     expect(fixture.nativeElement.querySelector('.today-gt-owner').textContent).toContain('owner@example.test');
     TestBed.inject(UserPreferenceStore).updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, 'COMPACT');
     await fixture.whenStable();
-    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(5);
+    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(6);
     expect(fixture.nativeElement.querySelector('td.today-gt-updated')).toBeNull();
   });
 
@@ -109,5 +109,28 @@ describe('Today', () => {
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('.today-gtable')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('No matching notes found');
+  });
+
+  it('keeps Kanban and Table available alongside the overdue banner', async () => {
+    component.overdue.data.set({ today: '2026-10-05', total: 2, byColumn: [], notes: [] });
+    component.setView('kanban');
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.today-kanban')).toBeTruthy();
+    expect(element.querySelector('app-overdue-topbar')).toBeTruthy();
+    component.setView('table');
+    await fixture.whenStable();
+    expect(element.querySelector('.today-gtable')).toBeTruthy();
+    expect(element.querySelector('app-overdue-topbar')).toBeTruthy();
+  });
+
+  it('refreshes today notes and overdue data once after Bring to Today succeeds', () => {
+    vi.spyOn(component.overdue, 'bringToToday').mockImplementation((_ids, refresh) => refresh());
+    const overdueRefresh = vi.spyOn(component.overdue, 'refresh').mockImplementation(() => {});
+    const notesRefresh = vi.spyOn(component, 'getNotesForToday').mockImplementation(() => {});
+    vi.spyOn(component, 'getStickyNoteColumns').mockImplementation(() => {});
+    component.bringOverdueToToday(['one', 'two']);
+    expect(overdueRefresh).toHaveBeenCalledOnce();
+    expect(notesRefresh).toHaveBeenCalledOnce();
   });
 });

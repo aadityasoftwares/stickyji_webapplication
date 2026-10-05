@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/private/mynotes/services/overdue-notes.store.spec.ts",
+    "src/app/private/mynotes/overdue-notes-panel/overdue-notes-panel.spec.ts",
+    "src/app/private/mynotes/mynotes.spec.ts",
+    "src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts",
+    "src/app/private/today/today.spec.ts",
+    "src/app/shared/components/side-panel/side-panel.spec.ts"
+  ]
+}

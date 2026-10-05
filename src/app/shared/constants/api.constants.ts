@@ -26,7 +26,11 @@ export const API_ENDPOINTS = {
         logoutAll: `${API_BASE_URL}/auth/logoutall`,
         sessions: `${API_BASE_URL}/auth/sessions`,
     },
-    stickyNotes: resourceEndpoints('stickynotes'),
+    stickyNotes: {
+        ...resourceEndpoints('stickynotes'),
+        overdue: `${API_BASE_URL}/stickynotes/overdue`,
+        bringToday: `${API_BASE_URL}/stickynotes/overdue/bringtoday`,
+    },
     stickyNoteColumns: resourceEndpoints('stickynotescolumns'),
     stickyNoteChecklists: resourceEndpoints('stickynoteschecklist'),
     stickyNoteChecklistItems: resourceEndpoints('stickynoteschecklistitems'),

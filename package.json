@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:overdue": "ng test --watch=false --ts-config tsconfig.overdue-regression.json --include src/app/private/mynotes/services/overdue-notes.store.spec.ts --include src/app/private/mynotes/overdue-notes-panel/overdue-notes-panel.spec.ts --include src/app/private/mynotes/mynotes.spec.ts --include src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts --include src/app/private/today/today.spec.ts --include src/app/shared/components/side-panel/side-panel.spec.ts"
   },
   "private": true,
   "packageManager": "npm@10.9.8",

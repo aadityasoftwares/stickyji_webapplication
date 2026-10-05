@@ -1,0 +1,63 @@
+@use '../../../styles/variables' as *;
+
+:host {
+    display: block;
+    flex: 0 0 auto;
+    margin-top: 0.875rem;
+}
+
+.overdue-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, $danger 6%, var(--app-paper, #{$paper}));
+    border: 1px solid rgba($danger, 0.24);
+    border-radius: $radius-md;
+    font-family: $font-body;
+}
+
+.overdue-icon {
+    display: flex;
+    color: $danger;
+}
+
+.overdue-copy {
+    flex: 1 1 13rem;
+
+    strong {
+        color: $danger;
+        font-size: 1rem;
+    }
+
+    p {
+        margin: 0.125rem 0 0;
+        color: var(--app-text-muted, #{$text-secondary});
+        font-size: 0.8125rem;
+    }
+}
+
+.overdue-summary {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.overdue-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+@media (max-width: 36rem) {
+    .overdue-banner {
+        padding: 0.75rem;
+    }
+
+    .overdue-summary {
+        flex-basis: 100%;
+    }
+}

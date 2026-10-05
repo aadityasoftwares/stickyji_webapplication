@@ -58,6 +58,9 @@ import { COMMON_MESSAGES } from '../../shared/constants/common.messages';
 
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
+import { OverdueTopbar } from '../mynotes/overdue-topbar/overdue-topbar';
+import { OverdueNotesPanel } from '../mynotes/overdue-notes-panel/overdue-notes-panel';
+import { OverdueNotesStore } from '../mynotes/services/overdue-notes.store';
 import { AddEditStickyNoteColumnSidePanel } from '../sticky-note-columns/add-edit-sticky-note-column-side-panel/add-edit-sticky-note-column-side-panel';
 import { StickyNote } from '../mynotes/sticky-note/sticky-note';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
@@ -130,6 +133,7 @@ type TodayLoadErrorKind = 'network' | 'server';
 
 @Component({
   selector: 'app-today',
+  providers: [OverdueNotesStore],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './today.html',
@@ -157,10 +161,13 @@ type TodayLoadErrorKind = 'network' | 'server';
     UserDateTimePipe,
     UserTimePipe,
     AddEditNoteSidePanel,
+    OverdueTopbar,
+    OverdueNotesPanel,
     AddEditStickyNoteColumnSidePanel
   ]
 })
 export class Today {
+  readonly overdue = inject(OverdueNotesStore);
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -323,7 +330,7 @@ export class Today {
   readonly columnPanelOpen = signal(false);
   readonly columnPanelMode = signal<'create' | 'edit'>('create');
   readonly columnPanelId = signal('');
-  readonly columnPanelColumn = signal<any | null>(null);
+  readonly columnPanelColumn = signal<any>(null);
 
   readonly workspaceMemberStack = computed<readonly any[]>(() =>
     this.workspaceMembers().map(member => {
@@ -1246,8 +1253,9 @@ export class Today {
       });
   }
 
-  onNoteDeleted(noteId: string): void {
+  onNoteDeleted(noteId: string, refreshOverdue = true): void {
     if (!noteId) return;
+    if (refreshOverdue) this.overdue.refresh();
     this.stickyNoteDataCache.delete(noteId);
     this.stickyNotes.update(notes => notes.filter(item => idOf(item) !== noteId));
   }
@@ -1326,6 +1334,15 @@ export class Today {
     this.notePanelId.set('');
   }
 
+  openOverdueNote(note: any): void {
+    if (note.workspaceId !== this.activeWorkspaceId() || note.workspaceFolderId !== this.activeFolder()) return;
+    this.openNoteEditPanel(note);
+  }
+
+  bringOverdueToToday(ids: readonly string[]): void {
+    this.overdue.bringToToday(ids, () => this.loadBoard());
+  }
+
   onNoteSaved(_noteId: string): void {
     this.closeNotePanel();
     this.loadBoard();
@@ -1367,6 +1384,7 @@ export class Today {
       .subscribe({
         next: (response: any) => {
           const updated = response?.data ?? response;
+          if (idOf(note.columnId) !== targetColId) this.overdue.refresh();
           if (updated && idOf(updated) === noteId) {
             const mapped = this.mapNote(updated);
             this.stickyNotes.update(notes =>
@@ -1474,12 +1492,14 @@ export class Today {
   }
 
   private loadBoard(forceColumns = false): void {
+    this.overdue.refresh(this.activeWorkspaceId() ?? '', this.activeFolder() ?? '');
     this.boardError.set(null);
     this.getStickyNoteColumns(forceColumns);
     this.getNotesForToday();
   }
 
   private clearBoard(): void {
+    this.overdue.reset();
     this.notesRequestVersion += 1;
     this.stickyNoteDataCache.clear();
     this.closeNotePanel();
@@ -1503,7 +1523,7 @@ export class Today {
     return this.stickyNoteColumns().findIndex(column => idOf(column.id) === colId);
   }
 
-  private columnForNote(note: any): any | null {
+  private columnForNote(note: any): any {
     return this.stickyNoteColumnById().get(idOf(note?.columnId)) ?? null;
   }
 
@@ -1679,10 +1699,11 @@ export class Today {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.onNoteDeleted(id);
+            this.onNoteDeleted(id, false);
             completed++;
             deletedCount++;
             if (completed === ids.length) {
+              this.overdue.refresh();
               this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
               this.clearSelection();
             }
@@ -1691,6 +1712,7 @@ export class Today {
             completed++;
             if (completed === ids.length) {
               if (deletedCount > 0) {
+                this.overdue.refresh();
                 this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
               }
               this.clearSelection();

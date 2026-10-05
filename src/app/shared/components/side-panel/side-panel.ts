@@ -60,6 +60,7 @@ export class SidePanel implements OnChanges, OnDestroy {
   @Input() ariaLabel = 'Side panel';
 
   @Output() readonly closed = new EventEmitter<void>();
+  @Output() readonly afterClosed = new EventEmitter<void>();
 
   readonly LucideX = LucideX;
   readonly rendered = signal(false);
@@ -181,6 +182,7 @@ export class SidePanel implements OnChanges, OnDestroy {
 
       this.unlockBodyScroll();
       this.restoreFocus();
+      this.afterClosed.emit();
     }, 180);
   }
 
