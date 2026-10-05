@@ -19,6 +19,11 @@ import { finalize } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideClock3,
+  LucideCopy,
   LucideEye,
   LucideGrid2X2,
   LucideKey,
@@ -39,7 +44,9 @@ import {
   LucideX
 } from '@lucide/angular';
 import { Badge } from '../../../shared/components/badge/badge';
+import { BulkActionPanel } from '../../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../../shared/components/button/button';
+import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
@@ -47,6 +54,8 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
@@ -57,6 +66,15 @@ import type { PermissionGroup, Permission } from '../models/permission.models';
 import type { WorkspaceRole } from '../models/workspace-role.models';
 import { PermissionApiService } from '../services/permission.service';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
+
+export interface WorkspaceRoleGroup {
+  id: string;
+  label: string;
+  type: 'system' | 'custom' | 'inactive';
+  count: number;
+  accent: string;
+  items: WorkspaceRole[];
+}
 
 type AccessSection = 'roles' | 'permissions';
 type AccessView = 'grid' | 'list';
@@ -75,11 +93,15 @@ type BadgeVariant = 'success' | 'neutral' | 'noteYellow' | 'warning' | 'danger';
     AppIcon,
     AppInput,
     Badge,
+    BulkActionPanel,
     Button,
+    Checkbox,
     Loader,
     Select,
     StickyCard,
     Tabs,
+    UserDatePipe,
+    UserTimePipe,
     AddEditWorkspaceRoleSidePanel,
     ViewRolePermissionsModal,
     WorkspaceRoleWrapper
@@ -104,6 +126,11 @@ export class RolesPermissions implements OnInit, OnChanges {
   private roleRequestVersion = 0;
   private permissionRequestVersion = 0;
 
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
+  readonly LucideClock3 = LucideClock3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideEye = LucideEye;
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideKey = LucideKey;
@@ -122,6 +149,11 @@ export class RolesPermissions implements OnInit, OnChanges {
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
+
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly selectedRoleIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedRoleIds().size);
+  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly workspaces = this.workspaceStore.workspaces;
   readonly loadingWorkspaces = this.workspaceStore.loading;
@@ -264,6 +296,75 @@ export class RolesPermissions implements OnInit, OnChanges {
 
         return this.timestamp(second.updatedAt) - this.timestamp(first.updatedAt);
       });
+  });
+
+  readonly roleGroups = computed<WorkspaceRoleGroup[]>(() => {
+    const roles = this.visibleRoles();
+    const tab = this.activeRoleTab();
+
+    const groups: WorkspaceRoleGroup[] = [];
+
+    const systemRoles = roles.filter(r => r.isSystem && r.isActive !== false);
+    const customRoles = roles.filter(r => !r.isSystem && r.isActive !== false);
+    const inactiveRoles = roles.filter(r => r.isActive === false);
+
+    if (tab === 'all') {
+      groups.push({
+        id: 'system',
+        label: 'System Roles',
+        type: 'system',
+        count: systemRoles.length,
+        accent: '#3b82f6',
+        items: systemRoles
+      });
+      groups.push({
+        id: 'custom',
+        label: 'Custom Roles',
+        type: 'custom',
+        count: customRoles.length,
+        accent: '#10b981',
+        items: customRoles
+      });
+      if (inactiveRoles.length > 0) {
+        groups.push({
+          id: 'inactive',
+          label: 'Inactive Roles',
+          type: 'inactive',
+          count: inactiveRoles.length,
+          accent: '#64748b',
+          items: inactiveRoles
+        });
+      }
+    } else if (tab === 'system') {
+      groups.push({
+        id: 'system',
+        label: 'System Roles',
+        type: 'system',
+        count: systemRoles.length,
+        accent: '#3b82f6',
+        items: systemRoles
+      });
+    } else if (tab === 'custom') {
+      groups.push({
+        id: 'custom',
+        label: 'Custom Roles',
+        type: 'custom',
+        count: customRoles.length,
+        accent: '#10b981',
+        items: customRoles
+      });
+    } else if (tab === 'inactive') {
+      groups.push({
+        id: 'inactive',
+        label: 'Inactive Roles',
+        type: 'inactive',
+        count: inactiveRoles.length,
+        accent: '#64748b',
+        items: inactiveRoles
+      });
+    }
+
+    return groups;
   });
 
   readonly visiblePermissions = computed(() => {
@@ -458,16 +559,21 @@ export class RolesPermissions implements OnInit, OnChanges {
     this.activeSection.set(value);
     this.searchTerm.set('');
     this.permissionModule.set('all');
+    this.clearSelection();
   }
 
   setRoleTab(value: TabValue): void {
     if (value === 'all' || value === 'system' || value === 'custom' || value === 'inactive') {
       this.activeRoleTab.set(value);
+      this.clearSelection();
     }
   }
 
   setView(value: TabValue): void {
-    if (value === 'grid' || value === 'list') this.view.set(value);
+    if (value === 'grid' || value === 'list') {
+      this.view.set(value);
+      this.clearSelection();
+    }
   }
 
   updateSearch(value: InputValue): void {
@@ -766,6 +872,173 @@ export class RolesPermissions implements OnInit, OnChanges {
     this.permissionViewerOpen.set(false);
     this.permissionViewerRole.set(null);
     this.deleteTarget.set(null);
+    this.clearSelection();
+  }
+
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update(prev => {
+      const next = new Set(prev);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
+  isRoleSelected(role: WorkspaceRole): boolean {
+    const id = this.roleId(role);
+    return !!id && this.selectedRoleIds().has(id);
+  }
+
+  toggleRoleSelection(role: WorkspaceRole, checked: boolean): void {
+    const id = this.roleId(role);
+    if (!id) return;
+    this.selectedRoleIds.update(prev => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(items: WorkspaceRole[]): boolean {
+    if (!items.length) return false;
+    const selected = this.selectedRoleIds();
+    return items.every(r => {
+      const id = this.roleId(r);
+      return !!id && selected.has(id);
+    });
+  }
+
+  isSomeSelected(items: WorkspaceRole[]): boolean {
+    if (!items.length) return false;
+    const selected = this.selectedRoleIds();
+    const count = items.filter(r => {
+      const id = this.roleId(r);
+      return !!id && selected.has(id);
+    }).length;
+    return count > 0 && count < items.length;
+  }
+
+  toggleSelectAll(checked: boolean, items: WorkspaceRole[]): void {
+    this.selectedRoleIds.update(prev => {
+      const next = new Set(prev);
+      items.forEach(r => {
+        const id = this.roleId(r);
+        if (!id) return;
+        if (checked) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedRoleIds.set(new Set());
+  }
+
+  copyRoleId(roleId: string, event?: Event): void {
+    event?.stopPropagation();
+    if (!roleId) return;
+    navigator.clipboard?.writeText(roleId);
+    this.copiedKeyMap.update(prev => ({ ...prev, [roleId]: true }));
+    setTimeout(() => {
+      this.copiedKeyMap.update(prev => ({ ...prev, [roleId]: false }));
+    }, 2000);
+  }
+
+  isKeyCopied(roleId: string): boolean {
+    return !!this.copiedKeyMap()[roleId];
+  }
+
+  bulkDeleteSelected(): void {
+    const selectedIds = Array.from(this.selectedRoleIds());
+    const deletableRoles = this.roles().filter(r => {
+      const id = this.roleId(r);
+      return selectedIds.includes(id) && !r.isSystem;
+    });
+
+    if (deletableRoles.length === 0) {
+      this.toastService.warning('System roles cannot be deleted.');
+      return;
+    }
+
+    let deleted = 0;
+    deletableRoles.forEach(role => {
+      const id = this.roleId(role);
+      this.roleApi.delete(id).subscribe({
+        next: () => {
+          deleted++;
+          this.roles.update(items => items.filter(i => this.roleId(i) !== id));
+          if (deleted === deletableRoles.length) {
+            this.clearSelection();
+            this.toastService.success(`${deleted} ${deleted === 1 ? 'role' : 'roles'} deleted.`);
+          }
+        }
+      });
+    });
+  }
+
+  bulkActivateSelected(): void {
+    const selectedIds = Array.from(this.selectedRoleIds());
+    const inactiveCustom = this.roles().filter(r => {
+      const id = this.roleId(r);
+      return selectedIds.includes(id) && !r.isSystem && r.isActive === false;
+    });
+
+    if (inactiveCustom.length === 0) return;
+
+    let updated = 0;
+    inactiveCustom.forEach(role => {
+      const id = this.roleId(role);
+      this.roleApi.changeStatus(id, true).subscribe({
+        next: res => {
+          updated++;
+          this.roles.update(items => items.map(i => this.roleId(i) === id ? res.data : i));
+          if (updated === inactiveCustom.length) {
+            this.clearSelection();
+            this.toastService.success(`${updated} ${updated === 1 ? 'role' : 'roles'} activated.`);
+          }
+        }
+      });
+    });
+  }
+
+  bulkDeactivateSelected(): void {
+    const selectedIds = Array.from(this.selectedRoleIds());
+    const activeCustom = this.roles().filter(r => {
+      const id = this.roleId(r);
+      return selectedIds.includes(id) && !r.isSystem && r.isActive !== false;
+    });
+
+    if (activeCustom.length === 0) return;
+
+    let updated = 0;
+    activeCustom.forEach(role => {
+      const id = this.roleId(role);
+      this.roleApi.changeStatus(id, false).subscribe({
+        next: res => {
+          updated++;
+          this.roles.update(items => items.map(i => this.roleId(i) === id ? res.data : i));
+          if (updated === activeCustom.length) {
+            this.clearSelection();
+            this.toastService.success(`${updated} ${updated === 1 ? 'role' : 'roles'} deactivated.`);
+          }
+        }
+      });
+    });
   }
 
   private timestamp(value: string | Date | undefined): number {

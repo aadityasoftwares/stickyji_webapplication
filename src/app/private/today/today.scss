@@ -777,31 +777,39 @@
     font-size: var(--today-font-13);
 }
 
+$today-table-detail-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px;
+$today-table-compact-columns: 32px 36px minmax(170px, 1.8fr) minmax(240px, 2.6fr) minmax(95px, 0.9fr) 144px;
+
 .today-gtable {
+    display: grid;
     width: 100%;
-    min-width: 100%;
-    table-layout: fixed;
-    border-collapse: separate;
-    border-spacing: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     color: inherit;
     font-family: $font-body;
     font-size: var(--today-font-13);
 }
 
-.today-gtable.is-detail { min-width: 100%; }
-.today-gtable col.today-gt-note { width: 22%; }
-.today-gtable col.today-gt-description { width: 23%; }
-.today-gtable col.today-gt-date { width: 9%; }
-.today-gtable col.today-gt-folder { width: 11%; }
-.today-gtable col.today-gt-progress { width: 9%; }
-.today-gtable col.today-gt-updated { width: 10%; }
-.today-gtable col.today-gt-status { width: 10%; }
-.today-gtable col.today-gt-actions { width: 6%; }
-.today-gtable.is-compact col.today-gt-note { width: 28%; }
-.today-gtable.is-compact col.today-gt-description { width: 32%; }
-.today-gtable.is-compact col.today-gt-date { width: 12%; }
-.today-gtable.is-compact col.today-gt-status { width: 18%; }
-.today-gtable.is-compact col.today-gt-actions { width: 10%; }
+.today-gtable.is-detail {
+    --today-table-columns: #{$today-table-detail-columns};
+}
+
+.today-gtable.is-compact {
+    --today-table-columns: #{$today-table-compact-columns};
+}
+
+.today-gtable thead,
+.today-gtable tbody {
+    display: contents;
+}
+
+.today-gtable tr {
+    display: grid;
+    grid-template-columns: var(--today-table-columns);
+    align-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+}
 
 .today-gt-title-row {
     display: flex;
@@ -813,9 +821,13 @@
 
 .today-gtable th,
 .today-gtable td {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
     padding: 0.625rem 0.75rem;
     text-align: left;
-    vertical-align: middle;
     border-bottom: 1px solid var(--app-border-light);
 }
 
@@ -823,7 +835,7 @@
     height: 2.5rem;
     color: var(--app-text-muted);
     font-size: var(--today-font-12);
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
 }
 
@@ -834,7 +846,8 @@
 }
 
 .today-gtable tbody tr {
-    height: 3.25rem;
+    min-height: 3.5rem;
+    height: auto;
     transition: background-color 120ms ease;
 }
 
@@ -847,7 +860,67 @@
     background: color-mix(in srgb, var(--app-paper-muted) 55%, var(--app-paper));
 }
 
+.today-gtable tbody tr.is-selected {
+    background: color-mix(in srgb, var(--app-focus-color) 8%, var(--app-paper));
+}
+
 .today-gtable tbody tr.is-completed .today-gt-title { color: var(--app-text-muted); }
+
+.today-gtable td.today-gt-drag,
+.today-gtable th.today-gt-drag {
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    padding: 0 0.15rem;
+}
+
+.today-gtable td.today-gt-select,
+.today-gtable th.today-gt-select {
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    padding: 0 0.2rem;
+}
+
+.today-table-drag-handle,
+.today-group-drag-handle {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    color: var(--app-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: $radius-xs;
+    cursor: grab;
+    transition: color 120ms ease, background-color 120ms ease;
+
+    &:hover {
+        color: var(--app-text);
+        background: color-mix(in srgb, var(--app-text) 8%, transparent);
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.today-group-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.today-gt-note-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.2rem;
+    width: 100%;
+    min-width: 0;
+}
 
 .today-gt-title {
     display: block;
@@ -861,7 +934,7 @@
     font-family: var(--today-note-font-family, #{$font-body});
     font-size: var(--today-note-font-size, 14px);
     font-weight: 600;
-    line-height: 1.5;
+    line-height: 1.4;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -902,35 +975,186 @@
     font-size: inherit;
 }
 
-.today-gt-folder app-badge,
-.today-gt-status app-badge {
+.today-gt-folder app-badge {
     display: block;
     max-width: 100%;
     overflow: hidden;
 }
 
-.today-gtable td.today-gt-actions {
-    padding-inline: 0.25rem;
-    text-align: right;
+.today-gtable td.today-gt-actions,
+.today-gtable th.today-gt-actions {
+    justify-content: flex-end;
+    width: 144px;
+    min-width: 144px;
+    padding-left: 0.25rem;
+    padding-right: 0.5rem;
+}
+
+.today-gt-key-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.15rem;
 }
 
 .today-gt-key-badge {
-    display: inline-block;
-    padding: 0.1rem 0.35rem;
-    font-size: 0.7rem;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.375rem;
+    font-family: $font-mono;
+    font-size: 0.6875rem;
+    font-weight: 700;
     line-height: 1;
+    letter-spacing: 0.03em;
     color: var(--app-text-muted);
-    background: color-mix(in srgb, var(--app-border-light) 60%, transparent);
+    background: color-mix(in srgb, var(--app-border-light) 65%, var(--app-paper));
+    border: 1px solid var(--app-border-light);
     border-radius: 0.25rem;
-    margin-top: 0.15rem;
+}
+
+.today-gt-key-copy {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    color: var(--app-text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 120ms ease;
+
+    &:hover {
+        color: var(--app-text);
+        background: color-mix(in srgb, var(--app-text) 8%, var(--app-paper));
+        border-color: var(--app-border-light);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--app-focus-ring);
+    }
 }
 
 .today-table-action-group {
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.35rem;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--app-paper, #ffffff);
+    border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================
+   CDK DRAG & DROP STYLES (TABLE & GROUPS)
+   ========================================================== */
+
+/* Active Drop List Highlight (when dragging over a table group body) */
+.today-group-body.cdk-drop-list-dragging,
+.today-gtable tbody.cdk-drop-list-dragging {
+    background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 3.5%, transparent);
+    border-radius: $radius-xs;
+    transition: background-color 150ms ease;
+}
+
+/* Animations for non-dragged items reordering */
+.today-group.cdk-drag-animating,
+.today-gtable tr.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.today-table-groups-container.cdk-drop-list-dragging .today-group:not(.cdk-drag-placeholder),
+.today-gtable tbody.cdk-drop-list-dragging tr:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* 1. TABLE ROW DRAG PREVIEW (Floating row under cursor) */
+tr.cdk-drag-preview {
+    display: grid !important;
+    grid-template-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    min-height: 3.5rem !important;
+    padding: 0 !important;
+    background: var(--app-paper, #ffffff) !important;
+    border: 1.5px solid var(--app-focus-color, #3b82f6) !important;
+    border-radius: 0.625rem !important;
+    box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.2), 0 0.5rem 1.25rem rgba(59, 130, 246, 0.16) !important;
+    transform: scale(1.01) rotate(0.8deg);
+    opacity: 0.97 !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+
+    td {
+        display: flex !important;
+        align-items: center !important;
+        min-width: 0 !important;
+        height: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0.625rem 0.75rem !important;
+        text-align: left !important;
+        background: transparent !important;
+
+        & + td {
+            border-left: 1px solid color-mix(in srgb, var(--app-border-light) 50%, transparent) !important;
+        }
+    }
+
+    .today-gt-drag,
+    .today-gt-select {
+        justify-content: center !important;
+    }
+}
+
+/* 2. TABLE ROW PLACEHOLDER (Slot left behind in table) */
+tr.cdk-drag-placeholder {
+    display: grid !important;
+    grid-template-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
+    align-items: center !important;
+    min-height: 3.5rem !important;
+    background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 10%, var(--app-paper-muted, #f8fafc)) !important;
+    border: 2px dashed color-mix(in srgb, var(--app-focus-color, #3b82f6) 60%, transparent) !important;
+    border-radius: 0.5rem !important;
+    opacity: 0.75 !important;
+    box-sizing: border-box !important;
+
+    td {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+}
+
+/* 3. TABLE GROUP / COLUMN DRAG PREVIEW (Floating group under cursor) */
+section.today-group.cdk-drag-preview {
+    background: var(--app-paper, #ffffff) !important;
+    border: 2px solid color-mix(in srgb, var(--group-accent, #3b82f6) 70%, var(--app-border)) !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.22), 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    transform: scale(1.01) rotate(0.6deg);
+    opacity: 0.97 !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+/* 4. TABLE GROUP / COLUMN PLACEHOLDER (Slot left behind in groups container) */
+section.today-group.cdk-drag-placeholder {
+    background: color-mix(in srgb, var(--group-accent, #3b82f6) 10%, var(--app-paper-muted, #f8fafc)) !important;
+    border: 2px dashed color-mix(in srgb, var(--group-accent, #3b82f6) 50%, transparent) !important;
+    border-radius: 0.875rem !important;
+    min-height: 5rem !important;
+    opacity: 0.65 !important;
+    box-sizing: border-box !important;
+
+    .today-group-body,
+    .today-group-header {
+        opacity: 0.35 !important;
+    }
 }
 
 .today-table-menu-button {
@@ -1016,14 +1240,6 @@
     font-size: var(--today-font-13);
 }
 
-.today-table-action-group {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    padding: 0;
-    background: transparent;
-}
 
 .today-note-quick-edit {
     display: inline-flex;

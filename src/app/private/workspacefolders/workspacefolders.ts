@@ -25,8 +25,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import {
   LucideArchive,
   LucideArrowRight,
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideClock3,
+  LucideCopy,
   LucideFileText,
   LucideFolder,
+  LucideFolderOpen,
   LucideHash,
   LucideMoreHorizontal,
   LucidePanelsTopLeft,
@@ -43,6 +49,8 @@ import {
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
+import { Checkbox } from '../../shared/components/checkbox/checkbox';
+import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Input as AppInput, type InputValue } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../shared/components/select/select';
@@ -56,6 +64,8 @@ import { WorkspaceFolderService } from './services/workspace-folder.service';
 import { WorkspaceFolderStore } from './services/workspace-folder.store';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import {
   USER_PREFERENCE_KEYS,
   VIEW_TABS,
@@ -93,12 +103,16 @@ interface FolderTheme {
     AppInput,
     Badge,
     Button,
+    Checkbox,
+    BulkActionPanel,
     Loader,
     AddEditWorkspaceFolderSidePanel,
     Select,
     StickyCard,
     Tabs,
-    WorkspaceFolderWrapper
+    WorkspaceFolderWrapper,
+    UserDatePipe,
+    UserTimePipe
   ],
   templateUrl: './workspacefolders.html',
   styleUrl: './workspacefolders.scss',
@@ -129,8 +143,14 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowRight = LucideArrowRight;
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
+  readonly LucideClock3 = LucideClock3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideFileText = LucideFileText;
   readonly LucideFolder = LucideFolder;
+  readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideHash = LucideHash;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
@@ -142,6 +162,11 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly LucideStar = LucideStar;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
+
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly selectedFolderIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedFolderIds().size);
+  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly workspaces = this.workspaceStore.workspaces;
   readonly loadingWorkspaces = this.workspaceStore.loading;
@@ -255,6 +280,249 @@ export class Workspacefolders implements OnInit, OnChanges {
       return secondDate - firstDate;
     });
   });
+
+  readonly folderGroups = computed(() => {
+    const list = this.visibleFolders();
+    const tab = this.activeTab();
+    const isSearchActive = !!this.searchTerm().trim();
+
+    const groups: Array<{
+      id: string;
+      label: string;
+      status: 'ACTIVE' | 'ARCHIVED';
+      accent: string;
+      items: readonly WorkspaceFolder[];
+      count: number;
+    }> = [];
+
+    if (tab === 'all' || tab === 'active') {
+      const activeItems = list.filter((f) => this.isActive(f));
+      groups.push({
+        id: 'active',
+        label: 'Active Folders',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: activeItems,
+        count: activeItems.length,
+      });
+    }
+
+    if (tab === 'all' || tab === 'archived') {
+      const archivedItems = list.filter((f) => this.isArchived(f));
+      groups.push({
+        id: 'archived',
+        label: 'Archived Folders',
+        status: 'ARCHIVED',
+        accent: '#64748b',
+        items: archivedItems,
+        count: archivedItems.length,
+      });
+    }
+
+    return groups.filter((g) => g.count > 0 || !isSearchActive);
+  });
+
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update((set) => {
+      const next = new Set(set);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
+  isFolderSelected(folder: any): boolean {
+    const id = this.folderId(folder);
+    return !!id && this.selectedFolderIds().has(id);
+  }
+
+  toggleFolderSelection(folder: any, checked: boolean): void {
+    const id = this.folderId(folder);
+    if (!id) return;
+
+    this.selectedFolderIds.update((set) => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(folders?: readonly WorkspaceFolder[]): boolean {
+    const target = folders ?? this.visibleFolders();
+    if (!target.length) return false;
+    const set = this.selectedFolderIds();
+    return target.every((f) => set.has(this.folderId(f)));
+  }
+
+  isSomeSelected(folders?: readonly WorkspaceFolder[]): boolean {
+    const target = folders ?? this.visibleFolders();
+    if (!target.length) return false;
+    const set = this.selectedFolderIds();
+    const selected = target.filter((f) => set.has(this.folderId(f)));
+    return selected.length > 0 && selected.length < target.length;
+  }
+
+  toggleSelectAll(checked: boolean, folders?: readonly WorkspaceFolder[]): void {
+    const target = folders ?? this.visibleFolders();
+    if (!target.length) return;
+
+    this.selectedFolderIds.update((set) => {
+      const next = new Set(set);
+      target.forEach((f) => {
+        const id = this.folderId(f);
+        if (id) {
+          if (checked) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedFolderIds.set(new Set());
+  }
+
+  bulkArchiveSelected(): void {
+    const ids = Array.from(this.selectedFolderIds());
+    if (!ids.length) return;
+
+    const activeNonDefault = ids.filter((id) => {
+      const folder = this.folders().find((f) => this.folderId(f) === id);
+      return folder && this.isActive(folder) && !this.isDefault(folder);
+    });
+
+    if (!activeNonDefault.length) {
+      this.toastService.warning('Selected folders are either default or already archived');
+      this.clearSelection();
+      return;
+    }
+
+    let completed = 0;
+    let updatedCount = 0;
+    activeNonDefault.forEach((id) => {
+      this.folderApi
+        .updateStatus(id, 'ARCHIVED')
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.folders.update((items) =>
+              items.map((item) =>
+                this.folderId(item) === id ? { ...item, status: 'ARCHIVED' as WorkspaceFolderStatus } : item
+              )
+            );
+            completed++;
+            updatedCount++;
+            if (completed === activeNonDefault.length) {
+              if (updatedCount > 0) {
+                this.toastService.success(
+                  `Archived ${updatedCount} ${updatedCount === 1 ? 'folder' : 'folders'}`
+                );
+              }
+              this.clearSelection();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === activeNonDefault.length) {
+              if (updatedCount > 0) {
+                this.toastService.success(
+                  `Archived ${updatedCount} ${updatedCount === 1 ? 'folder' : 'folders'}`
+                );
+              }
+              this.clearSelection();
+            }
+          },
+        });
+    });
+  }
+
+  bulkDeleteSelected(): void {
+    const ids = Array.from(this.selectedFolderIds());
+    if (!ids.length) return;
+
+    const deletableIds = ids.filter((id) => {
+      const folder = this.folders().find((f) => this.folderId(f) === id);
+      return folder && !this.isDefault(folder);
+    });
+
+    if (!deletableIds.length) {
+      this.toastService.warning('Default folders cannot be deleted');
+      this.clearSelection();
+      return;
+    }
+
+    let completed = 0;
+    let deletedCount = 0;
+    deletableIds.forEach((id) => {
+      this.folderApi
+        .delete(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.folders.update((items) => items.filter((f) => this.folderId(f) !== id));
+            this.folderStore.remove(id);
+            completed++;
+            deletedCount++;
+            if (completed === deletableIds.length) {
+              this.toastService.success(
+                `Moved ${deletedCount} ${deletedCount === 1 ? 'folder' : 'folders'} to trash`
+              );
+              this.clearSelection();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === deletableIds.length) {
+              if (deletedCount > 0) {
+                this.toastService.success(
+                  `Moved ${deletedCount} ${deletedCount === 1 ? 'folder' : 'folders'} to trash`
+                );
+              }
+              this.clearSelection();
+            }
+          },
+        });
+    });
+  }
+
+  isKeyCopied(id?: string): boolean {
+    return !!(id && this.copiedKeyMap()[id]);
+  }
+
+  copyFolderId(id?: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!id) return;
+    navigator.clipboard
+      .writeText(id)
+      .then(() => {
+        this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
+        this.toastService.info('Copied folder ID to clipboard');
+        setTimeout(() => {
+          this.copiedKeyMap.update((map) => {
+            const next = { ...map };
+            delete next[id];
+            return next;
+          });
+        }, 2000);
+      })
+      .catch(() => {});
+  }
 
   constructor() {
     this.destroyRef.onDestroy(() => this.clearFolderClickTimer());
@@ -862,6 +1130,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   private resetInteractionState(): void {
     this.clearFolderClickTimer();
+    this.clearSelection();
     this.inlineRenameId.set(null);
     this.inlineRenameName.set('');
     this.inlineRenameError.set(null);

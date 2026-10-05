@@ -20,12 +20,19 @@ import {
   LucideArchive,
   LucideArrowRight,
   LucideCalendarDays,
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideClock3,
+  LucideCopy,
   LucideFolder,
+  LucideFolderOpen,
   LucideGlobe,
   LucideLightbulb,
   LucideLock,
   LucideMegaphone,
   LucideMoreHorizontal,
+  LucidePanelsTopLeft,
   LucidePencil,
   LucidePlus,
   LucideRefreshCw,
@@ -41,6 +48,13 @@ import { AppIcon } from '../../shared/components/icon/icon';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
+import { Checkbox } from '../../shared/components/checkbox/checkbox';
+import {
+  BulkActionPanel,
+  BulkActionPanelOrientation,
+  BulkActionPanelPosition,
+  BulkActionPanelVariant,
+} from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
@@ -54,6 +68,8 @@ import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-e
 import { WorkspaceService } from './services/workspace.service';
 import { WorkspaceStore } from './services/workspace.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import {
   SORT_OPTIONS,
   USER_PREFERENCE_KEYS,
@@ -86,11 +102,16 @@ import { UserDateTimeFormatterService } from '../../shared/services/user-date-ti
     AppInput,
     Badge,
     Button,
+    Checkbox,
+    BulkActionPanel,
     Loader,
+    MembersStack,
     AddEditWorkspaceSidePanel,
     Select,
     StickyCard,
     Tabs,
+    UserDatePipe,
+    UserTimePipe,
     WorkspaceFolderWrapper,
   ],
   templateUrl: './workspace.html',
@@ -109,9 +130,16 @@ export class Workspace implements OnInit {
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCalendarDays = LucideCalendarDays;
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
+  readonly LucideClock3 = LucideClock3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideFolder = LucideFolder;
+  readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideGlobe = LucideGlobe;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
+  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
   readonly LucideRefreshCw = LucideRefreshCw;
@@ -127,6 +155,11 @@ export class Workspace implements OnInit {
   readonly workspaces = signal<any[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly selectedWorkspaceIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedWorkspaceIds().size);
+  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly searchTerm = signal('');
   readonly activeTab = signal<'all' | 'active' | 'archived'>('all');
@@ -199,6 +232,240 @@ export class Workspace implements OnInit {
       return sort === 'oldest' ? firstDate - secondDate : secondDate - firstDate;
     });
   });
+
+  readonly workspaceGroups = computed(() => {
+    const list = this.visibleWorkspaces();
+    const tab = this.activeTab();
+    const isSearchActive = !!this.searchTerm().trim();
+
+    const groups: Array<{
+      id: string;
+      label: string;
+      status: 'ACTIVE' | 'ARCHIVED';
+      accent: string;
+      items: any[];
+      count: number;
+    }> = [];
+
+    if (tab === 'all' || tab === 'active') {
+      const activeItems = list.filter((w) => (w?.status ?? 'ACTIVE') === 'ACTIVE');
+      groups.push({
+        id: 'active',
+        label: 'Active Spaces',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: activeItems,
+        count: activeItems.length,
+      });
+    }
+
+    if (tab === 'all' || tab === 'archived') {
+      const archivedItems = list.filter((w) => w?.status === 'ARCHIVED');
+      groups.push({
+        id: 'archived',
+        label: 'Archived Spaces',
+        status: 'ARCHIVED',
+        accent: '#64748b',
+        items: archivedItems,
+        count: archivedItems.length,
+      });
+    }
+
+    return groups.filter((g) => g.count > 0 || !isSearchActive);
+  });
+
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update((set) => {
+      const next = new Set(set);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
+  isWorkspaceSelected(workspace: any): boolean {
+    const id = idOf(workspace);
+    return !!id && this.selectedWorkspaceIds().has(id);
+  }
+
+  toggleWorkspaceSelection(workspace: any, checked: boolean): void {
+    const id = idOf(workspace);
+    if (!id) return;
+
+    this.selectedWorkspaceIds.update((set) => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(workspaces?: any[]): boolean {
+    const target = workspaces ?? this.visibleWorkspaces();
+    if (!target.length) return false;
+    const set = this.selectedWorkspaceIds();
+    return target.every((w) => set.has(idOf(w)));
+  }
+
+  isSomeSelected(workspaces?: any[]): boolean {
+    const target = workspaces ?? this.visibleWorkspaces();
+    if (!target.length) return false;
+    const set = this.selectedWorkspaceIds();
+    const selected = target.filter((w) => set.has(idOf(w)));
+    return selected.length > 0 && selected.length < target.length;
+  }
+
+  toggleSelectAll(checked: boolean, workspaces?: any[]): void {
+    const target = workspaces ?? this.visibleWorkspaces();
+    if (!target.length) return;
+
+    this.selectedWorkspaceIds.update((set) => {
+      const next = new Set(set);
+      target.forEach((w) => {
+        const id = idOf(w);
+        if (id) {
+          if (checked) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedWorkspaceIds.set(new Set());
+  }
+
+  bulkArchiveSelected(): void {
+    const ids = Array.from(this.selectedWorkspaceIds());
+    if (!ids.length) return;
+
+    let completed = 0;
+    let updatedCount = 0;
+    ids.forEach((id) => {
+      const workspace = this.workspaces().find((w) => idOf(w) === id);
+      if (workspace && this.isActive(workspace)) {
+        this.workspaceApi
+          .updateStatus(id, 'ARCHIVED')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.workspaces.update((items) =>
+                items.map((item) =>
+                  idOf(item) === id ? this.prepareWorkspace({ ...item, status: 'ARCHIVED' }) : item
+                )
+              );
+              completed++;
+              updatedCount++;
+              if (completed === ids.length) {
+                if (updatedCount > 0) {
+                  this.toastService.success(
+                    `Archived ${updatedCount} ${updatedCount === 1 ? 'workspace' : 'workspaces'}`
+                  );
+                }
+                this.clearSelection();
+              }
+            },
+            error: () => {
+              completed++;
+              if (completed === ids.length) {
+                if (updatedCount > 0) {
+                  this.toastService.success(
+                    `Archived ${updatedCount} ${updatedCount === 1 ? 'workspace' : 'workspaces'}`
+                  );
+                }
+                this.clearSelection();
+              }
+            },
+          });
+      } else {
+        completed++;
+        if (completed === ids.length) {
+          if (updatedCount > 0) {
+            this.toastService.success(
+              `Archived ${updatedCount} ${updatedCount === 1 ? 'workspace' : 'workspaces'}`
+            );
+          }
+          this.clearSelection();
+        }
+      }
+    });
+  }
+
+  bulkDeleteSelected(): void {
+    const ids = Array.from(this.selectedWorkspaceIds());
+    if (!ids.length) return;
+
+    let completed = 0;
+    let deletedCount = 0;
+    ids.forEach((id) => {
+      this.workspaceApi
+        .delete(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.workspaces.update((items) => items.filter((w) => idOf(w) !== id));
+            this.workspaceStore.remove(id);
+            completed++;
+            deletedCount++;
+            if (completed === ids.length) {
+              this.toastService.success(
+                `Moved ${deletedCount} ${deletedCount === 1 ? 'workspace' : 'workspaces'} to trash`
+              );
+              this.clearSelection();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === ids.length) {
+              if (deletedCount > 0) {
+                this.toastService.success(
+                  `Moved ${deletedCount} ${deletedCount === 1 ? 'workspace' : 'workspaces'} to trash`
+                );
+              }
+              this.clearSelection();
+            }
+          },
+        });
+    });
+  }
+
+  isKeyCopied(id?: string): boolean {
+    return !!(id && this.copiedKeyMap()[id]);
+  }
+
+  copyWorkspaceId(id?: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!id) return;
+    navigator.clipboard
+      .writeText(id)
+      .then(() => {
+        this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
+        this.toastService.info('Copied workspace ID to clipboard');
+        setTimeout(() => {
+          this.copiedKeyMap.update((map) => {
+            const next = { ...map };
+            delete next[id];
+            return next;
+          });
+        }, 2000);
+      })
+      .catch(() => {});
+  }
 
   ngOnInit(): void {
     this.loadWorkspaces();

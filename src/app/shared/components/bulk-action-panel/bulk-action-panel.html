@@ -1,0 +1,31 @@
+@if (isVisible) {
+<div class="app-bulk-action-panel-inner" role="toolbar" aria-label="Bulk actions toolbar">
+    <div class="app-bulk-action-panel-info">
+        <app-icon [icon]="LucideCheckSquare" size="sm" class="app-bulk-action-icon" />
+        <span class="app-bulk-action-count">
+            <strong>{{ selectedCount }}</strong> {{ label }}
+        </span>
+        @if (showClear) {
+        <button type="button" class="app-bulk-action-clear" (click)="onClear()" title="Clear selection" aria-label="Clear selection">
+            <app-icon [icon]="LucideX" size="xs" />
+        </button>
+        }
+    </div>
+
+    <div class="app-bulk-action-panel-divider" aria-hidden="true"></div>
+
+    <div class="app-bulk-action-panel-actions">
+        <ng-content />
+
+        @if (showMove) {
+        <app-button [iconLeft]="LucideArrowRight" [label]="moveLabel" variant="secondary" size="xs" shape="pill"
+            (buttonClick)="onMove()" />
+        }
+
+        @if (showDelete) {
+        <app-button [iconLeft]="LucideTrash2" [label]="deleteLabel" variant="noteRed" appearance="standard" size="xs" shape="pill"
+            (buttonClick)="onDelete()" />
+        }
+    </div>
+</div>
+}

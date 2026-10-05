@@ -21,9 +21,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import {
   LucideAArrowUp,
   LucideArchive,
+  LucideArrowLeft,
+  LucideArrowRight,
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronRight,
   LucideClock3,
   LucideColumns3,
+  LucideCopy,
   LucideFolderOpen,
+  LucideGrid2X2,
   LucideLayoutGrid,
   LucideList,
   LucideMoreHorizontal,
@@ -42,7 +49,9 @@ import {
 } from '@lucide/angular';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
+import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../shared/components/button/button';
+import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Label } from '../../shared/components/label/label';
 import { Loader } from '../../shared/components/loader/loader';
@@ -59,11 +68,13 @@ import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-fol
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import {
+  buildStatusTabs,
   STICKY_NOTE_FONT_OPTIONS,
   STICKY_NOTE_FONT_SIZE_OPTIONS,
   STICKY_NOTE_LAYOUT_OPTIONS,
   USER_PREFERENCE_KEYS,
   VIEW,
+  VIEW_TABS,
   View
 } from '../../shared/constants/common.constants';
 import {
@@ -90,6 +101,8 @@ import {
   sortNotesByRank,
   toColorCssClass
 } from '../../shared/functions/sticky-note.function';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
 import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
@@ -108,13 +121,17 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
     AppInput,
     AddEditNoteSidePanel,
     Badge,
+    BulkActionPanel,
     Button,
+    Checkbox,
     Label,
     Loader,
     Select,
     StickyCard,
     StickyNoteCardComponent,
-    Tabs
+    Tabs,
+    UserDatePipe,
+    UserTimePipe
   ],
   templateUrl: './mynotes.html',
   styleUrl: './mynotes.scss',
@@ -155,9 +172,16 @@ export class MyNotes implements OnInit, OnChanges {
 
   readonly LucideAArrowUp = LucideAArrowUp;
   readonly LucideArchive = LucideArchive;
+  readonly LucideArrowLeft = LucideArrowLeft;
+  readonly LucideArrowRight = LucideArrowRight;
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
   readonly LucideColumns3 = LucideColumns3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;
+  readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideLayoutGrid = LucideLayoutGrid;
   readonly LucideList = LucideList;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
@@ -203,10 +227,16 @@ export class MyNotes implements OnInit, OnChanges {
   readonly loadingNotes = signal(false);
   readonly notesError = signal<string | null>(null);
   readonly activeTab = signal<any>('all');
-  readonly view = signal<View>(VIEW.GRID);
+  readonly view = signal<'grid' | 'table' | 'list'>('grid');
   readonly searchTerm = signal('');
   readonly sortBy = signal<any>('updatedAt');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
+
+  /* Selection, grouping and bulk actions matching Workspace */
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly selectedNoteIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedNoteIds().size);
+  readonly copiedNoteIds = signal<Set<string>>(new Set());
 
   /* Drag-and-drop state */
   readonly draggedNoteId = signal<string | null>(null);
@@ -238,10 +268,7 @@ export class MyNotes implements OnInit, OnChanges {
   /** Sort options from shared base — same set used by Today */
   readonly sortOptions: readonly any[] = NOTE_SORT_OPTIONS;
 
-  readonly viewTabs: readonly any[] = [
-    { value: VIEW.GRID, label: 'Grid', icon: LucideLayoutGrid, ariaLabel: 'Grid view' },
-    { value: VIEW.TABLE, label: 'Table', icon: LucideList, ariaLabel: 'Table view' }
-  ];
+  readonly viewTabs = VIEW_TABS;
 
   readonly selectedFolderLabel = computed(() => {
     const id = this.selectedFolderId();
@@ -253,11 +280,13 @@ export class MyNotes implements OnInit, OnChanges {
   readonly activeCount = computed(() => this.notes().filter(note => isNoteActive(note)).length);
   readonly archivedCount = computed(() => this.notes().filter(note => isNoteArchived(note)).length);
 
-  readonly noteTabs = computed<readonly any[]>(() => [
-    { value: 'all',      label: 'All',      count: this.totalCount(),    icon: LucideStickyNote, ariaLabel: 'All notes' },
-    { value: 'active',   label: 'Active',   count: this.activeCount(),   icon: LucideStickyNote, ariaLabel: 'Active notes' },
-    { value: 'archived', label: 'Archived', count: this.archivedCount(), icon: LucideArchive,    ariaLabel: 'Archived notes' }
-  ]);
+  readonly noteTabs = computed<readonly any[]>(() =>
+    buildStatusTabs({
+      all: this.totalCount(),
+      active: this.activeCount(),
+      archived: this.archivedCount()
+    })
+  );
 
   readonly visibleNotes = computed(() => {
     const tab = this.activeTab();
@@ -269,18 +298,65 @@ export class MyNotes implements OnInit, OnChanges {
         if (tab === 'active'   && !isNoteActive(note))   return false;
         if (tab === 'archived' && !isNoteArchived(note)) return false;
         if (!search) return true;
-        return [this.noteTitle(note), this.noteContent(note), this.noteColumnName(note)]
+        return [this.noteTitle(note), this.noteContent(note), this.noteColumnName(note), this.noteKey(note)]
           .some(value => value.toLowerCase().includes(search));
       })
       .sort((first, second) => {
-        if (sort === 'title') {
+        if (sort === 'title' || sort === 'name-asc') {
           return this.noteTitle(first).localeCompare(this.noteTitle(second), undefined, { sensitivity: 'base' });
+        }
+        if (sort === 'name-desc') {
+          return this.noteTitle(second).localeCompare(this.noteTitle(first), undefined, { sensitivity: 'base' });
+        }
+        if (sort === 'oldest') {
+          return getNoteTimestamp(first, 'createdAt') - getNoteTimestamp(second, 'createdAt');
         }
         if (sort === 'rank' || sort === 'position') {
           return compareNotesByRank(first, second);
         }
         return getNoteTimestamp(second, sort) - getNoteTimestamp(first, sort);
       });
+  });
+
+  readonly noteGroups = computed(() => {
+    const list = this.visibleNotes();
+    const tab = this.activeTab();
+    const isSearchActive = !!this.searchTerm().trim();
+
+    const groups: Array<{
+      id: string;
+      label: string;
+      status: 'ACTIVE' | 'ARCHIVED';
+      accent: string;
+      items: any[];
+      count: number;
+    }> = [];
+
+    if (tab === 'all' || tab === 'active') {
+      const activeItems = list.filter((n) => isNoteActive(n));
+      groups.push({
+        id: 'active',
+        label: 'Active Notes',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: activeItems,
+        count: activeItems.length,
+      });
+    }
+
+    if (tab === 'all' || tab === 'archived') {
+      const archivedItems = list.filter((n) => isNoteArchived(n));
+      groups.push({
+        id: 'archived',
+        label: 'Archived Notes',
+        status: 'ARCHIVED',
+        accent: '#64748b',
+        items: archivedItems,
+        count: archivedItems.length,
+      });
+    }
+
+    return groups.filter((g) => g.count > 0 || !isSearchActive);
   });
 
   readonly canCreateNote = computed(() => !!this.selectedWorkspaceId() &&
@@ -509,7 +585,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   setNoteView(value: any): void {
-    if (value === VIEW.GRID || value === VIEW.TABLE) this.view.set(value);
+    if (value === 'grid' || value === 'table' || value === 'list') this.view.set(value);
   }
 
   updateSearch(value: any): void {
@@ -573,6 +649,11 @@ export class MyNotes implements OnInit, OnChanges {
   onNoteDeleted(noteId: string): void {
     if (!noteId) return;
     this.notes.update(notes => notes.filter(item => idOf(item) !== noteId));
+    this.selectedNoteIds.update(set => {
+      const next = new Set(set);
+      next.delete(noteId);
+      return next;
+    });
   }
 
   onNoteUpdated(updated: any): void {
@@ -1145,6 +1226,201 @@ export class MyNotes implements OnInit, OnChanges {
     this.busyIds.set(next);
   }
 
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update((set) => {
+      const next = new Set(set);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
+  isNoteSelected(note: any): boolean {
+    const id = idOf(note);
+    return !!id && this.selectedNoteIds().has(id);
+  }
+
+  toggleNoteSelection(note: any, checked: boolean): void {
+    const id = idOf(note);
+    if (!id) return;
+    this.selectedNoteIds.update((set) => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(notes?: any[]): boolean {
+    const target = notes ?? this.visibleNotes();
+    if (!target.length) return false;
+    const set = this.selectedNoteIds();
+    return target.every((n) => set.has(idOf(n)));
+  }
+
+  isSomeSelected(notes?: any[]): boolean {
+    const target = notes ?? this.visibleNotes();
+    if (!target.length) return false;
+    const set = this.selectedNoteIds();
+    const selected = target.filter((n) => set.has(idOf(n)));
+    return selected.length > 0 && selected.length < target.length;
+  }
+
+  toggleSelectAll(checked: boolean, notes?: any[]): void {
+    const target = notes ?? this.visibleNotes();
+    if (!target.length) return;
+    this.selectedNoteIds.update((set) => {
+      const next = new Set(set);
+      target.forEach((n) => {
+        const id = idOf(n);
+        if (id) {
+          if (checked) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedNoteIds.set(new Set());
+  }
+
+  bulkArchiveSelected(): void {
+    const ids = Array.from(this.selectedNoteIds());
+    if (!ids.length) return;
+
+    let completed = 0;
+    let updatedCount = 0;
+    ids.forEach((id) => {
+      const note = this.notes().find((n) => idOf(n) === id);
+      if (note && this.isActive(note)) {
+        this.stickyNoteApi
+          .archive(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (res) => {
+              if (res?.data) this.replaceNote(res.data);
+              completed++;
+              updatedCount++;
+              if (completed === ids.length) {
+                if (updatedCount > 0) {
+                  this.toastService.success(
+                    `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
+                  );
+                }
+                this.clearSelection();
+              }
+            },
+            error: () => {
+              completed++;
+              if (completed === ids.length) {
+                if (updatedCount > 0) {
+                  this.toastService.success(
+                    `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
+                  );
+                }
+                this.clearSelection();
+              }
+            }
+          });
+      } else {
+        completed++;
+        if (completed === ids.length) {
+          if (updatedCount > 0) {
+            this.toastService.success(
+              `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
+            );
+          }
+          this.clearSelection();
+        }
+      }
+    });
+  }
+
+  bulkDeleteSelected(): void {
+    const ids = Array.from(this.selectedNoteIds());
+    if (!ids.length) return;
+
+    let completed = 0;
+    let deletedCount = 0;
+    ids.forEach((id) => {
+      this.stickyNoteApi
+        .delete(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.notes.update((items) => items.filter((n) => idOf(n) !== id));
+            completed++;
+            deletedCount++;
+            if (completed === ids.length) {
+              if (deletedCount > 0) {
+                this.toastService.success(
+                  `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
+                );
+              }
+              this.clearSelection();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === ids.length) {
+              if (deletedCount > 0) {
+                this.toastService.success(
+                  `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
+                );
+              }
+              this.clearSelection();
+            }
+          }
+        });
+    });
+  }
+
+  copyNoteId(id: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!id) return;
+    navigator.clipboard?.writeText(id);
+    this.copiedNoteIds.update((set) => {
+      const next = new Set(set);
+      next.add(id);
+      return next;
+    });
+    setTimeout(() => {
+      this.copiedNoteIds.update((set) => {
+        const next = new Set(set);
+        next.delete(id);
+        return next;
+      });
+    }, 2000);
+  }
+
+  isKeyCopied(id: string): boolean {
+    return this.copiedNoteIds().has(id);
+  }
+
+  noteKey(note: any): string {
+    if (note?.noteKey) return String(note.noteKey);
+    if (typeof note?.stickyNoteNumber === 'number') {
+      return `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`;
+    }
+    return '';
+  }
+
   private clearNotesState(closeOverlays = true): void {
     ++this.noteRequestVersion;
     this.columns.set([]);
@@ -1152,6 +1428,8 @@ export class MyNotes implements OnInit, OnChanges {
     this.loadingNotes.set(false);
     this.notesError.set(null);
     this.busyIds.set(new Set());
+    this.clearSelection();
+    this.resetDragState();
     if (closeOverlays) {
       this.closeNotePanel();
       this.closeDeleteDialog(true);

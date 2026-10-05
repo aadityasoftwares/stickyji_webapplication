@@ -19,6 +19,11 @@ import { finalize } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideClock3,
+  LucideCopy,
   LucideEye,
   LucideGrid2X2,
   LucideList,
@@ -26,6 +31,7 @@ import {
   LucideMoreHorizontal,
   LucidePanelsTopLeft,
   LucidePencil,
+  LucidePlus,
   LucideRefreshCw,
   LucideRotateCcw,
   LucideSearch,
@@ -40,6 +46,8 @@ import {
 import { Avatar } from '../../../shared/components/avatar/avatar';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
+import { Checkbox } from '../../../shared/components/checkbox/checkbox';
+import { BulkActionPanel } from '../../../shared/components/bulk-action-panel/bulk-action-panel';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
@@ -49,6 +57,8 @@ import { Tabs, type TabItem, type TabValue } from '../../../shared/components/ta
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
+import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
 
 import type {
   MyWorkspaceQuery,
@@ -114,13 +124,17 @@ type BadgeVariant =
     Avatar,
     Badge,
     Button,
+    Checkbox,
+    BulkActionPanel,
     Loader,
     Select,
     StickyCard,
     Tabs,
     SendWorkspaceMemberRequestSidePanel,
     MemberCardWrapper,
-    InvitationCardWrapper
+    InvitationCardWrapper,
+    UserDatePipe,
+    UserTimePipe
   ],
   templateUrl: './workspace-members.html',
   styleUrl: './workspace-members.scss',
@@ -148,6 +162,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   private invitationRequestVersion = 0;
   private initialized = false;
 
+  readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideChevronRight = LucideChevronRight;
+  readonly LucideClock3 = LucideClock3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideEye = LucideEye;
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideList = LucideList;
@@ -155,6 +174,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
+  readonly LucidePlus = LucidePlus;
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideRotateCcw = LucideRotateCcw;
   readonly LucideSearch = LucideSearch;
@@ -164,6 +184,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly LucideUserPlus = LucideUserPlus;
   readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
+
+  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly selectedMemberIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedMemberIds().size);
+  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly workspaces = this.workspaceStore.workspaces;
   readonly loadingWorkspaces = this.workspaceStore.loading;
@@ -401,6 +426,259 @@ export class WorkspaceMembers implements OnInit, OnChanges {
         );
       });
   });
+
+  readonly memberGroups = computed(() => {
+    const list = this.visibleMembers();
+    const tab = this.activeTab();
+    const isSearchActive = !!this.searchTerm().trim();
+
+    const groups: Array<{
+      id: string;
+      label: string;
+      status: 'ACTIVE' | 'REMOVED';
+      accent: string;
+      items: readonly WorkspaceMemberListItem[];
+      count: number;
+    }> = [];
+
+    if (tab === 'all' || tab === 'active') {
+      const activeItems = list.filter((m) => this.memberStatus(m) === 'ACTIVE');
+      groups.push({
+        id: 'active',
+        label: 'Active Members',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: activeItems,
+        count: activeItems.length,
+      });
+    }
+
+    if (tab === 'all' || tab === 'removed') {
+      const source = tab === 'all' ? this.members() : list;
+      const query = this.searchTerm().trim().toLowerCase();
+      const removedItems = source.filter((m) => {
+        if (this.memberStatus(m) !== 'REMOVED') return false;
+        if (!query) return true;
+        return [
+          this.memberName(m),
+          this.memberEmail(m),
+          this.memberRoleName(m),
+          this.memberStatusLabel(m),
+          this.addedByLabel(m)
+        ].some(value => value.toLowerCase().includes(query));
+      });
+
+      if (removedItems.length > 0 || tab === 'removed') {
+        groups.push({
+          id: 'removed',
+          label: 'Removed Members',
+          status: 'REMOVED',
+          accent: '#64748b',
+          items: removedItems,
+          count: removedItems.length,
+        });
+      }
+    }
+
+    return groups.filter((g) => g.count > 0 || !isSearchActive);
+  });
+
+  toggleGroup(groupId: string): void {
+    this.collapsedGroups.update((set) => {
+      const next = new Set(set);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }
+
+  isGroupCollapsed(groupId: string): boolean {
+    return this.collapsedGroups().has(groupId);
+  }
+
+  isMemberSelected(member: WorkspaceMemberListItem): boolean {
+    const id = this.memberId(member);
+    return !!id && this.selectedMemberIds().has(id);
+  }
+
+  toggleMemberSelection(member: WorkspaceMemberListItem, checked: boolean): void {
+    const id = this.memberId(member);
+    if (!id) return;
+
+    this.selectedMemberIds.update((set) => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(members?: readonly WorkspaceMemberListItem[]): boolean {
+    const target = members ?? this.visibleMembers();
+    if (!target.length) return false;
+    const set = this.selectedMemberIds();
+    return target.every((m) => set.has(this.memberId(m)));
+  }
+
+  isSomeSelected(members?: readonly WorkspaceMemberListItem[]): boolean {
+    const target = members ?? this.visibleMembers();
+    if (!target.length) return false;
+    const set = this.selectedMemberIds();
+    const selected = target.filter((m) => set.has(this.memberId(m)));
+    return selected.length > 0 && selected.length < target.length;
+  }
+
+  toggleSelectAll(checked: boolean, members?: readonly WorkspaceMemberListItem[]): void {
+    const target = members ?? this.visibleMembers();
+    if (!target.length) return;
+
+    this.selectedMemberIds.update((set) => {
+      const next = new Set(set);
+      target.forEach((m) => {
+        const id = this.memberId(m);
+        if (id) {
+          if (checked) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedMemberIds.set(new Set());
+  }
+
+  bulkRemoveSelected(): void {
+    const ids = Array.from(this.selectedMemberIds());
+    if (!ids.length) return;
+
+    const removableIds = ids.filter((id) => {
+      const member = this.members().find((m) => this.memberId(m) === id);
+      return member && !this.isRemoved(member) && this.canManageMember(member);
+    });
+
+    if (!removableIds.length) {
+      this.toastService.warning('Selected members cannot be removed');
+      this.clearSelection();
+      return;
+    }
+
+    let completed = 0;
+    let removedCount = 0;
+    removableIds.forEach((id) => {
+      this.memberApi
+        .remove(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            completed++;
+            removedCount++;
+            if (completed === removableIds.length) {
+              this.toastService.success(
+                `Removed ${removedCount} ${removedCount === 1 ? 'member' : 'members'}`
+              );
+              this.clearSelection();
+              this.loadMembers();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === removableIds.length) {
+              if (removedCount > 0) {
+                this.toastService.success(
+                  `Removed ${removedCount} ${removedCount === 1 ? 'member' : 'members'}`
+                );
+              }
+              this.clearSelection();
+              this.loadMembers();
+            }
+          },
+        });
+    });
+  }
+
+  bulkRestoreSelected(): void {
+    const ids = Array.from(this.selectedMemberIds());
+    if (!ids.length) return;
+
+    const restorableIds = ids.filter((id) => {
+      const member = this.members().find((m) => this.memberId(m) === id);
+      return member && this.isRemoved(member);
+    });
+
+    if (!restorableIds.length) {
+      this.toastService.warning('Selected members are not removed');
+      this.clearSelection();
+      return;
+    }
+
+    let completed = 0;
+    let restoredCount = 0;
+    restorableIds.forEach((id) => {
+      this.memberApi
+        .restore(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            completed++;
+            restoredCount++;
+            if (completed === restorableIds.length) {
+              this.toastService.success(
+                `Restored ${restoredCount} ${restoredCount === 1 ? 'member' : 'members'}`
+              );
+              this.clearSelection();
+              this.loadMembers();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === restorableIds.length) {
+              if (restoredCount > 0) {
+                this.toastService.success(
+                  `Restored ${restoredCount} ${restoredCount === 1 ? 'member' : 'members'}`
+                );
+              }
+              this.clearSelection();
+              this.loadMembers();
+            }
+          },
+        });
+    });
+  }
+
+  isKeyCopied(id?: string): boolean {
+    return !!(id && this.copiedKeyMap()[id]);
+  }
+
+  copyMemberId(id?: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!id) return;
+    navigator.clipboard
+      .writeText(id)
+      .then(() => {
+        this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
+        this.toastService.info('Copied member ID to clipboard');
+        setTimeout(() => {
+          this.copiedKeyMap.update((map) => {
+            const next = { ...map };
+            delete next[id];
+            return next;
+          });
+        }, 2000);
+      })
+      .catch(() => {});
+  }
 
   readonly visibleInvitations = computed(() => {
     if (this.activeTab() !== 'invitations') {
@@ -736,6 +1014,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       value === 'invitations' ||
       value === 'removed'
     ) {
+      this.clearSelection();
       this.activeTab.set(value);
       this.searchTerm.set('');
     }
@@ -1590,6 +1869,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private resetInteractionState(): void {
+    this.clearSelection();
     this.searchTerm.set('');
     this.activeTab.set('all');
 

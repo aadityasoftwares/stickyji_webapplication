@@ -23,9 +23,11 @@ import {
   LucideArrowLeft,
   LucideArrowRight,
   LucideCalendarDays,
+  LucideCheck,
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
+  LucideCopy,
   LucideFolderOpen,
   LucideGrip,
   LucideList,
@@ -58,6 +60,13 @@ import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
 import { AddEditStickyNoteColumnSidePanel } from '../sticky-note-columns/add-edit-sticky-note-column-side-panel/add-edit-sticky-note-column-side-panel';
 import { StickyNote } from '../mynotes/sticky-note/sticky-note';
+import { Checkbox } from '../../shared/components/checkbox/checkbox';
+import {
+  BulkActionPanel,
+  BulkActionPanelOrientation,
+  BulkActionPanelPosition,
+  BulkActionPanelVariant
+} from '../../shared/components/bulk-action-panel/bulk-action-panel';
 
 import {
   STICKY_NOTE_FONT_OPTIONS,
@@ -136,6 +145,8 @@ type TodayLoadErrorKind = 'network' | 'server';
     AppInput,
     Badge,
     Button,
+    Checkbox,
+    BulkActionPanel,
     Divider,
     Loader,
     MembersStack,
@@ -177,9 +188,11 @@ export class Today {
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCalendarDays = LucideCalendarDays;
+  readonly LucideCheck = LucideCheck;
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
+  readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideList = LucideList;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
@@ -194,6 +207,8 @@ export class Today {
   readonly LucideType = LucideType;
   readonly LucideX = LucideX;
   readonly LucideGrip = LucideGrip;
+
+  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly today = signal(new Date());
   readonly VIEW = VIEW;
@@ -272,6 +287,13 @@ export class Today {
   readonly tableTitleDraft = signal('');
   readonly collapsedGroups = signal<Set<string>>(new Set());
 
+  readonly selectedNoteIds = signal<Set<string>>(new Set());
+  readonly selectedCount = computed(() => this.selectedNoteIds().size);
+
+  readonly bulkActionPosition = signal<BulkActionPanelPosition>('bottom-center');
+  readonly bulkActionOrientation = signal<BulkActionPanelOrientation>('horizontal');
+  readonly bulkActionVariant = signal<BulkActionPanelVariant>('floating');
+
   /** Groups visible list notes by their column, preserving column order. */
   readonly tableGroups = computed(() => {
     const columns = this.stickyNoteColumns();
@@ -286,6 +308,7 @@ export class Today {
           label: column.label || 'Untitled',
           type: column.type || 'CUSTOM',
           accent: column.accent,
+          column,
           notes: columnNotes,
           count: columnNotes.length
         };
@@ -330,7 +353,7 @@ export class Today {
    *  notes can be dragged across columns even when the drop lists are nested
    *  inside cdkDrag column elements (cdkDropListGroup cannot reach them). */
   readonly columnDropListIds = computed<string[]>(() =>
-    this.stickyNoteColumns().map(col => col.id + '-drop-list')
+    this.stickyNoteColumns().flatMap(col => [col.id + '-drop-list', col.id + '-table-drop-list'])
   );
 
   readonly visibleListNotes = computed(() => {
@@ -1561,6 +1584,120 @@ export class Today {
         : undefined,
       compact: !content || content === title
     };
+  }
+
+  isKeyCopied(key?: string): boolean {
+    return !!(key && this.copiedKeyMap()[key]);
+  }
+
+  copyNoteKey(key?: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!key) return;
+    navigator.clipboard.writeText(key).then(() => {
+      this.copiedKeyMap.update(map => ({ ...map, [key]: true }));
+      this.toastService.info(`Copied ${key} to clipboard`);
+      setTimeout(() => {
+        this.copiedKeyMap.update(map => {
+          const next = { ...map };
+          delete next[key];
+          return next;
+        });
+      }, 2000);
+    }).catch(() => {
+      // Fallback if clipboard API is not available
+    });
+  }
+
+  isNoteSelected(note: any): boolean {
+    const id = idOf(note);
+    return !!id && this.selectedNoteIds().has(id);
+  }
+
+  toggleNoteSelection(note: any, checked: boolean): void {
+    const id = idOf(note);
+    if (!id) return;
+
+    this.selectedNoteIds.update(set => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  isAllSelected(notes?: any[]): boolean {
+    const targetNotes = notes ?? this.visibleListNotes();
+    if (!targetNotes.length) return false;
+    const set = this.selectedNoteIds();
+    return targetNotes.every(note => set.has(idOf(note)));
+  }
+
+  isSomeSelected(notes?: any[]): boolean {
+    const targetNotes = notes ?? this.visibleListNotes();
+    if (!targetNotes.length) return false;
+    const set = this.selectedNoteIds();
+    const selectedInList = targetNotes.filter(note => set.has(idOf(note)));
+    return selectedInList.length > 0 && selectedInList.length < targetNotes.length;
+  }
+
+  toggleSelectAll(checked: boolean, notes?: any[]): void {
+    const targetNotes = notes ?? this.visibleListNotes();
+    if (!targetNotes.length) return;
+
+    this.selectedNoteIds.update(set => {
+      const next = new Set(set);
+      targetNotes.forEach(note => {
+        const id = idOf(note);
+        if (id) {
+          if (checked) {
+            next.add(id);
+          } else {
+            next.delete(id);
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  clearSelection(): void {
+    this.selectedNoteIds.set(new Set());
+  }
+
+  bulkDeleteSelectedNotes(): void {
+    const ids = Array.from(this.selectedNoteIds());
+    if (!ids.length) return;
+
+    let completed = 0;
+    let deletedCount = 0;
+    ids.forEach(id => {
+      this.stickyNoteApiService.moveToTrash(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.onNoteDeleted(id);
+            completed++;
+            deletedCount++;
+            if (completed === ids.length) {
+              this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
+              this.clearSelection();
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === ids.length) {
+              if (deletedCount > 0) {
+                this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
+              }
+              this.clearSelection();
+            }
+          }
+        });
+    });
   }
 
   private isStickyNoteFont(value: any): boolean {

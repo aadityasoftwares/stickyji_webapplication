@@ -24,14 +24,14 @@
 }
 
 <app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
-    [headerNote]="saveIndicatorLabel()" [icon]="headerIcon" [tone]="panelTone" [width]="580" [busy]="isBusy"
-    ariaLabel="Sticky note column editor" (closed)="close()" [attr.data-color]="previewColor">
-    <form panel-body class="column-editor" [attr.data-color]="previewColor" [formGroup]="form"
+    [headerNote]="saveIndicatorLabel()" [icon]="headerIcon" tone="paper" [width]="580" [busy]="isBusy"
+    ariaLabel="Sticky note column editor" (closed)="close()">
+    <form panel-body class="column-editor" [formGroup]="form"
         (ngSubmit)="$event.preventDefault()" novalidate>
         @if (loadingData()) {
         <app-loader mode="section" size="md" tone="colorful"
-            [label]="isEdit ? 'Loading column...' : 'Preparing column...'"
-            description="Getting the editor ready." [minHeight]="280" />
+            [label]="isEdit ? 'Loading column...' : 'Preparing column...'" description="Getting the editor ready."
+            [minHeight]="280" />
         } @else {
         <section class="column-context" aria-label="Workspace and folder selection">
             <div class="column-context-field">
@@ -40,18 +40,19 @@
                     [options]="workspaceOptions()" [ngModel]="controlString('workspaceId')"
                     [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateWorkspace($event)"
                     [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
-                    ariaLabel="Choose workspace for this column" variant="paper" shape="rounded"
+                    ariaLabel="Choose workspace for this column" variant="paper" appearance="simple" shape="rounded"
                     size="sm" [dropdownMatchTriggerWidth]="false" [iconLeft]="LucidePanelsTopLeft" [disabled]="isBusy"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
             </div>
+            <span class="column-context-slash" aria-hidden="true">/</span>
             <div class="column-context-field">
                 <app-select selectId="column-folder" dropdownTitle="Folder"
                     dropdownDescription="Choose a folder in the selected workspace." name="column-folder"
                     [options]="folderOptions()" [ngModel]="controlString('workspaceFolderId')"
                     [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateFolder($event)"
                     [placeholder]="loadingFolders() ? 'Loading folders...' : folderOptions().length ? 'Select folder' : 'No folders available'"
-                    ariaLabel="Choose folder for this column" variant="paper" shape="rounded" size="sm"
-                    [dropdownMatchTriggerWidth]="false" [iconLeft]="LucideFolderOpen"
+                    ariaLabel="Choose folder for this column" variant="paper" appearance="simple" shape="rounded"
+                    size="sm" [dropdownMatchTriggerWidth]="false" [iconLeft]="LucideFolderOpen"
                     [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
                     [clearable]="false" [searchable]="true" [fullWidth]="true" />
             </div>
@@ -62,9 +63,9 @@
                 <app-label forId="column-name" text="Name" [required]="true" />
                 <div class="column-field-control">
                     <app-input #columnNameInput inputId="column-name" label="Name" labelMode="hidden"
-                        placeholder="Give your column a name" variant="paper" appearance="outlined" shape="rounded" size="md"
-                        [required]="true" [maxLength]="nameMaxLength" [value]="controlString('name')" [disabled]="isBusy"
-                        [fullWidth]="true" [clearable]="false" autocomplete="off"
+                        placeholder="Give your column a name" variant="paper" appearance="simple" shape="rounded"
+                        size="md" [required]="true" [maxLength]="nameMaxLength" [value]="controlString('name')"
+                        [disabled]="isBusy" [fullWidth]="true" [clearable]="false" autocomplete="off"
                         (valueChange)="updateText('name', $event)" (enterKey)="onNameEnter($event)" />
                     <span class="column-field-counter">{{ controlString('name').length }}/{{ nameMaxLength }}</span>
                 </div>
@@ -74,15 +75,16 @@
         <section class="column-appearance" aria-label="Column color">
             <app-label forId="column-color" text="Color" />
             <div class="column-color-control">
-                <app-select class="column-color-select" selectId="column-color" name="column-color" [options]="colorOptions"
-                    [ngModel]="controlString('color')" [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="updateSelect('color', $event)" ariaLabel="Column color" dropdownTitle="Column color"
-                    variant="paper" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
-                    [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
+                <app-select class="column-color-select" selectId="column-color" name="column-color"
+                    [options]="colorOptions" [ngModel]="controlString('color')" [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateSelect('color', $event)" ariaLabel="Column color"
+                    dropdownTitle="Column color" variant="paper" appearance="simple" shape="rounded" size="sm"
+                    [disabled]="isBusy" [clearable]="false" [searchable]="false" [fullWidth]="true"
+                    [dropdownMatchTriggerWidth]="false" />
             </div>
         </section>
 
-        <section class="column-color-swatches" aria-label="Quick color selection">
+        <!-- <section class="column-color-swatches" aria-label="Quick color selection">
             <div class="column-color-options" role="radiogroup" aria-label="Choose column color">
                 @for (option of colorOptions; track option.value) {
                 <button type="button" class="column-color-option"
@@ -95,7 +97,7 @@
                 </button>
                 }
             </div>
-        </section>
+        </section> -->
 
         @if (isEdit && columnMeta()) {
         <section class="column-meta" aria-label="Column metadata">
@@ -153,8 +155,9 @@
         <div class="column-editor-footer-actions">
             <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
                 (buttonClick)="close()" />
-            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard" size="sm"
-                [loading]="loading()" loadingText="Saving…" [disabled]="isBusy || !canSubmit" (buttonClick)="submit()" />
+            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
+                size="sm" [loading]="loading()" loadingText="Saving…" [disabled]="isBusy || !canSubmit"
+                (buttonClick)="submit()" />
         </div>
     </div>
 </app-side-panel>
