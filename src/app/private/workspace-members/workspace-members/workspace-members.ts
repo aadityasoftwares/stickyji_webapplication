@@ -24,6 +24,7 @@ import {
   LucideChevronRight,
   LucideClock3,
   LucideCopy,
+  LucideCrown,
   LucideEye,
   LucideGrid2X2,
   LucideList,
@@ -85,6 +86,9 @@ import type {
 } from '../models/workspace-invitation.models';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 
+import type { WorkspaceRole } from '../../roles/models/workspace-role.models';
+import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.service';
+
 import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-request-side-panel/send-workspace-member-request-side-panel';
 import { MemberCardWrapper } from '../member-card-wrapper/member-card-wrapper';
 import { InvitationCardWrapper } from '../invitation-card-wrapper/invitation-card-wrapper';
@@ -143,6 +147,7 @@ type BadgeVariant =
 export class WorkspaceMembers implements OnInit, OnChanges {
   private readonly memberApi = inject(WorkspaceMemberApiService);
   private readonly invitationApi = inject(WorkspaceInvitationApiService);
+  private readonly roleApi = inject(WorkspaceRoleApiService);
   private readonly workspaceApi = inject(WorkspaceService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly destroyRef = inject(DestroyRef);
@@ -167,6 +172,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
   readonly LucideCopy = LucideCopy;
+  readonly LucideCrown = LucideCrown;
   readonly LucideEye = LucideEye;
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideList = LucideList;
@@ -184,6 +190,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly LucideUserPlus = LucideUserPlus;
   readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
+
+  readonly availableRoleOptions = signal<readonly SelectOption[]>([]);
+  readonly loadingRoles = signal(false);
 
   readonly collapsedGroups = signal<Set<string>>(new Set());
   readonly selectedMemberIds = signal<Set<string>>(new Set());
@@ -829,6 +838,181 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
     this.loadMembers(id);
     this.loadInvitations(id);
+    this.loadRoles(id);
+  }
+
+  loadRoles(
+    workspaceId = this.selectedWorkspaceId()
+  ): void {
+    const id = workspaceId.trim();
+
+    if (!id) {
+      this.availableRoleOptions.set(this.fallbackRoleOptions());
+      return;
+    }
+
+    this.loadingRoles.set(true);
+
+    this.roleApi
+      .getWorkspaceRoles(id)
+      .pipe(
+        finalize(() => this.loadingRoles.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: roles => {
+          const assignableRoles = roles.filter(role => this.canAssignRole(role, id));
+          const options = assignableRoles.map<SelectOption>(role => ({
+            label: role.displayName || role.name,
+            value: this.roleRecordId(role),
+            icon: LucideShield
+          }));
+
+          this.availableRoleOptions.set(
+            options.length ? options : this.fallbackRoleOptions()
+          );
+        },
+        error: () => {
+          this.availableRoleOptions.set(this.fallbackRoleOptions());
+        }
+      });
+  }
+
+  memberRoleId(
+    member: WorkspaceMemberListItem
+  ): string {
+    return String(member.role?.id ?? '').trim();
+  }
+
+  roleOptionsForMember(
+    member: WorkspaceMemberListItem
+  ): readonly SelectOption[] {
+    const options = this.availableRoleOptions();
+    const currentRoleId = this.memberRoleId(member);
+    if (!currentRoleId) {
+      return options;
+    }
+    const exists = options.some(opt => opt.value === currentRoleId);
+    if (exists) {
+      return options;
+    }
+    const currentRoleName = this.memberRoleName(member);
+    return [
+      {
+        label: currentRoleName,
+        value: currentRoleId,
+        icon: LucideShield
+      },
+      ...options
+    ];
+  }
+
+  onMemberRoleChange(
+    member: WorkspaceMemberListItem,
+    value: SelectValue | SelectValue[] | null
+  ): void {
+    const newRoleId = Array.isArray(value) || value === null ? '' : String(value).trim();
+    const currentRoleId = this.memberRoleId(member);
+
+    if (!newRoleId || newRoleId === currentRoleId) {
+      return;
+    }
+
+    if (!this.canManageMember(member) || this.isBusy(member)) {
+      return;
+    }
+
+    const memberId = this.memberId(member);
+    if (!memberId) {
+      return;
+    }
+
+    this.setMemberBusy(memberId, true);
+
+    const selectedOption = this.roleOptionsForMember(member).find(
+      opt => opt.value === newRoleId
+    );
+    const newRoleName = selectedOption?.label ?? 'updated role';
+
+    this.memberApi
+      .assignRole(memberId, newRoleId)
+      .pipe(
+        finalize(() => this.setMemberBusy(memberId, false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: response => {
+          this.toastService.success(
+            `${this.memberName(member)}'s role was updated to ${newRoleName}.`,
+            {
+              title: 'Role updated',
+              dedupeKey: 'workspace-member-role-success'
+            }
+          );
+
+          this.members.update(currentList =>
+            currentList.map(item => {
+              if (this.memberId(item) !== memberId) {
+                return item;
+              }
+              return {
+                ...item,
+                role: {
+                  ...item.role,
+                  id: newRoleId,
+                  name: newRoleName
+                }
+              };
+            })
+          );
+
+          if (response?.data) {
+            this.memberChanged.emit(response.data);
+          }
+        },
+        error: error => {
+          const message = extractErrorMessage(
+            error,
+            'Unable to update member role.'
+          );
+          this.toastService.error(message, {
+            title: 'Role update failed',
+            dedupeKey: 'workspace-member-role-error'
+          });
+
+          this.members.update(currentList => [...currentList]);
+        }
+      });
+  }
+
+  private canAssignRole(role: WorkspaceRole, workspaceId: string): boolean {
+    const code = String(role.code ?? '').trim().toUpperCase();
+    const scope = String(role.scope ?? '').trim().toUpperCase();
+    const roleWorkspaceId = this.refId(role.workspaceId);
+
+    if (!role.isActive || scope !== 'WORKSPACE' || code === 'WORKSPACE_OWNER') {
+      return false;
+    }
+
+    return role.isSystem || roleWorkspaceId === workspaceId;
+  }
+
+  private fallbackRoleOptions(): readonly SelectOption[] {
+    return this.roleOptions.filter(option =>
+      !String(option.label ?? '').toUpperCase().includes('OWNER')
+    );
+  }
+
+  private roleRecordId(role: WorkspaceRole): string {
+    return String(role.id ?? role._id ?? '');
+  }
+
+  private refId(value: unknown): string {
+    if (typeof value === 'string') return value;
+    if (!value || typeof value !== 'object') return '';
+
+    const record = value as Record<string, unknown>;
+    return String(record['id'] ?? record['_id'] ?? '');
   }
 
   loadMembers(
@@ -1864,6 +2048,8 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.members.set([]);
     this.memberMeta.set(null);
     this.invitations.set([]);
+    this.availableRoleOptions.set([]);
+    this.loadingRoles.set(false);
 
     this.resetInteractionState();
   }

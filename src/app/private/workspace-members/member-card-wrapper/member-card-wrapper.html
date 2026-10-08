@@ -31,9 +31,11 @@
             }
         </div>
 
-        <div class="member-card__role-row">
-            <app-icon [icon]="roleIcon" size="xs" />
-            <span class="member-card__role">{{ roleBadgeLabel }}</span>
+        <div class="member-card__role-row" (click)="$event.stopPropagation()">
+            <ng-content select="[card-role]">
+                <app-icon [icon]="roleIcon" size="xs" />
+                <span class="member-card__role">{{ roleBadgeLabel }}</span>
+            </ng-content>
         </div>
     </div>
 

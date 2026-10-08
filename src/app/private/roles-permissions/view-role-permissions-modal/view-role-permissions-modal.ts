@@ -23,7 +23,6 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
-import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 
@@ -68,7 +67,6 @@ interface ViewPermissionGroup {
   imports: [
     AppIcon,
     AppInput,
-    Badge,
     Button,
     Checkbox,
     Loader,

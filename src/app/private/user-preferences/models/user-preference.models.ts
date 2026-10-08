@@ -5,7 +5,8 @@ export const USER_PREFERENCE_KEYS = {
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     NOTE_VIEW: 'noteView',
     WORKSPACE_VIEW: 'workspaceView',
-    WORKSPACE_SORT: 'workspaceSort',
+    WORKSPACE_STATUS_FILTER: 'workspaceStatusFilter',
+    WORKSPACE_SORT_ORDER: 'workspaceSortOrder',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -55,11 +56,17 @@ export type WorkspacePreferenceView =
     | 'GRID'
     | 'LIST';
 
-export type WorkspacePreferenceSort =
-    | 'UPDATED_AT'
-    | 'CREATED_AT'
+export type WorkspacePreferenceStatusFilter =
+    | 'ALL'
+    | 'ACTIVE'
+    | 'ARCHIVED';
+
+export type WorkspacePreferenceSortOrder =
+    | 'RECENTLY_UPDATED'
+    | 'RECENTLY_CREATED'
     | 'NAME_ASC'
-    | 'NAME_DESC';
+    | 'NAME_DESC'
+    | 'OLDEST_FIRST';
 
 export type UserPreferenceValue =
     | string
@@ -77,6 +84,7 @@ export type UserPreferenceValueType =
 
 export type UserPreferenceCategory =
     | 'APPEARANCE'
+    | 'WORKSPACE'
     | 'NOTES'
     | 'EDITOR'
     | 'NOTIFICATIONS'
@@ -102,7 +110,8 @@ export interface UserPreferencesM {
     selectedWorkspaceId?: string;
     selectedFolderId?: string;
     workspaceView: WorkspacePreferenceView;
-    workspaceSort: WorkspacePreferenceSort;
+    workspaceStatusFilter: WorkspacePreferenceStatusFilter;
+    workspaceSortOrder: WorkspacePreferenceSortOrder;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
     autosaveEnabled: boolean;
@@ -156,7 +165,8 @@ export const DEFAULT_USER_PREFERENCES:
     selectedWorkspaceId: '',
     selectedFolderId: '',
     workspaceView: 'GRID',
-    workspaceSort: 'UPDATED_AT',
+    workspaceStatusFilter: 'ALL',
+    workspaceSortOrder: 'RECENTLY_UPDATED',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,

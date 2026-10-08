@@ -601,9 +601,8 @@
     padding: 0;
 
     /*
-     * The desktop table fits inside the 90vw modal and smaller
-     * breakpoints switch to the stacked layout, so horizontal
-     * scrolling is unnecessary here.
+     * Permission headings and checkbox lists shrink within the modal,
+     * so only vertical scrolling is needed.
      */
     overflow-x: hidden;
     overflow-y: auto;
@@ -653,377 +652,65 @@
    ========================================================= */
 
 .permission-groups {
-    display: block;
-
     width: 100%;
-
-    margin: 0;
-    padding: 0;
-
-    background: $paper;
+    padding: 0.5rem 1.5rem;
 }
-
 
 .permission-group {
-    display: block;
-
-    width: 100%;
-
+    display: grid;
+    grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
     min-width: 0;
-
-    margin: 0;
-    padding: 0;
-
-    scroll-margin-top: 0;
-
-    border-bottom:
-        1px solid $border;
-
-    background: $paper;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid $border-light;
 }
-
 
 .permission-group:last-child {
     border-bottom: 0;
 }
 
-
-/* =========================================================
-   GROUP HEADER
-
-   Compact single-row section heading:
-   icon + module title + common permission-count badge.
-   ========================================================= */
-
 .permission-group-header {
-    display: flex;
-    align-items: center;
-
-    min-height: 2.875rem;
-
-    margin: 0;
-
-    padding:
-        0.4375rem 0.875rem;
-
-    background: $paper;
-
-    border-bottom:
-        1px solid $border-light;
-}
-
-
-.permission-group-title {
-    display: flex;
-    align-items: center;
-
     min-width: 0;
-
-    gap: 0.5rem;
+    padding-top: 0.125rem;
+    text-align: right;
 }
 
-
-.permission-group-icon {
-    display: inline-grid;
-
-    place-items: center;
-
-    flex: 0 0 auto;
-
-    width: 1.75rem;
-    height: 1.75rem;
-
-    color: $info;
-
-    background: $paper;
-
-    border:
-        1px solid rgba($info, 0.18);
-
-    border-radius:
-        0.4375rem;
-}
-
-
-.permission-group-title h4 {
-    min-width: 0;
-
+.permission-group-header h4 {
     margin: 0;
-
-    overflow: hidden;
-
     color: $heading;
-
-    font-size:
-        var(--permission-font-15);
-
-    font-weight: 750;
-    line-height: 1.3;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
+    font-size: var(--permission-font-14);
+    font-weight: 700;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
-
-
-.permission-group-title app-badge {
-    display: inline-flex;
-
-    flex: 0 0 auto;
-}
-
-
-/* =========================================================
-   TABLE HEADER
-   ========================================================= */
-
-.permission-list-header {
-    display: grid;
-
-    grid-template-columns:
-        minmax(15rem, 1.3fr) minmax(17rem, 1.8fr) 7rem 7rem 7rem;
-
-    align-items: center;
-
-    width: 100%;
-
-    min-width: 55rem;
-
-    min-height: 2.25rem;
-
-    padding:
-        0 0.875rem;
-
-    color: $text-light;
-
-    font-size:
-        var(--permission-font-13);
-
-    font-weight: 650;
-
-    line-height: 1.25;
-
-    border-bottom:
-        1px solid $border-light;
-
-    background: $page-bg;
-}
-
-
-/* =========================================================
-   ROWS
-   ========================================================= */
 
 .permission-list {
-    width: 100%;
-
-    min-width: 55rem;
-
-    margin: 0;
-    padding: 0;
-
-    background: $paper;
-}
-
-
-.permission-row {
     display: grid;
-
-    grid-template-columns:
-        minmax(15rem, 1.3fr) minmax(17rem, 1.8fr) 7rem 7rem 7rem;
-
-    align-items: center;
-
-    width: 100%;
-
-    min-height: 3.75rem;
-
-    margin: 0;
-
-    padding:
-        0.4375rem 0.875rem;
-
-    border-bottom:
-        1px solid $border-light;
-
-    background: $paper;
-
-    transition:
-        background-color 120ms ease;
-}
-
-
-.permission-row:last-child {
-    border-bottom: 0;
-}
-
-
-.permission-row:hover {
-    background: $paper-light;
-}
-
-
-/* =========================================================
-   REUSABLE CHECKBOX COLUMN
-   ========================================================= */
-
-.permission-name {
-    display: flex;
-
-    align-items: center;
-
     min-width: 0;
-
-    padding-right: 1rem;
+    gap: 0.625rem;
 }
 
-
-/*
- * app-checkbox itself already handles:
- *
- * - checkmark
- * - readonly
- * - keyboard semantics
- * - size
- * - variant
- * - accessibility
- *
- * We only make sure it can shrink correctly in the table.
- */
-
+.permission-row,
 .permission-checkbox {
-    display: flex;
-
-    width: 100%;
-
+    display: block;
     min-width: 0;
 }
 
-
-.permission-name::ng-deep .permission-checkbox .app-checkbox {
-    width: 100%;
-
-    min-width: 0;
-
-    align-items: center;
-
+:host ::ng-deep .permission-checkbox .app-checkbox {
+    align-items: flex-start;
     gap: 0.5rem;
 }
 
-
-.permission-name::ng-deep .permission-checkbox .app-checkbox-control {
-    flex: 0 0 auto;
-
-    margin-top: 0;
+:host ::ng-deep .permission-checkbox .app-checkbox-label {
+    font-size: var(--permission-font-14);
+    font-weight: 400;
+    line-height: 1.5;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
-
-.permission-name::ng-deep .permission-checkbox .app-checkbox-content {
-    min-width: 0;
-
-    overflow: hidden;
-}
-
-
-.permission-name::ng-deep .permission-checkbox .app-checkbox-label {
-    display: block;
-
-    min-width: 0;
-
-    overflow: hidden;
-
-    color: $heading;
-
-    font-size:
-        var(--permission-font-14);
-
-    font-weight: 700;
-
-    line-height: 1.4;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-}
-
-
-/*
- * It is readonly information,
- * so don't make it visually feel clickable.
- */
-
-.permission-name::ng-deep .permission-checkbox .app-checkbox-readonly {
-    cursor: default;
-}
-
-
-/*
- * Your common checkbox has a hover effect only when
- * it isn't readonly, so no additional hover override
- * is necessary.
- */
-
-
-/* =========================================================
-   DESCRIPTION
-   ========================================================= */
-
-.permission-description {
-    display: -webkit-box;
-
-    overflow: hidden;
-
-    margin: 0;
-
-    padding-right: 1rem;
-
-    color: $text-secondary;
-
-    font-size:
-        var(--permission-font-13);
-
-    font-weight: 500;
-
-    line-height: 1.45;
-
-    -webkit-box-orient: vertical;
-
-    -webkit-line-clamp: 2;
-}
-
-
-/* =========================================================
-   VALUES
-   ========================================================= */
-
-.permission-desktop-value {
-    color: $text-secondary;
-
-    font-size:
-        var(--permission-font-13);
-
-    font-weight: 600;
-
-    line-height: 1.35;
-}
-
-
-.permission-desktop-status {
-    display: flex;
-
-    align-items: center;
-}
-
-
-.permission-mobile-field {
-    display: none;
-}
-
-
-/* =========================================================
-   EMPTY / ERROR STATES
-   ========================================================= */
-
+/* Empty and error states */
 .permission-state {
     display: grid;
 
@@ -1146,91 +833,15 @@
    ========================================================= */
 
 @media (max-width: 52rem) {
-    .permission-search {
-        width: min(22rem, 100%);
+    .permission-groups {
+        padding-inline: 1rem;
     }
 
-
-    .permission-list-header {
-        display: none;
-    }
-
-
-    .permission-list {
-        min-width: 0;
-    }
-
-
-    .permission-row {
-        grid-template-columns:
-            minmax(0, 1fr);
-
-        align-items: stretch;
-
-        gap: 0.375rem;
-
-        min-width: 0;
-
-        padding:
-            0.75rem 0.875rem;
-    }
-
-
-    .permission-name {
-        padding-right: 0;
-    }
-
-
-    .permission-description {
-        padding:
-            0 0 0.375rem 1.75rem;
-    }
-
-
-    .permission-desktop-value,
-    .permission-desktop-status {
-        display: none;
-    }
-
-
-    .permission-mobile-field {
-        display: flex;
-
-        align-items: center;
-        justify-content: space-between;
-
+    .permission-group {
+        grid-template-columns: minmax(5rem, 8rem) minmax(0, 1fr);
         gap: 1rem;
-
-        padding-left:
-            1.75rem;
-    }
-
-
-    .permission-mobile-field>span {
-        color: $text-light;
-
-        font-size:
-            var(--permission-font-13);
-
-        font-weight: 500;
-    }
-
-
-    .permission-mobile-field>strong {
-        color: $text-secondary;
-
-        font-size:
-            var(--permission-font-13);
-
-        font-weight: 650;
     }
 }
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
 @media (max-width: 44rem) {
 
     :host ::ng-deep app-modal .app-modal-dialog[data-size='full'] {

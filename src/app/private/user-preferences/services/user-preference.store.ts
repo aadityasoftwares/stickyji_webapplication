@@ -49,8 +49,12 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_VIEW]
     );
 
-    readonly workspaceSort = computed(() =>
-        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_SORT]
+    readonly workspaceStatusFilter = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER]
+    );
+
+    readonly workspaceSortOrder = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_SORT_ORDER]
     );
 
     readonly autosaveEnabled = computed(() =>

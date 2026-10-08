@@ -401,6 +401,40 @@
                         (cardClick)="openMemberView(member)"
                         (cardDblClick)="canManageMember(member) && openRoleEditor(member)">
 
+                        <div card-role class="workspace-member-card-role-slot" (click)="$event.stopPropagation()"
+                            (dblclick)="$event.stopPropagation()">
+                            @if (isOwner(member)) {
+                            <div class="workspace-member-card-owner-badge">
+                                <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill" [icon]="LucideCrown" />
+                            </div>
+                            } @else if (isRemoved(member)) {
+                            <app-badge [label]="memberRoleName(member)" variant="outline" size="xs" shape="pill"
+                                [icon]="LucideShield" />
+                            } @else {
+                            <app-select class="workspace-member-inline-role-select"
+                                [id]="'grid-member-role-' + memberId(member)"
+                                [selectId]="'grid-member-role-' + memberId(member)"
+                                dropdownTitle="Workspace role"
+                                dropdownDescription="Choose the role assigned to this member."
+                                [options]="roleOptionsForMember(member)"
+                                [ngModel]="memberRoleId(member)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
+                                [ariaLabel]="'Change role for ' + memberName(member)"
+                                variant="paper"
+                                appearance="simple"
+                                shape="rounded"
+                                size="xs"
+                                [iconLeft]="LucideShield"
+                                [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
+                                [title]="canManageMember(member) ? 'Change workspace role' : memberManageBlockedReason(member)"
+                                [clearable]="false"
+                                [searchable]="true"
+                                [fullWidth]="true"
+                                (ngModelChange)="onMemberRoleChange(member, $event)" />
+                            }
+                        </div>
+
                         <div card-actions>
                             <app-button class="workspace-member-card-menu" [icon]="LucideMoreHorizontal"
                                 [iconOnly]="true" appearance="standard" variant="outline" size="sm" [rounded]="true"
@@ -632,14 +666,41 @@
                                                 </div>
                                             </td>
 
-                                            <td class="workspace-gt-role" data-label="Role">
+                                            <td class="workspace-gt-role" data-label="Role"
+                                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                                                @if (isOwner(member)) {
+                                                <div class="workspace-access-role">
+                                                    <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill"
+                                                        [icon]="LucideCrown" />
+                                                </div>
+                                                } @else if (isRemoved(member)) {
                                                 <div class="workspace-access-role">
                                                     <app-badge [label]="memberRoleName(member)" variant="outline" size="xs" shape="pill"
                                                         [icon]="LucideShield" />
-                                                    @if (isOwner(member)) {
-                                                    <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill" />
-                                                    }
                                                 </div>
+                                                } @else {
+                                                <app-select class="workspace-member-inline-role-select"
+                                                    [id]="'table-member-role-' + memberId(member)"
+                                                    [selectId]="'table-member-role-' + memberId(member)"
+                                                    dropdownTitle="Workspace role"
+                                                    dropdownDescription="Choose the role assigned to this member."
+                                                    [options]="roleOptionsForMember(member)"
+                                                    [ngModel]="memberRoleId(member)"
+                                                    [ngModelOptions]="{ standalone: true }"
+                                                    [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
+                                                    [ariaLabel]="'Change role for ' + memberName(member)"
+                                                    variant="paper"
+                                                    appearance="simple"
+                                                    shape="rounded"
+                                                    size="xs"
+                                                    [iconLeft]="LucideShield"
+                                                    [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
+                                                    [title]="canManageMember(member) ? 'Change workspace role' : memberManageBlockedReason(member)"
+                                                    [clearable]="false"
+                                                    [searchable]="true"
+                                                    [fullWidth]="true"
+                                                    (ngModelChange)="onMemberRoleChange(member, $event)" />
+                                                }
                                             </td>
 
                                             <td class="workspace-gt-status" data-label="Status">
@@ -794,7 +855,7 @@
 </section>
 
 <app-send-workspace-member-request-side-panel [open]="memberModalOpen()" [workspaceId]="selectedWorkspaceId()"
-    [member]="memberModalMember()" [roleOptions]="roleOptions" (closed)="closeMemberModal()"
+    [member]="memberModalMember()" [roleOptions]="availableRoleOptions()" (closed)="closeMemberModal()"
     (saved)="onMemberSaved($event)" />
 
 @if (viewTarget(); as member) {

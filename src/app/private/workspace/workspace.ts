@@ -90,6 +90,16 @@ import {
 } from '../../shared/functions/workspace-member.function';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
+const WORKSPACE_SORT_PREFERENCES = {
+  recent: 'RECENTLY_UPDATED',
+  created: 'RECENTLY_CREATED',
+  'name-asc': 'NAME_ASC',
+  'name-desc': 'NAME_DESC',
+  oldest: 'OLDEST_FIRST',
+} as const;
+
+type WorkspaceSort = keyof typeof WORKSPACE_SORT_PREFERENCES;
+
 @Component({
   selector: 'app-workspace',
   standalone: true,
@@ -162,9 +172,18 @@ export class Workspace implements OnInit {
   readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly searchTerm = signal('');
-  readonly activeTab = signal<'all' | 'active' | 'archived'>('all');
-  readonly sortBy = signal<'recent' | 'name-asc' | 'name-desc' | 'oldest'>('recent');
-  readonly view = signal<'grid' | 'list'>('grid');
+  readonly activeTab = computed<'all' | 'active' | 'archived'>(() => {
+    const value = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
+    return value === 'active' || value === 'archived' ? value : 'all';
+  });
+  readonly sortBy = computed<WorkspaceSort>(() => {
+    const value = this.userPreferenceStore.workspaceSortOrder();
+    return (Object.keys(WORKSPACE_SORT_PREFERENCES) as WorkspaceSort[])
+      .find(key => WORKSPACE_SORT_PREFERENCES[key] === value) ?? 'recent';
+  });
+  readonly view = computed<'grid' | 'list'>(() =>
+    String(this.userPreferenceStore.workspaceView() ?? '').toUpperCase() === 'LIST' ? 'list' : 'grid'
+  );
 
   readonly workspaceEditorOpen = signal(false);
   readonly workspaceEditorId = signal<string>('');
@@ -182,7 +201,11 @@ export class Workspace implements OnInit {
   readonly deleting = signal(false);
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly sortOptions = SORT_OPTIONS;
+  readonly sortOptions = [
+    SORT_OPTIONS[0],
+    { label: 'Recently created', value: 'created' },
+    ...SORT_OPTIONS.slice(1),
+  ];
   readonly viewTabs = VIEW_TABS;
 
   readonly totalCount = computed(() => this.workspaces().length);
@@ -227,8 +250,8 @@ export class Workspace implements OnInit {
       if (sort === 'name-desc') {
         return this.workspaceName(second).localeCompare(this.workspaceName(first));
       }
-      const firstDate = this.workspaceTimestamp(first);
-      const secondDate = this.workspaceTimestamp(second);
+      const firstDate = this.workspaceTimestamp(first, sort === 'created');
+      const secondDate = this.workspaceTimestamp(second, sort === 'created');
       return sort === 'oldest' ? firstDate - secondDate : secondDate - firstDate;
     });
   });
@@ -468,6 +491,7 @@ export class Workspace implements OnInit {
   }
 
   ngOnInit(): void {
+    this.userPreferenceStore.load();
     this.loadWorkspaces();
   }
 
@@ -518,19 +542,22 @@ export class Workspace implements OnInit {
 
   onStatusChange(value: any): void {
     if (value === 'all' || value === 'active' || value === 'archived') {
-      this.activeTab.set(value);
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, value.toUpperCase());
     }
   }
 
   onSortChange(value: any): void {
-    if (value) {
-      this.sortBy.set(value);
+    if (Object.prototype.hasOwnProperty.call(WORKSPACE_SORT_PREFERENCES, value)) {
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.WORKSPACE_SORT_ORDER,
+        WORKSPACE_SORT_PREFERENCES[value as WorkspaceSort],
+      );
     }
   }
 
   onViewChange(value: any): void {
     if (value === 'grid' || value === 'list') {
-      this.view.set(value);
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_VIEW, value.toUpperCase());
     }
   }
 
@@ -1002,8 +1029,8 @@ export class Workspace implements OnInit {
     this.busyIds.set(next);
   }
 
-  private workspaceTimestamp(workspace: any): number {
-    const value = workspace?.updatedAt ?? workspace?.createdAt;
+  private workspaceTimestamp(workspace: any, created = false): number {
+    const value = created ? workspace?.createdAt : workspace?.updatedAt ?? workspace?.createdAt;
     if (!value) return 0;
     const time = new Date(value).getTime();
     return Number.isNaN(time) ? 0 : time;

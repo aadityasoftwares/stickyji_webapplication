@@ -201,7 +201,7 @@ export class UserPreferences implements OnInit {
    * Complete saved preference object.
    *
    * Important:
-   * Workspace-specific values such as workspaceView and workspaceSort
+   * Workspace-specific values such as workspaceView, workspaceStatusFilter and workspaceSortOrder
    * are kept here even though they are not fields on this settings form.
    */
   private readonly savedPreferences =
@@ -604,7 +604,7 @@ export class UserPreferences implements OnInit {
     /**
      * Only compare values controlled by this Preferences page.
      *
-     * workspaceView/workspaceSort are intentionally not counted here
+     * workspaceView/workspaceStatusFilter/workspaceSortOrder are intentionally not counted here
      * because those values are controlled from Workspace itself.
      */
     const formKeys:
@@ -727,7 +727,8 @@ export class UserPreferences implements OnInit {
      * This preserves:
      *
      * workspaceView
-     * workspaceSort
+     * workspaceStatusFilter
+     * workspaceSortOrder
      *
      * even though those values are not displayed on this settings screen.
      */
