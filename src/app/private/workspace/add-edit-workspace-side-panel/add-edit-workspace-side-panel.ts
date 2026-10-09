@@ -160,7 +160,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (this.isBusy || this.loadFailed()) return;
     if (!this.canSubmit) {
       this.error.set(`Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`);
-      this.focusName(false);
+      this.focusName();
       return;
     }
     const id = this.editorId;
@@ -214,10 +214,10 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     this.isPersonal.set(false);
     this.editorId = String(this.id || this.workspace?.id || '').trim();
 
-    if (!this.editorId) { this.focusName(false); return; }
+    if (!this.editorId) { this.focusName(); return; }
     if (this.workspace?.id === this.editorId) {
       this.applyWorkspace(this.workspace);
-      this.focusName(true);
+      this.focusName();
       return;
     }
     const id = this.editorId;
@@ -230,7 +230,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
       next: response => {
         if (!this.open || this.editorId !== id) return;
         this.applyWorkspace(response.data);
-        this.focusName(true);
+        this.focusName();
       },
       error: error => {
         this.loadFailed.set(true);
@@ -265,7 +265,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     this.toastService.error(text, { title: 'Workspace', dedupeKey: `workspace-editor-${this.editorId || 'new'}` });
   }
 
-  private focusName(select: boolean): void {
+  private focusName(): void {
     this.cancelFocus();
     if (typeof requestAnimationFrame !== 'function') return;
     this.focusFrame = requestAnimationFrame(() => {
@@ -273,8 +273,9 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
         this.focusFrame = null;
         if (!this.open || this.loadingData()) return;
         const input = this.workspaceNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
-        input?.focus({ preventScroll: true });
-        if (select) input?.select();
+        if (!input) return;
+        input.focus({ preventScroll: true });
+        input.setSelectionRange(input.value.length, input.value.length);
       });
     });
   }

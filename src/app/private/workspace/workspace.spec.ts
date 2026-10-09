@@ -5,6 +5,8 @@ import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Workspace } from './workspace';
 import { WorkspaceService } from './services/workspace.service';
+import { WorkspaceStore } from './services/workspace.store';
+import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { UserPreferenceService } from '../user-preferences/services/user-preference.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 
@@ -13,6 +15,18 @@ describe('Workspace', () => {
   let fixture: ComponentFixture<Workspace>;
   let preferences: UserPreferenceStore;
   let loadedPreferences: Subject<any>;
+  let workspaceStore: WorkspaceStore;
+  let workspaceApi: {
+    getAllWorkspaces: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    updateStatus: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+  let toast: {
+    success: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+  };
   let preferenceApi: {
     getMyPreferences: ReturnType<typeof vi.fn>;
     createPreference: ReturnType<typeof vi.fn>;
@@ -26,13 +40,21 @@ describe('Workspace', () => {
       createPreference: vi.fn((key, value) => of({ data: { key, value } })),
       updatePreference: vi.fn((key, value) => of({ data: { key, value } })),
     };
+    workspaceApi = {
+      getAllWorkspaces: vi.fn(() => of({ data: [] })),
+      update: vi.fn(() => of({})),
+      updateStatus: vi.fn(() => of({})),
+      delete: vi.fn(() => of({})),
+    };
+    toast = { success: vi.fn(), info: vi.fn(), error: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [Workspace],
       providers: [
         provideHttpClient(),
         provideRouter([]),
         { provide: UserPreferenceService, useValue: preferenceApi },
-        { provide: WorkspaceService, useValue: { getAllWorkspaces: () => of({ data: [] }) } },
+        { provide: WorkspaceService, useValue: workspaceApi },
+        { provide: ToastService, useValue: toast },
       ],
     })
       .overrideComponent(Workspace, { set: { template: '', imports: [] } })
@@ -41,7 +63,13 @@ describe('Workspace', () => {
     fixture = TestBed.createComponent(Workspace);
     component = fixture.componentInstance;
     preferences = TestBed.inject(UserPreferenceStore);
+    workspaceStore = TestBed.inject(WorkspaceStore);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('should create', () => {
@@ -119,7 +147,220 @@ describe('Workspace', () => {
     ]);
     preferences.updatePreference('workspaceSortOrder', value);
     expect(component.visibleWorkspaces().map(item => item.id)).toEqual(expected);
+    expect(component.workspaces().map(item => item.id)).toEqual(['a', 'b', 'c']);
     preferences.updatePreference('workspaceStatusFilter', 'ARCHIVED');
     expect(component.visibleWorkspaces().map(item => item.id)).toEqual(['b']);
+  });
+
+  it('finishes bulk archive after successes, failures and skipped selections', () => {
+    const first = new Subject();
+    const second = new Subject();
+    workspaceApi.updateStatus.mockImplementation(id => id === 'a' ? first : second);
+    component.workspaces.set([
+      { id: 'a', status: 'ACTIVE' },
+      { id: 'b', status: 'ACTIVE' },
+      { id: 'c', status: 'ARCHIVED' },
+    ]);
+    component.selectedWorkspaceIds.set(new Set(['a', 'b', 'c', 'missing']));
+
+    component.bulkArchiveSelected();
+    expect(workspaceApi.updateStatus.mock.calls).toEqual([['a', 'ARCHIVED'], ['b', 'ARCHIVED']]);
+    second.error(new Error('Archive failed'));
+    expect(component.selectedCount()).toBe(4);
+    expect(toast.success).not.toHaveBeenCalled();
+    first.next({});
+    first.complete();
+
+    expect(component.workspaces().map(item => item.status)).toEqual(['ARCHIVED', 'ACTIVE', 'ARCHIVED']);
+    expect(component.selectedCount()).toBe(0);
+    expect(toast.success).toHaveBeenCalledExactlyOnceWith('Archived 1 workspace');
+  });
+
+  it('removes only successful bulk deletions and preserves the remaining store selection', () => {
+    const first = new Subject();
+    const second = new Subject();
+    workspaceApi.delete.mockImplementation(id => id === 'a' ? first : second);
+    const workspaces: any[] = [{ id: 'a' }, { id: 'b' }];
+    component.workspaces.set(workspaces);
+    workspaceStore.setWorkspaces(workspaces);
+    component.selectedWorkspaceIds.set(new Set(['a', 'b']));
+
+    component.bulkDeleteSelected();
+    first.next({});
+    first.complete();
+    expect(component.selectedCount()).toBe(2);
+    expect(toast.success).not.toHaveBeenCalled();
+    second.error(new Error('Delete failed'));
+
+    expect(component.workspaces().map(item => item.id)).toEqual(['b']);
+    expect(workspaceStore.workspaces().map(item => item.id)).toEqual(['b']);
+    expect(workspaceStore.selectedId()).toBe('b');
+    expect(component.selectedCount()).toBe(0);
+    expect(toast.success).toHaveBeenCalledExactlyOnceWith('Moved 1 workspace to trash');
+  });
+
+  it('clears unsuccessful bulk selections without a success notification', () => {
+    component.workspaces.set([{ id: 'a', status: 'ACTIVE' }]);
+    workspaceApi.updateStatus.mockReturnValue(throwError(() => new Error('Archive failed')));
+    workspaceApi.delete.mockReturnValue(throwError(() => new Error('Delete failed')));
+    component.selectedWorkspaceIds.set(new Set(['a']));
+    component.bulkArchiveSelected();
+    expect(component.selectedCount()).toBe(0);
+    component.selectedWorkspaceIds.set(new Set(['a']));
+    component.bulkDeleteSelected();
+    expect(component.selectedCount()).toBe(0);
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('skips bulk requests when nothing is selected', () => {
+    component.bulkArchiveSelected();
+    component.bulkDeleteSelected();
+    expect(workspaceApi.updateStatus).not.toHaveBeenCalled();
+    expect(workspaceApi.delete).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('prevents overlapping loads, reports errors and allows retry', () => {
+    const response = new Subject();
+    workspaceApi.getAllWorkspaces.mockReturnValue(response);
+    component.loadWorkspaces();
+    component.loadWorkspaces();
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(2);
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({ page: 1, limit: 100 });
+    expect(component.loading()).toBe(true);
+    response.error(new Error('Load failed'));
+    expect(component.loading()).toBe(false);
+    expect(component.error()).toBeTruthy();
+
+    workspaceApi.getAllWorkspaces.mockReturnValue(of({ data: { workspaces: [{ id: 'saved', name: 'Saved' }] } }));
+    component.loadWorkspaces('saved');
+    expect(component.loading()).toBe(false);
+    expect(component.error()).toBeNull();
+    expect(component.workspaces()[0].name).toBe('Saved');
+    expect(workspaceStore.selectedId()).toBe('saved');
+  });
+
+  it('cancels an outstanding load and resets its loading state on destruction', () => {
+    const response = new Subject();
+    workspaceApi.getAllWorkspaces.mockReturnValue(response);
+    component.loadWorkspaces();
+    fixture.destroy();
+    expect(component.loading()).toBe(false);
+    response.next({ data: [{ id: 'late' }] });
+    expect(component.workspaces()).toEqual([]);
+  });
+
+  it('validates inline rename and keeps a failed rename available for retry', () => {
+    vi.useFakeTimers();
+    const workspace = { id: 'a', name: 'Original', status: 'ACTIVE' };
+    component.workspaces.set([workspace]);
+    workspaceStore.setWorkspaces([workspace as any]);
+    component.beginInlineRename(workspace);
+    component.inlineRenameName.set(' ');
+    component.saveInlineRename(workspace);
+    expect(component.inlineRenameError()).toBe('Workspace name cannot be empty');
+    expect(workspaceApi.update).not.toHaveBeenCalled();
+
+    const response = new Subject();
+    workspaceApi.update.mockReturnValue(response);
+    component.inlineRenameName.set(' Renamed ');
+    component.saveInlineRename(workspace);
+    component.saveInlineRename(workspace);
+    expect(workspaceApi.update).toHaveBeenCalledExactlyOnceWith('a', { name: 'Renamed' });
+    response.error(new Error('Rename failed'));
+    expect(component.inlineRenameSubmitting()).toBe(false);
+    expect(component.inlineRenameId()).toBe('a');
+    expect(component.inlineRenameError()).toBeTruthy();
+    expect(component.workspaces()[0].name).toBe('Original');
+
+    workspaceApi.update.mockReturnValue(of({ data: { description: 'Server description' } }));
+    component.saveInlineRename(workspace);
+    expect(component.inlineRenameId()).toBeNull();
+    expect(component.inlineRenameSubmitting()).toBe(false);
+    expect(component.workspaces()[0]).toMatchObject({ name: 'Renamed', description: 'Server description' });
+    expect(workspaceStore.workspaces()[0].name).toBe('Renamed');
+    vi.runAllTimers();
+  });
+
+  it('preserves status request payloads, store updates and busy guards', () => {
+    const workspace = { id: 'a', name: 'Space', status: 'ACTIVE' };
+    component.workspaces.set([workspace]);
+    workspaceStore.setWorkspaces([workspace as any]);
+    const response = new Subject();
+    workspaceApi.updateStatus.mockReturnValue(response);
+    component.archiveWorkspace(workspace);
+    component.archiveWorkspace(workspace);
+    expect(workspaceApi.updateStatus).toHaveBeenCalledExactlyOnceWith('a', 'ARCHIVED');
+    expect(component.isBusy(workspace)).toBe(true);
+    response.next({ data: { description: 'Server description' } });
+    response.complete();
+    expect(component.isBusy(workspace)).toBe(false);
+    expect(component.workspaces()[0]).toMatchObject({ status: 'ARCHIVED', description: 'Server description' });
+    expect(workspaceStore.workspaces()[0].status).toBe('ARCHIVED');
+
+    workspaceApi.updateStatus.mockReturnValue(throwError(() => new Error('Restore failed')));
+    component.activateWorkspace(component.workspaces()[0]);
+    expect(workspaceApi.updateStatus).toHaveBeenLastCalledWith('a', 'ACTIVE');
+    expect(component.isBusy(workspace)).toBe(false);
+    expect(component.workspaces()[0].status).toBe('ARCHIVED');
+  });
+
+  it('keeps a failed delete dialog open and removes the workspace after retry', () => {
+    const workspace = { id: 'a', name: 'Space' };
+    component.workspaces.set([workspace]);
+    workspaceStore.setWorkspaces([workspace as any]);
+    const response = new Subject();
+    workspaceApi.delete.mockReturnValue(response);
+    component.requestDelete(workspace);
+    component.confirmDelete();
+    component.confirmDelete();
+    component.closeDeleteDialog();
+    expect(workspaceApi.delete).toHaveBeenCalledExactlyOnceWith('a');
+    expect(component.deleteTarget()).toBe(workspace);
+    expect(component.deleting()).toBe(true);
+    response.error(new Error('Delete failed'));
+    expect(component.deleting()).toBe(false);
+    expect(component.isBusy(workspace)).toBe(false);
+    expect(component.deleteTarget()).toBe(workspace);
+    expect(component.workspaces()).toEqual([workspace]);
+
+    workspaceApi.delete.mockReturnValue(of({}));
+    component.confirmDelete();
+    expect(component.deleteTarget()).toBeNull();
+    expect(component.workspaces()).toEqual([]);
+    expect(workspaceStore.workspaces()).toEqual([]);
+    expect(workspaceStore.selectedId()).toBeNull();
+  });
+
+  it('keeps clipboard feedback for two seconds and cancels timers on destruction', async () => {
+    vi.useFakeTimers();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    component.copyWorkspaceId('a');
+    await Promise.resolve();
+    expect(writeText).toHaveBeenCalledExactlyOnceWith('a');
+    expect(component.isKeyCopied('a')).toBe(true);
+    vi.advanceTimersByTime(1999);
+    expect(component.isKeyCopied('a')).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(component.isKeyCopied('a')).toBe(false);
+
+    component.copyWorkspaceId('a');
+    await Promise.resolve();
+    component.beginInlineRename({ id: 'a', name: 'Space' });
+    fixture.destroy();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('ignores clipboard completion after destruction', async () => {
+    let resolveCopy!: () => void;
+    const pending = new Promise<void>(resolve => { resolveCopy = resolve; });
+    vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn(() => pending) } });
+    component.copyWorkspaceId('a');
+    fixture.destroy();
+    resolveCopy();
+    await Promise.resolve();
+    expect(component.isKeyCopied('a')).toBe(false);
+    expect(toast.info).not.toHaveBeenCalled();
   });
 });
