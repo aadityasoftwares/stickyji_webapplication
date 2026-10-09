@@ -343,14 +343,6 @@
                                                                 {{ workspaceName(workspace) }}
                                                             </strong>
                                                             }
-
-                                                            <button type="button" class="workspace-gt-key-copy"
-                                                                [attr.aria-label]="'Copy ID for ' + workspaceName(workspace)"
-                                                                [title]="isKeyCopied(workspaceId(workspace)) ? 'Copied!' : 'Copy workspace ID'"
-                                                                (click)="copyWorkspaceId(workspaceId(workspace), $event)"
-                                                                (dblclick)="$event.stopPropagation()">
-                                                                <app-icon [icon]="isKeyCopied(workspaceId(workspace)) ? LucideCheck : LucideCopy" size="xs" />
-                                                            </button>
                                                         </div>
 
                                                         <small>{{ workspaceDescription(workspace) || workspaceTypeLabel(workspace) }}</small>

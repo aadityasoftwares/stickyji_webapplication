@@ -2805,31 +2805,6 @@ $workspace-table-grid-columns: 36px minmax(200px, 2fr) minmax(95px, 0.9fr) minma
     }
 }
 
-.workspace-gt-key-copy {
-    display: inline-grid;
-    place-items: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    padding: 0;
-    color: var(--app-text-muted, #{$text-secondary});
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 120ms ease;
-
-    &:hover {
-        color: var(--app-text, #{$text-primary});
-        background: color-mix(in srgb, var(--app-text, #{$text-primary}) 8%, var(--app-paper, #{$paper}));
-        border-color: var(--app-border-light, rgba($border, 0.6));
-    }
-
-    &:focus-visible {
-        outline: none;
-        box-shadow: var(--app-focus-ring);
-    }
-}
-
 .workspace-gt-date-text {
     font-size: 0.75rem;
     white-space: nowrap;

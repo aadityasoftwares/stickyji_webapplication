@@ -24,7 +24,6 @@ describe('Workspace', () => {
   };
   let toast: {
     success: ReturnType<typeof vi.fn>;
-    info: ReturnType<typeof vi.fn>;
     error: ReturnType<typeof vi.fn>;
   };
   let preferenceApi: {
@@ -46,7 +45,7 @@ describe('Workspace', () => {
       updateStatus: vi.fn(() => of({})),
       delete: vi.fn(() => of({})),
     };
-    toast = { success: vi.fn(), info: vi.fn(), error: vi.fn() };
+    toast = { success: vi.fn(), error: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [Workspace],
       providers: [
@@ -69,7 +68,6 @@ describe('Workspace', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.unstubAllGlobals();
   });
 
   it('should create', () => {
@@ -332,35 +330,4 @@ describe('Workspace', () => {
     expect(workspaceStore.selectedId()).toBeNull();
   });
 
-  it('keeps clipboard feedback for two seconds and cancels timers on destruction', async () => {
-    vi.useFakeTimers();
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal('navigator', { clipboard: { writeText } });
-    component.copyWorkspaceId('a');
-    await Promise.resolve();
-    expect(writeText).toHaveBeenCalledExactlyOnceWith('a');
-    expect(component.isKeyCopied('a')).toBe(true);
-    vi.advanceTimersByTime(1999);
-    expect(component.isKeyCopied('a')).toBe(true);
-    vi.advanceTimersByTime(1);
-    expect(component.isKeyCopied('a')).toBe(false);
-
-    component.copyWorkspaceId('a');
-    await Promise.resolve();
-    component.beginInlineRename({ id: 'a', name: 'Space' });
-    fixture.destroy();
-    expect(vi.getTimerCount()).toBe(0);
-  });
-
-  it('ignores clipboard completion after destruction', async () => {
-    let resolveCopy!: () => void;
-    const pending = new Promise<void>(resolve => { resolveCopy = resolve; });
-    vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn(() => pending) } });
-    component.copyWorkspaceId('a');
-    fixture.destroy();
-    resolveCopy();
-    await Promise.resolve();
-    expect(component.isKeyCopied('a')).toBe(false);
-    expect(toast.info).not.toHaveBeenCalled();
-  });
 });

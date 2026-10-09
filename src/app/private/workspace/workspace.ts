@@ -22,7 +22,6 @@ import {
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
-  LucideCopy,
   LucideFolder,
   LucideFolderOpen,
   LucideGlobe,
@@ -135,7 +134,6 @@ export class Workspace implements OnInit {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
-  readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideGlobe = LucideGlobe;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
@@ -159,7 +157,6 @@ export class Workspace implements OnInit {
   readonly collapsedGroups = signal<Set<string>>(new Set());
   readonly selectedWorkspaceIds = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedWorkspaceIds().size);
-  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly searchTerm = signal('');
   readonly activeTab = computed<'all' | 'active' | 'archived'>(() => {
@@ -437,32 +434,6 @@ export class Workspace implements OnInit {
           error: finish,
         });
     });
-  }
-
-  isKeyCopied(id?: string): boolean {
-    return !!(id && this.copiedKeyMap()[id]);
-  }
-
-  copyWorkspaceId(id?: string, event?: Event): void {
-    event?.stopPropagation();
-    event?.preventDefault();
-    if (!id) return;
-    navigator.clipboard
-      .writeText(id)
-      .then(() => {
-        if (this.destroyRef.destroyed) return;
-
-        this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
-        this.toastService.info('Copied workspace ID to clipboard');
-        timer(2000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-          this.copiedKeyMap.update((map) => {
-            const next = { ...map };
-            delete next[id];
-            return next;
-          });
-        });
-      })
-      .catch(() => {});
   }
 
   loadWorkspaces(savedId = ''): void {
