@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
+import { WorkspaceListApiResponse, WorkspaceListQuery } from '../models/workspace.models';
 
 @Injectable({
     providedIn: 'root',
@@ -10,8 +11,8 @@ import { buildHttpParams } from '../../../shared/functions/api.functions';
 export class WorkspaceService {
     private readonly http = inject(HttpClient);
 
-    getAllWorkspaces(query: any = {}): Observable<any> {
-        return this.http.post<any>(
+    getAllWorkspaces(query: WorkspaceListQuery = {}): Observable<WorkspaceListApiResponse> {
+        return this.http.post<WorkspaceListApiResponse>(
             API_ENDPOINTS.workspaces.getAll,
             query,
             {

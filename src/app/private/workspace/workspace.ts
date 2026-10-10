@@ -12,7 +12,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, timer } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged, finalize, timer } from 'rxjs';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import {
@@ -61,11 +61,11 @@ import { WorkspaceService } from './services/workspace.service';
 import { WorkspaceStore } from './services/workspace.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
-import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import {
   SORT_OPTIONS,
   USER_PREFERENCE_KEYS,
   VIEW_TABS,
+  WORKSPACE_SORT_PREFERENCES,
   buildStatusTabs,
 } from '../../shared/constants/common.constants';
 import {
@@ -80,17 +80,6 @@ import {
   getWorkspaceMemberName,
   getWorkspaceMemberRole,
 } from '../../shared/functions/workspace-member.function';
-import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
-
-const WORKSPACE_SORT_PREFERENCES = {
-  recent: 'RECENTLY_UPDATED',
-  created: 'RECENTLY_CREATED',
-  'name-asc': 'NAME_ASC',
-  'name-desc': 'NAME_DESC',
-  oldest: 'OLDEST_FIRST',
-} as const;
-
-type WorkspaceSort = keyof typeof WORKSPACE_SORT_PREFERENCES;
 
 @Component({
   selector: 'app-workspace',
@@ -112,7 +101,6 @@ type WorkspaceSort = keyof typeof WORKSPACE_SORT_PREFERENCES;
     StickyCard,
     Tabs,
     UserDatePipe,
-    UserTimePipe,
     WorkspaceFolderWrapper,
   ],
   templateUrl: './workspace.html',
@@ -126,7 +114,6 @@ export class Workspace implements OnInit {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly toastService = inject(ToastService);
-  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowRight = LucideArrowRight;
@@ -159,15 +146,28 @@ export class Workspace implements OnInit {
   readonly selectedCount = computed(() => this.selectedWorkspaceIds().size);
 
   readonly searchTerm = signal('');
+  readonly page = signal(1);
+  readonly limit = signal(20);
+  readonly pagination = signal<any>({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  readonly counts = signal<any>({ all: 0, active: 0, archived: 0 });
+
+  private readonly searchSubject = new Subject<string>();
+  private loadSubscription: Subscription | null = null;
+
   readonly activeTab = computed<'all' | 'active' | 'archived'>(() => {
     const value = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
     return value === 'active' || value === 'archived' ? value : 'all';
   });
-  readonly sortBy = computed<WorkspaceSort>(() => {
+
+  readonly sortBy = computed<keyof typeof WORKSPACE_SORT_PREFERENCES>(() => {
     const value = this.userPreferenceStore.workspaceSortOrder();
-    return (Object.keys(WORKSPACE_SORT_PREFERENCES) as WorkspaceSort[])
-      .find(key => WORKSPACE_SORT_PREFERENCES[key] === value) ?? 'recent';
+    return (
+      (Object.keys(WORKSPACE_SORT_PREFERENCES) as (keyof typeof WORKSPACE_SORT_PREFERENCES)[]).find(
+        (key) => WORKSPACE_SORT_PREFERENCES[key] === value
+      ) ?? 'recent'
+    );
   });
+
   readonly view = computed<'grid' | 'list'>(() =>
     String(this.userPreferenceStore.workspaceView() ?? '').toUpperCase() === 'LIST' ? 'list' : 'grid'
   );
@@ -195,42 +195,30 @@ export class Workspace implements OnInit {
   ];
   readonly viewTabs = VIEW_TABS;
 
-  readonly totalCount = computed(() => this.workspaces().length);
+  readonly totalCount = computed(() => this.pagination()?.total ?? 0);
 
   readonly workspaceTabs = computed<TabItem[]>(() => {
-    const list = this.workspaces();
+    const c = this.counts();
     return buildStatusTabs({
-      all: list.length,
-      active: list.filter((item) => item?.status === 'ACTIVE').length,
-      archived: list.filter((item) => item?.status === 'ARCHIVED').length,
+      all: c?.all ?? 0,
+      active: c?.active ?? 0,
+      archived: c?.archived ?? 0,
     });
   });
 
-  readonly visibleWorkspaces = computed(() => {
-    const query = this.searchTerm().trim().toLowerCase();
+  readonly visibleWorkspaces = computed<any[]>(() => {
+    const list = this.workspaces();
     const tab = this.activeTab();
     const sort = this.sortBy();
 
-    const filtered = this.workspaces().filter((item) => {
+    const filtered = list.filter((item) => {
       const status = String(item?.status ?? 'ACTIVE');
       if (tab === 'active' && status !== 'ACTIVE') return false;
       if (tab === 'archived' && status !== 'ARCHIVED') return false;
-      if (!query) return true;
-
-      const name = this.workspaceName(item).toLowerCase();
-      const description = this.workspaceDescription(item).toLowerCase();
-      const role = this.workspaceRoleLabel(item).toLowerCase();
-      const visibility = this.workspaceVisibility(item).toLowerCase();
-
-      return (
-        name.includes(query) ||
-        description.includes(query) ||
-        role.includes(query) ||
-        visibility.includes(query)
-      );
+      return true;
     });
 
-    return filtered.sort((first, second) => {
+    return [...filtered].sort((first, second) => {
       if (sort === 'name-asc') {
         return this.workspaceName(first).localeCompare(this.workspaceName(second));
       }
@@ -243,19 +231,12 @@ export class Workspace implements OnInit {
     });
   });
 
-  readonly workspaceGroups = computed(() => {
+  readonly workspaceGroups = computed<any[]>(() => {
     const list = this.visibleWorkspaces();
     const tab = this.activeTab();
     const isSearchActive = !!this.searchTerm().trim();
 
-    const groups: Array<{
-      id: string;
-      label: string;
-      status: 'ACTIVE' | 'ARCHIVED';
-      accent: string;
-      items: any[];
-      count: number;
-    }> = [];
+    const groups: any[] = [];
 
     if (tab === 'all' || tab === 'active') {
       const activeItems = list.filter((w) => (w?.status ?? 'ACTIVE') === 'ACTIVE');
@@ -286,6 +267,7 @@ export class Workspace implements OnInit {
 
   ngOnInit(): void {
     this.userPreferenceStore.load();
+    this.initSearchPipeline();
     this.loadWorkspaces();
   }
 
@@ -395,6 +377,7 @@ export class Workspace implements OnInit {
         .subscribe({
           next: () => {
             this.updateLocalWorkspace(id, { status: 'ARCHIVED' });
+            this.syncCountsAfterStatusChange('ARCHIVED');
             updatedCount++;
             finish();
           },
@@ -422,12 +405,16 @@ export class Workspace implements OnInit {
     };
 
     ids.forEach((id) => {
+      const workspace = this.workspaces().find((w) => idOf(w) === id);
       this.workspaceApi
         .delete(id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.removeLocalWorkspace(id);
+            if (workspace) {
+              this.syncCountsAfterDelete(workspace);
+            }
             deletedCount++;
             finish();
           },
@@ -436,23 +423,33 @@ export class Workspace implements OnInit {
     });
   }
 
-  loadWorkspaces(savedId = ''): void {
-    if (this.loading()) return;
+  loadWorkspaces(savedId = '', force = false): void {
+    if (this.loading() && !force) return;
 
+    this.loadSubscription?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.workspaceApi
-      .getAllWorkspaces({ page: 1, limit: 100 })
+    const query = this.buildListQuery();
+
+    this.loadSubscription = this.workspaceApi
+      .getAllWorkspaces(query)
       .pipe(
-        finalize(() => this.loading.set(false)),
+        finalize(() => {
+          this.loading.set(false);
+          this.loadSubscription = null;
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: any) => {
-          const list = extractList(response).map((item) => this.prepareWorkspace(item));
+          const list = extractList<any>(response).map((item) =>
+            this.prepareWorkspace(item)
+          );
           this.workspaces.set(list);
-          this.workspaceStore.setWorkspaces(list);
+          this.workspaceStore.setWorkspaces(list as any);
+
+          this.updatePaginationAndCounts(response, list);
 
           if (savedId) {
             this.workspaceStore.select(savedId);
@@ -470,16 +467,22 @@ export class Workspace implements OnInit {
   }
 
   onSearch(value: any): void {
-    this.searchTerm.set(String(value ?? ''));
+    const val = String(value ?? '');
+    this.searchTerm.set(val);
+    this.searchSubject.next(val.trim());
   }
 
   onClearSearch(): void {
     this.searchTerm.set('');
+    this.page.set(1);
+    this.loadWorkspaces('', true);
   }
 
   onStatusChange(value: any): void {
     if (value === 'all' || value === 'active' || value === 'archived') {
       this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, value.toUpperCase());
+      this.page.set(1);
+      this.loadWorkspaces('', true);
     }
   }
 
@@ -487,8 +490,10 @@ export class Workspace implements OnInit {
     if (Object.prototype.hasOwnProperty.call(WORKSPACE_SORT_PREFERENCES, value)) {
       this.userPreferenceStore.setAndSave(
         USER_PREFERENCE_KEYS.WORKSPACE_SORT_ORDER,
-        WORKSPACE_SORT_PREFERENCES[value as WorkspaceSort],
+        WORKSPACE_SORT_PREFERENCES[value as keyof typeof WORKSPACE_SORT_PREFERENCES],
       );
+      this.page.set(1);
+      this.loadWorkspaces('', true);
     }
   }
 
@@ -518,6 +523,40 @@ export class Workspace implements OnInit {
     this.onSortChange(value);
   }
 
+  goToPage(page: number): void {
+    if (page < 1 || page === this.page()) return;
+    this.page.set(page);
+    this.loadWorkspaces('', true);
+  }
+
+  nextPage(): void {
+    const max = this.pagination()?.totalPages ?? 1;
+    if (this.page() < max) {
+      this.goToPage(this.page() + 1);
+    }
+  }
+
+  previousPage(): void {
+    if (this.page() > 1) {
+      this.goToPage(this.page() - 1);
+    }
+  }
+
+  openWorkspaceTrash(): void {
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_TRASH));
+  }
+
+  openStickyNoteTrash(): void {
+    const workspaceId = this.workspaceStore.selectedId();
+    this.router.navigate(routeCommands(APP_ROUTES.TRASH), {
+      queryParams: workspaceId ? { workspaceId } : undefined,
+    });
+  }
+
+  openTrash(): void {
+    this.openWorkspaceTrash();
+  }
+
   openCreateEditor(): void {
     this.workspaceEditorId.set('');
     this.workspaceEditorOpen.set(true);
@@ -545,7 +584,7 @@ export class Workspace implements OnInit {
 
     const savedId = idOf(savedWorkspace);
     this.closeWorkspaceEditor();
-    this.loadWorkspaces(savedId);
+    this.loadWorkspaces(savedId, true);
   }
 
   handleWorkspaceClick(workspace: any, event?: MouseEvent): void {
@@ -584,13 +623,15 @@ export class Workspace implements OnInit {
     this.inlineRenameName.set(this.workspaceName(workspace));
     this.inlineRenameError.set(null);
 
-    timer(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const input = this.renameInput()?.nativeElement;
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    });
+    timer(0)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const input = this.renameInput()?.nativeElement;
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
   }
 
   updateInlineRename(event: Event): void {
@@ -642,7 +683,11 @@ export class Workspace implements OnInit {
           const updated = response?.data || { ...workspace, name: trimmed };
           this.cancelInlineRename();
 
-          this.updateLocalWorkspace(id, { ...updated, name: trimmed });
+          this.updateLocalWorkspace(id, {
+            ...updated,
+            name: trimmed,
+            updatedAt: updated?.updatedAt ?? new Date().toISOString(),
+          });
           this.workspaceStore.updateWorkspace(id, { name: trimmed });
 
           this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.RENAMED, {
@@ -700,11 +745,17 @@ export class Workspace implements OnInit {
         next: () => {
           this.deleteTarget.set(null);
           this.removeLocalWorkspace(id);
+          this.syncCountsAfterDelete(workspace);
 
           this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)), {
             title: 'Workspace moved to trash',
             dedupeKey: `workspace-delete-${id}`,
           });
+
+          if (this.workspaces().length === 0 && this.page() > 1) {
+            this.page.update((p) => p - 1);
+            this.loadWorkspaces('', true);
+          }
         },
         error: (error: any) => {
           const message = extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED);
@@ -794,9 +845,9 @@ export class Workspace implements OnInit {
     const mapped = source
       .map((member: any) => {
         const id = getWorkspaceMemberId(member);
-        const name = getWorkspaceMemberName(member);
-        const role = getWorkspaceMemberRole(member);
-        const src = getWorkspaceMemberAvatar(member);
+        const name = String(member?.displayName ?? getWorkspaceMemberName(member));
+        const role = member?.role ? String(member.role) : getWorkspaceMemberRole(member);
+        const src = member?.avatar ?? member?.avatarUrl ?? getWorkspaceMemberAvatar(member);
 
         return {
           id,
@@ -816,22 +867,18 @@ export class Workspace implements OnInit {
       const src = getWorkspaceMemberAvatar({ user: owner });
       const id = idOf(owner) || `${idOf(workspace)}-owner`;
 
-      return [{
-        id,
-        name,
-        src,
-        alt: name,
-        tooltip: `${name} · Owner`,
-      }];
+      return [
+        {
+          id,
+          name,
+          src,
+          alt: name,
+          tooltip: `${name} · Owner`,
+        },
+      ];
     }
 
     return [];
-  }
-
-  workspaceDateLabel(workspace: any): string {
-    if (workspace?._dateLabel) return workspace._dateLabel;
-    const value = workspace?.updatedAt ?? workspace?.createdAt;
-    return this.dateTimeFormatter.formatDate(value, 'Not saved yet') || 'Date unavailable';
   }
 
   workspaceStatusLabel(workspace: any): string {
@@ -856,7 +903,6 @@ export class Workspace implements OnInit {
       _folderCountLabel: `${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}`,
       _memberCount: memberCount,
       _memberCountLabel: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
-      _dateLabel: this.workspaceDateLabel(workspace),
       _roleLabel: this.workspaceRoleLabel(workspace),
       _visibility: this.workspaceVisibility(workspace),
       _statusLabel: this.workspaceStatusLabel(workspace),
@@ -895,6 +941,62 @@ export class Workspace implements OnInit {
     return this.inlineRenameId() === idOf(workspace);
   }
 
+  private initSearchPipeline(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.page.set(1);
+        this.loadWorkspaces('', true);
+      });
+  }
+
+  private buildListQuery(): any {
+    const tab = this.activeTab();
+    const status = tab === 'active' ? 'ACTIVE' : tab === 'archived' ? 'ARCHIVED' : 'ALL';
+
+    const query: any = {
+      page: this.page(),
+      limit: this.limit(),
+      status,
+      sortBy: WORKSPACE_SORT_PREFERENCES[this.sortBy()] ?? 'RECENTLY_UPDATED',
+    };
+
+    const trimmed = this.searchTerm().trim();
+    if (trimmed) {
+      query.search = trimmed;
+    }
+
+    return query;
+  }
+
+  private updatePaginationAndCounts(response: any, list: any[]): void {
+    const meta = response?.meta ?? response?.pagination;
+    const total = Number(meta?.total ?? list.length);
+    const page = Number(meta?.page ?? this.page());
+    const limit = Number(meta?.limit ?? this.limit());
+    const totalPages = Number(meta?.totalPages ?? (limit > 0 ? Math.ceil(total / limit) : 0));
+
+    this.pagination.set({ page, limit, total, totalPages });
+
+    if (meta?.counts) {
+      this.counts.set({
+        all: Number(meta.counts.all ?? 0),
+        active: Number(meta.counts.active ?? 0),
+        archived: Number(meta.counts.archived ?? 0),
+      });
+    } else {
+      this.counts.set({
+        all: total,
+        active: list.filter((item) => item?.status === 'ACTIVE').length,
+        archived: list.filter((item) => item?.status === 'ARCHIVED').length,
+      });
+    }
+  }
+
   private updateWorkspaceStatus(workspace: any, status: 'ACTIVE' | 'ARCHIVED'): void {
     const id = idOf(workspace);
     if (!id || this.isBusy(workspace)) return;
@@ -912,6 +1014,7 @@ export class Workspace implements OnInit {
           const updated = response?.data || { ...workspace, status };
           this.updateLocalWorkspace(id, { ...updated, status });
           this.workspaceStore.updateWorkspace(id, { status });
+          this.syncCountsAfterStatusChange(status);
 
           const isArchived = status === 'ARCHIVED';
           this.toastService.success(
@@ -934,9 +1037,32 @@ export class Workspace implements OnInit {
       });
   }
 
+  private syncCountsAfterStatusChange(nextStatus: 'ACTIVE' | 'ARCHIVED'): void {
+    this.counts.update((c: any) => {
+      if (nextStatus === 'ARCHIVED') {
+        return { ...c, active: Math.max(0, (c?.active ?? 0) - 1), archived: (c?.archived ?? 0) + 1 };
+      }
+      return { ...c, active: (c?.active ?? 0) + 1, archived: Math.max(0, (c?.archived ?? 0) - 1) };
+    });
+  }
+
+  private syncCountsAfterDelete(workspace: any): void {
+    const isAct = this.isActive(workspace);
+    this.counts.update((c: any) => ({
+      all: Math.max(0, (c?.all ?? 0) - 1),
+      active: isAct ? Math.max(0, (c?.active ?? 0) - 1) : (c?.active ?? 0),
+      archived: !isAct ? Math.max(0, (c?.archived ?? 0) - 1) : (c?.archived ?? 0),
+    }));
+    this.pagination.update((p: any) => ({
+      ...p,
+      total: Math.max(0, (p?.total ?? 0) - 1),
+      totalPages: (p?.limit ?? 0) > 0 ? Math.ceil(Math.max(0, (p?.total ?? 0) - 1) / p.limit) : 0,
+    }));
+  }
+
   private updateLocalWorkspace(id: string, changes: Record<string, unknown>): void {
     this.workspaces.update((items) =>
-      items.map((item) => idOf(item) === id ? this.prepareWorkspace({ ...item, ...changes }) : item)
+      items.map((item) => (idOf(item) === id ? this.prepareWorkspace({ ...item, ...changes }) : item))
     );
   }
 

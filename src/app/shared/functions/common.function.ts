@@ -109,6 +109,9 @@ export function extractList<T = any>(response: any): T[] {
 
     const list =
       data.items ||
+      data.preferences ||
+      data.rows ||
+      data.records ||
       data.checklists ||
       data.checklistItems ||
       data.folders ||

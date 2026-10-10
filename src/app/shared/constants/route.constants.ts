@@ -8,6 +8,7 @@ export const APP_ROUTES = {
     VERIFY_EMAIL: '/auth/verify-email',
     TODAY: '/app/today',
     WORKSPACES: '/app/workspaces/my',
+    WORKSPACE_TRASH: '/app/workspaces/trash',
     WORKSPACE_FOLDERS: '/app/workspacefolders/my',
     WORKSPACE_MEMBERS: '/app/workspace/members',
     ROLES_PERMISSIONS: '/app/workspace/roles-permissions',

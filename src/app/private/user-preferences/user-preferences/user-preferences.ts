@@ -4,12 +4,13 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
 
 import {
   LucideAccessibility,
@@ -43,14 +44,13 @@ import {
 
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Switch } from '../../../shared/components/switch/switch';
-import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 import {
   DEFAULT_USER_PREFERENCES,
   UserPreferencesM,
 } from '../models/user-preference.models';
 
-import { UserPreferenceService } from '../services/user-preference.service';
+import { UserPreferenceStore } from '../services/user-preference.store';
 
 
 /* ==========================================================================
@@ -111,8 +111,7 @@ export class UserPreferences implements OnInit {
   private readonly formBuilder =
     inject(FormBuilder);
 
-  private readonly preferenceService =
-    inject(UserPreferenceService);
+  private readonly preferenceStore = inject(UserPreferenceStore);
 
   private readonly destroyRef =
     inject(DestroyRef);
@@ -353,6 +352,38 @@ export class UserPreferences implements OnInit {
      Lifecycle
      ========================================================================== */
 
+  constructor() {
+    effect(() => {
+      const loading = this.preferenceStore.loading();
+      const ready = this.preferenceStore.ready();
+      const preferences = this.preferenceStore.preferences();
+      const error = this.preferenceStore.error();
+      this.loading.set(loading || !ready);
+      if (!ready || loading) return;
+      this.loadError.set(this.preferenceStore.loaded() ? null : error);
+      if (!this.saving() && !this.preferenceForm.dirty) {
+        untracked(() => {
+          this.savedPreferences.set(preferences);
+          this.patchForm(preferences);
+        });
+      }
+    });
+
+    effect(() => {
+      if (!this.saving() || this.preferenceStore.saving()) return;
+      const error = this.preferenceStore.error();
+      const preferences = this.preferenceStore.preferences();
+      untracked(() => {
+        this.saving.set(false);
+        this.saveError.set(error);
+        this.savedPreferences.set(preferences);
+        this.saved.set(!error);
+        if (error) this.updateChangedCount();
+        else this.patchForm(preferences);
+      });
+    });
+  }
+
   ngOnInit(): void {
 
     this.watchFormChanges();
@@ -369,7 +400,7 @@ export class UserPreferences implements OnInit {
 
     if (
       this.preferenceForm.invalid ||
-      this.saving()
+      this.saving() || this.preferenceStore.saving()
     ) {
 
       this.preferenceForm.markAllAsTouched();
@@ -391,44 +422,12 @@ export class UserPreferences implements OnInit {
       );
 
 
-    // this.preferenceService
-    //   .updateMyPreferences(
-    //     preferences,
-    //   )
-    //   .pipe(
-    //     takeUntilDestroyed(
-    //       this.destroyRef,
-    //     ),
-
-    //     finalize(() =>
-    //       this.saving.set(false),
-    //     ),
-    //   )
-    //   .subscribe({
-
-    //     next: savedPreferences => {
-
-    //       this.savedPreferences.set(
-    //         savedPreferences,
-    //       );
-
-    //       this.patchForm(
-    //         savedPreferences,
-    //       );
-
-    //       this.saved.set(true);
-
-    //       this.changedCount.set(0);
-    //     },
-
-    //     error: error => {
-
-    //       this.saveError.set(
-    //         error?.error?.message ??
-    //         'We could not save your preferences. Please try again.',
-    //       );
-    //     },
-    //   });
+    this.preferenceStore.clearError();
+    // Save only fields owned by this form; preserve date and workspace settings.
+    for (const key of Object.keys(this.preferenceForm.controls) as (keyof UserPreferencesFormValue)[]) {
+      this.preferenceStore.setAndSave(key, preferences[key]);
+      if (this.preferenceStore.error()) break;
+    }
   }
 
 
@@ -471,7 +470,8 @@ export class UserPreferences implements OnInit {
 
   reload(): void {
 
-    this.loadPreferences();
+    this.preferenceForm.markAsPristine();
+    this.loadPreferences(true);
   }
 
 
@@ -479,48 +479,11 @@ export class UserPreferences implements OnInit {
      Load
      ========================================================================== */
 
-  private loadPreferences(): void {
-
-    this.loading.set(true);
-
+  private loadPreferences(force = false): void {
     this.loadError.set(null);
-
     this.saveError.set(null);
-
     this.saved.set(false);
-
-
-    this.preferenceService
-      .getMyPreferences()
-      .pipe(
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-
-        finalize(() =>
-          this.loading.set(false),
-        ),
-      )
-      .subscribe({
-
-        next: preferences => {
-
-          this.savedPreferences.set(
-            preferences,
-          );
-
-          this.patchForm(
-            preferences,
-          );
-        },
-
-        error: error => {
-
-          this.loadError.set(
-            extractErrorMessage(error, 'We could not load your preferences right now.'),
-          );
-        },
-      });
+    this.preferenceStore.load(force);
   }
 
 

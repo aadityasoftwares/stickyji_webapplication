@@ -56,6 +56,12 @@
                     <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
                         shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
                         [scrollable]="false" [minTabWidth]="64" (valueChange)="setWorkspaceView($event)" />
+
+                    <span class="workspace-toolbar-utility-divider" aria-hidden="true"></span>
+
+                    <app-button size="sm" [iconLeft]="LucideTrash2" label="Trash" appearance="standard"
+                        variant="noteRed" [hasIcon]="true" ariaLabel="Open workspace trash"
+                        title="Trash · Workspaces can be restored" (buttonClick)="openWorkspaceTrash()" />
                 </div>
             </div>
 
@@ -95,12 +101,10 @@
                         <app-workspace-folder-wrapper [name]="workspaceName(workspace)"
                             [description]="workspace.description || ''" [personal]="!!workspace.isPersonal"
                             [visibility]="workspaceVisibility(workspace)" [roleLabel]="workspaceRoleLabel(workspace)"
-                            [status]="workspace.status" [updatedAt]="workspace.updatedAt || workspace.createdAt"
-                            [folderCount]="workspaceFolderCount(workspace)"
-                            [members]="workspaceMembers(workspace)"
-                            [memberCount]="workspaceMemberCount(workspace)"
-                            [interactive]="!isInlineRenaming(workspace)" [busy]="isBusy(workspace)"
-                            (opened)="handleWorkspaceClick(workspace, $event)"
+                            [status]="workspace.status || 'ACTIVE'" [updatedAt]="workspace.updatedAt || workspace.createdAt"
+                            [folderCount]="workspaceFolderCount(workspace)" [members]="workspaceMembers(workspace)"
+                            [memberCount]="workspaceMemberCount(workspace)" [interactive]="!isInlineRenaming(workspace)"
+                            [busy]="isBusy(workspace)" (opened)="handleWorkspaceClick(workspace, $event)"
                             (edited)="handleWorkspaceDoubleClick(workspace, $event)"
                             (keyboardOpened)="handleWorkspaceClick(workspace)">
                             <div folder-title>
@@ -221,7 +225,8 @@
                             [attr.aria-labelledby]="'group-heading-' + group.id">
                             <header class="workspace-group-header">
                                 <h3>
-                                    <button type="button" class="workspace-group-toggle" [id]="'group-heading-' + group.id"
+                                    <button type="button" class="workspace-group-toggle"
+                                        [id]="'group-heading-' + group.id"
                                         [attr.aria-expanded]="!isGroupCollapsed(group.id)"
                                         [attr.aria-controls]="'group-body-' + group.id" (click)="toggleGroup(group.id)">
                                         <app-icon class="workspace-group-chevron"
@@ -229,7 +234,8 @@
                                             size="sm" />
                                         <span class="workspace-group-accent-bar" aria-hidden="true"></span>
                                         <span class="workspace-group-label">{{ group.label }}</span>
-                                        <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
+                                        <app-badge [label]="'' + group.count" variant="neutral" size="xs"
+                                            shape="rounded"
                                             [ariaLabel]="group.count + (group.count === 1 ? ' space' : ' spaces')" />
                                     </button>
                                 </h3>
@@ -261,8 +267,10 @@
                                     <thead>
                                         <tr>
                                             <th class="workspace-gt-select" scope="col">
-                                                <app-checkbox [checked]="isAllSelected(group.items)" [indeterminate]="isSomeSelected(group.items)"
-                                                    (checkedChange)="toggleSelectAll($event, group.items)" size="xs" ariaLabel="Select all spaces in group" />
+                                                <app-checkbox [checked]="isAllSelected(group.items)"
+                                                    [indeterminate]="isSomeSelected(group.items)"
+                                                    (checkedChange)="toggleSelectAll($event, group.items)" size="xs"
+                                                    ariaLabel="Select all spaces in group" />
                                             </th>
                                             <th class="workspace-gt-name" scope="col">
                                                 <app-icon [icon]="LucidePanelsTopLeft" size="xs" />
@@ -319,7 +327,8 @@
                                                     (click)="handleWorkspaceClick(workspace, $event)"
                                                     (keydown.enter)="$event.target === $event.currentTarget && handleWorkspaceClick(workspace)">
 
-                                                    <span [class]="'workspace-folder-thumbnail ' + workspaceTheme(workspace).variant"
+                                                    <span
+                                                        [class]="'workspace-folder-thumbnail ' + workspaceTheme(workspace).variant"
                                                         aria-hidden="true">
                                                         <span></span>
                                                         <app-icon [icon]="workspaceTheme(workspace).icon" size="xs" />
@@ -329,44 +338,51 @@
                                                         <div class="workspace-table-title-row">
                                                             @if (isInlineRenaming(workspace)) {
                                                             <input #renameInput class="workspace-inline-rename is-list"
-                                                                [class.is-invalid]="!!inlineRenameError()" type="text" maxlength="80"
-                                                                aria-label="Rename workspace" [attr.aria-invalid]="!!inlineRenameError()"
-                                                                [attr.title]="inlineRenameError()" [value]="inlineRenameName()"
-                                                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()"
+                                                                [class.is-invalid]="!!inlineRenameError()" type="text"
+                                                                maxlength="80" aria-label="Rename workspace"
+                                                                [attr.aria-invalid]="!!inlineRenameError()"
+                                                                [attr.title]="inlineRenameError()"
+                                                                [value]="inlineRenameName()"
+                                                                (click)="$event.stopPropagation()"
+                                                                (dblclick)="$event.stopPropagation()"
                                                                 (input)="updateInlineRename($event)"
                                                                 (keydown.enter)="saveInlineRename(workspace, $event)"
                                                                 (keydown.escape)="cancelInlineRename($event)"
                                                                 (blur)="saveInlineRename(workspace)" />
                                                             } @else {
-                                                            <strong class="workspace-name-editable" title="Double-click to rename"
+                                                            <strong class="workspace-name-editable"
+                                                                title="Double-click to rename"
                                                                 (dblclick)="beginInlineRename(workspace, $event)">
                                                                 {{ workspaceName(workspace) }}
                                                             </strong>
                                                             }
                                                         </div>
 
-                                                        <small>{{ workspaceDescription(workspace) || workspaceTypeLabel(workspace) }}</small>
+                                                        <small>{{ workspaceDescription(workspace) ||
+                                                            workspaceTypeLabel(workspace) }}</small>
                                                     </div>
                                                 </div>
                                             </td>
 
                                             <td class="workspace-gt-role" data-label="Access">
-                                                <app-badge [label]="workspaceRoleLabel(workspace)" variant="outline" size="xs" shape="pill" />
+                                                <app-badge [label]="workspaceRoleLabel(workspace)" variant="outline"
+                                                    size="xs" shape="pill" />
                                             </td>
 
                                             <td class="workspace-gt-visibility" data-label="Visibility">
-                                                <app-badge [label]="workspaceVisibility(workspace)" variant="neutral" size="xs" shape="pill"
-                                                    [icon]="visibilityIcon(workspace)" />
+                                                <app-badge [label]="workspaceVisibility(workspace)" variant="neutral"
+                                                    size="xs" shape="pill" [icon]="visibilityIcon(workspace)" />
                                             </td>
 
                                             <td class="workspace-gt-folders" data-label="Folders">
-                                                <app-badge [label]="folderCountLabel(workspace)" variant="neutral" size="xs" shape="pill"
-                                                    [icon]="LucideFolderOpen" />
+                                                <app-badge [label]="folderCountLabel(workspace)" variant="neutral"
+                                                    size="xs" shape="pill" [icon]="LucideFolderOpen" />
                                             </td>
 
                                             <td class="workspace-gt-members" data-label="Members">
                                                 @if (workspaceMembers(workspace).length > 0) {
-                                                <app-members-stack [members]="workspaceMembers(workspace)" [maxVisible]="3" size="xs" />
+                                                <app-members-stack [members]="workspaceMembers(workspace)"
+                                                    [maxVisible]="3" size="xs" />
                                                 } @else {
                                                 <span class="workspace-table-muted">—</span>
                                                 }
@@ -374,13 +390,21 @@
 
                                             <td class="workspace-gt-status" data-label="Status">
                                                 <app-badge [label]="workspaceStatusLabel(workspace)"
-                                                    [variant]="isActive(workspace) ? 'success' : 'neutral'" size="xs" shape="pill" />
+                                                    [variant]="isActive(workspace) ? 'success' : 'neutral'" size="xs"
+                                                    shape="pill" />
                                             </td>
 
-                                            <td class="workspace-gt-updated" data-label="Modified">
+                                            <td class="workspace-gt-updated" data-label="Updated">
                                                 @if (workspace.updatedAt || workspace.createdAt) {
-                                                <span class="workspace-gt-date-text">{{ (workspace.updatedAt || workspace.createdAt) | userDate }}</span>
-                                                <small class="workspace-gt-time-text">{{ (workspace.updatedAt || workspace.createdAt) | userTime }}</small>
+                                                <time class="workspace-gt-datetime"
+                                                    [attr.datetime]="workspace.updatedAt || workspace.createdAt">
+                                                    <span class="workspace-gt-date-text">{{ (workspace.updatedAt ||
+                                                        workspace.createdAt) | userDate:'date' }}</span>
+                                                    <span class="workspace-gt-datetime-separator"
+                                                        aria-hidden="true">&middot;</span>
+                                                    <span class="workspace-gt-time-text">{{ (workspace.updatedAt ||
+                                                        workspace.createdAt) | userDate:'time' }}</span>
+                                                </time>
                                                 } @else {
                                                 <span class="workspace-table-muted">—</span>
                                                 }
@@ -388,31 +412,38 @@
 
                                             <td class="workspace-gt-actions" data-label="Actions">
                                                 <div class="workspace-table-action-group">
-                                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
-                                                        appearance="standard" size="xs" [rounded]="true"
+                                                    <app-button [icon]="LucidePencil" [iconOnly]="true"
+                                                        variant="noteBlue" appearance="standard" size="xs"
+                                                        [rounded]="true"
                                                         [ariaLabel]="'Edit ' + workspaceName(workspace)"
-                                                        [title]="'Edit ' + workspaceName(workspace)" [disabled]="isBusy(workspace)"
+                                                        [title]="'Edit ' + workspaceName(workspace)"
+                                                        [disabled]="isBusy(workspace)"
                                                         (buttonClick)="openEditEditor(workspace, $event)" />
 
-                                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
-                                                        appearance="standard" size="xs" [rounded]="true"
+                                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true"
+                                                        variant="noteYellow" appearance="standard" size="xs"
+                                                        [rounded]="true"
                                                         [ariaLabel]="'Open ' + workspaceName(workspace)"
-                                                        [title]="'Open ' + workspaceName(workspace)" [disabled]="isBusy(workspace)"
+                                                        [title]="'Open ' + workspaceName(workspace)"
+                                                        [disabled]="isBusy(workspace)"
                                                         (buttonClick)="openWorkspace(workspace)" />
 
                                                     <button type="button" class="workspace-table-menu-button"
                                                         [matMenuTriggerFor]="workspaceListActions"
                                                         [attr.aria-label]="'More actions for ' + workspaceName(workspace)"
                                                         [attr.title]="'More actions for ' + workspaceName(workspace)"
-                                                        [disabled]="isBusy(workspace)" (click)="$event.stopPropagation()"
+                                                        [disabled]="isBusy(workspace)"
+                                                        (click)="$event.stopPropagation()"
                                                         (dblclick)="$event.stopPropagation()">
                                                         <app-icon [icon]="LucideMoreHorizontal" size="sm" />
                                                     </button>
                                                 </div>
 
-                                                <mat-menu #workspaceListActions="matMenu" xPosition="before" yPosition="below"
-                                                    [overlapTrigger]="false" class="workspace-actions-menu">
-                                                    <button mat-menu-item type="button" class="workspace-action-item is-edit"
+                                                <mat-menu #workspaceListActions="matMenu" xPosition="before"
+                                                    yPosition="below" [overlapTrigger]="false"
+                                                    class="workspace-actions-menu">
+                                                    <button mat-menu-item type="button"
+                                                        class="workspace-action-item is-edit"
                                                         (click)="openEditEditor(workspace)">
                                                         <span class="workspace-menu-item-icon" aria-hidden="true">
                                                             <app-icon [icon]="LucidePencil" size="xs" />
@@ -423,7 +454,8 @@
                                                         </span>
                                                     </button>
 
-                                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
+                                                    <button mat-menu-item type="button"
+                                                        class="workspace-action-item is-open"
                                                         (click)="openWorkspace(workspace)">
                                                         <span class="workspace-menu-item-icon" aria-hidden="true">
                                                             <app-icon [icon]="LucideArrowRight" size="xs" />
@@ -436,7 +468,8 @@
 
                                                     <button mat-menu-item type="button" class="workspace-action-item"
                                                         (click)="beginInlineRename(workspace)">
-                                                        <span class="workspace-menu-item-icon workspace-menu-rename-icon"
+                                                        <span
+                                                            class="workspace-menu-item-icon workspace-menu-rename-icon"
                                                             aria-hidden="true">
                                                             <app-icon [icon]="LucidePencil" size="xs" />
                                                         </span>
@@ -514,8 +547,8 @@
     [workspace]="editorWorkspace()" (closed)="closeWorkspaceEditor()" (saved)="onWorkspaceSaved($event)" />
 
 <app-bulk-action-panel [selectedCount]="selectedCount()" [totalCount]="visibleWorkspaces().length"
-    position="bottom-center" orientation="horizontal" variant="floating"
-    (clearSelection)="clearSelection()" (bulkDelete)="bulkDeleteSelected()">
+    position="bottom-center" orientation="horizontal" variant="floating" (clearSelection)="clearSelection()"
+    (bulkDelete)="bulkDeleteSelected()">
     <app-button [iconLeft]="LucideArchive" label="Archive spaces" variant="secondary" size="xs" shape="pill"
         (buttonClick)="bulkArchiveSelected()" />
 </app-bulk-action-panel>

@@ -1,5 +1,6 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Subject, finalize, takeUntil } from 'rxjs';
 import { UserPreferenceService } from './user-preference.service';
 import {
     DEFAULT_USER_PREFERENCES,
@@ -7,12 +8,15 @@ import {
 } from '../../../shared/constants/common.constants';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { USER_PREFERENCE_MESSAGES } from '../messages/user-preference.messages';
+import { extractList } from '../../../shared/functions/common.function';
 
 @Injectable({
     providedIn: 'root',
 })
 export class UserPreferenceStore {
     private readonly userPreferenceService = inject(UserPreferenceService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly sessionEnd$ = new Subject<void>();
 
     private readonly _preferences = signal<any>({
         ...DEFAULT_USER_PREFERENCES,
@@ -21,11 +25,15 @@ export class UserPreferenceStore {
     private readonly _savingKeys = signal<readonly string[]>([]);
     private readonly _loading = signal(false);
     private readonly _loaded = signal(false);
+    private readonly _ready = signal(false);
     private readonly _error = signal<string | null>(null);
 
     readonly preferences = this._preferences.asReadonly();
     readonly loading = this._loading.asReadonly();
     readonly loaded = this._loaded.asReadonly();
+    /** The initial request settled, either with saved preferences or safe defaults. */
+    readonly ready = this._ready.asReadonly();
+    readonly ready$ = toObservable(this.ready);
     readonly error = this._error.asReadonly();
     readonly saving = computed(() => this._savingKeys().length > 0);
 
@@ -130,7 +138,7 @@ export class UserPreferenceStore {
     );
 
     load(force = false): void {
-        if (this._loaded() && !force) {
+        if (this._ready() && !force) {
             return;
         }
 
@@ -143,40 +151,17 @@ export class UserPreferenceStore {
 
         this.userPreferenceService
             .getMyPreferences()
-            .pipe(finalize(() => this._loading.set(false)))
+            .pipe(
+                takeUntil(this.sessionEnd$),
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this._loading.set(false)),
+            )
             .subscribe({
                 next: (response: any) => {
-                    const records = Array.isArray(response?.data)
-                        ? response.data
-                        : [];
-
-                    const preferences = records.reduce(
-                        (result: any, preference: any) => {
-                            const key = String(preference?.key ?? '').trim();
-
-                            if (key) {
-                                result[key] = preference?.value;
-                            }
-
-                            return result;
-                        },
-                        {},
-                    );
-
-                    this._preferences.set({
-                        ...DEFAULT_USER_PREFERENCES,
-                        ...preferences,
-                    });
-
-                    const persistedKeys: string[] = records
-                        .map((preference: any) => String(preference?.key ?? '').trim())
-                        .filter((key: string) => Boolean(key));
-
-                    this._persistedKeys.set([...new Set<string>(persistedKeys)]);
-
-                    this._loaded.set(true);
+                    this.applyResponse(response);
                 },
                 error: (error: any) => {
+                    this._ready.set(true);
                     this._error.set(extractErrorMessage(error, 'Failed to load preferences'));
                 },
             });
@@ -219,7 +204,11 @@ export class UserPreferenceStore {
             : this.userPreferenceService.createPreference(preferenceKey, value);
 
         request
-            .pipe(finalize(() => this.setSaving(preferenceKey, false)))
+            .pipe(
+                takeUntil(this.sessionEnd$),
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.setSaving(preferenceKey, false)),
+            )
             .subscribe({
                 next: (response: any) => {
                     const preference = response?.data;
@@ -269,7 +258,11 @@ export class UserPreferenceStore {
 
         this.userPreferenceService
             .resetPreference(preferenceKey)
-            .pipe(finalize(() => this.setSaving(preferenceKey, false)))
+            .pipe(
+                takeUntil(this.sessionEnd$),
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.setSaving(preferenceKey, false)),
+            )
             .subscribe({
                 next: (response: any) => {
                     const preference = response?.data;
@@ -309,39 +302,10 @@ export class UserPreferenceStore {
 
         this.userPreferenceService
             .resetAllPreferences()
+            .pipe(takeUntil(this.sessionEnd$), takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (response: any) => {
-                    const records = Array.isArray(response?.data)
-                        ? response.data
-                        : [];
-
-                    const preferences = records.reduce(
-                        (result: any, preference: any) => {
-                            const key = String(preference?.key ?? '').trim();
-
-                            if (key) {
-                                result[key] = preference?.value;
-                            }
-
-                            return result;
-                        },
-                        {},
-                    );
-
-                    this._preferences.set({
-                        ...DEFAULT_USER_PREFERENCES,
-                        ...preferences,
-                    });
-
-                    this._persistedKeys.set(
-                        records
-                            .map((preference: any) =>
-                                String(preference?.key ?? '').trim()
-                            )
-                            .filter(Boolean),
-                    );
-
-                    this._loaded.set(true);
+                    this.applyResponse(response);
                 },
                 error: (error: any) => {
                     this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
@@ -368,6 +332,7 @@ export class UserPreferenceStore {
     }
 
     reset(): void {
+        this.sessionEnd$.next();
         this._preferences.set({
             ...DEFAULT_USER_PREFERENCES,
         });
@@ -375,7 +340,30 @@ export class UserPreferenceStore {
         this._savingKeys.set([]);
         this._loading.set(false);
         this._loaded.set(false);
+        this._ready.set(false);
         this._error.set(null);
+    }
+
+    private applyResponse(response: unknown): void {
+        const data = (response as { data?: unknown } | null)?.data ?? response;
+        const records = extractList<{ key?: string; value?: unknown }>(data);
+        const values: Record<string, unknown> = {};
+        for (const record of records) {
+            const key = String(record?.key ?? '').trim();
+            if (key && key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {
+                values[key] = record.value;
+            }
+        }
+        // The existing API model also permits a flat preference object.
+        if (!records.length && data && typeof data === 'object' && !Array.isArray(data)) {
+            for (const key of Object.keys(DEFAULT_USER_PREFERENCES)) {
+                if (Object.hasOwn(data, key)) values[key] = (data as Record<string, unknown>)[key];
+            }
+        }
+        this._preferences.set({ ...DEFAULT_USER_PREFERENCES, ...values });
+        this._persistedKeys.set(Object.keys(values));
+        this._loaded.set(true);
+        this._ready.set(true);
     }
 
     private setSaving(key: string, saving: boolean): void {

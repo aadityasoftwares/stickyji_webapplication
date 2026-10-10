@@ -252,15 +252,10 @@ input {
    ========================================================== */
 
 .workspace-header-actions {
-    display: grid;
-    grid-template-columns:
-        auto auto auto;
-
+    display: flex;
     align-items: center;
-    justify-content: end;
-
+    justify-content: flex-end;
     min-width: 0;
-
     gap: 0.5rem;
 }
 
@@ -345,30 +340,35 @@ input {
 }
 
 .workspace-toolbar-actions {
-    display: grid;
-    grid-template-columns:
-        minmax(13rem, 26rem) 11rem auto;
-
+    display: flex;
     align-items: center;
-    justify-content: end;
-
+    justify-content: flex-end;
     min-width: 0;
-
     gap: 0.5rem;
-}
-
-.workspace-search,
-.workspace-sort,
-.workspace-view-tabs {
-    min-width: 0;
+    flex-wrap: wrap;
 }
 
 .workspace-search {
-    width: 100%;
+    flex: 1 1 14rem;
+    max-width: 26rem;
+    min-width: 11rem;
 }
 
 .workspace-sort {
+    flex: 0 0 11rem;
     width: 11rem;
+}
+
+.workspace-view-tabs {
+    flex: 0 0 auto;
+}
+
+.workspace-toolbar-utility-divider {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 1.75rem;
+    margin-inline: 0.15rem;
+    background: rgba($border, 0.95);
 }
 
 .workspace-explorer-body {
@@ -2805,16 +2805,27 @@ $workspace-table-grid-columns: 36px minmax(200px, 2fr) minmax(95px, 0.9fr) minma
     }
 }
 
+.workspace-gt-datetime {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
 .workspace-gt-date-text {
     font-size: 0.75rem;
     white-space: nowrap;
 }
 
 .workspace-gt-time-text {
-    display: block;
     color: var(--app-text-muted, #{$text-secondary});
     font-size: 0.7rem;
     white-space: nowrap;
+}
+
+.workspace-gt-datetime-separator {
+    color: var(--app-text-muted, #{$text-secondary});
+    font-size: 0.7rem;
 }
 
 .workspace-table-muted {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Workspace } from './workspace';
@@ -9,6 +9,7 @@ import { WorkspaceStore } from './services/workspace.store';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { UserPreferenceService } from '../user-preferences/services/user-preference.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { APP_ROUTES } from '../../shared/constants/route.constants';
 
 describe('Workspace', () => {
   let component: Workspace;
@@ -224,7 +225,12 @@ describe('Workspace', () => {
     component.loadWorkspaces();
     component.loadWorkspaces();
     expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(2);
-    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({ page: 1, limit: 100 });
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      page: 1,
+      limit: 20,
+      status: 'ALL',
+      sortBy: 'RECENTLY_UPDATED',
+    });
     expect(component.loading()).toBe(true);
     response.error(new Error('Load failed'));
     expect(component.loading()).toBe(false);
@@ -248,9 +254,58 @@ describe('Workspace', () => {
     expect(component.workspaces()).toEqual([]);
   });
 
+  it('updates counts and total from backend meta.counts and meta.total', () => {
+    workspaceApi.getAllWorkspaces.mockReturnValue(
+      of({
+        data: [{ id: '1', name: 'Alpha', status: 'ACTIVE' }],
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 42,
+          totalPages: 3,
+          counts: { all: 42, active: 30, archived: 12 },
+        },
+      })
+    );
+    component.loadWorkspaces('', true);
+    expect(component.totalCount()).toBe(42);
+    expect(component.counts()).toEqual({ all: 42, active: 30, archived: 12 });
+    expect(component.workspaceTabs().map((tab) => ({ value: tab.value, count: tab.count }))).toEqual([
+      { value: 'all', count: 42 },
+      { value: 'active', count: 30 },
+      { value: 'archived', count: 12 },
+    ]);
+  });
+
+  it('calls backend with trimmed search, active status, sort preset and resets to page 1', () => {
+    vi.useFakeTimers();
+    workspaceApi.getAllWorkspaces.mockClear();
+
+    component.onSearch('  Project Notes  ');
+    vi.advanceTimersByTime(300);
+
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      page: 1,
+      limit: 20,
+      status: 'ALL',
+      sortBy: 'RECENTLY_UPDATED',
+      search: 'Project Notes',
+    });
+
+    component.onClearSearch();
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      page: 1,
+      limit: 20,
+      status: 'ALL',
+      sortBy: 'RECENTLY_UPDATED',
+    });
+    expect(component.searchTerm()).toBe('');
+  });
+
+
   it('validates inline rename and keeps a failed rename available for retry', () => {
     vi.useFakeTimers();
-    const workspace = { id: 'a', name: 'Original', status: 'ACTIVE' };
+    const workspace: any = { id: 'a', name: 'Original', status: 'ACTIVE' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     component.beginInlineRename(workspace);
@@ -281,7 +336,7 @@ describe('Workspace', () => {
   });
 
   it('preserves status request payloads, store updates and busy guards', () => {
-    const workspace = { id: 'a', name: 'Space', status: 'ACTIVE' };
+    const workspace: any = { id: 'a', name: 'Space', status: 'ACTIVE' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     const response = new Subject();
@@ -304,7 +359,7 @@ describe('Workspace', () => {
   });
 
   it('keeps a failed delete dialog open and removes the workspace after retry', () => {
-    const workspace = { id: 'a', name: 'Space' };
+    const workspace: any = { id: 'a', name: 'Space' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     const response = new Subject();
@@ -330,4 +385,18 @@ describe('Workspace', () => {
     expect(workspaceStore.selectedId()).toBeNull();
   });
 
+  it('navigates to workspace trash and sticky note trash', () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    component.openWorkspaceTrash();
+    expect(navigateSpy).toHaveBeenCalledWith([APP_ROUTES.WORKSPACE_TRASH]);
+
+    workspaceStore.setWorkspaces([{ id: 'ws-123', name: 'Test' } as any]);
+    workspaceStore.select('ws-123');
+    component.openStickyNoteTrash();
+    expect(navigateSpy).toHaveBeenLastCalledWith([APP_ROUTES.TRASH], {
+      queryParams: { workspaceId: 'ws-123' },
+    });
+  });
 });

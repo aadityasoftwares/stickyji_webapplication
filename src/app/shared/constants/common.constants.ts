@@ -84,6 +84,15 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     stickyNoteLayout: 'DETAIL',
 };
 
+export const WORKSPACE_SORT_PREFERENCES = {
+    recent: 'RECENTLY_UPDATED',
+    created: 'RECENTLY_CREATED',
+    'name-asc': 'NAME_ASC',
+    'name-desc': 'NAME_DESC',
+    oldest: 'OLDEST_FIRST',
+} as const;
+
+
 export const STICKY_NOTE_VIEW_OPTIONS: any[] = [
     {
         label: 'Kanban',

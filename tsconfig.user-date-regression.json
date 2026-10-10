@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/guards/auth.guard.spec.ts",
+    "src/app/private/user-preferences/services/user-preference.store.spec.ts",
+    "src/app/private/user-preferences/user-preferences/user-preferences.spec.ts",
+    "src/app/shared/services/user-date-time-formatter.service.spec.ts",
+    "src/app/shared/pipes/user-date.pipe.spec.ts",
+    "src/app/private/workspace/workspace.spec.ts",
+    "src/app/private/workspace/workspace-trash/workspace-trash.spec.ts"
+  ]
+}

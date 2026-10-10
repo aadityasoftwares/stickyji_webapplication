@@ -1,4 +1,6 @@
 import { inject } from '@angular/core';
+import { filter, map, take } from 'rxjs';
+import { UserPreferenceStore } from '../private/user-preferences/services/user-preference.store';
 import {
     CanActivateFn,
     Router,
@@ -15,7 +17,14 @@ export const authGuard: CanActivateFn = (
     const router = inject(Router);
 
     if (authStore.isAuthenticated()) {
-        return true;
+        const preferences = inject(UserPreferenceStore);
+        if (preferences.ready()) return true;
+        preferences.load();
+        return preferences.ready$.pipe(
+            filter(ready => ready && preferences.ready()),
+            take(1),
+            map(() => true),
+        );
     }
 
     return router.createUrlTree(

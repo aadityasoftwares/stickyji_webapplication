@@ -33,7 +33,7 @@ export function getWorkspaceMemberId(member: any): string {
 export function getWorkspaceMemberName(member: any, fallback: any = 'Workspace member'): string {
   try {
     const defaultFallback = String(fallback ?? 'Workspace member');
-    const displayName = String(member?.user?.displayName ?? '').trim();
+    const displayName = String(member?.displayName ?? member?.user?.displayName ?? '').trim();
     if (displayName) {
       return displayName;
     }

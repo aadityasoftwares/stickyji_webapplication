@@ -1,4 +1,5 @@
-import { Injectable, computed, signal, } from '@angular/core';
+import { Injectable, computed, inject, signal, } from '@angular/core';
+import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
 import { AuthSession, AuthenticatedUser, } from '../models/auth.models';
 
 @Injectable({
@@ -6,6 +7,7 @@ import { AuthSession, AuthenticatedUser, } from '../models/auth.models';
 })
 
 export class AuthStore {
+    private readonly preferences = inject(UserPreferenceStore);
     private readonly userState = signal<AuthenticatedUser | null>(null);
     private readonly accessTokenState = signal<string | null>(null);
     private readonly sessionIdState = signal<string | null>(null);
@@ -84,6 +86,7 @@ export class AuthStore {
         );
 
     setSession(session: AuthSession,): void {
+        if (this.userId() !== session?.user?.id) this.preferences.reset();
         this.userState.set(session?.user);
         this.sessionIdState.set(session?.sessionId);
         this.accessTokenState.set(session?.tokens?.accessToken);
@@ -91,6 +94,7 @@ export class AuthStore {
     }
 
     setUser(user: AuthenticatedUser,): void {
+        if (this.userId() !== user?.id) this.preferences.reset();
         this.userState.set(user);
     }
 
@@ -116,6 +120,7 @@ export class AuthStore {
     }
 
     clearSession(): void {
+        this.preferences.reset();
         this.userState.set(null);
         this.accessTokenState.set(null);
         this.sessionIdState.set(null);

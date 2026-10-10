@@ -1,0 +1,159 @@
+<section class="workspace-trash-page" aria-labelledby="workspace-trash-page-title">
+    <main class="workspace-trash-main">
+        <header class="workspace-trash-header">
+            <div class="workspace-trash-intro">
+                <span class="workspace-trash-intro-mark" aria-hidden="true">
+                    <app-icon [icon]="LucideTrash2" size="md" />
+                </span>
+                <div>
+                    <span class="workspace-trash-kicker">Recovery space</span>
+                    <h1 id="workspace-trash-page-title">Workspace trash</h1>
+                    <p>Deleted workspaces can be restored back to your active workspace list.</p>
+                </div>
+            </div>
+
+            <div class="workspace-trash-header-actions">
+                <div class="workspace-trash-count-slot" aria-live="polite">
+                    @if (!loading() && !error()) {
+                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')" variant="noteYellow"
+                        size="sm" shape="pill" />
+                    } @else {
+                    <span class="workspace-trash-count-placeholder" aria-hidden="true"></span>
+                    }
+                </div>
+
+                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
+                    size="md" ariaLabel="Refresh workspace trash" title="Refresh trash" [loading]="loading()"
+                    (buttonClick)="loadTrash()" />
+
+                <app-button label="Back to Workspaces" [iconLeft]="LucideArrowLeft" appearance="standard"
+                    variant="noteYellow" size="md" (buttonClick)="goBackToWorkspaces()" />
+            </div>
+        </header>
+
+        <section class="workspace-trash-explorer" [attr.aria-busy]="loading()">
+            <div class="workspace-trash-toolbar">
+                <div class="workspace-trash-retention">
+                    <span class="workspace-trash-retention-icon" aria-hidden="true">
+                        <app-icon [icon]="LucideClock3" size="xs" />
+                    </span>
+                    <span>Trash recovery</span>
+                </div>
+
+                <div class="workspace-trash-toolbar-actions">
+                    <div class="workspace-trash-search">
+                        <app-input type="search" label="Search deleted workspaces" labelMode="hidden"
+                            placeholder="Search deleted workspaces" variant="paper" appearance="outlined" shape="rounded"
+                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
+                            [fullWidth]="true" ariaLabel="Search deleted workspaces"
+                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                    </div>
+
+                    <app-select class="workspace-trash-sort" [options]="sortOptions" [ngModel]="sortBy()"
+                        (ngModelChange)="setSort($event)" name="workspace-trash-sort" placeholder="Sort"
+                        ariaLabel="Sort deleted workspaces" variant="paper" shape="rounded" size="sm"
+                        [clearable]="false" [searchable]="false" [fullWidth]="true" />
+
+                    <app-tabs class="workspace-trash-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
+                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
+                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setView($event)" />
+                </div>
+            </div>
+
+            <div class="workspace-trash-explorer-body" [class.is-list]="view() === 'list'">
+                @if (loading()) {
+                <div class="workspace-trash-loader-state">
+                    <app-loader mode="section" size="md" tone="colorful" label="Opening workspace trash..."
+                        description="Finding workspaces that can still be restored." [minHeight]="360" />
+                </div>
+                } @else if (error()) {
+                <div class="workspace-trash-empty-state">
+                    <span class="workspace-trash-empty-icon is-error">
+                        <app-icon [icon]="LucideX" size="lg" />
+                    </span>
+                    <span class="workspace-trash-empty-note">Something slipped away</span>
+                    <h2>Couldn’t load Trash</h2>
+                    <p>{{ error() }}</p>
+                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
+                        (buttonClick)="loadTrash()" />
+                </div>
+                } @else if (searchTerm() && visibleWorkspaces().length === 0) {
+                <div class="workspace-trash-empty-state is-compact">
+                    <span class="workspace-trash-empty-icon">
+                        <app-icon [icon]="LucideSearch" size="lg" />
+                    </span>
+                    <span class="workspace-trash-empty-note">No deleted workspace matches</span>
+                    <h2>No workspace found</h2>
+                    <p>Try another name or clear your search.</p>
+                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
+                </div>
+                } @else if (visibleWorkspaces().length === 0) {
+                <div class="workspace-trash-empty-state">
+                    <span class="workspace-trash-empty-icon">
+                        <app-icon [icon]="LucideArchiveRestore" size="lg" />
+                    </span>
+                    <span class="workspace-trash-empty-note">Nothing waiting for recovery</span>
+                    <h2>Trash is clear</h2>
+                    <p>Workspaces moved to Trash will appear here and can be restored back at any time.</p>
+                    <app-button label="Back to Workspaces" [iconLeft]="LucideArrowLeft" variant="noteYellow" size="sm"
+                        (buttonClick)="goBackToWorkspaces()" />
+                </div>
+                } @else if (view() === 'grid') {
+                <div class="workspace-trash-grid" role="list">
+                    @for (space of visibleWorkspaces(); track workspaceId(space)) {
+                    <article class="workspace-trash-tile" role="listitem" [class.is-busy]="isBusy(space)">
+                        <div class="workspace-trash-card-header">
+                            <span class="workspace-trash-card-icon" aria-hidden="true">
+                                <app-icon [icon]="LucideFolder" size="md" />
+                            </span>
+                            <div class="workspace-trash-card-info">
+                                <h3 class="workspace-trash-card-title">{{ workspaceName(space) }}</h3>
+                                @if (workspaceDescription(space)) {
+                                <p class="workspace-trash-card-desc">{{ workspaceDescription(space) }}</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="workspace-trash-card-meta">
+                            <div class="workspace-trash-card-meta-copy">
+                                <span>Deleted {{ (space?.deletedAt || space?.updatedAt || space?.createdAt) | userDate }}</span>
+                            </div>
+
+                            <div class="workspace-trash-card-actions">
+                                <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                                    appearance="standard" size="xs" [loading]="isBusy(space)"
+                                    [disabled]="!!actionId() && !isBusy(space)" (buttonClick)="restore(space)" />
+                            </div>
+                        </div>
+                    </article>
+                    }
+                </div>
+                } @else {
+                <div class="workspace-trash-list" role="list">
+                    @for (space of visibleWorkspaces(); track workspaceId(space)) {
+                    <article class="workspace-trash-list-row" role="listitem" [class.is-busy]="isBusy(space)">
+                        <div class="workspace-trash-list-icon" aria-hidden="true">
+                            <app-icon [icon]="LucideFolder" size="sm" />
+                        </div>
+
+                        <div class="workspace-trash-list-info">
+                            <strong>{{ workspaceName(space) }}</strong>
+                            @if (workspaceDescription(space)) {
+                            <span>{{ workspaceDescription(space) }}</span>
+                            }
+                            <small>Deleted {{ (space?.deletedAt || space?.updatedAt || space?.createdAt) | userDate }}</small>
+                        </div>
+
+                        <div class="workspace-trash-list-actions">
+                            <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                                appearance="standard" size="sm" [loading]="isBusy(space)"
+                                [disabled]="!!actionId() && !isBusy(space)" (buttonClick)="restore(space)" />
+                        </div>
+                    </article>
+                    }
+                </div>
+                }
+            </div>
+        </section>
+    </main>
+</section>

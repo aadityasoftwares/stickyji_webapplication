@@ -1,3 +1,5 @@
+import { DEFAULT_USER_PREFERENCES as SHARED_DEFAULT_USER_PREFERENCES } from '../../../shared/constants/common.constants';
+
 export const USER_PREFERENCE_KEYS = {
     THEME: 'theme',
     SELECTED_WORKSPACE_ID: 'selectedWorkspaceId',
@@ -183,7 +185,7 @@ export const DEFAULT_USER_PREFERENCES:
     language: 'en',
     locale: 'en-US',
     timeFormat: '12h',
-    timezone: 'UTC',
+    timezone: SHARED_DEFAULT_USER_PREFERENCES['timezone'],
     weekStartsOn: 'monday',
 };
 
