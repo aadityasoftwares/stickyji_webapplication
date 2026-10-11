@@ -8,6 +8,7 @@ export const USER_PREFERENCE_KEYS = {
     NOTE_VIEW: 'noteView',
     WORKSPACE_VIEW: 'workspaceView',
     WORKSPACE_STATUS_FILTER: 'workspaceStatusFilter',
+    WORKSPACE_ACCESS_FILTER: 'workspaceAccessFilter',
     WORKSPACE_SORT_ORDER: 'workspaceSortOrder',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
@@ -60,10 +61,14 @@ export type WorkspacePreferenceView =
 
 export type WorkspacePreferenceStatusFilter =
     | 'ALL'
-    | 'OWNED'
-    | 'SHARED'
     | 'ACTIVE'
-    | 'ARCHIVED';
+    | 'ARCHIVED'
+    | 'TRASHED';
+
+export type WorkspacePreferenceAccessFilter =
+    | 'ALL'
+    | 'OWNED'
+    | 'SHARED';
 
 export type WorkspacePreferenceSortOrder =
     | 'RECENTLY_UPDATED'
@@ -115,6 +120,7 @@ export interface UserPreferencesM {
     selectedFolderId?: string;
     workspaceView: WorkspacePreferenceView;
     workspaceStatusFilter: WorkspacePreferenceStatusFilter;
+    workspaceAccessFilter: WorkspacePreferenceAccessFilter;
     workspaceSortOrder: WorkspacePreferenceSortOrder;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
@@ -170,6 +176,7 @@ export const DEFAULT_USER_PREFERENCES:
     selectedFolderId: '',
     workspaceView: 'GRID',
     workspaceStatusFilter: 'ALL',
+    workspaceAccessFilter: 'ALL',
     workspaceSortOrder: 'RECENTLY_UPDATED',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',

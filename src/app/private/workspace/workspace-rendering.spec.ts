@@ -48,17 +48,17 @@ describe('Workspace grid and list rendering', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const menu = document.querySelector('.mat-mdc-menu-panel');
-    expect(menu?.textContent).toContain('Open');
+    expect(menu?.textContent).toContain('Manage folders');
     expect(menu?.textContent).not.toContain('Edit workspace');
     expect(menu?.textContent).not.toContain('Move to trash');
     expect(menu?.textContent).not.toContain('Archive');
   });
 
-  it('keeps global creation in the header but hides the creation card in shared spaces', () => {
+  it('hides every workspace creation entry point in shared spaces', () => {
     fixture.componentInstance.onAccessChange('SHARED');
     fixture.detectChanges();
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('.workspace-new-button')).toBeTruthy();
+    expect(root.querySelector('.workspace-new-button')).toBeNull();
     expect(root.querySelector('.workspace-create-folder')).toBeNull();
   });
 });

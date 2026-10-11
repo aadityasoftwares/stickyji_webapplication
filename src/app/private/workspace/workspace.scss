@@ -340,6 +340,14 @@ input {
     max-width: 100%;
 }
 
+.workspace-toolbar-filters {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
 .workspace-toolbar-actions {
     display: flex;
     align-items: center;
@@ -569,6 +577,14 @@ input {
         background-color 160ms ease,
         border-color 160ms ease,
         box-shadow 160ms ease;
+}
+
+.workspace-context-menu-origin {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    opacity: 0;
 }
 
 .workspace-folder-tile:hover,
@@ -2664,10 +2680,6 @@ $workspace-table-grid-columns: 36px minmax(200px, 2fr) minmax(95px, 0.9fr) minma
         &:hover,
         &:focus-within {
             background: color-mix(in srgb, var(--app-paper-muted, #f8fafc) 55%, var(--app-paper, #ffffff));
-        }
-
-        &.is-selected {
-            background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 8%, var(--app-paper, #ffffff));
         }
 
         &.is-archived {

@@ -76,35 +76,40 @@ describe('Workspace', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(preferenceApi.getMyPreferences).toHaveBeenCalledOnce();
-    expect([component.activeTab(), component.sortBy(), component.view()]).toEqual(['all', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
+    expect(workspaceApi.getAllWorkspaces).not.toHaveBeenCalled();
   });
 
   it('restores preferences that arrive after initialization', () => {
     loadedPreferences.next({ data: [
-      { key: 'workspaceStatusFilter', value: 'ARCHIVED' },
+      { key: 'workspaceAccessFilter', value: 'SHARED' },
       { key: 'workspaceSortOrder', value: 'NAME_DESC' },
       { key: 'workspaceView', value: 'LIST' },
     ] });
-    expect([component.activeTab(), component.sortBy(), component.view()]).toEqual(['archived', 'name-desc', 'list']);
+    fixture.detectChanges();
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['SHARED', 'name-desc', 'list']);
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      access: 'SHARED', status: 'ALL', sortBy: 'NAME_DESC',
+    }));
     expect(preferenceApi.createPreference).not.toHaveBeenCalled();
     expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
   });
 
   it('creates new preferences and updates existing ones with the API values', () => {
     loadedPreferences.next({ data: [] });
-    component.onStatusChange('archived');
+    component.onAccessChange('OWNED');
     component.onSortChange('created');
     component.onViewChange('list');
     expect(preferenceApi.createPreference.mock.calls).toEqual([
-      ['workspaceStatusFilter', 'ARCHIVED'],
+      ['workspaceAccessFilter', 'OWNED'],
       ['workspaceSortOrder', 'RECENTLY_CREATED'],
       ['workspaceView', 'LIST'],
     ]);
-    component.onStatusChange('all');
+    component.onAccessChange('ALL');
     component.onSortChange('recent');
     component.onViewChange('grid');
     expect(preferenceApi.updatePreference.mock.calls).toEqual([
-      ['workspaceStatusFilter', 'ALL'],
+      ['workspaceAccessFilter', 'ALL'],
       ['workspaceSortOrder', 'RECENTLY_UPDATED'],
       ['workspaceView', 'GRID'],
     ]);
@@ -113,36 +118,61 @@ describe('Workspace', () => {
   it('saves and restores tab preferences for all space statuses including owned and shared', () => {
     loadedPreferences.next({ data: [] });
     component.setWorkspaceFilter('owned');
-    expect(preferenceApi.createPreference).toHaveBeenCalledWith('workspaceStatusFilter', 'OWNED');
-    expect(component.activeFilter()).toBe('owned');
+    expect(preferenceApi.createPreference).toHaveBeenCalledWith('workspaceAccessFilter', 'OWNED');
     expect(component.accessFilter()).toBe('OWNED');
+    expect(component.canCreateWorkspaceInCurrentView()).toBe(true);
 
     component.setWorkspaceFilter('shared');
-    expect(preferenceApi.updatePreference).toHaveBeenCalledWith('workspaceStatusFilter', 'SHARED');
-    expect(component.activeFilter()).toBe('shared');
+    expect(preferenceApi.updatePreference).toHaveBeenCalledWith('workspaceAccessFilter', 'SHARED');
     expect(component.accessFilter()).toBe('SHARED');
+    expect(component.canCreateWorkspaceInCurrentView()).toBe(false);
+  });
+
+  it('provides icons for workspace filter tabs and sort options', () => {
+    expect(component.filterTabs().map(tab => tab.value)).toEqual(['ALL', 'OWNED', 'SHARED']);
+    expect(component.statusTabs().map(tab => tab.value)).toEqual(['ALL', 'ACTIVE', 'ARCHIVED']);
+    expect(component.filterTabs().every(tab => !!tab.icon)).toBe(true);
+    expect(component.statusTabs().every(tab => !!tab.icon)).toBe(true);
+    expect(component.sortOptions.every(option => !!option.icon)).toBe(true);
+    expect(component.isGroupCollapsed('active')).toBe(false);
+    expect(component.isGroupCollapsed('archived')).toBe(true);
+  });
+
+  it('restores the saved status filter independently from workspace access', () => {
+    loadedPreferences.next({ data: [
+      { key: 'workspaceStatusFilter', value: 'ARCHIVED' },
+      { key: 'workspaceAccessFilter', value: 'OWNED' },
+    ] });
+    fixture.detectChanges();
+
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      access: 'OWNED', status: 'ARCHIVED',
+    }));
+    expect(preferences.workspaceStatusFilter()).toBe('ARCHIVED');
+    expect(preferenceApi.createPreference).not.toHaveBeenCalled();
+    expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
   });
 
   it('rolls back the displayed settings when saves fail', () => {
     loadedPreferences.next({ data: [] });
     preferenceApi.createPreference.mockImplementation(() => throwError(() => new Error('Save failed')));
-    component.onStatusChange('archived');
+    component.onAccessChange('OWNED');
     component.onSortChange('oldest');
     component.onViewChange('list');
-    expect([component.activeTab(), component.sortBy(), component.view()]).toEqual(['all', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
     expect(preferences.error()).toBeTruthy();
   });
 
   it('ignores invalid control values and falls back for invalid saved preferences', () => {
     loadedPreferences.next({ data: [
-      { key: 'workspaceStatusFilter', value: 'INVALID' },
+      { key: 'workspaceAccessFilter', value: 'INVALID' },
       { key: 'workspaceSortOrder', value: 'INVALID' },
       { key: 'workspaceView', value: 'INVALID' },
     ] });
-    component.onStatusChange('invalid');
+    component.onAccessChange('invalid');
     component.onSortChange('invalid');
     component.onViewChange('invalid');
-    expect([component.activeTab(), component.sortBy(), component.view()]).toEqual(['all', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
     expect(preferenceApi.createPreference).not.toHaveBeenCalled();
     expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
   });
@@ -162,7 +192,8 @@ describe('Workspace', () => {
     preferences.updatePreference('workspaceSortOrder', value);
     expect(component.visibleWorkspaces().map(item => item.id)).toEqual(expected);
     expect(component.workspaces().map(item => item.id)).toEqual(['a', 'b', 'c']);
-    preferences.updatePreference('workspaceStatusFilter', 'ARCHIVED');
+    preferences.updatePreference('workspaceAccessFilter', 'SHARED');
+    component.workspaces.update(items => items.map(item => ({ ...item, isOwner: item.id !== 'b' })));
     expect(component.visibleWorkspaces().map(item => item.id)).toEqual(['b']);
   });
 
@@ -242,7 +273,7 @@ describe('Workspace', () => {
     workspaceApi.getAllWorkspaces.mockReturnValue(response);
     component.loadWorkspaces();
     component.loadWorkspaces();
-    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(2);
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(1);
     expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
       access: 'ALL',
       page: 1,
@@ -289,14 +320,13 @@ describe('Workspace', () => {
     component.loadWorkspaces('', true);
     expect(component.totalCount()).toBe(42);
     expect(component.counts()).toEqual({ all: 42, active: 30, archived: 12 });
-    expect(component.workspaceTabs().map((tab) => ({ value: tab.value, count: tab.count }))).toEqual([
-      { value: 'all', count: 42 },
-      { value: 'active', count: 30 },
-      { value: 'archived', count: 12 },
+    expect(component.workspaceGroups().map((group) => ({ id: group.id, count: group.count }))).toEqual([
+      { id: 'active', count: 30 },
+      { id: 'archived', count: 12 },
     ]);
   });
 
-  it('calls backend with trimmed search, active status, sort preset and resets to page 1', () => {
+  it('calls backend with trimmed search, both statuses, sort preset and resets to page 1', () => {
     vi.useFakeTimers();
     workspaceApi.getAllWorkspaces.mockClear();
 
@@ -408,24 +438,80 @@ describe('Workspace', () => {
     expect(workspaceStore.selectedId()).toBeNull();
   });
 
-  it('navigates to workspace trash and sticky note trash', () => {
+  it('navigates to workspace members and trash destinations', () => {
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    component.openWorkspaceTrash();
-    expect(navigateSpy).toHaveBeenCalledWith([APP_ROUTES.WORKSPACE_TRASH]);
+    const workspace = { id: 'ws-123', name: 'Test', allowedActions: ownerActions };
+    component.workspaces.set([workspace]);
+    workspaceStore.setWorkspaces([workspace as any]);
+    component.openWorkspaceMembers(workspace);
+    expect(workspaceStore.selectedId()).toBe('ws-123');
+    expect(navigateSpy).toHaveBeenCalledWith([APP_ROUTES.WORKSPACE_MEMBERS]);
 
-    workspaceStore.setWorkspaces([{ id: 'ws-123', name: 'Test' } as any]);
+    component.openWorkspaceFolders(workspace);
+    expect(navigateSpy).toHaveBeenLastCalledWith([APP_ROUTES.WORKSPACE_FOLDERS]);
+
+    component.openWorkspaceTrash();
+    expect(navigateSpy).toHaveBeenLastCalledWith([APP_ROUTES.WORKSPACE_TRASH]);
+
     workspaceStore.select('ws-123');
     component.openStickyNoteTrash();
     expect(navigateSpy).toHaveBeenLastCalledWith([APP_ROUTES.TRASH], {
       queryParams: { workspaceId: 'ws-123' },
     });
   });
-  it('requests ownership on the server and preserves search, status, sort and view', () => {
+
+  it('opens the workspace action menu at the right-click position', () => {
+    vi.useFakeTimers();
+    const trigger = { closeMenu: vi.fn(), openMenu: vi.fn() };
+    (component as any).workspaceContextMenuTrigger = () => trigger;
+    const workspace = { id: 'ws-123', name: 'Test', allowedActions: ownerActions };
+    component.workspaces.set([workspace]);
+    workspaceStore.setWorkspaces([workspace] as any[]);
+    const event = {
+      clientX: 240,
+      clientY: 180,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as MouseEvent;
+
+    component.openWorkspaceContextMenu(workspace, event);
+
+    expect(event.preventDefault).toHaveBeenCalledOnce();
+    expect(event.stopPropagation).toHaveBeenCalledOnce();
+    expect(component.contextMenuWorkspace()).toBe(workspace);
+    expect(component.contextMenuWorkspaceId()).toBe('ws-123');
+    expect(component.selectedWorkspaceId()).toBe('ws-123');
+    expect(component.contextMenuPosition()).toEqual({ x: 240, y: 180 });
+    expect(trigger.closeMenu).toHaveBeenCalledOnce();
+    vi.runAllTimers();
+    expect(trigger.openMenu).toHaveBeenCalledOnce();
+    component.closeWorkspaceContextMenu();
+    expect(component.contextMenuWorkspaceId()).toBeNull();
+    expect(component.selectedWorkspaceId()).toBe('ws-123');
+  });
+
+  it('keeps the clicked workspace selected for the persistent row and card highlight', () => {
+    const first = { id: 'first', name: 'First', allowedActions: ownerActions };
+    const second = { id: 'second', name: 'Second', allowedActions: ownerActions };
+    component.workspaces.set([first, second]);
+    workspaceStore.setWorkspaces([first, second] as any[]);
+
+    component.handleWorkspaceClick(second);
+
+    expect(component.selectedWorkspaceId()).toBe('second');
+
+    const menuEvent = { stopPropagation: vi.fn() } as unknown as Event;
+    component.handleWorkspaceMenuClick(first, menuEvent);
+    expect(menuEvent.stopPropagation).toHaveBeenCalledOnce();
+    expect(component.selectedWorkspaceId()).toBe('first');
+  });
+
+  it('requests ownership and status on the server and preserves search, sorting and view', () => {
     loadedPreferences.next({ data: [] });
     component.searchTerm.set('Roadmap');
-    component.onStatusChange('archived');
+    component.onStatusChange('ARCHIVED');
     component.onSortChange('name-desc');
     component.page.set(3);
     component.onAccessChange('SHARED');
@@ -475,6 +561,32 @@ describe('Workspace', () => {
     expect(component.isPersonalWorkspace(shared)).toBe(true);
     expect(component.workspaceTypeLabel(shared)).toBe('Personal space');
     expect(component.workspaceRoleLabel(shared)).toBe('Editor');
+  });
+
+  it('exposes folder names from the workspace summary without overcrowding the list', () => {
+    const workspace = {
+      id: 'folder-summary',
+      summary: {
+        folderCount: 6,
+        folders: [
+          { id: '1', name: 'My Notes' },
+          { id: '2', name: 'Testing' },
+          { id: '3', name: 'Product additions' },
+          { id: '4', name: 'Research' },
+        ],
+      },
+    };
+
+    expect(component.workspaceFolders(workspace).map(folder => folder.name)).toEqual([
+      'My Notes', 'Testing', 'Product additions', 'Research',
+    ]);
+    expect(component.workspaceFolderTooltip(workspace)).toBe(
+      '6 folders: My Notes, Testing, Product additions, Research, and 2 more',
+    );
+
+    const prepared = component.prepareWorkspace(workspace);
+    expect(prepared._folders).toHaveLength(4);
+    expect(prepared._folderTooltip).toContain('and 2 more');
   });
 
   it('does not inherit owner privileges across workspaces or bulk selections', () => {

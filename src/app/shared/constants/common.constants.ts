@@ -31,6 +31,7 @@ export const USER_PREFERENCE_KEYS = {
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     WORKSPACE_VIEW: 'workspaceView',
     WORKSPACE_STATUS_FILTER: 'workspaceStatusFilter',
+    WORKSPACE_ACCESS_FILTER: 'workspaceAccessFilter',
     WORKSPACE_SORT_ORDER: 'workspaceSortOrder',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
@@ -60,6 +61,7 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     selectedFolderId: '',
     workspaceView: 'GRID',
     workspaceStatusFilter: 'ALL',
+    workspaceAccessFilter: 'ALL',
     workspaceSortOrder: 'RECENTLY_UPDATED',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
@@ -92,10 +94,16 @@ export const WORKSPACE_SORT_PREFERENCES = {
     oldest: 'OLDEST_FIRST',
 } as const;
 
+export enum WorkspaceAccessFilter {
+    ALL = 'ALL',
+    OWNED = 'OWNED',
+    SHARED = 'SHARED',
+}
+
 export const WORKSPACE_ACCESS_FILTERS = [
-    { value: 'ALL', label: 'All spaces' },
-    { value: 'OWNED', label: 'My spaces' },
-    { value: 'SHARED', label: 'Shared with me' },
+    { value: WorkspaceAccessFilter.ALL, label: 'All spaces' },
+    { value: WorkspaceAccessFilter.OWNED, label: 'My spaces' },
+    { value: WorkspaceAccessFilter.SHARED, label: 'Shared with me' },
 ] as const;
 
 

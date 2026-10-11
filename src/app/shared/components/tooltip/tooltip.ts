@@ -74,7 +74,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
   @Input() tooltipPosition: TooltipPosition = 'top';
   @Input() tooltipTone: TooltipTone = 'dark';
   @Input() tooltipSize: TooltipSize = 'md';
-  @Input() tooltipTrigger: TooltipTrigger = 'hover-focus';
+  @Input() tooltipTrigger: TooltipTrigger = 'hover';
 
   @Input() tooltipDelay = 180;
   @Input() tooltipHideDelay = 80;
@@ -90,6 +90,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
   private readonly isBrowser: boolean;
 
   private anchorElement?: HTMLElement;
+  private nativeTitle?: string;
   private tooltipElement?: HTMLDivElement;
   private arrowElement?: HTMLSpanElement;
 
@@ -138,6 +139,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     this.anchorElement = this.resolveAnchorElement();
+    this.suppressNativeTooltip();
     this.bindAnchorEvents();
     this.bindViewportEvents();
     this.initialized = true;
@@ -188,6 +190,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     this.removeAnchorListeners.length = 0;
     this.unbindViewportEvents();
     this.removeAriaDescription();
+    this.restoreNativeTooltip();
     this.destroyTooltip();
   }
 
@@ -331,14 +334,11 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
     this.removeAnchorListeners.push(
       this.renderer.listen(anchor, 'focusin', () => {
-        this.focused = true;
-
-        if (
+        const usesFocus =
           this.tooltipTrigger === 'focus' ||
-          this.tooltipTrigger === 'hover-focus'
-        ) {
-          this.show();
-        }
+          this.tooltipTrigger === 'hover-focus';
+        this.focused = usesFocus;
+        if (usesFocus) this.show();
       }),
     );
 
@@ -365,6 +365,8 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
       this.renderer.listen(anchor, 'click', () => {
         if (this.tooltipTrigger === 'click') {
           this.toggle();
+        } else if (this.tooltipTrigger !== 'manual') {
+          this.hide(true);
         }
       }),
     );
@@ -755,6 +757,26 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     return (
       host.querySelector<HTMLElement>(this.interactiveSelector) ?? host
     );
+  }
+
+  private suppressNativeTooltip(): void {
+    const anchor = this.anchorElement;
+
+    if (!anchor?.hasAttribute('title')) {
+      return;
+    }
+
+    this.nativeTitle = anchor.getAttribute('title') ?? '';
+    this.renderer.removeAttribute(anchor, 'title');
+  }
+
+  private restoreNativeTooltip(): void {
+    if (!this.anchorElement || this.nativeTitle === undefined) {
+      return;
+    }
+
+    this.renderer.setAttribute(this.anchorElement, 'title', this.nativeTitle);
+    this.nativeTitle = undefined;
   }
 
   private canShow(): boolean {

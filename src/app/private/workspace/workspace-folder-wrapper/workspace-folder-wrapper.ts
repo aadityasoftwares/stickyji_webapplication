@@ -41,6 +41,7 @@ export class WorkspaceFolderWrapper {
   @Input() folderCount: number | null = null;
   @Input() countLabel?: string;
   @Input() countIconOverride?: any;
+  @Input() folders: readonly any[] = [];
   @Input() members: any[] = [];
   @Input() memberCount: number | null = null;
   @Input() interactive = false;
@@ -107,6 +108,38 @@ export class WorkspaceFolderWrapper {
       return `${count} ${count === 1 ? 'folder' : 'folders'}`;
     }
     return null;
+  }
+
+  get folderPreviews(): Array<{ id: string; name: string }> {
+    return (Array.isArray(this.folders) ? this.folders : [])
+      .map((folder, index) => {
+        const name = String(typeof folder === 'string' ? folder : folder?.name ?? '').trim();
+        const id = String(typeof folder === 'object' ? folder?.id ?? '' : '').trim();
+        return { id: id || `folder-${index}`, name };
+      })
+      .filter(folder => !!folder.name);
+  }
+
+  get visibleFolderPreviews(): Array<{ id: string; name: string }> {
+    return this.folderPreviews.slice(0, 2);
+  }
+
+  get remainingFolderCount(): number {
+    const total = Math.max(this.folderCount ?? 0, this.folderPreviews.length);
+    return Math.max(0, total - this.visibleFolderPreviews.length);
+  }
+
+  get resolvedCountTooltip(): string {
+    const count = Math.max(this.folderCount ?? 0, this.folderPreviews.length);
+    const label = this.resolvedCountLabel ?? `${count} ${count === 1 ? 'folder' : 'folders'}`;
+    const names = this.folderPreviews.map(folder => folder.name);
+
+    if (count === 0) return 'No folders in this workspace';
+    if (names.length === 0) return label;
+
+    const visibleNames = names.slice(0, 4);
+    const remaining = Math.max(0, count - visibleNames.length);
+    return `${label}: ${visibleNames.join(', ')}${remaining > 0 ? `, and ${remaining} more` : ''}`;
   }
 
   get memberCountLabel(): string {

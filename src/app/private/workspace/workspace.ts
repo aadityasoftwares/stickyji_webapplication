@@ -5,26 +5,25 @@ import {
   ElementRef,
   OnInit,
   computed,
-  effect,
   inject,
   signal,
-  untracked,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
-export type WorkspaceCombinedFilter = 'all' | 'owned' | 'shared' | 'active' | 'archived';
-export type WorkspaceAccessFilter = 'ALL' | 'OWNED' | 'SHARED';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, finalize, timer } from 'rxjs';
-import { MatMenuModule } from '@angular/material/menu';
+import { Subject, Subscription, debounceTime, distinctUntilChanged, filter, finalize, take, timer } from 'rxjs';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import {
   LucideArchive,
   LucideArrowRight,
+  LucideArrowDownAZ,
+  LucideArrowDownZA,
+  LucideCalendarPlus,
   LucideCheck,
   LucideChevronDown,
   LucideChevronRight,
@@ -32,6 +31,7 @@ import {
   LucideFolder,
   LucideFolderOpen,
   LucideGlobe,
+  LucideHistory,
   LucideLightbulb,
   LucideLock,
   LucideMegaphone,
@@ -59,6 +59,7 @@ import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
+import { Highlight } from '../../shared/directives/highlight.directive';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { WORKSPACE_MESSAGES } from './messages/workspace.messages';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
@@ -75,7 +76,7 @@ import {
   USER_PREFERENCE_KEYS,
   VIEW_TABS,
   WORKSPACE_SORT_PREFERENCES,
-  buildStatusTabs,
+  WorkspaceAccessFilter,
 } from '../../shared/constants/common.constants';
 import {
   entityNameOf,
@@ -89,6 +90,8 @@ import {
   getWorkspaceMemberName,
   getWorkspaceMemberRole,
 } from '../../shared/functions/workspace-member.function';
+
+type WorkspaceStatusFilter = 'ALL' | 'ACTIVE' | 'ARCHIVED';
 
 @Component({
   selector: 'app-workspace',
@@ -111,6 +114,7 @@ import {
     StickyCard,
     Tabs,
     Tooltip,
+    Highlight,
     UserDatePipe,
     WorkspaceFolderWrapper,
   ],
@@ -149,47 +153,24 @@ export class Workspace implements OnInit {
   private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
   private readonly authStore = inject(AuthStore);
-  readonly activeFilter = signal<WorkspaceCombinedFilter>(
-    (() => {
-      const pref = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
-      return ['owned', 'shared', 'active', 'archived'].includes(pref) ? (pref as WorkspaceCombinedFilter) : 'all';
-    })()
-  );
-  readonly accessFilter = signal<WorkspaceAccessFilter>(
-    (() => {
-      const pref = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toUpperCase();
-      return pref === 'OWNED' ? 'OWNED' : pref === 'SHARED' ? 'SHARED' : 'ALL';
-    })()
+  readonly accessFilter = computed<WorkspaceAccessFilter>(
+    () => this.resolveAccessFilter(this.userPreferenceStore.workspaceAccessFilter())
   );
   readonly accessFilters = signal<any[]>([...WORKSPACE_ACCESS_FILTERS]);
-
-  constructor() {
-    effect(() => {
-      const pref = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
-      if (['all', 'owned', 'shared', 'active', 'archived'].includes(pref)) {
-        untracked(() => {
-          if (this.activeFilter() !== pref) {
-            this.activeFilter.set(pref as WorkspaceCombinedFilter);
-            if (pref === 'owned') {
-              this.accessFilter.set('OWNED');
-            } else if (pref === 'shared') {
-              this.accessFilter.set('SHARED');
-            } else if (this.accessFilter() !== 'ALL') {
-              this.accessFilter.set('ALL');
-            }
-          }
-        });
-      }
-    });
-  }
+  readonly preferencesReady = this.userPreferenceStore.ready;
+  readonly statusFilter = computed<WorkspaceStatusFilter>(() => {
+    const status = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toUpperCase();
+    return status === 'ACTIVE' || status === 'ARCHIVED' ? status : 'ALL';
+  });
   readonly emptyMessage = computed(() => {
     if (this.searchTerm().trim()) return 'No matching workspaces found.';
-    if (this.activeFilter() === 'shared' || this.accessFilter() === 'SHARED') return 'No shared workspaces yet.';
-    if (this.activeFilter() === 'owned' || this.accessFilter() === 'OWNED') return 'No workspaces created yet.';
-    if (this.activeFilter() === 'archived' || this.activeTab() === 'archived') return 'No archived workspaces.';
-    if (this.activeFilter() === 'active') return 'No active workspaces yet.';
+    if (this.accessFilter() === WorkspaceAccessFilter.SHARED) return 'No shared workspaces yet.';
+    if (this.accessFilter() === WorkspaceAccessFilter.OWNED) return 'No workspaces created yet.';
     return 'No workspaces yet.';
   });
+  readonly canCreateWorkspaceInCurrentView = computed(
+    () => this.accessFilter() !== WorkspaceAccessFilter.SHARED
+  );
   readonly bulkBusy = signal(false);
 
   can(workspace: any, action: any): boolean {
@@ -204,36 +185,30 @@ export class Workspace implements OnInit {
   }
 
   setWorkspaceFilter(value: unknown): void {
-    const filter = String(value ?? '').toLowerCase() as WorkspaceCombinedFilter;
-    if (!['all', 'owned', 'shared', 'active', 'archived'].includes(filter)) return;
-    if (filter === this.activeFilter()) return;
+    this.onAccessChange(String(value ?? '').toUpperCase());
+  }
 
-    this.activeFilter.set(filter);
+  onAccessChange(value: unknown): void {
+    if (!Object.values(WorkspaceAccessFilter).includes(value as WorkspaceAccessFilter)) return;
+    const access = value as WorkspaceAccessFilter;
+    if (access === this.accessFilter()) return;
 
-    if (filter === 'owned') {
-      this.accessFilter.set('OWNED');
-    } else if (filter === 'shared') {
-      this.accessFilter.set('SHARED');
-    } else {
-      this.accessFilter.set('ALL');
-    }
-
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, filter.toUpperCase());
-
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_ACCESS_FILTER, access);
     this.page.set(1);
     this.loadWorkspaces('', true);
   }
 
-  onAccessChange(value: unknown): void {
-    if ((value !== 'ALL' && value !== 'OWNED' && value !== 'SHARED') || value === this.accessFilter()) return;
-    this.accessFilter.set(value);
-    if (value === 'OWNED') {
-      this.activeFilter.set('owned');
-    } else if (value === 'SHARED') {
-      this.activeFilter.set('shared');
-    } else {
-      this.activeFilter.set('all');
-    }
+  onStatusChange(value: unknown): void {
+    const status = String(value ?? '').toUpperCase();
+    if (!['ALL', 'ACTIVE', 'ARCHIVED'].includes(status) || status === this.statusFilter()) return;
+
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, status);
+    this.collapsedGroups.update(current => {
+      const next = new Set(current);
+      if (status === 'ACTIVE') next.delete('active');
+      if (status === 'ARCHIVED') next.delete('archived');
+      return next;
+    });
     this.page.set(1);
     this.loadWorkspaces('', true);
   }
@@ -242,7 +217,7 @@ export class Workspace implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly collapsedGroups = signal<Set<string>>(new Set(['archived']));
   readonly selectedWorkspaceIds = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedWorkspaceIds().size);
 
@@ -255,11 +230,6 @@ export class Workspace implements OnInit {
   private readonly searchSubject = new Subject<string>();
   private requestedQuery = '';
   private loadSubscription: Subscription | null = null;
-
-  readonly activeTab = computed<'all' | 'active' | 'archived'>(() => {
-    const value = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
-    return value === 'active' || value === 'archived' ? value : 'all';
-  });
 
   readonly sortBy = computed<keyof typeof WORKSPACE_SORT_PREFERENCES>(() => {
     const value = this.userPreferenceStore.workspaceSortOrder();
@@ -276,6 +246,11 @@ export class Workspace implements OnInit {
 
   readonly workspaceEditorOpen = signal(false);
   readonly workspaceEditorId = signal<string>('');
+  readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId());
+  readonly contextMenuWorkspace = signal<any | null>(null);
+  readonly contextMenuWorkspaceId = computed(() => idOf(this.contextMenuWorkspace()) || null);
+  readonly contextMenuPosition = signal({ x: 0, y: 0 });
+  readonly workspaceContextMenuTrigger = viewChild.required<MatMenuTrigger>('workspaceContextMenuTrigger');
   readonly editorWorkspace = computed(() => {
     const id = this.workspaceEditorId();
     return id ? this.workspaces().find((item) => idOf(item) === id) ?? null : null;
@@ -291,18 +266,15 @@ export class Workspace implements OnInit {
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
 
   readonly sortOptions = [
-    SORT_OPTIONS[0],
-    { label: 'Recently created', value: 'created' },
-    ...SORT_OPTIONS.slice(1),
+    { ...SORT_OPTIONS[0], icon: LucideClock3 },
+    { label: 'Recently created', value: 'created', icon: LucideCalendarPlus },
+    { ...SORT_OPTIONS[1], icon: LucideArrowDownAZ },
+    { ...SORT_OPTIONS[2], icon: LucideArrowDownZA },
+    { ...SORT_OPTIONS[3], icon: LucideHistory },
   ];
   readonly viewTabs = VIEW_TABS;
 
   readonly totalCount = computed(() => this.pagination()?.total ?? 0);
-
-  readonly workspaceTabs = computed<TabItem[]>(() => {
-    const c = this.counts();
-    return buildStatusTabs(c).map(tab => ({ ...tab, count: c?.[String(tab.value)] }));
-  });
 
   readonly filterTabs = computed<TabItem[]>(() => {
     const c = this.counts();
@@ -311,30 +283,40 @@ export class Workspace implements OnInit {
     const sharedCount = ac.find((item) => item.value === 'SHARED')?.count;
 
     return [
-      { value: 'all', label: 'All spaces', count: c?.all ?? this.pagination()?.total },
-      { value: 'owned', label: 'My spaces', count: ownedCount },
-      { value: 'shared', label: 'Shared with me', count: sharedCount },
-      { value: 'active', label: 'Active', count: c?.active },
-      { value: 'archived', label: 'Archived', count: c?.archived },
+      {
+        value: WorkspaceAccessFilter.ALL,
+        label: 'All spaces',
+        count: c?.all ?? this.pagination()?.total,
+        icon: LucidePanelsTopLeft,
+      },
+      { value: WorkspaceAccessFilter.OWNED, label: 'My spaces', count: ownedCount, icon: LucideFolder },
+      { value: WorkspaceAccessFilter.SHARED, label: 'Shared with me', count: sharedCount, icon: LucideUsers },
+    ];
+  });
+
+  readonly statusTabs = computed<TabItem[]>(() => {
+    const counts = this.counts();
+    return [
+      { value: 'ALL', label: 'All', count: counts?.all ?? this.pagination()?.total, icon: LucidePanelsTopLeft },
+      { value: 'ACTIVE', label: 'Active', count: counts?.active, icon: LucideCheck },
+      { value: 'ARCHIVED', label: 'Archived', count: counts?.archived, icon: LucideArchive },
     ];
   });
 
   readonly visibleWorkspaces = computed<any[]>(() => {
     const list = this.workspaces();
-    const filter = this.activeFilter();
-    const tab = this.activeTab();
+    const access = this.accessFilter();
+    const selectedStatus = this.statusFilter();
     const sort = this.sortBy();
-    const statusPref = String(this.userPreferenceStore.workspaceStatusFilter() ?? '').toLowerCase();
 
     const filtered = list.filter((item) => {
       const isOwner = item.isOwner === true || item.access?.isOwner === true;
       if (!isOwner && item.access?.membership?.status && item.access.membership.status !== 'ACTIVE') return false;
       const status = String(item?.status ?? 'ACTIVE');
       if (status === 'DELETED' || status === 'TRASHED') return false;
-      if ((filter === 'active' || (filter === 'all' && tab === 'active')) && status !== 'ACTIVE') return false;
-      if ((filter === 'archived' || (filter === 'all' && tab === 'archived')) && status !== 'ARCHIVED') return false;
-      if ((filter === 'owned' || (filter === 'all' && statusPref === 'owned')) && !isOwner) return false;
-      if ((filter === 'shared' || (filter === 'all' && statusPref === 'shared')) && isOwner) return false;
+      if (selectedStatus !== 'ALL' && status !== selectedStatus) return false;
+      if (access === WorkspaceAccessFilter.OWNED && !isOwner) return false;
+      if (access === WorkspaceAccessFilter.SHARED && isOwner) return false;
       return true;
     });
 
@@ -353,47 +335,50 @@ export class Workspace implements OnInit {
 
   readonly workspaceGroups = computed<any[]>(() => {
     const list = this.visibleWorkspaces();
-    const filter = this.activeFilter();
-    const tab = this.activeTab();
     const isSearchActive = !!this.searchTerm().trim();
+    const counts = this.counts();
+    const selectedStatus = this.statusFilter();
 
-    const groups: any[] = [];
-
-    const showActive = filter !== 'archived' && (filter !== 'all' || tab !== 'archived');
-    const showArchived = filter !== 'active' && (filter !== 'all' || tab !== 'active');
-
-    if (showActive) {
-      const activeItems = list.filter((w) => (w?.status ?? 'ACTIVE') === 'ACTIVE');
-      groups.push({
+    const activeItems = list.filter((w) => (w?.status ?? 'ACTIVE') === 'ACTIVE');
+    const archivedItems = list.filter((w) => w?.status === 'ARCHIVED');
+    const groups: any[] = [
+      {
         id: 'active',
         label: 'Active Spaces',
         status: 'ACTIVE',
         accent: '#10b981',
         items: activeItems,
-        count: activeItems.length,
-      });
-    }
-
-    if (showArchived) {
-      const archivedItems = list.filter((w) => w?.status === 'ARCHIVED');
-      groups.push({
+        count: Number.isFinite(Number(counts?.active)) ? Number(counts.active) : activeItems.length,
+      },
+      {
         id: 'archived',
         label: 'Archived Spaces',
         status: 'ARCHIVED',
         accent: '#64748b',
         items: archivedItems,
-        count: archivedItems.length,
-      });
-    }
+        count: Number.isFinite(Number(counts?.archived)) ? Number(counts.archived) : archivedItems.length,
+      },
+    ];
 
-    return groups.filter((g) => g.count > 0 || !isSearchActive);
+    return groups.filter((group) =>
+      (selectedStatus === 'ALL' || group.status === selectedStatus) &&
+      (group.count > 0 || !isSearchActive)
+    );
   });
 
   ngOnInit(): void {
     this.authStore.loadGlobalPermissions();
-    this.userPreferenceStore.load();
     this.initSearchPipeline();
-    this.loadWorkspaces();
+    this.userPreferenceStore.load();
+
+    if (this.userPreferenceStore.ready()) {
+      this.loadWorkspaces();
+      return;
+    }
+
+    this.userPreferenceStore.ready$
+      .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadWorkspaces());
   }
 
   toggleGroup(groupId: string): void {
@@ -598,8 +583,9 @@ export class Workspace implements OnInit {
 
           this.updatePaginationAndCounts(response, list);
 
-          if (savedId) {
-            this.workspaceStore.select(savedId);
+          const preferredId = savedId || this.userPreferenceStore.selectedWorkspaceId();
+          if (preferredId && list.some(item => idOf(item) === preferredId)) {
+            this.workspaceStore.select(preferredId);
           }
         },
         error: (error: any) => {
@@ -624,23 +610,6 @@ export class Workspace implements OnInit {
     this.onSearch('');
   }
 
-  onStatusChange(value: any): void {
-    const val = String(value ?? '').toLowerCase() as WorkspaceCombinedFilter;
-    if (['all', 'owned', 'shared', 'active', 'archived'].includes(val)) {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, val.toUpperCase());
-      this.activeFilter.set(val);
-      if (val === 'owned') {
-        this.accessFilter.set('OWNED');
-      } else if (val === 'shared') {
-        this.accessFilter.set('SHARED');
-      } else {
-        this.accessFilter.set('ALL');
-      }
-      this.page.set(1);
-      this.loadWorkspaces('', true);
-    }
-  }
-
   onSortChange(value: any): void {
     if (value !== this.sortBy() && Object.prototype.hasOwnProperty.call(WORKSPACE_SORT_PREFERENCES, value)) {
       this.userPreferenceStore.setAndSave(
@@ -656,10 +625,6 @@ export class Workspace implements OnInit {
     if (value === 'grid' || value === 'list') {
       this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_VIEW, value.toUpperCase());
     }
-  }
-
-  setWorkspaceTab(value: any): void {
-    this.setWorkspaceFilter(value);
   }
 
   setWorkspaceView(value: any): void {
@@ -727,6 +692,39 @@ export class Workspace implements OnInit {
     this.workspaceEditorOpen.set(true);
   }
 
+  openWorkspaceMembers(workspace: any, event?: Event): void {
+    if (!this.can(workspace, 'canView')) return;
+    event?.stopPropagation();
+    const id = idOf(workspace);
+    if (!id || this.isBusy(workspace)) return;
+
+    this.workspaceStore.select(id);
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_MEMBERS));
+  }
+
+  openWorkspaceContextMenu(workspace: any, event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!idOf(workspace)) return;
+
+    this.selectWorkspace(workspace);
+
+    const trigger = this.workspaceContextMenuTrigger();
+    trigger.closeMenu();
+    this.contextMenuWorkspace.set(workspace);
+    this.contextMenuPosition.set({ x: event.clientX, y: event.clientY });
+
+    timer(0)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => trigger.openMenu());
+  }
+
+  closeWorkspaceContextMenu(): void {
+    this.contextMenuWorkspace.set(null);
+  }
+
   closeWorkspaceEditor(): void {
     this.workspaceEditorOpen.set(false);
     this.workspaceEditorId.set('');
@@ -740,8 +738,10 @@ export class Workspace implements OnInit {
 
     const savedId = idOf(savedWorkspace);
     if (!this.workspaceEditorId()) {
-      this.activeFilter.set('owned');
-      this.accessFilter.set('OWNED');
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.WORKSPACE_ACCESS_FILTER,
+        WorkspaceAccessFilter.OWNED,
+      );
       this.page.set(1);
     }
     this.closeWorkspaceEditor();
@@ -754,11 +754,12 @@ export class Workspace implements OnInit {
     if (target?.closest('button, input, a, .mat-mdc-menu-panel, .mat-mdc-menu-item')) return;
     if (this.isInlineRenaming(workspace) || this.isBusy(workspace)) return;
 
-    const id = idOf(workspace);
-    if (!id) return;
+    this.selectWorkspace(workspace);
+  }
 
-    this.workspaceStore.select(id);
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
+  handleWorkspaceMenuClick(workspace: any, event: Event): void {
+    event.stopPropagation();
+    this.selectWorkspace(workspace);
   }
 
   handleWorkspaceDoubleClick(workspace: any, event?: MouseEvent): void {
@@ -776,6 +777,20 @@ export class Workspace implements OnInit {
     this.workspaceStore.select(id);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
     this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_FOLDERS));
+  }
+
+  openWorkspaceFolders(workspace: any, event?: Event): void {
+    event?.stopPropagation();
+    this.openWorkspace(workspace);
+  }
+
+  private selectWorkspace(workspace: any): void {
+    if (!this.can(workspace, 'canView')) return;
+    const id = idOf(workspace);
+    if (!id) return;
+
+    this.workspaceStore.select(id);
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
   }
 
   beginInlineRename(workspace: any, event?: Event): void {
@@ -1059,6 +1074,39 @@ export class Workspace implements OnInit {
     return `${count} ${count === 1 ? 'folder' : 'folders'}`;
   }
 
+  workspaceFolders(workspace: any): Array<{ id: string; name: string }> {
+    if (Array.isArray(workspace?._folders)) return workspace._folders;
+
+    const source = Array.isArray(workspace?.summary?.folders)
+      ? workspace.summary.folders
+      : Array.isArray(workspace?.folders)
+        ? workspace.folders
+        : [];
+
+    return source
+      .map((folder: any, index: number) => {
+        const name = String(typeof folder === 'string' ? folder : folder?.name ?? '').trim();
+        const id = String(typeof folder === 'object' ? idOf(folder) : '').trim();
+        return { id: id || `${idOf(workspace)}-folder-${index}`, name };
+      })
+      .filter((folder: { name: string }) => !!folder.name);
+  }
+
+  workspaceFolderTooltip(workspace: any): string {
+    if (workspace?._folderTooltip) return workspace._folderTooltip;
+
+    const count = this.workspaceFolderCount(workspace);
+    const label = `${count} ${count === 1 ? 'folder' : 'folders'}`;
+    const names = this.workspaceFolders(workspace).map(folder => folder.name);
+
+    if (count === 0) return 'No folders in this workspace';
+    if (names.length === 0) return label;
+
+    const visibleNames = names.slice(0, 4);
+    const remaining = Math.max(0, count - visibleNames.length);
+    return `${label}: ${visibleNames.join(', ')}${remaining > 0 ? `, and ${remaining} more` : ''}`;
+  }
+
   workspaceMemberCount(workspace: any, membersList?: any[]): number {
     if (typeof workspace?._memberCount === 'number') return workspace._memberCount;
     const raw = workspace?.summary?.memberCount ?? workspace?.memberCount;
@@ -1129,14 +1177,17 @@ export class Workspace implements OnInit {
 
   prepareWorkspace(workspace: any): any {
     const members = this.workspaceMembers(workspace);
+    const folders = this.workspaceFolders(workspace);
     const folderCount = this.workspaceFolderCount(workspace);
     const memberCount = this.workspaceMemberCount(workspace, members);
 
     return {
       ...workspace,
       _members: members,
+      _folders: folders,
       _folderCount: folderCount,
       _folderCountLabel: `${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}`,
+      _folderTooltip: this.workspaceFolderTooltip(workspace),
       _memberCount: memberCount,
       _memberCountLabel: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
       _roleLabel: this.workspaceRoleLabel(workspace),
@@ -1192,33 +1243,11 @@ export class Workspace implements OnInit {
   }
 
   private buildListQuery(): any {
-    const filter = this.activeFilter();
-    let access: WorkspaceAccessFilter = this.accessFilter();
-    let status: 'ALL' | 'ACTIVE' | 'ARCHIVED' = 'ALL';
-
-    if (filter === 'active') {
-      status = 'ACTIVE';
-      access = 'ALL';
-    } else if (filter === 'archived') {
-      status = 'ARCHIVED';
-      access = 'ALL';
-    } else if (filter === 'owned') {
-      access = 'OWNED';
-      status = this.activeTab() === 'archived' ? 'ARCHIVED' : this.activeTab() === 'active' ? 'ACTIVE' : 'ALL';
-    } else if (filter === 'shared') {
-      access = 'SHARED';
-      status = this.activeTab() === 'archived' ? 'ARCHIVED' : this.activeTab() === 'active' ? 'ACTIVE' : 'ALL';
-    } else {
-      access = this.accessFilter();
-      const tab = this.activeTab();
-      status = tab === 'active' ? 'ACTIVE' : tab === 'archived' ? 'ARCHIVED' : 'ALL';
-    }
-
     const query: any = {
-      access,
+      access: this.accessFilter(),
       page: this.page(),
       limit: this.limit(),
-      status,
+      status: this.statusFilter(),
       sortBy: WORKSPACE_SORT_PREFERENCES[this.sortBy()] ?? 'RECENTLY_UPDATED',
     };
 
@@ -1338,5 +1367,12 @@ export class Workspace implements OnInit {
     if (!value) return 0;
     const time = new Date(value).getTime();
     return Number.isNaN(time) ? 0 : time;
+  }
+
+  private resolveAccessFilter(value: unknown): WorkspaceAccessFilter {
+    const access = String(value ?? '').toUpperCase();
+    return Object.values(WorkspaceAccessFilter).includes(access as WorkspaceAccessFilter)
+      ? access as WorkspaceAccessFilter
+      : WorkspaceAccessFilter.ALL;
   }
 }

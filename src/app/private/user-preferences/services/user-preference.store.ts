@@ -27,6 +27,7 @@ export class UserPreferenceStore {
     private readonly _loaded = signal(false);
     private readonly _ready = signal(false);
     private readonly _error = signal<string | null>(null);
+    private readonly queuedSaves = new Map<string, unknown>();
 
     readonly preferences = this._preferences.asReadonly();
     readonly loading = this._loading.asReadonly();
@@ -59,6 +60,10 @@ export class UserPreferenceStore {
 
     readonly workspaceStatusFilter = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER]
+    );
+
+    readonly workspaceAccessFilter = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_ACCESS_FILTER]
     );
 
     readonly workspaceSortOrder = computed(() =>
@@ -183,7 +188,7 @@ export class UserPreferenceStore {
     setAndSave(key: string, value: any): void {
         const preferenceKey = String(key ?? '').trim();
 
-        if (!preferenceKey || this.isSaving(preferenceKey)) {
+        if (!preferenceKey) {
             return;
         }
 
@@ -193,55 +198,14 @@ export class UserPreferenceStore {
             return;
         }
 
-        const exists = this._persistedKeys().includes(preferenceKey);
-
         this.updatePreference(preferenceKey, value);
-        this.setSaving(preferenceKey, true);
-        this._error.set(null);
 
-        const request = exists
-            ? this.userPreferenceService.updatePreference(preferenceKey, value)
-            : this.userPreferenceService.createPreference(preferenceKey, value);
+        if (this.isSaving(preferenceKey)) {
+            this.queuedSaves.set(preferenceKey, value);
+            return;
+        }
 
-        request
-            .pipe(
-                takeUntil(this.sessionEnd$),
-                takeUntilDestroyed(this.destroyRef),
-                finalize(() => this.setSaving(preferenceKey, false)),
-            )
-            .subscribe({
-                next: (response: any) => {
-                    const preference = response?.data;
-                    const responseKey = String(
-                        preference?.key ?? preferenceKey
-                    ).trim();
-
-                    if (responseKey) {
-                        this.updatePreference(
-                            responseKey,
-                            preference?.value ?? value,
-                        );
-                    }
-
-                    if (!exists) {
-                        this._persistedKeys.update(keys =>
-                            keys.includes(preferenceKey)
-                                ? keys
-                                : [...keys, preferenceKey]
-                        );
-                    }
-
-                    this._loaded.set(true);
-                },
-                error: (error: any) => {
-                    this.updatePreference(
-                        preferenceKey,
-                        previousValue,
-                    );
-
-                    this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
-                },
-            });
+        this.persistPreference(preferenceKey, value, previousValue);
     }
 
     resetPreference(key: string): void {
@@ -332,6 +296,7 @@ export class UserPreferenceStore {
     }
 
     reset(): void {
+        this.queuedSaves.clear();
         this.sessionEnd$.next();
         this._preferences.set({
             ...DEFAULT_USER_PREFERENCES,
@@ -378,6 +343,58 @@ export class UserPreferenceStore {
                 currentKey => currentKey !== key
             );
         });
+    }
+
+    private persistPreference(key: string, value: any, previousValue: any): void {
+        const exists = this._persistedKeys().includes(key);
+        let saved = false;
+
+        this.setSaving(key, true);
+        this._error.set(null);
+
+        const request = exists
+            ? this.userPreferenceService.updatePreference(key, value)
+            : this.userPreferenceService.createPreference(key, value);
+
+        request
+            .pipe(
+                takeUntil(this.sessionEnd$),
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => {
+                    this.setSaving(key, false);
+
+                    if (!this.queuedSaves.has(key)) return;
+
+                    const queuedValue = this.queuedSaves.get(key);
+                    this.queuedSaves.delete(key);
+                    if (saved && this.valuesEqual(queuedValue, value)) return;
+
+                    this.persistPreference(key, queuedValue, saved ? value : previousValue);
+                }),
+            )
+            .subscribe({
+                next: (response: any) => {
+                    saved = true;
+                    const preference = response?.data;
+                    const responseKey = String(preference?.key ?? key).trim();
+
+                    if (responseKey && !this.queuedSaves.has(key) && this.valuesEqual(this._preferences()[key], value)) {
+                        this.updatePreference(responseKey, preference?.value ?? value);
+                    }
+
+                    if (!exists) {
+                        this._persistedKeys.update(keys => keys.includes(key) ? keys : [...keys, key]);
+                    }
+
+                    this._loaded.set(true);
+                },
+                error: (error: any) => {
+                    if (!this.queuedSaves.has(key) && this.valuesEqual(this._preferences()[key], value)) {
+                        this.updatePreference(key, previousValue);
+                    }
+                    this._error.set(extractErrorMessage(error, USER_PREFERENCE_MESSAGES.FAIL_TO_SAVE));
+                },
+            });
     }
 
     private valuesEqual(currentValue: any, nextValue: any): boolean {

@@ -15,6 +15,7 @@ import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { WorkspaceService } from '../services/workspace.service';
@@ -24,7 +25,7 @@ import { WorkspaceFolderWrapper } from '../workspace-folder-wrapper/workspace-fo
 @Component({
   selector: 'app-add-edit-workspace-side-panel',
   standalone: true,
-  imports: [Badge, FormsModule, AppInput, Button, Label, Loader, Select, SidePanel, WorkspaceFolderWrapper],
+  imports: [Badge, FormsModule, AppInput, Button, Label, Loader, Select, SidePanel, Tooltip, WorkspaceFolderWrapper],
   templateUrl: './add-edit-workspace-side-panel.html',
   styleUrl: './add-edit-workspace-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -125,6 +126,15 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   get headerIcon() { return this.isEdit ? LucidePencil : LucideFolder; }
   get submitIcon() { return this.isEdit ? LucideCheck : LucidePlus; }
   get submitLabel(): string { return this.isEdit ? 'Save changes' : 'Create workspace'; }
+  get submitTooltip(): string {
+    if (this.loadingData()) return 'Loading workspace details';
+    if (this.loading()) return this.isEdit ? 'Saving workspace changes' : 'Creating workspace';
+    if (this.loadFailed()) return 'Reload the workspace before saving';
+    const length = this.name().trim().length;
+    if (length < this.nameMinLength) return `Enter at least ${this.nameMinLength} characters for the workspace name`;
+    if (length > this.nameMaxLength) return `Use no more than ${this.nameMaxLength} characters for the workspace name`;
+    return this.isEdit ? 'Save workspace changes' : 'Create this workspace';
+  }
   get isBusy(): boolean { return this.loading() || this.loadingData(); }
   get statusText(): string { return this.dirty() ? 'Not saved' : this.isEdit ? 'Saved' : 'New workspace'; }
   get canSubmit(): boolean {
@@ -137,7 +147,42 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (this.isPersonal()) return 'Personal';
     return 'Owner';
   }
-
+  get previewFolders(): any[] {
+    const source = this.previewSource();
+    return Array.isArray(source?.summary?.folders)
+      ? source.summary.folders
+      : Array.isArray(source?.folders) ? source.folders : [];
+  }
+  get previewMembers(): any[] {
+    const source = this.previewSource();
+    const members = Array.isArray(source?.summary?.members)
+      ? source.summary.members
+      : Array.isArray(source?.members) ? source.members : [];
+    return members.map((member: any, index: number) => {
+      const name = String(member?.displayName ?? member?.name ?? member?.email ?? 'Workspace member').trim();
+      return {
+        id: String(member?.id ?? `preview-member-${index}`),
+        name,
+        src: member?.avatar ?? member?.avatarUrl,
+        alt: name,
+        tooltip: member?.role ? `${name} - ${member.role}` : name,
+      };
+    });
+  }
+  get previewMemberCount(): number | null {
+    const source = this.previewSource();
+    if (!source) return null;
+    const value = source?.summary?.memberCount ?? source?.memberCount;
+    const count = Number(value);
+    return Number.isFinite(count) ? Math.max(0, count) : this.previewMembers.length;
+  }
+  get previewFolderCount(): number | null {
+    const source = this.previewSource();
+    const value = source?.summary?.folderCount ?? source?.folderCount;
+    if (value === undefined || value === null) return this.isEdit ? this.previewFolders.length : null;
+    const count = Number(value);
+    return Number.isFinite(count) ? Math.max(0, count) : null;
+  }
   ngOnChanges(changes: SimpleChanges): void {
     this.scheduleDesktopPreview();
     if (!this.open) {

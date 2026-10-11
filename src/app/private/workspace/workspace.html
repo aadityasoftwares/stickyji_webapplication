@@ -17,7 +17,7 @@
 
       <div class="workspace-header-actions">
         <div class="workspace-count-slot" aria-live="polite">
-          @if (!loading() && !error()) {
+          @if (preferencesReady() && !loading() && !error()) {
           <app-badge [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')" variant="noteYellow" size="sm"
             shape="pill" />
           } @else {
@@ -29,16 +29,24 @@
           ariaLabel="Refresh spaces" appTooltip="Refresh spaces" tooltipTone="noteBlue" tooltipPosition="bottom"
           tooltipSize="sm" [loading]="loading()" (buttonClick)="loadWorkspaces()" />
 
+        @if (canCreateWorkspaceInCurrentView()) {
         <app-button class="workspace-new-button" label="New workspace" [iconLeft]="LucidePlus" variant="noteYellow"
           appearance="standard" size="md" (buttonClick)="openCreateEditor()" />
+        }
       </div>
     </header>
 
-    <section class="workspace-explorer" [attr.aria-busy]="loading()">
+    <section class="workspace-explorer" [attr.aria-busy]="loading() || !preferencesReady()">
       <div class="workspace-toolbar">
-        <app-tabs class="workspace-filter-tabs" [items]="filterTabs()" [value]="activeFilter()" variant="segmented"
-          shape="rounded" size="sm" density="compact" ariaLabel="Filter workspaces" [fullWidth]="false"
-          [scrollable]="true" (valueChange)="setWorkspaceFilter($event)" />
+        <div class="workspace-toolbar-filters">
+          <app-tabs class="workspace-filter-tabs" [items]="filterTabs()" [value]="accessFilter()" variant="segmented"
+            shape="rounded" size="sm" density="compact" ariaLabel="Filter workspaces by access"
+            [fullWidth]="false" [scrollable]="true" (valueChange)="onAccessChange($event)" />
+
+          <app-tabs class="workspace-status-tabs" [items]="statusTabs()" [value]="statusFilter()"
+            variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter workspaces by status"
+            [fullWidth]="false" [scrollable]="true" (valueChange)="onStatusChange($event)" />
+        </div>
 
         <div class="workspace-toolbar-actions">
           <div class="workspace-search">
@@ -60,13 +68,12 @@
 
           <app-button size="sm" [iconLeft]="LucideTrash2" label="Trash" appearance="standard" variant="noteRed"
             [hasIcon]="true" ariaLabel="Open workspace trash" appTooltip="Trash · Workspaces can be restored"
-            tooltipTone="noteRed" tooltipPosition="bottom" tooltipSize="sm"
-            (buttonClick)="openWorkspaceTrash()" />
+            tooltipTone="noteRed" tooltipPosition="bottom" tooltipSize="sm" (buttonClick)="openWorkspaceTrash()" />
         </div>
       </div>
 
       <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
-        @if (loading()) {
+        @if (loading() || !preferencesReady()) {
         <div class="workspace-loader-state">
           <app-loader mode="section" size="md" tone="colorful" label="Opening your workspaces..."
             description="Getting your sticky spaces ready." [minHeight]="360" />
@@ -96,7 +103,7 @@
         <div class="workspace-empty-state is-compact">
           <span class="workspace-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
           <h2>{{ emptyMessage() }}</h2>
-          @if (activeFilter() !== 'archived') {
+          @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
           <app-button label="New workspace" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
             (buttonClick)="openCreateEditor()" />
           }
@@ -105,15 +112,17 @@
         <div class="workspace-folder-grid workspace-folder-grid--cards" role="list">
           @for (workspace of visibleWorkspaces(); track workspaceId(workspace)) {
           <article class="workspace-folder-tile workspace-folder-tile--card" role="listitem"
-            [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)">
+            [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)"
+            [appHighlight]="selectedWorkspaceId() === workspaceId(workspace) || contextMenuWorkspaceId() === workspaceId(workspace)"
+            highlightRadius="1rem" (contextmenu)="openWorkspaceContextMenu(workspace, $event)">
             <app-workspace-folder-wrapper [name]="workspaceName(workspace)" [description]="workspace.description || ''"
               [personal]="isPersonalWorkspace(workspace)" [typeLabel]="workspaceTypeLabel(workspace)"
               [visibility]="workspaceVisibility(workspace)" [roleLabel]="workspaceRoleLabel(workspace)"
               [status]="workspace.status || 'ACTIVE'" [updatedAt]="workspace.updatedAt || workspace.createdAt"
-              [folderCount]="workspaceFolderCount(workspace)" [members]="workspaceMembers(workspace)"
-              [memberCount]="workspaceMemberCount(workspace)" [tooltipTone]="workspaceTheme(workspace).variant"
-              [interactive]="!isInlineRenaming(workspace)" [busy]="isBusy(workspace)"
-              (opened)="handleWorkspaceClick(workspace, $event)"
+              [folderCount]="workspaceFolderCount(workspace)" [folders]="workspaceFolders(workspace)"
+              [members]="workspaceMembers(workspace)" [memberCount]="workspaceMemberCount(workspace)"
+              [tooltipTone]="workspaceTheme(workspace).variant" [interactive]="!isInlineRenaming(workspace)"
+              [busy]="isBusy(workspace)" (opened)="handleWorkspaceClick(workspace, $event)"
               (edited)="handleWorkspaceDoubleClick(workspace, $event)"
               (keyboardOpened)="handleWorkspaceClick(workspace)">
               <div folder-title>
@@ -133,7 +142,8 @@
               <button folder-actions type="button" class="workspace-menu-trigger" [matMenuTriggerFor]="workspaceActions"
                 [disabled]="isBusy(workspace)" [attr.aria-label]="'Actions for ' + workspaceName(workspace)"
                 appTooltip="More actions" [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top"
-                tooltipSize="sm" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
+                tooltipSize="sm" (click)="handleWorkspaceMenuClick(workspace, $event)"
+                (dblclick)="$event.stopPropagation()">
                 <app-icon [icon]="LucideMoreHorizontal" size="sm" />
               </button>
             </app-workspace-folder-wrapper>
@@ -145,9 +155,9 @@
           </article>
           }
 
-          @if (activeFilter() !== 'shared' && accessFilter() !== 'SHARED' && activeFilter() !== 'archived') {
-          <button type="button" class="workspace-create-folder" appTooltip="Create a new workspace" tooltipTone="noteYellow"
-            tooltipPosition="top" tooltipSize="sm" (click)="openCreateEditor()">
+          @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
+          <button type="button" class="workspace-create-folder" appTooltip="Create a new workspace"
+            tooltipTone="noteYellow" tooltipPosition="top" tooltipSize="sm" (click)="openCreateEditor()">
             <span class="workspace-create-folder-visual" aria-hidden="true">
               <span></span>
               <app-icon [icon]="LucidePlus" size="md" />
@@ -168,8 +178,7 @@
                   <button type="button" class="workspace-group-toggle" [id]="'group-heading-' + group.id"
                     [attr.aria-expanded]="!isGroupCollapsed(group.id)" [attr.aria-controls]="'group-body-' + group.id"
                     [appTooltip]="isGroupCollapsed(group.id) ? 'Expand ' + group.label : 'Collapse ' + group.label"
-                    tooltipTone="paper" tooltipPosition="right" tooltipSize="sm"
-                    (click)="toggleGroup(group.id)">
+                    tooltipTone="paper" tooltipPosition="right" tooltipSize="sm" (click)="toggleGroup(group.id)">
                     <app-icon class="workspace-group-chevron" [icon]="
                             isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
                           " size="sm" />
@@ -180,7 +189,7 @@
                   </button>
                 </h3>
                 <div class="workspace-group-header-actions">
-                  @if (group.status === 'ACTIVE' && activeFilter() !== 'shared') {
+                  @if (group.status === 'ACTIVE' && canCreateWorkspaceInCurrentView()) {
                   <app-button [icon]="LucidePlus" [iconOnly]="true" variant="ghost" size="xs" ariaLabel="New workspace"
                     appTooltip="New workspace in {{ group.label }}" tooltipTone="noteYellow" tooltipPosition="top"
                     tooltipSize="sm" (buttonClick)="openCreateEditor()" />
@@ -249,7 +258,8 @@
                     @for (workspace of group.items; track workspaceId(workspace)) {
                     <tr [attr.data-workspace-theme]="workspaceTheme(workspace).variant"
                       [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)"
-                      [class.is-selected]="isWorkspaceSelected(workspace)"
+                      [appHighlight]="isWorkspaceSelected(workspace) || selectedWorkspaceId() === workspaceId(workspace) || contextMenuWorkspaceId() === workspaceId(workspace)"
+                      [highlightInset]="true" (contextmenu)="openWorkspaceContextMenu(workspace, $event)"
                       (dblclick)="handleWorkspaceDoubleClick(workspace, $event)">
                       <td class="workspace-gt-select">
                         <app-checkbox [checked]="isWorkspaceSelected(workspace)"
@@ -289,8 +299,8 @@
                                 (keydown.escape)="cancelInlineRename($event)" (blur)="onInlineRenameBlur(workspace)" />
                               } @else {
                               <strong class="workspace-name-editable" appTooltip="Click to rename"
-                                [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top"
-                                tooltipSize="sm" (click)="beginInlineRename(workspace, $event)">
+                                [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top" tooltipSize="sm"
+                                (click)="beginInlineRename(workspace, $event)">
                                 {{ workspaceName(workspace) }}
                               </strong>
                               }
@@ -321,7 +331,7 @@
 
                       <td class="workspace-gt-folders" data-label="Folders">
                         <app-badge [label]="folderCountLabel(workspace)" variant="neutral" size="xs" shape="pill"
-                          [icon]="LucideFolderOpen" [appTooltip]="folderCountLabel(workspace)" tooltipTone="paper"
+                          [icon]="LucideFolderOpen" [appTooltip]="workspaceFolderTooltip(workspace)" tooltipTone="paper"
                           tooltipPosition="top" tooltipSize="sm" />
                       </td>
 
@@ -343,8 +353,7 @@
 
                       <td class="workspace-gt-updated" data-label="Updated">
                         @if (workspace.updatedAt || workspace.createdAt) {
-                        <time class="workspace-gt-datetime"
-                          [attr.datetime]="workspace.updatedAt || workspace.createdAt"
+                        <time class="workspace-gt-datetime" [attr.datetime]="workspace.updatedAt || workspace.createdAt"
                           [appTooltip]="'Last modified ' + (workspace.updatedAt || workspace.createdAt | userDate: 'datetime')"
                           tooltipTone="paper" tooltipPosition="top" tooltipSize="sm">
                           <span class="workspace-gt-date-text">{{
@@ -366,24 +375,23 @@
                         <div class="workspace-table-action-group">
                           <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
                             size="xs" [rounded]="true" [ariaLabel]="'Edit ' + workspaceName(workspace)"
-                            [appTooltip]="'Edit ' + workspaceName(workspace)" tooltipTone="noteBlue" tooltipPosition="top"
-                            tooltipSize="sm" [disabled]="isBusy(workspace)"
+                            [appTooltip]="'Edit ' + workspaceName(workspace)" tooltipTone="noteBlue"
+                            tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
                             (buttonClick)="openEditEditor(workspace, $event)" />
 
                           <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
                             appearance="standard" size="xs" [rounded]="true"
                             [ariaLabel]="'Open ' + workspaceName(workspace)"
-                            [appTooltip]="'Open ' + workspaceName(workspace)" tooltipTone="noteYellow" tooltipPosition="top"
-                            tooltipSize="sm" [disabled]="isBusy(workspace)"
+                            [appTooltip]="'Open ' + workspaceName(workspace)" tooltipTone="noteYellow"
+                            tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
                             (buttonClick)="openWorkspace(workspace)" />
 
                           <button type="button" class="workspace-table-menu-button"
                             [matMenuTriggerFor]="workspaceListActions" [attr.aria-label]="
                                         'More actions for ' + workspaceName(workspace)
                                       " [appTooltip]="'More actions for ' + workspaceName(workspace)"
-                            tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                            [disabled]="isBusy(workspace)" (click)="$event.stopPropagation()"
-                            (dblclick)="$event.stopPropagation()">
+                            tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
+                            (click)="handleWorkspaceMenuClick(workspace, $event)" (dblclick)="$event.stopPropagation()">
                             <app-icon [icon]="LucideMoreHorizontal" size="sm" />
                           </button>
                         </div>
@@ -405,7 +413,7 @@
                   <span>{{
                     searchTerm() ? 'No matching spaces' : 'No spaces in this section'
                     }}</span>
-                  @if (!searchTerm() && group.status === 'ACTIVE' && activeFilter() !== 'shared') {
+                  @if (!searchTerm() && group.status === 'ACTIVE' && canCreateWorkspaceInCurrentView()) {
                   <app-button label="New space" [iconLeft]="LucidePlus" variant="outline" size="xs"
                     (buttonClick)="openCreateEditor()" />
                   }
@@ -431,6 +439,17 @@
     </section>
   </main>
 </section>
+
+<span class="workspace-context-menu-origin" aria-hidden="true" [style.left.px]="contextMenuPosition().x"
+  [style.top.px]="contextMenuPosition().y" [matMenuTriggerFor]="workspaceContextMenu"
+  #workspaceContextMenuTrigger="matMenuTrigger"></span>
+
+<mat-menu #workspaceContextMenu="matMenu" xPosition="after" yPosition="below" [overlapTrigger]="true"
+  class="workspace-actions-menu" (closed)="closeWorkspaceContextMenu()">
+  @if (contextMenuWorkspace(); as workspace) {
+  <ng-container *ngTemplateOutlet="workspaceMenu; context: { $implicit: workspace }" />
+  }
+</mat-menu>
 
 <app-add-edit-workspace-side-panel [open]="workspaceEditorOpen()" [id]="workspaceEditorId()"
   [workspace]="editorWorkspace()" (closed)="closeWorkspaceEditor()" (saved)="onWorkspaceSaved($event)" />
@@ -483,6 +502,7 @@
 }
 
 <ng-template #workspaceMenu let-workspace>
+  @if (can(workspace, 'canEdit')) {
   <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item is-edit"
     (click)="openEditEditor(workspace)">
     <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -494,17 +514,6 @@
     </span>
   </button>
 
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item is-open"
-    (click)="openWorkspace(workspace)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucideArrowRight" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Open</strong>
-      <small>Go to workspace</small>
-    </span>
-  </button>
-
   <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
     (click)="beginInlineRename(workspace)">
     <span class="workspace-menu-item-icon workspace-menu-rename-icon" aria-hidden="true">
@@ -512,11 +521,34 @@
     </span>
     <span class="workspace-menu-item-copy">
       <strong>Quick rename</strong>
-      <small>Change only the folder name</small>
+      <small>Change only the workspace name</small>
+    </span>
+  </button>
+  }
+
+  <mat-divider />
+
+  <button mat-menu-item type="button" [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
+    class="workspace-action-item is-open" (click)="openWorkspaceFolders(workspace, $event)">
+    <span class="workspace-menu-item-icon" aria-hidden="true">
+      <app-icon [icon]="LucideFolderOpen" size="xs" />
+    </span>
+    <span class="workspace-menu-item-copy">
+      <strong>Manage folders</strong>
+      <small>View and organise folders</small>
     </span>
   </button>
 
-  @if (isActive(workspace)) {
+  <button mat-menu-item type="button" [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
+    class="workspace-action-item" (click)="openWorkspaceMembers(workspace, $event)">
+    <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon [icon]="LucideUsers" size="xs" /></span>
+    <span class="workspace-menu-item-copy"><strong>Manage members</strong><small>View and edit member
+        access</small></span>
+  </button>
+
+  <mat-divider />
+
+  @if (can(workspace, 'canArchive') && isActive(workspace)) {
   <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
     (click)="archiveWorkspace(workspace)">
     <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -527,7 +559,7 @@
       <small>Keep it for later</small>
     </span>
   </button>
-  } @else if (isArchived(workspace)) {
+  } @else if (can(workspace, 'canArchive') && isArchived(workspace)) {
   <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
     (click)="activateWorkspace(workspace)">
     <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -540,12 +572,7 @@
   </button>
   }
 
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
-    (click)="openEditEditor(workspace)">
-    <span class="workspace-menu-item-icon"><app-icon [icon]="LucideShield" size="xs" /></span>
-    <span class="workspace-menu-item-copy"><strong>Settings</strong><small>Manage workspace access</small></span>
-  </button>
-
+  @if (can(workspace, 'canTrash')) {
   <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item workspace-menu-danger"
     (click)="moveToTrash(workspace)">
     <span class="workspace-menu-item-icon" aria-hidden="true">
@@ -556,4 +583,5 @@
       <small>Recoverable for 60 days</small>
     </span>
   </button>
+  }
 </ng-template>

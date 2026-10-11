@@ -4,11 +4,10 @@
     [style.--app-button-padding-x]="buttonPaddingX + 'px'" [style.--app-button-padding-y]="buttonPaddingY + 'px'"
     [style.--app-button-icon-size]="buttonIconSize + 'px'" [style.--app-button-split-width]="splitButtonWidth + 'px'">
     <button class="app-button app-button-main" [ngClass]="buttonClasses" [id]="buttonId || null" [type]="type"
-        [attr.name]="name" [attr.value]="value" [attr.form]="form" [attr.title]="buttonTitle"
-        [attr.aria-label]="accessibleLabel" [attr.aria-describedby]="ariaDescribedBy"
-        [attr.aria-controls]="ariaControls" [attr.aria-expanded]="ariaExpandedValue"
-        [attr.aria-pressed]="ariaPressedValue" [attr.aria-busy]="ariaBusy" [disabled]="isDisabled"
-        (click)="onButtonClick($event)">
+        [attr.name]="name" [attr.value]="value" [attr.form]="form" [attr.aria-label]="accessibleLabel"
+        [attr.aria-describedby]="ariaDescribedBy" [attr.aria-controls]="ariaControls"
+        [attr.aria-expanded]="ariaExpandedValue" [attr.aria-pressed]="ariaPressedValue" [attr.aria-busy]="ariaBusy"
+        [disabled]="isDisabled" (click)="onButtonClick($event)">
         @if (loading) {
         <span class="app-button-spinner" aria-hidden="true"></span>
 

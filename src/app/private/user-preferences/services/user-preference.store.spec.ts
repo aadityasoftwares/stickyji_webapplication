@@ -94,6 +94,25 @@ describe('UserPreferenceStore session lifecycle', () => {
     expect(store.saving()).toBe(false);
   });
 
+  it('serializes rapid updates per key and keeps the latest preference value', () => {
+    store.load();
+    const first = new Subject<any>();
+    api.createPreference.mockReturnValueOnce(first);
+
+    store.setAndSave('workspaceAccessFilter', 'OWNED');
+    store.setAndSave('workspaceAccessFilter', 'SHARED');
+
+    expect(store.workspaceAccessFilter()).toBe('SHARED');
+    expect(api.createPreference).toHaveBeenCalledOnce();
+
+    first.next({ data: { key: 'workspaceAccessFilter', value: 'OWNED' } });
+    first.complete();
+
+    expect(api.updatePreference).toHaveBeenCalledExactlyOnceWith('workspaceAccessFilter', 'SHARED');
+    expect(store.workspaceAccessFilter()).toBe('SHARED');
+    expect(store.saving()).toBe(false);
+  });
+
   it('cancels the first user’s pending load when logging out and logging in as another user', () => {
     auth.setSession(session('first'));
     const first = new Subject();

@@ -29,10 +29,29 @@
         </div>
         <p class="folder__description">{{ description.trim() || 'Keep your notes, folders and ideas together.' }}</p>
 
+        @if (visibleFolderPreviews.length > 0) {
+        <div class="folder__folder-list" aria-label="Folders in this workspace">
+            @for (folder of visibleFolderPreviews; track folder.id) {
+            <span class="folder__folder-chip" [appTooltip]="folder.name" [tooltipTone]="tooltipTone"
+                tooltipPosition="top" tooltipSize="sm">
+                <app-icon [icon]="Folder" size="xs" />
+                <span class="folder__folder-chip-text">{{ folder.name }}</span>
+            </span>
+            }
+            @if (remainingFolderCount > 0) {
+            <span class="folder__folder-more" [appTooltip]="resolvedCountTooltip"
+                [tooltipTone]="tooltipTone" tooltipPosition="top" tooltipSize="sm">
+                +{{ remainingFolderCount }}
+            </span>
+            }
+        </div>
+        }
+
         @if (resolvedCountLabel || members.length > 0 || memberCount !== null) {
         <div class="folder__meta-row">
             @if (resolvedCountLabel) {
-            <div class="folder__count-item" [appTooltip]="resolvedCountLabel" [tooltipTone]="tooltipTone" tooltipPosition="bottom" tooltipSize="sm">
+            <div class="folder__count-item" [appTooltip]="resolvedCountTooltip"
+                [tooltipTone]="tooltipTone" tooltipPosition="bottom" tooltipSize="sm">
                 <app-icon [icon]="countIcon" size="xs" />
                 <span>{{ resolvedCountLabel }}</span>
             </div>
