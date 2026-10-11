@@ -61,11 +61,6 @@ import { UserDateTimeFormatterService } from '../../../shared/services/user-date
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
 
-import type {
-  MyWorkspaceQuery,
-  Workspace as WorkspaceModel,
-  PaginatedApiResponse as WorkspacePaginatedApiResponse
-} from '../../workspace/models/workspace.models';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 
@@ -782,7 +777,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   loadWorkspaces(): void {
     // this.workspaceStore.setLoading(true);
 
-    const query: MyWorkspaceQuery = {
+    const query: any = {
       page: 1,
       limit: 100
     };
@@ -1954,7 +1949,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private workspaceRecordId(
-    workspace: WorkspaceModel
+    workspace: any
   ): string {
     const record =
       workspace as unknown as UnknownRecord;
@@ -1967,7 +1962,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private workspaceName(
-    workspace: WorkspaceModel
+    workspace: any
   ): string {
     return (
       workspace.name?.trim() ||
@@ -2071,12 +2066,12 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private extractWorkspaces(
-    response: WorkspacePaginatedApiResponse<WorkspaceModel>
-  ): readonly WorkspaceModel[] {
+    response: any
+  ): readonly any[] {
     const data = response.data as unknown;
 
     if (Array.isArray(data)) {
-      return data as WorkspaceModel[];
+      return data as any[];
     }
 
     if (
@@ -2097,7 +2092,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
     for (const candidate of candidates) {
       if (Array.isArray(candidate)) {
-        return candidate as WorkspaceModel[];
+        return candidate as any[];
       }
     }
 

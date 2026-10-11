@@ -92,6 +92,12 @@ export const WORKSPACE_SORT_PREFERENCES = {
     oldest: 'OLDEST_FIRST',
 } as const;
 
+export const WORKSPACE_ACCESS_FILTERS = [
+    { value: 'ALL', label: 'All spaces' },
+    { value: 'OWNED', label: 'My spaces' },
+    { value: 'SHARED', label: 'Shared with me' },
+] as const;
+
 
 export const STICKY_NOTE_VIEW_OPTIONS: any[] = [
     {

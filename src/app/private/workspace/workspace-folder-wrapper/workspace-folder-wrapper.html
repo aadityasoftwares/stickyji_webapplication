@@ -5,7 +5,7 @@
             d="M24 1 H144 C160 1 165 7 177 19 C185 27 193 30 211 30 H376 Q399 30 399 54 V226 Q399 249 376 249 H24 Q1 249 1 226 V25 Q1 1 24 1 Z" />
         <path class="folder__tab-tint" d="M24 2 H144 C160 2 165 8 176 20 C181 25 185 28 192 30 H2 V25 Q2 2 24 2 Z" />
     </svg>
-    <div class="folder__tab">
+    <div class="folder__tab" [appTooltip]="resolvedTypeLabel + ' space'" [tooltipTone]="tooltipTone" tooltipPosition="top" tooltipSize="sm">
         <app-icon [icon]="typeIcon" size="xs" />
         <span>{{ resolvedTypeLabel }}</span>
     </div>
@@ -19,16 +19,20 @@
         </div>
         <div class="folder__metadata">
             @if (roleLabel) {
-            <span><app-icon [icon]="roleIcon" size="xs" />{{ roleLabel }}</span>
+            <span [appTooltip]="'Access role: ' + roleLabel" [tooltipTone]="tooltipTone" tooltipPosition="top" tooltipSize="sm">
+                <app-icon [icon]="roleIcon" size="xs" />{{ roleLabel }}
+            </span>
             }
-            <span [attr.title]="updatedAt ? 'Last updated' : null"><app-icon [icon]="Calendar" size="xs" />{{ dateLabel }}</span>
+            <span [appTooltip]="updatedAt ? 'Last updated ' + dateLabel : 'Not saved yet'" [tooltipTone]="tooltipTone" tooltipPosition="top" tooltipSize="sm">
+                <app-icon [icon]="Calendar" size="xs" />{{ dateLabel }}
+            </span>
         </div>
         <p class="folder__description">{{ description.trim() || 'Keep your notes, folders and ideas together.' }}</p>
 
         @if (resolvedCountLabel || members.length > 0 || memberCount !== null) {
         <div class="folder__meta-row">
             @if (resolvedCountLabel) {
-            <div class="folder__count-item">
+            <div class="folder__count-item" [appTooltip]="resolvedCountLabel" [tooltipTone]="tooltipTone" tooltipPosition="bottom" tooltipSize="sm">
                 <app-icon [icon]="countIcon" size="xs" />
                 <span>{{ resolvedCountLabel }}</span>
             </div>
@@ -47,8 +51,12 @@
         <ng-content select="[folder-extra]" />
 
         <div class="folder__footer">
-            <span><app-icon [icon]="visibilityIcon" size="xs" />{{ visibilityLabel }}</span>
-            <span><i class="folder__status-dot" aria-hidden="true"></i>{{ statusLabel }}</span>
+            <span [appTooltip]="'Visibility: ' + visibilityLabel" [tooltipTone]="tooltipTone" tooltipPosition="top" tooltipSize="sm">
+                <app-icon [icon]="visibilityIcon" size="xs" />{{ visibilityLabel }}
+            </span>
+            <span [appTooltip]="'Status: ' + statusLabel" [tooltipTone]="status === 'ACTIVE' ? 'success' : tooltipTone" tooltipPosition="top" tooltipSize="sm">
+                <i class="folder__status-dot" aria-hidden="true"></i>{{ statusLabel }}
+            </span>
         </div>
     </div>
 </div>

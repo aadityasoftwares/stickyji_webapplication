@@ -1,6 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
-import { Pagination, Workspace } from '../models/workspace.models';
 import { WorkspaceService } from './workspace.service';
 import { WORKSPACE_MESSAGES } from '../messages/workspace.messages';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
@@ -13,9 +12,9 @@ export class WorkspaceStore {
 
     private readonly workspaceService = inject(WorkspaceService);
 
-    private readonly _workspaces = signal<readonly Workspace[]>([]);
+    private readonly _workspaces = signal<readonly any[]>([]);
     private readonly _selectedId = signal<string | null>(null);
-    private readonly _pagination = signal<Pagination | null>(null);
+    private readonly _pagination = signal<any | null>(null);
     private readonly _loading = signal(false);
     private readonly _saving = signal(false);
     private readonly _loaded = signal(false);
@@ -116,7 +115,7 @@ export class WorkspaceStore {
         );
     }
 
-    upsert(workspace: Workspace): void {
+    upsert(workspace: any): void {
 
         this._workspaces.update(current => {
 
@@ -139,7 +138,7 @@ export class WorkspaceStore {
         }
     }
 
-    updateWorkspace(id: string, values: Partial<Workspace>): void {
+    updateWorkspace(id: string, values: any): void {
 
         this._workspaces.update(current =>
             current.map(workspace =>
@@ -169,8 +168,8 @@ export class WorkspaceStore {
     }
 
     setWorkspaces(
-        workspaces: readonly Workspace[],
-        pagination: Pagination | null = null
+        workspaces: readonly any[],
+        pagination: any = null
     ): void {
 
         this._workspaces.set([...workspaces]);
@@ -181,7 +180,7 @@ export class WorkspaceStore {
         this.ensureSelectedWorkspace();
     }
 
-    setPagination(pagination: Pagination | null): void {
+    setPagination(pagination: any): void {
         this._pagination.set(pagination);
     }
 

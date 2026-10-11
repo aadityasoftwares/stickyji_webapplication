@@ -17,8 +17,8 @@ import { Select, type SelectOption, type SelectValue } from '../../../shared/com
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
-import { Workspace as WorkspaceModel, WorkspaceVisibility } from '../models/workspace.models';
 import { WorkspaceService } from '../services/workspace.service';
+import { WorkspaceStore } from '../services/workspace.store';
 import { WorkspaceFolderWrapper } from '../workspace-folder-wrapper/workspace-folder-wrapper';
 
 @Component({
@@ -38,18 +38,18 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   private desktopPreviewView?: EmbeddedViewRef<unknown>;
   private previewViewReady = false;
   @ViewChild('desktopPreview', { static: true }) private desktopPreviewTemplate!: TemplateRef<unknown>;
+
   ngAfterViewInit(): void {
     this.previewViewReady = true;
     this.scheduleDesktopPreview();
   }
+
   private scheduleDesktopPreview(): void {
     if (!this.previewViewReady || !isPlatformBrowser(this.previewPlatform)) return;
     queueMicrotask(() => {
       if (this.destroyRef.destroyed) return;
       if (!this.open) { this.removeDesktopPreview(); return; }
       if (this.desktopPreviewView) return;
-      // Keep Angular ownership and change detection, but move the visual root to body.
-      // Parent transforms, clipping and stacking contexts cannot contain the preview.
       const view = this.previewContainer.createEmbeddedView(this.desktopPreviewTemplate);
       this.desktopPreviewView = view;
       for (const node of view.rootNodes) {
@@ -58,6 +58,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
       view.detectChanges();
     });
   }
+
   private removeDesktopPreview(): void {
     const view = this.desktopPreviewView;
     if (!view) return;
@@ -74,6 +75,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   }
 
   private readonly workspaceApi = inject(WorkspaceService);
+  private readonly workspaceStore = inject(WorkspaceStore);
   private readonly toastService = inject(ToastService);
   private readonly sessionEnd$ = new Subject<void>();
   private editorId = '';
@@ -83,7 +85,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   private workspaceNameInput?: ElementRef<HTMLElement>;
   @Input() open = false;
   @Input() id = '';
-  @Input() workspace: Partial<WorkspaceModel> | null = null;
+  @Input() workspace: any | null = null;
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly saved = new EventEmitter<string>();
 
@@ -96,14 +98,15 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   readonly error = signal('');
   readonly name = signal('');
   readonly workspaceDescription = signal('');
-  readonly visibility = signal<WorkspaceVisibility>(WorkspaceVisibility.PRIVATE);
+  readonly visibility = signal<string>('PRIVATE');
   readonly isPersonal = signal(false);
   readonly dirty = signal(false);
-  readonly previewSource = signal<Partial<WorkspaceModel> | null>(null);
+  readonly previewSource = signal<any | null>(null);
+
   readonly visibilityOptions: readonly SelectOption[] = [
-    { label: 'Private', value: WorkspaceVisibility.PRIVATE },
-    { label: 'Invite only', value: WorkspaceVisibility.INVITE_ONLY },
-    { label: 'Public', value: WorkspaceVisibility.PUBLIC }
+    { label: 'Private', value: 'PRIVATE' },
+    { label: 'Invite only', value: 'INVITE_ONLY' },
+    { label: 'Public', value: 'PUBLIC' }
   ];
 
   constructor() {
@@ -129,9 +132,10 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     return !this.isBusy && !this.loadFailed() && length >= this.nameMinLength && length <= this.nameMaxLength;
   }
   get previewRole(): string {
-    const access = (this.previewSource() as { access?: { type?: string; isOwner?: boolean } } | null)?.access;
-    const role = this.isEdit ? (access?.isOwner ? 'OWNER' : access?.type || 'MEMBER') : 'OWNER';
-    return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+    const source = this.previewSource();
+    if (source?.role) return source.role;
+    if (this.isPersonal()) return 'Personal';
+    return 'Owner';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -160,15 +164,14 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (this.isBusy || this.loadFailed()) return;
     if (!this.canSubmit) {
       this.error.set(`Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`);
-      this.focusName();
       return;
     }
     const id = this.editorId;
     const isEdit = !!id;
-    const payload = {
+    const payload: { name: string; description: string | null; visibility?: string } = {
       name: this.name().trim(),
       description: this.workspaceDescription().trim() || null,
-      visibility: this.isPersonal() ? WorkspaceVisibility.PRIVATE : this.visibility()
+      ...(!this.isPersonal() ? { visibility: this.visibility() } : {})
     };
     const request$ = isEdit ? this.workspaceApi.update(id, payload) : this.workspaceApi.create(payload);
     this.loading.set(true);
@@ -180,11 +183,15 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     ).subscribe({
       next: response => {
         this.dirty.set(false);
+        const savedId = response?.data?.id || id || '';
         this.toastService.success(isEdit ? 'Workspace changes were saved.' : 'Workspace created successfully.', {
           title: isEdit ? 'Workspace updated' : 'Workspace created',
-          dedupeKey: `workspace-saved-${response.data.id || id || 'new'}`
+          dedupeKey: `workspace-saved-${savedId || 'new'}`
         });
-        this.saved.emit(response.data.id || id);
+        if (response?.data) {
+          this.workspaceStore.upsert(response.data);
+        }
+        this.saved.emit(savedId);
       },
       error: error => this.showError(error, isEdit ? 'Unable to update workspace.' : 'Unable to create workspace.')
     });
@@ -210,15 +217,13 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     this.previewSource.set(null);
     this.name.set('');
     this.workspaceDescription.set('');
-    this.visibility.set(WorkspaceVisibility.PRIVATE);
+    this.visibility.set('PRIVATE');
     this.isPersonal.set(false);
     this.editorId = String(this.id || this.workspace?.id || '').trim();
 
     if (!this.editorId) { this.focusName(); return; }
     if (this.workspace?.id === this.editorId) {
       this.applyWorkspace(this.workspace);
-      this.focusName();
-      return;
     }
     const id = this.editorId;
     this.loadingData.set(true);
@@ -239,19 +244,19 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     });
   }
 
-  private applyWorkspace(workspace: Partial<WorkspaceModel>): void {
+  private applyWorkspace(workspace: any): void {
     this.previewSource.set(workspace);
     this.name.set(workspace.name || '');
     this.workspaceDescription.set(workspace.description || '');
-    this.isPersonal.set(workspace.isPersonal === true);
-    this.visibility.set(this.isPersonal() ? WorkspaceVisibility.PRIVATE :
-      this.normalizeVisibility(workspace.visibility) || WorkspaceVisibility.PRIVATE);
+    this.isPersonal.set(Boolean(workspace.isPersonal || workspace.workspaceType === 'PERSONAL' || workspace.label === 'PERSONAL'));
+    this.visibility.set(this.isPersonal() ? 'PRIVATE' :
+      this.normalizeVisibility(workspace.visibility) || 'PRIVATE');
     this.dirty.set(false);
   }
 
-  private normalizeVisibility(value: unknown): WorkspaceVisibility | null {
-    return value === WorkspaceVisibility.PRIVATE || value === WorkspaceVisibility.PUBLIC ||
-      value === WorkspaceVisibility.INVITE_ONLY ? value : null;
+  private normalizeVisibility(value: unknown): string | null {
+    return value === 'PRIVATE' || value === 'PUBLIC' ||
+      value === 'INVITE_ONLY' ? value : null;
   }
 
   private markDirty(): void {
@@ -260,7 +265,11 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   }
 
   private showError(error: unknown, fallback: string): void {
-    const text = extractErrorMessage(error, fallback);
+    const status = (error as { status?: number } | null)?.status;
+    if (status === 401 || status === 403) {
+      this.loadFailed.set(true);
+    }
+    const text = extractErrorMessage(error, status === 403 ? 'You do not have permission to perform this action.' : status === 401 ? 'Your session has expired. Please sign in again.' : fallback);
     this.error.set(text);
     this.toastService.error(text, { title: 'Workspace', dedupeKey: `workspace-editor-${this.editorId || 'new'}` });
   }
@@ -285,3 +294,4 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     this.focusFrame = null;
   }
 }
+

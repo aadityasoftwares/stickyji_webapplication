@@ -1,3 +1,4 @@
+import { canWorkspaceAction } from '../../../shared/functions/workspace-access.function';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +19,7 @@ import {
 
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
+import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
@@ -32,7 +34,7 @@ import { WorkspaceStore } from '../services/workspace.store';
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 
 type TrashView = 'grid' | 'list';
-type TrashSort = 'deletedAt' | 'name';
+type TrashSort = 'deletedAt' | 'purgeAfter' | 'name';
 
 @Component({
   selector: 'app-workspace-trash',
@@ -44,6 +46,7 @@ type TrashSort = 'deletedAt' | 'name';
     AppInput,
     Badge,
     Button,
+    DeleteConfirmModal,
     Loader,
     Select,
     Tabs,
@@ -78,9 +81,11 @@ export class WorkspaceTrash implements OnInit {
   readonly view = signal<TrashView>('grid');
   readonly sortBy = signal<TrashSort>('deletedAt');
   readonly actionId = signal<string | null>(null);
+  readonly permanentTarget = signal<any | null>(null);
 
   readonly sortOptions: readonly SelectOption[] = [
     { label: 'Recently deleted', value: 'deletedAt' },
+    { label: 'Deletes soonest', value: 'purgeAfter' },
     { label: 'Name A–Z', value: 'name' }
   ];
 
@@ -100,16 +105,23 @@ export class WorkspaceTrash implements OnInit {
       list = list.filter((item: any) => {
         const name = this.workspaceName(item).toLowerCase();
         const desc = this.workspaceDescription(item).toLowerCase();
-        return name.includes(term) || desc.includes(term);
+        const slug = this.workspaceSlug(item).toLowerCase();
+        return name.includes(term) || desc.includes(term) || slug.includes(term);
       });
     }
 
     return [...list].sort((a: any, b: any) => {
       if (sort === 'name') {
-        return this.workspaceName(a).localeCompare(this.workspaceName(b));
+        return this.workspaceName(a).localeCompare(this.workspaceName(b), undefined, { sensitivity: 'base' });
       }
-      const timeA = this.timestamp(a?.deletedAt || a?.updatedAt || a?.createdAt);
-      const timeB = this.timestamp(b?.deletedAt || b?.updatedAt || b?.createdAt);
+
+      const timeA = this.timestamp(a?.[sort] ?? (sort === 'deletedAt' ? (a?.deletedAt || a?.updatedAt || a?.createdAt) : a?.purgeAfter));
+      const timeB = this.timestamp(b?.[sort] ?? (sort === 'deletedAt' ? (b?.deletedAt || b?.updatedAt || b?.createdAt) : b?.purgeAfter));
+
+      if (sort === 'purgeAfter') {
+        return timeA - timeB;
+      }
+
       return timeB - timeA;
     });
   });
@@ -118,7 +130,13 @@ export class WorkspaceTrash implements OnInit {
     this.loadTrash();
   }
 
+  can(workspace: any, action: any): boolean {
+    const current = this.workspaces().find(item => idOf(item) === idOf(workspace)) ?? workspace;
+    return canWorkspaceAction(current, action);
+  }
+
   loadTrash(): void {
+    if (this.loading()) return;
     this.loading.set(true);
     this.error.set(null);
 
@@ -153,7 +171,7 @@ export class WorkspaceTrash implements OnInit {
 
   setSort(value: SelectValue | SelectValue[] | null): void {
     if (value === null || Array.isArray(value)) return;
-    if (value === 'deletedAt' || value === 'name') {
+    if (value === 'deletedAt' || value === 'purgeAfter' || value === 'name') {
       this.sortBy.set(value);
     }
   }
@@ -166,7 +184,7 @@ export class WorkspaceTrash implements OnInit {
 
   restore(workspace: any): void {
     const id = this.workspaceId(workspace);
-    if (!id || this.actionId()) return;
+    if (!id || this.actionId() || !this.can(workspace, 'canRestore')) return;
 
     this.actionId.set(id);
 
@@ -187,9 +205,61 @@ export class WorkspaceTrash implements OnInit {
         },
         error: (error: any) => {
           this.actionId.set(null);
+          if (error?.status === 401 || error?.status === 403) {
+            this.permanentTarget.set(null);
+            this.loadTrash();
+          }
           this.toastService.error(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.RESTORE_FAILED), {
             title: 'Restore failed',
             dedupeKey: `restore-workspace-${id}`
+          });
+        }
+      });
+  }
+
+  requestPermanentDelete(workspace: any): void {
+    if (!this.actionId() && this.can(workspace, 'canPermanentlyDelete')) {
+      this.permanentTarget.set(workspace);
+    }
+  }
+
+  closePermanentDelete(): void {
+    if (!this.actionId()) {
+      this.permanentTarget.set(null);
+    }
+  }
+
+  confirmPermanentDelete(): void {
+    const workspace = this.permanentTarget();
+    const id = this.workspaceId(workspace);
+
+    if (!id || this.actionId() || !this.can(workspace, 'canPermanentlyDelete')) return;
+
+    this.actionId.set(id);
+
+    this.workspaceService
+      .permanentlyDelete(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.workspaces.update((items: any[]) => items.filter((item: any) => this.workspaceId(item) !== id));
+          this.actionId.set(null);
+          this.permanentTarget.set(null);
+
+          this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.PERMANENTLY_DELETED, {
+            title: 'Deleted permanently',
+            dedupeKey: `permanent-workspace-${id}`
+          });
+        },
+        error: (error: any) => {
+          this.actionId.set(null);
+          if (error?.status === 401 || error?.status === 403) {
+            this.permanentTarget.set(null);
+            this.loadTrash();
+          }
+          this.toastService.error(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
+            title: 'Delete failed',
+            dedupeKey: `permanent-workspace-${id}`
           });
         }
       });
@@ -207,6 +277,29 @@ export class WorkspaceTrash implements OnInit {
     return String(workspace?.description ?? '').trim();
   }
 
+  workspaceSlug(workspace: any): string {
+    return String(workspace?.slug ?? '').trim();
+  }
+
+  daysRemaining(workspace: any): number {
+    const purgeAfter = this.timestamp(workspace?.purgeAfter);
+    if (!purgeAfter) return 60;
+
+    return Math.max(
+      0,
+      Math.ceil((purgeAfter - Date.now()) / 86_400_000)
+    );
+  }
+
+  purgeLabel(workspace: any): string {
+    const days = this.daysRemaining(workspace);
+    if (days <= 0) {
+      return 'Pending cleanup';
+    }
+
+    return `${days} ${days === 1 ? 'day' : 'days'} left`;
+  }
+
   isBusy(workspace: any): boolean {
     return this.actionId() === this.workspaceId(workspace);
   }
@@ -217,3 +310,4 @@ export class WorkspaceTrash implements OnInit {
     return Number.isFinite(time) ? time : 0;
   }
 }
+

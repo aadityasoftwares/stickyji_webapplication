@@ -334,6 +334,7 @@ input {
         1px solid rgba($border, 0.82);
 }
 
+.workspace-filter-tabs,
 .workspace-status-tabs {
     min-width: 0;
     max-width: 100%;
@@ -2955,4 +2956,18 @@ $workspace-table-grid-columns: 36px minmax(200px, 2fr) minmax(95px, 0.9fr) minma
         margin-block: 0.25rem;
         border-color: $border-light;
     }
+}
+
+.workspace-ownership-filters {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 12px 16px 0;
+}
+.workspace-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
 }

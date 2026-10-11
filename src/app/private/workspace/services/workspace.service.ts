@@ -3,7 +3,6 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
-import { WorkspaceListApiResponse, WorkspaceListQuery } from '../models/workspace.models';
 
 @Injectable({
     providedIn: 'root',
@@ -11,8 +10,8 @@ import { WorkspaceListApiResponse, WorkspaceListQuery } from '../models/workspac
 export class WorkspaceService {
     private readonly http = inject(HttpClient);
 
-    getAllWorkspaces(query: WorkspaceListQuery = {}): Observable<WorkspaceListApiResponse> {
-        return this.http.post<WorkspaceListApiResponse>(
+    getAllWorkspaces(query: any = {}): Observable<any> {
+        return this.http.post<any>(
             API_ENDPOINTS.workspaces.getAll,
             query,
             {
@@ -81,6 +80,16 @@ export class WorkspaceService {
         );
     }
 
+    moveToTrash(id: any = ''): Observable<any> {
+        return this.http.put<any>(
+            `${API_ENDPOINTS.workspaces.base}/trash/${encodeURIComponent(String(id))}`,
+            {},
+            {
+                withCredentials: true,
+            },
+        );
+    }
+
     restore(id: any = ''): Observable<any> {
         return this.http.put<any>(
             API_ENDPOINTS.workspaces.restore(String(id)),
@@ -91,4 +100,21 @@ export class WorkspaceService {
         );
     }
 
+    permanentlyDelete(id: any = ''): Observable<any> {
+        return this.http.delete<any>(
+            `${API_ENDPOINTS.workspaces.base}/permanent/${encodeURIComponent(String(id))}`,
+            {
+                withCredentials: true,
+            },
+        );
+    }
+
+    getTrash(query: any = {}): Observable<any> {
+        return this.getMyWorkspaces({
+            status: 'DELETED',
+            ...query,
+        });
+    }
+
 }
+

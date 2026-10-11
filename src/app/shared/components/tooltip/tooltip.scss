@@ -5,35 +5,39 @@
  * Keep these styles global. Do NOT scope them under :host.
  */
 .app-tooltip-panel {
-    --app-tooltip-bg: #{$primary};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #000000;
+    --app-tooltip-bg: #1c1c20;
+    --app-tooltip-color: #f4f4f6;
+    --app-tooltip-border: rgba(255, 255, 255, 0.14);
 
     position: fixed;
     z-index: 2147483000;
 
     box-sizing: border-box;
     width: max-content;
-    min-width: 44px;
+    min-width: 36px;
     max-width: 280px;
 
     margin: 0;
-    padding: 8px 11px;
+    padding: 6px 10px;
 
     border: 1px solid var(--app-tooltip-border);
-    border-radius: 8px;
+    border-radius: 7px;
 
     color: var(--app-tooltip-color);
     background: var(--app-tooltip-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     box-shadow:
-        0 2px 0 rgba(17, 17, 17, 0.12),
-        0 8px 20px rgba(17, 17, 17, 0.18);
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 6px 16px rgba(0, 0, 0, 0.12),
+        0 12px 28px rgba(0, 0, 0, 0.08);
 
     font-family: $font-body;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.4;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
     text-align: center;
 
     white-space: normal;
@@ -43,31 +47,13 @@
 
     opacity: 0;
     visibility: hidden;
-    transform: translateY(2px) scale(0.98);
+    transform: translateY(2px) scale(0.97);
     transform-origin: center;
 
     transition:
-        opacity 120ms ease,
-        transform 120ms ease,
-        visibility 120ms ease;
-}
-
-.app-tooltip-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    opacity: 0.18;
-    background-image:
-        radial-gradient(circle at 20% 25%,
-            rgba(255, 255, 255, 0.55) 0,
-            transparent 1px),
-        radial-gradient(circle at 75% 70%,
-            rgba(17, 17, 17, 0.13) 0,
-            transparent 1px);
-    background-size: 11px 11px, 13px 13px;
-    pointer-events: none;
+        opacity 130ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 130ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-tooltip-ready {
@@ -85,8 +71,8 @@
 .app-tooltip-arrow {
     position: absolute;
     z-index: 1;
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border: 1px solid var(--app-tooltip-border);
     background: var(--app-tooltip-bg);
     transform: rotate(45deg);
@@ -95,127 +81,127 @@
 
 /* Sizes */
 .app-tooltip-sm {
-    padding: 6px 9px;
-    border-radius: 7px;
+    padding: 4px 8px;
+    border-radius: 6px;
     font-size: 11px;
 }
 
 .app-tooltip-md {
-    padding: 8px 11px;
-    border-radius: 8px;
+    padding: 6px 10px;
+    border-radius: 7px;
     font-size: 12px;
 }
 
 .app-tooltip-lg {
-    padding: 10px 13px;
-    border-radius: 10px;
+    padding: 8px 13px;
+    border-radius: 8px;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 /* Tones */
 .app-tooltip-dark,
 .app-tooltip-primary {
-    --app-tooltip-bg: #{$primary};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #000000;
+    --app-tooltip-bg: #1c1c20;
+    --app-tooltip-color: #f4f4f6;
+    --app-tooltip-border: rgba(255, 255, 255, 0.14);
 }
 
 .app-tooltip-paper {
-    --app-tooltip-bg: #{$paper};
-    --app-tooltip-color: #{$text-primary};
-    --app-tooltip-border: #{$border};
+    --app-tooltip-bg: #ffffff;
+    --app-tooltip-color: #1f2937;
+    --app-tooltip-border: #e2e8f0;
 }
 
 .app-tooltip-accent {
-    --app-tooltip-bg: #{$accent};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #b45309;
+    --app-tooltip-bg: #fffbeb;
+    --app-tooltip-color: #92400e;
+    --app-tooltip-border: #fcd34d;
 }
 
 .app-tooltip-success {
-    --app-tooltip-bg: #{$success};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #15803d;
+    --app-tooltip-bg: #f0fdf4;
+    --app-tooltip-color: #15803d;
+    --app-tooltip-border: #86efac;
 }
 
 .app-tooltip-warning {
-    --app-tooltip-bg: #{$warning};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #b45309;
+    --app-tooltip-bg: #fffbeb;
+    --app-tooltip-color: #92400e;
+    --app-tooltip-border: #fcd34d;
 }
 
 .app-tooltip-danger {
-    --app-tooltip-bg: #{$danger};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #b91c1c;
+    --app-tooltip-bg: #fef2f2;
+    --app-tooltip-color: #991b1b;
+    --app-tooltip-border: #fca5a5;
 }
 
 .app-tooltip-info {
-    --app-tooltip-bg: #{$info};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #1d4ed8;
+    --app-tooltip-bg: #eff6ff;
+    --app-tooltip-color: #1d4ed8;
+    --app-tooltip-border: #93c5fd;
 }
 
 .app-tooltip-noteYellow {
-    --app-tooltip-bg: #{$note-button-yellow};
-    --app-tooltip-color: #302b14;
-    --app-tooltip-border: #d4b939;
+    --app-tooltip-bg: #fffbeb;
+    --app-tooltip-color: #78350f;
+    --app-tooltip-border: #fde047;
 }
 
 .app-tooltip-noteOrange {
-    --app-tooltip-bg: #{$note-button-orange};
-    --app-tooltip-color: #713407;
-    --app-tooltip-border: #d99d4c;
+    --app-tooltip-bg: #fff7ed;
+    --app-tooltip-color: #9a3412;
+    --app-tooltip-border: #fdba74;
 }
 
 .app-tooltip-notePink {
-    --app-tooltip-bg: #{$note-button-pink};
-    --app-tooltip-color: #7e2247;
-    --app-tooltip-border: #db82a6;
+    --app-tooltip-bg: #fdf2f8;
+    --app-tooltip-color: #9d174d;
+    --app-tooltip-border: #f9a8d4;
 }
 
 .app-tooltip-noteRed {
-    --app-tooltip-bg: #{$note-button-red};
-    --app-tooltip-color: #822020;
-    --app-tooltip-border: #dc7773;
+    --app-tooltip-bg: #fef2f2;
+    --app-tooltip-color: #991b1b;
+    --app-tooltip-border: #fca5a5;
 }
 
 .app-tooltip-noteGreen {
-    --app-tooltip-bg: #{$note-button-green};
-    --app-tooltip-color: #245f31;
-    --app-tooltip-border: #87bf70;
+    --app-tooltip-bg: #f0fdf4;
+    --app-tooltip-color: #166534;
+    --app-tooltip-border: #86efac;
 }
 
 .app-tooltip-noteBlue {
-    --app-tooltip-bg: #{$note-button-blue};
-    --app-tooltip-color: #205576;
-    --app-tooltip-border: #75afd7;
+    --app-tooltip-bg: #eff6ff;
+    --app-tooltip-color: #1e40af;
+    --app-tooltip-border: #93c5fd;
 }
 
 .app-tooltip-notePurple {
-    --app-tooltip-bg: #{$note-button-purple};
-    --app-tooltip-color: #5c367d;
-    --app-tooltip-border: #a98bd0;
+    --app-tooltip-bg: #faf5ff;
+    --app-tooltip-color: #6b21a8;
+    --app-tooltip-border: #d8b4fe;
 }
 
 .app-tooltip-noteBrown {
-    --app-tooltip-bg: #{$note-button-brown};
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #684129;
+    --app-tooltip-bg: #fdf8f4;
+    --app-tooltip-color: #684129;
+    --app-tooltip-border: #d4b89e;
 }
 
 .app-tooltip-noteBlack {
-    --app-tooltip-bg: #{$note-black};
+    --app-tooltip-bg: #111113;
     --app-tooltip-color: #ffffff;
-    --app-tooltip-border: #000000;
+    --app-tooltip-border: rgba(255, 255, 255, 0.16);
 }
 
 /* Arrow: top */
 .app-tooltip-placement-top .app-tooltip-arrow,
 .app-tooltip-placement-top-start .app-tooltip-arrow,
 .app-tooltip-placement-top-end .app-tooltip-arrow {
-    bottom: -5px;
+    bottom: -4px;
     border-top: 0;
     border-left: 0;
 }
@@ -224,7 +210,7 @@
 .app-tooltip-placement-bottom .app-tooltip-arrow,
 .app-tooltip-placement-bottom-start .app-tooltip-arrow,
 .app-tooltip-placement-bottom-end .app-tooltip-arrow {
-    top: -5px;
+    top: -4px;
     border-right: 0;
     border-bottom: 0;
 }
@@ -238,19 +224,19 @@
 
 .app-tooltip-placement-top-start .app-tooltip-arrow,
 .app-tooltip-placement-bottom-start .app-tooltip-arrow {
-    left: 15px;
+    left: 14px;
 }
 
 .app-tooltip-placement-top-end .app-tooltip-arrow,
 .app-tooltip-placement-bottom-end .app-tooltip-arrow {
-    right: 15px;
+    right: 14px;
 }
 
 /* Arrow: left */
 .app-tooltip-placement-left .app-tooltip-arrow,
 .app-tooltip-placement-left-start .app-tooltip-arrow,
 .app-tooltip-placement-left-end .app-tooltip-arrow {
-    right: -5px;
+    right: -4px;
     border-left: 0;
     border-bottom: 0;
 }
@@ -259,7 +245,7 @@
 .app-tooltip-placement-right .app-tooltip-arrow,
 .app-tooltip-placement-right-start .app-tooltip-arrow,
 .app-tooltip-placement-right-end .app-tooltip-arrow {
-    left: -5px;
+    left: -4px;
     border-top: 0;
     border-right: 0;
 }
@@ -273,12 +259,12 @@
 
 .app-tooltip-placement-left-start .app-tooltip-arrow,
 .app-tooltip-placement-right-start .app-tooltip-arrow {
-    top: 13px;
+    top: 10px;
 }
 
 .app-tooltip-placement-left-end .app-tooltip-arrow,
 .app-tooltip-placement-right-end .app-tooltip-arrow {
-    bottom: 13px;
+    bottom: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {

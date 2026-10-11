@@ -14,10 +14,11 @@ import {
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { MembersStack } from '../../workspace-members/members-stack/members-stack';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
+import { Tooltip, TooltipTone } from '../../../shared/components/tooltip/tooltip';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, AppIcon, MembersStack],
+  imports: [CommonModule, AppIcon, MembersStack, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-workspace-folder-wrapper',
   styleUrl: './workspace-folder-wrapper.scss',
@@ -44,6 +45,7 @@ export class WorkspaceFolderWrapper {
   @Input() memberCount: number | null = null;
   @Input() interactive = false;
   @Input() busy = false;
+  @Input() tooltipTone: TooltipTone = 'paper';
   @Output() readonly opened = new EventEmitter<MouseEvent>();
   @Output() readonly edited = new EventEmitter<MouseEvent>();
   @Output() readonly keyboardOpened = new EventEmitter<void>();

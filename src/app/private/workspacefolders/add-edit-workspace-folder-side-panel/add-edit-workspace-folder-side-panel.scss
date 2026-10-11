@@ -162,12 +162,12 @@
     position: fixed;
     z-index: 2147483000;
     top: 90px;
-    right: 720px;
+    right: calc(45vw + 24px);
     display: grid;
     gap: 12px;
-    width: min(320px, calc(100vw - 760px));
+    width: min(320px, calc(55vw - 48px));
     max-height: calc(100dvh - 120px);
-    overflow: hidden;
+    overflow: visible;
     color: $text-primary;
     font-family: $font-body;
     pointer-events: none;

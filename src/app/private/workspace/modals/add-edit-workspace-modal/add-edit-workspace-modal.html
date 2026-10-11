@@ -37,13 +37,13 @@
                         labelDescription="Keep it short and easy to recognise." placeholder="Example: Product planning"
                         variant="paper" appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideFolder"
                         [required]="true" [clearable]="true" [showCounter]="true" [maxLength]="nameMaxLength"
-                        [value]="name()" [disabled]="isBusy" [fullWidth]="true" autocomplete="off"
+                        [value]="name()" [disabled]="isBusy || !canEdit" [fullWidth]="true" autocomplete="off"
                         (valueChange)="updateName($event)" (enterKey)="submit()" />
 
                     <app-input label="Description" labelDescription="Optional — describe what this workspace is for."
                         placeholder="Example: Notes and planning for the product team" variant="paper"
                         appearance="outlined" shape="rounded" size="md" [multiline]="true" [rows]="3" [clearable]="true"
-                        [value]="workspaceDescription()" [disabled]="isBusy" [fullWidth]="true"
+                        [value]="workspaceDescription()" [disabled]="isBusy || !canEdit" [fullWidth]="true"
                         (valueChange)="updateDescription($event)" />
 
                     <div class="workspace-modal-select-field">
@@ -52,7 +52,7 @@
                             [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateVisibility($event)"
                             name="workspace-visibility" placeholder="Choose visibility"
                             ariaLabel="Choose workspace visibility" variant="paper" shape="rounded" size="md"
-                            [disabled]="isBusy || isPersonal()" [clearable]="false" [searchable]="false"
+                            [disabled]="isBusy || isPersonal() || !canManageSettings" [clearable]="false" [searchable]="false"
                             [fullWidth]="true" />
                     </div>
                 </div>

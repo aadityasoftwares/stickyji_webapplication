@@ -2,6 +2,13 @@
   "extends": "./tsconfig.spec.json",
   "include": [
     "src/**/*.d.ts",
-    "src/app/private/workspace/workspace.spec.ts"
+    "src/app/private/workspace/workspace.spec.ts",
+    "src/app/private/workspace/workspace-rendering.spec.ts",
+    "src/app/private/workspace/workspace-trash/workspace-trash.spec.ts",
+    "src/app/private/workspace/add-edit-workspace-side-panel/add-edit-workspace-side-panel.spec.ts",
+    "src/app/private/workspace/modals/add-edit-workspace-modal/add-edit-workspace-modal.spec.ts",
+    "src/app/private/workspacefolders/workspacefolders.spec.ts",
+    "src/app/public/auth/state/auth.store.spec.ts",
+    "src/app/shared/functions/workspace-access.function.spec.ts"
   ]
 }

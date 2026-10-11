@@ -6,6 +6,7 @@ import {
   Output
 } from '@angular/core';
 import { AvatarSize, AvatarShape, AvatarTone, AvatarStatus, Avatar } from '../../../shared/components/avatar/avatar';
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 
 
 /**
@@ -36,7 +37,7 @@ export interface MembersStackItem {
 @Component({
   selector: 'app-members-stack',
   standalone: true,
-  imports: [Avatar],
+  imports: [Avatar, Tooltip],
   templateUrl: './members-stack.html',
   styleUrl: './members-stack.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

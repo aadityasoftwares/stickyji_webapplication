@@ -60,6 +60,8 @@ export type WorkspacePreferenceView =
 
 export type WorkspacePreferenceStatusFilter =
     | 'ALL'
+    | 'OWNED'
+    | 'SHARED'
     | 'ACTIVE'
     | 'ARCHIVED';
 

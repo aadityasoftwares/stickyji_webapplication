@@ -11,6 +11,8 @@ import { UserPreferenceService } from '../user-preferences/services/user-prefere
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
 
+const ownerActions = { canView: true, canEdit: true, canManageSettings: true, canArchive: true, canTrash: true };
+
 describe('Workspace', () => {
   let component: Workspace;
   let fixture: ComponentFixture<Workspace>;
@@ -108,6 +110,19 @@ describe('Workspace', () => {
     ]);
   });
 
+  it('saves and restores tab preferences for all space statuses including owned and shared', () => {
+    loadedPreferences.next({ data: [] });
+    component.setWorkspaceFilter('owned');
+    expect(preferenceApi.createPreference).toHaveBeenCalledWith('workspaceStatusFilter', 'OWNED');
+    expect(component.activeFilter()).toBe('owned');
+    expect(component.accessFilter()).toBe('OWNED');
+
+    component.setWorkspaceFilter('shared');
+    expect(preferenceApi.updatePreference).toHaveBeenCalledWith('workspaceStatusFilter', 'SHARED');
+    expect(component.activeFilter()).toBe('shared');
+    expect(component.accessFilter()).toBe('SHARED');
+  });
+
   it('rolls back the displayed settings when saves fail', () => {
     loadedPreferences.next({ data: [] });
     preferenceApi.createPreference.mockImplementation(() => throwError(() => new Error('Save failed')));
@@ -140,9 +155,9 @@ describe('Workspace', () => {
     ['OLDEST_FIRST', ['c', 'b', 'a']],
   ])('applies the saved %s sort order', (value, expected) => {
     component.workspaces.set([
-      { id: 'a', name: 'Beta', status: 'ACTIVE', createdAt: '2026-01-01', updatedAt: '2026-03-03' },
-      { id: 'b', name: 'Alpha', status: 'ARCHIVED', createdAt: '2026-01-02', updatedAt: '2026-03-02' },
-      { id: 'c', name: 'Gamma', status: 'ACTIVE', createdAt: '2026-01-03', updatedAt: '2026-03-01' },
+      { allowedActions: ownerActions, id: 'a', name: 'Beta', status: 'ACTIVE', createdAt: '2026-01-01', updatedAt: '2026-03-03' },
+      { allowedActions: ownerActions, id: 'b', name: 'Alpha', status: 'ARCHIVED', createdAt: '2026-01-02', updatedAt: '2026-03-02' },
+      { allowedActions: ownerActions, id: 'c', name: 'Gamma', status: 'ACTIVE', createdAt: '2026-01-03', updatedAt: '2026-03-01' },
     ]);
     preferences.updatePreference('workspaceSortOrder', value);
     expect(component.visibleWorkspaces().map(item => item.id)).toEqual(expected);
@@ -152,20 +167,21 @@ describe('Workspace', () => {
   });
 
   it('finishes bulk archive after successes, failures and skipped selections', () => {
+    workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
     const first = new Subject();
     const second = new Subject();
     workspaceApi.updateStatus.mockImplementation(id => id === 'a' ? first : second);
     component.workspaces.set([
-      { id: 'a', status: 'ACTIVE' },
-      { id: 'b', status: 'ACTIVE' },
-      { id: 'c', status: 'ARCHIVED' },
+      { allowedActions: ownerActions, id: 'a', status: 'ACTIVE' },
+      { allowedActions: ownerActions, id: 'b', status: 'ACTIVE' },
+      { allowedActions: ownerActions, id: 'c', status: 'ARCHIVED' },
     ]);
-    component.selectedWorkspaceIds.set(new Set(['a', 'b', 'c', 'missing']));
+    component.selectedWorkspaceIds.set(new Set(['a', 'b']));
 
     component.bulkArchiveSelected();
     expect(workspaceApi.updateStatus.mock.calls).toEqual([['a', 'ARCHIVED'], ['b', 'ARCHIVED']]);
     second.error(new Error('Archive failed'));
-    expect(component.selectedCount()).toBe(4);
+    expect(component.selectedCount()).toBe(2);
     expect(toast.success).not.toHaveBeenCalled();
     first.next({});
     first.complete();
@@ -176,10 +192,11 @@ describe('Workspace', () => {
   });
 
   it('removes only successful bulk deletions and preserves the remaining store selection', () => {
+    workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
     const first = new Subject();
     const second = new Subject();
     workspaceApi.delete.mockImplementation(id => id === 'a' ? first : second);
-    const workspaces: any[] = [{ id: 'a' }, { id: 'b' }];
+    const workspaces: any[] = [{ allowedActions: ownerActions, id: 'a' }, { allowedActions: ownerActions, id: 'b' }];
     component.workspaces.set(workspaces);
     workspaceStore.setWorkspaces(workspaces);
     component.selectedWorkspaceIds.set(new Set(['a', 'b']));
@@ -199,7 +216,8 @@ describe('Workspace', () => {
   });
 
   it('clears unsuccessful bulk selections without a success notification', () => {
-    component.workspaces.set([{ id: 'a', status: 'ACTIVE' }]);
+    workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
+    component.workspaces.set([{ allowedActions: ownerActions, id: 'a', status: 'ACTIVE' }]);
     workspaceApi.updateStatus.mockReturnValue(throwError(() => new Error('Archive failed')));
     workspaceApi.delete.mockReturnValue(throwError(() => new Error('Delete failed')));
     component.selectedWorkspaceIds.set(new Set(['a']));
@@ -226,6 +244,7 @@ describe('Workspace', () => {
     component.loadWorkspaces();
     expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(2);
     expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      access: 'ALL',
       page: 1,
       limit: 20,
       status: 'ALL',
@@ -285,6 +304,7 @@ describe('Workspace', () => {
     vi.advanceTimersByTime(300);
 
     expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      access: 'ALL',
       page: 1,
       limit: 20,
       status: 'ALL',
@@ -293,7 +313,9 @@ describe('Workspace', () => {
     });
 
     component.onClearSearch();
+    vi.advanceTimersByTime(300);
     expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      access: 'ALL',
       page: 1,
       limit: 20,
       status: 'ALL',
@@ -305,7 +327,7 @@ describe('Workspace', () => {
 
   it('validates inline rename and keeps a failed rename available for retry', () => {
     vi.useFakeTimers();
-    const workspace: any = { id: 'a', name: 'Original', status: 'ACTIVE' };
+    const workspace: any = { allowedActions: ownerActions, id: 'a', name: 'Original', status: 'ACTIVE' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     component.beginInlineRename(workspace);
@@ -336,7 +358,8 @@ describe('Workspace', () => {
   });
 
   it('preserves status request payloads, store updates and busy guards', () => {
-    const workspace: any = { id: 'a', name: 'Space', status: 'ACTIVE' };
+    workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
+    const workspace: any = { allowedActions: ownerActions, id: 'a', name: 'Space', status: 'ACTIVE' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     const response = new Subject();
@@ -359,7 +382,7 @@ describe('Workspace', () => {
   });
 
   it('keeps a failed delete dialog open and removes the workspace after retry', () => {
-    const workspace: any = { id: 'a', name: 'Space' };
+    const workspace: any = { allowedActions: ownerActions, id: 'a', name: 'Space' };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     const response = new Subject();
@@ -399,4 +422,103 @@ describe('Workspace', () => {
       queryParams: { workspaceId: 'ws-123' },
     });
   });
+  it('requests ownership on the server and preserves search, status, sort and view', () => {
+    loadedPreferences.next({ data: [] });
+    component.searchTerm.set('Roadmap');
+    component.onStatusChange('archived');
+    component.onSortChange('name-desc');
+    component.page.set(3);
+    component.onAccessChange('SHARED');
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
+      access: 'SHARED', status: 'ARCHIVED', sortBy: 'NAME_DESC', search: 'Roadmap', page: 1, limit: 20,
+    });
+    const requests = workspaceApi.getAllWorkspaces.mock.calls.length;
+    component.onViewChange('list');
+    component.onAccessChange('SHARED');
+    expect(component.accessFilter()).toBe('SHARED');
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(requests);
+  });
+
+  it('cancels stale filtered requests and uses backend labels and counts, including zero', () => {
+    const oldResponse = new Subject();
+    const newResponse = new Subject();
+    workspaceApi.getAllWorkspaces.mockReturnValueOnce(oldResponse).mockReturnValueOnce(newResponse);
+    component.onAccessChange('OWNED');
+    component.onAccessChange('SHARED');
+    newResponse.next({ data: [], meta: { total: 0, accessFilters: [
+      { value: 'ALL', label: 'Every space', count: 80 },
+      { value: 'OWNED', label: 'Created by me', count: 80 },
+      { value: 'SHARED', label: 'Invited spaces', count: 0 },
+    ] } });
+    newResponse.complete();
+    oldResponse.next({ data: [{ id: 'stale' }] });
+    expect(component.workspaces()).toEqual([]);
+    expect(component.accessFilters()[0]).toEqual({ value: 'ALL', label: 'Every space', count: 80 });
+    expect(component.accessFilters()[2].count).toBe(0);
+    expect(component.emptyMessage()).toBe('No shared workspaces yet.');
+  });
+
+  it('keeps legacy responses readable without inventing ownership counts or privileges', () => {
+    workspaceApi.getAllWorkspaces.mockReturnValue(of({ data: { items: [{ id: 'legacy', name: 'Legacy' }] } }));
+    component.loadWorkspaces();
+    expect(component.workspaces()[0].name).toBe('Legacy');
+    expect(component.accessFilters().every(item => item.count === undefined)).toBe(true);
+    expect(component.can(component.workspaces()[0], 'canEdit')).toBe(false);
+  });
+
+  it('uses actual type and role labels and excludes non-active memberships and trash', () => {
+    const shared = { id: 'shared', status: 'ACTIVE', workspaceType: 'PERSONAL' as const, isPersonal: false,
+      workspaceTypeLabel: 'Personal space', access: { type: 'MEMBER', label: 'Editor', membership: { status: 'ACTIVE' } } };
+    component.workspaces.set([shared, { ...shared, id: 'pending', access: { membership: { status: 'PENDING' } } },
+      { id: 'trash', status: 'DELETED' }]);
+    expect(component.visibleWorkspaces().map(item => item.id)).toEqual(['shared']);
+    expect(component.isPersonalWorkspace(shared)).toBe(true);
+    expect(component.workspaceTypeLabel(shared)).toBe('Personal space');
+    expect(component.workspaceRoleLabel(shared)).toBe('Editor');
+  });
+
+  it('does not inherit owner privileges across workspaces or bulk selections', () => {
+    const owner = { id: 'owner', status: 'ACTIVE', allowedActions: ownerActions };
+    const viewer = { id: 'viewer', status: 'ACTIVE', allowedActions: { canView: true } };
+    component.workspaces.set([owner, viewer]);
+    component.openEditEditor(viewer);
+    component.beginInlineRename(viewer);
+    component.archiveWorkspace(viewer);
+    component.requestDelete(viewer);
+    component.selectedWorkspaceIds.set(new Set(['owner', 'viewer']));
+    component.bulkArchiveSelected();
+    component.bulkDeleteSelected();
+    expect(component.workspaceEditorOpen()).toBe(false);
+    expect(component.inlineRenameId()).toBeNull();
+    expect(component.deleteTarget()).toBeNull();
+    expect(workspaceApi.updateStatus).not.toHaveBeenCalled();
+    expect(workspaceApi.delete).not.toHaveBeenCalled();
+    expect(component.can(owner, 'canEdit')).toBe(true);
+  });
+
+  it('checks refreshed permissions again before confirming a destructive action', () => {
+    const owner = { id: 'owner', status: 'ACTIVE', allowedActions: ownerActions };
+    component.workspaces.set([owner]);
+    component.requestDelete(owner);
+    component.workspaces.set([{ ...owner, allowedActions: { canView: true } }]);
+    component.confirmDelete();
+    expect(workspaceApi.delete).not.toHaveBeenCalled();
+  });
+
+  it('refreshes owned spaces and counts after creation without inventing ownership', () => {
+    component.onAccessChange('SHARED');
+    component.onWorkspaceSaved('new-owned');
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith(expect.objectContaining({ access: 'OWNED', page: 1 }));
+    expect(component.accessFilter()).toBe('OWNED');
+  });
+
+  it('does not repeat a pending search already requested by an ownership change', () => {
+    vi.useFakeTimers();
+    workspaceApi.getAllWorkspaces.mockClear();
+    component.onSearch('notes');
+    component.onAccessChange('OWNED');
+    vi.advanceTimersByTime(300);
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(1);
+  });
+
 });

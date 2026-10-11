@@ -10,14 +10,16 @@
     @if (interactive) {
     <button class="members-stack-item" type="button" [style.z-index]="itemZIndex(index)"
         [disabled]="disabled || (member.disabled ?? false)" [attr.aria-label]="memberTitle(member)"
-        [attr.title]="memberTitle(member)" (click)="selectMember(member, $event)">
+        [appTooltip]="memberTitle(member)" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
+        (click)="selectMember(member, $event)">
 
         <app-avatar [src]="member.src ?? null" [name]="member.name" [alt]="member.alt ?? member.name"
             [initials]="member.initials ?? ''" [size]="size" [tone]="resolvedTone(member)" [shape]="shape"
             [status]="member.status ?? 'none'" [bordered]="bordered" [elevated]="elevated" [decorative]="true" />
     </button>
     } @else {
-    <span class="members-stack-item" [style.z-index]="itemZIndex(index)" [attr.title]="memberTitle(member)">
+    <span class="members-stack-item" [style.z-index]="itemZIndex(index)" [attr.aria-label]="memberTitle(member)"
+        [appTooltip]="memberTitle(member)" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm">
 
         <app-avatar [src]="member.src ?? null" [name]="member.name" [alt]="member.alt ?? member.name"
             [initials]="member.initials ?? ''" [size]="size" [tone]="resolvedTone(member)" [shape]="shape"
@@ -29,13 +31,15 @@
     @if (hasOverflow) {
     @if (interactive) {
     <button class="members-stack-item members-stack-overflow" type="button" [style.z-index]="1" [disabled]="disabled"
-        [attr.aria-label]="overflowTitle()" [attr.title]="overflowTitle()" (click)="selectOverflow($event)">
+        [attr.aria-label]="overflowTitle()" [appTooltip]="overflowTitle()" tooltipTone="paper" tooltipPosition="top"
+        tooltipSize="sm" (click)="selectOverflow($event)">
 
         <app-avatar [name]="overflowTitle()" [initials]="overflowInitials()" [size]="size" tone="neutral"
             [shape]="shape" [bordered]="bordered" [elevated]="elevated" [decorative]="true" />
     </button>
     } @else {
-    <span class="members-stack-item members-stack-overflow" [style.z-index]="1" [attr.title]="overflowTitle()">
+    <span class="members-stack-item members-stack-overflow" [style.z-index]="1" [attr.aria-label]="overflowTitle()"
+        [appTooltip]="overflowTitle()" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm">
 
         <app-avatar [name]="overflowTitle()" [initials]="overflowInitials()" [size]="size" tone="neutral"
             [shape]="shape" [bordered]="bordered" [elevated]="elevated" />

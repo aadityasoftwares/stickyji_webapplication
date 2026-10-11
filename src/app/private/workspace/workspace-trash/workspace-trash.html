@@ -8,14 +8,14 @@
                 <div>
                     <span class="workspace-trash-kicker">Recovery space</span>
                     <h1 id="workspace-trash-page-title">Workspace trash</h1>
-                    <p>Deleted workspaces can be restored back to your active workspace list.</p>
+                    <p>Deleted workspaces stay recoverable for 60 days before automatic permanent cleanup.</p>
                 </div>
             </div>
 
             <div class="workspace-trash-header-actions">
                 <div class="workspace-trash-count-slot" aria-live="polite">
                     @if (!loading() && !error()) {
-                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')" variant="noteYellow"
+                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' workspace' : ' workspaces')" variant="noteYellow"
                         size="sm" shape="pill" />
                     } @else {
                     <span class="workspace-trash-count-placeholder" aria-hidden="true"></span>
@@ -37,7 +37,7 @@
                     <span class="workspace-trash-retention-icon" aria-hidden="true">
                         <app-icon [icon]="LucideClock3" size="xs" />
                     </span>
-                    <span>Trash recovery</span>
+                    <span>60-day recovery</span>
                 </div>
 
                 <div class="workspace-trash-toolbar-actions">
@@ -94,7 +94,7 @@
                     </span>
                     <span class="workspace-trash-empty-note">Nothing waiting for recovery</span>
                     <h2>Trash is clear</h2>
-                    <p>Workspaces moved to Trash will appear here and can be restored back at any time.</p>
+                    <p>Workspaces moved to Trash will stay here for up to 60 days before permanent cleanup.</p>
                     <app-button label="Back to Workspaces" [iconLeft]="LucideArrowLeft" variant="noteYellow" size="sm"
                         (buttonClick)="goBackToWorkspaces()" />
                 </div>
@@ -116,13 +116,28 @@
 
                         <div class="workspace-trash-card-meta">
                             <div class="workspace-trash-card-meta-copy">
-                                <span>Deleted {{ (space?.deletedAt || space?.updatedAt || space?.createdAt) | userDate }}</span>
+                                <span class="workspace-trash-days" [class.is-urgent]="daysRemaining(space) <= 7">
+                                    <app-icon [icon]="LucideClock3" size="xs" />
+                                    {{ purgeLabel(space) }}
+                                </span>
+                                @if (space?.deletedAt) {
+                                <span>Deleted {{ space.deletedAt | userDate }}</span>
+                                }
                             </div>
 
                             <div class="workspace-trash-card-actions">
-                                <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                                @if (can(space, 'canRestore')) {
+<app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
                                     appearance="standard" size="xs" [loading]="isBusy(space)"
                                     [disabled]="!!actionId() && !isBusy(space)" (buttonClick)="restore(space)" />
+}
+                                @if (can(space, 'canPermanentlyDelete')) {
+<app-button [icon]="LucideTrash2" [iconOnly]="true" variant="danger"
+                                    appearance="standard" size="xs" [rounded]="true"
+                                    [ariaLabel]="'Delete ' + workspaceName(space) + ' permanently'"
+                                    [title]="'Delete permanently'" [disabled]="!!actionId()"
+                                    (buttonClick)="requestPermanentDelete(space)" />
+}
                             </div>
                         </div>
                     </article>
@@ -141,13 +156,26 @@
                             @if (workspaceDescription(space)) {
                             <span>{{ workspaceDescription(space) }}</span>
                             }
-                            <small>Deleted {{ (space?.deletedAt || space?.updatedAt || space?.createdAt) | userDate }}</small>
+                            <span class="workspace-trash-days" [class.is-urgent]="daysRemaining(space) <= 7">
+                                <app-icon [icon]="LucideClock3" size="xs" />
+                                {{ purgeLabel(space) }}
+                            </span>
+                            @if (space?.purgeAfter) {
+                            <small>Permanent deletion {{ space.purgeAfter | userDate }}</small>
+                            }
                         </div>
 
                         <div class="workspace-trash-list-actions">
-                            <app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
+                            @if (can(space, 'canRestore')) {
+<app-button label="Restore" [iconLeft]="LucideArchiveRestore" variant="noteYellow"
                                 appearance="standard" size="sm" [loading]="isBusy(space)"
                                 [disabled]="!!actionId() && !isBusy(space)" (buttonClick)="restore(space)" />
+}
+                            @if (can(space, 'canPermanentlyDelete')) {
+<app-button label="Delete permanently" [iconLeft]="LucideTrash2" variant="danger"
+                                appearance="standard" size="sm" [disabled]="!!actionId()"
+                                (buttonClick)="requestPermanentDelete(space)" />
+}
                         </div>
                     </article>
                     }
@@ -157,3 +185,11 @@
         </section>
     </main>
 </section>
+
+<app-delete-confirm-modal [open]="!!permanentTarget()" mode="permanent" title="Delete this workspace permanently?"
+    [itemName]="permanentTarget() ? workspaceName(permanentTarget()) : ''"
+    message="This permanently removes the workspace and its related workspace data. You cannot restore it afterward."
+    supportingText="Use Restore instead if there is any chance you may need this workspace again."
+    confirmLabel="Delete permanently" cancelLabel="Keep in trash"
+    [busy]="!!permanentTarget() && actionId() === workspaceId(permanentTarget())" (closed)="closePermanentDelete()"
+    (confirmed)="confirmPermanentDelete()" />

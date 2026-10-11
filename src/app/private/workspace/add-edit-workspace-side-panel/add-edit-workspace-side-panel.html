@@ -3,8 +3,11 @@
         aria-label="Live workspace preview" inert>
         <app-badge label="Live preview" variant="neutral" size="sm" />
         <app-workspace-folder-wrapper [name]="name()" [description]="workspaceDescription()" [personal]="isPersonal()"
-            [visibility]="visibility()" [roleLabel]="previewRole" [status]="previewSource()?.status || 'ACTIVE'"
-            [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt" [interactive]="false" />
+            [typeLabel]="isPersonal() ? 'Personal' : 'Team'" [visibility]="visibility()" [roleLabel]="previewRole"
+            [status]="previewSource()?.status || 'ACTIVE'"
+            [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt"
+            [folderCount]="previewSource()?.folderCount ?? null" [members]="previewSource()?.members ?? []"
+            [memberCount]="previewSource()?.memberCount ?? null" [interactive]="false" />
     </aside>
 </ng-template>
 
@@ -64,9 +67,11 @@
         <section class="workspace-mobile-preview" aria-label="Live workspace preview" inert>
             <app-badge label="Live preview" variant="neutral" size="sm" />
             <app-workspace-folder-wrapper [name]="name()" [description]="workspaceDescription()"
-                [personal]="isPersonal()" [visibility]="visibility()" [roleLabel]="previewRole"
-                [status]="previewSource()?.status || 'ACTIVE'"
-                [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt" [interactive]="false" />
+                [personal]="isPersonal()" [typeLabel]="isPersonal() ? 'Personal' : 'Team'" [visibility]="visibility()"
+                [roleLabel]="previewRole" [status]="previewSource()?.status || 'ACTIVE'"
+                [updatedAt]="previewSource()?.updatedAt || previewSource()?.createdAt"
+                [folderCount]="previewSource()?.folderCount ?? null" [members]="previewSource()?.members ?? []"
+                [memberCount]="previewSource()?.memberCount ?? null" [interactive]="false" />
         </section>
         }
         @if (error()) {

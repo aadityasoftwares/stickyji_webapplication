@@ -8,6 +8,7 @@
     "src/app/shared/services/user-date-time-formatter.service.spec.ts",
     "src/app/shared/pipes/user-date.pipe.spec.ts",
     "src/app/private/workspace/workspace.spec.ts",
-    "src/app/private/workspace/workspace-trash/workspace-trash.spec.ts"
+    "src/app/private/workspace/workspace-trash/workspace-trash.spec.ts",
+    "src/app/private/workspace/add-edit-workspace-side-panel/add-edit-workspace-side-panel.spec.ts"
   ]
 }

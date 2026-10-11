@@ -19,7 +19,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Subscription, finalize, switchMap, throwError } from 'rxjs';
+import { WorkspaceService } from '../workspace/services/workspace.service';
+import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -122,6 +124,8 @@ export class Workspacefolders implements OnInit, OnChanges {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly folderApi = inject(WorkspaceFolderService);
+  private readonly workspaceApi = inject(WorkspaceService);
+  private folderLoadSubscription?: Subscription;
   private readonly folderStore = inject(WorkspaceFolderStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
@@ -562,6 +566,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   loadFolders(savedId = '', created = false, workspaceId = this.selectedWorkspaceId()): void {
+    this.folderLoadSubscription?.unsubscribe();
     const id = workspaceId.trim();
     if (!id) {
       this.clearPageForNoWorkspace();
@@ -572,9 +577,17 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.error.set(null);
     this.folderStore.setLoading(true);
 
-    this.folderApi
-      .getAllWorkspaceFolders({ page: 1, limit: 100 })
+    this.folderLoadSubscription = this.workspaceApi
+      .getById(id)
       .pipe(
+        switchMap(response => {
+          const workspace = response?.data;
+          this.workspaceStore.updateWorkspace(id, workspace ?? { allowedActions: {} });
+          if (!canWorkspaceAction(workspace, 'canView')) {
+            return throwError(() => ({ status: 403, error: { message: 'You no longer have permission to view this workspace.' } }));
+          }
+          return this.folderApi.getAllWorkspaceFolders({ workspaceId: id, page: 1, limit: 100 });
+        }),
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )

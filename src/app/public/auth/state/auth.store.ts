@@ -1,4 +1,6 @@
-import { Injectable, computed, inject, signal, } from '@angular/core';
+import { Injectable, computed, effect, inject, signal, } from '@angular/core';
+import { WorkspaceRoleApiService } from '../../../private/roles-permissions/services/workspace-role.service';
+import type { WorkspaceRole } from '../../../private/roles-permissions/models/workspace-role.models';
 import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
 import { AuthSession, AuthenticatedUser, } from '../models/auth.models';
 
@@ -7,6 +9,42 @@ import { AuthSession, AuthenticatedUser, } from '../models/auth.models';
 })
 
 export class AuthStore {
+    private readonly roles = inject(WorkspaceRoleApiService);
+    private readonly permissionsRequested = signal(false);
+    private readonly resolvedGlobalRole = signal<WorkspaceRole | null>(null);
+
+    readonly canCreateWorkspace = computed(() => {
+        const role = this.resolvedGlobalRole() ?? this.role();
+        if (!this.user() || !role || role.isActive === false || role.scope !== 'GLOBAL') return false;
+        return role.permissions?.some(permission => {
+            if (typeof permission === 'string') return permission === 'WORKSPACE_CREATE' || permission === 'WORKSPACE.CREATE';
+            if (!permission || typeof permission !== 'object') return false;
+            const grant = permission as { module?: string; action?: string; isActive?: boolean };
+            return grant.isActive !== false && grant.module === 'WORKSPACE' && grant.action === 'CREATE';
+        }) ?? false;
+    });
+
+    constructor() {
+        effect(onCleanup => {
+            const requested = this.permissionsRequested();
+            const user = this.user();
+            const roleId = this.roleId();
+            this.resolvedGlobalRole.set(null);
+            if (!requested || !user || !roleId) return;
+            const subscription = this.roles.getById(roleId).subscribe({
+                next: response => {
+                    const role = response.data;
+                    if ((role.id ?? role._id) === roleId && role.scope === 'GLOBAL') this.resolvedGlobalRole.set(role);
+                },
+                error: () => this.resolvedGlobalRole.set(null),
+            });
+            onCleanup(() => subscription.unsubscribe());
+        });
+    }
+
+    loadGlobalPermissions(): void {
+        this.permissionsRequested.set(true);
+    }
     private readonly preferences = inject(UserPreferenceStore);
     private readonly userState = signal<AuthenticatedUser | null>(null);
     private readonly accessTokenState = signal<string | null>(null);
@@ -87,6 +125,7 @@ export class AuthStore {
 
     setSession(session: AuthSession,): void {
         if (this.userId() !== session?.user?.id) this.preferences.reset();
+        this.resolvedGlobalRole.set(null);
         this.userState.set(session?.user);
         this.sessionIdState.set(session?.sessionId);
         this.accessTokenState.set(session?.tokens?.accessToken);
@@ -95,6 +134,7 @@ export class AuthStore {
 
     setUser(user: AuthenticatedUser,): void {
         if (this.userId() !== user?.id) this.preferences.reset();
+        this.resolvedGlobalRole.set(null);
         this.userState.set(user);
     }
 
@@ -105,6 +145,7 @@ export class AuthStore {
             return;
         }
 
+        this.resolvedGlobalRole.set(null);
         this.userState.set({
             ...current,
             ...values,
@@ -121,6 +162,7 @@ export class AuthStore {
 
     clearSession(): void {
         this.preferences.reset();
+        this.resolvedGlobalRole.set(null);
         this.userState.set(null);
         this.accessTokenState.set(null);
         this.sessionIdState.set(null);
