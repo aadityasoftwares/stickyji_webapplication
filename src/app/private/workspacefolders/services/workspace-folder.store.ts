@@ -1,11 +1,13 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
+import { idOf } from '../../../shared/functions/common.function';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { Pagination, WorkspaceFolder } from '../models/workspace-folder.models';
 import { WorkspaceFolderService } from './workspace-folder.service';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceFolderStore {
+    private loadSubscription?: Subscription;
     private readonly workspaceFolderService = inject(WorkspaceFolderService);
 
     private readonly _folders = signal<readonly WorkspaceFolder[]>([]);
@@ -57,43 +59,27 @@ export class WorkspaceFolderStore {
             return;
         }
 
-        if (this._loading()) {
-            return;
-        }
-
+        if (this._loading() && this._workspaceId() === id && !force) return;
+        this.loadSubscription?.unsubscribe();
+        this.resetForWorkspace(id);
         this._loading.set(true);
         this._error.set(null);
 
-        this.workspaceFolderService.getAllWorkspaceFolders({ workspaceId: id, page: 1, limit: 100 })
-            .pipe(finalize(() => this._loading.set(false)))
-            .subscribe({
-                next: (response: any) => {
-                    const folders =
-                        response?.data?.folders ??
-                        response?.data?.workspaceFolders ??
-                        response?.data?.items ??
-                        response?.data ??
-                        [];
-
-                    const pagination =
-                        response?.meta ??
-                        response?.data?.meta ??
-                        response?.data?.pagination ??
-                        response?.pagination ??
-                        null;
-
-                    this.setFolders(
-                        id,
-                        Array.isArray(folders) ? folders : [],
-                        pagination
-                    );
+        this.loadSubscription = this.workspaceFolderService.getFolderOptions(id)
+            .pipe(
+                finalize(() => this._loading.set(false)),
+            ).subscribe({
+                next: folders => {
+                    if (this._workspaceId() === id) this.setFolders(id, folders);
                 },
-                error: (error: any) => {
+                error: error => {
+                    if (this._workspaceId() !== id) return;
+                    this._folders.set([]);
+                    this._selectedId.set(null);
                     this._error.set(extractErrorMessage(error, 'Failed to load workspace folders'));
-                }
+                },
             });
     }
-
     select(id: string | null): void {
         if (!id) {
             this._selectedId.set(null);
@@ -101,7 +87,7 @@ export class WorkspaceFolderStore {
         }
 
         const exists = this._folders()
-            .some(folder => folder.id === id);
+            .some(folder => folder.id === id && folder.status === 'ACTIVE');
 
         if (!exists) {
             return;
@@ -111,7 +97,7 @@ export class WorkspaceFolderStore {
     }
 
     selectFirst(): void {
-        const folder = this._folders()[0];
+        const folder = this._folders().find(folder => folder.status === 'ACTIVE');
         this._selectedId.set(folder?.id ?? null);
     }
 
@@ -125,6 +111,8 @@ export class WorkspaceFolderStore {
     }
 
     upsert(folder: WorkspaceFolder): void {
+        if (idOf(folder.workspaceId) !== this._workspaceId()) return;
+        if (folder.status === 'DELETED') { this.remove(folder.id); return; }
         this._folders.update(current => {
             const index = current.findIndex(item => item.id === folder.id);
 
@@ -137,9 +125,7 @@ export class WorkspaceFolderStore {
             return next;
         });
 
-        if (!this._selectedId()) {
-            this._selectedId.set(folder.id);
-        }
+        this.ensureSelectedFolder();
     }
 
     updateFolder(id: string, values: Partial<WorkspaceFolder>): void {
@@ -210,6 +196,7 @@ export class WorkspaceFolderStore {
             return;
         }
 
+        this.loadSubscription?.unsubscribe();
         this._workspaceId.set(workspaceId);
         this._folders.set([]);
         this._selectedId.set(null);
@@ -229,6 +216,7 @@ export class WorkspaceFolderStore {
     }
 
     reset(): void {
+        this.loadSubscription?.unsubscribe();
         this._folders.set([]);
         this._workspaceId.set(null);
         this._selectedId.set(null);
@@ -248,14 +236,13 @@ export class WorkspaceFolderStore {
             return;
         }
 
-        if (selectedId && folders.some(folder => folder.id === selectedId)) {
+        if (selectedId && folders.some(folder => folder.id === selectedId && folder.status === 'ACTIVE')) {
             return;
         }
 
         const preferred =
             folders.find(folder => folder.status === 'ACTIVE' && folder.isDefault) ??
             folders.find(folder => folder.status === 'ACTIVE') ??
-            folders[0] ??
             null;
 
         this._selectedId.set(preferred?.id ?? null);

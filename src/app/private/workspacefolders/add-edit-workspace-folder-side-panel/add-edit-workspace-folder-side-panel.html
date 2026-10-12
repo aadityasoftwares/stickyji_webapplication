@@ -5,12 +5,12 @@
         <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
             [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
             [roleLabel]="isDefaultFolder ? 'Default' : ('#' + previewPosition)"
-            [status]="'ACTIVE'" [countLabel]="'0 notes'" [interactive]="false" />
+            [status]="previewSource()?.status || 'ACTIVE'" [interactive]="false" />
     </aside>
 </ng-template>
 
 <app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
-    [headerNote]="statusText" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="isBusy"
+    [headerNote]="statusText" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="loading()"
     ariaLabel="Workspace folder editor" (closed)="close()">
 
     <form panel-body class="workspace-folder-editor" (ngSubmit)="$event.preventDefault()" novalidate>
@@ -87,7 +87,7 @@
             <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
                 [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
                 [roleLabel]="isDefaultFolder ? 'Default' : ('#' + previewPosition)"
-                [status]="'ACTIVE'" [countLabel]="'0 notes'" [interactive]="false" />
+                [status]="previewSource()?.status || 'ACTIVE'" [interactive]="false" />
         </section>
         }
 

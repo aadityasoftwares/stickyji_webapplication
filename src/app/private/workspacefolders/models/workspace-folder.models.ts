@@ -34,6 +34,8 @@ export interface WorkspaceFolder {
     updatedBy?: string | WorkspaceFolderUserSummary | null;
     createdAt: string;
     updatedAt: string;
+    deletedAt?: string | null;
+    purgeAfter?: string | null;
 }
 
 export interface WorkspaceFolderCreateRequest {
@@ -44,7 +46,6 @@ export interface WorkspaceFolderCreateRequest {
     icon?: string | null;
     color?: string | null;
     position?: number;
-    isDefault?: boolean;
 }
 
 export interface WorkspaceFolderUpdateRequest {
@@ -54,7 +55,6 @@ export interface WorkspaceFolderUpdateRequest {
     icon?: string | null;
     color?: string | null;
     position?: number;
-    isDefault?: boolean;
 }
 
 export interface WorkspaceFolderQuery {
@@ -62,7 +62,7 @@ export interface WorkspaceFolderQuery {
     page?: number;
     limit?: number;
     search?: string;
-    status?: WorkspaceFolderStatus;
+    status?: WorkspaceFolderStatus | 'ALL';
     isDefault?: boolean;
     createdBy?: string;
     sortBy?: 'name' | 'position' | 'createdAt' | 'updatedAt';
@@ -83,5 +83,6 @@ export interface Pagination {
 }
 
 export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
-    pagination: Pagination;
+    meta: Pagination & { counts?: Partial<Record<'all' | 'active' | 'inactive' | 'archived' | 'deleted', number>> };
+    pagination?: Pagination;
 }

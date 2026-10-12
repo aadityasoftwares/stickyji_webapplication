@@ -488,16 +488,8 @@ export class MyNotes implements OnInit, OnChanges {
     const requestVersion = ++this.folderRequestVersion;
     this.workspaceFolderStore.resetForWorkspace(workspaceId);
     this.workspaceFolderStore.setLoading(true);
-    const query: any = {
-      workspaceId,
-      page: 1,
-      limit: 100,
-      status: 'ACTIVE',
-      sortBy: 'position',
-      sortOrder: 'asc'
-    };
     this.folderApi
-      .getAllWorkspaceFolders(query)
+      .getFolderOptions(workspaceId)
       .pipe(
         finalize(() => this.workspaceFolderStore.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
@@ -505,14 +497,7 @@ export class MyNotes implements OnInit, OnChanges {
       .subscribe({
         next: response => {
           if (requestVersion !== this.folderRequestVersion || this.selectedWorkspaceId() !== workspaceId) return;
-          const folders = extractList(response);
-          const pagination =
-            response?.meta ??
-            response?.data?.meta ??
-            response?.pagination ??
-            response?.data?.pagination ??
-            null;
-          this.workspaceFolderStore.setFolders(workspaceId, folders, pagination);
+          this.workspaceFolderStore.setFolders(workspaceId, response);
           this.selectInitialFolder();
         },
         error: error => {

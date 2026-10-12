@@ -19,11 +19,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, finalize, switchMap, throwError } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, from, map, mergeMap, of, switchMap, takeUntil, throwError, toArray } from 'rxjs';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
   LucideArchive,
   LucideArrowRight,
@@ -67,11 +67,9 @@ import { WorkspaceFolderStore } from './services/workspace-folder.store';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
-import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import {
   USER_PREFERENCE_KEYS,
-  VIEW_TABS,
-  buildStatusTabs
+  VIEW_TABS
 } from '../../shared/constants/common.constants';
 import {
   entityNameOf,
@@ -79,18 +77,23 @@ import {
   extractList,
   idOf
 } from '../../shared/functions/common.function';
-import type { WorkspaceFolder, WorkspaceFolderStatus } from './models/workspace-folder.models';
+import type { WorkspaceFolder, WorkspaceFolderStatus, WorkspaceFolderQuery, PaginatedApiResponse } from './models/workspace-folder.models';
 import { WORKSPACE_FOLDER_MESSAGES } from './messages/workspace-folder.messages';
 import { VALIDATION_MESSAGES } from '../../shared/constants/common.messages';
-import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
 
-type FolderTab = 'all' | 'active' | 'archived';
+
+import { canFolderAction, type FolderAction, type FolderWorkspaceAccess } from '../../shared/functions/workspace-folder-access.function';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { Tooltip, TooltipTone } from '../../shared/components/tooltip/tooltip';
+import { Highlight } from '../../shared/directives/highlight.directive';
+
+type FolderTab = 'all' | 'active' | 'archived' | 'inactive' | 'deleted';
 type FolderView = 'grid' | 'list';
-type FolderSort = 'position' | 'updatedAt' | 'createdAt' | 'name';
+type FolderSort = 'position' | 'updatedAt' | 'createdAt' | 'name' | 'name-desc' | 'oldest';
 
 interface FolderTheme {
-  variant: CardVariant;
-  icon: any;
+  variant: TooltipTone;
+  icon: typeof LucideFolder | typeof LucideStar;
 }
 
 @Component({
@@ -98,6 +101,7 @@ interface FolderTheme {
   standalone: true,
   imports: [
     CommonModule,
+    DeleteConfirmModal,
     FormsModule,
     MatDividerModule,
     MatMenuModule,
@@ -112,9 +116,10 @@ interface FolderTheme {
     Select,
     StickyCard,
     Tabs,
+    Tooltip,
+    Highlight,
     WorkspaceFolderWrapper,
-    UserDatePipe,
-    UserTimePipe
+    UserDatePipe
   ],
   templateUrl: './workspacefolders.html',
   styleUrl: './workspacefolders.scss',
@@ -126,11 +131,23 @@ export class Workspacefolders implements OnInit, OnChanges {
   private readonly folderApi = inject(WorkspaceFolderService);
   private readonly workspaceApi = inject(WorkspaceService);
   private folderLoadSubscription?: Subscription;
+  private requestVersion = 0;
+  private requestedQuery = '';
+  private readonly searchChanges = new Subject<string>();
+  private readonly workspaceEnd = new Subject<void>();
+  readonly accessWorkspace = signal<FolderWorkspaceAccess | null>(null);
+  readonly page = signal(1);
+  readonly pagination = signal({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  readonly counts = signal<NonNullable<PaginatedApiResponse<WorkspaceFolder>['meta']['counts']>>({});
+  readonly bulkBusy = signal(false);
+  readonly bulkDeleteOpen = signal(false);
+  readonly permanentTarget = signal<WorkspaceFolder | null>(null);
+  readonly view = computed<FolderView>(() => this.userPreferenceStore.workspaceView() === 'LIST' ? 'list' : 'grid');
   private readonly folderStore = inject(WorkspaceFolderStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly toastService = inject(ToastService);
-  private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+
 
   @Input() workspaceId = '';
 
@@ -196,7 +213,6 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly activeTab = signal<FolderTab>('all');
-  readonly view = signal<FolderView>('grid');
   readonly sortBy = signal<FolderSort>('position');
   readonly searchTerm = signal('');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
@@ -204,11 +220,6 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly folderEditorOpen = signal(false);
   readonly folderEditorId = signal('');
   readonly folderEditorFolder = signal<WorkspaceFolder | null>(null);
-
-  /* Aliases for compatibility */
-  readonly folderModalOpen = this.folderEditorOpen;
-  readonly folderModalId = this.folderEditorId;
-  readonly folderModalFolder = this.folderEditorFolder;
 
   readonly inlineRenameId = signal<string | null>(null);
   readonly inlineRenameName = signal('');
@@ -222,110 +233,36 @@ export class Workspacefolders implements OnInit, OnChanges {
     { label: 'Folder order', value: 'position' },
     { label: 'Recently updated', value: 'updatedAt' },
     { label: 'Recently created', value: 'createdAt' },
+    { label: 'Name Z–A', value: 'name-desc' },
+    { label: 'Oldest', value: 'oldest' },
     { label: 'Name A–Z', value: 'name' }
   ];
   readonly viewTabs = VIEW_TABS;
 
-  readonly totalCount = computed(() => this.folders().filter(folder => !this.isDeleted(folder)).length);
-  readonly activeCount = computed(() => this.folders().filter(folder => this.isActive(folder)).length);
-  readonly archivedCount = computed(() => this.folders().filter(folder => this.isArchived(folder)).length);
+  readonly totalCount = computed(() => this.counts().all ?? this.pagination().total);
+  readonly folderTabs = computed<readonly TabItem[]>(() => [
+    { value: 'all', label: 'All', count: this.counts().all },
+    { value: 'active', label: 'Active', count: this.counts().active },
+    { value: 'archived', label: 'Archived', count: this.counts().archived },
+    { value: 'inactive', label: 'Inactive', count: this.counts().inactive },
+    { value: 'deleted', label: 'Trash', count: this.counts().deleted },
+  ]);
+  readonly visibleFolders = this.folders.asReadonly();
+  readonly folderGroups = computed(() => ['ACTIVE', 'ARCHIVED', 'INACTIVE', 'DELETED'].map(status => {
+    const items = this.visibleFolders().filter(folder => folder.status === status);
+    return { id: status.toLowerCase(), label: status === 'DELETED' ? 'Trashed folders' : `${status[0]}${status.slice(1).toLowerCase()} Folders`,
+      status, accent: status === 'ACTIVE' ? '#10b981' : '#64748b', items, count: items.length };
+  }).filter(group => group.count > 0));
 
-  readonly folderTabs = computed<readonly TabItem[]>(() =>
-    buildStatusTabs({
-      all: this.totalCount(),
-      active: this.activeCount(),
-      archived: this.archivedCount()
-    })
-  );
+  canAction(folder: WorkspaceFolder | null, action: FolderAction): boolean {
+    return canFolderAction(this.accessWorkspace(), folder, action, !this.error() && this.folders().some(item => item.id === folder?.id));
+  }
 
-  readonly nextFolderPosition = computed(() => {
-    const folders = this.folders().filter(folder => !this.isDeleted(folder));
-    return folders.length
-      ? Math.max(...folders.map(folder => this.folderPosition(folder))) + 1
-      : 0;
-  });
-
-  readonly visibleFolders = computed(() => {
-    const tab = this.activeTab();
-    const search = this.searchTerm().trim().toLowerCase();
-    const sort = this.sortBy();
-
-    const filtered = this.folders().filter(folder => {
-      if (this.isDeleted(folder)) return false;
-      if (tab === 'active' && !this.isActive(folder)) return false;
-      if (tab === 'archived' && !this.isArchived(folder)) return false;
-      if (!search) return true;
-
-      const name = this.folderName(folder).toLowerCase();
-      const description = this.folderDescription(folder).toLowerCase();
-      const status = this.folderStatusLabel(folder).toLowerCase();
-      const type = this.isDefault(folder) ? 'default folder' : 'folder';
-      const pos = String(this.folderPosition(folder));
-
-      return (
-        name.includes(search) ||
-        description.includes(search) ||
-        status.includes(search) ||
-        type.includes(search) ||
-        pos.includes(search)
-      );
-    });
-
-    return [...filtered].sort((first, second) => {
-      if (sort === 'name') {
-        return this.folderName(first).localeCompare(this.folderName(second), undefined, { sensitivity: 'base' });
-      }
-      if (sort === 'position') {
-        const byPos = this.folderPosition(first) - this.folderPosition(second);
-        return byPos || this.folderName(first).localeCompare(this.folderName(second), undefined, { sensitivity: 'base' });
-      }
-      const firstDate = this.folderTimestamp(first, sort as 'createdAt' | 'updatedAt');
-      const secondDate = this.folderTimestamp(second, sort as 'createdAt' | 'updatedAt');
-      return secondDate - firstDate;
-    });
-  });
-
-  readonly folderGroups = computed(() => {
-    const list = this.visibleFolders();
-    const tab = this.activeTab();
-    const isSearchActive = !!this.searchTerm().trim();
-
-    const groups: Array<{
-      id: string;
-      label: string;
-      status: 'ACTIVE' | 'ARCHIVED';
-      accent: string;
-      items: readonly WorkspaceFolder[];
-      count: number;
-    }> = [];
-
-    if (tab === 'all' || tab === 'active') {
-      const activeItems = list.filter((f) => this.isActive(f));
-      groups.push({
-        id: 'active',
-        label: 'Active Folders',
-        status: 'ACTIVE',
-        accent: '#10b981',
-        items: activeItems,
-        count: activeItems.length,
-      });
-    }
-
-    if (tab === 'all' || tab === 'archived') {
-      const archivedItems = list.filter((f) => this.isArchived(f));
-      groups.push({
-        id: 'archived',
-        label: 'Archived Folders',
-        status: 'ARCHIVED',
-        accent: '#64748b',
-        items: archivedItems,
-        count: archivedItems.length,
-      });
-    }
-
-    return groups.filter((g) => g.count > 0 || !isSearchActive);
-  });
-
+  canBulk(action: FolderAction): boolean {
+    const selected = this.folders().filter(folder => this.selectedFolderIds().has(folder.id));
+    return !this.bulkBusy() && selected.length > 0 && selected.length === this.selectedCount() &&
+      selected.every(folder => !this.isBusy(folder) && this.canAction(folder, action) && (action !== 'canArchive' || folder.status === 'ACTIVE'));
+  }
   toggleGroup(groupId: string): void {
     this.collapsedGroups.update((set) => {
       const next = new Set(set);
@@ -342,12 +279,13 @@ export class Workspacefolders implements OnInit, OnChanges {
     return this.collapsedGroups().has(groupId);
   }
 
-  isFolderSelected(folder: any): boolean {
+  isFolderSelected(folder: WorkspaceFolder | null): boolean {
     const id = this.folderId(folder);
     return !!id && this.selectedFolderIds().has(id);
   }
 
-  toggleFolderSelection(folder: any, checked: boolean): void {
+  toggleFolderSelection(folder: WorkspaceFolder | null, checked: boolean): void {
+    if (!folder || this.isBusy(folder) || (!this.canAction(folder, 'canTrash') && !this.canAction(folder, 'canArchive'))) return;
     const id = this.folderId(folder);
     if (!id) return;
 
@@ -363,14 +301,14 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   isAllSelected(folders?: readonly WorkspaceFolder[]): boolean {
-    const target = folders ?? this.visibleFolders();
+    const target = (folders ?? this.visibleFolders()).filter(folder => this.canAction(folder, 'canTrash') || this.canAction(folder, 'canArchive'));
     if (!target.length) return false;
     const set = this.selectedFolderIds();
     return target.every((f) => set.has(this.folderId(f)));
   }
 
   isSomeSelected(folders?: readonly WorkspaceFolder[]): boolean {
-    const target = folders ?? this.visibleFolders();
+    const target = (folders ?? this.visibleFolders()).filter(folder => this.canAction(folder, 'canTrash') || this.canAction(folder, 'canArchive'));
     if (!target.length) return false;
     const set = this.selectedFolderIds();
     const selected = target.filter((f) => set.has(this.folderId(f)));
@@ -378,8 +316,8 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   toggleSelectAll(checked: boolean, folders?: readonly WorkspaceFolder[]): void {
-    const target = folders ?? this.visibleFolders();
-    if (!target.length) return;
+    const target = (folders ?? this.visibleFolders()).filter(folder => this.canAction(folder, 'canTrash') || this.canAction(folder, 'canArchive'));
+    if (!target.length || this.bulkBusy()) return;
 
     this.selectedFolderIds.update((set) => {
       const next = new Set(set);
@@ -401,109 +339,68 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.selectedFolderIds.set(new Set());
   }
 
-  bulkArchiveSelected(): void {
-    const ids = Array.from(this.selectedFolderIds());
-    if (!ids.length) return;
-
-    const activeNonDefault = ids.filter((id) => {
-      const folder = this.folders().find((f) => this.folderId(f) === id);
-      return folder && this.isActive(folder) && !this.isDefault(folder);
-    });
-
-    if (!activeNonDefault.length) {
-      this.toastService.warning('Selected folders are either default or already archived');
-      this.clearSelection();
-      return;
-    }
-
-    let completed = 0;
-    let updatedCount = 0;
-    activeNonDefault.forEach((id) => {
-      this.folderApi
-        .updateStatus(id, 'ARCHIVED')
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.folders.update((items) =>
-              items.map((item) =>
-                this.folderId(item) === id ? { ...item, status: 'ARCHIVED' as WorkspaceFolderStatus } : item
-              )
-            );
-            completed++;
-            updatedCount++;
-            if (completed === activeNonDefault.length) {
-              if (updatedCount > 0) {
-                this.toastService.success(
-                  `Archived ${updatedCount} ${updatedCount === 1 ? 'folder' : 'folders'}`
-                );
-              }
-              this.clearSelection();
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === activeNonDefault.length) {
-              if (updatedCount > 0) {
-                this.toastService.success(
-                  `Archived ${updatedCount} ${updatedCount === 1 ? 'folder' : 'folders'}`
-                );
-              }
-              this.clearSelection();
-            }
-          },
-        });
-    });
-  }
-
+  bulkArchiveSelected(): void { this.runBulk('canArchive'); }
   bulkDeleteSelected(): void {
-    const ids = Array.from(this.selectedFolderIds());
-    if (!ids.length) return;
+    if (this.canBulk('canTrash')) this.bulkDeleteOpen.set(true);
+  }
+  confirmBulkDelete(): void { this.runBulk('canTrash'); }
 
-    const deletableIds = ids.filter((id) => {
-      const folder = this.folders().find((f) => this.folderId(f) === id);
-      return folder && !this.isDefault(folder);
-    });
-
-    if (!deletableIds.length) {
-      this.toastService.warning('Default folders cannot be deleted');
+  private runBulk(action: 'canArchive' | 'canTrash'): void {
+    if (!this.canBulk(action)) return;
+    const selected = this.folders().filter(folder => this.selectedFolderIds().has(folder.id));
+    this.bulkBusy.set(true);
+    from(selected).pipe(
+      mergeMap(folder => (action === 'canArchive' ? this.folderApi.updateStatus(folder.id, 'ARCHIVED') : this.folderApi.delete(folder.id)).pipe(
+        map(() => { this.folderStore.remove(folder.id); this.syncSelectedPreference(); return true; }),
+        catchError(error => { this.refreshAccessOnError(error); return of(false); }),
+      ), 3),
+      toArray(), takeUntil(this.workspaceEnd), takeUntilDestroyed(this.destroyRef),
+      finalize(() => { this.bulkBusy.set(false); this.bulkDeleteOpen.set(false); }),
+    ).subscribe(results => {
+      const succeeded = results.filter(Boolean).length;
+      const failed = results.length - succeeded;
+      if (succeeded) this.toastService.success(`${succeeded} folder(s) ${action === 'canArchive' ? 'archived' : 'moved to trash'}.`);
+      if (failed) this.toastService.error(`${failed} folder(s) could not be updated.`);
       this.clearSelection();
-      return;
-    }
-
-    let completed = 0;
-    let deletedCount = 0;
-    deletableIds.forEach((id) => {
-      this.folderApi
-        .delete(id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.folders.update((items) => items.filter((f) => this.folderId(f) !== id));
-            this.folderStore.remove(id);
-            completed++;
-            deletedCount++;
-            if (completed === deletableIds.length) {
-              this.toastService.success(
-                `Moved ${deletedCount} ${deletedCount === 1 ? 'folder' : 'folders'} to trash`
-              );
-              this.clearSelection();
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === deletableIds.length) {
-              if (deletedCount > 0) {
-                this.toastService.success(
-                  `Moved ${deletedCount} ${deletedCount === 1 ? 'folder' : 'folders'} to trash`
-                );
-              }
-              this.clearSelection();
-            }
-          },
-        });
+      this.loadFolders();
     });
   }
 
+  requestPermanentDelete(folder: WorkspaceFolder): void {
+    if (!this.isBusy(folder) && this.canAction(folder, 'canPermanentlyDelete')) this.permanentTarget.set(folder);
+  }
+
+  confirmPermanentDelete(): void {
+    const folder = this.permanentTarget();
+    if (!folder || this.deleting() || !this.canAction(folder, 'canPermanentlyDelete')) return;
+    this.deleting.set(true);
+    this.folderApi.permanentlyDelete(folder.id).pipe(
+      takeUntil(this.workspaceEnd), takeUntilDestroyed(this.destroyRef), finalize(() => this.deleting.set(false)),
+    ).subscribe({
+      next: () => {
+        this.permanentTarget.set(null);
+        this.folderStore.remove(folder.id);
+        this.syncSelectedPreference();
+        this.toastService.success('Folder permanently deleted.');
+        this.loadFolders();
+      },
+      error: error => {
+        this.refreshAccessOnError(error);
+        this.toastService.error(extractErrorMessage(error, 'Could not permanently delete folder.'));
+      },
+    });
+  }
+
+  private refreshAccessOnError(error: unknown): void {
+    const status = (error as { status?: number })?.status;
+    if (status === 401 || status === 403) {
+      this.accessWorkspace.set(null);
+      this.clearSelection();
+      this.folderStore.reset();
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, '');
+      this.loadFolders();
+    }
+  }
   isKeyCopied(id?: string): boolean {
     return !!(id && this.copiedKeyMap()[id]);
   }
@@ -529,7 +426,13 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.clearFolderClickTimer());
+    this.searchChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.requestedQuery === JSON.stringify({ ...this.buildListQuery(this.selectedWorkspaceId()), page: 1 })) return;
+        this.page.set(1); this.loadFolders();
+      });
+    this.destroyRef.onDestroy(() => { this.clearFolderClickTimer(); this.workspaceEnd.next(); this.workspaceEnd.complete(); });
+
 
     effect(() => {
       const workspaceId = this.workspaceStore.selectedId();
@@ -541,9 +444,15 @@ export class Workspacefolders implements OnInit, OnChanges {
 
       if (this.loadedWorkspaceId === workspaceId) return;
 
+      this.workspaceEnd.next();
+      this.folderLoadSubscription?.unsubscribe();
+      this.folders.set([]);
+      this.accessWorkspace.set(null);
+      this.folderStore.resetForWorkspace(workspaceId);
+      this.page.set(1);
       this.loadedWorkspaceId = workspaceId;
       this.resetInteractionState();
-      this.loadFolders('', false, workspaceId);
+      this.loadFolders(workspaceId);
     });
   }
 
@@ -565,7 +474,8 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.workspaceStore.load(true);
   }
 
-  loadFolders(savedId = '', created = false, workspaceId = this.selectedWorkspaceId()): void {
+  loadFolders(workspaceId = this.selectedWorkspaceId()): void {
+    const version = ++this.requestVersion;
     this.folderLoadSubscription?.unsubscribe();
     const id = workspaceId.trim();
     if (!id) {
@@ -573,9 +483,11 @@ export class Workspacefolders implements OnInit, OnChanges {
       return;
     }
 
+    const query = this.buildListQuery(id);
+    this.requestedQuery = JSON.stringify(query);
     this.loading.set(true);
     this.error.set(null);
-    this.folderStore.setLoading(true);
+    this.clearSelection();
 
     this.folderLoadSubscription = this.workspaceApi
       .getById(id)
@@ -583,34 +495,39 @@ export class Workspacefolders implements OnInit, OnChanges {
         switchMap(response => {
           const workspace = response?.data;
           this.workspaceStore.updateWorkspace(id, workspace ?? { allowedActions: {} });
-          if (!canWorkspaceAction(workspace, 'canView')) {
+          this.accessWorkspace.set(workspace ?? null);
+          if (!canWorkspaceAction(workspace, 'canView') || !['ACTIVE', 'ARCHIVED'].includes(workspace?.status)) {
             return throwError(() => ({ status: 403, error: { message: 'You no longer have permission to view this workspace.' } }));
           }
-          return this.folderApi.getAllWorkspaceFolders({ workspaceId: id, page: 1, limit: 100 });
+          return this.folderApi.getAllWorkspaceFolders(query);
         }),
-        finalize(() => this.loading.set(false)),
+        finalize(() => { if (version === this.requestVersion) this.loading.set(false); }),
+        takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: any) => {
+        next: response => {
           if (this.selectedWorkspaceId() !== id) return;
 
           const folders = extractList<WorkspaceFolder>(response);
           this.folders.set(folders);
-          this.folderStore.setFolders(id, folders, response.pagination ?? null);
-          this.ensureSelectedFolder(folders);
-
-          if (savedId) {
-            const savedFolder = folders.find(folder => this.folderId(folder) === savedId);
-            if (savedFolder) {
-              if (created) this.folderCreated.emit(savedFolder);
-              else this.folderChanged.emit(savedFolder);
-            }
+          const meta = response.meta ?? response.pagination;
+          const total = meta?.total ?? folders.length;
+          const totalPages = meta?.totalPages ?? Math.ceil(total / 20);
+          this.pagination.set({ page: meta?.page ?? this.page(), limit: meta?.limit ?? 20, total, totalPages });
+          this.counts.set(response.meta?.counts ?? {});
+          if (this.page() > Math.max(1, totalPages)) {
+            this.page.set(Math.max(1, totalPages));
+            this.loadFolders();
+            return;
           }
+
         },
         error: error => {
           if (this.selectedWorkspaceId() !== id) return;
           this.folders.set([]);
+          this.accessWorkspace.set(null);
+          this.folderStore.reset();
           const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.LOAD_FAILED);
           this.error.set(message);
           this.folderStore.setError(message);
@@ -635,38 +552,57 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   setFolderTab(value: TabValue): void {
-    if (value === 'all' || value === 'active' || value === 'archived') this.activeTab.set(value);
+    if (['all', 'active', 'archived', 'inactive', 'deleted'].includes(String(value)) && value !== this.activeTab()) {
+      this.activeTab.set(value as FolderTab); this.page.set(1); this.loadFolders();
+    }
   }
 
   setFolderView(value: TabValue): void {
-    if (value === 'grid' || value === 'list') this.view.set(value);
+    if (value === 'grid' || value === 'list') this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_VIEW, value.toUpperCase());
   }
 
   updateSearch(value: InputValue): void {
-    this.searchTerm.set(String(value ?? ''));
+    const term = String(value ?? '').slice(0, 100);
+    if (term === this.searchTerm()) return;
+    this.searchTerm.set(term);
+    this.folderLoadSubscription?.unsubscribe();
+    this.clearSelection();
+    this.searchChanges.next(term);
   }
 
-  clearSearch(): void {
-    this.searchTerm.set('');
-  }
+  clearSearch(): void { this.updateSearch(''); }
 
   setSort(value: SelectValue): void {
-    if (value) this.sortBy.set(value as FolderSort);
+    if (value !== this.sortBy() && this.sortOptions.some(option => option.value === value)) { this.sortBy.set(value as FolderSort); this.page.set(1); this.loadFolders(); }
   }
 
   openFolder(folder: WorkspaceFolder): void {
     const id = this.folderId(folder);
-    if (!id || this.isBusy(folder)) return;
+    if (!id || this.isBusy(folder) || !this.canAction(folder, 'canView')) return;
 
+    this.folderStore.resetForWorkspace(this.selectedWorkspaceId());
+    this.folderStore.upsert(folder);
     this.folderStore.select(id);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, id);
     this.folderOpened.emit(folder);
     this.router.navigate(routeCommands(APP_ROUTES.MY_NOTES));
   }
 
+  openContextMenu(folder: WorkspaceFolder, event: MouseEvent | KeyboardEvent, trigger: MatMenuTrigger): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.clearFolderClickTimer();
+    if (!this.isBusy(folder) && this.folders().some(item => item.id === folder.id)) trigger.openMenu();
+  }
+
+  handleFolderMenuClick(folder: WorkspaceFolder, event: Event): void {
+    event.stopPropagation();
+    this.clearFolderClickTimer();
+  }
+
   handleFolderClick(folder: WorkspaceFolder, event: MouseEvent): void {
     event.stopPropagation();
-    if (this.isBusy(folder) || this.isInlineRenaming(folder)) return;
+    if (this.isBusy(folder) || this.isInlineRenaming(folder) || !this.canAction(folder, 'canView')) return;
 
     this.clearFolderClickTimer();
     this.folderClickTimer = setTimeout(() => {
@@ -686,6 +622,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   openCreateEditor(): void {
+    if (!this.canAction(null, 'canCreate')) return;
     if (!this.selectedWorkspaceId()) {
       this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.WORKSPACE_REQUIRED, {
         title: 'Workspace required',
@@ -701,6 +638,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   openEditEditor(folder: WorkspaceFolder, event?: Event): void {
+    if (!this.canAction(folder, 'canEdit')) return;
     event?.stopPropagation();
     const id = this.folderId(folder);
     if (!id || this.isBusy(folder)) return;
@@ -717,16 +655,28 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.folderEditorFolder.set(null);
   }
 
-  onFolderSaved(savedId: any): void {
-    const id = idOf(savedId) || this.folderEditorId();
+  onEditorAccessDenied(): void { this.refreshAccessOnError({ status: 403 }); }
+
+  onFolderSaved(folder: WorkspaceFolder): void {
     const isCreate = !this.folderEditorId();
+    this.folderStore.upsert(folder);
+    this.syncSelectedPreference();
+    if (isCreate) this.folderCreated.emit(folder);
+    else this.folderChanged.emit(folder);
     this.closeFolderEditor();
-    this.loadFolders(id, isCreate);
+    this.loadFolders();
+  }
+
+  private syncSelectedPreference(): void {
+    const id = this.folderStore.selectedId() ?? '';
+    if (id !== this.userPreferenceStore.selectedFolderId()) {
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, id);
+    }
   }
 
   beginInlineRename(folder: WorkspaceFolder, event?: Event): void {
     event?.stopPropagation();
-    if (this.isBusy(folder)) return;
+    if (this.isBusy(folder) || !this.canAction(folder, 'canEdit')) return;
 
     this.clearFolderClickTimer();
     this.inlineRenameId.set(this.folderId(folder));
@@ -750,30 +700,30 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   cancelInlineRename(event?: Event): void {
     event?.stopPropagation();
+    if (this.savingInlineRename()) return;
     this.inlineRenameId.set(null);
     this.inlineRenameName.set('');
     this.inlineRenameError.set(null);
-    this.savingInlineRename.set(false);
   }
 
   saveInlineRename(folder: WorkspaceFolder, event?: Event): void {
     event?.stopPropagation();
     const id = this.folderId(folder);
-    if (!id || this.inlineRenameId() !== id || this.savingInlineRename()) return;
+    if (!id || this.inlineRenameId() !== id || this.savingInlineRename() || !this.canAction(folder, 'canEdit')) return;
 
-    const trimmed = this.inlineRenameName().trim();
+    const trimmed = this.inlineRenameName().trim().replace(/\s+/g, ' ');
     const original = this.folderName(folder);
 
     if (!trimmed) {
       this.inlineRenameError.set(WORKSPACE_FOLDER_MESSAGES.VALIDATION.NAME_REQUIRED);
       return;
     }
-    if (trimmed.length < 2) {
-      this.inlineRenameError.set(VALIDATION_MESSAGES.MIN_LENGTH(2));
+    if (trimmed.length < 1) {
+      this.inlineRenameError.set(VALIDATION_MESSAGES.MIN_LENGTH(1));
       return;
     }
-    if (trimmed.length > 80) {
-      this.inlineRenameError.set(VALIDATION_MESSAGES.MAX_LENGTH(80));
+    if (trimmed.length > 100) {
+      this.inlineRenameError.set(VALIDATION_MESSAGES.MAX_LENGTH(100));
       return;
     }
     if (trimmed === original) {
@@ -791,23 +741,28 @@ export class Workspacefolders implements OnInit, OnChanges {
           this.savingInlineRename.set(false);
           this.setFolderBusy(id, false);
         }),
+        takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: any) => {
+        next: response => {
           const updated = response?.data || { ...folder, name: trimmed };
+          this.savingInlineRename.set(false);
           this.cancelInlineRename();
           this.folders.update(items =>
             items.map(item => this.folderId(item) === id ? { ...item, ...updated, name: trimmed } : item)
           );
           this.folderStore.upsert(updated);
+          this.syncSelectedPreference();
           this.folderChanged.emit(updated);
+          this.loadFolders();
           this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.RENAMED(trimmed), {
             title: 'Name updated',
             dedupeKey: `workspace-folder-inline-rename-${id}`
           });
         },
         error: error => {
+          this.refreshAccessOnError(error);
           const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.RENAME_FAILED);
           this.inlineRenameError.set(message);
           this.toastService.error(message, {
@@ -834,6 +789,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   requestDelete(folder: WorkspaceFolder): void {
+    if (this.isBusy(folder) || !this.canAction(folder, 'canTrash')) return;
     if (this.isDefault(folder)) {
       this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.DEFAULT_CANNOT_DELETE, {
         title: 'Default folder protected',
@@ -851,7 +807,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   confirmDelete(): void {
     const folder = this.deleteTarget();
     const id = this.folderId(folder);
-    if (!id || this.isDefault(folder) || this.deleting()) return;
+    if (!id || !folder || !this.canAction(folder, 'canTrash') || this.deleting()) return;
 
     this.deleting.set(true);
     this.setFolderBusy(id, true);
@@ -863,6 +819,7 @@ export class Workspacefolders implements OnInit, OnChanges {
           this.deleting.set(false);
           this.setFolderBusy(id, false);
         }),
+        takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -870,6 +827,8 @@ export class Workspacefolders implements OnInit, OnChanges {
           this.deleteTarget.set(null);
           this.folders.update(items => items.filter(item => this.folderId(item) !== id));
           this.folderStore.remove(id);
+          this.syncSelectedPreference();
+          this.loadFolders();
           this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.folderName(folder)), {
             title: 'Folder moved',
             dedupeKey: `workspace-folder-delete-${id}`
@@ -877,6 +836,7 @@ export class Workspacefolders implements OnInit, OnChanges {
         },
         error: error => {
           this.deleteTarget.set(null);
+          this.refreshAccessOnError(error);
           const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED);
           this.toastService.error(message, {
             title: 'Could not move folder',
@@ -888,19 +848,21 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   restoreFolder(folder: WorkspaceFolder): void {
     const id = this.folderId(folder);
-    if (!id) return;
+    if (!id || this.isBusy(folder) || !this.canAction(folder, 'canRestore')) return;
     this.setFolderBusy(id, true);
 
     this.folderApi
       .restore(id)
       .pipe(
         finalize(() => this.setFolderBusy(id, false)),
+        takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: any) => {
+        next: response => {
           const restored = response?.data || { ...folder, status: 'ACTIVE' };
           this.folderStore.upsert(restored);
+          this.syncSelectedPreference();
           this.folderChanged.emit(restored);
           this.toastService.success(WORKSPACE_FOLDER_MESSAGES.SUCCESS.RESTORED(this.folderName(restored)), {
             title: 'Folder restored',
@@ -909,6 +871,7 @@ export class Workspacefolders implements OnInit, OnChanges {
           this.loadFolders();
         },
         error: error => {
+          this.refreshAccessOnError(error);
           const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.RESTORE_FAILED);
           this.toastService.error(message, {
             title: 'Restore failed',
@@ -918,53 +881,40 @@ export class Workspacefolders implements OnInit, OnChanges {
       });
   }
 
-  folderId(folder: any): string {
+  folderId(folder: WorkspaceFolder | null): string {
     return idOf(folder);
   }
 
-  folderName(folder: any): string {
+  folderName(folder: WorkspaceFolder | null): string {
     return entityNameOf(folder, 'Untitled folder');
   }
 
-  folderDescription(folder: any): string {
+  folderDescription(folder: WorkspaceFolder | null): string {
     const description = typeof folder?.description === 'string' ? folder.description.trim() : '';
     if (description) return description;
     return this.isDefault(folder) ? 'Your default notes folder' : 'A folder inside this workspace';
   }
 
-  folderStatus(folder: any): WorkspaceFolderStatus {
+  folderStatus(folder: WorkspaceFolder | null): WorkspaceFolderStatus {
     return String(folder?.status ?? 'ACTIVE').toUpperCase() as WorkspaceFolderStatus;
   }
 
-  folderStatusLabel(folder: any): string {
+  folderStatusLabel(folder: WorkspaceFolder | null): string {
     const status = this.folderStatus(folder).toLowerCase();
     return status.charAt(0).toUpperCase() + status.slice(1);
   }
 
-  folderPosition(folder: any): number {
+  folderPosition(folder: WorkspaceFolder | null): number {
     const position = Number(folder?.position);
     return Number.isFinite(position) ? position : 0;
   }
 
-  folderPositionLabel(folder: any): string {
+  folderPositionLabel(folder: WorkspaceFolder | null): string {
     return `#${this.folderPosition(folder) + 1}`;
   }
 
-  folderNoteCount(folder: any): number {
-    const value = folder?.noteCount ?? folder?.notesCount ?? folder?.totalNotes ?? folder?.stickyNoteCount ?? 0;
-    const count = Number(value);
-    return Number.isFinite(count) ? Math.max(0, count) : 0;
-  }
-
-  folderUpdatedLabel(folder: any): string {
-    const value = folder?.updatedAt ?? folder?.createdAt;
-    if (!value) return 'Recently';
-
-    return this.dateTimeFormatter.formatRelativeDate(value, 'Recently');
-  }
-
-  folderTheme(folder: any): FolderTheme {
-    const byColor: Record<string, CardVariant> = {
+  folderTheme(folder: WorkspaceFolder | null): FolderTheme {
+    const byColor: Record<string, TooltipTone> = {
       yellow: 'noteYellow',
       pink: 'notePink',
       blue: 'noteBlue',
@@ -987,49 +937,52 @@ export class Workspacefolders implements OnInit, OnChanges {
     };
   }
 
-  isActive(folder: any): boolean {
+  isActive(folder: WorkspaceFolder | null): boolean {
     return this.folderStatus(folder) === 'ACTIVE';
   }
 
-  isArchived(folder: any): boolean {
+  isArchived(folder: WorkspaceFolder | null): boolean {
     return this.folderStatus(folder) === 'ARCHIVED';
   }
 
-  isDeleted(folder: any): boolean {
+  isDeleted(folder: WorkspaceFolder | null): boolean {
     return this.folderStatus(folder) === 'DELETED';
   }
 
-  isDefault(folder: any): boolean {
+  isDefault(folder: WorkspaceFolder | null): boolean {
     return Boolean(folder?.isDefault);
   }
 
-  isBusy(folder: any): boolean {
-    return this.busyIds().has(this.folderId(folder));
+  isBusy(folder: WorkspaceFolder | null): boolean {
+    return this.bulkBusy() || this.busyIds().has(this.folderId(folder));
   }
 
-  isInlineRenaming(folder: any): boolean {
+  isInlineRenaming(folder: WorkspaceFolder | null): boolean {
     return this.inlineRenameId() === this.folderId(folder);
   }
 
-  private updateFolderStatus(folder: any, status: WorkspaceFolderStatus): void {
+  private updateFolderStatus(folder: WorkspaceFolder, status: Exclude<WorkspaceFolderStatus, 'DELETED'>): void {
     const id = this.folderId(folder);
-    if (!id) return;
+    if (!id || this.isBusy(folder) || !this.canAction(folder, 'canArchive')) return;
     this.setFolderBusy(id, true);
 
     this.folderApi
       .updateStatus(id, status)
       .pipe(
         finalize(() => this.setFolderBusy(id, false)),
+        takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: any) => {
+        next: response => {
           const updated = response?.data || { ...folder, status };
           this.folders.update(items =>
             items.map(item => this.folderId(item) === id ? { ...item, ...updated } : item)
           );
           this.folderStore.upsert(updated);
+          this.syncSelectedPreference();
           this.folderChanged.emit(updated);
+          this.loadFolders();
 
           const archived = status === 'ARCHIVED';
           this.toastService.success(
@@ -1043,6 +996,7 @@ export class Workspacefolders implements OnInit, OnChanges {
           );
         },
         error: error => {
+          this.refreshAccessOnError(error);
           const message = extractErrorMessage(error, WORKSPACE_FOLDER_MESSAGES.ERROR.UPDATE_FAILED);
           this.toastService.error(message, {
             title: 'Folder update failed',
@@ -1075,8 +1029,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
     if (nextId !== currentId) {
       this.workspaceStore.select(nextId);
-    } else if (this.loadedWorkspaceId !== nextId) {
-      this.loadFolders('', false, nextId);
+
     }
   }
 
@@ -1087,26 +1040,6 @@ export class Workspacefolders implements OnInit, OnChanges {
     if (this.workspaces().some(workspace => idOf(workspace) === id)) {
       this.workspaceStore.select(id);
     }
-  }
-
-  private ensureSelectedFolder(folders: readonly WorkspaceFolder[]): void {
-    const selectedId = this.folderStore.selectedId();
-    if (selectedId && folders.some(folder => this.folderId(folder) === selectedId && this.isActive(folder))) {
-      return;
-    }
-
-    const preferredFolderId = this.userPreferenceStore.selectedFolderId();
-    if (preferredFolderId && folders.some(folder => this.folderId(folder) === preferredFolderId && this.isActive(folder))) {
-      this.folderStore.select(preferredFolderId);
-      return;
-    }
-
-    const preferred =
-      folders.find(folder => this.isActive(folder) && this.isDefault(folder)) ??
-      folders.find(folder => this.isActive(folder)) ??
-      null;
-
-    this.folderStore.select(preferred ? this.folderId(preferred) : null);
   }
 
   private setFolderBusy(id: string, busy: boolean): void {
@@ -1123,18 +1056,30 @@ export class Workspacefolders implements OnInit, OnChanges {
     }
   }
 
-  private folderTimestamp(folder: WorkspaceFolder, field: 'createdAt' | 'updatedAt'): number {
-    const value = folder[field];
-    if (!value) return 0;
-    const timestamp = new Date(value).getTime();
-    return Number.isNaN(timestamp) ? 0 : timestamp;
+  private buildListQuery(workspaceId: string): WorkspaceFolderQuery {
+    const sort = this.sortBy();
+    return { workspaceId, page: this.page(), limit: 20,
+      status: this.activeTab().toUpperCase() as WorkspaceFolderQuery['status'],
+      ...(this.searchTerm().trim() ? { search: this.searchTerm().trim() } : {}),
+      sortBy: sort === 'name-desc' ? 'name' : sort === 'oldest' ? 'createdAt' : sort,
+      sortOrder: ['name', 'position', 'oldest'].includes(sort) ? 'asc' : 'desc' };
   }
 
-  private workspaceName(workspace: any): string {
+  changePage(delta: number): void {
+    const next = this.page() + delta;
+    if (this.loading() || next < 1 || next > this.pagination().totalPages) return;
+    this.page.set(next); this.loadFolders();
+  }
+
+  private workspaceName(workspace: unknown): string {
     return entityNameOf(workspace, 'Untitled workspace');
   }
 
   private clearPageForNoWorkspace(): void {
+    this.workspaceEnd.next();
+    this.folderLoadSubscription?.unsubscribe();
+    this.accessWorkspace.set(null);
+    this.folderStore.reset();
     this.folders.set([]);
     this.loading.set(false);
     this.error.set(null);
@@ -1151,6 +1096,8 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.folderEditorId.set('');
     this.folderEditorFolder.set(null);
     this.deleteTarget.set(null);
+    this.permanentTarget.set(null);
+    this.bulkDeleteOpen.set(false);
     this.busyIds.set(new Set());
     this.activeTab.set('all');
     this.searchTerm.set('');

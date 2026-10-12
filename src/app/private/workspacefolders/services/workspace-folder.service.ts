@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, expand, reduce } from 'rxjs';
+import type { ApiResponse, PaginatedApiResponse, WorkspaceFolder, WorkspaceFolderQuery, WorkspaceFolderCreateRequest, WorkspaceFolderUpdateRequest, WorkspaceFolderStatus } from '../models/workspace-folder.models';
 
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
@@ -11,9 +12,21 @@ import { buildHttpParams } from '../../../shared/functions/api.functions';
 export class WorkspaceFolderService {
     private readonly http = inject(HttpClient);
 
+    // Navigation needs all active folders, independently of the explorer's current page.
+    getFolderOptions(workspaceId: string): Observable<WorkspaceFolder[]> {
+        const query: WorkspaceFolderQuery = { workspaceId, page: 1, limit: 100, status: 'ACTIVE', sortBy: 'position', sortOrder: 'asc' };
+        return this.getAllWorkspaceFolders(query).pipe(
+            expand(response => {
+                const meta = response.meta;
+                return meta && meta.page < (meta.totalPages ?? Math.ceil(meta.total / meta.limit))
+                    ? this.getAllWorkspaceFolders({ ...query, page: meta.page + 1 }) : EMPTY;
+            }),
+            reduce((folders, response) => [...folders, ...response.data], [] as WorkspaceFolder[]),
+        );
+    }
 
-    getAllWorkspaceFolders(query: any = {}): Observable<any> {
-        return this.http.post<any>(
+    getAllWorkspaceFolders(query: WorkspaceFolderQuery = {}): Observable<PaginatedApiResponse<WorkspaceFolder>> {
+        return this.http.post<PaginatedApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.getAll,
             query,
             {
@@ -22,10 +35,10 @@ export class WorkspaceFolderService {
         );
     }
 
-    getMyWorkspaceFolders(query: any = {}): Observable<any> {
+    getMyWorkspaceFolders(query: WorkspaceFolderQuery = {}): Observable<PaginatedApiResponse<WorkspaceFolder>> {
         const params = buildHttpParams(query);
 
-        return this.http.get<any>(
+        return this.http.get<PaginatedApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.my,
             {
                 params,
@@ -34,8 +47,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    getById(id: any = ''): Observable<any> {
-        return this.http.get<any>(
+    getById(id: string = ''): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.get<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.get(String(id)),
             {
                 withCredentials: true,
@@ -43,8 +56,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    create(payload: any): Observable<any> {
-        return this.http.post<any>(
+    create(payload: WorkspaceFolderCreateRequest): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.post<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.create,
             payload,
             {
@@ -53,8 +66,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    update(id: any = '', payload: any = {}): Observable<any> {
-        return this.http.put<any>(
+    update(id: string = '', payload: WorkspaceFolderUpdateRequest = {}): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.put<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.update(String(id)),
             payload,
             {
@@ -63,8 +76,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    updateStatus(id: any = '', status: any): Observable<any> {
-        return this.http.put<any>(
+    updateStatus(id: string = '', status: Exclude<WorkspaceFolderStatus, 'DELETED'>): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.put<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.status(String(id)),
             { status },
             {
@@ -73,8 +86,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    delete(id: any = ''): Observable<any> {
-        return this.http.delete<any>(
+    delete(id: string = ''): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.delete<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.delete(String(id)),
             {
                 withCredentials: true,
@@ -82,8 +95,8 @@ export class WorkspaceFolderService {
         );
     }
 
-    restore(id: any = ''): Observable<any> {
-        return this.http.put<any>(
+    restore(id: string = ''): Observable<ApiResponse<WorkspaceFolder>> {
+        return this.http.put<ApiResponse<WorkspaceFolder>>(
             API_ENDPOINTS.workspaceFolders.restore(String(id)),
             {},
             {
@@ -91,5 +104,10 @@ export class WorkspaceFolderService {
             },
         );
     }
-
+    permanentlyDelete(id: string): Observable<ApiResponse<null>> {
+        return this.http.delete<ApiResponse<null>>(
+            `${API_ENDPOINTS.workspaceFolders.base}/permanent/${encodeURIComponent(id)}`,
+            { withCredentials: true },
+        );
+    }
 }
