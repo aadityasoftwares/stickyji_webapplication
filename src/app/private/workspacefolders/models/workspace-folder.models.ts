@@ -19,6 +19,14 @@ export interface WorkspaceFolderWorkspaceSummary {
     isPersonal?: boolean;
 }
 
+export interface WorkspaceFolderStickyNoteSummary {
+    stickyNoteCount?: number;
+    stickyNotesCount?: number;
+    total?: number;
+    active?: number;
+    archived?: number;
+}
+
 export interface WorkspaceFolder {
     id: string;
     workspaceId: string | WorkspaceFolderWorkspaceSummary;
@@ -30,11 +38,13 @@ export interface WorkspaceFolder {
     position: number;
     isDefault: boolean;
     status: WorkspaceFolderStatus;
+    summary?: WorkspaceFolderStickyNoteSummary;
     createdBy?: string | WorkspaceFolderUserSummary | null;
     updatedBy?: string | WorkspaceFolderUserSummary | null;
     createdAt: string;
     updatedAt: string;
     deletedAt?: string | null;
+    deletedBy?: string | WorkspaceFolderUserSummary | null;
     purgeAfter?: string | null;
 }
 

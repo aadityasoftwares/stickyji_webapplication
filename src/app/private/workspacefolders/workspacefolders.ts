@@ -19,25 +19,28 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, from, map, mergeMap, of, switchMap, takeUntil, throwError, toArray } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, filter, finalize, from, map, mergeMap, of, switchMap, take, takeUntil, timer, throwError, toArray } from 'rxjs';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
   LucideArchive,
+  LucideArrowDownAZ,
+  LucideArrowDownZA,
   LucideArrowRight,
+  LucideCalendarPlus,
   LucideCheck,
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
-  LucideCopy,
   LucideFileText,
   LucideFolder,
   LucideFolderOpen,
-  LucideHash,
+  LucideListOrdered,
   LucideMoreHorizontal,
   LucidePanelsTopLeft,
+  LucidePause,
   LucidePencil,
   LucidePlus,
   LucideRefreshCw,
@@ -49,7 +52,7 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../shared/components/icon/icon';
-import { Badge } from '../../shared/components/badge/badge';
+import { Badge, type BadgeVariant } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
@@ -77,7 +80,7 @@ import {
   extractList,
   idOf
 } from '../../shared/functions/common.function';
-import type { WorkspaceFolder, WorkspaceFolderStatus, WorkspaceFolderQuery, PaginatedApiResponse } from './models/workspace-folder.models';
+import type { WorkspaceFolder, WorkspaceFolderStatus, WorkspaceFolderQuery, PaginatedApiResponse, WorkspaceFolderStickyNoteSummary } from './models/workspace-folder.models';
 import { WORKSPACE_FOLDER_MESSAGES } from './messages/workspace-folder.messages';
 import { VALIDATION_MESSAGES } from '../../shared/constants/common.messages';
 
@@ -90,6 +93,41 @@ import { Highlight } from '../../shared/directives/highlight.directive';
 type FolderTab = 'all' | 'active' | 'archived' | 'inactive' | 'deleted';
 type FolderView = 'grid' | 'list';
 type FolderSort = 'position' | 'updatedAt' | 'createdAt' | 'name' | 'name-desc' | 'oldest';
+
+const WORKSPACE_FOLDER_SORT_PREFERENCES: Record<FolderSort, string> = {
+  position: 'FOLDER_ORDER',
+  updatedAt: 'RECENTLY_UPDATED',
+  createdAt: 'RECENTLY_CREATED',
+  name: 'NAME_ASC',
+  'name-desc': 'NAME_DESC',
+  oldest: 'OLDEST_FIRST',
+};
+
+const PREFERENCE_TO_FOLDER_SORT: Record<string, FolderSort> = {
+  FOLDER_ORDER: 'position',
+  POSITION: 'position',
+  RECENTLY_UPDATED: 'updatedAt',
+  RECENTLY_CREATED: 'createdAt',
+  NAME_ASC: 'name',
+  NAME_DESC: 'name-desc',
+  OLDEST_FIRST: 'oldest',
+};
+
+const WORKSPACE_FOLDER_STATUS_PREFERENCES: Record<FolderTab, string> = {
+  all: 'ALL',
+  active: 'ACTIVE',
+  archived: 'ARCHIVED',
+  inactive: 'INACTIVE',
+  deleted: 'DELETED',
+};
+
+const PREFERENCE_TO_FOLDER_STATUS: Record<string, FolderTab> = {
+  ALL: 'all',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  INACTIVE: 'inactive',
+  DELETED: 'deleted',
+};
 
 interface FolderTheme {
   variant: TooltipTone;
@@ -142,7 +180,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly bulkBusy = signal(false);
   readonly bulkDeleteOpen = signal(false);
   readonly permanentTarget = signal<WorkspaceFolder | null>(null);
-  readonly view = computed<FolderView>(() => this.userPreferenceStore.workspaceView() === 'LIST' ? 'list' : 'grid');
+  readonly view = computed<FolderView>(() => String(this.userPreferenceStore.workspaceFolderView() ?? '').toUpperCase() === 'LIST' ? 'list' : 'grid');
   private readonly folderStore = inject(WorkspaceFolderStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
@@ -158,7 +196,10 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
-  private folderClickTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly contextMenuFolder = signal<WorkspaceFolder | null>(null);
+  readonly contextMenuPosition = signal({ x: 0, y: 0 });
+  readonly folderContextMenuTrigger = viewChild<MatMenuTrigger>('folderContextMenuTrigger');
+  readonly focusedFolderId = signal<string | null>(null);
   private loadedWorkspaceId: string | null = null;
   private initialized = false;
 
@@ -168,11 +209,10 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
-  readonly LucideCopy = LucideCopy;
   readonly LucideFileText = LucideFileText;
   readonly LucideFolder = LucideFolder;
   readonly LucideFolderOpen = LucideFolderOpen;
-  readonly LucideHash = LucideHash;
+  readonly LucideListOrdered = LucideListOrdered;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
@@ -184,10 +224,9 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
 
-  readonly collapsedGroups = signal<Set<string>>(new Set());
+  readonly collapsedGroups = signal<Set<string>>(new Set(['archived']));
   readonly selectedFolderIds = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedFolderIds().size);
-  readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly workspaces = this.workspaceStore.workspaces;
   readonly loadingWorkspaces = this.workspaceStore.loading;
@@ -230,29 +269,82 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly deleting = signal(false);
 
   readonly sortOptions: readonly SelectOption[] = [
-    { label: 'Folder order', value: 'position' },
-    { label: 'Recently updated', value: 'updatedAt' },
-    { label: 'Recently created', value: 'createdAt' },
-    { label: 'Name Z–A', value: 'name-desc' },
-    { label: 'Oldest', value: 'oldest' },
-    { label: 'Name A–Z', value: 'name' }
+    { label: 'Folder order', value: 'position', icon: LucideListOrdered },
+    { label: 'Recently updated', value: 'updatedAt', icon: LucideRefreshCw },
+    { label: 'Recently created', value: 'createdAt', icon: LucideCalendarPlus },
+    { label: 'Name Z–A', value: 'name-desc', icon: LucideArrowDownZA },
+    { label: 'Oldest', value: 'oldest', icon: LucideClock3 },
+    { label: 'Name A–Z', value: 'name', icon: LucideArrowDownAZ }
   ];
   readonly viewTabs = VIEW_TABS;
 
   readonly totalCount = computed(() => this.counts().all ?? this.pagination().total);
   readonly folderTabs = computed<readonly TabItem[]>(() => [
-    { value: 'all', label: 'All', count: this.counts().all },
-    { value: 'active', label: 'Active', count: this.counts().active },
-    { value: 'archived', label: 'Archived', count: this.counts().archived },
-    { value: 'inactive', label: 'Inactive', count: this.counts().inactive },
-    { value: 'deleted', label: 'Trash', count: this.counts().deleted },
+    { value: 'all', label: 'All', icon: LucideFolder, count: this.counts().all },
+    { value: 'active', label: 'Active', icon: LucideFolderOpen, count: this.counts().active },
+    { value: 'archived', label: 'Archived', icon: LucideArchive, count: this.counts().archived },
   ]);
-  readonly visibleFolders = this.folders.asReadonly();
-  readonly folderGroups = computed(() => ['ACTIVE', 'ARCHIVED', 'INACTIVE', 'DELETED'].map(status => {
-    const items = this.visibleFolders().filter(folder => folder.status === status);
-    return { id: status.toLowerCase(), label: status === 'DELETED' ? 'Trashed folders' : `${status[0]}${status.slice(1).toLowerCase()} Folders`,
-      status, accent: status === 'ACTIVE' ? '#10b981' : '#64748b', items, count: items.length };
-  }).filter(group => group.count > 0));
+  readonly visibleFolders = computed(() => this.folders().filter(folder =>
+    this.activeTab() === 'all' ? folder.status !== 'DELETED' : folder.status === this.activeTab().toUpperCase()
+  ));
+  readonly folderGroups = computed<readonly {
+    id: string;
+    label: string;
+    status: WorkspaceFolderStatus;
+    accent: string;
+    items: readonly WorkspaceFolder[];
+    count: number;
+  }[]>(() => {
+    const list = this.visibleFolders();
+    const isSearchActive = !!this.searchTerm().trim();
+    const counts = this.counts();
+    const selectedTab = this.activeTab();
+
+    const activeItems = list.filter(folder => (folder?.status ?? 'ACTIVE') === 'ACTIVE');
+    const archivedItems = list.filter(folder => folder?.status === 'ARCHIVED');
+    const groups: {
+      id: string;
+      label: string;
+      status: WorkspaceFolderStatus;
+      accent: string;
+      items: readonly WorkspaceFolder[];
+      count: number;
+    }[] = [
+      {
+        id: 'active',
+        label: 'Active Folders',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: activeItems,
+        count: Number.isFinite(Number(counts?.active)) ? Number(counts.active) : activeItems.length,
+      },
+      {
+        id: 'archived',
+        label: 'Archived Folders',
+        status: 'ARCHIVED',
+        accent: '#64748b',
+        items: archivedItems,
+        count: Number.isFinite(Number(counts?.archived)) ? Number(counts.archived) : archivedItems.length,
+      },
+    ];
+
+    if (selectedTab === 'deleted') {
+      const deletedItems = list.filter(folder => folder?.status === 'DELETED');
+      groups.push({
+        id: 'deleted',
+        label: 'Trashed Folders',
+        status: 'DELETED',
+        accent: '#ef4444',
+        items: deletedItems,
+        count: Number.isFinite(Number(counts?.deleted)) ? Number(counts.deleted) : deletedItems.length,
+      });
+    }
+
+    return groups.filter(group =>
+      (selectedTab === 'all' || group.id === selectedTab) &&
+      (group.count > 0 || !isSearchActive)
+    );
+  });
 
   canAction(folder: WorkspaceFolder | null, action: FolderAction): boolean {
     return canFolderAction(this.accessWorkspace(), folder, action, !this.error() && this.folders().some(item => item.id === folder?.id));
@@ -401,37 +493,13 @@ export class Workspacefolders implements OnInit, OnChanges {
       this.loadFolders();
     }
   }
-  isKeyCopied(id?: string): boolean {
-    return !!(id && this.copiedKeyMap()[id]);
-  }
-
-  copyFolderId(id?: string, event?: Event): void {
-    event?.stopPropagation();
-    event?.preventDefault();
-    if (!id) return;
-    navigator.clipboard
-      .writeText(id)
-      .then(() => {
-        this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
-        this.toastService.info('Copied folder ID to clipboard');
-        setTimeout(() => {
-          this.copiedKeyMap.update((map) => {
-            const next = { ...map };
-            delete next[id];
-            return next;
-          });
-        }, 2000);
-      })
-      .catch(() => {});
-  }
-
   constructor() {
     this.searchChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.requestedQuery === JSON.stringify({ ...this.buildListQuery(this.selectedWorkspaceId()), page: 1 })) return;
         this.page.set(1); this.loadFolders();
       });
-    this.destroyRef.onDestroy(() => { this.clearFolderClickTimer(); this.workspaceEnd.next(); this.workspaceEnd.complete(); });
+    this.destroyRef.onDestroy(() => { this.workspaceEnd.next(); this.workspaceEnd.complete(); });
 
 
     effect(() => {
@@ -458,10 +526,30 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.initialized = true;
+    this.userPreferenceStore.load();
+    this.initPreferences();
+
+    this.userPreferenceStore.ready$
+      .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.initPreferences();
+      });
+
     if (!this.workspaceStore.loaded() && !this.workspaceStore.loading()) {
       this.workspaceStore.load();
     } else {
       this.ensureWorkspaceSelection();
+    }
+  }
+
+  private initPreferences(): void {
+    const statusPref = String(this.userPreferenceStore.workspaceFolderStatusFilter() ?? '').toUpperCase();
+    if (statusPref && PREFERENCE_TO_FOLDER_STATUS[statusPref]) {
+      this.activeTab.set(PREFERENCE_TO_FOLDER_STATUS[statusPref]);
+    }
+    const sortPref = String(this.userPreferenceStore.workspaceFolderSortOrder() ?? '').toUpperCase();
+    if (sortPref && PREFERENCE_TO_FOLDER_SORT[sortPref]) {
+      this.sortBy.set(PREFERENCE_TO_FOLDER_SORT[sortPref]);
     }
   }
 
@@ -474,7 +562,11 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.workspaceStore.load(true);
   }
 
-  loadFolders(workspaceId = this.selectedWorkspaceId()): void {
+  refreshFolders(): void {
+    this.loadFolders(this.selectedWorkspaceId(), true);
+  }
+
+  loadFolders(workspaceId = this.selectedWorkspaceId(), forceWorkspace = false): void {
     const version = ++this.requestVersion;
     this.folderLoadSubscription?.unsubscribe();
     const id = workspaceId.trim();
@@ -489,18 +581,25 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.error.set(null);
     this.clearSelection();
 
-    this.folderLoadSubscription = this.workspaceApi
-      .getById(id)
+    const currentWorkspace = this.accessWorkspace();
+    const needsWorkspaceCheck = forceWorkspace || !currentWorkspace || idOf(currentWorkspace) !== id;
+
+    const request$ = needsWorkspaceCheck
+      ? this.workspaceApi.getById(id).pipe(
+          switchMap(response => {
+            const workspace = response?.data;
+            this.workspaceStore.updateWorkspace(id, workspace ?? { allowedActions: {} });
+            this.accessWorkspace.set(workspace ?? null);
+            if (!canWorkspaceAction(workspace, 'canView') || !['ACTIVE', 'ARCHIVED'].includes(workspace?.status)) {
+              return throwError(() => ({ status: 403, error: { message: 'You no longer have permission to view this workspace.' } }));
+            }
+            return this.folderApi.getAllWorkspaceFolders(query);
+          })
+        )
+      : this.folderApi.getAllWorkspaceFolders(query);
+
+    this.folderLoadSubscription = request$
       .pipe(
-        switchMap(response => {
-          const workspace = response?.data;
-          this.workspaceStore.updateWorkspace(id, workspace ?? { allowedActions: {} });
-          this.accessWorkspace.set(workspace ?? null);
-          if (!canWorkspaceAction(workspace, 'canView') || !['ACTIVE', 'ARCHIVED'].includes(workspace?.status)) {
-            return throwError(() => ({ status: 403, error: { message: 'You no longer have permission to view this workspace.' } }));
-          }
-          return this.folderApi.getAllWorkspaceFolders(query);
-        }),
         finalize(() => { if (version === this.requestVersion) this.loading.set(false); }),
         takeUntil(this.workspaceEnd),
         takeUntilDestroyed(this.destroyRef)
@@ -552,13 +651,28 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   setFolderTab(value: TabValue): void {
-    if (['all', 'active', 'archived', 'inactive', 'deleted'].includes(String(value)) && value !== this.activeTab()) {
-      this.activeTab.set(value as FolderTab); this.page.set(1); this.loadFolders();
+    const tab = String(value).toLowerCase() as FolderTab;
+    if (['all', 'active', 'archived', 'inactive', 'deleted'].includes(tab) && tab !== this.activeTab()) {
+      this.activeTab.set(tab);
+      const pref = WORKSPACE_FOLDER_STATUS_PREFERENCES[tab];
+      if (pref) {
+        this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_STATUS_FILTER, pref);
+      }
+      this.collapsedGroups.update(current => {
+        const next = new Set(current);
+        if (tab === 'active') next.delete('active');
+        if (tab === 'archived') next.delete('archived');
+        return next;
+      });
+      this.page.set(1);
+      this.loadFolders();
     }
   }
 
   setFolderView(value: TabValue): void {
-    if (value === 'grid' || value === 'list') this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_VIEW, value.toUpperCase());
+    if (value === 'grid' || value === 'list') {
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_VIEW, value.toUpperCase());
+    }
   }
 
   updateSearch(value: InputValue): void {
@@ -573,7 +687,16 @@ export class Workspacefolders implements OnInit, OnChanges {
   clearSearch(): void { this.updateSearch(''); }
 
   setSort(value: SelectValue): void {
-    if (value !== this.sortBy() && this.sortOptions.some(option => option.value === value)) { this.sortBy.set(value as FolderSort); this.page.set(1); this.loadFolders(); }
+    const sort = value as FolderSort;
+    if (sort !== this.sortBy() && this.sortOptions.some(option => option.value === sort)) {
+      this.sortBy.set(sort);
+      const pref = WORKSPACE_FOLDER_SORT_PREFERENCES[sort];
+      if (pref) {
+        this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER, pref);
+      }
+      this.page.set(1);
+      this.loadFolders();
+    }
   }
 
   openFolder(folder: WorkspaceFolder): void {
@@ -588,36 +711,75 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.router.navigate(routeCommands(APP_ROUTES.MY_NOTES));
   }
 
-  openContextMenu(folder: WorkspaceFolder, event: MouseEvent | KeyboardEvent, trigger: MatMenuTrigger): void {
+  manageNotes(folder: WorkspaceFolder, event?: Event): void {
+    event?.stopPropagation();
+    this.openFolder(folder);
+  }
+
+  openFolderTrash(): void {
+    this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_FOLDER_TRASH));
+  }
+
+  openContextMenu(folder: WorkspaceFolder, event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.clearFolderClickTimer();
-    if (!this.isBusy(folder) && this.folders().some(item => item.id === folder.id)) trigger.openMenu();
+    if (this.isBusy(folder) || !this.folders().some(item => item.id === folder.id)) return;
+
+    this.selectFolder(folder);
+    const trigger = this.folderContextMenuTrigger();
+    if (!trigger) return;
+    trigger.closeMenu();
+    this.contextMenuFolder.set(folder);
+    this.contextMenuPosition.set({ x: event.clientX, y: event.clientY });
+    timer(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.contextMenuFolder() === folder) trigger.openMenu();
+    });
+  }
+
+  closeFolderContextMenu(): void {
+    this.contextMenuFolder.set(null);
+  }
+
+  isFolderHighlighted(folder: WorkspaceFolder): boolean {
+    return this.isFolderSelected(folder)
+      || (this.focusedFolderId() ?? this.selectedFolderId()) === folder.id
+      || this.contextMenuFolder()?.id === folder.id;
+  }
+
+  private selectFolder(folder: WorkspaceFolder): void {
+    if (this.isBusy(folder) || this.error() || !this.accessWorkspace()
+      || !this.folders().some(item => item.id === folder.id)) return;
+    this.focusedFolderId.set(folder.id);
+    // Only active folders can become the notes destination in the shared store.
+    if (this.canAction(folder, 'canView')) {
+      this.folderStore.resetForWorkspace(this.selectedWorkspaceId());
+      this.folderStore.upsert(folder);
+      this.folderStore.select(folder.id);
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, folder.id);
+    }
   }
 
   handleFolderMenuClick(folder: WorkspaceFolder, event: Event): void {
     event.stopPropagation();
-    this.clearFolderClickTimer();
+    this.selectFolder(folder);
   }
 
-  handleFolderClick(folder: WorkspaceFolder, event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.isBusy(folder) || this.isInlineRenaming(folder) || !this.canAction(folder, 'canView')) return;
-
-    this.clearFolderClickTimer();
-    this.folderClickTimer = setTimeout(() => {
-      this.folderClickTimer = null;
-      this.openFolder(folder);
-    }, 280);
+  handleFolderClick(folder: WorkspaceFolder, event?: MouseEvent): void {
+    const target = event?.target as HTMLElement | null;
+    if (target?.closest('button, input, a, app-checkbox, .mat-mdc-menu-panel, .mat-mdc-menu-item')) return;
+    event?.stopPropagation();
+    if (this.isBusy(folder) || this.isInlineRenaming(folder)) return;
+    this.selectFolder(folder);
   }
 
   handleFolderDoubleClick(folder: WorkspaceFolder, event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, input, a, app-checkbox, .mat-mdc-menu-panel, .mat-mdc-menu-item')) return;
     event.preventDefault();
     event.stopPropagation();
-    this.clearFolderClickTimer();
 
     if (!this.isBusy(folder) && !this.isInlineRenaming(folder)) {
-      this.openEditEditor(folder);
+      this.beginInlineRename(folder, event);
     }
   }
 
@@ -677,8 +839,8 @@ export class Workspacefolders implements OnInit, OnChanges {
   beginInlineRename(folder: WorkspaceFolder, event?: Event): void {
     event?.stopPropagation();
     if (this.isBusy(folder) || !this.canAction(folder, 'canEdit')) return;
+    if (this.isInlineRenaming(folder)) return;
 
-    this.clearFolderClickTimer();
     this.inlineRenameId.set(this.folderId(folder));
     this.inlineRenameName.set(this.folderName(folder));
     this.inlineRenameError.set(null);
@@ -687,7 +849,7 @@ export class Workspacefolders implements OnInit, OnChanges {
       const input = this.renameInput()?.nativeElement;
       if (input) {
         input.focus();
-        input.select();
+        input.setSelectionRange(input.value.length, input.value.length);
       }
     }, 0);
   }
@@ -904,15 +1066,6 @@ export class Workspacefolders implements OnInit, OnChanges {
     return status.charAt(0).toUpperCase() + status.slice(1);
   }
 
-  folderPosition(folder: WorkspaceFolder | null): number {
-    const position = Number(folder?.position);
-    return Number.isFinite(position) ? position : 0;
-  }
-
-  folderPositionLabel(folder: WorkspaceFolder | null): string {
-    return `#${this.folderPosition(folder) + 1}`;
-  }
-
   folderTheme(folder: WorkspaceFolder | null): FolderTheme {
     const byColor: Record<string, TooltipTone> = {
       yellow: 'noteYellow',
@@ -951,6 +1104,63 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   isDefault(folder: WorkspaceFolder | null): boolean {
     return Boolean(folder?.isDefault);
+  }
+
+  folderStickyNotesSummary(folder: WorkspaceFolder | null): WorkspaceFolderStickyNoteSummary | null {
+    return folder?.summary ?? null;
+  }
+
+  folderNotesCount(folder: WorkspaceFolder | null): number {
+    const summary = folder?.summary;
+    if (summary) {
+      if (typeof summary.total === 'number') return Math.max(0, summary.total);
+      if (typeof summary.stickyNoteCount === 'number') return Math.max(0, summary.stickyNoteCount);
+      if (typeof summary.stickyNotesCount === 'number') return Math.max(0, summary.stickyNotesCount);
+      const computed = (summary.active ?? 0) + (summary.archived ?? 0);
+      if (computed > 0 || (summary.active !== undefined && summary.archived !== undefined)) {
+        return Math.max(0, computed);
+      }
+    }
+    const legacy = (folder as any)?.stickyNoteCount ?? (folder as any)?.stickyNotesCount ?? (folder as any)?.notesCount;
+    if (typeof legacy === 'number') return Math.max(0, legacy);
+    return 0;
+  }
+
+  folderNotesActiveCount(folder: WorkspaceFolder | null): number {
+    const summary = folder?.summary;
+    if (typeof summary?.active === 'number') return Math.max(0, summary.active);
+    return this.folderNotesCount(folder);
+  }
+
+  folderNotesArchivedCount(folder: WorkspaceFolder | null): number {
+    return Math.max(0, folder?.summary?.archived ?? 0);
+  }
+
+  folderNotesCountLabel(folder: WorkspaceFolder | null): string {
+    const total = this.folderNotesCount(folder);
+    return `${total} ${total === 1 ? 'note' : 'notes'}`;
+  }
+
+  folderNotesTooltip(folder: WorkspaceFolder | null): string {
+    const total = this.folderNotesCount(folder);
+    const summary = folder?.summary;
+    if (!summary && total === 0) {
+      return '0 notes in folder';
+    }
+    const active = this.folderNotesActiveCount(folder);
+    const archived = this.folderNotesArchivedCount(folder);
+
+    if (summary?.archived !== undefined || archived > 0) {
+      return `${total} ${total === 1 ? 'note' : 'notes'} (${active} active, ${archived} archived)`;
+    }
+    if (total === 0) {
+      return 'No notes in folder';
+    }
+    return `${total} ${total === 1 ? 'note' : 'notes'} (${active} active)`;
+  }
+
+  folderNotesBadgeVariant(folder: WorkspaceFolder | null): BadgeVariant {
+    return this.folderNotesCount(folder) > 0 ? 'noteYellow' : 'neutral';
   }
 
   isBusy(folder: WorkspaceFolder | null): boolean {
@@ -1049,20 +1259,15 @@ export class Workspacefolders implements OnInit, OnChanges {
     this.busyIds.set(next);
   }
 
-  private clearFolderClickTimer(): void {
-    if (this.folderClickTimer !== null) {
-      clearTimeout(this.folderClickTimer);
-      this.folderClickTimer = null;
-    }
-  }
-
   private buildListQuery(workspaceId: string): WorkspaceFolderQuery {
     const sort = this.sortBy();
-    return { workspaceId, page: this.page(), limit: 20,
+    return {
+      workspaceId, page: this.page(), limit: 20,
       status: this.activeTab().toUpperCase() as WorkspaceFolderQuery['status'],
       ...(this.searchTerm().trim() ? { search: this.searchTerm().trim() } : {}),
       sortBy: sort === 'name-desc' ? 'name' : sort === 'oldest' ? 'createdAt' : sort,
-      sortOrder: ['name', 'position', 'oldest'].includes(sort) ? 'asc' : 'desc' };
+      sortOrder: ['name', 'position', 'oldest'].includes(sort) ? 'asc' : 'desc'
+    };
   }
 
   changePage(delta: number): void {
@@ -1087,7 +1292,9 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   private resetInteractionState(): void {
-    this.clearFolderClickTimer();
+    this.folderContextMenuTrigger()?.closeMenu();
+    this.closeFolderContextMenu();
+    this.focusedFolderId.set(null);
     this.clearSelection();
     this.inlineRenameId.set(null);
     this.inlineRenameName.set('');

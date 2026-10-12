@@ -10,6 +10,7 @@ export const APP_ROUTES = {
     WORKSPACES: '/app/workspaces/my',
     WORKSPACE_TRASH: '/app/workspaces/trash',
     WORKSPACE_FOLDERS: '/app/workspacefolders/my',
+    WORKSPACE_FOLDER_TRASH: '/app/workspacefolders/trash',
     WORKSPACE_MEMBERS: '/app/workspace/members',
     ROLES_PERMISSIONS: '/app/workspace/roles-permissions',
     MY_NOTES: '/app/stickynotes/my',

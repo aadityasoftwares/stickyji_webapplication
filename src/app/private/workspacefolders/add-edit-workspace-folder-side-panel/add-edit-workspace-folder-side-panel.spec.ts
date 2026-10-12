@@ -20,10 +20,27 @@ describe('Folder editor sessions', () => {
     await TestBed.configureTestingModule({ imports: [AddEditWorkspaceFolderSidePanel], providers: [provideHttpClient(),
       { provide: WorkspaceFolderService, useValue: api }, { provide: WorkspaceService, useValue: workspaceApi },
       { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-    ] }).overrideComponent(AddEditWorkspaceFolderSidePanel, { set: { template: '<ng-template #desktopPreview></ng-template>', imports: [] } }).compileComponents();
+    ] }).overrideComponent(AddEditWorkspaceFolderSidePanel, { set: { template: '<ng-template #desktopPreview></ng-template><div #folderNameInput><input [value]="name()" /></div>', imports: [] } }).compileComponents();
     fixture = TestBed.createComponent(AddEditWorkspaceFolderSidePanel);
     fixture.componentRef.setInput('workspaceId', 'w');
     fixture.componentRef.setInput('open', true);
+  });
+
+  it('focuses the loaded name with the caret at the end', () => {
+    const frames: FrameRequestCallback[] = [];
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { frames.push(callback); return frames.length; });
+    try {
+      fixture.componentRef.setInput('id', 'f');
+      fixture.detectChanges();
+      while (frames.length) frames.shift()!(0);
+      const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+      expect(input.value).toBe('Fresh name');
+      expect(document.activeElement).toBe(input);
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+    } finally {
+      raf.mockRestore();
+    }
   });
 
   it('accepts backend limits and associates creates with the current workspace', () => {

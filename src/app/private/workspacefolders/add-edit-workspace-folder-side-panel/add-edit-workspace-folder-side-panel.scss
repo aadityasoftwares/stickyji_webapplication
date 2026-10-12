@@ -88,76 +88,6 @@
     font-size: 10px;
 }
 
-.workspace-folder-context {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    min-width: 0;
-}
-
-.workspace-folder-context-row {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    gap: 8px;
-    padding: 9px 10px;
-    background: $page-bg;
-    border: 1px solid $border-light;
-    border-radius: $radius-sm;
-}
-
-.workspace-folder-context-row>div {
-    display: grid;
-    min-width: 0;
-    gap: 2px;
-}
-
-.workspace-folder-context-row span:not(.workspace-folder-context-icon):not(.workspace-folder-context-position) {
-    color: $text-light;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.workspace-folder-context-row strong {
-    overflow: hidden;
-    color: $heading;
-    font-size: 12px;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.workspace-folder-context-icon,
-.workspace-folder-context-position {
-    display: grid;
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    color: $text-secondary;
-    background: $paper;
-    border: 1px solid $border-light;
-    border-radius: $radius-xs;
-    place-items: center;
-}
-
-.workspace-folder-context-position {
-    color: $accent;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.workspace-folder-system-note {
-    margin: 0;
-    padding: 9px 10px;
-    color: $text-secondary;
-    background: color-mix(in srgb, $note-yellow 12%, $paper);
-    border: 1px solid color-mix(in srgb, $note-yellow 30%, $border);
-    border-radius: $radius-sm;
-    font-size: 11px;
-    line-height: 1.5;
-}
-
 .workspace-folder-external-preview {
     position: fixed;
     z-index: 2147483000;
@@ -173,8 +103,8 @@
     pointer-events: none;
 }
 
-.workspace-folder-external-preview>app-badge,
-.workspace-folder-mobile-preview>app-badge {
+.workspace-folder-external-preview > app-badge,
+.workspace-folder-mobile-preview > app-badge {
     justify-self: start;
 }
 
@@ -184,7 +114,6 @@
     width: 100%;
     min-width: 0;
 }
-
 
 .workspace-folder-mobile-preview {
     display: none;
@@ -240,9 +169,5 @@
     .workspace-folder-field {
         grid-template-columns: 48px minmax(0, 1fr);
         gap: 6px;
-    }
-
-    .workspace-folder-context {
-        grid-template-columns: 1fr;
     }
 }

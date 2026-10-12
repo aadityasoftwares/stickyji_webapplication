@@ -24,22 +24,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, finalize, of, switchMap, takeUntil, throwError } from 'rxjs';
 import {
   LucideCheck,
+  LucideFileText,
   LucideFolder,
   LucideFolderOpen,
   LucidePencil,
-  LucidePlus,
-  LucideStar
+  LucidePlus
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
-import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { WorkspaceFolderService } from '../services/workspace-folder.service';
+import { WorkspaceFolderStore } from '../services/workspace-folder.store';
 import { WorkspaceFolderWrapper } from '../../workspace/workspace-folder-wrapper/workspace-folder-wrapper';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
 import { VALIDATION_MESSAGES } from '../../../shared/constants/common.messages';
@@ -55,12 +56,12 @@ import { WORKSPACE_FOLDER_MESSAGES } from '../messages/workspace-folder.messages
   imports: [
     Badge,
     FormsModule,
-    AppIcon,
     AppInput,
     Button,
     Label,
     Loader,
     SidePanel,
+    Tooltip,
     WorkspaceFolderWrapper
   ],
   templateUrl: './add-edit-workspace-folder-side-panel.html',
@@ -69,24 +70,58 @@ import { WORKSPACE_FOLDER_MESSAGES } from '../messages/workspace-folder.messages
 })
 export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly folderApi = inject(WorkspaceFolderService);
-  private readonly workspaceApi = inject(WorkspaceService);
-  private readonly workspaceStore = inject(WorkspaceStore);
-  private readonly accessWorkspace = signal<FolderWorkspaceAccess | null>(null);
-  private readonly toastService = inject(ToastService);
   private readonly previewDocument = inject(DOCUMENT);
   private readonly previewRenderer = inject(Renderer2);
   private readonly previewContainer = inject(ViewContainerRef);
   private readonly previewPlatform = inject(PLATFORM_ID);
-  private readonly sessionEnd$ = new Subject<void>();
-
   private desktopPreviewView?: EmbeddedViewRef<unknown>;
   private previewViewReady = false;
+  @ViewChild('desktopPreview', { static: true }) private desktopPreviewTemplate!: TemplateRef<unknown>;
+
+  ngAfterViewInit(): void {
+    this.previewViewReady = true;
+    this.scheduleDesktopPreview();
+  }
+
+  private scheduleDesktopPreview(): void {
+    if (!this.previewViewReady || !isPlatformBrowser(this.previewPlatform)) return;
+    queueMicrotask(() => {
+      if (this.destroyRef.destroyed) return;
+      if (!this.open) { this.removeDesktopPreview(); return; }
+      if (this.desktopPreviewView) return;
+      const view = this.previewContainer.createEmbeddedView(this.desktopPreviewTemplate);
+      this.desktopPreviewView = view;
+      for (const node of view.rootNodes) {
+        this.previewRenderer.appendChild(this.previewDocument.body, node);
+      }
+      view.detectChanges();
+    });
+  }
+
+  private removeDesktopPreview(): void {
+    const view = this.desktopPreviewView;
+    if (!view) return;
+    this.desktopPreviewView = undefined;
+    const roots = [...view.rootNodes];
+    const index = this.previewContainer.indexOf(view);
+    if (index >= 0) this.previewContainer.remove(index);
+    else if (!view.destroyed) view.destroy();
+    for (const node of roots) {
+      if (node.parentNode === this.previewDocument.body) {
+        this.previewRenderer.removeChild(this.previewDocument.body, node);
+      }
+    }
+  }
+
+  private readonly folderApi = inject(WorkspaceFolderService);
+  private readonly workspaceApi = inject(WorkspaceService);
+  private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly folderStore = inject(WorkspaceFolderStore);
+  private readonly toastService = inject(ToastService);
+  private readonly sessionEnd$ = new Subject<void>();
+  private readonly accessWorkspace = signal<FolderWorkspaceAccess | null>(null);
   private editorId = '';
   private focusFrame: number | null = null;
-
-  @ViewChild('desktopPreview', { static: true })
-  private desktopPreviewTemplate!: TemplateRef<unknown>;
 
   @ViewChild('folderNameInput', { read: ElementRef })
   private folderNameInput?: ElementRef<HTMLElement>;
@@ -104,7 +139,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
 
   readonly LucideFolder = LucideFolder;
   readonly LucideFolderOpen = LucideFolderOpen;
-  readonly LucideStar = LucideStar;
+  readonly LucideFileText = LucideFileText;
   readonly nameMinLength = 1;
   readonly nameMaxLength = 100;
   readonly descriptionMaxLength = 500;
@@ -113,10 +148,10 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   readonly loadingData = signal(false);
   readonly loadFailed = signal(false);
   readonly error = signal('');
-  readonly dirty = signal(false);
   readonly name = signal('');
   readonly folderDescription = signal('');
-  readonly previewSource = signal<Partial<WorkspaceFolder> | null>(null);
+  readonly dirty = signal(false);
+  readonly previewSource = signal<any | null>(null);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -125,11 +160,6 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
       this.sessionEnd$.next();
       this.sessionEnd$.complete();
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.previewViewReady = true;
-    this.scheduleDesktopPreview();
   }
 
   get isEdit(): boolean {
@@ -160,6 +190,21 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     return this.isEdit ? 'Save changes' : 'Create folder';
   }
 
+  get submitTooltip(): string {
+    if (this.loadingData()) return 'Loading folder details';
+    if (this.loading()) return this.isEdit ? 'Saving folder changes' : 'Creating folder';
+    if (this.loadFailed()) return 'Reload the folder before saving';
+    if (!this.authorized) return 'You do not have permission to modify folders in this workspace';
+    const length = this.name().trim().length;
+    if (length < this.nameMinLength) return `Enter at least ${this.nameMinLength} character for the folder name`;
+    if (length > this.nameMaxLength) return `Use no more than ${this.nameMaxLength} characters for the folder name`;
+    if (this.folderDescription().length > this.descriptionMaxLength) {
+      return `Use no more than ${this.descriptionMaxLength} characters for description`;
+    }
+    if (this.isEdit && !this.dirty()) return 'Make changes to save';
+    return this.isEdit ? 'Save folder changes' : 'Create this folder';
+  }
+
   get isBusy(): boolean {
     return this.loading() || this.loadingData();
   }
@@ -171,6 +216,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   get authorized(): boolean {
     return canFolderAction(this.accessWorkspace(), this.isEdit ? this.previewSource() as WorkspaceFolder : null, this.isEdit ? 'canEdit' : 'canCreate');
   }
+
   get canSubmit(): boolean {
     const length = this.name().trim().length;
     return (
@@ -178,7 +224,6 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
       !this.isBusy &&
       !this.loadFailed() &&
       (!this.isEdit || this.dirty()) &&
-      !!this.workspaceId &&
       length >= this.nameMinLength &&
       length <= this.nameMaxLength &&
       this.folderDescription().length <= this.descriptionMaxLength
@@ -189,12 +234,31 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     return this.previewSource()?.isDefault === true;
   }
 
-  get previewPosition(): number {
-    if (this.isEdit) {
-      const pos = Number(this.previewSource()?.position);
-      return Number.isFinite(pos) ? pos + 1 : 1;
+  get previewNotesCountLabel(): string | undefined {
+    const folder = this.previewSource();
+    if (!folder) return undefined;
+    const summary = folder.summary;
+    const total = summary?.total ?? summary?.stickyNoteCount ?? summary?.stickyNotesCount ?? folder?.stickyNoteCount ?? folder?.stickyNotesCount;
+    if (typeof total === 'number') {
+      return `${total} ${total === 1 ? 'note' : 'notes'}`;
     }
-    return Math.max(0, Number(this.position) || 0) + 1;
+    return undefined;
+  }
+
+  get previewNotesTooltip(): string | undefined {
+    const folder = this.previewSource();
+    if (!folder) return undefined;
+    const summary = folder.summary;
+    const total = summary?.total ?? summary?.stickyNoteCount ?? summary?.stickyNotesCount ?? folder?.stickyNoteCount ?? folder?.stickyNotesCount;
+    if (typeof total === 'number') {
+      const active = summary?.active ?? total;
+      const archived = summary?.archived ?? 0;
+      if (summary?.archived !== undefined || archived > 0) {
+        return `${total} ${total === 1 ? 'note' : 'notes'} (${active} active, ${archived} archived)`;
+      }
+      return `${total} ${total === 1 ? 'note' : 'notes'} (${active} active)`;
+    }
+    return undefined;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -224,7 +288,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     if (this.isBusy || this.loadFailed() || !this.authorized) return;
     if (!this.canSubmit) {
       this.error.set(VALIDATION_MESSAGES.LENGTH_RANGE('Folder name', this.nameMinLength, this.nameMaxLength));
-      this.focusName(false);
+      this.focusName();
       return;
     }
 
@@ -238,39 +302,39 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     this.loading.set(true);
     this.error.set('');
 
-    const request$ = isEdit ? this.folderApi.update(id, payload) : this.folderApi.create({ ...payload, name: payload.name!, workspaceId: this.workspaceId });
+    const request$ = isEdit
+      ? this.folderApi.update(id, payload)
+      : this.folderApi.create({ ...payload, name: payload.name!, workspaceId: this.workspaceId });
 
-    request$
-      .pipe(
-        takeUntil(this.sessionEnd$),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe({
-        next: response => {
-          const savedId = idOf(response?.data) || id;
-          this.dirty.set(false);
-          this.toastService.success(
-            isEdit
-              ? WORKSPACE_FOLDER_MESSAGES.SUCCESS.CHANGES_SAVED
-              : WORKSPACE_FOLDER_MESSAGES.SUCCESS.CREATED,
-            {
+    request$.pipe(
+      takeUntil(this.sessionEnd$),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading.set(false))
+    ).subscribe({
+      next: response => {
+        this.dirty.set(false);
+        const savedId = idOf(response?.data) || id || '';
+        this.toastService.success(
+          isEdit ? WORKSPACE_FOLDER_MESSAGES.SUCCESS.CHANGES_SAVED : WORKSPACE_FOLDER_MESSAGES.SUCCESS.CREATED,
+          {
             title: isEdit ? 'Folder updated' : 'Folder created',
             dedupeKey: `workspace-folder-saved-${savedId || 'new'}`
-          });
-          this.saved.emit(response.data);
-        },
-        error: error => this.showError(
-          error,
-          isEdit
-            ? WORKSPACE_FOLDER_MESSAGES.ERROR.UPDATE_FAILED
-            : WORKSPACE_FOLDER_MESSAGES.ERROR.CREATE_FAILED
-        )
-      });
+          }
+        );
+        if (response?.data) {
+          this.folderStore.upsert(response.data);
+        }
+        this.saved.emit(response?.data);
+      },
+      error: error => this.showError(
+        error,
+        isEdit ? WORKSPACE_FOLDER_MESSAGES.ERROR.UPDATE_FAILED : WORKSPACE_FOLDER_MESSAGES.ERROR.CREATE_FAILED
+      )
+    });
   }
 
   close(): void {
-    if (this.loading()) return;
+    if (this.isBusy) return;
     this.sessionEnd$.next();
     this.cancelFocus();
     this.error.set('');
@@ -292,41 +356,43 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
 
     this.editorId = idOf(this.id || this.folder);
 
+    if (this.folder && idOf(this.folder) === this.editorId) {
+      this.applyFolder(this.folder);
+    }
+
     this.accessWorkspace.set(null);
     const id = this.editorId;
     this.loadingData.set(true);
-    this.workspaceApi.getById(this.workspaceId)
-      .pipe(
-        switchMap(response => {
-          const workspace = response.data;
-          this.accessWorkspace.set(workspace);
-          this.workspaceStore.updateWorkspace(this.workspaceId, workspace);
-          if (!canFolderAction(workspace, null, 'canCreate')) {
-            return throwError(() => ({ status: 403, error: { message: 'Folder write permission is unavailable for this workspace.' } }));
-          }
-          if (!id) {
-            return of({ data: { workspaceId: this.workspaceId, name: '', description: '', position: 0, isDefault: false, status: 'ACTIVE' } as WorkspaceFolder });
-          }
-          return this.folderApi.getById(id);
-        }),
-        takeUntil(this.sessionEnd$),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loadingData.set(false))
-      )
-      .subscribe({
-        next: response => {
-          if (!this.open || this.editorId !== id) return;
-          this.applyFolder(response?.data);
-          this.focusName(true);
-        },
-        error: error => {
-          this.loadFailed.set(true);
-          this.showError(error, 'Unable to load this folder. Close the panel and try again.');
+    this.workspaceApi.getById(this.workspaceId).pipe(
+      switchMap(response => {
+        const workspace = response.data;
+        this.accessWorkspace.set(workspace);
+        this.workspaceStore.updateWorkspace(this.workspaceId, workspace);
+        if (!canFolderAction(workspace, null, 'canCreate')) {
+          return throwError(() => ({ status: 403, error: { message: 'Folder write permission is unavailable for this workspace.' } }));
         }
-      });
+        if (!id) {
+          return of({ data: { workspaceId: this.workspaceId, name: '', description: '', position: 0, isDefault: false, status: 'ACTIVE' } as WorkspaceFolder });
+        }
+        return this.folderApi.getById(id);
+      }),
+      takeUntil(this.sessionEnd$),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loadingData.set(false))
+    ).subscribe({
+      next: response => {
+        if (!this.open || this.editorId !== id) return;
+        this.applyFolder(response?.data);
+        this.focusName();
+      },
+      error: error => {
+        this.loadFailed.set(true);
+        this.showError(error, 'Unable to load this folder. Close the panel and try again.');
+      }
+    });
   }
 
-  private applyFolder(folder: WorkspaceFolder): void {
+  private applyFolder(folder: any): void {
     this.previewSource.set(folder);
     this.name.set(String(folder?.name || ''));
     this.folderDescription.set(String(folder?.description || ''));
@@ -339,14 +405,14 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   }
 
   private showError(error: unknown, fallback: string): void {
-    const status = (error as { status?: number })?.status;
+    const status = (error as { status?: number } | null)?.status;
     if (status === 401 || status === 403) {
       this.accessWorkspace.set(null);
       this.loadFailed.set(true);
       this.workspaceStore.load(true);
       this.accessDenied.emit();
     }
-    const message = extractErrorMessage(error, fallback);
+    const message = extractErrorMessage(error, status === 403 ? 'You do not have permission to perform this action.' : status === 401 ? 'Your session has expired. Please sign in again.' : fallback);
     this.error.set(message);
     this.toastService.error(message, {
       title: 'Workspace folder',
@@ -354,40 +420,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     });
   }
 
-  private scheduleDesktopPreview(): void {
-    if (!this.previewViewReady || !isPlatformBrowser(this.previewPlatform)) return;
-    queueMicrotask(() => {
-      if (this.destroyRef.destroyed) return;
-      if (!this.open) {
-        this.removeDesktopPreview();
-        return;
-      }
-      if (this.desktopPreviewView) return;
-      const view = this.previewContainer.createEmbeddedView(this.desktopPreviewTemplate);
-      this.desktopPreviewView = view;
-      for (const node of view.rootNodes) {
-        this.previewRenderer.appendChild(this.previewDocument.body, node);
-      }
-      view.detectChanges();
-    });
-  }
-
-  private removeDesktopPreview(): void {
-    const view = this.desktopPreviewView;
-    if (!view) return;
-    this.desktopPreviewView = undefined;
-    const roots = [...view.rootNodes];
-    const index = this.previewContainer.indexOf(view);
-    if (index >= 0) this.previewContainer.remove(index);
-    else if (!view.destroyed) view.destroy();
-    for (const node of roots) {
-      if (node.parentNode === this.previewDocument.body) {
-        this.previewRenderer.removeChild(this.previewDocument.body, node);
-      }
-    }
-  }
-
-  private focusName(select: boolean): void {
+  private focusName(): void {
     this.cancelFocus();
     if (typeof requestAnimationFrame !== 'function') return;
     this.focusFrame = requestAnimationFrame(() => {
@@ -395,8 +428,9 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
         this.focusFrame = null;
         if (!this.open || this.loadingData()) return;
         const input = this.folderNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
-        input?.focus({ preventScroll: true });
-        if (select) input?.select();
+        if (!input) return;
+        input.focus({ preventScroll: true });
+        input.setSelectionRange(input.value.length, input.value.length);
       });
     });
   }

@@ -47,6 +47,7 @@ import {
 import {
   Divider,
 } from '../divider/divider';
+import { Tooltip } from '../tooltip/tooltip';
 let selectSequence = 0;
 export type SelectValue =
   | string
@@ -127,6 +128,7 @@ export interface SelectOption {
     Avatar,
     Badge,
     Divider,
+    Tooltip,
   ],
   templateUrl: './select.html',
   styleUrl: './select.scss',

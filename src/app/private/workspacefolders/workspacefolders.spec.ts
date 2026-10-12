@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Workspacefolders } from './workspacefolders';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceService } from '../workspace/services/workspace.service';
@@ -10,6 +10,7 @@ import { WorkspaceFolderService } from './services/workspace-folder.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import type { WorkspaceFolder } from './models/workspace-folder.models';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 
 describe('Workspace detail navigation authorization', () => {
   let fixture: ComponentFixture<Workspacefolders>;
@@ -65,6 +66,45 @@ describe('Workspace detail navigation authorization', () => {
     expect(folders.getAllWorkspaceFolders).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'ARCHIVED', page: 1 }));
   });
 
+  it('includes active and archived folders in All and keeps trash separate', () => {
+    const archived = { ...folder('archived'), status: 'ARCHIVED' as const };
+    folders.getAllWorkspaceFolders.mockReturnValue(of({ data: [folder('active'), archived, { ...folder('trash'), status: 'DELETED' }] }));
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    expect(page.isGroupCollapsed('archived')).toBe(true);
+    expect(page.visibleFolders().map(item => item.id)).toEqual(['active', 'archived']);
+    expect(page.folderGroups().map(group => group.id)).toEqual(['active', 'archived']);
+    page.setFolderTab('archived');
+    expect(page.visibleFolders().map(item => item.id)).toEqual(['archived']);
+    expect(page.isGroupCollapsed('archived')).toBe(false);
+  });
+
+  it('shows archived group row in All even when there are 0 archived folders without search', () => {
+    folders.getAllWorkspaceFolders.mockReturnValue(of({ data: [folder('active')] }));
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    expect(page.folderGroups().map(group => group.id)).toEqual(['active', 'archived']);
+    expect(page.isGroupCollapsed('archived')).toBe(true);
+  });
+
+  it('opens rename at the end without selecting or resetting the edited name', () => {
+    vi.useFakeTimers();
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    const item = { ...folder(), name: 'Folder name' };
+    page.folders.set([item]);
+    const input = document.createElement('input');
+    input.value = item.name;
+    vi.spyOn(page as any, 'renameInput').mockReturnValue({ nativeElement: input });
+    page.beginInlineRename(item);
+    vi.runOnlyPendingTimers();
+    expect(input.selectionStart).toBe(item.name.length);
+    expect(input.selectionEnd).toBe(item.name.length);
+    page.inlineRenameName.set('Editing');
+    page.beginInlineRename(item, new MouseEvent('dblclick'));
+    expect(page.inlineRenameName()).toBe('Editing');
+  });
+
   it('debounces search and cancels obsolete requests immediately', () => {
     vi.useFakeTimers();
     fixture.detectChanges();
@@ -89,6 +129,62 @@ describe('Workspace detail navigation authorization', () => {
     fixture.componentInstance.loadFolders();
     expect(fixture.componentInstance.page()).toBe(1);
     expect(fixture.componentInstance.loading()).toBe(false);
+  });
+
+  it('selects and highlights a folder without opening it on row or menu click', () => {
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    const first = folder('first');
+    const second = folder('second');
+    page.folders.set([first, second]);
+    const open = vi.spyOn(page, 'openFolder');
+    const emitted = vi.spyOn(page.folderOpened, 'emit');
+    page.handleFolderClick(first, new MouseEvent('click'));
+    expect(page.selectedFolderId()).toBe('first');
+    expect(page.isFolderHighlighted(first)).toBe(true);
+    page.handleFolderMenuClick(second, new MouseEvent('click'));
+    expect(page.selectedFolderId()).toBe('second');
+    expect(page.isFolderHighlighted(first)).toBe(false);
+    expect(page.isFolderHighlighted(second)).toBe(true);
+    expect(page.selectedCount()).toBe(0);
+    expect(open).not.toHaveBeenCalled();
+    expect(emitted).not.toHaveBeenCalled();
+  });
+
+  it('ignores nested controls and starts inline rename on row double-click', () => {
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    page.folders.set([folder()]);
+    const button = document.createElement('button');
+    const event = new MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: button });
+    page.handleFolderClick(folder(), event);
+    page.handleFolderDoubleClick(folder(), event);
+    expect(page.focusedFolderId()).toBeNull();
+    expect(page.inlineRenameId()).toBeNull();
+    page.handleFolderDoubleClick(folder(), new MouseEvent('dblclick'));
+    expect(page.inlineRenameId()).toBe('f');
+    expect(page.folderEditorOpen()).toBe(false);
+  });
+
+  it('positions the right-click menu at the pointer and highlights its folder', () => {
+    vi.useFakeTimers();
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    page.folders.set([folder()]);
+    const trigger = { closeMenu: vi.fn(), openMenu: vi.fn() };
+    vi.spyOn(page, 'folderContextMenuTrigger').mockReturnValue(trigger as any);
+    const event = new MouseEvent('contextmenu', { clientX: 120, clientY: 80, cancelable: true });
+    page.openContextMenu(folder(), event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(page.contextMenuPosition()).toEqual({ x: 120, y: 80 });
+    expect(page.contextMenuFolder()?.id).toBe('f');
+    expect(page.isFolderHighlighted(folder())).toBe(true);
+    vi.runOnlyPendingTimers();
+    expect(trigger.openMenu).toHaveBeenCalledOnce();
+    page.closeFolderContextMenu();
+    expect(page.contextMenuFolder()).toBeNull();
+    expect(page.isFolderHighlighted(folder())).toBe(true);
   });
 
   it('submits rename only once for Enter plus blur, and never after Escape', () => {
@@ -132,5 +228,95 @@ describe('Workspace detail navigation authorization', () => {
     expect(folders.delete).toHaveBeenCalledTimes(1);
     pending.next({ data: { ...folder(), status: 'DELETED' } }); pending.complete();
     expect(page.bulkBusy()).toBe(false);
+  });
+
+  it('patches sticky notes details into notes badges from the folder summary', () => {
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    const folderWithSummary: WorkspaceFolder = {
+      id: '6a96edf5d1b8847c20316875',
+      workspaceId: '6a96edf5d1b8847c20316873',
+      name: 'My Notes',
+      slug: 'my-notes-6a96edf4d1b8847c20316871',
+      description: 'Your default notes folder',
+      icon: null,
+      color: null,
+      position: 0,
+      isDefault: true,
+      status: 'ACTIVE',
+      summary: {
+        stickyNoteCount: 22,
+        stickyNotesCount: 22,
+        total: 22,
+        active: 22,
+        archived: 0
+      },
+      createdBy: '6a96edf4d1b8847c20316871',
+      updatedBy: '6a96edf4d1b8847c20316871',
+      deletedAt: null,
+      deletedBy: null,
+      purgeAfter: null,
+      createdAt: '2026-09-01T15:23:33.170Z',
+      updatedAt: '2026-09-06T05:37:58.843Z'
+    };
+
+    expect(page.folderNotesCount(folderWithSummary)).toBe(22);
+    expect(page.folderNotesActiveCount(folderWithSummary)).toBe(22);
+    expect(page.folderNotesArchivedCount(folderWithSummary)).toBe(0);
+    expect(page.folderNotesCountLabel(folderWithSummary)).toBe('22 notes');
+    expect(page.folderNotesBadgeVariant(folderWithSummary)).toBe('noteYellow');
+    expect(page.folderNotesTooltip(folderWithSummary)).toBe('22 notes (22 active, 0 archived)');
+
+    const emptyFolder = folder('empty');
+    expect(page.folderNotesCount(emptyFolder)).toBe(0);
+    expect(page.folderNotesCountLabel(emptyFolder)).toBe('0 notes');
+    expect(page.folderNotesBadgeVariant(emptyFolder)).toBe('neutral');
+    expect(page.folderNotesTooltip(emptyFolder)).toBe('0 notes in folder');
+
+    const folderWithArchived: WorkspaceFolder = {
+      ...folder('archived-notes'),
+      summary: { total: 5, active: 3, archived: 2 }
+    };
+    expect(page.folderNotesCount(folderWithArchived)).toBe(5);
+    expect(page.folderNotesCountLabel(folderWithArchived)).toBe('5 notes');
+    expect(page.folderNotesTooltip(folderWithArchived)).toBe('5 notes (3 active, 2 archived)');
+  });
+
+  it('manages notes by delegating to openFolder for the requested folder', () => {
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    const target = folder('target-folder');
+    const openSpy = vi.spyOn(page, 'openFolder').mockImplementation(() => {});
+    page.manageNotes(target);
+    expect(openSpy).toHaveBeenCalledWith(target);
+  });
+
+  it('persists folder view, status filter, and sort order with folder preference keys', () => {
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    const prefStore = TestBed.inject(UserPreferenceStore);
+    const saveSpy = vi.spyOn(prefStore, 'setAndSave');
+
+    page.setFolderView('list');
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_VIEW, 'LIST');
+
+    page.setFolderTab('archived');
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_STATUS_FILTER, 'ARCHIVED');
+
+    page.setSort('updatedAt');
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER, 'RECENTLY_UPDATED');
+  });
+
+  it('does not re-fetch workspace details when switching status tab or sort order', () => {
+    fixture.detectChanges();
+    expect(workspaces.getById).toHaveBeenCalledTimes(1);
+
+    fixture.componentInstance.setFolderTab('archived');
+    expect(workspaces.getById).toHaveBeenCalledTimes(1);
+    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledTimes(2);
+
+    fixture.componentInstance.setSort('name');
+    expect(workspaces.getById).toHaveBeenCalledTimes(1);
+    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledTimes(3);
   });
 });

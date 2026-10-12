@@ -36,7 +36,8 @@
   }
   }
   <div class="app-select-control-shell">
-    <button #trigger class="app-select-trigger" [id]="selectId" [attr.title]="selectedLabel || placeholder"
+    <button #trigger class="app-select-trigger" [id]="selectId" [appTooltip]="selectedLabel || placeholder"
+      tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" [tooltipDisabled]="isOpen || isDisabled"
       type="button" role="combobox" aria-haspopup="listbox" [attr.name]="name" [attr.aria-label]="
         ariaLabel ||
         label ||
@@ -232,7 +233,8 @@
       hasValue &&
       !isDisabled
       ) {
-      <button class="app-select-clear" type="button" aria-label="Clear selection" title="Clear selection"
+      <button class="app-select-clear" type="button" aria-label="Clear selection" appTooltip="Clear selection"
+        tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
         (mousedown)="$event.preventDefault()" (click)="clear($event)">
         <app-icon [icon]="LucideX" size="xs" />
       </button>
@@ -302,7 +304,8 @@
             activeOptionId
           " (input)="updateSearch($event)" />
     @if (searchTerm) {
-    <button type="button" aria-label="Clear search" title="Clear search" (click)="clearSearch()">
+    <button type="button" aria-label="Clear search" appTooltip="Clear search"
+      tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" (click)="clearSearch()">
       <app-icon [icon]="LucideX" size="xs" />
     </button>
     }

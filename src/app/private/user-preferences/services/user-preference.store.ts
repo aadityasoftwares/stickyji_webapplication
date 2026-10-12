@@ -70,6 +70,18 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_SORT_ORDER]
     );
 
+    readonly workspaceFolderView = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_VIEW]
+    );
+
+    readonly workspaceFolderStatusFilter = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_STATUS_FILTER]
+    );
+
+    readonly workspaceFolderSortOrder = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER]
+    );
+
     readonly autosaveEnabled = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.AUTOSAVE_ENABLED]
     );

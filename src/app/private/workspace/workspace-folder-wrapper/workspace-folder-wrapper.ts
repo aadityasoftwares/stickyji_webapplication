@@ -40,6 +40,7 @@ export class WorkspaceFolderWrapper {
   @Input() updatedAt: string | Date | null | undefined = null;
   @Input() folderCount: number | null = null;
   @Input() countLabel?: string;
+  @Input() countTooltip?: string;
   @Input() countIconOverride?: any;
   @Input() folders: readonly any[] = [];
   @Input() members: any[] = [];
@@ -130,11 +131,13 @@ export class WorkspaceFolderWrapper {
   }
 
   get resolvedCountTooltip(): string {
+    if (this.countTooltip) return this.countTooltip;
+    if (this.countLabel && !this.folderCount && this.folderPreviews.length === 0) return this.countLabel;
     const count = Math.max(this.folderCount ?? 0, this.folderPreviews.length);
     const label = this.resolvedCountLabel ?? `${count} ${count === 1 ? 'folder' : 'folders'}`;
     const names = this.folderPreviews.map(folder => folder.name);
 
-    if (count === 0) return 'No folders in this workspace';
+    if (count === 0) return this.countLabel || 'No folders in this workspace';
     if (names.length === 0) return label;
 
     const visibleNames = names.slice(0, 4);
