@@ -1,1019 +1,1582 @@
 <section class="workspace-members-page" aria-labelledby="workspace-members-page-title">
-    <main class="workspace-members-main">
+  <main class="workspace-members-main">
+    <header class="workspace-members-header">
+      <div class="workspace-members-intro">
+        <span class="workspace-members-intro-mark" aria-hidden="true">
+          <span class="workspace-members-person-icon">
+            <span class="workspace-members-person-head"></span>
+            <span class="workspace-members-person-body"></span>
+          </span>
+          <span class="workspace-members-person-icon is-secondary">
+            <span class="workspace-members-person-head"></span>
+            <span class="workspace-members-person-body"></span>
+          </span>
+        </span>
 
-        <header class="workspace-members-header">
-            <div class="workspace-members-intro">
-                <span class="workspace-members-intro-mark" aria-hidden="true">
-                    <span class="workspace-members-person-icon">
-                        <span class="workspace-members-person-head"></span>
-                        <span class="workspace-members-person-body"></span>
-                    </span>
-                    <span class="workspace-members-person-icon is-secondary">
-                        <span class="workspace-members-person-head"></span>
-                        <span class="workspace-members-person-body"></span>
-                    </span>
-                </span>
+        <div>
+          <span class="workspace-members-kicker"> Inside {{ selectedWorkspaceLabel() }} </span>
 
-                <div>
-                    <span class="workspace-members-kicker">
-                        Inside {{ selectedWorkspaceLabel() }}
-                    </span>
+          <h1 id="workspace-members-page-title">
+            Manage people and
+            <span>shared access.</span>
+          </h1>
+        </div>
+      </div>
 
-                    <h1 id="workspace-members-page-title">
-                        Manage people and
-                        <span>shared access.</span>
-                    </h1>
-                </div>
+      <div class="workspace-members-header-actions">
+        <div class="workspace-members-count-slot" aria-live="polite">
+          @if (
+            !loading() &&
+            !invitationLoading() &&
+            !error() &&
+            !invitationError() &&
+            selectedWorkspaceId()
+          ) {
+            <app-badge [label]="headerCountLabel()" variant="noteYellow" size="sm" shape="pill" />
+          } @else {
+            <span class="workspace-members-count-placeholder" aria-hidden="true"></span>
+          }
+        </div>
+
+        <div class="workspace-members-workspace-picker">
+          <app-select
+            [options]="workspaceOptions()"
+            [ngModel]="selectedWorkspaceId()"
+            (ngModelChange)="onWorkspaceChange($event)"
+            name="workspace-members-workspace"
+            [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+            ariaLabel="Choose workspace for members"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucidePanelsTopLeft"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
+        </div>
+
+        <app-button
+          [icon]="LucideRefreshCw"
+          [iconOnly]="true"
+          appearance="standard"
+          variant="noteBlue"
+          size="md"
+          ariaLabel="Refresh workspace access"
+          title="Refresh workspace access"
+          [loading]="loading() || invitationLoading()"
+          [disabled]="!selectedWorkspaceId() || loadingWorkspaces()"
+          (buttonClick)="loadWorkspaceAccess()"
+        />
+
+        <app-button
+          class="workspace-members-new-button"
+          label="Invite member"
+          [iconLeft]="LucideUserPlus"
+          variant="noteYellow"
+          appearance="standard"
+          size="md"
+          [disabled]="!selectedWorkspaceId() || loadingWorkspaces()"
+          (buttonClick)="openSendRequest()"
+        />
+      </div>
+    </header>
+
+    <section
+      class="workspace-members-explorer"
+      [attr.aria-busy]="loading() || invitationLoading() || loadingWorkspaces()"
+    >
+      <div class="workspace-members-toolbar">
+        <app-tabs
+          class="workspace-members-status-tabs"
+          [items]="memberTabs()"
+          [value]="activeTab()"
+          variant="segmented"
+          shape="rounded"
+          size="sm"
+          density="compact"
+          ariaLabel="Filter workspace access"
+          [fullWidth]="false"
+          [scrollable]="true"
+          (valueChange)="setMemberTab($event)"
+        />
+
+        <div class="workspace-members-toolbar-actions">
+          <div class="workspace-members-search">
+            <app-input
+              type="search"
+              label="Search access"
+              labelMode="hidden"
+              [placeholder]="searchPlaceholder()"
+              variant="paper"
+              appearance="outlined"
+              shape="rounded"
+              size="sm"
+              [leadingIcon]="LucideSearch"
+              [clearable]="true"
+              [value]="searchTerm()"
+              [fullWidth]="true"
+              ariaLabel="Search workspace access"
+              (valueChange)="updateSearch($event)"
+              (cleared)="clearSearch()"
+            />
+          </div>
+
+          <app-select
+            class="workspace-members-sort"
+            [options]="sortOptions"
+            [ngModel]="sortBy()"
+            (ngModelChange)="setSort($event)"
+            name="workspace-members-sort"
+            placeholder="Sort"
+            ariaLabel="Sort workspace access"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="false"
+            [width]="176"
+          />
+
+          <app-tabs
+            class="workspace-members-view-tabs"
+            [items]="viewTabs"
+            [value]="view()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Choose grid or list view"
+            [scrollable]="false"
+            [minTabWidth]="64"
+            (valueChange)="setMemberView($event)"
+          />
+        </div>
+      </div>
+
+      <div class="workspace-members-explorer-body" [class.is-list]="view() === 'list'">
+        @if (loadingWorkspaces()) {
+          <div class="workspace-members-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Loading your workspaces..."
+              description="Finding the spaces you can manage."
+              [minHeight]="360"
+            />
+          </div>
+        } @else if (workspaceError()) {
+          <div class="workspace-members-empty-state">
+            <span class="workspace-members-empty-icon is-error">
+              <app-icon [icon]="LucideX" size="lg" />
+            </span>
+            <span class="workspace-members-empty-note">Couldn’t open your spaces</span>
+            <h2>Workspaces are unavailable</h2>
+            <p>{{ workspaceError() }}</p>
+            <app-button
+              label="Try again"
+              [iconLeft]="LucideRefreshCw"
+              variant="primary"
+              size="sm"
+              (buttonClick)="loadWorkspaces()"
+            />
+          </div>
+        } @else if (workspaces().length === 0) {
+          <div class="workspace-members-empty-state">
+            <span class="workspace-members-empty-icon">
+              <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+            </span>
+            <span class="workspace-members-empty-note">No workspace yet</span>
+            <h2>Create a workspace first</h2>
+            <p>
+              Members and invitations belong to a workspace, so create a workspace before inviting
+              people.
+            </p>
+          </div>
+        } @else if (!selectedWorkspaceId()) {
+          <div class="workspace-members-empty-state">
+            <span class="workspace-members-empty-icon">
+              <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+            </span>
+            <span class="workspace-members-empty-note">Choose your space</span>
+            <h2>Select a workspace</h2>
+            <p>Choose a workspace above to view its members and invitations.</p>
+          </div>
+        } @else if (activeTab() === 'invitations') {
+          @if (invitationLoading()) {
+            <div class="workspace-members-loader-state">
+              <app-loader
+                mode="section"
+                size="md"
+                tone="colorful"
+                label="Opening invitations..."
+                description="Getting workspace invitation history ready."
+                [minHeight]="360"
+              />
             </div>
+          } @else if (invitationError()) {
+            <div class="workspace-members-empty-state">
+              <span class="workspace-members-empty-icon is-error">
+                <app-icon [icon]="LucideX" size="lg" />
+              </span>
+              <span class="workspace-members-empty-note">Invitations slipped away</span>
+              <h2>Couldn’t load invitations</h2>
+              <p>{{ invitationError() }}</p>
+              <app-button
+                label="Try again"
+                [iconLeft]="LucideRefreshCw"
+                variant="primary"
+                size="sm"
+                (buttonClick)="loadInvitations()"
+              />
+            </div>
+          } @else if (searchTerm() && visibleInvitations().length === 0) {
+            <div class="workspace-members-empty-state is-compact">
+              <span class="workspace-members-empty-icon">
+                <app-icon [icon]="LucideSearch" size="lg" />
+              </span>
+              <span class="workspace-members-empty-note">No invitation matches</span>
+              <h2>No invitation found</h2>
+              <p>Try another email, role, status or inviter.</p>
+              <app-button
+                label="Clear search"
+                variant="outline"
+                size="sm"
+                (buttonClick)="clearSearch()"
+              />
+            </div>
+          } @else if (visibleInvitations().length === 0) {
+            <div class="workspace-members-empty-state is-compact">
+              <span class="workspace-members-empty-icon">
+                <app-icon [icon]="LucideMail" size="lg" />
+              </span>
+              <span class="workspace-members-empty-note">No invitations yet</span>
+              <h2>Invite someone to this space</h2>
+              <p>Sent invitations will appear here with their role, status and expiry date.</p>
+              <app-button
+                label="Invite member"
+                [iconLeft]="LucideUserPlus"
+                variant="noteYellow"
+                size="sm"
+                (buttonClick)="openSendRequest()"
+              />
+            </div>
+          } @else if (view() === 'grid') {
+            <div class="workspace-access-grid workspace-member-grid" role="list">
+              @for (invitation of visibleInvitations(); track invitationId(invitation)) {
+                <app-invitation-card-wrapper
+                  [invitation]="invitation"
+                  [busy]="isInvitationBusy(invitation)"
+                  role="listitem"
+                  [appHighlight]="contextMenuInvitation() === invitation"
+                  highlightRadius="1rem"
+                  (contextmenu)="openInvitationContextMenu(invitation, $event)"
+                >
+                  <div card-actions>
+                    <app-button
+                      class="workspace-member-card-menu"
+                      [icon]="LucideMoreHorizontal"
+                      [iconOnly]="true"
+                      appearance="standard"
+                      variant="outline"
+                      size="sm"
+                      [rounded]="true"
+                      [ariaLabel]="'More actions for invitation to ' + invitationEmail(invitation)"
+                      [title]="'More actions for invitation to ' + invitationEmail(invitation)"
+                      [disabled]="isInvitationBusy(invitation)"
+                      [matMenuTriggerFor]="invitationCardActions"
+                      (click)="$event.stopPropagation()"
+                    />
 
-            <div class="workspace-members-header-actions">
-                <div class="workspace-members-count-slot" aria-live="polite">
-                    @if (
-                    !loading() &&
-                    !invitationLoading() &&
-                    !error() &&
-                    !invitationError() &&
-                    selectedWorkspaceId()
-                    ) {
-                    <app-badge [label]="headerCountLabel()" variant="noteYellow" size="sm" shape="pill" />
+                    <mat-menu
+                      #invitationCardActions="matMenu"
+                      xPosition="before"
+                      yPosition="below"
+                      [overlapTrigger]="false"
+                      class="workspace-actions-menu"
+                    >
+                      <ng-container
+                        *ngTemplateOutlet="invitationMenu; context: { $implicit: invitation }"
+                      />
+                    </mat-menu>
+                  </div>
+
+                  <div card-footer class="workspace-member-card-footer">
+                    @if (canCancelInvitation(invitation)) {
+                      <app-button
+                        class="workspace-member-card-primary-action"
+                        label="Cancel invitation"
+                        [iconLeft]="LucideX"
+                        variant="outline"
+                        appearance="standard"
+                        size="sm"
+                        [fullWidth]="true"
+                        [disabled]="isInvitationBusy(invitation)"
+                        (buttonClick)="requestCancelInvitation(invitation)"
+                      />
                     } @else {
-                    <span class="workspace-members-count-placeholder" aria-hidden="true"></span>
+                      <span class="invitation-card-closed-note">
+                        Invitation {{ invitationStatusLabel(invitation).toLowerCase() }}
+                      </span>
                     }
-                </div>
+                  </div>
+                </app-invitation-card-wrapper>
+              }
 
-                <div class="workspace-members-workspace-picker">
-                    <app-select [options]="workspaceOptions()" [ngModel]="selectedWorkspaceId()"
-                        (ngModelChange)="onWorkspaceChange($event)" name="workspace-members-workspace"
-                        [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
-                        ariaLabel="Choose workspace for members" variant="paper" shape="rounded" size="sm"
-                        [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
-                </div>
-
-                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
-                    size="md" ariaLabel="Refresh workspace access" title="Refresh workspace access"
-                    [loading]="loading() || invitationLoading()"
-                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="loadWorkspaceAccess()" />
-
-                <app-button class="workspace-members-new-button" label="Invite member" [iconLeft]="LucideUserPlus"
-                    variant="noteYellow" appearance="standard" size="md"
-                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="openSendRequest()" />
+              <!-- Add invite card -->
+              <button type="button" class="invite-add-card" (click)="openSendRequest()">
+                <span class="invite-add-card__icon" aria-hidden="true">
+                  <app-icon [icon]="LucideUserPlus" size="md" />
+                </span>
+                <strong class="invite-add-card__title">Invite another person</strong>
+                <small class="invite-add-card__sub">Send a workspace invitation</small>
+              </button>
             </div>
-        </header>
-
-        <section class="workspace-members-explorer"
-            [attr.aria-busy]="loading() || invitationLoading() || loadingWorkspaces()">
-
-            <div class="workspace-members-toolbar">
-                <app-tabs class="workspace-members-status-tabs" [items]="memberTabs()" [value]="activeTab()"
-                    variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter workspace access"
-                    [fullWidth]="false" [scrollable]="true" (valueChange)="setMemberTab($event)" />
-
-                <div class="workspace-members-toolbar-actions">
-                    <div class="workspace-members-search">
-                        <app-input type="search" label="Search access" labelMode="hidden"
-                            [placeholder]="searchPlaceholder()" variant="paper" appearance="outlined" shape="rounded"
-                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
-                            [fullWidth]="true" ariaLabel="Search workspace access" (valueChange)="updateSearch($event)"
-                            (cleared)="clearSearch()" />
+          } @else {
+            <div class="workspace-grouped-table">
+              <div class="workspace-table-groups-container">
+                <section
+                  class="workspace-group"
+                  [class.is-collapsed]="isGroupCollapsed('invitations')"
+                  aria-labelledby="invitations-group-heading"
+                >
+                  <header class="workspace-group-header">
+                    <h3>
+                      <button
+                        type="button"
+                        class="workspace-group-toggle"
+                        id="invitations-group-heading"
+                        [attr.aria-expanded]="!isGroupCollapsed('invitations')"
+                        aria-controls="invitations-group-body"
+                        (click)="toggleGroup('invitations')"
+                        appTooltip="Toggle invitations"
+                        tooltipTone="paper"
+                      >
+                        <app-icon
+                          class="workspace-group-chevron"
+                          [icon]="
+                            isGroupCollapsed('invitations') ? LucideChevronRight : LucideChevronDown
+                          "
+                          size="sm"
+                        />
+                        <span class="workspace-group-accent-bar"></span>
+                        <span class="workspace-group-label">Invitations</span>
+                        <app-badge
+                          [label]="'' + visibleInvitations().length"
+                          variant="neutral"
+                          size="xs"
+                          shape="rounded"
+                        />
+                      </button>
+                    </h3>
+                    <div class="workspace-group-header-actions">
+                      <app-button
+                        [icon]="LucidePlus"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        size="xs"
+                        ariaLabel="Invite member"
+                        appTooltip="Invite member"
+                        tooltipTone="noteYellow"
+                        (buttonClick)="openSendRequest()"
+                      />
                     </div>
-
-                    <app-select class="workspace-members-sort" [options]="sortOptions" [ngModel]="sortBy()"
-                        (ngModelChange)="setSort($event)" name="workspace-members-sort" placeholder="Sort"
-                        ariaLabel="Sort workspace access" variant="paper" shape="rounded" size="sm" [clearable]="false"
-                        [searchable]="false" [fullWidth]="false" [width]="176" />
-
-                    <app-tabs class="workspace-members-view-tabs" [items]="viewTabs" [value]="view()"
-                        variant="segmented" shape="rounded" size="sm" density="compact"
-                        ariaLabel="Choose grid or list view" [scrollable]="false" [minTabWidth]="64"
-                        (valueChange)="setMemberView($event)" />
-                </div>
-            </div>
-
-            <div class="workspace-members-explorer-body" [class.is-list]="view() === 'list'">
-
-                @if (loadingWorkspaces()) {
-                <div class="workspace-members-loader-state">
-                    <app-loader mode="section" size="md" tone="colorful" label="Loading your workspaces..."
-                        description="Finding the spaces you can manage." [minHeight]="360" />
-                </div>
-
-                } @else if (workspaceError()) {
-                <div class="workspace-members-empty-state">
-                    <span class="workspace-members-empty-icon is-error">
-                        <app-icon [icon]="LucideX" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">Couldn’t open your spaces</span>
-                    <h2>Workspaces are unavailable</h2>
-                    <p>{{ workspaceError() }}</p>
-                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-                        (buttonClick)="loadWorkspaces()" />
-                </div>
-
-                } @else if (workspaces().length === 0) {
-                <div class="workspace-members-empty-state">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">No workspace yet</span>
-                    <h2>Create a workspace first</h2>
-                    <p>Members and invitations belong to a workspace, so create a workspace before inviting people.</p>
-                </div>
-
-                } @else if (!selectedWorkspaceId()) {
-                <div class="workspace-members-empty-state">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">Choose your space</span>
-                    <h2>Select a workspace</h2>
-                    <p>Choose a workspace above to view its members and invitations.</p>
-                </div>
-
-                } @else if (activeTab() === 'invitations') {
-
-                @if (invitationLoading()) {
-                <div class="workspace-members-loader-state">
-                    <app-loader mode="section" size="md" tone="colorful" label="Opening invitations..."
-                        description="Getting workspace invitation history ready." [minHeight]="360" />
-                </div>
-
-                } @else if (invitationError()) {
-                <div class="workspace-members-empty-state">
-                    <span class="workspace-members-empty-icon is-error">
-                        <app-icon [icon]="LucideX" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">Invitations slipped away</span>
-                    <h2>Couldn’t load invitations</h2>
-                    <p>{{ invitationError() }}</p>
-                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-                        (buttonClick)="loadInvitations()" />
-                </div>
-
-                } @else if (searchTerm() && visibleInvitations().length === 0) {
-                <div class="workspace-members-empty-state is-compact">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="LucideSearch" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">No invitation matches</span>
-                    <h2>No invitation found</h2>
-                    <p>Try another email, role, status or inviter.</p>
-                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-                </div>
-
-                } @else if (visibleInvitations().length === 0) {
-                <div class="workspace-members-empty-state is-compact">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="LucideMail" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">No invitations yet</span>
-                    <h2>Invite someone to this space</h2>
-                    <p>Sent invitations will appear here with their role, status and expiry date.</p>
-                    <app-button label="Invite member" [iconLeft]="LucideUserPlus" variant="noteYellow" size="sm"
-                        (buttonClick)="openSendRequest()" />
-                </div>
-
-                } @else if (view() === 'grid') {
-                <div class="workspace-access-grid workspace-member-grid" role="list">
-                    @for (invitation of visibleInvitations(); track invitationId(invitation)) {
-
-                    <app-invitation-card-wrapper
-                        [invitation]="invitation"
-                        [busy]="isInvitationBusy(invitation)">
-
-                        <div card-actions>
-                            @if (canCancelInvitation(invitation)) {
-                            <app-button class="workspace-member-card-menu" [icon]="LucideMoreHorizontal"
-                                [iconOnly]="true" appearance="standard" variant="outline" size="sm" [rounded]="true"
-                                [ariaLabel]="'More actions for invitation to ' + invitationEmail(invitation)"
-                                [title]="'More actions for invitation to ' + invitationEmail(invitation)"
-                                [disabled]="isInvitationBusy(invitation)"
-                                [matMenuTriggerFor]="invitationCardActions" (click)="$event.stopPropagation()" />
-
-                            <mat-menu #invitationCardActions="matMenu" xPosition="before" yPosition="below"
-                                [overlapTrigger]="false" class="workspace-actions-menu">
-
-                                <button mat-menu-item type="button"
-                                    class="workspace-action-item workspace-menu-danger"
-                                    (click)="requestCancelInvitation(invitation)">
-                                    <span class="workspace-menu-item-icon" aria-hidden="true">
-                                        <app-icon [icon]="LucideX" size="xs" />
-                                    </span>
-                                    <span class="workspace-menu-item-copy">
-                                        <strong>Cancel invitation</strong>
-                                        <small>Stop this pending invitation</small>
-                                    </span>
-                                </button>
-                            </mat-menu>
-                            }
-                        </div>
-
-                        <div card-footer class="workspace-member-card-footer">
-                            @if (canCancelInvitation(invitation)) {
-                            <app-button class="workspace-member-card-primary-action" label="Cancel invitation"
-                                [iconLeft]="LucideX" variant="outline" appearance="standard" size="sm"
-                                [fullWidth]="true" [disabled]="isInvitationBusy(invitation)"
-                                (buttonClick)="requestCancelInvitation(invitation)" />
-                            } @else {
-                            <span class="invitation-card-closed-note">
-                                Invitation {{ invitationStatusLabel(invitation).toLowerCase() }}
-                            </span>
-                            }
-                        </div>
-                    </app-invitation-card-wrapper>
-                    }
-
-                    <!-- Add invite card -->
-                    <button type="button" class="invite-add-card" (click)="openSendRequest()">
-                        <span class="invite-add-card__icon" aria-hidden="true">
-                            <app-icon [icon]="LucideUserPlus" size="md" />
-                        </span>
-                        <strong class="invite-add-card__title">Invite another person</strong>
-                        <small class="invite-add-card__sub">Send a workspace invitation</small>
-                    </button>
-                </div>
-
-                } @else {
-                <div class="workspace-access-list-scroll">
-                    <table class="workspace-access-table workspace-invitation-table"
-                        aria-label="Workspace invitations list">
-
+                  </header>
+                  @if (!isGroupCollapsed('invitations')) {
+                    <div
+                      class="workspace-group-body"
+                      id="invitations-group-body"
+                      role="region"
+                      tabindex="0"
+                      aria-labelledby="invitations-group-heading"
+                    >
+                      <table
+                        class="workspace-gtable workspace-invitation-gtable"
+                        aria-label="Workspace invitations list"
+                      >
                         <thead>
-                            <tr>
-                                <th scope="col">Invitation</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Sent</th>
-                                <th scope="col">Expires</th>
-                                <th scope="col">Invited by</th>
-                                <th scope="col" class="workspace-access-actions-heading">
-                                    <span class="visually-hidden">Actions</span>
-                                </th>
-                            </tr>
+                          <tr>
+                            <th scope="col">Invitation</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Invited by</th>
+                            <th scope="col" class="workspace-gt-actions">
+                              <span class="visually-hidden">Actions</span>
+                            </th>
+                          </tr>
                         </thead>
 
                         <tbody>
-                            @for (invitation of visibleInvitations(); track invitationId(invitation)) {
-                            <tr [class.is-busy]="isInvitationBusy(invitation)"
-                                [class.is-muted]="!canCancelInvitation(invitation)">
+                          @for (
+                            invitation of visibleInvitations();
+                            track invitationId(invitation)
+                          ) {
+                            <tr
+                              [class.is-busy]="isInvitationBusy(invitation)"
+                              [class.is-removed]="!canCancelInvitation(invitation)"
+                              [appHighlight]="contextMenuInvitation() === invitation"
+                              [highlightInset]="true"
+                              (contextmenu)="openInvitationContextMenu(invitation, $event)"
+                            >
+                              <td class="workspace-access-primary" data-label="Invitation">
+                                <div class="workspace-access-person">
+                                  <app-avatar
+                                    [name]="invitationName(invitation)"
+                                    size="sm"
+                                    shape="rounded"
+                                  />
 
-                                <td class="workspace-access-primary" data-label="Invitation">
-                                    <div class="workspace-access-person">
-                                        <app-avatar [name]="invitationName(invitation)" size="sm" shape="rounded" />
+                                  <div class="workspace-access-person-copy">
+                                    <strong [title]="invitationEmail(invitation)">
+                                      {{ invitationEmail(invitation) }}
+                                    </strong>
+                                    <small [title]="invitationMessage(invitation)">
+                                      {{ invitationSecondaryLabel(invitation) }}
+                                    </small>
+                                  </div>
+                                </div>
+                              </td>
 
-                                        <div class="workspace-access-person-copy">
-                                            <strong [title]="invitationEmail(invitation)">
-                                                {{ invitationEmail(invitation) }}
-                                            </strong>
-                                            <small [title]="invitationMessage(invitation)">
-                                                {{ invitationSecondaryLabel(invitation) }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </td>
+                              <td data-label="Role">
+                                <div class="workspace-access-role">
+                                  <app-icon [icon]="LucideShield" size="xs" />
+                                  <span>{{ invitationRoleName(invitation) }}</span>
+                                </div>
+                              </td>
 
-                                <td data-label="Role">
-                                    <div class="workspace-access-role">
-                                        <app-icon [icon]="LucideShield" size="xs" />
-                                        <span>{{ invitationRoleName(invitation) }}</span>
-                                    </div>
-                                </td>
+                              <td data-label="Status">
+                                <app-badge
+                                  [label]="invitationStatusLabel(invitation)"
+                                  [variant]="invitationStatusVariant(invitation)"
+                                  size="xs"
+                                  shape="pill"
+                                  [dot]="true"
+                                />
+                              </td>
 
-                                <td data-label="Status">
-                                    <app-badge [label]="invitationStatusLabel(invitation)"
-                                        [variant]="invitationStatusVariant(invitation)" size="xs" shape="pill"
-                                        [dot]="true" />
-                                </td>
+                              <td data-label="Sent">
+                                <span class="workspace-access-date">
+                                  {{ invitationCreatedLabel(invitation) }}
+                                </span>
+                              </td>
 
-                                <td data-label="Sent">
-                                    <span class="workspace-access-date">
-                                        {{ invitationCreatedLabel(invitation) }}
-                                    </span>
-                                </td>
+                              <td data-label="Expires">
+                                <span class="workspace-access-date">
+                                  {{ invitationExpiryLabel(invitation) }}
+                                </span>
+                              </td>
 
-                                <td data-label="Expires">
-                                    <span class="workspace-access-date">
-                                        {{ invitationExpiryLabel(invitation) }}
-                                    </span>
-                                </td>
+                              <td data-label="Invited by">
+                                <span class="workspace-access-truncate">
+                                  {{ invitationInvitedByLabel(invitation) }}
+                                </span>
+                              </td>
 
-                                <td data-label="Invited by">
-                                    <span class="workspace-access-truncate">
-                                        {{ invitationInvitedByLabel(invitation) }}
-                                    </span>
-                                </td>
+                              <td class="workspace-gt-actions" data-label="Actions">
+                                <div class="workspace-table-action-group">
+                                  <app-button
+                                    class="workspace-invitation-menu-button"
+                                    [icon]="LucideMoreHorizontal"
+                                    [iconOnly]="true"
+                                    appearance="standard"
+                                    variant="noteYellow"
+                                    size="xs"
+                                    [rounded]="true"
+                                    [ariaLabel]="
+                                      'Actions for invitation to ' + invitationEmail(invitation)
+                                    "
+                                    [title]="
+                                      'Actions for invitation to ' + invitationEmail(invitation)
+                                    "
+                                    [disabled]="isInvitationBusy(invitation)"
+                                    [matMenuTriggerFor]="invitationListActions"
+                                    (click)="$event.stopPropagation()"
+                                  />
 
-                                <td class="workspace-access-actions" data-label="Actions">
-                                    @if (canCancelInvitation(invitation)) {
-                                    <app-button class="workspace-access-menu-button" [icon]="LucideMoreHorizontal"
-                                        [iconOnly]="true" appearance="standard" variant="ghost" size="xs"
-                                        [rounded]="true"
-                                        [ariaLabel]="'Actions for invitation to ' + invitationEmail(invitation)"
-                                        [title]="'Actions for invitation to ' + invitationEmail(invitation)"
-                                        [disabled]="isInvitationBusy(invitation)"
-                                        [matMenuTriggerFor]="invitationListActions"
-                                        (click)="$event.stopPropagation()" />
-
-                                    <mat-menu #invitationListActions="matMenu" xPosition="before" yPosition="below"
-                                        [overlapTrigger]="false" class="workspace-actions-menu">
-
-                                        <button mat-menu-item type="button"
-                                            class="workspace-action-item workspace-menu-danger"
-                                            (click)="requestCancelInvitation(invitation)">
-                                            <span class="workspace-menu-item-icon" aria-hidden="true">
-                                                <app-icon [icon]="LucideX" size="xs" />
-                                            </span>
-                                            <span class="workspace-menu-item-copy">
-                                                <strong>Cancel invitation</strong>
-                                                <small>Stop this pending invitation</small>
-                                            </span>
-                                        </button>
-                                    </mat-menu>
-                                    } @else {
-                                    <span class="workspace-access-no-action">—</span>
-                                    }
-                                </td>
+                                  <mat-menu
+                                    #invitationListActions="matMenu"
+                                    xPosition="before"
+                                    yPosition="below"
+                                    [overlapTrigger]="false"
+                                    class="workspace-actions-menu"
+                                  >
+                                    <ng-container
+                                      *ngTemplateOutlet="
+                                        invitationMenu;
+                                        context: { $implicit: invitation }
+                                      "
+                                    />
+                                  </mat-menu>
+                                </div>
+                              </td>
                             </tr>
-                            }
+                          }
                         </tbody>
-                    </table>
-                </div>
-                }
-
-                } @else {
-
-                @if (loading()) {
-                <div class="workspace-members-loader-state">
-                    <app-loader mode="section" size="md" tone="colorful" label="Opening your members..."
-                        description="Getting workspace access ready." [minHeight]="360" />
-                </div>
-
-                } @else if (error()) {
-                <div class="workspace-members-empty-state">
-                    <span class="workspace-members-empty-icon is-error">
-                        <app-icon [icon]="LucideX" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">Something slipped away</span>
-                    <h2>Couldn’t load members</h2>
-                    <p>{{ error() }}</p>
-                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-                        (buttonClick)="loadMembers()" />
-                </div>
-
-                } @else if (searchTerm() && visibleMembers().length === 0) {
-                <div class="workspace-members-empty-state is-compact">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="LucideSearch" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">No person matches</span>
-                    <h2>No member found</h2>
-                    <p>Try another name, email or role.</p>
-                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-                </div>
-
-                } @else if (visibleMembers().length === 0) {
-                <div class="workspace-members-empty-state is-compact">
-                    <span class="workspace-members-empty-icon">
-                        <app-icon [icon]="activeTab() === 'removed' ? LucideTrash2 : LucideUsers" size="lg" />
-                    </span>
-                    <span class="workspace-members-empty-note">
-                        {{ activeTab() === 'removed' ? 'Nothing removed' : 'This space is quiet' }}
-                    </span>
-                    <h2>
-                        {{ activeTab() === 'removed' ? 'No removed members' : 'No members here yet' }}
-                    </h2>
-                    <p>
-                        {{ activeTab() === 'removed'
-                        ? 'Removed members will appear here.'
-                        : 'Invite someone to start sharing this workspace.' }}
-                    </p>
-
-                    @if (activeTab() !== 'removed') {
-                    <app-button label="Invite member" [iconLeft]="LucideUserPlus" variant="noteYellow" size="sm"
-                        (buttonClick)="openSendRequest()" />
-                    }
-                </div>
-
-                } @else if (view() === 'grid') {
-                <div class="workspace-access-grid workspace-member-grid" role="list">
-                    @for (member of visibleMembers(); track memberId(member)) {
-
-                    <app-member-card-wrapper [member]="member" [busy]="isBusy(member)"
-                        (cardClick)="openMemberView(member)"
-                        (cardDblClick)="canManageMember(member) && openRoleEditor(member)">
-
-                        <div card-role class="workspace-member-card-role-slot" (click)="$event.stopPropagation()"
-                            (dblclick)="$event.stopPropagation()">
-                            @if (isOwner(member)) {
-                            <div class="workspace-member-card-owner-badge">
-                                <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill" [icon]="LucideCrown" />
-                            </div>
-                            } @else if (isRemoved(member)) {
-                            <app-badge [label]="memberRoleName(member)" variant="outline" size="xs" shape="pill"
-                                [icon]="LucideShield" />
-                            } @else {
-                            <app-select class="workspace-member-inline-role-select"
-                                [id]="'grid-member-role-' + memberId(member)"
-                                [selectId]="'grid-member-role-' + memberId(member)"
-                                dropdownTitle="Workspace role"
-                                dropdownDescription="Choose the role assigned to this member."
-                                [options]="roleOptionsForMember(member)"
-                                [ngModel]="memberRoleId(member)"
-                                [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
-                                [ariaLabel]="'Change role for ' + memberName(member)"
-                                variant="paper"
-                                appearance="simple"
-                                shape="rounded"
-                                size="xs"
-                                [iconLeft]="LucideShield"
-                                [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
-                                [title]="canManageMember(member) ? 'Change workspace role' : memberManageBlockedReason(member)"
-                                [clearable]="false"
-                                [searchable]="true"
-                                [fullWidth]="true"
-                                (ngModelChange)="onMemberRoleChange(member, $event)" />
-                            }
-                        </div>
-
-                        <div card-actions>
-                            <app-button class="workspace-member-card-menu" [icon]="LucideMoreHorizontal"
-                                [iconOnly]="true" appearance="standard" variant="outline" size="sm" [rounded]="true"
-                                [ariaLabel]="'More actions for ' + memberName(member)"
-                                [title]="'More actions for ' + memberName(member)" [disabled]="isBusy(member)"
-                                [matMenuTriggerFor]="memberCardActions" (click)="$event.stopPropagation()" />
-
-                            <mat-menu #memberCardActions="matMenu" xPosition="before" yPosition="below"
-                                [overlapTrigger]="false" class="workspace-actions-menu">
-
-                                <button mat-menu-item type="button" class="workspace-action-item is-open"
-                                    (click)="openMemberView(member)">
-                                    <span class="workspace-menu-item-icon" aria-hidden="true">
-                                        <app-icon [icon]="LucideEye" size="xs" />
-                                    </span>
-
-                                    <span class="workspace-menu-item-copy">
-                                        <strong>View access</strong>
-                                        <small>See full member details</small>
-                                    </span>
-                                </button>
-
-                                @if (!isRemoved(member) && canManageMember(member)) {
-                                <button mat-menu-item type="button" class="workspace-action-item"
-                                    (click)="openRoleEditor(member)">
-                                    <span class="workspace-menu-item-icon" aria-hidden="true">
-                                        <app-icon [icon]="LucidePencil" size="xs" />
-                                    </span>
-
-                                    <span class="workspace-menu-item-copy">
-                                        <strong>Change role</strong>
-                                        <small>Update workspace permissions</small>
-                                    </span>
-                                </button>
-                                }
-
-                                @if (!isRemoved(member) && canManageMember(member)) {
-                                <button mat-menu-item type="button"
-                                    class="workspace-action-item workspace-menu-danger"
-                                    (click)="requestRemove(member)">
-                                    <span class="workspace-menu-item-icon" aria-hidden="true">
-                                        <app-icon [icon]="LucideTrash2" size="xs" />
-                                    </span>
-
-                                    <span class="workspace-menu-item-copy">
-                                        <strong>Remove member</strong>
-                                        <small>Revoke workspace access</small>
-                                    </span>
-                                </button>
-                                }
-
-                                @if (isRemoved(member)) {
-                                <button mat-menu-item type="button" class="workspace-action-item"
-                                    (click)="restoreMember(member)">
-                                    <span class="workspace-menu-item-icon" aria-hidden="true">
-                                        <app-icon [icon]="LucideRotateCcw" size="xs" />
-                                    </span>
-
-                                    <span class="workspace-menu-item-copy">
-                                        <strong>Restore access</strong>
-                                        <small>Bring this member back</small>
-                                    </span>
-                                </button>
-                                }
-                            </mat-menu>
-                        </div>
-
-                        <div card-footer class="workspace-member-card-footer">
-                            @if (isRemoved(member)) {
-                            <app-button class="workspace-member-card-primary-action" label="Restore"
-                                [iconLeft]="LucideRotateCcw" variant="outline" appearance="standard" size="sm"
-                                [fullWidth]="true" [disabled]="isBusy(member)"
-                                (buttonClick)="restoreMember(member)" />
-                            } @else {
-                            <app-button class="workspace-member-card-primary-action" label="View access"
-                                [iconLeft]="LucideEye" variant="outline" appearance="standard" size="sm"
-                                [fullWidth]="true" (buttonClick)="openMemberView(member)" />
-                            }
-
-                            @if (!isRemoved(member)) {
-                            <app-button class="workspace-member-card-edit-action" [icon]="LucidePencil"
-                                [iconOnly]="true" variant="outline" appearance="standard" size="sm" [rounded]="true"
-                                [ariaLabel]="'Change role for ' + memberName(member)" [title]="canManageMember(member)
-                                    ? 'Change role'
-                                    : memberManageBlockedReason(member)"
-                                [disabled]="isBusy(member) || !canManageMember(member)"
-                                (buttonClick)="openRoleEditor(member)" />
-                            }
-                        </div>
-                    </app-member-card-wrapper>
-                    }
-
-                    @if (activeTab() !== 'removed') {
-                    <!-- Add member card -->
-                    <button type="button" class="invite-add-card" (click)="openSendRequest()">
-                        <span class="invite-add-card__icon" aria-hidden="true">
-                            <app-icon [icon]="LucideUserPlus" size="md" />
-                        </span>
-                        <strong class="invite-add-card__title">Invite a teammate</strong>
-                        <small class="invite-add-card__sub">Share {{ selectedWorkspaceLabel() }} with someone new</small>
-                    </button>
-                    }
-                </div>
-
-                } @else {
-                <div class="workspace-grouped-table" aria-label="Members grouped table">
-                    <div class="workspace-table-groups-container">
-                        @for (group of memberGroups(); track group.id) {
-                        <section class="workspace-group" [style.--group-accent]="group.accent"
-                            [class.is-collapsed]="isGroupCollapsed(group.id)"
-                            [attr.aria-labelledby]="'group-heading-' + group.id">
-                            <header class="workspace-group-header">
-                                <h3>
-                                    <button type="button" class="workspace-group-toggle" [id]="'group-heading-' + group.id"
-                                        [attr.aria-expanded]="!isGroupCollapsed(group.id)"
-                                        [attr.aria-controls]="'group-body-' + group.id" (click)="toggleGroup(group.id)">
-                                        <app-icon class="workspace-group-chevron"
-                                            [icon]="isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown"
-                                            size="sm" />
-                                        <span class="workspace-group-accent-bar" aria-hidden="true"></span>
-                                        <span class="workspace-group-label">{{ group.label }}</span>
-                                        <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
-                                            [ariaLabel]="group.count + (group.count === 1 ? ' member' : ' members')" />
-                                    </button>
-                                </h3>
-                                <div class="workspace-group-header-actions">
-                                    @if (group.status === 'ACTIVE') {
-                                    <app-button [icon]="LucidePlus" [iconOnly]="true" variant="ghost" size="xs"
-                                        ariaLabel="Invite member" title="Invite member"
-                                        (buttonClick)="openSendRequest()" />
-                                    }
-                                </div>
-                            </header>
-
-                            @if (!isGroupCollapsed(group.id)) {
-                            <div class="workspace-group-body" [id]="'group-body-' + group.id" role="region" tabindex="0"
-                                [attr.aria-labelledby]="'group-heading-' + group.id">
-                                @if (group.items.length > 0) {
-                                <table class="workspace-gtable" [attr.aria-label]="group.label">
-                                    <colgroup>
-                                        <col class="workspace-gt-select" />
-                                        <col class="workspace-gt-name" />
-                                        <col class="workspace-gt-role" />
-                                        <col class="workspace-gt-status" />
-                                        <col class="workspace-gt-activity" />
-                                        <col class="workspace-gt-joined" />
-                                        <col class="workspace-gt-added-by" />
-                                        <col class="workspace-gt-actions" />
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th class="workspace-gt-select" scope="col">
-                                                <app-checkbox [checked]="isAllSelected(group.items)" [indeterminate]="isSomeSelected(group.items)"
-                                                    (checkedChange)="toggleSelectAll($event, group.items)" size="xs" ariaLabel="Select all members in group" />
-                                            </th>
-                                            <th class="workspace-gt-name" scope="col">
-                                                <app-icon [icon]="LucideUsers" size="xs" />
-                                                Member
-                                            </th>
-                                            <th class="workspace-gt-role" scope="col">
-                                                <app-icon [icon]="LucideShield" size="xs" />
-                                                Role
-                                            </th>
-                                            <th class="workspace-gt-status" scope="col">
-                                                <app-icon [icon]="LucideCheck" size="xs" />
-                                                Status
-                                            </th>
-                                            <th class="workspace-gt-activity" scope="col">
-                                                <app-icon [icon]="LucideClock3" size="xs" />
-                                                Last active
-                                            </th>
-                                            <th class="workspace-gt-joined" scope="col">
-                                                <app-icon [icon]="LucideUserCheck" size="xs" />
-                                                Joined
-                                            </th>
-                                            <th class="workspace-gt-added-by" scope="col">
-                                                <app-icon [icon]="LucideUserPlus" size="xs" />
-                                                Added by
-                                            </th>
-                                            <th class="workspace-gt-actions" scope="col">
-                                                <span class="visually-hidden">Actions</span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @for (member of group.items; track memberId(member)) {
-                                        <tr [class.is-removed]="isRemoved(member)"
-                                            [class.is-busy]="isBusy(member)"
-                                            [class.is-selected]="isMemberSelected(member)"
-                                            (dblclick)="canManageMember(member) && openRoleEditor(member)">
-
-                                            <td class="workspace-gt-select">
-                                                <app-checkbox [checked]="isMemberSelected(member)"
-                                                    (checkedChange)="toggleMemberSelection(member, $event)"
-                                                    size="xs" [ariaLabel]="'Select ' + memberName(member)"
-                                                    (click)="$event.stopPropagation()" />
-                                            </td>
-
-                                            <td class="workspace-gt-name" data-label="Member">
-                                                <div class="workspace-table-name-main" role="button"
-                                                    [attr.tabindex]="isBusy(member) ? -1 : 0"
-                                                    [attr.aria-label]="'View access for ' + memberName(member)"
-                                                    (click)="openMemberView(member)"
-                                                    (keydown.enter)="$event.target === $event.currentTarget && openMemberView(member)">
-
-                                                    <app-avatar [name]="memberName(member)" size="sm" shape="rounded" />
-
-                                                    <div class="workspace-table-copy">
-                                                        <div class="workspace-table-title-row">
-                                                            <strong class="workspace-name-editable" [title]="memberName(member)">
-                                                                {{ memberName(member) }}
-                                                            </strong>
-
-                                                            @if (isCurrentUser(member)) {
-                                                            <span class="workspace-member-you">You</span>
-                                                            }
-
-                                                            <button type="button" class="workspace-gt-key-copy"
-                                                                [attr.aria-label]="'Copy ID for ' + memberName(member)"
-                                                                [title]="isKeyCopied(memberId(member)) ? 'Copied!' : 'Copy member ID'"
-                                                                (click)="copyMemberId(memberId(member), $event)"
-                                                                (dblclick)="$event.stopPropagation()">
-                                                                <app-icon [icon]="isKeyCopied(memberId(member)) ? LucideCheck : LucideCopy" size="xs" />
-                                                            </button>
-                                                        </div>
-
-                                                        <small [title]="memberEmail(member)">{{ memberEmail(member) || 'Workspace member' }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            <td class="workspace-gt-role" data-label="Role"
-                                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
-                                                @if (isOwner(member)) {
-                                                <div class="workspace-access-role">
-                                                    <app-badge label="Owner" variant="noteYellow" size="xs" shape="pill"
-                                                        [icon]="LucideCrown" />
-                                                </div>
-                                                } @else if (isRemoved(member)) {
-                                                <div class="workspace-access-role">
-                                                    <app-badge [label]="memberRoleName(member)" variant="outline" size="xs" shape="pill"
-                                                        [icon]="LucideShield" />
-                                                </div>
-                                                } @else {
-                                                <app-select class="workspace-member-inline-role-select"
-                                                    [id]="'table-member-role-' + memberId(member)"
-                                                    [selectId]="'table-member-role-' + memberId(member)"
-                                                    dropdownTitle="Workspace role"
-                                                    dropdownDescription="Choose the role assigned to this member."
-                                                    [options]="roleOptionsForMember(member)"
-                                                    [ngModel]="memberRoleId(member)"
-                                                    [ngModelOptions]="{ standalone: true }"
-                                                    [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
-                                                    [ariaLabel]="'Change role for ' + memberName(member)"
-                                                    variant="paper"
-                                                    appearance="simple"
-                                                    shape="rounded"
-                                                    size="xs"
-                                                    [iconLeft]="LucideShield"
-                                                    [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
-                                                    [title]="canManageMember(member) ? 'Change workspace role' : memberManageBlockedReason(member)"
-                                                    [clearable]="false"
-                                                    [searchable]="true"
-                                                    [fullWidth]="true"
-                                                    (ngModelChange)="onMemberRoleChange(member, $event)" />
-                                                }
-                                            </td>
-
-                                            <td class="workspace-gt-status" data-label="Status">
-                                                <app-badge [label]="memberStatusLabel(member)"
-                                                    [variant]="memberStatusVariant(member)" size="xs" shape="pill" [dot]="true" />
-                                            </td>
-
-                                            <td class="workspace-gt-activity" data-label="Last active">
-                                                <span class="workspace-access-activity" [class.is-empty]="!member.lastActiveAt">
-                                                    {{ memberLastActiveLabel(member) }}
-                                                </span>
-                                            </td>
-
-                                            <td class="workspace-gt-joined" data-label="Joined">
-                                                @if (member.joinedAt) {
-                                                <span class="workspace-gt-date-text">{{ member.joinedAt | userDate }}</span>
-                                                <small class="workspace-gt-time-text">{{ member.joinedAt | userTime }}</small>
-                                                } @else {
-                                                <span class="workspace-table-muted">—</span>
-                                                }
-                                            </td>
-
-                                            <td class="workspace-gt-added-by" data-label="Added by">
-                                                <span class="workspace-access-truncate" [title]="member.addedBy?.email || addedByLabel(member)">
-                                                    {{ addedByLabel(member) }}
-                                                </span>
-                                            </td>
-
-                                            <td class="workspace-gt-actions" data-label="Actions">
-                                                <div class="workspace-table-action-group">
-                                                    @if (isRemoved(member)) {
-                                                    <app-button [icon]="LucideEye" [iconOnly]="true" variant="noteBlue"
-                                                        appearance="standard" size="xs" [rounded]="true"
-                                                        [ariaLabel]="'View access for ' + memberName(member)"
-                                                        [title]="'View access for ' + memberName(member)"
-                                                        (buttonClick)="openMemberView(member)" />
-
-                                                    <app-button [icon]="LucideRotateCcw" [iconOnly]="true" variant="noteYellow"
-                                                        appearance="standard" size="xs" [rounded]="true"
-                                                        [ariaLabel]="'Restore ' + memberName(member)"
-                                                        [title]="'Restore ' + memberName(member)" [disabled]="isBusy(member)"
-                                                        (buttonClick)="restoreMember(member)" />
-                                                    } @else {
-                                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
-                                                        appearance="standard" size="xs" [rounded]="true"
-                                                        [ariaLabel]="'Edit role for ' + memberName(member)"
-                                                        [title]="canManageMember(member) ? 'Change role' : memberManageBlockedReason(member)"
-                                                        [disabled]="isBusy(member) || !canManageMember(member)"
-                                                        (buttonClick)="openRoleEditor(member)" />
-
-                                                    <app-button [icon]="LucideEye" [iconOnly]="true" variant="noteYellow"
-                                                        appearance="standard" size="xs" [rounded]="true"
-                                                        [ariaLabel]="'View access for ' + memberName(member)"
-                                                        [title]="'View access for ' + memberName(member)"
-                                                        (buttonClick)="openMemberView(member)" />
-                                                    }
-
-                                                    <button type="button" class="workspace-table-menu-button"
-                                                        [matMenuTriggerFor]="memberListActions"
-                                                        [attr.aria-label]="'More actions for ' + memberName(member)"
-                                                        [attr.title]="'More actions for ' + memberName(member)"
-                                                        [disabled]="isBusy(member)" (click)="$event.stopPropagation()"
-                                                        (dblclick)="$event.stopPropagation()">
-                                                        <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                                                    </button>
-                                                </div>
-
-                                                <mat-menu #memberListActions="matMenu" xPosition="before" yPosition="below"
-                                                    [overlapTrigger]="false" class="workspace-actions-menu">
-                                                    <button mat-menu-item type="button" class="workspace-action-item is-open"
-                                                        (click)="openMemberView(member)">
-                                                        <span class="workspace-menu-item-icon" aria-hidden="true">
-                                                            <app-icon [icon]="LucideEye" size="xs" />
-                                                        </span>
-                                                        <span class="workspace-menu-item-copy">
-                                                            <strong>View details</strong>
-                                                            <small>See member access information</small>
-                                                        </span>
-                                                    </button>
-
-                                                    @if (!isRemoved(member) && canManageMember(member)) {
-                                                    <button mat-menu-item type="button" class="workspace-action-item is-edit"
-                                                        (click)="openRoleEditor(member)">
-                                                        <span class="workspace-menu-item-icon" aria-hidden="true">
-                                                            <app-icon [icon]="LucidePencil" size="xs" />
-                                                        </span>
-                                                        <span class="workspace-menu-item-copy">
-                                                            <strong>Change role</strong>
-                                                            <small>Update workspace permissions</small>
-                                                        </span>
-                                                    </button>
-
-                                                    <mat-divider />
-
-                                                    <button mat-menu-item type="button" class="workspace-action-item workspace-menu-danger"
-                                                        (click)="requestRemove(member)">
-                                                        <span class="workspace-menu-item-icon" aria-hidden="true">
-                                                            <app-icon [icon]="LucideTrash2" size="xs" />
-                                                        </span>
-                                                        <span class="workspace-menu-item-copy">
-                                                            <strong>Remove member</strong>
-                                                            <small>Revoke workspace access</small>
-                                                        </span>
-                                                    </button>
-                                                    }
-
-                                                    @if (isRemoved(member)) {
-                                                    <button mat-menu-item type="button" class="workspace-action-item"
-                                                        (click)="restoreMember(member)">
-                                                        <span class="workspace-menu-item-icon" aria-hidden="true">
-                                                            <app-icon [icon]="LucideRotateCcw" size="xs" />
-                                                        </span>
-                                                        <span class="workspace-menu-item-copy">
-                                                            <strong>Restore access</strong>
-                                                            <small>Bring this member back</small>
-                                                        </span>
-                                                    </button>
-                                                    }
-                                                </mat-menu>
-                                            </td>
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                                } @else {
-                                <div class="workspace-group-empty">
-                                    <span>No {{ group.label.toLowerCase() }} in this workspace.</span>
-                                    @if (group.status === 'ACTIVE') {
-                                    <app-button label="Invite member" [iconLeft]="LucideUserPlus" variant="outline" size="xs"
-                                        (buttonClick)="openSendRequest()" />
-                                    }
-                                </div>
-                                }
-                            </div>
-                            }
-                        </section>
-                        }
+                      </table>
                     </div>
-                </div>
-                }
-                }
+                  }
+                </section>
+              </div>
             </div>
+          }
+        } @else {
+          @if (loading()) {
+            <div class="workspace-members-loader-state">
+              <app-loader
+                mode="section"
+                size="md"
+                tone="colorful"
+                label="Opening your members..."
+                description="Getting workspace access ready."
+                [minHeight]="360"
+              />
+            </div>
+          } @else if (error()) {
+            <div class="workspace-members-empty-state">
+              <span class="workspace-members-empty-icon is-error">
+                <app-icon [icon]="LucideX" size="lg" />
+              </span>
+              <span class="workspace-members-empty-note">Something slipped away</span>
+              <h2>Couldn’t load members</h2>
+              <p>{{ error() }}</p>
+              <app-button
+                label="Try again"
+                [iconLeft]="LucideRefreshCw"
+                variant="primary"
+                size="sm"
+                (buttonClick)="loadMembers()"
+              />
+            </div>
+          } @else if (searchTerm() && visibleMembers().length === 0) {
+            <div class="workspace-members-empty-state is-compact">
+              <span class="workspace-members-empty-icon">
+                <app-icon [icon]="LucideSearch" size="lg" />
+              </span>
+              <span class="workspace-members-empty-note">No person matches</span>
+              <h2>No member found</h2>
+              <p>Try another name, email or role.</p>
+              <app-button
+                label="Clear search"
+                variant="outline"
+                size="sm"
+                (buttonClick)="clearSearch()"
+              />
+            </div>
+          } @else if (visibleMembers().length === 0) {
+            <div class="workspace-members-empty-state is-compact">
+              <span class="workspace-members-empty-icon">
+                <app-icon
+                  [icon]="activeTab() === 'removed' ? LucideTrash2 : LucideUsers"
+                  size="lg"
+                />
+              </span>
+              <span class="workspace-members-empty-note">
+                {{ activeTab() === 'removed' ? 'Nothing removed' : 'This space is quiet' }}
+              </span>
+              <h2>
+                {{ activeTab() === 'removed' ? 'No removed members' : 'No members here yet' }}
+              </h2>
+              <p>
+                {{
+                  activeTab() === 'removed'
+                    ? 'Removed members will appear here.'
+                    : 'Invite someone to start sharing this workspace.'
+                }}
+              </p>
 
-            <app-bulk-action-panel [selectedCount]="selectedCount()" [totalCount]="visibleMembers().length"
-                position="bottom-center" orientation="horizontal" variant="floating"
-                (clearSelection)="clearSelection()" (bulkDelete)="bulkRemoveSelected()">
-                <app-button [iconLeft]="LucideRotateCcw" label="Restore members" variant="secondary" size="xs" shape="pill"
-                    (buttonClick)="bulkRestoreSelected()" />
-            </app-bulk-action-panel>
-        </section>
-    </main>
+              @if (activeTab() !== 'removed') {
+                <app-button
+                  label="Invite member"
+                  [iconLeft]="LucideUserPlus"
+                  variant="noteYellow"
+                  size="sm"
+                  (buttonClick)="openSendRequest()"
+                />
+              }
+            </div>
+          } @else if (view() === 'grid') {
+            <div class="workspace-access-grid workspace-member-grid" role="list">
+              @for (member of visibleMembers(); track memberId(member)) {
+                <app-member-card-wrapper
+                  [member]="member"
+                  [busy]="isBusy(member)"
+                  role="listitem"
+                  [appHighlight]="isMemberSelected(member) || contextMenuMember() === member"
+                  highlightRadius="1rem"
+                  (contextmenu)="openMemberContextMenu(member, $event)"
+                  (cardClick)="openMemberView(member)"
+                  (cardDblClick)="canManageMember(member) && openRoleEditor(member)"
+                >
+                  <div
+                    card-role
+                    class="workspace-member-card-role-slot"
+                    (click)="$event.stopPropagation()"
+                    (dblclick)="$event.stopPropagation()"
+                  >
+                    @if (isOwner(member)) {
+                      <div class="workspace-member-card-owner-badge">
+                        <app-badge
+                          label="Owner"
+                          variant="noteYellow"
+                          size="xs"
+                          shape="pill"
+                          [icon]="LucideCrown"
+                        />
+                      </div>
+                    } @else if (isRemoved(member)) {
+                      <app-badge
+                        [label]="memberRoleName(member)"
+                        variant="outline"
+                        size="xs"
+                        shape="pill"
+                        [icon]="LucideShield"
+                      />
+                    } @else {
+                      <app-select
+                        class="workspace-member-inline-role-select"
+                        [id]="'grid-member-role-' + memberId(member)"
+                        [selectId]="'grid-member-role-' + memberId(member)"
+                        dropdownTitle="Workspace role"
+                        dropdownDescription="Choose the role assigned to this member."
+                        [options]="roleOptionsForMember(member)"
+                        [ngModel]="memberRoleId(member)"
+                        [ngModelOptions]="{ standalone: true }"
+                        [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
+                        [ariaLabel]="'Change role for ' + memberName(member)"
+                        variant="paper"
+                        appearance="simple"
+                        shape="rounded"
+                        size="xs"
+                        [iconLeft]="LucideShield"
+                        [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
+                        [title]="
+                          canManageMember(member)
+                            ? 'Change workspace role'
+                            : memberManageBlockedReason(member)
+                        "
+                        [clearable]="false"
+                        [searchable]="true"
+                        [fullWidth]="true"
+                        (ngModelChange)="onMemberRoleChange(member, $event)"
+                      />
+                    }
+                  </div>
+
+                  <div card-actions>
+                    <app-button
+                      class="workspace-member-card-menu"
+                      [icon]="LucideMoreHorizontal"
+                      [iconOnly]="true"
+                      appearance="standard"
+                      variant="outline"
+                      size="sm"
+                      [rounded]="true"
+                      [ariaLabel]="'More actions for ' + memberName(member)"
+                      [appTooltip]="'More actions for ' + memberName(member)"
+                      tooltipTone="paper"
+                      tooltipPosition="top"
+                      tooltipSize="sm"
+                      [disabled]="isBusy(member)"
+                      [matMenuTriggerFor]="memberCardActions"
+                      (click)="$event.stopPropagation()"
+                    />
+
+                    <mat-menu
+                      #memberCardActions="matMenu"
+                      xPosition="before"
+                      yPosition="below"
+                      [overlapTrigger]="false"
+                      class="workspace-actions-menu"
+                    >
+                      <ng-container
+                        *ngTemplateOutlet="memberMenu; context: { $implicit: member }"
+                      />
+                    </mat-menu>
+                  </div>
+
+                  <div card-footer class="workspace-member-card-footer">
+                    @if (isRemoved(member)) {
+                      <app-button
+                        class="workspace-member-card-primary-action"
+                        label="Restore"
+                        [iconLeft]="LucideRotateCcw"
+                        variant="outline"
+                        appearance="standard"
+                        size="sm"
+                        [fullWidth]="true"
+                        [disabled]="isBusy(member)"
+                        (buttonClick)="restoreMember(member)"
+                      />
+                    } @else {
+                      <app-button
+                        class="workspace-member-card-primary-action"
+                        label="View access"
+                        [iconLeft]="LucideEye"
+                        variant="outline"
+                        appearance="standard"
+                        size="sm"
+                        [fullWidth]="true"
+                        (buttonClick)="openMemberView(member)"
+                      />
+                    }
+
+                    @if (!isRemoved(member)) {
+                      <app-button
+                        class="workspace-member-card-edit-action"
+                        [icon]="LucidePencil"
+                        [iconOnly]="true"
+                        variant="outline"
+                        appearance="standard"
+                        size="sm"
+                        [rounded]="true"
+                        [ariaLabel]="'Change role for ' + memberName(member)"
+                        [title]="
+                          canManageMember(member)
+                            ? 'Change role'
+                            : memberManageBlockedReason(member)
+                        "
+                        [disabled]="isBusy(member) || !canManageMember(member)"
+                        (buttonClick)="openRoleEditor(member)"
+                      />
+                    }
+                  </div>
+                </app-member-card-wrapper>
+              }
+
+              @if (activeTab() !== 'removed') {
+                <!-- Add member card -->
+                <button type="button" class="invite-add-card" (click)="openSendRequest()">
+                  <span class="invite-add-card__icon" aria-hidden="true">
+                    <app-icon [icon]="LucideUserPlus" size="md" />
+                  </span>
+                  <strong class="invite-add-card__title">Invite a teammate</strong>
+                  <small class="invite-add-card__sub"
+                    >Share {{ selectedWorkspaceLabel() }} with someone new</small
+                  >
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="workspace-grouped-table" aria-label="Members grouped table">
+              <div class="workspace-table-groups-container">
+                @for (group of memberGroups(); track group.id) {
+                  <section
+                    class="workspace-group"
+                    [style.--group-accent]="group.accent"
+                    [class.is-collapsed]="isGroupCollapsed(group.id)"
+                    [attr.aria-labelledby]="'group-heading-' + group.id"
+                  >
+                    <header class="workspace-group-header">
+                      <h3>
+                        <button
+                          type="button"
+                          class="workspace-group-toggle"
+                          [id]="'group-heading-' + group.id"
+                          [attr.aria-expanded]="!isGroupCollapsed(group.id)"
+                          [attr.aria-controls]="'group-body-' + group.id"
+                          (click)="toggleGroup(group.id)"
+                        >
+                          <app-icon
+                            class="workspace-group-chevron"
+                            [icon]="
+                              isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
+                            "
+                            size="sm"
+                          />
+                          <span class="workspace-group-accent-bar" aria-hidden="true"></span>
+                          <span class="workspace-group-label">{{ group.label }}</span>
+                          <app-badge
+                            [label]="'' + group.count"
+                            variant="neutral"
+                            size="xs"
+                            shape="rounded"
+                            [ariaLabel]="group.count + (group.count === 1 ? ' member' : ' members')"
+                          />
+                        </button>
+                      </h3>
+                      <div class="workspace-group-header-actions">
+                        @if (group.status === 'ACTIVE') {
+                          <app-button
+                            [icon]="LucidePlus"
+                            [iconOnly]="true"
+                            variant="ghost"
+                            size="xs"
+                            ariaLabel="Invite member"
+                            title="Invite member"
+                            (buttonClick)="openSendRequest()"
+                          />
+                        }
+                      </div>
+                    </header>
+
+                    @if (!isGroupCollapsed(group.id)) {
+                      <div
+                        class="workspace-group-body"
+                        [id]="'group-body-' + group.id"
+                        role="region"
+                        tabindex="0"
+                        [attr.aria-labelledby]="'group-heading-' + group.id"
+                      >
+                        @if (group.items.length > 0) {
+                          <table class="workspace-gtable" [attr.aria-label]="group.label">
+                            <colgroup>
+                              <col class="workspace-gt-select" />
+                              <col class="workspace-gt-name" />
+                              <col class="workspace-gt-role" />
+                              <col class="workspace-gt-status" />
+                              <col class="workspace-gt-activity" />
+                              <col class="workspace-gt-joined" />
+                              <col class="workspace-gt-added-by" />
+                              <col class="workspace-gt-actions" />
+                            </colgroup>
+                            <thead>
+                              <tr>
+                                <th class="workspace-gt-select" scope="col">
+                                  <app-checkbox
+                                    [checked]="isAllSelected(group.items)"
+                                    [indeterminate]="isSomeSelected(group.items)"
+                                    (checkedChange)="toggleSelectAll($event, group.items)"
+                                    size="xs"
+                                    ariaLabel="Select all members in group"
+                                  />
+                                </th>
+                                <th class="workspace-gt-name" scope="col">
+                                  <app-icon [icon]="LucideUsers" size="xs" />
+                                  Member
+                                </th>
+                                <th class="workspace-gt-role" scope="col">
+                                  <app-icon [icon]="LucideShield" size="xs" />
+                                  Role
+                                </th>
+                                <th class="workspace-gt-status" scope="col">
+                                  <app-icon [icon]="LucideCheck" size="xs" />
+                                  Status
+                                </th>
+                                <th class="workspace-gt-activity" scope="col">
+                                  <app-icon [icon]="LucideClock3" size="xs" />
+                                  Last active
+                                </th>
+                                <th class="workspace-gt-joined" scope="col">
+                                  <app-icon [icon]="LucideUserCheck" size="xs" />
+                                  Joined
+                                </th>
+                                <th class="workspace-gt-added-by" scope="col">
+                                  <app-icon [icon]="LucideUserPlus" size="xs" />
+                                  Added by
+                                </th>
+                                <th class="workspace-gt-actions" scope="col">
+                                  <span class="visually-hidden">Actions</span>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (member of group.items; track memberId(member)) {
+                                <tr
+                                  [class.is-removed]="isRemoved(member)"
+                                  [class.is-busy]="isBusy(member)"
+                                  [appHighlight]="
+                                    isMemberSelected(member) || contextMenuMember() === member
+                                  "
+                                  [highlightInset]="true"
+                                  (contextmenu)="openMemberContextMenu(member, $event)"
+                                  (dblclick)="canManageMember(member) && openRoleEditor(member)"
+                                >
+                                  <td class="workspace-gt-select">
+                                    <app-checkbox
+                                      [checked]="isMemberSelected(member)"
+                                      (checkedChange)="toggleMemberSelection(member, $event)"
+                                      size="xs"
+                                      [ariaLabel]="'Select ' + memberName(member)"
+                                      (click)="$event.stopPropagation()"
+                                    />
+                                  </td>
+
+                                  <td class="workspace-gt-name" data-label="Member">
+                                    <div
+                                      class="workspace-table-name-main"
+                                      role="button"
+                                      [attr.tabindex]="isBusy(member) ? -1 : 0"
+                                      [attr.aria-label]="'View access for ' + memberName(member)"
+                                      (click)="openMemberView(member)"
+                                      (keydown.enter)="
+                                        $event.target === $event.currentTarget &&
+                                          openMemberView(member)
+                                      "
+                                    >
+                                      <app-avatar
+                                        [name]="memberName(member)"
+                                        size="sm"
+                                        shape="rounded"
+                                      />
+
+                                      <div class="workspace-table-copy">
+                                        <div class="workspace-table-title-row">
+                                          <strong
+                                            class="workspace-name-editable"
+                                            [title]="memberName(member)"
+                                          >
+                                            {{ memberName(member) }}
+                                          </strong>
+
+                                          @if (isCurrentUser(member)) {
+                                            <span class="workspace-member-you">You</span>
+                                          }
+
+                                          <button
+                                            type="button"
+                                            class="workspace-gt-key-copy"
+                                            [attr.aria-label]="'Copy ID for ' + memberName(member)"
+                                            [title]="
+                                              isKeyCopied(memberId(member))
+                                                ? 'Copied!'
+                                                : 'Copy member ID'
+                                            "
+                                            (click)="copyMemberId(memberId(member), $event)"
+                                            (dblclick)="$event.stopPropagation()"
+                                          >
+                                            <app-icon
+                                              [icon]="
+                                                isKeyCopied(memberId(member))
+                                                  ? LucideCheck
+                                                  : LucideCopy
+                                              "
+                                              size="xs"
+                                            />
+                                          </button>
+                                        </div>
+
+                                        <small [title]="memberEmail(member)">{{
+                                          memberEmail(member) || 'Workspace member'
+                                        }}</small>
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  <td
+                                    class="workspace-gt-role"
+                                    data-label="Role"
+                                    (click)="$event.stopPropagation()"
+                                    (dblclick)="$event.stopPropagation()"
+                                  >
+                                    @if (isOwner(member)) {
+                                      <div class="workspace-access-role">
+                                        <app-badge
+                                          label="Owner"
+                                          variant="noteYellow"
+                                          size="xs"
+                                          shape="pill"
+                                          [icon]="LucideCrown"
+                                        />
+                                      </div>
+                                    } @else if (isRemoved(member)) {
+                                      <div class="workspace-access-role">
+                                        <app-badge
+                                          [label]="memberRoleName(member)"
+                                          variant="outline"
+                                          size="xs"
+                                          shape="pill"
+                                          [icon]="LucideShield"
+                                        />
+                                      </div>
+                                    } @else {
+                                      <app-select
+                                        class="workspace-member-inline-role-select"
+                                        [id]="'table-member-role-' + memberId(member)"
+                                        [selectId]="'table-member-role-' + memberId(member)"
+                                        dropdownTitle="Workspace role"
+                                        dropdownDescription="Choose the role assigned to this member."
+                                        [options]="roleOptionsForMember(member)"
+                                        [ngModel]="memberRoleId(member)"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [placeholder]="
+                                          loadingRoles() ? 'Loading...' : 'Choose role'
+                                        "
+                                        [ariaLabel]="'Change role for ' + memberName(member)"
+                                        variant="paper"
+                                        appearance="simple"
+                                        shape="rounded"
+                                        size="xs"
+                                        [iconLeft]="LucideShield"
+                                        [disabled]="
+                                          isBusy(member) ||
+                                          !canManageMember(member) ||
+                                          loadingRoles()
+                                        "
+                                        [title]="
+                                          canManageMember(member)
+                                            ? 'Change workspace role'
+                                            : memberManageBlockedReason(member)
+                                        "
+                                        [clearable]="false"
+                                        [searchable]="true"
+                                        [fullWidth]="true"
+                                        (ngModelChange)="onMemberRoleChange(member, $event)"
+                                      />
+                                    }
+                                  </td>
+
+                                  <td class="workspace-gt-status" data-label="Status">
+                                    <app-badge
+                                      [label]="memberStatusLabel(member)"
+                                      [variant]="memberStatusVariant(member)"
+                                      size="xs"
+                                      shape="pill"
+                                      [dot]="true"
+                                    />
+                                  </td>
+
+                                  <td class="workspace-gt-activity" data-label="Last active">
+                                    <span
+                                      class="workspace-access-activity"
+                                      [class.is-empty]="!member.lastActiveAt"
+                                    >
+                                      {{ memberLastActiveLabel(member) }}
+                                    </span>
+                                  </td>
+
+                                  <td class="workspace-gt-joined" data-label="Joined">
+                                    @if (member.joinedAt) {
+                                      <span class="workspace-gt-date-text">{{
+                                        member.joinedAt | userDate
+                                      }}</span>
+                                      <small class="workspace-gt-time-text">{{
+                                        member.joinedAt | userTime
+                                      }}</small>
+                                    } @else {
+                                      <span class="workspace-table-muted">—</span>
+                                    }
+                                  </td>
+
+                                  <td class="workspace-gt-added-by" data-label="Added by">
+                                    <span
+                                      class="workspace-access-truncate"
+                                      [title]="member.addedBy?.email || addedByLabel(member)"
+                                    >
+                                      {{ addedByLabel(member) }}
+                                    </span>
+                                  </td>
+
+                                  <td class="workspace-gt-actions" data-label="Actions">
+                                    <div class="workspace-table-action-group">
+                                      @if (isRemoved(member)) {
+                                        <app-button
+                                          [icon]="LucideEye"
+                                          [iconOnly]="true"
+                                          variant="noteBlue"
+                                          appearance="standard"
+                                          size="xs"
+                                          [rounded]="true"
+                                          [ariaLabel]="'View access for ' + memberName(member)"
+                                          [title]="'View access for ' + memberName(member)"
+                                          (buttonClick)="openMemberView(member)"
+                                        />
+
+                                        <app-button
+                                          [icon]="LucideRotateCcw"
+                                          [iconOnly]="true"
+                                          variant="noteYellow"
+                                          appearance="standard"
+                                          size="xs"
+                                          [rounded]="true"
+                                          [ariaLabel]="'Restore ' + memberName(member)"
+                                          [title]="'Restore ' + memberName(member)"
+                                          [disabled]="isBusy(member)"
+                                          (buttonClick)="restoreMember(member)"
+                                        />
+                                      } @else {
+                                        <app-button
+                                          [icon]="LucidePencil"
+                                          [iconOnly]="true"
+                                          variant="noteBlue"
+                                          appearance="standard"
+                                          size="xs"
+                                          [rounded]="true"
+                                          [ariaLabel]="'Edit role for ' + memberName(member)"
+                                          [title]="
+                                            canManageMember(member)
+                                              ? 'Change role'
+                                              : memberManageBlockedReason(member)
+                                          "
+                                          [disabled]="isBusy(member) || !canManageMember(member)"
+                                          (buttonClick)="openRoleEditor(member)"
+                                        />
+
+                                        <app-button
+                                          [icon]="LucideEye"
+                                          [iconOnly]="true"
+                                          variant="noteYellow"
+                                          appearance="standard"
+                                          size="xs"
+                                          [rounded]="true"
+                                          [ariaLabel]="'View access for ' + memberName(member)"
+                                          [title]="'View access for ' + memberName(member)"
+                                          (buttonClick)="openMemberView(member)"
+                                        />
+                                      }
+
+                                      <button
+                                        type="button"
+                                        class="workspace-table-menu-button"
+                                        [matMenuTriggerFor]="memberListActions"
+                                        [attr.aria-label]="'More actions for ' + memberName(member)"
+                                        [appTooltip]="'More actions for ' + memberName(member)"
+                                        tooltipTone="paper"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
+                                        [disabled]="isBusy(member)"
+                                        (click)="$event.stopPropagation()"
+                                        (dblclick)="$event.stopPropagation()"
+                                      >
+                                        <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                      </button>
+                                    </div>
+
+                                    <mat-menu
+                                      #memberListActions="matMenu"
+                                      xPosition="before"
+                                      yPosition="below"
+                                      [overlapTrigger]="false"
+                                      class="workspace-actions-menu"
+                                    >
+                                      <ng-container
+                                        *ngTemplateOutlet="
+                                          memberMenu;
+                                          context: { $implicit: member }
+                                        "
+                                      />
+                                    </mat-menu>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        } @else {
+                          <div class="workspace-group-empty">
+                            <span>No {{ group.label.toLowerCase() }} in this workspace.</span>
+                            @if (group.status === 'ACTIVE') {
+                              <app-button
+                                label="Invite member"
+                                [iconLeft]="LucideUserPlus"
+                                variant="outline"
+                                size="xs"
+                                (buttonClick)="openSendRequest()"
+                              />
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </section>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <app-bulk-action-panel
+        [selectedCount]="selectedCount()"
+        [totalCount]="visibleMembers().length"
+        position="bottom-center"
+        orientation="horizontal"
+        variant="floating"
+        (clearSelection)="clearSelection()"
+        (bulkDelete)="bulkRemoveSelected()"
+      >
+        <app-button
+          [iconLeft]="LucideRotateCcw"
+          label="Restore members"
+          variant="secondary"
+          size="xs"
+          shape="pill"
+          (buttonClick)="bulkRestoreSelected()"
+        />
+      </app-bulk-action-panel>
+    </section>
+  </main>
 </section>
 
-<app-send-workspace-member-request-side-panel [open]="memberModalOpen()" [workspaceId]="selectedWorkspaceId()"
-    [member]="memberModalMember()" [roleOptions]="availableRoleOptions()" (closed)="closeMemberModal()"
-    (saved)="onMemberSaved($event)" />
+<app-send-workspace-member-request-side-panel
+  [open]="memberModalOpen()"
+  [workspaceId]="selectedWorkspaceId()"
+  [member]="memberModalMember()"
+  [roleOptions]="availableRoleOptions()"
+  (closed)="closeMemberModal()"
+  (saved)="onMemberSaved($event)"
+/>
 
 @if (viewTarget(); as member) {
-<div class="workspace-members-dialog-backdrop" (mousedown)="closeMemberViewDialog()">
-    <section class="workspace-members-dialog-shell workspace-member-view-shell" role="dialog" aria-modal="true"
-        aria-labelledby="workspace-member-view-title" (mousedown)="$event.stopPropagation()">
+  <div class="workspace-members-dialog-backdrop" (mousedown)="closeMemberViewDialog()">
+    <section
+      class="workspace-members-dialog-shell workspace-member-view-shell"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="workspace-member-view-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="workspace-members-dialog-note workspace-member-view-note"
+        variant="noteBlue"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="workspace-members-dialog-icon is-view" aria-hidden="true">
+          <app-icon [icon]="LucideEye" size="sm" />
+        </span>
 
-        <app-sticky-card class="workspace-members-dialog-note workspace-member-view-note" variant="noteBlue"
-            appearance="elevated" shape="note" size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+        <span card-eyebrow class="workspace-members-dialog-kicker is-view"> Workspace member </span>
 
-            <span card-icon class="workspace-members-dialog-icon is-view" aria-hidden="true">
-                <app-icon [icon]="LucideEye" size="sm" />
-            </span>
+        <h2 card-title id="workspace-member-view-title" class="workspace-members-dialog-title">
+          {{ memberName(member) }}
+        </h2>
 
-            <span card-eyebrow class="workspace-members-dialog-kicker is-view">
-                Workspace member
-            </span>
+        <p card-subtitle class="workspace-members-dialog-subtitle workspace-member-view-subtitle">
+          <span>{{ memberEmail(member) || 'No email available' }}</span>
+          @if (isCurrentUser(member)) {
+            <span class="workspace-member-you">You</span>
+          }
+        </p>
 
-            <h2 card-title id="workspace-member-view-title" class="workspace-members-dialog-title">
-                {{ memberName(member) }}
-            </h2>
+        <div class="workspace-member-view-grid">
+          <div>
+            <span>Role</span>
+            <strong>{{ memberRoleName(member) }}</strong>
+          </div>
 
-            <p card-subtitle class="workspace-members-dialog-subtitle workspace-member-view-subtitle">
-                <span>{{ memberEmail(member) || 'No email available' }}</span>
-                @if (isCurrentUser(member)) {
-                <span class="workspace-member-you">You</span>
-                }
-            </p>
+          <div>
+            <span>Status</span>
+            <strong>{{ isOwner(member) ? 'Owner' : memberStatusLabel(member) }}</strong>
+          </div>
 
-            <div class="workspace-member-view-grid">
-                <div>
-                    <span>Role</span>
-                    <strong>{{ memberRoleName(member) }}</strong>
-                </div>
+          <div>
+            <span>Joined</span>
+            <strong>{{ memberJoinedLabel(member) }}</strong>
+          </div>
 
-                <div>
-                    <span>Status</span>
-                    <strong>{{ isOwner(member) ? 'Owner' : memberStatusLabel(member) }}</strong>
-                </div>
+          <div>
+            <span>Last active</span>
+            <strong>{{ memberLastActiveLabel(member) }}</strong>
+          </div>
 
-                <div>
-                    <span>Joined</span>
-                    <strong>{{ memberJoinedLabel(member) }}</strong>
-                </div>
+          <div class="is-wide">
+            <span>Added by</span>
+            <strong>{{ addedByLabel(member) }}</strong>
+          </div>
 
-                <div>
-                    <span>Last active</span>
-                    <strong>{{ memberLastActiveLabel(member) }}</strong>
-                </div>
+          <div class="is-wide">
+            <span>Workspace</span>
+            <strong>{{ selectedWorkspaceLabel() }}</strong>
+          </div>
+        </div>
 
-                <div class="is-wide">
-                    <span>Added by</span>
-                    <strong>{{ addedByLabel(member) }}</strong>
-                </div>
+        <div card-footer class="workspace-members-dialog-actions">
+          <app-button
+            label="Close"
+            variant="secondary"
+            size="sm"
+            (buttonClick)="closeMemberViewDialog()"
+          />
 
-                <div class="is-wide">
-                    <span>Workspace</span>
-                    <strong>{{ selectedWorkspaceLabel() }}</strong>
-                </div>
-            </div>
-
-            <div card-footer class="workspace-members-dialog-actions">
-                <app-button label="Close" variant="secondary" size="sm" (buttonClick)="closeMemberViewDialog()" />
-
-                @if (!isRemoved(member) && canManageMember(member)) {
-                <app-button label="Change role" [iconLeft]="LucidePencil" variant="noteBlue" size="sm"
-                    (buttonClick)="editViewedMember(member)" />
-                }
-            </div>
-        </app-sticky-card>
+          @if (!isRemoved(member) && canManageMember(member)) {
+            <app-button
+              label="Change role"
+              [iconLeft]="LucidePencil"
+              variant="noteBlue"
+              size="sm"
+              (buttonClick)="editViewedMember(member)"
+            />
+          }
+        </div>
+      </app-sticky-card>
     </section>
-</div>
+  </div>
 }
 
 @if (removeTarget(); as member) {
-<div class="workspace-members-dialog-backdrop" (mousedown)="closeRemoveDialog()">
-    <section class="workspace-members-dialog-shell" role="alertdialog" aria-modal="true"
-        aria-labelledby="workspace-member-remove-title" (mousedown)="$event.stopPropagation()">
+  <div class="workspace-members-dialog-backdrop" (mousedown)="closeRemoveDialog()">
+    <section
+      class="workspace-members-dialog-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="workspace-member-remove-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="workspace-members-dialog-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
+          <app-icon [icon]="LucideTrash2" size="sm" />
+        </span>
 
-        <app-sticky-card class="workspace-members-dialog-note" variant="noteRed" appearance="elevated" shape="note"
-            size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+        <span card-eyebrow class="workspace-members-dialog-kicker"> Before you remove access </span>
 
-            <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
-                <app-icon [icon]="LucideTrash2" size="sm" />
-            </span>
+        <h2 card-title id="workspace-member-remove-title" class="workspace-members-dialog-title">
+          Remove member?
+        </h2>
 
-            <span card-eyebrow class="workspace-members-dialog-kicker">
-                Before you remove access
-            </span>
+        <p card-subtitle class="workspace-members-dialog-subtitle">
+          “{{ memberName(member) }}” will no longer have access to {{ selectedWorkspaceLabel() }}.
+        </p>
 
-            <h2 card-title id="workspace-member-remove-title" class="workspace-members-dialog-title">
-                Remove member?
-            </h2>
+        <div class="workspace-members-dialog-message">
+          <span aria-hidden="true">
+            <app-icon [icon]="LucideRotateCcw" size="xs" />
+          </span>
+          <span>You can restore this member later from the Removed filter.</span>
+        </div>
 
-            <p card-subtitle class="workspace-members-dialog-subtitle">
-                “{{ memberName(member) }}” will no longer have access to
-                {{ selectedWorkspaceLabel() }}.
-            </p>
+        <div card-footer class="workspace-members-dialog-actions">
+          <app-button
+            label="Keep member"
+            variant="secondary"
+            size="sm"
+            [disabled]="removing()"
+            (buttonClick)="closeRemoveDialog()"
+          />
 
-            <div class="workspace-members-dialog-message">
-                <span aria-hidden="true">
-                    <app-icon [icon]="LucideRotateCcw" size="xs" />
-                </span>
-                <span>You can restore this member later from the Removed filter.</span>
-            </div>
-
-            <div card-footer class="workspace-members-dialog-actions">
-                <app-button label="Keep member" variant="secondary" size="sm" [disabled]="removing()"
-                    (buttonClick)="closeRemoveDialog()" />
-
-                <app-button label="Remove member" variant="danger" size="sm" [loading]="removing()"
-                    [disabled]="removing()" (buttonClick)="confirmRemove()" />
-            </div>
-        </app-sticky-card>
+          <app-button
+            label="Remove member"
+            variant="danger"
+            size="sm"
+            [loading]="removing()"
+            [disabled]="removing()"
+            (buttonClick)="confirmRemove()"
+          />
+        </div>
+      </app-sticky-card>
     </section>
-</div>
+  </div>
 }
 
 @if (cancelInvitationTarget(); as invitation) {
-<div class="workspace-members-dialog-backdrop" (mousedown)="closeCancelInvitationDialog()">
-    <section class="workspace-members-dialog-shell" role="alertdialog" aria-modal="true"
-        aria-labelledby="workspace-invitation-cancel-title" (mousedown)="$event.stopPropagation()">
+  <div class="workspace-members-dialog-backdrop" (mousedown)="closeCancelInvitationDialog()">
+    <section
+      class="workspace-members-dialog-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="workspace-invitation-cancel-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="workspace-members-dialog-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
+          <app-icon [icon]="LucideMail" size="sm" />
+        </span>
 
-        <app-sticky-card class="workspace-members-dialog-note" variant="noteRed" appearance="elevated" shape="note"
-            size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
+        <span card-eyebrow class="workspace-members-dialog-kicker">
+          Pending workspace invitation
+        </span>
 
-            <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
-                <app-icon [icon]="LucideMail" size="sm" />
-            </span>
+        <h2
+          card-title
+          id="workspace-invitation-cancel-title"
+          class="workspace-members-dialog-title"
+        >
+          Cancel invitation?
+        </h2>
 
-            <span card-eyebrow class="workspace-members-dialog-kicker">
-                Pending workspace invitation
-            </span>
+        <p card-subtitle class="workspace-members-dialog-subtitle">
+          {{ invitationEmail(invitation) }} will no longer be able to use this invitation to join
+          {{ selectedWorkspaceLabel() }}.
+        </p>
 
-            <h2 card-title id="workspace-invitation-cancel-title" class="workspace-members-dialog-title">
-                Cancel invitation?
-            </h2>
+        <div class="workspace-members-dialog-message">
+          <span aria-hidden="true">
+            <app-icon [icon]="LucideUserPlus" size="xs" />
+          </span>
+          <span>You can send a new invitation later if access is still needed.</span>
+        </div>
 
-            <p card-subtitle class="workspace-members-dialog-subtitle">
-                {{ invitationEmail(invitation) }} will no longer be able to
-                use this invitation to join {{ selectedWorkspaceLabel() }}.
-            </p>
+        <div card-footer class="workspace-members-dialog-actions">
+          <app-button
+            label="Keep invitation"
+            variant="secondary"
+            size="sm"
+            [disabled]="cancellingInvitation()"
+            (buttonClick)="closeCancelInvitationDialog()"
+          />
 
-            <div class="workspace-members-dialog-message">
-                <span aria-hidden="true">
-                    <app-icon [icon]="LucideUserPlus" size="xs" />
-                </span>
-                <span>You can send a new invitation later if access is still needed.</span>
-            </div>
-
-            <div card-footer class="workspace-members-dialog-actions">
-                <app-button label="Keep invitation" variant="secondary" size="sm" [disabled]="cancellingInvitation()"
-                    (buttonClick)="closeCancelInvitationDialog()" />
-
-                <app-button label="Cancel invitation" variant="danger" size="sm" [loading]="cancellingInvitation()"
-                    [disabled]="cancellingInvitation()" (buttonClick)="confirmCancelInvitation()" />
-            </div>
-        </app-sticky-card>
+          <app-button
+            label="Cancel invitation"
+            variant="danger"
+            size="sm"
+            [loading]="cancellingInvitation()"
+            [disabled]="cancellingInvitation()"
+            (buttonClick)="confirmCancelInvitation()"
+          />
+        </div>
+      </app-sticky-card>
     </section>
-</div>
+  </div>
 }
+<span
+  class="workspace-context-menu-origin"
+  aria-hidden="true"
+  [style.left.px]="contextMenuPosition().x"
+  [style.top.px]="contextMenuPosition().y"
+  [matMenuTriggerFor]="accessContextMenu"
+  #accessContextMenuTrigger="matMenuTrigger"
+></span>
+
+<mat-menu
+  #accessContextMenu="matMenu"
+  xPosition="after"
+  yPosition="below"
+  [overlapTrigger]="true"
+  class="workspace-actions-menu"
+  (closed)="clearContextMenuTarget()"
+>
+  @if (contextMenuMember(); as member) {
+    <ng-container *ngTemplateOutlet="memberMenu; context: { $implicit: member }" />
+  }
+  @if (contextMenuInvitation(); as invitation) {
+    <ng-container *ngTemplateOutlet="invitationMenu; context: { $implicit: invitation }" />
+  }
+</mat-menu>
+
+<ng-template #invitationMenu let-invitation>
+  @if (invitationEmail(invitation)) {
+    <button
+      mat-menu-item
+      type="button"
+      class="workspace-action-item"
+      [disabled]="isInvitationBusy(invitation)"
+      (click)="copyAccessEmail(invitationEmail(invitation))"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true"
+        ><app-icon [icon]="LucideCopy" size="xs"
+      /></span>
+      <span class="workspace-menu-item-copy"
+        ><strong>Copy email</strong><small>Copy the invitation email address</small></span
+      >
+    </button>
+  }
+  @if (canCancelInvitation(invitation)) {
+    <mat-divider />
+    <button
+      mat-menu-item
+      type="button"
+      class="workspace-action-item workspace-menu-danger"
+      [disabled]="isInvitationBusy(invitation)"
+      (click)="requestCancelInvitation(invitation)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true"
+        ><app-icon [icon]="LucideX" size="xs"
+      /></span>
+      <span class="workspace-menu-item-copy"
+        ><strong>Cancel invitation</strong><small>Stop this pending invitation</small></span
+      >
+    </button>
+  }
+</ng-template>
+
+<ng-template #memberMenu let-member>
+  @if (memberEmail(member)) {
+    <button
+      mat-menu-item
+      type="button"
+      class="workspace-action-item"
+      [disabled]="isBusy(member)"
+      (click)="copyAccessEmail(memberEmail(member))"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true"
+        ><app-icon [icon]="LucideCopy" size="xs"
+      /></span>
+      <span class="workspace-menu-item-copy"
+        ><strong>Copy email</strong><small>Copy this member's email address</small></span
+      >
+    </button>
+  }
+  <button
+    mat-menu-item
+    type="button"
+    [disabled]="isBusy(member)"
+    class="workspace-action-item is-open"
+    (click)="openMemberView(member)"
+  >
+    <span class="workspace-menu-item-icon" aria-hidden="true">
+      <app-icon [icon]="LucideEye" size="xs" />
+    </span>
+    <span class="workspace-menu-item-copy">
+      <strong>View details</strong>
+      <small>See member access information</small>
+    </span>
+  </button>
+
+  @if (!isRemoved(member) && canManageMember(member)) {
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(member)"
+      class="workspace-action-item is-edit"
+      (click)="openRoleEditor(member)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucidePencil" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Change role</strong>
+        <small>Update workspace permissions</small>
+      </span>
+    </button>
+
+    <mat-divider />
+
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(member)"
+      class="workspace-action-item workspace-menu-danger"
+      (click)="requestRemove(member)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideTrash2" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Remove member</strong>
+        <small>Revoke workspace access</small>
+      </span>
+    </button>
+  }
+
+  @if (isRemoved(member)) {
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(member)"
+      class="workspace-action-item"
+      (click)="restoreMember(member)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideRotateCcw" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Restore access</strong>
+        <small>Bring this member back</small>
+      </span>
+    </button>
+  }
+</ng-template>

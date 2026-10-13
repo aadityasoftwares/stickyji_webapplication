@@ -64,6 +64,28 @@ describe('Folder editor sessions', () => {
     expect(fixture.componentInstance.canSubmit).toBe(false);
   });
 
+  it('allows an invited editor to create a folder', () => {
+    workspaceApi.getById.mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }));
+    fixture.detectChanges();
+    const panel = fixture.componentInstance;
+    panel.updateName('Shared folder');
+    expect(panel.canSubmit).toBe(true);
+    panel.submit();
+    expect(api.create).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'w', name: 'Shared folder' }));
+  });
+
+  it('allows an invited editor to load and save an existing folder', () => {
+    workspaceApi.getById.mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }));
+    fixture.componentRef.setInput('id', 'f');
+    fixture.detectChanges();
+    const panel = fixture.componentInstance;
+    expect(api.getById).toHaveBeenCalledWith('f');
+    panel.updateName('Updated shared folder');
+    expect(panel.canSubmit).toBe(true);
+    panel.submit();
+    expect(api.update).toHaveBeenCalledWith('f', expect.objectContaining({ name: 'Updated shared folder' }));
+  });
+
   it('keeps unsaved input after a failed submission and prevents concurrent saves', () => {
     fixture.detectChanges();
     const response = new Subject();

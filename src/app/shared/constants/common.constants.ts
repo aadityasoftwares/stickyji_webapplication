@@ -36,6 +36,9 @@ export const USER_PREFERENCE_KEYS = {
     WORKSPACE_FOLDER_STATUS_FILTER: 'workspaceFolderStatusFilter',
     WORKSPACE_FOLDER_SORT_ORDER: 'workspaceFolderSortOrder',
     WORKSPACE_FOLDER_VIEW: 'workspaceFolderView',
+    WORKSPACE_MEMBER_STATUS_FILTER: 'workspaceMemberStatusFilter',
+    WORKSPACE_MEMBER_SORT_ORDER: 'workspaceMemberSortOrder',
+    WORKSPACE_MEMBER_VIEW: 'workspaceMemberView',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -69,6 +72,9 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     workspaceFolderView: 'GRID',
     workspaceFolderStatusFilter: 'ALL',
     workspaceFolderSortOrder: 'FOLDER_ORDER',
+    workspaceMemberView: 'GRID',
+    workspaceMemberStatusFilter: 'ALL',
+    workspaceMemberSortOrder: 'RECENTLY_UPDATED',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,
@@ -98,6 +104,13 @@ export const WORKSPACE_SORT_PREFERENCES = {
     'name-asc': 'NAME_ASC',
     'name-desc': 'NAME_DESC',
     oldest: 'OLDEST_FIRST',
+} as const;
+
+export const WORKSPACE_MEMBER_SORT_PREFERENCES = {
+    updatedAt: 'RECENTLY_UPDATED',
+    createdAt: 'RECENTLY_CREATED',
+    name: 'NAME_ASC',
+    role: 'ROLE_ASC',
 } as const;
 
 export enum WorkspaceAccessFilter {

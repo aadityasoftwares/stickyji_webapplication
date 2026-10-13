@@ -13,6 +13,9 @@ export const USER_PREFERENCE_KEYS = {
     WORKSPACE_FOLDER_STATUS_FILTER: 'workspaceFolderStatusFilter',
     WORKSPACE_FOLDER_SORT_ORDER: 'workspaceFolderSortOrder',
     WORKSPACE_FOLDER_VIEW: 'workspaceFolderView',
+    WORKSPACE_MEMBER_STATUS_FILTER: 'workspaceMemberStatusFilter',
+    WORKSPACE_MEMBER_SORT_ORDER: 'workspaceMemberSortOrder',
+    WORKSPACE_MEMBER_VIEW: 'workspaceMemberView',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -80,6 +83,26 @@ export type WorkspacePreferenceSortOrder =
     | 'NAME_DESC'
     | 'OLDEST_FIRST';
 
+export type WorkspaceMemberPreferenceView =
+    | 'GRID'
+    | 'LIST';
+
+export type WorkspaceMemberPreferenceStatusFilter =
+    | 'ALL'
+    | 'ACTIVE'
+    | 'INVITED'
+    | 'INVITATIONS'
+    | 'REMOVED';
+
+export type WorkspaceMemberPreferenceSortOrder =
+    | 'RECENTLY_UPDATED'
+    | 'RECENTLY_CREATED'
+    | 'NAME_ASC'
+    | 'NAME_DESC'
+    | 'OLDEST_FIRST'
+    | 'ROLE'
+    | 'ROLE_ASC';
+
 export type UserPreferenceValue =
     | string
     | number
@@ -125,6 +148,9 @@ export interface UserPreferencesM {
     workspaceStatusFilter: WorkspacePreferenceStatusFilter;
     workspaceAccessFilter: WorkspacePreferenceAccessFilter;
     workspaceSortOrder: WorkspacePreferenceSortOrder;
+    workspaceMemberView?: WorkspaceMemberPreferenceView;
+    workspaceMemberStatusFilter?: WorkspaceMemberPreferenceStatusFilter;
+    workspaceMemberSortOrder?: WorkspaceMemberPreferenceSortOrder;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
     autosaveEnabled: boolean;
@@ -181,6 +207,9 @@ export const DEFAULT_USER_PREFERENCES:
     workspaceStatusFilter: 'ALL',
     workspaceAccessFilter: 'ALL',
     workspaceSortOrder: 'RECENTLY_UPDATED',
+    workspaceMemberView: 'GRID',
+    workspaceMemberStatusFilter: 'ALL',
+    workspaceMemberSortOrder: 'RECENTLY_UPDATED',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,

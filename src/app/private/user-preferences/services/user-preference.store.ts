@@ -82,6 +82,18 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER]
     );
 
+    readonly workspaceMemberView = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_VIEW]
+    );
+
+    readonly workspaceMemberStatusFilter = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_STATUS_FILTER]
+    );
+
+    readonly workspaceMemberSortOrder = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_SORT_ORDER]
+    );
+
     readonly autosaveEnabled = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.AUTOSAVE_ENABLED]
     );

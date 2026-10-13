@@ -36,11 +36,12 @@
                 <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
                     size="md" ariaLabel="Refresh folders" appTooltip="Refresh folders" tooltipTone="noteBlue"
                     tooltipPosition="bottom" tooltipSize="sm" [loading]="loading()"
-                    [disabled]="!selectedWorkspaceId() || loadingWorkspaces()" (buttonClick)="refreshFolders()" />
+                    (buttonClick)="refreshFolders()" />
 
+                @if (canAction(null, 'canCreate')) {
                 <app-button class="workspace-new-button" label="New folder" [iconLeft]="LucidePlus" variant="noteYellow"
-                    appearance="standard" size="md" [disabled]="!canAction(null, 'canCreate') || loadingWorkspaces()"
-                    [attr.aria-disabled]="!canAction(null, 'canCreate')" (buttonClick)="openCreateEditor()" />
+                    appearance="standard" size="md" (buttonClick)="openCreateEditor()" />
+                }
             </div>
         </header>
 
@@ -72,7 +73,7 @@
                     <app-button size="sm" [iconLeft]="LucideTrash2" label="Trash" appearance="standard" variant="noteRed"
                         ariaLabel="Open folder trash" appTooltip="Trash · Folders can be restored"
                         tooltipTone="noteRed" tooltipPosition="bottom" tooltipSize="sm"
-                        [disabled]="!selectedWorkspaceId()" (buttonClick)="openFolderTrash()" />
+                        (buttonClick)="openFolderTrash()" />
                 </div>
             </div>
 
@@ -390,7 +391,7 @@
                                                         [ariaLabel]="'Edit ' + folderName(folder)"
                                                         [appTooltip]="'Edit ' + folderName(folder)" tooltipTone="noteBlue"
                                                         tooltipPosition="top" tooltipSize="sm"
-                                                        [disabled]="isBusy(folder) || !canAction(folder, 'canEdit')"
+                                                        [disabled]="isBusy(folder)"
                                                         (buttonClick)="openEditEditor(folder, $event)" />
 
                                                     <app-button [icon]="LucideFileText" [iconOnly]="true" variant="noteYellow"
@@ -398,7 +399,7 @@
                                                         [ariaLabel]="'Manage notes for ' + folderName(folder)"
                                                         [appTooltip]="'Manage notes'" tooltipTone="noteYellow"
                                                         tooltipPosition="top" tooltipSize="sm"
-                                                        [disabled]="isBusy(folder) || !canAction(folder, 'canView')"
+                                                        [disabled]="isBusy(folder)"
                                                         (buttonClick)="manageNotes(folder)" />
 
                                                     <button type="button" class="workspace-table-menu-button"
@@ -425,7 +426,7 @@
                                     <span>{{ searchTerm() ? 'No matching folders' : 'No folders in this section' }}</span>
                                     @if (!searchTerm() && group.status === 'ACTIVE' && canAction(null, 'canCreate')) {
                                     <app-button label="New folder" [iconLeft]="LucidePlus" variant="outline" size="xs"
-                                        [attr.aria-disabled]="!canAction(null, 'canCreate')" (buttonClick)="openCreateEditor()" />
+                                        (buttonClick)="openCreateEditor()" />
                                     }
                                 </div>
                                 }

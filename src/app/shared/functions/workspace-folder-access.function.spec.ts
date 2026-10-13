@@ -21,6 +21,30 @@ describe('Folder permissions and lifecycle', () => {
     expect(canFolderAction({ ...owner, status: 'ARCHIVED' }, folder, 'canCreate')).toBe(true);
   });
 
+  it('allows invited editors to create and edit folders using workspace access', () => {
+    const invited = { ...owner, isOwner: false, isInvited: true, role: 'editor' };
+    expect(canFolderAction(invited, null, 'canCreate')).toBe(true);
+    expect(canFolderAction(invited, folder, 'canEdit')).toBe(true);
+    expect(canFolderAction(invited, { ...folder, status: 'DELETED' }, 'canEdit')).toBe(false);
+    expect(canFolderAction(invited, { ...folder, workspaceId: 'other' }, 'canEdit')).toBe(false);
+    expect(canFolderAction(invited, folder, 'canTrash')).toBe(false);
+  });
+
+  it('honors viewer restrictions, explicit denials and inactive memberships', () => {
+    const invited = { ...owner, isOwner: false, isInvited: true, role: 'editor' };
+    for (const workspace of [
+      { ...invited, role: 'viewer' },
+      { ...invited, allowedActions: { canEdit: false } },
+      { ...invited, access: { membership: { status: 'INACTIVE' } } },
+    ]) {
+      expect(canFolderAction(workspace, null, 'canCreate')).toBe(false);
+      expect(canFolderAction(workspace, folder, 'canEdit')).toBe(false);
+    }
+    const granted = { ...invited, allowedActions: { canEdit: true } };
+    expect(canFolderAction(granted, null, 'canCreate')).toBe(true);
+    expect(canFolderAction(granted, folder, 'canEdit')).toBe(true);
+  });
+
   it('protects default folders and rejects a different workspace', () => {
     expect(canFolderAction(owner, { ...folder, isDefault: true }, 'canArchive')).toBe(false);
     expect(canFolderAction(owner, { ...folder, isDefault: true }, 'canTrash')).toBe(false);
