@@ -91,12 +91,12 @@ export interface WorkspaceMemberListRole {
  */
 export interface WorkspaceMemberListItem {
     id: string;
-    user: WorkspaceMemberListPerson;
-    role: WorkspaceMemberListRole;
+    user?: Partial<WorkspaceMemberListPerson> | null;
+    role?: Partial<WorkspaceMemberListRole> | null;
     status: WorkspaceMemberStatus;
     joinedAt: string | Date | null;
     lastActiveAt: string | Date | null;
-    addedBy: WorkspaceMemberListPerson | null;
+    addedBy?: Partial<WorkspaceMemberListPerson> | null;
     isOwner: boolean;
     isCurrentUser: boolean;
 }

@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
+import { extractList } from '../../../shared/functions/common.function';
 import {
     WorkspaceRole,
     WorkspaceRoleListResponse,
@@ -36,9 +37,8 @@ export class WorkspaceRoleApiService {
     }
 
     private extractRoles(response: WorkspaceRoleListResponse): WorkspaceRole[] {
-        if (Array.isArray(response.data)) return response.data;
-        if (response.data && Array.isArray(response.data.data)) return response.data.data;
-        return [];
+        if (response?.success === false) throw new Error(response.message || 'Unable to load workspace roles.');
+        return extractList<WorkspaceRole>(response);
     }
 
 }

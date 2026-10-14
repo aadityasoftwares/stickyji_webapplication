@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Subject, finalize, map, takeUntil } from 'rxjs';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
 import {
   LucideCheck,
@@ -185,7 +185,13 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     return emails.every(email => this.isObjectId(this.individualRoleId(email)));
   }
 
+  private readonly contextChanged = new Subject<void>();
+
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['open'] || changes['workspaceId'] || changes['member']) {
+      this.contextChanged.next();
+      this.saving.set(false);
+    }
     if (!this.open) return;
 
     if (
@@ -355,11 +361,22 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.invitationApi
       .createBatch(payload)
       .pipe(
+        map(response => {
+          if (response?.success === false) throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => this.saving.set(false)),
+        takeUntil(this.contextChanged),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: response => this.handleInvitationResult(response.data),
+        next: response => {
+          if (!response?.data) {
+            this.handleError(response, 'Unable to send workspace invitations.', 'Invitation failed');
+            return;
+          }
+          this.handleInvitationResult(response.data);
+        },
         error: error => this.handleError(
           error,
           'Unable to send workspace invitations.',
@@ -392,7 +409,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.memberApi
       .assignRole(memberId, roleId)
       .pipe(
+        map(response => {
+          if (response?.success === false) throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => this.saving.set(false)),
+        takeUntil(this.contextChanged),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -402,7 +424,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
             dedupeKey: 'workspace-member-role-success'
           });
 
-          this.saved.emit(response.data);
+          this.saved.emit(response?.data ?? null);
           this.closed.emit();
         },
         error: error => this.handleError(
@@ -426,8 +448,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   }
 
   private handleInvitationResult(result: WorkspaceInvitationBatchCreateResult): void {
+    if (!result?.summary || !Number.isFinite(result.summary.created)) {
+      this.handleError(result, 'Unable to read the invitation result.', 'Invitation failed');
+      return;
+    }
     const { created, emailSent, emailFailed } = result.summary;
-    const skippedItems = result.skipped ?? [];
+    const skippedItems = Array.isArray(result.skipped) ? result.skipped.filter(item => item) : [];
 
     if (created > 0) {
       this.toastService.success(
@@ -486,11 +512,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       .getWorkspaceRoles(workspaceId)
       .pipe(
         finalize(() => this.loadingRoles.set(false)),
+        takeUntil(this.contextChanged),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: roles => {
-          const assignableRoles = roles.filter(role => this.canAssignRole(role, workspaceId));
+          const assignableRoles = (Array.isArray(roles) ? roles : []).filter(role => role && this.canAssignRole(role, workspaceId));
           const options = assignableRoles.map<SelectOption>(role => ({
             label: role.displayName || role.name,
             value: this.roleRecordId(role),

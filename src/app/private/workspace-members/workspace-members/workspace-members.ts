@@ -13,11 +13,22 @@ import {
   inject,
   signal,
   viewChild,
+  untracked,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, timer, type Observable } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  expand,
+  finalize,
+  map,
+  reduce,
+  takeUntil,
+  timer,
+  type Observable,
+} from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
@@ -78,6 +89,18 @@ import { UserDateTimeFormatterService } from '../../../shared/services/user-date
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
 
+import { getWorkspaceMemberName } from '../../../shared/functions/workspace-member.function';
+import {
+  WORKSPACE_MEMBER_STATUS_PREFERENCES,
+  WORKSPACE_MEMBER_SORT_OPTIONS,
+  PREFERENCE_TO_MEMBER_STATUS,
+  PREFERENCE_TO_MEMBER_SORT,
+  WORKSPACE_MEMBER_PAGE_SIZE,
+  type MemberTab,
+  type MemberView,
+  type MemberSort,
+} from '../constants/workspace-member.constants';
+
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
 
@@ -93,6 +116,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceInvitationRef,
   WorkspaceInvitationStatus,
+  Pagination as InvitationPagination,
   PaginatedApiResponse as InvitationPaginatedApiResponse,
 } from '../models/workspace-invitation.models';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
@@ -103,39 +127,6 @@ import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.ser
 import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-request-side-panel/send-workspace-member-request-side-panel';
 import { MemberCardWrapper } from '../member-card-wrapper/member-card-wrapper';
 import { InvitationCardWrapper } from '../invitation-card-wrapper/invitation-card-wrapper';
-
-type MemberTab = 'all' | 'active' | 'invitations' | 'removed';
-
-type MemberView = 'grid' | 'list';
-
-type MemberSort = 'updatedAt' | 'createdAt' | 'name' | 'role';
-
-const WORKSPACE_MEMBER_STATUS_PREFERENCES: Record<MemberTab, string> = {
-  all: 'ALL',
-  active: 'ACTIVE',
-  invitations: 'INVITATIONS',
-  removed: 'REMOVED',
-};
-
-const PREFERENCE_TO_MEMBER_STATUS: Record<string, MemberTab> = {
-  ALL: 'all',
-  ACTIVE: 'active',
-  INVITED: 'invitations',
-  INVITATIONS: 'invitations',
-  REMOVED: 'removed',
-};
-
-const PREFERENCE_TO_MEMBER_SORT: Record<string, MemberSort> = {
-  RECENTLY_UPDATED: 'updatedAt',
-  RECENTLY_CREATED: 'createdAt',
-  NAME_ASC: 'name',
-  NAME_DESC: 'name',
-  OLDEST_FIRST: 'createdAt',
-  ROLE: 'role',
-  ROLE_ASC: 'role',
-};
-
-type UnknownRecord = Record<string, unknown>;
 
 type BadgeVariant = 'success' | 'noteYellow' | 'danger';
 
@@ -192,6 +183,10 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   private loadedWorkspaceId: string | null = null;
   private memberRequestVersion = 0;
   private invitationRequestVersion = 0;
+  private roleRequestVersion = 0;
+  private workspaceVersion = 0;
+  private readonly workspaceChanged = new Subject<void>();
+  readonly bulkBusy = signal(false);
   private initialized = false;
 
   readonly LucideCheck = LucideCheck;
@@ -236,9 +231,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
 
   readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
-    this.workspaces().map(workspace => ({
-      label: this.workspaceName(workspace),
-      value: this.workspaceRecordId(workspace),
+    this.workspaces().map((workspace) => ({
+      label: entityNameOf(workspace, 'Untitled workspace'),
+      value: idOf(workspace),
       icon: LucidePanelsTopLeft,
     })),
   );
@@ -246,9 +241,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly selectedWorkspaceLabel = computed(() => {
     const selectedId = this.selectedWorkspaceId();
 
-    const workspace = this.workspaces().find(item => this.workspaceRecordId(item) === selectedId);
+    const workspace = this.workspaces().find((item) => idOf(item) === selectedId);
 
-    return workspace ? this.workspaceName(workspace) : 'Select workspace';
+    return workspace ? entityNameOf(workspace, 'Untitled workspace') : 'Select workspace';
   });
 
   readonly members = signal<readonly WorkspaceMemberListItem[]>([]);
@@ -263,11 +258,15 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly invitationBusyIds = signal<ReadonlySet<string>>(new Set());
 
   readonly activeTab = computed<MemberTab>(() => {
-    const status = String(this.userPreferenceStore.workspaceMemberStatusFilter() ?? '').toUpperCase();
+    const status = String(
+      this.userPreferenceStore.workspaceMemberStatusFilter() ?? '',
+    ).toUpperCase();
     return PREFERENCE_TO_MEMBER_STATUS[status] ?? 'all';
   });
   readonly view = computed<MemberView>(() =>
-    String(this.userPreferenceStore.workspaceMemberView() ?? '').toUpperCase() === 'LIST' ? 'list' : 'grid'
+    String(this.userPreferenceStore.workspaceMemberView() ?? '').toUpperCase() === 'LIST'
+      ? 'list'
+      : 'grid',
   );
   readonly searchTerm = signal('');
   readonly sortBy = computed<MemberSort>(() => {
@@ -287,23 +286,23 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly cancellingInvitation = signal(false);
 
   readonly totalCount = computed(
-    () => this.members().filter(member => !this.isRemoved(member)).length,
+    () => this.members().filter((member) => !this.isRemoved(member)).length,
   );
 
   readonly activeCount = computed(
-    () => this.members().filter(member => this.memberStatus(member) === 'ACTIVE').length,
+    () => this.members().filter((member) => this.memberStatus(member) === 'ACTIVE').length,
   );
 
   readonly invitationCount = computed(() => this.invitations().length);
 
   readonly pendingInvitationCount = computed(
     () =>
-      this.invitations().filter(invitation => this.invitationStatus(invitation) === 'PENDING')
+      this.invitations().filter((invitation) => this.invitationStatus(invitation) === 'PENDING')
         .length,
   );
 
   readonly removedCount = computed(
-    () => this.members().filter(member => this.isRemoved(member)).length,
+    () => this.members().filter((member) => this.isRemoved(member)).length,
   );
 
   readonly headerCountLabel = computed(() => {
@@ -363,24 +362,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     },
   ];
 
-  readonly sortOptions: readonly SelectOption[] = [
-    {
-      label: 'Recently updated',
-      value: 'updatedAt',
-    },
-    {
-      label: 'Recently added',
-      value: 'createdAt',
-    },
-    {
-      label: 'Member / email A–Z',
-      value: 'name',
-    },
-    {
-      label: 'Role A–Z',
-      value: 'role',
-    },
-  ];
+  readonly sortOptions = WORKSPACE_MEMBER_SORT_OPTIONS;
 
   readonly searchPlaceholder = computed(() =>
     this.activeTab() === 'invitations'
@@ -391,12 +373,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   readonly visibleMembers = computed(() => {
     const tab = this.activeTab();
     const search = this.searchTerm().trim().toLowerCase();
-    const sort = this.sortBy();
 
     if (tab === 'invitations') return [];
 
     return [...this.members()]
-      .filter(member => {
+      .filter((member) => {
         const status = this.memberStatus(member);
 
         if (tab === 'all' && status === 'REMOVED') return false;
@@ -409,21 +390,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
         return this.matchesMemberSearch(member, search);
       })
-      .sort((first, second) => {
-        if (sort === 'name') {
-          return this.memberName(first).localeCompare(this.memberName(second), undefined, {
-            sensitivity: 'base',
-          });
-        }
-
-        if (sort === 'role') {
-          return this.memberRoleName(first).localeCompare(this.memberRoleName(second), undefined, {
-            sensitivity: 'base',
-          });
-        }
-
-        return this.memberTimestamp(second, sort) - this.memberTimestamp(first, sort);
-      });
+      .sort((first, second) => this.compareMembers(first, second));
   });
 
   readonly memberGroups = computed(() => {
@@ -441,7 +408,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     }> = [];
 
     if (tab === 'all' || tab === 'active') {
-      const activeItems = list.filter(m => this.memberStatus(m) === 'ACTIVE');
+      const activeItems = list.filter((m) => this.memberStatus(m) === 'ACTIVE');
       groups.push({
         id: 'active',
         label: 'Active Members',
@@ -455,9 +422,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     if (tab === 'all' || tab === 'removed') {
       const source = tab === 'all' ? this.members() : list;
       const query = this.searchTerm().trim().toLowerCase();
-      const removedItems = source.filter(
-        member => this.isRemoved(member) && this.matchesMemberSearch(member, query),
-      );
+      const removedItems = source
+        .filter((member) => this.isRemoved(member) && this.matchesMemberSearch(member, query))
+        .sort((first, second) => this.compareMembers(first, second));
 
       if (removedItems.length > 0 || tab === 'removed') {
         groups.push({
@@ -471,7 +438,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       }
     }
 
-    return groups.filter(g => g.count > 0 || !isSearchActive);
+    return groups.filter((g) => g.count > 0 || !isSearchActive);
   });
 
   readonly visibleInvitations = computed(() => {
@@ -481,7 +448,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     const sort = this.sortBy();
 
     return [...this.invitations()]
-      .filter(invitation => {
+      .filter((invitation) => {
         if (!search) return true;
 
         return [
@@ -490,14 +457,15 @@ export class WorkspaceMembers implements OnInit, OnChanges {
           this.invitationStatusLabel(invitation),
           this.invitationInvitedByLabel(invitation),
           this.invitationMessage(invitation),
-        ].some(value => value.toLowerCase().includes(search));
+        ].some((value) => value.toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'name') {
-          return this.invitationEmail(first).localeCompare(
-            this.invitationEmail(second),
-            undefined,
-            { sensitivity: 'base' },
+          return (
+            this.sortDirection('name') *
+            this.invitationEmail(first).localeCompare(this.invitationEmail(second), undefined, {
+              sensitivity: 'base',
+            })
           );
         }
 
@@ -509,35 +477,45 @@ export class WorkspaceMembers implements OnInit, OnChanges {
           );
         }
 
-        return this.invitationTimestamp(second, sort) - this.invitationTimestamp(first, sort);
+        return (
+          this.sortDirection(sort) *
+          (this.invitationTimestamp(second, sort) - this.invitationTimestamp(first, sort))
+        );
       });
   });
 
   constructor() {
     effect(() => {
+      this.workspaces();
+      untracked(() => this.trySelectRequestedWorkspace());
+    });
+    effect(() => {
       const workspaceId = this.workspaceStore.selectedId();
+      untracked(() => {
+        if (!workspaceId) {
+          this.loadedWorkspaceId = null;
+          this.clearPageForNoWorkspace();
+          return;
+        }
 
-      if (!workspaceId) {
-        this.loadedWorkspaceId = null;
+        if (this.loadedWorkspaceId === workspaceId) return;
+
+        this.loadedWorkspaceId = workspaceId;
         this.clearPageForNoWorkspace();
-        return;
-      }
-
-      if (this.loadedWorkspaceId === workspaceId) return;
-
-      this.loadedWorkspaceId = workspaceId;
-      this.resetInteractionState();
-      this.loadWorkspaceAccess(workspaceId);
+        this.loadWorkspaceAccess(workspaceId);
+      });
     });
   }
 
   ngOnInit(): void {
     this.initialized = true;
     this.userPreferenceStore.load();
+    this.trySelectRequestedWorkspace();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.initialized || !changes['workspaceId'] || changes['workspaceId'].firstChange) return;
+    if (this.initialized && changes['roleOptions'] && !this.loadingRoles()) this.loadRoles();
+    if (!this.initialized || !changes['workspaceId']) return;
 
     this.trySelectRequestedWorkspace();
   }
@@ -547,7 +525,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     event.stopPropagation();
     if (
       this.isBusy(member) ||
-      !this.members().some(item => this.memberId(item) === this.memberId(member))
+      !this.members().some((item) => this.memberId(item) === this.memberId(member))
     )
       return;
     this.closeAccessContextMenu();
@@ -560,7 +538,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     event.stopPropagation();
     if (
       this.isInvitationBusy(invitation) ||
-      !this.invitations().some(item => this.invitationId(item) === this.invitationId(invitation))
+      !this.invitations().some((item) => this.invitationId(item) === this.invitationId(invitation))
     )
       return;
     this.closeAccessContextMenu();
@@ -589,16 +567,18 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       });
   }
 
-  copyAccessEmail(email: string): void {
+  async copyAccessEmail(email: string): Promise<void> {
     if (!email) return;
-    navigator.clipboard.writeText(email).then(
-      () => this.toastService.info('Copied email address to clipboard'),
-      () => this.toastService.error('Unable to copy email address'),
-    );
+    try {
+      await navigator.clipboard.writeText(email);
+      if (!this.destroyRef.destroyed) this.toastService.info('Copied email address to clipboard');
+    } catch {
+      if (!this.destroyRef.destroyed) this.toastService.error('Unable to copy email address');
+    }
   }
 
   toggleGroup(groupId: string): void {
-    this.collapsedGroups.update(set => {
+    this.collapsedGroups.update((set) => {
       const next = new Set(set);
       if (next.has(groupId)) {
         next.delete(groupId);
@@ -622,7 +602,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     const id = this.memberId(member);
     if (!id) return;
 
-    this.selectedMemberIds.update(set => {
+    this.selectedMemberIds.update((set) => {
       const next = new Set(set);
       if (checked) {
         next.add(id);
@@ -637,14 +617,14 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     const target = members ?? this.visibleMembers();
     if (!target.length) return false;
     const set = this.selectedMemberIds();
-    return target.every(m => set.has(this.memberId(m)));
+    return target.every((m) => set.has(this.memberId(m)));
   }
 
   isSomeSelected(members?: readonly WorkspaceMemberListItem[]): boolean {
     const target = members ?? this.visibleMembers();
     if (!target.length) return false;
     const set = this.selectedMemberIds();
-    const selected = target.filter(m => set.has(this.memberId(m)));
+    const selected = target.filter((m) => set.has(this.memberId(m)));
     return selected.length > 0 && selected.length < target.length;
   }
 
@@ -652,9 +632,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     const target = members ?? this.visibleMembers();
     if (!target.length) return;
 
-    this.selectedMemberIds.update(set => {
+    this.selectedMemberIds.update((set) => {
       const next = new Set(set);
-      target.forEach(m => {
+      target.forEach((m) => {
         const id = this.memberId(m);
         if (id) {
           if (checked) {
@@ -681,19 +661,17 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private runBulkMemberAction(action: 'remove' | 'restore'): void {
-    const selectedIds = [...this.selectedMemberIds()];
-    if (!selectedIds.length) return;
-
-    const ids = selectedIds.filter(id => {
-      const member = this.members().find(item => this.memberId(item) === id);
-      return (
-        member &&
-        (action === 'remove'
-          ? !this.isRemoved(member) && this.canManageMember(member)
-          : this.isRemoved(member))
-      );
-    });
-
+    if (this.bulkBusy() || this.loading()) return;
+    const ids = this.members()
+      .filter(
+        (member) =>
+          this.selectedMemberIds().has(this.memberId(member)) &&
+          !this.isBusy(member) &&
+          (action === 'remove'
+            ? !this.isRemoved(member) && this.canManageMember(member)
+            : this.isRemoved(member)),
+      )
+      .map((member) => this.memberId(member));
     if (!ids.length) {
       this.toastService.warning(
         action === 'remove'
@@ -704,62 +682,104 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       return;
     }
 
+    const workspaceId = this.selectedWorkspaceId();
+    const version = this.workspaceVersion;
     let completed = 0;
     let succeeded = 0;
-    const finish = (success: boolean): void => {
-      completed++;
-      if (success) succeeded++;
-      if (completed !== ids.length) return;
-
+    let failureMessage = '';
+    this.bulkBusy.set(true);
+    ids.forEach((id) => this.setMemberBusy(id, true));
+    const finish = (): void => {
+      if (
+        this.destroyRef.destroyed ||
+        version !== this.workspaceVersion ||
+        workspaceId !== this.selectedWorkspaceId()
+      )
+        return;
+      if (++completed !== ids.length) return;
+      this.bulkBusy.set(false);
       if (succeeded) {
         const label = action === 'remove' ? 'Removed' : 'Restored';
         this.toastService.success(
           label + ' ' + succeeded + (succeeded === 1 ? ' member' : ' members'),
         );
       }
+      if (completed > succeeded) {
+        this.toastService.error(
+          completed - succeeded + ' member action(s) failed. ' + failureMessage,
+        );
+      }
       this.clearSelection();
       this.loadMembers();
     };
 
-    ids.forEach(id => {
-      const request: Observable<unknown> =
+    ids.forEach((id) => {
+      let succeededRequest = false;
+      const request: Observable<{ success?: boolean; message?: string }> =
         action === 'remove' ? this.memberApi.remove(id) : this.memberApi.restore(id);
-      request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => finish(true),
-        error: () => finish(false),
-      });
+      request
+        .pipe(
+          map((response) => {
+            if (response?.success === false)
+              throw new Error(response.message || 'Workspace access update failed.');
+            return response;
+          }),
+          finalize(() => {
+            if (this.destroyRef.destroyed || version !== this.workspaceVersion) return;
+            this.setMemberBusy(id, false);
+            finish();
+          }),
+          takeUntil(this.workspaceChanged),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: () => {
+            if (!succeededRequest) succeeded++;
+            succeededRequest = true;
+          },
+          error: (error) => {
+            failureMessage = extractErrorMessage(error, 'Unable to ' + action + ' member.');
+          },
+        });
     });
   }
+
   isKeyCopied(id?: string): boolean {
     return !!(id && this.copiedKeyMap()[id]);
   }
 
-  copyMemberId(id?: string, event?: Event): void {
+  async copyMemberId(id?: string, event?: Event): Promise<void> {
     event?.stopPropagation();
     event?.preventDefault();
     if (!id) return;
-    navigator.clipboard
-      .writeText(id)
-      .then(() => {
-        this.copiedKeyMap.update(map => ({ ...map, [id]: true }));
-        this.toastService.info('Copied member ID to clipboard');
-        setTimeout(() => {
-          this.copiedKeyMap.update(map => {
+    const version = this.workspaceVersion;
+    try {
+      await navigator.clipboard.writeText(id);
+      if (this.destroyRef.destroyed || version !== this.workspaceVersion) return;
+      this.copiedKeyMap.update((map) => ({ ...map, [id]: true }));
+      this.toastService.info('Copied member ID to clipboard');
+      timer(2000)
+        .pipe(takeUntil(this.workspaceChanged), takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.copiedKeyMap.update((map) => {
             const next = { ...map };
             delete next[id];
             return next;
           });
-        }, 2000);
-      })
-      .catch(() => {});
+        });
+    } catch {
+      if (!this.destroyRef.destroyed && version === this.workspaceVersion) {
+        this.toastService.error('Unable to copy member ID');
+      }
+    }
   }
 
   loadWorkspaces(): void {
-    // Workspace loading is owned by the parent; keep this template handler unchanged.
+    this.workspaceStore.load(true);
   }
 
   loadWorkspaceAccess(workspaceId = this.selectedWorkspaceId()): void {
-    const id = workspaceId.trim();
+    const id = idOf(workspaceId);
 
     if (!id) {
       this.clearPageForNoWorkspace();
@@ -772,47 +792,54 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   loadRoles(workspaceId = this.selectedWorkspaceId()): void {
-    const id = workspaceId.trim();
-
-    if (!id) {
-      this.availableRoleOptions.set(this.fallbackRoleOptions());
-      return;
-    }
-
-    this.loadingRoles.set(true);
+    const id = idOf(workspaceId);
+    const requestVersion = ++this.roleRequestVersion;
+    this.availableRoleOptions.set(this.fallbackRoleOptions());
+    this.loadingRoles.set(!!id);
+    if (!id) return;
 
     this.roleApi
       .getWorkspaceRoles(id)
       .pipe(
-        finalize(() => this.loadingRoles.set(false)),
+        finalize(() => {
+          if (requestVersion === this.roleRequestVersion) this.loadingRoles.set(false);
+        }),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: roles => {
-          const assignableRoles = roles.filter(role => this.canAssignRole(role, id));
-          const options = assignableRoles.map<SelectOption>(role => ({
-            label: role.displayName || role.name,
-            value: this.roleRecordId(role),
-            icon: LucideShield,
-          }));
-
+        next: (roles) => {
+          if (requestVersion !== this.roleRequestVersion || id !== this.selectedWorkspaceId())
+            return;
+          const options = extractList<WorkspaceRole>(roles)
+            .filter((role) => role && idOf(role) && this.canAssignRole(role, id))
+            .map<SelectOption>((role) => ({
+              label: String(role.displayName || role.name || 'Workspace role'),
+              value: idOf(role),
+              icon: LucideShield,
+            }));
           this.availableRoleOptions.set(options.length ? options : this.fallbackRoleOptions());
         },
-        error: () => {
-          this.availableRoleOptions.set(this.fallbackRoleOptions());
+        error: (error) => {
+          if (requestVersion !== this.roleRequestVersion || id !== this.selectedWorkspaceId())
+            return;
+          this.toastService.error(extractErrorMessage(error, 'Unable to load workspace roles.'), {
+            title: 'Could not load roles',
+            dedupeKey: 'workspace-member-roles-error',
+          });
         },
       });
   }
 
   memberRoleId(member: WorkspaceMemberListItem): string {
-    return idOf(member.role?.id);
+    return idOf(member?.role);
   }
 
   roleOptionsForMember(member: WorkspaceMemberListItem): readonly SelectOption[] {
     const options = this.availableRoleOptions();
     const currentRoleId = this.memberRoleId(member);
     if (!currentRoleId) return options;
-    const exists = options.some(opt => opt.value === currentRoleId);
+    const exists = options.some((opt) => opt.value === currentRoleId);
     if (exists) return options;
     const currentRoleName = this.memberRoleName(member);
     return [
@@ -834,24 +861,41 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
     if (!newRoleId || newRoleId === currentRoleId) return;
 
-    if (!this.canManageMember(member) || this.isBusy(member)) return;
+    if (
+      !this.canManageMember(member) ||
+      this.isRemoved(member) ||
+      this.isBusy(member) ||
+      this.loadingRoles()
+    )
+      return;
+    if (!this.availableRoleOptions().some((option) => option.value === newRoleId)) return;
 
     const memberId = this.memberId(member);
     if (!memberId) return;
 
     this.setMemberBusy(memberId, true);
 
-    const selectedOption = this.roleOptionsForMember(member).find(opt => opt.value === newRoleId);
+    const selectedOption = this.roleOptionsForMember(member).find((opt) => opt.value === newRoleId);
     const newRoleName = selectedOption?.label ?? 'updated role';
 
+    const workspaceId = this.selectedWorkspaceId();
+    const version = this.workspaceVersion;
     this.memberApi
       .assignRole(memberId, newRoleId)
       .pipe(
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => this.setMemberBusy(memberId, false)),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           this.toastService.success(
             `${this.memberName(member)}'s role was updated to ${newRoleName}.`,
             {
@@ -860,8 +904,8 @@ export class WorkspaceMembers implements OnInit, OnChanges {
             },
           );
 
-          this.members.update(currentList =>
-            currentList.map(item => {
+          this.members.update((currentList) =>
+            currentList.map((item) => {
               if (this.memberId(item) !== memberId) return item;
               return {
                 ...item,
@@ -874,18 +918,18 @@ export class WorkspaceMembers implements OnInit, OnChanges {
             }),
           );
 
-          if (response?.data) {
-            this.memberChanged.emit(response.data);
-          }
+          if (response?.data) this.memberChanged.emit(response.data);
         },
-        error: error => {
+        error: (error) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           const message = extractErrorMessage(error, 'Unable to update member role.');
           this.toastService.error(message, {
             title: 'Role update failed',
             dedupeKey: 'workspace-member-role-error',
           });
 
-          this.members.update(currentList => [...currentList]);
+          this.members.update((currentList) => [...currentList]);
         },
       });
   }
@@ -897,7 +941,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     const scope = String(role.scope ?? '')
       .trim()
       .toUpperCase();
-    const roleWorkspaceId = this.refId(role.workspaceId);
+    const roleWorkspaceId = idOf(role.workspaceId);
 
     if (!role.isActive || scope !== 'WORKSPACE' || code === 'WORKSPACE_OWNER') return false;
 
@@ -905,28 +949,18 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private fallbackRoleOptions(): readonly SelectOption[] {
-    return this.roleOptions.filter(
-      option =>
+    return (Array.isArray(this.roleOptions) ? this.roleOptions : []).filter(
+      (option) =>
+        option &&
+        idOf(option.value) &&
         !String(option.label ?? '')
           .toUpperCase()
           .includes('OWNER'),
     );
   }
 
-  private roleRecordId(role: WorkspaceRole): string {
-    return String(role.id ?? role._id ?? '');
-  }
-
-  private refId(value: unknown): string {
-    if (typeof value === 'string') return value;
-    if (!value || typeof value !== 'object') return '';
-
-    const record = value as Record<string, unknown>;
-    return String(record['id'] ?? record['_id'] ?? '');
-  }
-
   loadMembers(workspaceId = this.selectedWorkspaceId()): void {
-    const id = workspaceId.trim();
+    const id = idOf(workspaceId);
     const requestVersion = ++this.memberRequestVersion;
 
     if (!id) {
@@ -940,31 +974,70 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.loading.set(true);
     this.error.set(null);
 
-    this.memberApi
-      .getAll({
-        workspaceId: id,
-        page: 1,
-        limit: 100,
-        sortBy: 'updatedAt',
-        sortOrder: 'desc',
-      })
+    const fetchPage = (page: number) =>
+      this.memberApi
+        .getAll({
+          workspaceId: id,
+          page,
+          limit: WORKSPACE_MEMBER_PAGE_SIZE,
+          sortBy: 'updatedAt',
+          sortOrder: 'desc',
+        })
+        .pipe(
+          map((response) => {
+            if (response?.success === false)
+              throw new Error(response.message || 'Unable to load workspace members.');
+            return {
+              response,
+              page,
+              items: extractList<WorkspaceMemberListItem>(response).filter(
+                (item) => item && typeof item === 'object' && idOf(item),
+              ),
+            };
+          }),
+        );
+
+    fetchPage(1)
       .pipe(
+        expand(({ response, page, items }) => {
+          if (requestVersion !== this.memberRequestVersion || this.selectedWorkspaceId() !== id)
+            return EMPTY;
+          const pagination = response?.meta ?? response?.pagination;
+          const totalPages =
+            Number(pagination?.totalPages) ||
+            Math.ceil(Number(pagination?.total) / Number(pagination?.limit));
+          if (items.length && Number.isFinite(totalPages) && page < totalPages)
+            return fetchPage(page + 1);
+          return EMPTY;
+        }),
+        reduce(
+          (result, page) => ({
+            items: [...result.items, ...page.items],
+            meta: page.response?.meta ?? page.response?.pagination ?? result.meta,
+          }),
+          { items: [] as WorkspaceMemberListItem[], meta: null as MemberPagination | null },
+        ),
         finalize(() => {
           if (requestVersion === this.memberRequestVersion) {
             this.loading.set(false);
           }
         }),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (result) => {
           if (requestVersion !== this.memberRequestVersion || this.selectedWorkspaceId() !== id)
             return;
 
-          this.memberMeta.set(response.meta ?? response.pagination ?? null);
-          this.members.set(Array.isArray(response.data) ? response.data : []);
+          this.memberMeta.set(result.meta);
+          this.members.set(result.items);
+          const ids = new Set(result.items.map((item) => this.memberId(item)));
+          this.selectedMemberIds.update(
+            (selected) => new Set([...selected].filter((id) => ids.has(id))),
+          );
         },
-        error: error => {
+        error: (error) => {
           if (requestVersion !== this.memberRequestVersion || this.selectedWorkspaceId() !== id)
             return;
 
@@ -984,7 +1057,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   loadInvitations(workspaceId = this.selectedWorkspaceId()): void {
-    const id = workspaceId.trim();
+    const id = idOf(workspaceId);
     const requestVersion = ++this.invitationRequestVersion;
 
     if (!id) {
@@ -997,24 +1070,59 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.invitationLoading.set(true);
     this.invitationError.set(null);
 
-    this.invitationApi
-      .getAll({
-        workspaceId: id,
-        page: 1,
-        limit: 100,
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
-      })
+    const fetchPage = (page: number) =>
+      this.invitationApi
+        .getAll({
+          workspaceId: id,
+          page,
+          limit: WORKSPACE_MEMBER_PAGE_SIZE,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+        })
+        .pipe(
+          map((response) => {
+            if (response?.success === false)
+              throw new Error(response.message || 'Unable to load workspace invitations.');
+            return {
+              response,
+              page,
+              items: this.extractInvitations(response).filter(
+                (item) => item && typeof item === 'object' && idOf(item),
+              ),
+            };
+          }),
+        );
+
+    fetchPage(1)
       .pipe(
+        expand(({ response, page, items }) => {
+          if (requestVersion !== this.invitationRequestVersion || this.selectedWorkspaceId() !== id)
+            return EMPTY;
+          const pagination = response?.pagination;
+          const totalPages =
+            Number(pagination?.totalPages) ||
+            Math.ceil(Number(pagination?.total) / Number(pagination?.limit));
+          if (items.length && Number.isFinite(totalPages) && page < totalPages)
+            return fetchPage(page + 1);
+          return EMPTY;
+        }),
+        reduce(
+          (result, page) => ({
+            items: [...result.items, ...page.items],
+            meta: page.response?.pagination ?? result.meta,
+          }),
+          { items: [] as WorkspaceInvitation[], meta: null as InvitationPagination | null },
+        ),
         finalize(() => {
           if (requestVersion === this.invitationRequestVersion) {
             this.invitationLoading.set(false);
           }
         }),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (result) => {
           if (
             requestVersion !== this.invitationRequestVersion ||
             this.selectedWorkspaceId() !== id
@@ -1022,9 +1130,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
             return;
           }
 
-          this.invitations.set(this.extractInvitations(response));
+          this.invitations.set(result.items);
         },
-        error: error => {
+        error: (error) => {
           if (
             requestVersion !== this.invitationRequestVersion ||
             this.selectedWorkspaceId() !== id
@@ -1058,14 +1166,17 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   setMemberTab(value: TabValue): void {
-    const tab = String(value).toLowerCase() as MemberTab;
-    if (['all', 'active', 'invitations', 'removed'].includes(tab)) {
+    const tab = PREFERENCE_TO_MEMBER_STATUS[String(value).toUpperCase()];
+    if (tab) {
       this.closeAccessContextMenu();
       this.clearSelection();
       this.searchTerm.set('');
       if (tab !== this.activeTab()) {
         const pref = WORKSPACE_MEMBER_STATUS_PREFERENCES[tab] ?? 'ALL';
-        this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_STATUS_FILTER, pref);
+        this.userPreferenceStore.setAndSave(
+          USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_STATUS_FILTER,
+          pref,
+        );
       }
     }
   }
@@ -1095,14 +1206,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     if (value === null || Array.isArray(value)) return;
 
     if (value === 'updatedAt' || value === 'createdAt' || value === 'name' || value === 'role') {
-      if (value !== this.sortBy()) {
-        const pref = WORKSPACE_MEMBER_SORT_PREFERENCES[value as MemberSort];
-        if (pref) {
-          this.userPreferenceStore.setAndSave(
-            USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_SORT_ORDER,
-            pref,
-          );
-        }
+      const pref = WORKSPACE_MEMBER_SORT_PREFERENCES[value];
+      if (pref !== this.userPreferenceStore.workspaceMemberSortOrder()) {
+        this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_SORT_ORDER, pref);
       }
     }
   }
@@ -1139,12 +1245,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   openRoleEditor(member: WorkspaceMemberListItem): void {
     if (this.isBusy(member) || this.isRemoved(member) || !this.canManageMember(member)) return;
 
-    /*
-     * The list API intentionally returns a lightweight DTO.
-     * The existing role editor only needs member ID + role ID, so create a
-     * small compatibility object instead of requesting the heavy member
-     * document again.
-     */
+    // Preserve the role editor contract using the lightweight list references.
     this.memberModalMember.set(this.toEditorMember(member));
     this.memberModalOpen.set(true);
   }
@@ -1154,12 +1255,12 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.memberModalMember.set(null);
   }
 
-  onMemberSaved(member: WorkspaceMember | any): void {
+  onMemberSaved(member: WorkspaceMember | null): void {
     // Invitations emit null; role edits emit the updated member.
     if (member) {
-      const id = this.memberId(member);
+      const id = idOf(member);
 
-      const exists = this.members().some(item => this.memberId(item) === id);
+      const exists = this.members().some((item) => this.memberId(item) === id);
 
       if (exists) {
         this.memberChanged.emit(member);
@@ -1188,7 +1289,14 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   confirmRemove(): void {
     const member = this.removeTarget();
 
-    if (!member) return;
+    if (
+      !member ||
+      this.removing() ||
+      this.isBusy(member) ||
+      this.isRemoved(member) ||
+      !this.canManageMember(member)
+    )
+      return;
 
     const id = this.memberId(member);
 
@@ -1197,17 +1305,27 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.removing.set(true);
     this.setMemberBusy(id, true);
 
+    const workspaceId = this.selectedWorkspaceId();
+    const version = this.workspaceVersion;
     this.memberApi
       .remove(id)
       .pipe(
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => {
           this.removing.set(false);
           this.setMemberBusy(id, false);
         }),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           this.removeTarget.set(null);
           this.memberRemoved.emit(id);
 
@@ -1221,7 +1339,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
           this.loadMembers();
         },
-        error: error => {
+        error: (error) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           this.removeTarget.set(null);
 
           const message = extractErrorMessage(error, 'Unable to remove workspace member.');
@@ -1237,19 +1357,29 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   restoreMember(member: WorkspaceMemberListItem): void {
     const id = this.memberId(member);
 
-    if (!id || this.isBusy(member)) return;
+    if (!id || this.isBusy(member) || !this.isRemoved(member)) return;
 
     this.setMemberBusy(id, true);
 
+    const workspaceId = this.selectedWorkspaceId();
+    const version = this.workspaceVersion;
     this.memberApi
       .restore(id)
       .pipe(
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => this.setMemberBusy(id, false)),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
-          this.memberChanged.emit(response.data);
+        next: (response) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
+          if (response?.data) this.memberChanged.emit(response.data);
 
           this.toastService.success(`“${this.memberName(member)}” was restored.`, {
             title: 'Member restored',
@@ -1258,7 +1388,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
           this.loadMembers();
         },
-        error: error => {
+        error: (error) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           const message = extractErrorMessage(error, 'Unable to restore workspace member.');
 
           this.toastService.error(message, {
@@ -1284,7 +1416,13 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   confirmCancelInvitation(): void {
     const invitation = this.cancelInvitationTarget();
 
-    if (!invitation) return;
+    if (
+      !invitation ||
+      this.cancellingInvitation() ||
+      this.isInvitationBusy(invitation) ||
+      !this.canCancelInvitation(invitation)
+    )
+      return;
 
     const id = this.invitationId(invitation);
 
@@ -1293,17 +1431,27 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.cancellingInvitation.set(true);
     this.setInvitationBusy(id, true);
 
+    const workspaceId = this.selectedWorkspaceId();
+    const version = this.workspaceVersion;
     this.invitationApi
       .cancel(id)
       .pipe(
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
+          return response;
+        }),
         finalize(() => {
           this.cancellingInvitation.set(false);
           this.setInvitationBusy(id, false);
         }),
+        takeUntil(this.workspaceChanged),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           this.cancelInvitationTarget.set(null);
 
           this.toastService.success(
@@ -1316,7 +1464,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
           this.loadInvitations();
         },
-        error: error => {
+        error: (error) => {
+          if (version !== this.workspaceVersion || workspaceId !== this.selectedWorkspaceId())
+            return;
           this.cancelInvitationTarget.set(null);
 
           const message = extractErrorMessage(error, 'Unable to cancel workspace invitation.');
@@ -1330,15 +1480,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   memberId(member: WorkspaceMemberListItem): string {
-    return idOf(member.id);
+    return idOf(member);
   }
 
   memberName(member: WorkspaceMemberListItem): string {
-    return (
-      String(member.user?.displayName ?? '').trim() ||
-      this.emailName(member.user?.email) ||
-      'Workspace member'
-    );
+    return getWorkspaceMemberName(member);
   }
 
   memberEmail(member: WorkspaceMemberListItem): string {
@@ -1352,7 +1498,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   memberStatus(member: WorkspaceMemberListItem): WorkspaceMemberStatus {
-    const value = String(member.status ?? 'ACTIVE').toUpperCase();
+    const value = String(member.status ?? 'ACTIVE')
+      .trim()
+      .toUpperCase();
 
     if (value === 'ACTIVE' || value === 'REMOVED') return value;
 
@@ -1419,7 +1567,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   canManageMember(member: WorkspaceMemberListItem): boolean {
-    return !this.isOwner(member) && !this.isCurrentUser(member);
+    return !!this.memberId(member) && !this.isOwner(member) && !this.isCurrentUser(member);
   }
 
   memberManageBlockedReason(member: WorkspaceMemberListItem): string {
@@ -1435,11 +1583,14 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   isBusy(member: WorkspaceMemberListItem): boolean {
-    return this.busyIds().has(this.memberId(member));
+    return (
+      this.loadedWorkspaceId !== this.selectedWorkspaceId() ||
+      this.loading() || this.bulkBusy() || this.busyIds().has(this.memberId(member))
+    );
   }
 
   invitationId(invitation: WorkspaceInvitation): string {
-    return String(invitation.id ?? invitation._id ?? '');
+    return idOf(invitation);
   }
 
   invitationEmail(invitation: WorkspaceInvitation): string {
@@ -1455,7 +1606,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   invitationStatus(invitation: WorkspaceInvitation): WorkspaceInvitationStatus {
-    const value = String(invitation.status ?? 'PENDING').toUpperCase();
+    const value = String(invitation.status ?? 'PENDING')
+      .trim()
+      .toUpperCase();
 
     if (
       value === 'ACCEPTED' ||
@@ -1518,11 +1671,15 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   canCancelInvitation(invitation: WorkspaceInvitation): boolean {
-    return this.invitationStatus(invitation) === 'PENDING';
+    return !!this.invitationId(invitation) && this.invitationStatus(invitation) === 'PENDING';
   }
 
   isInvitationBusy(invitation: WorkspaceInvitation): boolean {
-    return this.invitationBusyIds().has(this.invitationId(invitation));
+    return (
+      this.loadedWorkspaceId !== this.selectedWorkspaceId() ||
+      this.invitationLoading() ||
+      this.invitationBusyIds().has(this.invitationId(invitation))
+    );
   }
 
   private setMemberBusy(id: string, busy: boolean): void {
@@ -1541,24 +1698,12 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.invitationBusyIds.set(next);
   }
 
-  private workspaceRecordId(workspace: any): string {
-    const record = workspace as unknown as UnknownRecord;
-
-    return String(record['id'] ?? record['_id'] ?? '');
-  }
-
-  private workspaceName(workspace: any): string {
-    return entityNameOf(workspace.name, 'Untitled workspace');
-  }
-
   private trySelectRequestedWorkspace(): boolean {
     const requestedId = String(this.workspaceId ?? '').trim();
 
     if (!requestedId) return false;
 
-    const exists = this.workspaces().some(
-      workspace => this.workspaceRecordId(workspace) === requestedId,
-    );
+    const exists = this.workspaces().some((workspace) => idOf(workspace) === requestedId);
 
     if (!exists) return false;
 
@@ -1571,8 +1716,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   }
 
   private clearPageForNoWorkspace(): void {
+    this.workspaceVersion++;
+    this.workspaceChanged.next();
     this.memberRequestVersion++;
     this.invitationRequestVersion++;
+    this.roleRequestVersion++;
 
     this.loading.set(false);
     this.invitationLoading.set(false);
@@ -1593,6 +1741,11 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     this.closeAccessContextMenu();
     this.clearSelection();
     this.searchTerm.set('');
+    this.collapsedGroups.set(new Set());
+    this.copiedKeyMap.set({});
+    this.removing.set(false);
+    this.cancellingInvitation.set(false);
+    this.bulkBusy.set(false);
 
     this.memberModalOpen.set(false);
     this.memberModalMember.set(null);
@@ -1608,13 +1761,13 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   private extractInvitations(
     response: InvitationPaginatedApiResponse<WorkspaceInvitation>,
   ): readonly WorkspaceInvitation[] {
-    const data = response.data as unknown;
+    const data = response?.data as unknown;
 
     if (Array.isArray(data)) return data as WorkspaceInvitation[];
 
     if (!data || typeof data !== 'object') return [];
 
-    const record = data as UnknownRecord;
+    const record = data as Record<string, unknown>;
 
     const candidates = [
       record['items'],
@@ -1627,6 +1780,37 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     return extractList<WorkspaceInvitation>(candidates.find(Array.isArray));
   }
 
+  private sortDirection(sort: MemberSort): number {
+    const preference = String(this.userPreferenceStore.workspaceMemberSortOrder()).toUpperCase();
+    return (sort === 'name' && preference === 'NAME_DESC') ||
+      (sort === 'createdAt' && preference === 'OLDEST_FIRST')
+      ? -1
+      : 1;
+  }
+
+  private compareMembers(first: WorkspaceMemberListItem, second: WorkspaceMemberListItem): number {
+    const sort = this.sortBy();
+    if (sort === 'name') {
+      return (
+        this.sortDirection('name') *
+        this.memberName(first).localeCompare(this.memberName(second), undefined, {
+          sensitivity: 'base',
+        })
+      );
+    }
+
+    if (sort === 'role') {
+      return this.memberRoleName(first).localeCompare(this.memberRoleName(second), undefined, {
+        sensitivity: 'base',
+      });
+    }
+
+    return (
+      this.sortDirection(sort) *
+      (this.memberTimestamp(second, sort) - this.memberTimestamp(first, sort))
+    );
+  }
+
   private matchesMemberSearch(member: WorkspaceMemberListItem, search: string): boolean {
     return (
       !search ||
@@ -1636,7 +1820,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
         this.memberRoleName(member),
         this.memberStatusLabel(member),
         this.addedByLabel(member),
-      ].some(value => value.toLowerCase().includes(search))
+      ].some((value) => value.toLowerCase().includes(search))
     );
   }
   private memberTimestamp(
@@ -1703,31 +1887,31 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   private toEditorMember(member: WorkspaceMemberListItem): WorkspaceMember {
     const addedBy = member.addedBy
       ? {
-          id: member.addedBy.id,
-          _id: member.addedBy.id,
+          id: idOf(member.addedBy),
+          _id: idOf(member.addedBy),
           displayName: member.addedBy.displayName,
           email: member.addedBy.email,
         }
       : null;
 
     return {
-      id: member.id,
-      _id: member.id,
+      id: idOf(member),
+      _id: idOf(member),
       workspaceId: this.selectedWorkspaceId(),
       userId: {
-        id: member.user.id,
-        _id: member.user.id,
-        displayName: member.user.displayName,
-        email: member.user.email,
+        id: idOf(member.user),
+        _id: idOf(member.user),
+        displayName: member.user?.displayName,
+        email: member.user?.email,
       },
       roleId: {
-        id: member.role.id,
-        _id: member.role.id,
-        name: member.role.name,
-        displayName: member.role.name,
-        code: member.role.code,
+        id: idOf(member.role),
+        _id: idOf(member.role),
+        name: member.role?.name,
+        displayName: member.role?.name,
+        code: member.role?.code,
       },
-      status: member.status,
+      status: this.memberStatus(member),
       invitedBy: addedBy,
       joinedAt: member.joinedAt,
       createdBy: addedBy,
