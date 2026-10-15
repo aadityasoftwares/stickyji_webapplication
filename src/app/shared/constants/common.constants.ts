@@ -39,6 +39,9 @@ export const USER_PREFERENCE_KEYS = {
     WORKSPACE_MEMBER_STATUS_FILTER: 'workspaceMemberStatusFilter',
     WORKSPACE_MEMBER_SORT_ORDER: 'workspaceMemberSortOrder',
     WORKSPACE_MEMBER_VIEW: 'workspaceMemberView',
+      WORKSPACE_ROLE_STATUS_FILTER: 'workspaceRoleStatusFilter',
+      WORKSPACE_ROLE_SORT_ORDER: 'workspaceRoleSortOrder',
+      WORKSPACE_ROLE_VIEW: 'workspaceRoleView',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -75,6 +78,9 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
     workspaceMemberView: 'GRID',
     workspaceMemberStatusFilter: 'ALL',
     workspaceMemberSortOrder: 'RECENTLY_UPDATED',
+      workspaceRoleView: 'GRID',
+      workspaceRoleStatusFilter: 'ALL',
+      workspaceRoleSortOrder: 'PRIORITY',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,
@@ -113,6 +119,20 @@ export const WORKSPACE_MEMBER_SORT_PREFERENCES = {
     role: 'ROLE_ASC',
 } as const;
 
+export const WORKSPACE_ROLE_SORT_PREFERENCES = {
+    priority: 'PRIORITY',
+    updatedAt: 'RECENTLY_UPDATED',
+    name: 'NAME_ASC',
+} as const;
+
+export const WORKSPACE_ROLE_STATUS_PREFERENCES = {
+    all: 'ALL',
+    system: 'SYSTEM',
+    custom: 'CUSTOM',
+    inactive: 'INACTIVE',
+} as const;
+
+
 export enum WorkspaceAccessFilter {
     ALL = 'ALL',
     OWNED = 'OWNED',
@@ -149,6 +169,12 @@ export const VIEW_TABS: any[] = [
 ];
 
 export const GRID_LIST_VIEW_OPTIONS = VIEW_TABS;
+
+export const GROUP_ACCENTS = {
+    BLUE: '#3b82f6',
+    GREEN: '#10b981',
+    SLATE: '#64748b',
+} as const;
 
 export const COMMON_SORT_OPTIONS: any[] = [
     { label: 'Recently updated', value: 'recent' },

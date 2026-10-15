@@ -94,6 +94,19 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_MEMBER_SORT_ORDER]
     );
 
+    readonly workspaceRoleView = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_ROLE_VIEW]
+    );
+
+    readonly workspaceRoleStatusFilter = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_ROLE_STATUS_FILTER]
+    );
+
+    readonly workspaceRoleSortOrder = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_ROLE_SORT_ORDER]
+    );
+
+
     readonly autosaveEnabled = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.AUTOSAVE_ENABLED]
     );

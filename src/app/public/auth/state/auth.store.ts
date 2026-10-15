@@ -24,6 +24,44 @@ export class AuthStore {
         }) ?? false;
     });
 
+    readonly canManageGlobalPermissions = computed(() => {
+        const role = this.resolvedGlobalRole() ?? this.role();
+        if (!this.user() || !role || role.isActive === false || role.scope !== 'GLOBAL') return false;
+        if (role.code === 'SUPER_ADMIN') return true;
+        return role.permissions?.some(permission => {
+            if (typeof permission === 'string') {
+                const upper = permission.toUpperCase();
+                return upper === 'ROLES_CREATE' || upper === 'ROLES_UPDATE' || upper === 'ROLES_DELETE' ||
+                       upper.startsWith('PERMISSION') || upper.startsWith('ROLES.');
+            }
+            if (!permission || typeof permission !== 'object') return false;
+            const grant = permission as { module?: string; action?: string; isActive?: boolean };
+            return grant.isActive !== false &&
+                (grant.module?.toUpperCase() === 'ROLES' || grant.module?.toUpperCase() === 'PERMISSION') &&
+                ['CREATE', 'UPDATE', 'DELETE', 'MANAGE'].includes(String(grant.action ?? '').toUpperCase());
+        }) ?? false;
+    });
+
+    hasGlobalPermission(module: string, action: string): boolean {
+        const role = this.resolvedGlobalRole() ?? this.role();
+        if (!this.user() || !role || role.isActive === false || role.scope !== 'GLOBAL') return false;
+        if (role.code === 'SUPER_ADMIN') return true;
+        const targetModule = module.toUpperCase();
+        const targetAction = action.toUpperCase();
+        return role.permissions?.some(permission => {
+            if (typeof permission === 'string') {
+                const upper = permission.toUpperCase();
+                return upper === `${targetModule}_${targetAction}` || upper === `${targetModule}.${targetAction}`;
+            }
+            if (!permission || typeof permission !== 'object') return false;
+            const grant = permission as { module?: string; action?: string; isActive?: boolean };
+            return grant.isActive !== false &&
+                grant.module?.toUpperCase() === targetModule &&
+                grant.action?.toUpperCase() === targetAction;
+        }) ?? false;
+    }
+
+
     constructor() {
         effect(onCleanup => {
             const requested = this.permissionsRequested();

@@ -17,7 +17,7 @@ import type {
 @Injectable({ providedIn: 'root' })
 export class WorkspaceRoleApiService {
   private readonly http = inject(HttpClient);
-    private readonly baseUrl = API_BASE_URL;
+  private readonly baseUrl = API_BASE_URL;
 
   /**
    * Change only this prefix if your Express role router is mounted elsewhere.
@@ -30,8 +30,7 @@ export class WorkspaceRoleApiService {
   private readonly deleteUrl = `${this.roleBaseUrl}/delete`;
 
   getAll(query: WorkspaceRoleQuery = {}): Observable<WorkspaceRoleListResponse> {
-    return this.http.get<WorkspaceRoleListResponse>(this.getAllUrl, {
-      params: buildHttpParams(query),
+    return this.http.post<WorkspaceRoleListResponse>(this.getAllUrl, query, {
       withCredentials: true
     });
   }
@@ -48,7 +47,7 @@ export class WorkspaceRoleApiService {
       scope: 'WORKSPACE',
       sortBy: 'priority',
       sortOrder: 'desc'
-    }).pipe(map(response => [...this.extractRoles(response)]));
+    }).pipe(map(response => this.extractRoles(response).filter(role => role && typeof role === 'object')));
   }
 
   getById(id: string): Observable<ApiResponse<WorkspaceRole>> {
@@ -58,10 +57,18 @@ export class WorkspaceRoleApiService {
     );
   }
 
+  getByCode(code: string, workspaceId?: string): Observable<ApiResponse<WorkspaceRole>> {
+    const params = buildHttpParams(workspaceId ? { workspaceId } : {});
+    return this.http.get<ApiResponse<WorkspaceRole>>(
+      `${this.getUrl}/code/${encodeURIComponent(code)}`,
+      { params, withCredentials: true }
+    );
+  }
+
   create(payload: WorkspaceRoleCreateRequest): Observable<ApiResponse<WorkspaceRole>> {
     return this.http.post<ApiResponse<WorkspaceRole>>(this.createUrl, payload, {
       withCredentials: true
-    });
+    }).pipe(map(response => this.requireRole(response)));
   }
 
   update(id: string, payload: WorkspaceRoleUpdateRequest): Observable<ApiResponse<WorkspaceRole>> {
@@ -69,7 +76,7 @@ export class WorkspaceRoleApiService {
       `${this.updateUrl}/${encodeURIComponent(id)}`,
       payload,
       { withCredentials: true }
-    );
+    ).pipe(map(response => this.requireRole(response)));
   }
 
   changeStatus(id: string, isActive: boolean): Observable<ApiResponse<WorkspaceRole>> {
@@ -77,7 +84,7 @@ export class WorkspaceRoleApiService {
       `${this.updateUrl}/${encodeURIComponent(id)}/status`,
       { isActive },
       { withCredentials: true }
-    );
+    ).pipe(map(response => this.requireRole(response)));
   }
 
   delete(id: string): Observable<ApiResponse<null>> {
@@ -87,8 +94,15 @@ export class WorkspaceRoleApiService {
     );
   }
 
+  private requireRole(response: ApiResponse<WorkspaceRole>): ApiResponse<WorkspaceRole> {
+    if (!response?.data || typeof response.data !== 'object' || Array.isArray(response.data)) {
+      throw new Error(response?.message || 'The server returned an invalid role. Refresh roles before trying again.');
+    }
+    return response;
+  }
+
   private extractRoles(response: WorkspaceRoleListResponse): readonly WorkspaceRole[] {
-    const data = response.data as readonly WorkspaceRole[] | WorkspaceRoleCollection | null | undefined;
+    const data = response?.data as readonly WorkspaceRole[] | WorkspaceRoleCollection | null | undefined;
 
     if (Array.isArray(data)) return data as readonly WorkspaceRole[];
     if (!data || typeof data !== 'object') return [];

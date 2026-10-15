@@ -15,77 +15,8 @@
 }
 
 
-/* =========================================================
-   COMMON MODAL LAYOUT
-
-   Common app-modal owns the actual 90vw × 90vh sizing.
-   This screen only makes sure:
-   - header stays fixed
-   - footer stays fixed
-   - modal body never scrolls
-   - permission-scroll is the main vertical scroll area
-   ========================================================= */
-
-:host ::ng-deep app-modal .app-modal-dialog[data-size='full'] {
-    width: 90vw !important;
-    max-width: 90vw !important;
-
-    height: 90vh !important;
-    max-height: 90vh !important;
-
-    margin: 0 !important;
-}
-
-:host ::ng-deep app-modal .modal-content,
-:host ::ng-deep app-modal .app-modal {
-    display: flex !important;
-    flex-direction: column !important;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    max-height: 100% !important;
-
-    overflow: hidden !important;
-}
-
-:host ::ng-deep app-modal .modal-header,
-:host ::ng-deep app-modal .app-modal-header {
-    flex: 0 0 auto !important;
-
-    background: $page-bg !important;
-}
-
-:host ::ng-deep app-modal .modal-body,
-:host ::ng-deep app-modal .app-modal-body,
-:host ::ng-deep app-modal .modal-content-body,
-:host ::ng-deep app-modal .app-modal-content-body,
-:host ::ng-deep app-modal .modal-body-content {
-    flex: 1 1 auto !important;
-
-    min-height: 0 !important;
-    height: auto !important;
-
-    margin: 0 !important;
+:host ::ng-deep app-modal .app-modal-body {
     padding: 0 !important;
-
-    overflow: hidden !important;
-
-    /*
-     * Important:
-     * the common modal body must not own scrolling on this screen.
-     * Only .permission-sidebar-list and .permission-scroll may scroll.
-     */
-    scrollbar-gutter: auto !important;
-
-    background: $paper !important;
-}
-
-:host ::ng-deep app-modal .modal-footer,
-:host ::ng-deep app-modal .app-modal-footer {
-    flex: 0 0 auto !important;
-
-    background: $page-bg !important;
 }
 
 /* =========================================================
@@ -843,15 +774,6 @@
     }
 }
 @media (max-width: 44rem) {
-
-    :host ::ng-deep app-modal .app-modal-dialog[data-size='full'] {
-        width: 100vw !important;
-        max-width: 100vw !important;
-
-        height: 100dvh !important;
-        max-height: 100dvh !important;
-    }
-
 
     .role-permissions-layout {
         grid-template-columns:

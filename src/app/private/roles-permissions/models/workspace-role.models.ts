@@ -36,9 +36,11 @@ export interface WorkspaceRoleCreateRequest {
     displayName: string;
     code: string;
     description?: string;
-    scope: 'WORKSPACE';
+    type?: WorkspaceRoleType;
+    scope?: 'WORKSPACE';
     workspaceId: string;
-    permissions: string[];
+    permissions?: string[];
+    priority?: number;
     isActive?: boolean;
 }
 
@@ -84,8 +86,12 @@ export interface WorkspaceRoleCollection {
     docs?: readonly WorkspaceRole[];
     results?: readonly WorkspaceRole[];
     pagination?: WorkspaceRolePagination | null;
+    meta?: WorkspaceRolePagination | null;
 }
 
 export type WorkspaceRoleListResponse = ApiResponse<
     readonly WorkspaceRole[] | WorkspaceRoleCollection
->;
+> & {
+    meta?: WorkspaceRolePagination | null;
+    pagination?: WorkspaceRolePagination | null;
+};

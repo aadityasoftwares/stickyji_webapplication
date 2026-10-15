@@ -24,3 +24,7 @@ export function getInitials(value: unknown, fallback = 'U'): string {
     return fallback.slice(0, 2).toUpperCase();
   }
 }
+export function humanize(value: unknown, separators: RegExp = /_/g): string {
+  const text = String(value ?? '').trim().toLowerCase().replace(separators, ' ');
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : '—';
+}

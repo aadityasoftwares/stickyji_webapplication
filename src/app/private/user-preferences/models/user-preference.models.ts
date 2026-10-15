@@ -16,6 +16,9 @@ export const USER_PREFERENCE_KEYS = {
     WORKSPACE_MEMBER_STATUS_FILTER: 'workspaceMemberStatusFilter',
     WORKSPACE_MEMBER_SORT_ORDER: 'workspaceMemberSortOrder',
     WORKSPACE_MEMBER_VIEW: 'workspaceMemberView',
+    WORKSPACE_ROLE_STATUS_FILTER: 'workspaceRoleStatusFilter',
+    WORKSPACE_ROLE_SORT_ORDER: 'workspaceRoleSortOrder',
+    WORKSPACE_ROLE_VIEW: 'workspaceRoleView',
     AUTOSAVE_ENABLED: 'autosaveEnabled',
     AUTOSAVE_INTERVAL: 'autosaveInterval',
     EMAIL_NOTIFICATIONS: 'emailNotifications',
@@ -103,6 +106,29 @@ export type WorkspaceMemberPreferenceSortOrder =
     | 'ROLE'
     | 'ROLE_ASC';
 
+export type WorkspaceRolePreferenceView =
+    | 'GRID'
+    | 'LIST';
+
+export type WorkspaceRolePreferenceStatusFilter =
+    | 'ALL'
+    | 'SYSTEM'
+    | 'CUSTOM'
+    | 'INACTIVE';
+
+export type WorkspaceRolePreferenceSortOrder =
+    | 'PRIORITY'
+    | 'ROLE_LEVEL'
+    | 'RECENTLY_UPDATED'
+    | 'UPDATED_AT'
+    | 'NAME_ASC'
+    | 'NAME'
+    | 'RECENTLY_CREATED'
+    | 'CREATED_AT'
+    | 'NAME_DESC'
+    | 'OLDEST_FIRST';
+
+
 export type UserPreferenceValue =
     | string
     | number
@@ -151,6 +177,9 @@ export interface UserPreferencesM {
     workspaceMemberView?: WorkspaceMemberPreferenceView;
     workspaceMemberStatusFilter?: WorkspaceMemberPreferenceStatusFilter;
     workspaceMemberSortOrder?: WorkspaceMemberPreferenceSortOrder;
+    workspaceRoleView?: WorkspaceRolePreferenceView;
+    workspaceRoleStatusFilter?: WorkspaceRolePreferenceStatusFilter;
+    workspaceRoleSortOrder?: WorkspaceRolePreferenceSortOrder;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
     autosaveEnabled: boolean;
@@ -210,6 +239,9 @@ export const DEFAULT_USER_PREFERENCES:
     workspaceMemberView: 'GRID',
     workspaceMemberStatusFilter: 'ALL',
     workspaceMemberSortOrder: 'RECENTLY_UPDATED',
+    workspaceRoleView: 'GRID',
+    workspaceRoleStatusFilter: 'ALL',
+    workspaceRoleSortOrder: 'PRIORITY',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
     autosaveEnabled: true,

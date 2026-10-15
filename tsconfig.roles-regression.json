@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/private/roles-permissions/**/*.spec.ts",
+    "src/app/private/workspace/workspace.spec.ts",
+    "src/app/private/workspace/workspace-rendering.spec.ts"
+  ]
+}

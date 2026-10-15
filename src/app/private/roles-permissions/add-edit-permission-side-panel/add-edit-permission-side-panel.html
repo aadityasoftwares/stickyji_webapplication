@@ -1,0 +1,132 @@
+<app-side-panel [open]="open" [title]="titleText" eyebrow="Global Permission" [description]="descriptionText"
+    [headerNote]="headerNote" [icon]="mode === 'view' ? LucideLock : (mode === 'create' ? LucidePlus : LucidePencil)"
+    tone="blue" [width]="560" [busy]="saving()" ariaLabel="Permission definition editor" (closed)="close()">
+
+    <form panel-body class="workspace-editor" (ngSubmit)="$event.preventDefault()" novalidate>
+        <section class="workspace-fields" aria-label="Permission details">
+            <!-- Display Name -->
+            <div class="workspace-field workspace-name-field">
+                <app-label forId="perm-display-name" text="Display Name" [required]="!isReadOnly" />
+                <div class="workspace-field-control">
+                    <app-input #displayNameInput inputId="perm-display-name" label="Display name" labelMode="hidden"
+                        placeholder="e.g. Create Note" variant="paper" appearance="simple" shape="rounded" size="md"
+                        [required]="!isReadOnly" [maxLength]="100" [value]="displayName()"
+                        [disabled]="saving() || isReadOnly" [fullWidth]="true" [clearable]="false" autocomplete="off"
+                        (valueChange)="updateDisplayName($event)" />
+                    <span class="workspace-field-counter">{{ displayName().length }}/100</span>
+                </div>
+            </div>
+
+            <!-- Code -->
+            <div class="workspace-field workspace-code-field">
+                <app-label forId="perm-code" text="Code" [required]="!isReadOnly" />
+                <div class="workspace-field-control">
+                    <app-input inputId="perm-code" label="Permission code" labelMode="hidden"
+                        placeholder="NOTES_CREATE" variant="paper" appearance="simple" shape="rounded" size="md"
+                        [required]="!isReadOnly" [maxLength]="80" [value]="code()"
+                        [disabled]="saving() || isReadOnly" [fullWidth]="true" [clearable]="false" autocomplete="off"
+                        (valueChange)="updateCode($event)" />
+                    <span class="workspace-field-hint">Uppercase unique key</span>
+                </div>
+            </div>
+
+            <!-- Internal Name -->
+            <div class="workspace-field">
+                <app-label forId="perm-name" text="Internal Name" [required]="!isReadOnly" />
+                <div class="workspace-field-control">
+                    <app-input inputId="perm-name" label="Internal name" labelMode="hidden"
+                        placeholder="e.g. create note" variant="paper" appearance="simple" shape="rounded" size="md"
+                        [required]="!isReadOnly" [maxLength]="100" [value]="name()"
+                        [disabled]="saving() || isReadOnly" [fullWidth]="true" [clearable]="false" autocomplete="off"
+                        (valueChange)="updateName($event)" />
+                </div>
+            </div>
+
+            <!-- Module & Action (Row) -->
+            <div class="perm-editor-grid-row">
+                <div class="workspace-field">
+                    <app-label forId="perm-module" text="Module" [required]="!isReadOnly" />
+                    <app-select selectId="perm-module" [options]="moduleOptions" [ngModel]="module()"
+                        (ngModelChange)="updateModule($event)" name="perm-module-select" placeholder="Select module"
+                        variant="paper" shape="rounded" size="sm" [fullWidth]="true" [disabled]="saving() || isReadOnly" />
+                </div>
+
+                <div class="workspace-field">
+                    <app-label forId="perm-action" text="Action" [required]="!isReadOnly" />
+                    <app-select selectId="perm-action" [options]="actionOptions" [ngModel]="action()"
+                        (ngModelChange)="updateAction($event)" name="perm-action-select" placeholder="Select action"
+                        variant="paper" shape="rounded" size="sm" [fullWidth]="true" [disabled]="saving() || isReadOnly" />
+                </div>
+            </div>
+
+            <!-- Access Scope & Sort Order (Row) -->
+            <div class="perm-editor-grid-row">
+                <div class="workspace-field">
+                    <app-label forId="perm-access" text="Access Level" />
+                    <app-select selectId="perm-access" [options]="accessOptions" [ngModel]="access()"
+                        (ngModelChange)="updateAccess($event)" name="perm-access-select" placeholder="Select access"
+                        variant="paper" shape="rounded" size="sm" [fullWidth]="true" [disabled]="saving() || isReadOnly" />
+                </div>
+
+                <div class="workspace-field">
+                    <app-label forId="perm-sort-order" text="Sort Order" />
+                    <app-input inputId="perm-sort-order" type="number" label="Sort order" labelMode="hidden"
+                        placeholder="0" variant="paper" appearance="simple" shape="rounded" size="sm"
+                        [value]="sortOrder()" [disabled]="saving() || isReadOnly" [fullWidth]="true"
+                        (valueChange)="updateSortOrder($event)" />
+                </div>
+            </div>
+
+            <!-- Details / Description -->
+            <div class="workspace-field workspace-details-field">
+                <app-label forId="perm-description" text="Description" />
+                <div class="workspace-field-control">
+                    <app-input inputId="perm-description" label="Description" labelMode="hidden"
+                        placeholder="Describe what access this permission controls..." variant="paper"
+                        appearance="simple" shape="rounded" size="md" [multiline]="true" [rows]="2" resize="vertical"
+                        [clearable]="false" [maxLength]="400" [value]="description()" [disabled]="saving() || isReadOnly"
+                        [fullWidth]="true" (valueChange)="updateDescription($event)" />
+                    <span class="workspace-field-hint">Optional</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status / Active Switch Row -->
+        <section class="workspace-access-row" aria-label="Permission status">
+            <app-label forId="perm-status" text="Status" />
+            <div class="workspace-access-control">
+                <app-switch selectId="perm-status" [checked]="active()"
+                    (checkedChange)="!isReadOnly && !saving() && active.set($event)" [disabled]="isReadOnly || saving()"
+                    size="md" [ariaLabel]="'Permission status: ' + (active() ? 'active' : 'inactive')" />
+                <span class="workspace-access-badge">
+                    <app-badge [label]="active() ? 'Active' : 'Inactive'" [variant]="active() ? 'success' : 'warning'"
+                        size="xs" shape="pill" [dot]="true" />
+                </span>
+            </div>
+        </section>
+
+        @if (error()) {
+        <p class="workspace-form-error" role="alert">
+            {{ error() }}
+        </p>
+        }
+    </form>
+
+    <div panel-footer class="workspace-editor-footer">
+        <div class="workspace-footer-status">
+            <span class="workspace-footer-count">
+                {{ mode === 'view' ? 'Read-only permission' : (active() ? 'Active permission' : 'Inactive permission') }}
+            </span>
+        </div>
+
+        <div class="workspace-footer-buttons">
+            <app-button label="Cancel" variant="outline" size="sm" [disabled]="saving()" (buttonClick)="close()" />
+
+            @if (!isReadOnly) {
+            <app-button [label]="submitLabel" [iconLeft]="saving() ? undefined : (mode === 'create' ? LucidePlus : LucideCheck)"
+                variant="noteBlue" appearance="standard" size="sm" [loading]="saving()" [disabled]="!canSubmit"
+                (buttonClick)="submit()" />
+            }
+        </div>
+    </div>
+</app-side-panel>

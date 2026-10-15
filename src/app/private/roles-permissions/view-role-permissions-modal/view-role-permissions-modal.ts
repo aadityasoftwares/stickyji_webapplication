@@ -22,6 +22,8 @@ import {
   LucideX
 } from '@lucide/angular';
 
+import type { BadgeVariant } from '../../../shared/components/badge/badge';
+import { humanize } from '../../../shared/functions/string.functions';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
@@ -42,15 +44,6 @@ import type {
 import type {
   WorkspaceRole
 } from '../models/workspace-role.models';
-
-
-type BadgeVariant =
-  | 'success'
-  | 'neutral'
-  | 'noteYellow'
-  | 'warning'
-  | 'danger';
-
 
 interface ViewPermissionGroup {
   module: string;
@@ -171,7 +164,7 @@ export class ViewRolePermissionsModal
         this.permissionGroupsState()
           .flatMap(
             group =>
-              group.permissions ?? []
+              Array.isArray(group.permissions) ? group.permissions.filter(Boolean) : []
           )
     );
 
@@ -199,7 +192,7 @@ export class ViewRolePermissionsModal
 
         for (
           const reference
-          of role.permissions ?? []
+          of (Array.isArray(role.permissions) ? role.permissions : [])
         ) {
 
           /*
@@ -207,7 +200,7 @@ export class ViewRolePermissionsModal
            */
           if (
             reference &&
-            typeof reference !== 'string'
+            typeof reference === 'object'
           ) {
 
             resolved.push(
@@ -514,7 +507,7 @@ export class ViewRolePermissionsModal
     ) {
 
       this.permissionGroupsState.set(
-        this.permissionGroups ?? []
+        Array.isArray(this.permissionGroups) ? this.permissionGroups.filter(Boolean) : []
       );
     }
 
@@ -1251,31 +1244,5 @@ export class ViewRolePermissionsModal
   }
 
 
-  private humanize(
-    value: unknown
-  ): string {
-
-    const text =
-      String(
-        value ?? ''
-      )
-        .trim()
-        .toLowerCase()
-        .replace(
-          /[_-]+/g,
-          ' '
-        );
-
-
-    if (!text) {
-      return '—';
-    }
-
-
-    return (
-      text.charAt(0)
-        .toUpperCase() +
-      text.slice(1)
-    );
-  }
+  private readonly humanize = (value: unknown): string => humanize(value, /[_-]+/g);
 }

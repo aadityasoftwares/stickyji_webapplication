@@ -40,6 +40,30 @@ export interface PermissionGroup {
     permissions: readonly Permission[];
 }
 
+export interface PermissionCreateRequest {
+    name: string;
+    displayName: string;
+    code: string;
+    module: string;
+    action: PermissionAction;
+    access?: PermissionAccess;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+}
+
+export interface PermissionUpdateRequest {
+    name?: string;
+    displayName?: string;
+    code?: string;
+    module?: string;
+    action?: PermissionAction;
+    access?: PermissionAccess;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+}
+
 export interface PermissionQuery {
     page?: number;
     limit?: number;
@@ -60,6 +84,23 @@ export interface Pagination {
     totalPages?: number;
 }
 
+export interface PermissionCollection {
+    permissions?: readonly Permission[];
+    items?: readonly Permission[];
+    data?: readonly Permission[];
+    docs?: readonly Permission[];
+    results?: readonly Permission[];
+    pagination?: Pagination | null;
+    meta?: Pagination | null;
+}
+
+export type PermissionListResponse = ApiResponse<
+    readonly Permission[] | PermissionCollection
+> & {
+    meta?: Pagination | null;
+    pagination?: Pagination | null;
+};
+
 export interface ApiResponse<T> {
     success?: boolean;
     message?: string;
@@ -71,4 +112,6 @@ export interface PaginatedApiResponse<T> {
     message?: string;
     data: readonly T[];
     pagination?: Pagination | null;
+    meta?: Pagination | null;
 }
+

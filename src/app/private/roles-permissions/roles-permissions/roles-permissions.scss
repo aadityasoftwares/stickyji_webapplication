@@ -1,168 +1,10 @@
-@use '../../../styles/variables.scss' as *;
+@use '../../../styles/variables' as *;
+@use '../../../styles/explorer' as explorer;
 
-/* ==========================================================
-   ROLES & PERMISSIONS
-   Same layout system as Workspace Members
-   ========================================================== */
-
-:host {
-    --roles-font-13: 0.8125rem;
-    --roles-font-14: 0.875rem;
-    --roles-font-15: 0.9375rem;
-
-    display: flex;
-    flex: 1 1 auto;
-
-    width: 100%;
-    height: 100%;
-
-    min-width: 0;
-    min-height: 0;
-    max-height: 100%;
-
-    overflow: hidden;
-
-    color: $text-primary;
-    font-family: $font-body;
-}
-
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-button,
-input {
-    color: inherit;
-    font: inherit;
-}
-
-
-/* ==========================================================
-   PAGE / MAIN
-   ========================================================== */
-
-.roles-permissions-page {
-    display: flex;
-    flex: 1 1 auto;
-
-    width: 100%;
-    height: 100%;
-
-    min-width: 0;
-    min-height: 0;
-    max-height: 100%;
-
-    padding:
-        clamp(0.875rem, 1.5vw, 1.375rem) clamp(0.875rem, 1.8vw, 1.75rem) 0;
-
-    overflow: hidden;
-
-    background: $page-bg;
-}
-
-.roles-permissions-main {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-
-    width: min(100%, 96rem);
-    height: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    margin-inline: auto;
-
-    overflow: hidden;
-}
-
-
-/* ==========================================================
-   HEADER
-   ========================================================== */
-
-.roles-permissions-header {
-    display: grid;
-    grid-template-columns:
-        minmax(15rem, 1fr) auto;
-
-    align-items: end;
-
-    flex: 0 0 auto;
-
-    min-width: 0;
-
-    gap:
-        0.875rem 1.25rem;
-}
-
-.roles-permissions-intro {
-    display: flex;
-    align-items: center;
-
-    min-width: 0;
-
-    gap: 0.75rem;
-}
-
-.roles-permissions-intro>div {
-    min-width: 0;
-}
-
-.roles-permissions-intro h1 {
-    max-width: 46rem;
-
-    margin:
-        0.1875rem 0 0;
-
-    overflow: hidden;
-
-    color: $heading;
-
-    font-family: $font-heading;
-    font-size: var(--roles-font-15);
-    font-weight: 750;
-    line-height: 1.35;
-    letter-spacing: -0.012em;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-}
-
-.roles-permissions-intro h1 span {
-    color: inherit;
-}
-
-
-/* ==========================================================
-   HEADER MARK
-   ========================================================== */
-
-.roles-permissions-intro-mark {
-    position: relative;
-
-    display: grid;
-    flex: 0 0 auto;
-
-    width: 3.375rem;
-    height: 3.375rem;
-
-    color: $heading;
-    background: $paper;
-
-    border:
-        1px solid rgba($accent, 0.32);
-
-    border-radius: 0.75rem;
-
-    box-shadow:
-        0 0.125rem 0.5rem rgba($heading, 0.04);
-
-    place-items: center;
-}
+@include explorer.shell;
+@include explorer.grouped-table(36px minmax(220px, 2fr) minmax(95px, 0.8fr) minmax(140px, 1.2fr) minmax(95px, 0.8fr) minmax(90px, 0.8fr) minmax(190px, 1.2fr) 130px);
+@include explorer.table-details;
+@include explorer.actions-menu;
 
 .roles-permissions-intro-key {
     position: absolute;
@@ -186,965 +28,9 @@ input {
     place-items: center;
 }
 
-.roles-permissions-kicker,
-.roles-permissions-empty-note,
-.roles-permissions-dialog-kicker {
-    color: $accent;
-
-    font-family: $font-note;
-    font-weight: 700;
-}
-
-.roles-permissions-kicker {
-    display: block;
-
-    overflow: hidden;
-
-    font-size: var(--roles-font-14);
-    line-height: 1.25;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-}
-
-
-/* ==========================================================
-   HEADER ACTIONS
-   ========================================================== */
-
-.roles-permissions-header-actions {
-    display: grid;
-    grid-template-columns:
-        auto minmax(12rem, 15rem) auto auto;
-
-    align-items: center;
-    justify-content: end;
-
-    min-width: 0;
-
-    gap: 0.5rem;
-}
-
-.roles-permissions-count-slot {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    min-width: 5rem;
-    min-height: 2.25rem;
-}
-
-.roles-permissions-count-placeholder {
-    display: block;
-
-    width: 5rem;
-    height: 1.5rem;
-
-    visibility: hidden;
-}
-
-.roles-permissions-workspace-picker {
-    width: 100%;
-    min-width: 0;
-}
-
-.roles-permissions-new-button {
-    min-width: 0;
-}
-
-
-/* ==========================================================
-   EXPLORER
-   ========================================================== */
-
-.roles-permissions-explorer {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-
-    min-width: 0;
-    min-height: 0;
-
-    margin-top: 0.875rem;
-
-    overflow: hidden;
-
-    background: $paper;
-
-    border:
-        1px solid rgba($border, 0.82);
-
-    border-bottom: 0;
-
-    border-radius:
-        0.875rem 0.875rem 0 0;
-
-    box-shadow:
-        0 0.375rem 1.25rem rgba($heading, 0.03);
-}
-
-
-/* ==========================================================
-   TOOLBAR
-   ========================================================== */
-
-.roles-permissions-toolbar {
-    display: grid;
-    grid-template-columns:
-        auto minmax(0, 1fr);
-
-    align-items: center;
-    justify-content: space-between;
-
-    flex: 0 0 auto;
-
-    min-width: 0;
-
-    gap: 1rem;
-
-    padding:
-        0.625rem 0.75rem;
-
-    background: $page-bg;
-
-    border-bottom:
-        1px solid rgba($border, 0.82);
-}
-
-.roles-permissions-filter-tabs {
-    min-width: 0;
-    max-width: 100%;
-}
-
-.roles-permissions-toolbar-actions {
-    display: grid;
-    grid-template-columns:
-        minmax(13rem, 26rem) 11rem auto;
-
-    align-items: center;
-    justify-content: end;
-
-    min-width: 0;
-
-    gap: 0.5rem;
-}
-
-.roles-permissions-search,
-.roles-permissions-sort,
-.roles-permissions-view-tabs {
-    min-width: 0;
-}
-
-.roles-permissions-search {
-    width: 100%;
-}
-
-.roles-permissions-sort {
-    width: 11rem;
-}
-
-
-/* ==========================================================
-   EXPLORER BODY
-   ========================================================== */
-
-.roles-permissions-explorer-body {
-    display: flex;
-    flex: 1 1 auto;
-
-    width: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    padding: 0.75rem;
-
-    overflow: hidden;
-
-    background: $paper;
-}
-
-.roles-permissions-explorer-body.is-list {
-    padding: 0;
-}
-
-
-/* ==========================================================
-   LOADING / EMPTY
-   ========================================================== */
-
-.roles-permissions-loader-state {
-    display: grid;
-
-    flex: 1 1 auto;
-
-    width: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    place-items: center;
-}
-
-.roles-permissions-loader-state app-loader {
-    display: block;
-
-    width:
-        min(100%, 35rem);
-}
-
-.roles-permissions-empty-state {
-    display: grid;
-
-    flex: 1 1 auto;
-
-    min-width: 0;
-    min-height: 0;
-
-    padding:
-        clamp(1.25rem, 3vw, 2rem);
-
-    place-content: center;
-    justify-items: center;
-
-    text-align: center;
-}
-
-.roles-permissions-empty-state.is-compact {
-    min-height: 15rem;
-}
-
-.roles-permissions-empty-state h2 {
-    margin:
-        0.625rem 0 0;
-
-    color: $heading;
-
-    font-family: $font-heading;
-    font-size: var(--roles-font-15);
-    font-weight: 750;
-    line-height: 1.35;
-    letter-spacing: -0.012em;
-}
-
-.roles-permissions-empty-state p {
-    max-width: 28rem;
-
-    margin:
-        0.375rem 0 1rem;
-
-    color: $text-light;
-
-    font-size: var(--roles-font-13);
-    font-weight: 500;
-    line-height: 1.5;
-}
-
-.roles-permissions-empty-icon {
-    display: grid;
-
-    width: 3rem;
-    height: 3rem;
-
-    color: #765500;
-    background: rgba($note-yellow, 0.34);
-
-    border:
-        1px solid rgba(#8c6800, 0.1);
-
-    border-radius: 0.75rem;
-
-    place-items: center;
-}
-
-.roles-permissions-empty-icon.is-error {
-    color: $danger;
-    background: rgba($danger, 0.07);
-
-    border-color:
-        rgba($danger, 0.14);
-}
-
-.roles-permissions-empty-note {
-    margin-top: 0.75rem;
-
-    font-size: var(--roles-font-14);
-    line-height: 1.35;
-}
-
-
-/* ==========================================================
-   ROLE GRID
-   Same size/rhythm as Workspace Members cards
-   ========================================================== */
-
-.roles-permissions-card-grid {
-    display: grid;
-
-    flex: 1 1 auto;
-
-    width: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    grid-template-columns:
-        repeat(auto-fill, minmax(14.75rem, 15.75rem));
-
-    justify-content: start;
-    align-content: start;
-
-    gap: 0.75rem;
-
-    padding:
-        0.125rem 0.125rem 0.75rem;
-
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    overscroll-behavior: contain;
-
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.22) transparent;
-}
-
-.roles-permissions-card-grid::-webkit-scrollbar,
-.roles-permissions-table-scroll::-webkit-scrollbar {
-    width: 0.5rem;
-    height: 0.5rem;
-}
-
-.roles-permissions-card-grid::-webkit-scrollbar-track,
-.roles-permissions-table-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.roles-permissions-card-grid::-webkit-scrollbar-thumb,
-.roles-permissions-table-scroll::-webkit-scrollbar-thumb {
-    background:
-        rgba($heading, 0.20);
-
-    border:
-        0.125rem solid $paper;
-
-    border-radius: 999px;
-}
-
-.roles-permissions-card-grid::-webkit-scrollbar-button,
-.roles-permissions-table-scroll::-webkit-scrollbar-button {
-    display: none;
-
-    width: 0;
-    height: 0;
-}
-
-
-/* ==========================================================
-   ROLE / ADD CARD HOST
-   ========================================================== */
-
-.roles-permissions-role-card,
-.roles-permissions-add-card {
-    display: block;
-
-    width: 100%;
-    min-width: 0;
-
-    /* Matches compact Members card proportions */
-    aspect-ratio: 1 / 0.92;
-
-    transition: none;
-}
-
-.roles-permissions-role-card.is-inactive {
-    opacity: 0.68;
-}
-
-.roles-permissions-role-card.is-busy {
-    pointer-events: none;
-    opacity: 0.56;
-}
-
-
-/* ==========================================================
-   NO CARD HOVER EFFECT
-   ========================================================== */
-
-.roles-permissions-role-card:hover,
-.roles-permissions-role-card:focus-within,
-.roles-permissions-add-card:hover,
-.roles-permissions-add-card:focus-within {
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-
-/* ==========================================================
-   ROLE CARD
-   ========================================================== */
-
-.role-card {
-    display: flex;
-
-    width: 100%;
-    height: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    padding: 0.75rem;
-
-    flex-direction: column;
-
-    overflow: hidden;
-
-    color: $text-primary;
-    background: transparent;
-}
-
-
-/* ==========================================================
-   TOP LABEL + MENU
-   ========================================================== */
-
-.role-card-top {
-    display: flex;
-    align-items: center;
-
-    min-width: 0;
-}
-
-.role-card-type {
-    min-width: 0;
-    overflow: hidden;
-
-    color: rgba($heading, 0.66);
-
-    font-family: $font-note;
-    font-size: var(--roles-font-13);
-    font-weight: 700;
-    line-height: 1.2;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ==========================================================
-   MAIN ROLE IDENTITY
-   ========================================================== */
-
-.role-card-main {
-    display: grid;
-
-    width: 100%;
-    min-width: 0;
-
-    grid-template-columns:
-        auto minmax(0, 1fr);
-
-    align-items: center;
-
-    gap: 0.65rem;
-
-    margin-top: 0.45rem;
-    padding: 0;
-
-    color: inherit;
-
-    cursor: pointer;
-
-    background: transparent;
-
-    border: 0;
-
-    text-align: left;
-}
-
-.role-card-main:disabled {
-    cursor: default;
-}
-
-.role-card-main:focus-visible {
-    outline: none;
-
-    box-shadow:
-        var(--app-focus-ring);
-
-    border-radius: 0.55rem;
-}
-
-.role-card-avatar {
-    display: grid;
-
-    width: 3.2rem;
-    height: 3.2rem;
-
-    flex: 0 0 auto;
-
-    color: #765500;
-    background: $paper;
-
-    border:
-        1px solid rgba($heading, 0.10);
-
-    border-radius: 0.85rem;
-
-    box-shadow:
-        0 0.125rem 0.35rem rgba($heading, 0.035);
-
-    place-items: center;
-}
-
-.role-card-avatar.is-system {
-    color: $text-secondary;
-    background: $paper;
-}
-
-
-.role-card-main-copy {
-    display: flex;
-    align-items: center;
-
-    min-width: 0;
-}
-
-.role-card-name {
-    min-width: 0;
-    overflow: hidden;
-
-    color: $heading;
-
-    font-family: $font-heading;
-    font-size: var(--roles-font-15);
-    font-weight: 760;
-    line-height: 1.25;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ==========================================================
-   TYPE + STATUS ROW
-   ========================================================== */
-
-.role-card-access-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    min-width: 0;
-
-    gap: 0.45rem;
-
-    margin-top: 0.65rem;
-
-    padding:
-        0.5rem 0;
-
-    border-top:
-        1px solid rgba($heading, 0.08);
-
-    border-bottom:
-        1px solid rgba($heading, 0.08);
-}
-
-.role-card-role {
-    display: inline-flex;
-    align-items: center;
-
-    min-width: 0;
-
-    gap: 0.3rem;
-
-    overflow: hidden;
-
-    color: $text-secondary;
-
-    font-size: var(--roles-font-13);
-    font-weight: 700;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.role-card-default-text {
-    color: rgba($text-secondary, 0.74);
-
-    font-weight: 600;
-}
-
-
-/* ==========================================================
-   META BOXES
-   ========================================================== */
-
-.role-card-meta {
-    display: grid;
-
-    width: 100%;
-    min-width: 0;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 0.45rem;
-
-    margin-top: 0.6rem;
-}
-
-.role-card-meta-item {
-    display: grid;
-
-    min-width: 0;
-
-    gap: 0.08rem;
-
-    padding:
-        0.45rem 0.5rem;
-
-    background: $paper;
-
-    border:
-        1px solid rgba($heading, 0.09);
-
-    border-radius: 0.5rem;
-
-    box-shadow:
-        0 0.125rem 0.3rem rgba($heading, 0.025);
-}
-
-.role-card-meta-item span,
-.role-card-meta-item strong {
-    min-width: 0;
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.role-card-meta-item span {
-    color: rgba($text-secondary, 0.74);
-
-    font-size: 0.66rem;
-    font-weight: 650;
-    line-height: 1.15;
-}
-
-.role-card-meta-item strong {
-    color: $text-secondary;
-
-    font-size: var(--roles-font-13);
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.role-card-meta-item.is-secondary {
-    opacity: 0.92;
-}
-
-
-/* ==========================================================
-   FOOTER
-   ========================================================== */
-
-.role-card-footer {
-    display: grid;
-
-    width: 100%;
-    min-width: 0;
-
-    grid-template-columns:
-        minmax(0, 1fr) auto;
-
-    align-items: center;
-
-    gap: 0.4rem;
-
-    margin-top: auto;
-    padding-top: 0.55rem;
-}
-
-.role-card-primary-action {
-    min-width: 0;
-}
-
-.role-card-status-action {
-    flex: 0 0 auto;
-}
-
-
-/* ==========================================================
-   ADD ROLE CARD
-   Same proportions as member Invite tile
-   ========================================================== */
-
-.roles-permissions-add-content {
-    display: grid;
-
-    width: 100%;
-    height: 100%;
-
-    padding: 1rem;
-
-    cursor: pointer;
-
-    place-content: center;
-    justify-items: center;
-
-    text-align: center;
-
-    background: transparent;
-}
-
-.roles-permissions-add-icon {
-    display: grid;
-
-    width: 3rem;
-    height: 3rem;
-
-    margin-bottom: 0.6rem;
-
-    color: $heading;
-    background: rgba($paper, 0.46);
-
-    border:
-        1px solid rgba($heading, 0.08);
-
-    border-radius: 0.75rem;
-
-    place-items: center;
-}
-
-.roles-permissions-add-content strong {
-    color: $heading;
-
-    font-family: $font-heading;
-    font-size: var(--roles-font-14);
-    font-weight: 760;
-    line-height: 1.3;
-}
-
-.roles-permissions-add-content small {
-    max-width: 11.5rem;
-
-    margin-top: 0.25rem;
-
-    color: $text-secondary;
-
-    font-size: var(--roles-font-13);
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-.roles-permissions-add-link {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 0.3rem;
-
-    margin-top: 0.65rem;
-
-    color: $heading;
-
-    font-size: var(--roles-font-13);
-    font-weight: 750;
-}
-
-
-/* ==========================================================
-   LARGE / MEDIUM GRID DENSITY
-   ========================================================== */
-
-@media (min-width: 90rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(14.5rem, 15.75rem));
-    }
-}
-
-/* ==========================================================
-   LIST VIEW
-   ========================================================== */
-
-.roles-permissions-table-scroll {
-    flex: 1 1 auto;
-
-    width: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow: auto;
-
-    overscroll-behavior: contain;
-
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.22) transparent;
-}
-
-.roles-permissions-table {
-    width: 100%;
-
-    min-width: 64rem;
-
-    color: $text-primary;
-
-    border-collapse: separate;
-    border-spacing: 0;
-
-    font-size: var(--roles-font-13);
-
-    table-layout: fixed;
-}
-
-.roles-permissions-table th,
-.roles-permissions-table td {
-    padding:
-        0.62rem 0.72rem;
-
-    vertical-align: middle;
-
-    border-bottom:
-        1px solid rgba($border, 0.70);
-}
-
-.roles-permissions-table thead th {
-    position: sticky;
-    z-index: 2;
-
-    top: 0;
-
-    color: $text-light;
-    background: $page-bg;
-
-    font-size: var(--roles-font-13);
-    font-weight: 700;
-    line-height: 1.2;
-
-    text-align: left;
-
-    white-space: nowrap;
-}
-
-.roles-permissions-table tbody tr {
-    transition:
-        opacity 150ms ease;
-}
-
-.roles-permissions-table tbody tr.is-inactive {
-    opacity: 0.72;
-}
-
-.roles-permissions-table tbody tr.is-busy {
-    pointer-events: none;
-
-    opacity: 0.52;
-}
-
-.role-table-primary {
-    display: flex;
-    align-items: center;
-
-    width: 100%;
-    min-width: 0;
-
-    gap: 0.6rem;
-
-    padding: 0;
-
-    color: inherit;
-
-    cursor: pointer;
-
-    background: transparent;
-
-    border: 0;
-
-    text-align: left;
-}
-
-.role-table-primary:disabled {
-    cursor: default;
-}
-
-.role-table-icon {
-    display: grid;
-    flex: 0 0 auto;
-
-    width: 2rem;
-    height: 2rem;
-
-    color: #765500;
-    background: rgba($note-yellow, 0.34);
-
-    border:
-        1px solid rgba(#8c6800, 0.12);
-
-    border-radius: 0.55rem;
-
-    place-items: center;
-}
-
-.role-table-icon.is-system {
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.56);
-
-    border-color:
-        rgba($border, 0.72);
-}
-
-.role-table-copy {
-    display: grid;
-
-    min-width: 0;
-
-    gap: 0.1rem;
-}
-
-.role-table-name-row {
-    display: flex;
-    align-items: center;
-
-    min-width: 0;
-
-    gap: 0.35rem;
-}
-
-.role-table-name-row strong {
-    min-width: 0;
-
-    overflow: hidden;
-
-    color: $heading;
-
-    font-size: var(--roles-font-14);
-    font-weight: 700;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.role-table-copy small {
-    min-width: 0;
-
-    overflow: hidden;
-
-    color: $text-light;
-
-    font-family: $font-mono;
-    font-size: 0.6875rem;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .role-table-permission-summary {
     display: grid;
+    width: 100%;
 
     min-width: 0;
 
@@ -1154,7 +40,7 @@ input {
 .role-table-permission-summary strong {
     color: $heading;
 
-    font-size: var(--roles-font-13);
+    font-size: var(--workspace-font-13);
     font-weight: 700;
 }
 
@@ -1163,7 +49,7 @@ input {
 
     color: $text-light;
 
-    font-size: var(--roles-font-13);
+    font-size: var(--workspace-font-13);
 
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1178,178 +64,12 @@ input {
 
     color: $text-secondary;
 
-    font-size: var(--roles-font-13);
+    font-size: var(--workspace-font-13);
     font-weight: 600;
 
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-.roles-permissions-actions-col {
-    width: 4rem;
-
-    text-align: right !important;
-}
-
-.roles-permissions-menu-trigger {
-    display: inline-grid;
-
-    width: 1.875rem;
-    height: 1.875rem;
-
-    padding: 0;
-
-    color: $text-secondary;
-
-    cursor: pointer;
-
-    background: transparent;
-
-    border:
-        1px solid transparent;
-
-    border-radius: 0.5rem;
-
-    place-items: center;
-}
-
-.roles-permissions-menu-trigger:focus-visible {
-    outline: none;
-
-    box-shadow:
-        var(--app-focus-ring);
-}
-
-.roles-permissions-menu-trigger:disabled {
-    cursor: default;
-
-    opacity: 0.45;
-}
-
-
-/* ==========================================================
-   MATERIAL MENU
-   ========================================================== */
-
-::ng-deep .roles-permissions-actions-menu.mat-mdc-menu-panel {
-    min-width: 14.5rem;
-    max-width: 15.5rem;
-
-    overflow: hidden;
-
-    background: $paper;
-
-    border:
-        1px solid rgba($border, 0.92);
-
-    border-radius: 0.75rem;
-
-    box-shadow:
-        0 1.125rem 2.625rem rgba($heading, 0.16),
-        0 0.1875rem 0.625rem rgba($heading, 0.06);
-}
-
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-content {
-    padding: 0.5rem;
-}
-
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-item.roles-permissions-action-item {
-    min-height: 3rem;
-    height: auto;
-
-    padding:
-        0.3rem 0.5rem;
-
-    color: $text-secondary;
-
-    border-radius: 0.5rem;
-
-    font-family: $font-body;
-    line-height: 1.2;
-}
-
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-item.roles-permissions-action-item:hover,
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-item.roles-permissions-action-item:focus-visible {
-    background:
-        rgba($note-yellow, 0.18);
-}
-
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-item.roles-permissions-action-item.is-primary {
-    background:
-        rgba($note-yellow, 0.22);
-}
-
-::ng-deep .roles-permissions-actions-menu .mat-mdc-menu-item-text {
-    display: flex;
-    align-items: center;
-
-    width: 100%;
-
-    gap: 0.625rem;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-item-icon {
-    display: grid;
-
-    width: 1.875rem;
-    height: 1.875rem;
-
-    flex:
-        0 0 1.875rem;
-
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.58);
-
-    border:
-        1px solid rgba($border, 0.72);
-
-    border-radius: 0.45rem;
-
-    place-items: center;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-item-copy {
-    display: flex;
-
-    min-width: 0;
-    flex: 1 1 auto;
-
-    flex-direction: column;
-
-    gap: 0.1rem;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-item-copy strong {
-    color: $heading;
-
-    font-size: var(--roles-font-13);
-    font-weight: 700;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-item-copy small {
-    color: $text-light;
-
-    font-size: 0.6875rem;
-    font-weight: 500;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-danger,
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-danger .roles-permissions-menu-item-copy strong {
-    color: $danger;
-}
-
-::ng-deep .roles-permissions-actions-menu .roles-permissions-menu-danger .roles-permissions-menu-item-icon {
-    color: $danger;
-    background: rgba($danger, 0.065);
-
-    border-color:
-        rgba($danger, 0.14);
-}
-
-
-/* ==========================================================
-   DELETE DIALOG
-   ========================================================== */
 
 .roles-permissions-dialog-backdrop {
     position: fixed;
@@ -1402,7 +122,7 @@ input {
 .roles-permissions-dialog-kicker {
     color: $danger;
 
-    font-size: var(--roles-font-14);
+    font-size: var(--workspace-font-14);
 }
 
 .roles-permissions-dialog-title {
@@ -1411,7 +131,7 @@ input {
     color: $heading;
 
     font-family: $font-heading;
-    font-size: var(--roles-font-15);
+    font-size: var(--workspace-font-15);
     font-weight: 750;
 }
 
@@ -1421,7 +141,7 @@ input {
 
     color: $text-secondary;
 
-    font-size: var(--roles-font-13);
+    font-size: var(--workspace-font-13);
     line-height: 1.5;
 }
 
@@ -1444,7 +164,7 @@ input {
 
     border-radius: 0.56rem;
 
-    font-size: var(--roles-font-13);
+    font-size: var(--workspace-font-13);
     line-height: 1.45;
 }
 
@@ -1458,557 +178,6 @@ input {
     gap: 0.5rem;
 }
 
-
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
-
-@media (max-width: 75rem) {
-    .roles-permissions-header {
-        grid-template-columns:
-            minmax(0, 1fr);
-
-        align-items: stretch;
-    }
-
-    .roles-permissions-header-actions {
-        grid-template-columns:
-            auto minmax(12rem, 1fr) auto auto;
-
-        justify-content: stretch;
-    }
-
-    .roles-permissions-count-slot {
-        justify-content: flex-start;
-    }
-
-    .roles-permissions-toolbar {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .roles-permissions-toolbar-actions {
-        grid-template-columns:
-            minmax(12rem, 1fr) 11rem auto;
-
-        justify-content: stretch;
-    }
-}
-
-@media (max-width: 62rem) {
-    .roles-permissions-page {
-        padding-inline: 0.75rem;
-    }
-
-    .roles-permissions-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto auto;
-    }
-
-    .roles-permissions-count-slot {
-        display: none;
-    }
-
-    .roles-permissions-toolbar-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-    }
-
-    .roles-permissions-sort {
-        display: none;
-    }
-
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(13.5rem, 15rem));
-    }
-}
-
-@media (max-width: 52rem) {
-    .roles-permissions-page {
-        padding-top: 0.75rem;
-    }
-
-    .roles-permissions-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-    }
-
-    .roles-permissions-new-button {
-        grid-column:
-            1 / -1;
-    }
-
-    .roles-permissions-toolbar-actions {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-    }
-
-    .roles-permissions-explorer-body {
-        padding: 0.625rem;
-    }
-
-    .roles-permissions-explorer-body.is-list {
-        padding: 0;
-    }
-}
-
-@media (max-width: 43.75rem) {
-    .roles-permissions-page {
-        padding:
-            0.625rem 0.625rem 0;
-    }
-
-    .roles-permissions-intro {
-        align-items: flex-start;
-    }
-
-    .roles-permissions-intro-mark {
-        width: 3rem;
-        height: 3rem;
-    }
-
-    .roles-permissions-workspace-picker {
-        grid-column:
-            1 / -1;
-
-        grid-row: 1;
-    }
-
-    .roles-permissions-new-button {
-        grid-column: 1;
-        grid-row: 2;
-    }
-
-    .roles-permissions-header-actions>app-button:not(.roles-permissions-new-button) {
-        grid-column: 2;
-        grid-row: 2;
-    }
-
-    .roles-permissions-toolbar {
-        gap: 0.625rem;
-
-        padding:
-            0.55rem 0.625rem;
-    }
-
-    .roles-permissions-toolbar-actions {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .roles-permissions-view-tabs {
-        justify-self: stretch;
-    }
-
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(13rem, 1fr));
-
-        gap: 0.625rem;
-    }
-}
-
-@media (max-width: 36rem) {
-
-    .roles-permissions-intro h1,
-    .roles-permissions-kicker {
-        white-space: normal;
-    }
-
-    .roles-permissions-explorer {
-        margin-top: 0.625rem;
-
-        border-radius:
-            0.75rem 0.75rem 0 0;
-    }
-
-    .roles-permissions-filter-tabs {
-        width: 100%;
-    }
-
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        width:
-            min(100%, 16rem);
-
-        justify-self: center;
-    }
-
-    /* Mobile list -> stacked records */
-    .roles-permissions-table {
-        min-width: 0;
-
-        table-layout: auto;
-    }
-
-    .roles-permissions-table thead {
-        display: none;
-    }
-
-    .roles-permissions-table,
-    .roles-permissions-table tbody,
-    .roles-permissions-table tr,
-    .roles-permissions-table td {
-        display: block;
-
-        width: 100%;
-    }
-
-    .roles-permissions-table tbody {
-        padding: 0.625rem;
-    }
-
-    .roles-permissions-table tbody tr {
-        display: grid;
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-
-        gap: 0;
-
-        margin-bottom: 0.625rem;
-
-        overflow: hidden;
-
-        background:
-            rgba($paper, 0.44);
-
-        border:
-            1px solid rgba($border, 0.70);
-
-        border-radius: 0.7rem;
-    }
-
-    .roles-permissions-table td {
-        display: grid;
-        grid-template-columns:
-            5.75rem minmax(0, 1fr);
-
-        align-items: center;
-
-        gap: 0.5rem;
-
-        padding:
-            0.55rem 0.65rem;
-
-        border-bottom:
-            1px solid rgba($border, 0.52);
-    }
-
-    .roles-permissions-table td::before {
-        content:
-            attr(data-label);
-
-        color: $text-light;
-
-        font-size: 0.6875rem;
-        font-weight: 700;
-    }
-
-    .roles-permissions-table td:first-child {
-        grid-column:
-            1 / -1;
-
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .roles-permissions-table td:first-child::before {
-        display: none;
-    }
-
-    .roles-permissions-table .roles-permissions-actions-col {
-        grid-column:
-            1 / -1;
-
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-
-        width: auto;
-
-        border-bottom: 0;
-    }
-
-    .roles-permissions-table .roles-permissions-actions-col::before {
-        content: 'Actions';
-    }
-}
-
-@media (max-width: 27rem) {
-    .roles-permissions-page {
-        padding-inline: 0.5rem;
-    }
-
-    .roles-permissions-intro-mark {
-        display: none;
-    }
-
-    .roles-permissions-dialog-actions {
-        align-items: stretch;
-        flex-direction: column-reverse;
-    }
-}
-
-@media (hover: none) {
-
-    .roles-permissions-role-card:hover,
-    .roles-permissions-add-card:hover {
-        box-shadow: none !important;
-        transform: none !important;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card,
-    .roles-permissions-table tbody tr {
-        transition: none !important;
-    }
-}
-
-
-/* ==========================================================
-   RESPONSIVE ROLE CARD REFINEMENTS
-   ========================================================== */
-
-/* Large desktop */
-@media (min-width: 100rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(15rem, 16rem));
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        max-width: 16rem;
-    }
-}
-
-/* Desktop / laptop */
-@media (max-width: 90rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(14.5rem, 15.75rem));
-    }
-}
-
-/* Medium laptop */
-@media (max-width: 75rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(14rem, 15.25rem));
-    }
-
-    .role-card {
-        padding: 0.7rem;
-    }
-}
-
-/* Tablet landscape */
-@media (max-width: 62rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(13.5rem, 1fr));
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        width: 100%;
-        max-width: none;
-    }
-
-    .role-card-main {
-        gap: 0.55rem;
-    }
-
-    .role-card-avatar {
-        width: 3rem;
-        height: 3rem;
-    }
-}
-
-/* Tablet portrait */
-@media (max-width: 48rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 0.625rem;
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        aspect-ratio: auto;
-        min-height: 14rem;
-    }
-
-    .role-card {
-        min-height: 14rem;
-    }
-
-    .role-card-meta {
-        gap: 0.4rem;
-    }
-}
-
-/* Large phone */
-@media (max-width: 40rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns:
-            minmax(0, 1fr);
-
-        justify-items: stretch;
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        width: 100%;
-        max-width: 100%;
-        min-height: 13.5rem;
-        justify-self: stretch;
-    }
-
-    .role-card {
-        min-height: 13.5rem;
-        padding: 0.7rem;
-    }
-
-    .role-card-main {
-        grid-template-columns:
-            auto minmax(0, 1fr);
-    }
-
-    .role-card-name {
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    .role-card-access-row {
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
-
-    .role-card-role {
-        max-width: 100%;
-        white-space: normal;
-    }
-
-    .role-card-meta {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-}
-
-/* Small phone */
-@media (max-width: 30rem) {
-    .roles-permissions-page {
-        padding-inline: 0.5rem;
-    }
-
-    .roles-permissions-card-grid {
-        gap: 0.5rem;
-    }
-
-    .role-card {
-        padding: 0.625rem;
-    }
-
-    .role-card-avatar {
-        width: 2.8rem;
-        height: 2.8rem;
-        border-radius: 0.75rem;
-    }
-
-    .role-card-meta {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .role-card-meta-item {
-        padding:
-            0.45rem 0.5rem;
-    }
-
-    .role-card-footer {
-        grid-template-columns:
-            minmax(0, 1fr) auto;
-    }
-
-    .roles-permissions-add-content {
-        min-height: 13rem;
-        padding: 0.875rem;
-    }
-}
-
-/* Very narrow phones */
-@media (max-width: 23rem) {
-    .roles-permissions-header-actions {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .roles-permissions-workspace-picker,
-    .roles-permissions-new-button,
-    .roles-permissions-header-actions>app-button {
-        grid-column: 1;
-        width: 100%;
-    }
-
-    .roles-permissions-toolbar-actions {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .role-card-footer {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
-
-    .role-card-status-action {
-        justify-self: end;
-    }
-}
-
-/* Short viewport */
-@media (max-height: 42rem) and (min-width: 40.01rem) {
-    .roles-permissions-page {
-        padding-top: 0.625rem;
-    }
-
-    .roles-permissions-explorer {
-        margin-top: 0.625rem;
-    }
-
-    .roles-permissions-role-card,
-    .roles-permissions-add-card {
-        min-height: 12.75rem;
-    }
-
-    .role-card {
-        padding: 0.65rem;
-    }
-}
-
-
-/* ==========================================================
-   NEW SHIELD-CARD TILE LAYOUT
-   ========================================================== */
-
-.roles-permissions-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 15.5rem));
-    gap: 0.875rem;
-    width: 100%;
-    align-items: stretch;
-}
-
-/* article wrapper — same grid slot as the old sticky-card */
 .rp-role-tile {
     position: relative;
 
@@ -2018,8 +187,7 @@ input {
     width: 100%;
     min-width: 0;
 
-    /* aspect-ratio matches the grid cell rhythm */
-    aspect-ratio: 3 / 3.8;
+    min-height: 260px;
 
     transition: none;
 }
@@ -2033,7 +201,6 @@ input {
     opacity: 0.54;
 }
 
-/* The role-wrapper fills the article */
 .rp-role-tile app-workspace-role-wrapper {
     flex: 1 1 auto;
     display: flex;
@@ -2043,13 +210,17 @@ input {
     height: 100%;
 }
 
-/* Action buttons at top-right end side of role wrapper */
 .workspace-role-card-actions {
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.25rem;
+    gap: 0.5rem;
     min-width: 0;
+}
+
+app-switch[role-status] {
+    grid-column: 1 / -1;
+    justify-self: start;
 }
 
 .workspace-role-action-btn {
@@ -2058,7 +229,46 @@ input {
     justify-content: center;
 }
 
-/* Create-new role tile — matches workspace-members invite-add-card */
+.workspace-header-actions > app-button {
+    flex: 0 0 auto;
+}
+
+.workspace-role-status-switch {
+    display: inline-flex;
+    align-items: center;
+}
+
+:host ::ng-deep .workspace-header-actions > app-button .app-button {
+    box-shadow: 0 1px 2px rgba($heading, 0.08);
+}
+
+.workspace-folder-thumbnail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: $radius-xs;
+    border: 1px solid rgba($border, 0.6);
+    background: color-mix(in srgb, $page-bg 60%, $paper);
+    color: $text-secondary;
+    transition: transform 120ms ease;
+
+    &.noteYellow {
+        background: color-mix(in srgb, $note-yellow 18%, $paper);
+        color: #8c6800;
+        border-color: rgba($note-yellow, 0.4);
+    }
+
+    &.noteBlue {
+        background: color-mix(in srgb, $note-blue 18%, $paper);
+        color: #0369a1;
+        border-color: rgba($note-blue, 0.4);
+    }
+}
+
 .rp-create-tile {
     display: flex;
     flex-direction: column;
@@ -2068,8 +278,7 @@ input {
 
     width: 100%;
     height: 100%;
-    min-height: 17rem;
-    aspect-ratio: 3 / 3.8;
+    min-height: 260px;
 
     padding: 1.75rem 1rem;
 
@@ -2124,51 +333,283 @@ input {
 .rp-create-title {
     color: $heading;
     font-family: $font-heading;
-    font-size: 0.875rem;
+    font-size: var(--workspace-font-14);
     font-weight: 700;
     line-height: 1.25;
 }
 
 .rp-create-sub {
     color: $text-light;
-    font-size: 0.75rem;
+    font-size: var(--workspace-font-13);
     font-weight: 500;
     line-height: 1.4;
 }
 
+.roles-permissions-workspace-picker {
+    flex: 0 1 15rem;
+    min-width: 12rem;
+}
 
-/* ==========================================================
-   GRID — RESPONSIVE BREAKPOINTS
-   ========================================================== */
+.roles-permissions-section-tabs {
+    flex: 0 0 auto;
+    padding: 0 0.75rem;
+    border-bottom: 1px solid rgba($border, 0.72);
+    background: color-mix(in srgb, $paper-dark 28%, $paper);
+}
 
-/* Wide desktop — 5 columns max */
-@media (min-width: 90rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns: repeat(auto-fill, minmax(13.5rem, 15rem));
+.roles-permissions-card-grid {
+    display: grid;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    align-content: start;
+    align-items: stretch;
+    gap: 1.125rem;
+    padding: 0.125rem 0.125rem 0.75rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba($heading, 0.22) transparent;
+}
+
+.workspace-gtable {
+    min-width: 72rem;
+}
+
+.permission-catalog-table {
+    min-width: 66rem;
+
+    th:nth-child(1),
+    td:nth-child(1) {
+        width: 26%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+        width: 18%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4),
+    th:nth-child(5),
+    td:nth-child(5),
+    th:nth-child(6),
+    td:nth-child(6) {
+        width: 10%;
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 9rem;
+        text-align: right;
     }
 }
 
-/* Standard desktop (default) */
-@media (max-width: 89.99rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns: repeat(auto-fill, minmax(13rem, 15.25rem));
+.permission-catalog-table tbody tr {
+    &.is-inactive {
+        opacity: 0.72;
+    }
+
+    &.is-busy {
+        pointer-events: none;
+        opacity: 0.52;
     }
 }
 
-/* Small laptop / large tablet */
-@media (max-width: 68rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+.workspace-table-title-row app-badge {
+    flex-shrink: 0;
+}
+
+.roles-context-menu-origin {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.workspace-gtable tbody tr {
+    &.is-inactive {
+        opacity: 0.75;
+    }
+
+    &.is-busy {
+        pointer-events: none;
+        opacity: 0.52;
     }
 }
 
-/* Tablet portrait */
+.roles-permissions-module-picker {
+    display: inline-flex;
+    align-items: center;
+    min-width: 9rem;
+}
+
+.rp-perm-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 11.5rem;
+    padding: 0.875rem;
+    background: $paper;
+    border: 1px solid rgba($border, 0.85);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+
+    &:hover {
+        border-color: rgba($accent, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    &.is-inactive {
+        opacity: 0.7;
+        background: color-mix(in srgb, $paper-dark 45%, $paper);
+    }
+
+    &.is-busy {
+        pointer-events: none;
+        opacity: 0.52;
+    }
+}
+
+.rp-perm-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.625rem;
+}
+
+.rp-perm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.rp-perm-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+}
+
+.rp-perm-card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.rp-perm-name {
+    margin: 0;
+    color: $heading;
+    font-family: $font-heading;
+    font-size: var(--workspace-font-14);
+    font-weight: 700;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-perm-code {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 0.125rem 0.35rem;
+    background: rgba($page-bg, 0.9);
+    border: 1px solid rgba($border, 0.7);
+    border-radius: 0.3rem;
+    color: #4338ca;
+    font-family: monospace;
+    font-size: 0.725rem;
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-perm-desc {
+    margin: 0.25rem 0 0;
+    color: $text-secondary;
+    font-size: var(--workspace-font-12);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.rp-perm-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba($border, 0.7);
+    font-size: var(--workspace-font-11);
+}
+
+.rp-perm-scope-label {
+    color: $text-light;
+    font-weight: 500;
+}
+
+.rp-perm-scope-val {
+    color: $heading;
+    font-weight: 600;
+}
+
+.rp-table-code {
+    display: inline-block;
+    padding: 0.15rem 0.4rem;
+    background: rgba($page-bg, 0.9);
+    border: 1px solid rgba($border, 0.65);
+    border-radius: 0.3rem;
+    color: #4338ca;
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+@include explorer.responsive;
+
+@media (max-width: 62rem) {
+    .roles-permissions-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 40rem) {
+    .workspace-header-actions {
+        flex-wrap: wrap;
+    }
+
+    .roles-permissions-workspace-picker {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .roles-permissions-card-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.875rem;
+    }
+}
+
 @media (max-width: 48rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.625rem;
-    }
-
     .rp-role-tile,
     .rp-create-tile {
         aspect-ratio: auto;
@@ -2176,435 +617,21 @@ input {
     }
 }
 
-/* Mobile */
 @media (max-width: 36rem) {
-    .roles-permissions-card-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.5rem;
-    }
-
     .rp-role-tile,
     .rp-create-tile {
         min-height: 12rem;
     }
 }
 
-/* Very small mobile — single column */
 @media (max-width: 25rem) {
     .roles-permissions-card-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.75rem;
     }
 
     .rp-role-tile,
     .rp-create-tile {
-        aspect-ratio: auto;
         min-height: 11rem;
     }
 }
-
-/* ==========================================================
-   GROUPED TABLE VIEW (ROLES & PERMISSIONS)
-   Matches Workspace & Workspace Folders & Workspace Members
-   ========================================================== */
-
-.workspace-grouped-table {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-width: 0;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-gutter: stable;
-    background: var(--app-paper, #{$paper});
-}
-
-.workspace-table-groups-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    padding: 1rem 1.25rem 3rem;
-}
-
-.workspace-group {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    border: 1px solid var(--app-border-light, rgba($border, 0.7));
-    border-radius: $radius-sm;
-    background: var(--app-paper, #{$paper});
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    overflow: hidden;
-
-    &.is-collapsed {
-        .workspace-group-body {
-            display: none;
-        }
-
-        .workspace-group-header {
-            border-bottom: none;
-        }
-    }
-}
-
-.workspace-group-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 2.75rem;
-    padding: 0.375rem 0.75rem;
-    border-bottom: 1px solid var(--app-border-light, rgba($border, 0.65));
-    background: var(--app-paper-muted, #f8fafc);
-    border-radius: $radius-xs;
-
-    h3 {
-        flex: 1;
-        min-width: 0;
-        margin: 0;
-        font: inherit;
-        letter-spacing: 0;
-    }
-}
-
-.workspace-group-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    width: 100%;
-    min-width: 0;
-    min-height: 2rem;
-    padding: 0.25rem;
-    border: 0;
-    border-radius: $radius-xs;
-    background: transparent;
-    color: inherit;
-    font: 600 var(--roles-font-14, 0.875rem)/1.4 $font-body;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 120ms ease;
-
-    &:hover {
-        background: color-mix(in srgb, var(--app-text, #{$text-primary}) 4%, transparent);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--app-focus-color, #{$primary});
-        outline-offset: -2px;
-    }
-
-    app-badge,
-    .workspace-group-chevron,
-    .workspace-group-accent-bar {
-        flex-shrink: 0;
-    }
-}
-
-.workspace-group-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.workspace-group-chevron {
-    color: var(--app-text-muted, #{$text-secondary});
-}
-
-.workspace-group-accent-bar {
-    width: 0.1875rem;
-    height: 1rem;
-    background: var(--group-accent, var(--app-focus-color, #{$primary}));
-    border-radius: $radius-xs;
-}
-
-.workspace-group-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.workspace-group-body {
-    min-width: 0;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--app-border, #{$border}) transparent;
-}
-
-.workspace-group-empty {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    min-height: 4rem;
-    padding: 0.75rem;
-    color: var(--app-text-muted, #{$text-secondary});
-    font-size: var(--roles-font-13, 0.8125rem);
-}
-
-$role-table-grid-columns: 36px minmax(220px, 2fr) minmax(95px, 0.8fr) minmax(140px, 1.2fr) minmax(95px, 0.8fr) minmax(90px, 0.8fr) minmax(120px, 1fr) 130px;
-
-.workspace-gtable {
-    display: grid;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    color: inherit;
-    font-family: $font-body;
-    font-size: var(--roles-font-13, 0.8125rem);
-
-    thead,
-    tbody {
-        display: contents;
-    }
-
-    tr {
-        display: grid;
-        grid-template-columns: $role-table-grid-columns;
-        align-items: stretch;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    th,
-    td {
-        display: flex;
-        align-items: center;
-        min-width: 0;
-        height: 100%;
-        box-sizing: border-box;
-        padding: 0.625rem 0.75rem;
-        text-align: left;
-        border-bottom: 1px solid var(--app-border-light, rgba($border, 0.65));
-    }
-
-    th {
-        height: 2.5rem;
-        color: var(--app-text-muted, #{$text-secondary});
-        font-size: 0.75rem;
-        font-weight: 600;
-        white-space: nowrap;
-
-        app-icon {
-            display: inline-flex;
-            margin-right: 0.375rem;
-            vertical-align: middle;
-        }
-    }
-
-    tbody tr {
-        min-height: 3.5rem;
-        height: auto;
-        transition: background-color 120ms ease;
-
-        &:hover,
-        &:focus-within {
-            background: color-mix(in srgb, var(--app-paper-muted, #f8fafc) 55%, var(--app-paper, #ffffff));
-        }
-
-        &.is-selected {
-            background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 8%, var(--app-paper, #ffffff));
-        }
-
-        &.is-inactive {
-            opacity: 0.75;
-        }
-
-        &.is-busy {
-            pointer-events: none;
-            opacity: 0.52;
-        }
-    }
-
-    td + td {
-        border-left: 1px solid color-mix(in srgb, var(--app-border-light, rgba($border, 0.65)) 50%, transparent);
-    }
-}
-
-.workspace-gt-select {
-    justify-content: center;
-    width: 36px;
-    min-width: 36px;
-    padding: 0 0.2rem;
-}
-
-.workspace-gt-actions {
-    justify-content: flex-end;
-    width: 130px;
-    min-width: 130px;
-    padding-left: 0.25rem;
-    padding-right: 0.5rem;
-}
-
-.workspace-table-name-main {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    min-width: 0;
-    text-align: left;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-
-    &:focus-visible {
-        outline: 2px solid var(--app-focus-color, #3b82f6);
-        outline-offset: 2px;
-        border-radius: $radius-xs;
-    }
-}
-
-.workspace-folder-thumbnail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 2rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: $radius-xs;
-    border: 1px solid rgba($border, 0.6);
-    background: color-mix(in srgb, $page-bg 60%, $paper);
-    color: $text-secondary;
-    transition: transform 120ms ease;
-
-    &.noteYellow {
-        background: color-mix(in srgb, $note-yellow 18%, $paper);
-        color: #8c6800;
-        border-color: rgba($note-yellow, 0.4);
-    }
-
-    &.noteBlue {
-        background: color-mix(in srgb, $note-blue 18%, $paper);
-        color: #0369a1;
-        border-color: rgba($note-blue, 0.4);
-    }
-}
-
-.workspace-table-copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.15rem;
-    width: 100%;
-    min-width: 0;
-
-    small {
-        display: block;
-        overflow: hidden;
-        color: var(--app-text-muted, #{$text-light});
-        font-size: 0.75rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.workspace-table-title-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    max-width: 100%;
-    min-width: 0;
-
-    strong.workspace-name-editable {
-        display: block;
-        flex: 0 1 auto;
-        margin: 0;
-        font-family: $font-heading;
-        font-size: var(--roles-font-14, 0.875rem);
-        font-weight: 700;
-        line-height: 1.35;
-        color: $heading;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.workspace-gt-key-copy {
-    display: inline-grid;
-    place-items: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    padding: 0;
-    color: var(--app-text-muted, #{$text-secondary});
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 120ms ease;
-
-    &:hover {
-        color: var(--app-text, #{$text-primary});
-        background: color-mix(in srgb, var(--app-text, #{$text-primary}) 8%, var(--app-paper, #{$paper}));
-        border-color: var(--app-border-light, rgba($border, 0.6));
-    }
-
-    &:focus-visible {
-        outline: none;
-        box-shadow: var(--app-focus-ring);
-    }
-}
-
-.workspace-gt-updated {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.15rem;
-}
-
-.workspace-gt-date-text {
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-.workspace-gt-time-text {
-    display: block;
-    color: var(--app-text-muted, #{$text-secondary});
-    font-size: 0.7rem;
-    white-space: nowrap;
-}
-
-.workspace-table-muted {
-    color: var(--app-text-muted, #{$text-secondary});
-    font-size: 0.8125rem;
-}
-
-/* ==========================================================
-   ACTION BUTTONS CONTAINER CAPSULE
-   Exact capsule pill container matching design language
-   ========================================================== */
-.workspace-table-action-group {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.25rem;
-    padding: 0.25rem;
-    background: var(--app-paper, #ffffff);
-    border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
-    border-radius: 9999px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.workspace-table-menu-button {
-    display: inline-grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
-    border-radius: 9999px;
-    background: var(--app-paper, #ffffff);
-    color: var(--app-text-muted, #64748b);
-    cursor: pointer;
-    transition: all 120ms ease;
-
-    &:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--app-text, #0f172a) 6%, var(--app-paper, #ffffff));
-        color: var(--app-text, #0f172a);
-        border-color: var(--app-border, rgba(0, 0, 0, 0.2));
-    }
-}

@@ -70,8 +70,10 @@ import { WorkspaceService } from './services/workspace.service';
 import { WorkspaceStore } from './services/workspace.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { toTimestamp } from '../../shared/functions/date.function';
 import {
   SORT_OPTIONS,
+  GROUP_ACCENTS,
   WORKSPACE_ACCESS_FILTERS,
   USER_PREFERENCE_KEYS,
   VIEW_TABS,
@@ -346,7 +348,7 @@ export class Workspace implements OnInit {
         id: 'active',
         label: 'Active Spaces',
         status: 'ACTIVE',
-        accent: '#10b981',
+        accent: GROUP_ACCENTS.GREEN,
         items: activeItems,
         count: Number.isFinite(Number(counts?.active)) ? Number(counts.active) : activeItems.length,
       },
@@ -354,7 +356,7 @@ export class Workspace implements OnInit {
         id: 'archived',
         label: 'Archived Spaces',
         status: 'ARCHIVED',
-        accent: '#64748b',
+        accent: GROUP_ACCENTS.SLATE,
         items: archivedItems,
         count: Number.isFinite(Number(counts?.archived)) ? Number(counts.archived) : archivedItems.length,
       },
@@ -1364,9 +1366,7 @@ export class Workspace implements OnInit {
 
   private workspaceTimestamp(workspace: any, created = false): number {
     const value = created ? workspace?.createdAt : workspace?.updatedAt ?? workspace?.createdAt;
-    if (!value) return 0;
-    const time = new Date(value).getTime();
-    return Number.isNaN(time) ? 0 : time;
+    return toTimestamp(value);
   }
 
   private resolveAccessFilter(value: unknown): WorkspaceAccessFilter {

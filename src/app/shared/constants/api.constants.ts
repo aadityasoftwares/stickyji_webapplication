@@ -38,9 +38,13 @@ export const API_ENDPOINTS = {
     permissions: {
         ...resourceEndpoints('permissions'),
         grouped: `${API_BASE_URL}/permissions/grouped`,
+        code: (code: string) => `${API_BASE_URL}/permissions/get/code/${encodeURIComponent(code)}`,
+        status: (id: string) => `${API_BASE_URL}/permissions/update/${encodeURIComponent(id)}/status`,
     },
     roles: {
         ...resourceEndpoints('roles'),
+        code: (code: string) => `${API_BASE_URL}/roles/get/code/${encodeURIComponent(code)}`,
+        status: (id: string) => `${API_BASE_URL}/roles/update/${encodeURIComponent(id)}/status`,
         rolePermissions: (id: string) => `${API_BASE_URL}/roles/${encodeURIComponent(id)}/permissions`,
     },
     workspaces: {

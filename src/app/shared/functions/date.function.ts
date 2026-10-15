@@ -8,6 +8,12 @@
  */
 export type DateKey = `${number}-${number}-${number}`;
 
+export function toTimestamp(value: string | Date | null | undefined): number {
+    if (!value) return 0;
+    const timestamp = new Date(value).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
 export const DATE_KEY_PATTERN =
     /^(\d{4})-(\d{2})-(\d{2})$/;
 

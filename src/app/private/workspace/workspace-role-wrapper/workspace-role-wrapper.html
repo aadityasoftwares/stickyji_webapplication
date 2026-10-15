@@ -4,36 +4,13 @@
      [class.role-wrapper--inactive]="!isActive"
      [class.role-wrapper--interactive]="interactive"
      [attr.aria-busy]="busy">
-
-    <!-- =========================================================
-         SHIELD SVG BACKGROUND
-         ========================================================= -->
-    <svg class="role-wrapper__shield" viewBox="0 0 280 340" preserveAspectRatio="none" aria-hidden="true">
-        <!-- Main Shield Silhouette -->
-        <path class="role-wrapper__shield-fill"
-            d="M 20 12 H 260 Q 272 12 272 24 V 226 C 272 292, 205 326, 140 334 C 75 326, 8 292, 8 226 V 24 Q 8 12 20 12 Z" />
-        <!-- Top Crest Header Tint -->
-        <path class="role-wrapper__crest-band"
-            d="M 20 12 H 260 Q 272 12 272 24 V 52 H 8 V 24 Q 8 12 20 12 Z" />
-        <!-- Inner Security Contour -->
-        <path class="role-wrapper__shield-inner"
-            d="M 24 18 H 256 Q 266 18 266 28 V 222 C 266 284, 201 318, 140 326 C 79 318, 14 284, 14 222 V 28 Q 14 18 24 18 Z" />
-    </svg>
-
-    <!-- =========================================================
-         CONTENT INSIDE THE SHIELD WRAPPER
-         ========================================================= -->
     <div class="role-wrapper__content">
-
-        <!-- Top Header: Role Type Badge on left, Action buttons on right -->
         <div class="role-wrapper__header">
             <app-badge [label]="typeLabel" [variant]="typeBadgeVariant" size="xs" shape="pill" [icon]="typeIcon" />
             <div class="role-wrapper__actions" (click)="$event.stopPropagation()">
                 <ng-content select="[role-actions]" />
             </div>
         </div>
-
-        <!-- Clickable Body -->
         <div class="role-wrapper__body"
              [attr.role]="interactive ? 'button' : null"
              [attr.tabindex]="interactive && !busy ? 0 : null"
@@ -41,8 +18,6 @@
              [attr.aria-label]="interactive ? ('Open ' + displayName) : null"
              (click)="interactive && !busy && opened.emit($event)"
              (keydown)="onKeydown($event)">
-
-            <!-- Hero Avatar / Shield Emblem -->
             <div class="role-wrapper__hero" aria-hidden="true">
                 <span class="role-wrapper__avatar" [class.is-system]="isSystem" [class.is-default]="isDefault">
                     <app-icon [icon]="shieldIcon" size="md" />
@@ -53,27 +28,18 @@
                 </span>
                 }
             </div>
-
-            <!-- Role Title -->
             <h3 class="role-wrapper__title" [title]="displayName">
                 <ng-content select="[role-title]">{{ displayName }}</ng-content>
             </h3>
-
-            <!-- Description (if provided) -->
             @if (description) {
             <p class="role-wrapper__desc" [title]="description">{{ description }}</p>
             }
-
-            <!-- Facts row (permissions count + level) -->
             <div class="role-wrapper__facts">
                 @if (permissionCount) {
                 <span class="role-wrapper__fact">
                     <app-icon [icon]="Key" size="xs" />
                     <span>{{ permissionCount }}</span>
                 </span>
-                }
-                @if (permissionCount && priorityLabel) {
-                <span class="role-wrapper__fact-sep" aria-hidden="true">·</span>
                 }
                 @if (priorityLabel) {
                 <span class="role-wrapper__fact">
@@ -83,12 +49,7 @@
                 }
             </div>
 
-        </div>
-
-        <!-- Bottom Footer: Active / Inactive Status badge at the bottom end -->
-        <div class="role-wrapper__footer" (click)="$event.stopPropagation()">
-            <app-badge [label]="statusLabel" [variant]="resolvedStatusVariant" size="xs" shape="pill" [dot]="true" />
-            <ng-content select="[role-footer]" />
+            <ng-content select="[role-status]" />
         </div>
 
     </div>

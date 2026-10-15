@@ -3,7 +3,6 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
-import { buildHttpParams } from '../../../shared/functions/api.functions';
 import { extractList } from '../../../shared/functions/common.function';
 import {
     WorkspaceRole,
@@ -29,8 +28,7 @@ export class WorkspaceRoleApiService {
         };
 
         return this.http
-            .get<WorkspaceRoleListResponse>(this.getAllUrl, {
-                params: buildHttpParams(query),
+            .post<WorkspaceRoleListResponse>(this.getAllUrl, query, {
                 withCredentials: true
             })
             .pipe(map(response => this.extractRoles(response)));

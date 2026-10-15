@@ -22,11 +22,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Subject, finalize, takeUntil, timer } from 'rxjs';
 import {
   LucideCheck,
-  LucideEye,
-  LucideKey,
   LucideLock,
   LucidePencil,
   LucidePlus,
@@ -36,19 +34,20 @@ import {
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
+import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
+import { humanize } from '../../../shared/functions/string.functions';
 import { PermissionGroup, Permission } from '../models/permission.models';
 import { WorkspaceRole, WorkspaceRoleCreateRequest, WorkspaceRoleUpdateRequest } from '../models/workspace-role.models';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
 
 type RoleEditorMode = 'create' | 'edit' | 'view';
-type UnknownRecord = Record<string, unknown>;
 
 @Component({
   selector: 'app-add-edit-workspace-role-side-panel',
@@ -59,6 +58,7 @@ type UnknownRecord = Record<string, unknown>;
     AppInput,
     Badge,
     Button,
+    Checkbox,
     Label,
     SidePanel,
     Switch,
@@ -96,8 +96,6 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   @Output() readonly saved = new EventEmitter<WorkspaceRole>();
 
   readonly LucideCheck = LucideCheck;
-  readonly LucideEye = LucideEye;
-  readonly LucideKey = LucideKey;
   readonly LucideLock = LucideLock;
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
@@ -112,9 +110,11 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   readonly error = signal<string | null>(null);
 
   private codeEditedManually = false;
+  private readonly editorReset = new Subject<void>();
+  private readonly permissionGroupsState = signal<readonly PermissionGroup[]>([]);
 
   readonly totalPermissionCount = computed(() =>
-    this.permissionGroups.reduce(
+    this.permissionGroupsState().reduce(
       (total, group) => total + group.permissions.length,
       0
     )
@@ -168,7 +168,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   get mode(): RoleEditorMode {
     if (!this.role) return 'create';
-    return this.role.isSystem ? 'view' : 'edit';
+    return this.role.isDefault ? 'view' : 'edit';
   }
 
   get isReadOnly(): boolean {
@@ -181,7 +181,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   get previewPriorityLabel(): string {
     if (this.isDefaultRole) return 'Default role';
-    if (this.isReadOnly) return 'System role';
+    if (this.role?.isSystem) return 'System role';
     return 'Custom role';
   }
 
@@ -192,8 +192,8 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   }
 
   get eyebrow(): string {
-    if (this.mode === 'view') return 'System role';
-    return this.mode === 'create' ? 'Workspace permissions' : 'Custom role';
+    if (this.mode === 'create') return 'Workspace permissions';
+    return this.role?.isSystem ? 'System role' : 'Custom role';
   }
 
   get descriptionText(): string {
@@ -208,7 +208,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   get headerNote(): string {
     if (this.mode === 'create') return 'New';
-    return this.mode === 'view' ? 'Protected' : 'Editing';
+    return 'Editing';
   }
 
   get headerIcon() {
@@ -233,7 +233,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
       return this.mode === 'create' ? 'Creating role…' : 'Saving changes…';
     }
 
-    if (this.mode === 'view') return 'System role · read only';
+    if (this.mode === 'view') return 'Default role · read only';
     return `${this.selectedCount()} of ${this.totalPermissionCount()} permissions selected`;
   }
 
@@ -252,6 +252,8 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['permissionGroups']) this.permissionGroupsState.set(this.permissionGroups ?? []);
+    if (changes['open'] || changes['role'] || changes['workspaceId']) this.editorReset.next();
     this.scheduleDesktopPreview();
     if (!this.open) {
       this.removeDesktopPreview();
@@ -261,8 +263,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
     if (
       changes['open']?.currentValue === true ||
       changes['role'] ||
-      changes['workspaceId'] ||
-      changes['permissionGroups']
+      changes['workspaceId']
     ) {
       this.initialize();
       this.focusInput();
@@ -271,10 +272,10 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   private focusInput(): void {
     if (this.isReadOnly || !isPlatformBrowser(this.previewPlatform)) return;
-    setTimeout(() => {
+    timer(120).pipe(takeUntil(this.editorReset), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const inputEl = this.roleNameInput?.nativeElement?.querySelector('input') as HTMLInputElement | null;
       inputEl?.focus();
-    }, 120);
+    });
   }
 
   updateDisplayName(value: InputValue): void {
@@ -283,7 +284,10 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
     this.error.set(null);
 
     if (!this.codeEditedManually && this.mode === 'create') {
-      this.code.set(this.toRoleCode(next));
+      const generated = this.toRoleCode(next);
+      this.code.set((/^[A-Z]/.test(generated) && generated.length >= 2
+        ? generated
+        : `ROLE_${generated || 'CUSTOM'}`).slice(0, 60));
     }
   }
 
@@ -385,6 +389,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
         .create(payload)
         .pipe(
           finalize(() => this.saving.set(false)),
+          takeUntil(this.editorReset),
           takeUntilDestroyed(this.destroyRef)
         )
         .subscribe({
@@ -424,6 +429,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
       .update(roleId, payload)
       .pipe(
         finalize(() => this.saving.set(false)),
+        takeUntil(this.editorReset),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -464,7 +470,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   }
 
   permissionId(permission: Permission): string {
-    return String(permission.id ?? permission._id ?? permission.code ?? '');
+    return idOf(permission) || String(permission.code ?? '');
   }
 
   private initialize(): void {
@@ -485,29 +491,31 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
     this.description.set(String(this.role.description ?? '').trim());
     this.active.set(this.role.isActive !== false);
 
+    const allKnown = this.permissionGroupsState().flatMap(g => g.permissions);
     const selected = new Set<string>();
-    for (const permission of this.role.permissions ?? []) {
-      const id = this.refId(permission);
-      if (id) selected.add(id);
+    for (const raw of Array.isArray(this.role.permissions) ? this.role.permissions : []) {
+      const id = idOf(raw);
+      if (id) {
+        const match = allKnown.find(p => p.code?.toUpperCase() === id.toUpperCase());
+        selected.add(match ? (idOf(match) || id) : id);
+      } else {
+        const code = typeof raw === 'string' ? raw : (raw as { code?: string })?.code;
+        if (code) {
+          const match = allKnown.find(p => p.code?.toUpperCase() === String(code).toUpperCase());
+          selected.add(match ? (idOf(match) || String(code)) : String(code));
+        }
+      }
     }
 
     this.selectedPermissionIds.set(selected);
   }
 
   private roleId(role: WorkspaceRole | null | undefined): string {
-    return role ? String(role.id ?? role._id ?? '') : '';
+    return idOf(role);
   }
 
   private roleDisplayName(role: WorkspaceRole): string {
     return String(role.displayName ?? role.name ?? role.code ?? 'Workspace role').trim();
-  }
-
-  private refId(value: unknown): string {
-    if (typeof value === 'string') return value;
-    if (!value || typeof value !== 'object') return '';
-
-    const record = value as UnknownRecord;
-    return String(record['id'] ?? record['_id'] ?? '');
   }
 
   private toRoleCode(value: string): string {
@@ -520,22 +528,16 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   }
 
   private toRoleName(value: string): string {
-    return value
+    const slug = value
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .replace(/-+/g, '-');
+    return slug || value.trim().toLowerCase();
   }
 
-  private humanize(value: unknown): string {
-    const text = String(value ?? '')
-      .trim()
-      .toLowerCase()
-      .replaceAll('_', ' ');
-
-    return text ? text.charAt(0).toUpperCase() + text.slice(1) : '—';
-  }
+  private readonly humanize = humanize;
 
   private isObjectId(value: unknown): boolean {
     return typeof value === 'string' && /^[a-f\d]{24}$/i.test(value.trim());
