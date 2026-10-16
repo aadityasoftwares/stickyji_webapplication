@@ -6,7 +6,10 @@
     "src/app/private/mynotes/overdue-notes-panel/overdue-notes-panel.spec.ts",
     "src/app/private/mynotes/mynotes.spec.ts",
     "src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts",
+    "src/app/private/sticky-notes-favourites/sticky-notes-favourites.component.spec.ts",
     "src/app/private/today/today.spec.ts",
+    "src/app/private/user-preferences/services/user-preference.store.spec.ts",
+    "src/app/private/user-preferences/user-preferences/user-preferences.spec.ts",
     "src/app/shared/components/side-panel/side-panel.spec.ts"
   ]
 }

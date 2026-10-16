@@ -23,6 +23,10 @@ describe('Today', () => {
 
     fixture = TestBed.createComponent(Today);
     component = fixture.componentInstance;
+    const preferences = TestBed.inject(UserPreferenceStore);
+    vi.spyOn(preferences, 'setAndSave').mockImplementation((key, value) => {
+      preferences.updatePreference(key, value);
+    });
     TestBed.inject(WorkspaceStore).setWorkspaces([{ id: 'workspace', name: 'Workspace' }] as any);
     TestBed.inject(WorkspaceFolderStore).setFolders('workspace', [{ id: 'folder', name: 'Notes', status: 'ACTIVE' }] as any);
     TestBed.inject(StickyNoteColumnStore).setColumns('workspace', 'folder', [
@@ -122,6 +126,68 @@ describe('Today', () => {
     await fixture.whenStable();
     expect(element.querySelector('.today-gtable')).toBeTruthy();
     expect(element.querySelector('app-overdue-topbar')).toBeTruthy();
+  });
+
+  it('persists Today and overdue display choices', async () => {
+    const preferences = TestBed.inject(UserPreferenceStore);
+    component.setView('kanban');
+    expect(preferences.todayView()).toBe('KANBAN');
+
+    component.overdue.data.set({ today: '2026-10-05', total: 2, byColumn: [], notes: [] });
+    component.dismissOverdueBar();
+    await fixture.whenStable();
+
+    expect(preferences.overdueView()).toBe('BUTTON');
+    expect(component.overdueButtonVisible()).toBe(true);
+    expect(fixture.nativeElement.querySelector('app-overdue-topbar')).toBeNull();
+  });
+
+  it('keeps wheel scrolling vertical inside a column and moves the board horizontally at its edge', () => {
+    const board = document.createElement('div');
+    const noteColumn = document.createElement('div');
+    noteColumn.className = 'today-column-notes';
+    board.appendChild(noteColumn);
+    Object.defineProperties(board, {
+      clientWidth: { value: 300 },
+      clientHeight: { value: 400 },
+      scrollWidth: { value: 900 },
+      scrollLeft: { value: 0, writable: true },
+    });
+    Object.defineProperties(noteColumn, {
+      clientHeight: { value: 200 },
+      scrollHeight: { value: 600 },
+      scrollTop: { value: 100, writable: true },
+    });
+    const preventDefault = vi.fn();
+
+    component.onKanbanWheel({
+      target: noteColumn,
+      deltaX: 0,
+      deltaY: 80,
+      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+      ctrlKey: false,
+      shiftKey: false,
+      defaultPrevented: false,
+      preventDefault,
+    } as unknown as WheelEvent, board);
+
+    expect(board.scrollLeft).toBe(0);
+    expect(preventDefault).not.toHaveBeenCalled();
+
+    noteColumn.scrollTop = 400;
+    component.onKanbanWheel({
+      target: noteColumn,
+      deltaX: 0,
+      deltaY: 80,
+      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+      ctrlKey: false,
+      shiftKey: false,
+      defaultPrevented: false,
+      preventDefault,
+    } as unknown as WheelEvent, board);
+
+    expect(board.scrollLeft).toBe(80);
+    expect(preventDefault).toHaveBeenCalledOnce();
   });
 
   it('refreshes today notes and overdue data once after Bring to Today succeeds', () => {

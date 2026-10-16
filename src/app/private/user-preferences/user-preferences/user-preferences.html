@@ -105,6 +105,14 @@
                         <app-select class="select-grid__wide" label="Default notes view" placeholder="Choose view"
                             formControlName="noteView" [options]="noteViewOptions" [searchable]="false"
                             [clearable]="false" [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
+
+                        <app-select label="Today view" placeholder="Choose Today view" formControlName="todayView"
+                            [options]="todayViewOptions" [searchable]="false" [clearable]="false"
+                            [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
+
+                        <app-select label="Overdue display" placeholder="Choose overdue display"
+                            formControlName="overdueView" [options]="overdueViewOptions" [searchable]="false"
+                            [clearable]="false" [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
                     </div>
                 </section>
             </app-sticky-card>

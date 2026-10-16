@@ -62,6 +62,8 @@ interface UserPreferencesFormValue {
 
   defaultNoteColor: string;
   noteView: string;
+  todayView: string;
+  overdueView: string;
 
   autosaveEnabled: boolean;
   autosaveInterval: string;
@@ -287,6 +289,16 @@ export class UserPreferences implements OnInit {
       },
     ];
 
+  readonly todayViewOptions: readonly SelectOption[] = [
+    { label: 'Kanban', value: 'KANBAN' },
+    { label: 'Table', value: 'TABLE' },
+  ];
+
+  readonly overdueViewOptions: readonly SelectOption[] = [
+    { label: 'Top bar', value: 'BAR' },
+    { label: 'Toolbar button', value: 'BUTTON' },
+  ];
+
 
   readonly autosaveIntervalOptions:
     readonly SelectOption[] = [
@@ -325,6 +337,10 @@ export class UserPreferences implements OnInit {
       defaultNoteColor: 'YELLOW',
 
       noteView: 'GRID',
+
+      todayView: 'KANBAN',
+
+      overdueView: 'BAR',
 
       autosaveEnabled: true,
 
@@ -577,6 +593,8 @@ export class UserPreferences implements OnInit {
 
         'defaultNoteColor',
         'noteView',
+        'todayView',
+        'overdueView',
 
         'autosaveEnabled',
         'autosaveInterval',
@@ -639,6 +657,12 @@ export class UserPreferences implements OnInit {
 
       noteView:
         preferences.noteView === 'LIST' ? 'TABLE' : preferences.noteView,
+
+      todayView:
+        preferences.todayView,
+
+      overdueView:
+        preferences.overdueView,
 
       autosaveEnabled:
         preferences.autosaveEnabled,
@@ -710,6 +734,14 @@ export class UserPreferences implements OnInit {
       noteView:
         value.noteView as
         UserPreferencesM['noteView'],
+
+      todayView:
+        value.todayView as
+        UserPreferencesM['todayView'],
+
+      overdueView:
+        value.overdueView as
+        UserPreferencesM['overdueView'],
 
       autosaveEnabled:
         value.autosaveEnabled,

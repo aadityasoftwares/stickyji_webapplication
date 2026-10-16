@@ -54,6 +54,14 @@ export class UserPreferenceStore {
         this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR]
     );
 
+    readonly todayView = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.TODAY_VIEW]
+    );
+
+    readonly overdueView = computed(() =>
+        this._preferences()[USER_PREFERENCE_KEYS.OVERDUE_VIEW]
+    );
+
     readonly workspaceView = computed(() =>
         this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_VIEW]
     );

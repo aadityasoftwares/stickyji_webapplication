@@ -51,9 +51,9 @@
                 </div>
             </div>
         </header>
-        @if (overdue.bannerVisible()) {
+        @if (overdueBarVisible()) {
         <app-overdue-topbar [total]="overdue.data()!.total" [byColumn]="overdue.data()!.byColumn"
-            (review)="overdue.open.set(true)" (dismiss)="overdue.dismissed.set(true)" />
+            (review)="overdue.open.set(true)" (dismiss)="dismissOverdueBar()" />
         }
         <section class="today-explorer" [attr.aria-busy]="boardLoading()">
             <div class="today-toolbar">
@@ -106,7 +106,7 @@
                         appearance="standard" variant="noteRed" [hasIcon]="true"
                         ariaLabel="Open recently deleted sticky notes" title="Trash · Notes can be restored for 60 days"
                         (buttonClick)="openStickyNoteTrash()" />
-                    @if (overdue.dismissed() && !overdue.error() && (overdue.data()?.total ?? 0) > 0) {
+                    @if (overdueButtonVisible()) {
                     <app-button size="sm" [iconLeft]="LucideClockAlert" [label]="'Overdue (' + overdue.data().total + ')'"
                         appearance="standard" variant="noteOrange"
                         [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'" title="Review overdue notes"
@@ -252,7 +252,8 @@
                     <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
                 </div>
                 } @else if (isKanbanView()) {
-                <div class="today-kanban" cdkDropListGroup aria-label="Today Kanban board">
+                <div #kanbanBoard class="today-kanban" cdkDropListGroup aria-label="Today Kanban board" tabindex="0"
+                    (wheel)="onKanbanWheel($event, kanbanBoard)">
                     <div class="today-kanban-columns" cdkDropList cdkDropListOrientation="horizontal"
                         [cdkDropListData]="stickyNoteColumns()" [cdkDropListDisabled]="boardLoading() || movingColumn()"
                         [cdkDropListEnterPredicate]="canDropColumn" (cdkDropListDropped)="dropColumn($event)">

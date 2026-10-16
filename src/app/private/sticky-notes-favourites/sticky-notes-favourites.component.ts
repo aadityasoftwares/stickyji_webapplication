@@ -7,21 +7,19 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
-  LucideAArrowUp,
   LucideArchive,
+  LucideCheck,
   LucideClock3,
-  LucideLayoutGrid,
-  LucideList,
+  LucideColumns3,
+  LucideCopy,
+  LucideFolderOpen,
   LucideMoreHorizontal,
-  LucidePanelsTopLeft,
   LucidePencil,
   LucideRefreshCw,
   LucideRotateCcw,
@@ -41,7 +39,9 @@ import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { Switch } from '../../shared/components/switch/switch';
 import { Tabs } from '../../shared/components/tabs/tabs';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
@@ -49,21 +49,14 @@ import { StickyNote as StickyNoteCardComponent } from '../mynotes/sticky-note/st
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
 
-import {
-  STICKY_NOTE_FONT_OPTIONS,
-  STICKY_NOTE_FONT_SIZE_OPTIONS,
-  STICKY_NOTE_LAYOUT_OPTIONS,
-  USER_PREFERENCE_KEYS,
-  VIEW,
-  View
-} from '../../shared/constants/common.constants';
+import { VIEW_TABS } from '../../shared/constants/common.constants';
 import {
   extractErrorMessage,
   extractList,
   idOf
 } from '../../shared/functions/common.function';
 import {
-  getNotePreview,
+  getNoteContent,
   getNoteTimestamp,
   getNoteTitle,
   isNoteActive,
@@ -71,13 +64,18 @@ import {
   isNoteDeleted,
   toColorCssClass
 } from '../../shared/functions/sticky-note.function';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
+
+type FavouriteFilter = 'all' | 'active' | 'archived';
+type FavouriteView = 'grid' | 'list';
+type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
 
 @Component({
   selector: 'app-sticky-notes-favourites',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MatDividerModule,
     MatMenuModule,
@@ -90,7 +88,11 @@ import { UserDateTimeFormatterService } from '../../shared/services/user-date-ti
     Select,
     StickyCard,
     StickyNoteCardComponent,
-    Tabs
+    Switch,
+    Tabs,
+    Tooltip,
+    UserDatePipe,
+    UserTimePipe
   ],
   templateUrl: './sticky-notes-favourites.component.html',
   styleUrl: './sticky-notes-favourites.component.scss',
@@ -98,7 +100,6 @@ import { UserDateTimeFormatterService } from '../../shared/services/user-date-ti
 })
 export class StickyNotesFavouritesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly router = inject(Router);
   private readonly favouriteApi = inject(StickyNotesFavouriteService);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
@@ -108,13 +109,13 @@ export class StickyNotesFavouritesComponent implements OnInit {
   /* -------------------------------------------------------------------------- */
   /*                                    Icons                                   */
   /* -------------------------------------------------------------------------- */
-  readonly LucideAArrowUp = LucideAArrowUp;
   readonly LucideArchive = LucideArchive;
+  readonly LucideCheck = LucideCheck;
   readonly LucideClock3 = LucideClock3;
-  readonly LucideLayoutGrid = LucideLayoutGrid;
-  readonly LucideList = LucideList;
+  readonly LucideColumns3 = LucideColumns3;
+  readonly LucideCopy = LucideCopy;
+  readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
-  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideRotateCcw = LucideRotateCcw;
@@ -129,16 +130,6 @@ export class StickyNotesFavouritesComponent implements OnInit {
   /* -------------------------------------------------------------------------- */
   /*                               Preferences                                  */
   /* -------------------------------------------------------------------------- */
-  readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
-  readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map(option => ({
-    ...option,
-    icon: LucideType
-  }));
-  readonly stickyNoteFontSizeOptions: any[] = STICKY_NOTE_FONT_SIZE_OPTIONS.map(option => ({
-    ...option,
-    icon: LucideAArrowUp
-  }));
-
   readonly stickyNoteLayout = this.userPreferenceStore.stickyNoteLayout;
   readonly stickyNoteFont = this.userPreferenceStore.stickyNoteFont;
   readonly stickyNoteFontSize = this.userPreferenceStore.stickyNoteFontSize;
@@ -149,11 +140,12 @@ export class StickyNotesFavouritesComponent implements OnInit {
   readonly rawFavorites = signal<readonly any[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
-  readonly activeTab = signal<any>('all');
-  readonly view = signal<View>(VIEW.GRID);
+  readonly activeTab = signal<FavouriteFilter>('all');
+  readonly view = signal<FavouriteView>('grid');
   readonly searchTerm = signal('');
-  readonly sortBy = signal<any>('favoritedAt');
+  readonly sortBy = signal<FavouriteSort>('favoritedAt');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
+  readonly copiedKeys = signal<ReadonlySet<string>>(new Set());
 
   /* Side panel state */
   readonly notePanelOpen = signal(false);
@@ -165,18 +157,15 @@ export class StickyNotesFavouritesComponent implements OnInit {
   readonly deleting = signal(false);
 
   /* Sort options */
-  readonly sortOptions: readonly any[] = [
+  readonly sortOptions = [
     { label: 'Recently favourited', value: 'favoritedAt', icon: LucideClock3 },
-    { label: 'Recently updated',    value: 'updatedAt',   icon: LucideClock3 },
-    { label: 'Recently created',    value: 'createdAt',   icon: LucideClock3 },
-    { label: 'Title A–Z',           value: 'title',       icon: LucideType   }
-  ];
+    { label: 'Recently updated', value: 'updatedAt', icon: LucideClock3 },
+    { label: 'Recently created', value: 'createdAt', icon: LucideClock3 },
+    { label: 'Title A–Z', value: 'title', icon: LucideType }
+  ] as const;
 
   /* View tabs */
-  readonly viewTabs: readonly any[] = [
-    { value: VIEW.GRID,  label: 'Grid',  icon: LucideLayoutGrid, ariaLabel: 'Grid view' },
-    { value: VIEW.TABLE, label: 'Table', icon: LucideList,       ariaLabel: 'Table view' }
-  ];
+  readonly viewTabs = VIEW_TABS;
 
   /* -------------------------------------------------------------------------- */
   /*                              Computed Signals                              */
@@ -256,6 +245,31 @@ export class StickyNotesFavouritesComponent implements OnInit {
       });
   });
 
+  readonly noteGroups = computed(() => {
+    const notes = this.visibleNotes();
+    const tab = this.activeTab();
+    const groups = [
+      {
+        id: 'active',
+        label: 'Active favourites',
+        status: 'ACTIVE',
+        accent: '#10b981',
+        items: notes.filter(note => isNoteActive(note))
+      },
+      {
+        id: 'archived',
+        label: 'Archived favourites',
+        status: 'ARCHIVED',
+        accent: '#64748b',
+        items: notes.filter(note => isNoteArchived(note))
+      }
+    ];
+
+    return groups
+      .filter(group => tab === 'all' || group.id === tab)
+      .map(group => ({ ...group, count: group.items.length }));
+  });
+
   /* -------------------------------------------------------------------------- */
   /*                                 Lifecycle                                  */
   /* -------------------------------------------------------------------------- */
@@ -274,7 +288,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
     this.error.set(null);
 
     this.favouriteApi
-      .getAll({ status: 'ACTIVE', limit: 100, sortBy: 'createdAt', sortOrder: 'desc' })
+      .getAll({ status: 'ACTIVE', limit: 500, sortBy: 'createdAt', sortOrder: 'desc' })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false))
@@ -310,51 +324,16 @@ export class StickyNotesFavouritesComponent implements OnInit {
 
     this.setBusy(noteId, true);
 
-    if (favoriteId) {
-      // Removing from favourites
-      this.favouriteApi
-        .delete(favoriteId)
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          finalize(() => this.setBusy(noteId, false))
-        )
-        .subscribe({
-          next: () => {
-            this.rawFavorites.update(favs =>
-              favs.filter(item => {
-                const itemNoteId = idOf(item?.stickyNoteId ?? item);
-                const itemFavId = idOf(item);
-                return itemFavId !== favoriteId && itemNoteId !== noteId;
-              })
-            );
-            this.toastService.success('Removed from favourites');
-          },
-          error: (err: any) => {
-            this.toastService.error(
-              extractErrorMessage(err, 'Could not remove from favourites.')
-            );
-          }
-        });
-    } else {
-      // Adding to favourites
-      this.favouriteApi
-        .create({ stickyNoteId: noteId })
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          finalize(() => this.setBusy(noteId, false))
-        )
-        .subscribe({
-          next: (res: any) => {
-            this.toastService.success('Added to favourites');
-            this.refresh();
-          },
-          error: (err: any) => {
-            this.toastService.error(
-              extractErrorMessage(err, 'Could not add to favourites.')
-            );
-          }
-        });
-    }
+    this.favouriteApi
+      .toggleFavorite(noteId, favoriteId, this.noteTitle(note))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.setBusy(noteId, false))
+      )
+      .subscribe({
+        next: result => result.isFavorite ? this.refresh() : this.onNoteDeleted(noteId),
+        error: () => undefined
+      });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -514,19 +493,24 @@ export class StickyNotesFavouritesComponent implements OnInit {
     );
   }
 
-  onNoteUpdated(updated: any): void {
+  onNoteUpdated(_updated: any): void {
     this.refresh();
+  }
+
+  onFavoriteToggled(event: { noteId: string; isFavorite: boolean }): void {
+    if (!event.isFavorite) this.onNoteDeleted(event.noteId);
   }
 
   /* -------------------------------------------------------------------------- */
   /*                              Toolbar / Filtering                           */
   /* -------------------------------------------------------------------------- */
-  setNoteTab(tab: any): void {
-    this.activeTab.set(tab);
+  setNoteTab(tab: unknown): void {
+    if (tab === 'all' || tab === 'active' || tab === 'archived') this.activeTab.set(tab);
   }
 
-  setNoteView(view: any): void {
-    this.view.set(view);
+  setNoteView(view: unknown): void {
+    if (view === 'grid') this.view.set('grid');
+    if (view === 'list' || view === 'table') this.view.set('list');
   }
 
   updateSearch(value: any): void {
@@ -537,26 +521,10 @@ export class StickyNotesFavouritesComponent implements OnInit {
     this.searchTerm.set('');
   }
 
-  setSort(sort: any): void {
-    this.sortBy.set(sort);
-  }
-
-  chooseFont(value: any): void {
-    const font = String(value ?? '').trim();
-    if (!font) return;
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, font);
-  }
-
-  onStickyNoteFontSizeSelection(value: any): void {
-    const size = Number(value);
-    if (!size) return;
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT_SIZE, size);
-  }
-
-  onStickyNoteLayoutSelection(value: any): void {
-    const layout = String(value ?? '').trim();
-    if (!layout) return;
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, layout);
+  setSort(sort: unknown): void {
+    if (this.sortOptions.some(option => option.value === sort)) {
+      this.sortBy.set(sort as FavouriteSort);
+    }
   }
 
   isCompactLayout(): boolean {
@@ -575,8 +543,58 @@ export class StickyNotesFavouritesComponent implements OnInit {
     return getNoteTitle(note);
   }
 
-  notePreview(note: any): string {
-    return getNotePreview(note);
+  noteContent(note: any): string {
+    return getNoteContent(note);
+  }
+
+  noteKey(note: any): string {
+    if (note?.noteKey) return String(note.noteKey);
+    return typeof note?.stickyNoteNumber === 'number'
+      ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
+      : '';
+  }
+
+  noteDateLabel(note: any): string {
+    return note?.noteDate
+      ? this.dateTimeFormatter.formatDateKey(note.noteDate, 'No date')
+      : 'No date';
+  }
+
+  noteColumnName(note: any): string {
+    const column = note?.columnId;
+    if (column && typeof column === 'object') {
+      return String(column?.name ?? column?.label ?? 'Notes');
+    }
+    return String(note?.columnName ?? 'Notes');
+  }
+
+  noteFolderName(note: any): string {
+    const folder = note?.workspaceFolderId;
+    if (folder && typeof folder === 'object') {
+      return String(folder?.name ?? folder?.label ?? 'My Notes');
+    }
+    return String(note?.folderName ?? 'My Notes');
+  }
+
+  noteChecklistTotal(note: any): number {
+    const checklists = Array.isArray(note?.checklists) ? note.checklists : [];
+    return checklists.reduce((total: number, checklist: any) =>
+      total + Number(checklist?.totalCount ?? checklist?.items?.length ?? 0), 0);
+  }
+
+  noteChecklistCompleted(note: any): number {
+    const checklists = Array.isArray(note?.checklists) ? note.checklists : [];
+    return checklists.reduce((total: number, checklist: any) => {
+      const completed = checklist?.completedCount
+        ?? checklist?.items?.filter((item: any) => item?.isCompleted === true).length
+        ?? 0;
+      return total + Number(completed);
+    }, 0);
+  }
+
+  noteProgressPct(note: any): number {
+    const total = this.noteChecklistTotal(note);
+    return total ? Math.round((this.noteChecklistCompleted(note) / total) * 100) : 0;
   }
 
   noteUpdatedLabel(note: any): string {
@@ -587,17 +605,39 @@ export class StickyNotesFavouritesComponent implements OnInit {
     return toColorCssClass(note?.color ?? 'WHITE');
   }
 
-  noteColorLabel(note: any): string {
-    const raw = String(note?.color ?? 'WHITE').toLowerCase();
-    return raw.charAt(0).toUpperCase() + raw.slice(1);
-  }
-
   isActive(note: any): boolean {
     return isNoteActive(note);
   }
 
   isArchived(note: any): boolean {
     return isNoteArchived(note);
+  }
+
+  changeNoteStatus(note: any, active: boolean): void {
+    if (active === this.isActive(note)) return;
+    active ? this.activateNote(note) : this.archiveNote(note);
+  }
+
+  copyNoteKey(key: string, event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (!key || !navigator.clipboard) return;
+
+    navigator.clipboard.writeText(key).then(() => {
+      this.copiedKeys.update(keys => new Set(keys).add(key));
+      this.toastService.info(`Copied ${key} to clipboard`);
+      setTimeout(() => {
+        this.copiedKeys.update(keys => {
+          const next = new Set(keys);
+          next.delete(key);
+          return next;
+        });
+      }, 2000);
+    }).catch(() => undefined);
+  }
+
+  isKeyCopied(key: string): boolean {
+    return this.copiedKeys().has(key);
   }
 
   isBusy(note: any): boolean {

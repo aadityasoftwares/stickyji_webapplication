@@ -740,22 +740,33 @@ export function isNoteDragItem(dragData: any): boolean {
  * Returns true when a sticky-note is in ACTIVE status.
  */
 export function isNoteActive(note: any): boolean {
-  return String(note?.status ?? '').toUpperCase() === 'ACTIVE';
+  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
+  if (status) return status === 'ACTIVE';
+
+  // Older/list API projections do not always include `status`. A note returned
+  // from the active collection is active unless archive/delete metadata says otherwise.
+  return note?.isArchived !== true
+    && note?.isDeleted !== true
+    && !note?.archivedAt
+    && !note?.deletedAt;
 }
 
 /**
  * Returns true when a sticky-note is in ARCHIVED status.
  */
 export function isNoteArchived(note: any): boolean {
-  return String(note?.status ?? '').toUpperCase() === 'ARCHIVED';
+  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
+  return status === 'ARCHIVED' || (!status && (note?.isArchived === true || !!note?.archivedAt));
 }
 
 /**
  * Returns true when a sticky-note is trashed or permanently deleted.
  */
 export function isNoteDeleted(note: any): boolean {
-  const status = String(note?.status ?? '').toUpperCase();
-  return status === 'TRASHED' || status === 'DELETED';
+  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
+  return status === 'TRASHED'
+    || status === 'DELETED'
+    || (!status && (note?.isDeleted === true || !!note?.deletedAt));
 }
 
 // ─── Shared note field accessors ─────────────────────────────────────────────

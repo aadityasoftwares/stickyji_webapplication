@@ -25,10 +25,9 @@ export class OverdueNotesStore {
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
   readonly open = signal(false);
-  readonly dismissed = signal(false);
   readonly selectedIds = signal<ReadonlySet<string>>(new Set());
   readonly columnFilter = signal('');
-  readonly bannerVisible = computed(() => !this.dismissed() && !this.error() && (this.data()?.total ?? 0) > 0);
+  readonly bannerVisible = computed(() => !this.error() && (this.data()?.total ?? 0) > 0);
 
   refresh(workspaceId = this.workspaceId, folderId = this.folderId): void {
     if (workspaceId !== this.workspaceId || folderId !== this.folderId) {
@@ -52,7 +51,6 @@ export class OverdueNotesStore {
     this.busy.set(false);
     this.error.set(null);
     this.open.set(false);
-    this.dismissed.set(false);
     this.selectedIds.set(new Set());
     this.columnFilter.set('');
   }

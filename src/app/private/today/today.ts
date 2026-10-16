@@ -131,6 +131,7 @@ const TODAY_DATE_PRESET = 'TODAY';
 const SORT_ASC = 'asc';
 const SORT_DESC = 'desc';
 type TodayLoadErrorKind = 'network' | 'server';
+type OverdueView = 'bar' | 'button';
 
 @Component({
   selector: 'app-today',
@@ -222,7 +223,22 @@ export class Today {
   readonly today = signal(new Date());
   readonly VIEW = VIEW;
   readonly TODAY_MESSAGES: any = TODAY_MESSAGES;
-  readonly view = signal<View>(VIEW.KANBAN);
+  readonly view = computed<View>(() =>
+    String(this.userPreferenceStore.todayView() ?? '').toUpperCase() === 'TABLE'
+      ? VIEW.TABLE
+      : VIEW.KANBAN
+  );
+  readonly overdueView = computed<OverdueView>(() =>
+    String(this.userPreferenceStore.overdueView() ?? '').toUpperCase() === 'BUTTON'
+      ? 'button'
+      : 'bar'
+  );
+  readonly overdueBarVisible = computed(() =>
+    this.overdueView() === 'bar' && this.overdue.bannerVisible()
+  );
+  readonly overdueButtonVisible = computed(() =>
+    this.overdueView() === 'button' && !this.overdue.error() && (this.overdue.data()?.total ?? 0) > 0
+  );
   readonly searchTerm = signal('');
   readonly movingColumn = signal(false);
 
@@ -442,12 +458,15 @@ export class Today {
 
   setView(view: any): void {
     const raw = String(view ?? '').toLowerCase();
-    if (raw === VIEW.TABLE || raw === 'list' || raw === 'table') {
-      this.view.set(VIEW.TABLE);
-    } else {
-      this.view.set(VIEW.KANBAN);
-    }
+    const nextView = raw === VIEW.TABLE || raw === 'list' || raw === 'table'
+      ? 'TABLE'
+      : 'KANBAN';
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.TODAY_VIEW, nextView);
     this.searchTerm.set('');
+  }
+
+  dismissOverdueBar(): void {
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.OVERDUE_VIEW, 'BUTTON');
   }
 
   isKanbanView(): boolean {
@@ -456,6 +475,33 @@ export class Today {
 
   isTableView(): boolean {
     return this.view() === VIEW.TABLE;
+  }
+
+  onKanbanWheel(event: WheelEvent, board: HTMLElement): void {
+    if (event.ctrlKey || event.defaultPrevented) return;
+
+    const deltaX = this.wheelPixels(event.deltaX, event.deltaMode, board.clientWidth);
+    const deltaY = this.wheelPixels(event.deltaY, event.deltaMode, board.clientHeight);
+    const verticalIntent = !event.shiftKey && Math.abs(deltaY) >= Math.abs(deltaX);
+    const noteColumn = event.target instanceof Element
+      ? event.target.closest<HTMLElement>('.today-column-notes')
+      : null;
+
+    if (verticalIntent && noteColumn && this.canScrollVertically(noteColumn, deltaY)) {
+      return;
+    }
+
+    const delta = event.shiftKey
+      ? (deltaY || deltaX)
+      : (Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY);
+    const maxScrollLeft = Math.max(0, board.scrollWidth - board.clientWidth);
+    if (!delta || !maxScrollLeft) return;
+
+    const nextScrollLeft = Math.min(maxScrollLeft, Math.max(0, board.scrollLeft + delta));
+    if (nextScrollLeft === board.scrollLeft) return;
+
+    board.scrollLeft = nextScrollLeft;
+    event.preventDefault();
   }
 
   isCompactLayout(): boolean {
@@ -1404,6 +1450,18 @@ export class Today {
 
   private notesInColumn(columnId: string): any[] {
     return this.notesByColumn().get(idOf(columnId)) ?? [];
+  }
+
+  private canScrollVertically(element: HTMLElement, delta: number): boolean {
+    if (!delta || element.scrollHeight <= element.clientHeight) return false;
+    if (delta < 0) return element.scrollTop > 0;
+    return element.scrollTop + element.clientHeight < element.scrollHeight - 1;
+  }
+
+  private wheelPixels(delta: number, mode: number, pageSize: number): number {
+    if (mode === WheelEvent.DOM_DELTA_LINE) return delta * 16;
+    if (mode === WheelEvent.DOM_DELTA_PAGE) return delta * pageSize;
+    return delta;
   }
 
   private sortNotes(notes: any[]): any[] {

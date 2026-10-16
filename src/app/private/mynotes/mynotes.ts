@@ -15,7 +15,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -23,6 +23,7 @@ import {
   LucideArchive,
   LucideArrowLeft,
   LucideArrowRight,
+  LucideCalendarDays,
   LucideCheck,
   LucideChevronDown,
   LucideChevronRight,
@@ -34,6 +35,7 @@ import {
   LucideGrid2X2,
   LucideLayoutGrid,
   LucideList,
+  LucideListChecks,
   LucideMoreHorizontal,
   LucidePanelsTopLeft,
   LucidePencil,
@@ -53,12 +55,14 @@ import { Badge } from '../../shared/components/badge/badge';
 import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
+import { DatepickerInput } from '../../shared/components/datepicker-input/datepicker-input';
 import { Input as AppInput } from '../../shared/components/input/input';
-import { Label } from '../../shared/components/label/label';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { Switch } from '../../shared/components/switch/switch';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { STICKY_NOTE_MESSAGES } from './messages/sticky-note.messages';
@@ -69,7 +73,6 @@ import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-fol
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import {
-  buildStatusTabs,
   STICKY_NOTE_FONT_OPTIONS,
   STICKY_NOTE_FONT_SIZE_OPTIONS,
   STICKY_NOTE_LAYOUT_OPTIONS,
@@ -85,6 +88,7 @@ import {
   idOf,
   sortItemsByPosition
 } from '../../shared/functions/common.function';
+import { toDateKey } from '../../shared/functions/date.function';
 import {
   compareNotesByRank,
   getNoteColorAccent,
@@ -131,12 +135,14 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
     BulkActionPanel,
     Button,
     Checkbox,
-    Label,
+    DatepickerInput,
     Loader,
     Select,
     StickyCard,
     StickyNoteCardComponent,
+    Switch,
     Tabs,
+    Tooltip,
     UserDatePipe,
     UserTimePipe
   ],
@@ -182,6 +188,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly LucideArchive = LucideArchive;
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
+  readonly LucideCalendarDays = LucideCalendarDays;
   readonly LucideCheck = LucideCheck;
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
@@ -193,6 +200,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly LucideGrid2X2 = LucideGrid2X2;
   readonly LucideLayoutGrid = LucideLayoutGrid;
   readonly LucideList = LucideList;
+  readonly LucideListChecks = LucideListChecks;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
@@ -221,6 +229,17 @@ export class MyNotes implements OnInit, OnChanges {
   readonly stickyNoteLayout = this.userPreferenceStore.stickyNoteLayout;
   readonly stickyNoteFont = this.userPreferenceStore.stickyNoteFont;
   readonly stickyNoteFontSize = this.userPreferenceStore.stickyNoteFontSize;
+  readonly overdueView = computed<'bar' | 'button'>(() =>
+    String(this.userPreferenceStore.overdueView() ?? '').toUpperCase() === 'BUTTON'
+      ? 'button'
+      : 'bar'
+  );
+  readonly overdueBarVisible = computed(() =>
+    this.overdueView() === 'bar' && this.overdue.bannerVisible()
+  );
+  readonly overdueButtonVisible = computed(() =>
+    this.overdueView() === 'button' && !this.overdue.error() && (this.overdue.data()?.total ?? 0) > 0
+  );
 
   /* Shared workspace/folder state — same source used by Today */
   readonly workspaces = this.workspaceStore.workspaces;
@@ -236,7 +255,9 @@ export class MyNotes implements OnInit, OnChanges {
   readonly loadingNotes = signal(false);
   readonly notesError = signal<string | null>(null);
   readonly activeTab = signal<any>('all');
-  readonly view = signal<'grid' | 'table' | 'list'>('grid');
+  readonly fromDate = signal<string | null>(null);
+  readonly toDate = signal<string | null>(null);
+  readonly view = signal<'grid' | 'list'>('grid');
   readonly searchTerm = signal('');
   readonly sortBy = signal<any>('updatedAt');
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
@@ -246,6 +267,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly selectedNoteIds = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedNoteIds().size);
   readonly copiedNoteIds = signal<Set<string>>(new Set());
+  readonly bulkBusy = signal(false);
 
   /* Drag-and-drop state */
   readonly draggedNoteId = signal<string | null>(null);
@@ -289,23 +311,28 @@ export class MyNotes implements OnInit, OnChanges {
   readonly activeCount = computed(() => this.notes().filter(note => isNoteActive(note)).length);
   readonly archivedCount = computed(() => this.notes().filter(note => isNoteArchived(note)).length);
 
-  readonly noteTabs = computed<readonly any[]>(() =>
-    buildStatusTabs({
-      all: this.totalCount(),
-      active: this.activeCount(),
-      archived: this.archivedCount()
-    })
-  );
+  readonly noteTabs = computed<readonly any[]>(() => [
+    { value: 'all', label: 'All', count: this.totalCount(), icon: LucideStickyNote },
+    { value: 'active', label: 'Active', count: this.activeCount(), icon: LucideCheck },
+    { value: 'archived', label: 'Archived', count: this.archivedCount(), icon: LucideArchive }
+  ]);
 
   readonly visibleNotes = computed(() => {
     const tab = this.activeTab();
     const search = this.searchTerm().trim().toLowerCase();
     const sort = this.sortBy();
+    const fromKey = toDateKey(this.fromDate());
+    const toKey = toDateKey(this.toDate());
     return [...this.notes()]
       .filter(note => {
         if (isNoteDeleted(note)) return false;
         if (tab === 'active'   && !isNoteActive(note))   return false;
         if (tab === 'archived' && !isNoteArchived(note)) return false;
+        if (fromKey || toKey) {
+          const noteDateKey = toDateKey(note?.noteDate) ?? toDateKey(note?.createdAt);
+          if (fromKey && (!noteDateKey || noteDateKey < fromKey)) return false;
+          if (toKey && (!noteDateKey || noteDateKey > toKey)) return false;
+        }
         if (!search) return true;
         return [this.noteTitle(note), this.noteContent(note), this.noteColumnName(note), this.noteKey(note)]
           .some(value => value.toLowerCase().includes(search));
@@ -414,6 +441,10 @@ export class MyNotes implements OnInit, OnChanges {
     const layout = String(value ?? '').trim();
     if (!this.isStickyNoteLayout(layout)) return;
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, layout);
+  }
+
+  dismissOverdueBar(): void {
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.OVERDUE_VIEW, 'BUTTON');
   }
 
   openStickyNoteTrash(): void {
@@ -532,7 +563,7 @@ export class MyNotes implements OnInit, OnChanges {
     this.favoriteApi.loadFavorites().subscribe();
     forkJoin({
       columns: this.stickyNoteColumnApi.getByWorkspaceFolder(workspaceId, workspaceFolderId),
-      notes: this.stickyNoteApi.getByWorkspaceFolder(workspaceId, workspaceFolderId, { page: 1, limit: 100, sortBy: 'position', sortOrder: 'asc' })
+      notes: this.loadAllNotes(workspaceId, workspaceFolderId)
     })
       .pipe(finalize(() => {
         if (requestVersion === this.noteRequestVersion) this.loadingNotes.set(false);
@@ -544,7 +575,7 @@ export class MyNotes implements OnInit, OnChanges {
             this.selectedFolderId() !== workspaceFolderId)
             return;
           const nextColumns = sortItemsByPosition(extractList(columns));
-          const nextNotes = sortNotesByRank(extractList(notes));
+          const nextNotes = sortNotesByRank(notes);
           this.columns.set(nextColumns);
           this.notes.set(nextNotes);
           if (!savedId) return;
@@ -567,6 +598,58 @@ export class MyNotes implements OnInit, OnChanges {
       });
   }
 
+  /**
+   * Loads every page returned by the notes endpoint. The API may cap the requested
+   * limit (currently commonly at 20), so a single `limit: 100` request is not a
+   * guarantee that a folder's complete note collection has been returned.
+   */
+  private loadAllNotes(workspaceId: string, workspaceFolderId: string): Observable<any[]> {
+    const limit = 100;
+    const query = { limit, sortBy: 'position', sortOrder: 'asc' };
+
+    return this.stickyNoteApi
+      .getByWorkspaceFolder(workspaceId, workspaceFolderId, { ...query, page: 1 })
+      .pipe(
+        switchMap(firstResponse => {
+          const firstPage = extractList(firstResponse);
+          const meta = firstResponse?.meta
+            ?? firstResponse?.pagination
+            ?? firstResponse?.data?.meta
+            ?? firstResponse?.data?.pagination;
+          const responseLimit = Math.max(1, Number(meta?.limit) || firstPage.length || limit);
+          const total = Math.max(firstPage.length, Number(meta?.total) || firstPage.length);
+          const totalPages = Math.max(1, Number(meta?.totalPages) || Math.ceil(total / responseLimit));
+
+          if (totalPages === 1) return of(firstPage);
+
+          const remainingRequests = Array.from(
+            { length: totalPages - 1 },
+            (_, index) => this.stickyNoteApi.getByWorkspaceFolder(
+              workspaceId,
+              workspaceFolderId,
+              { ...query, page: index + 2 }
+            )
+          );
+
+          return forkJoin(remainingRequests).pipe(
+            map(responses => [firstResponse, ...responses].flatMap(response => extractList(response)))
+          );
+        }),
+        map(notes => {
+          const uniqueNotes = new Map<string, any>();
+          const notesWithoutId: any[] = [];
+
+          notes.forEach(note => {
+            const id = idOf(note);
+            if (id) uniqueNotes.set(id, note);
+            else notesWithoutId.push(note);
+          });
+
+          return [...uniqueNotes.values(), ...notesWithoutId];
+        })
+      );
+  }
+
   refresh(): void {
     if (!this.selectedWorkspaceId()) {
       this.loadWorkspaces(true);
@@ -580,7 +663,10 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   setNoteView(value: any): void {
-    if (value === 'grid' || value === 'table' || value === 'list') this.view.set(value);
+    // `table` was used by the old template even though the shared view control emits `list`.
+    // Keep accepting it for existing callers while exposing one consistent list-view state.
+    if (value === 'grid') this.view.set('grid');
+    if (value === 'list' || value === 'table') this.view.set('list');
   }
 
   updateSearch(value: any): void {
@@ -594,6 +680,24 @@ export class MyNotes implements OnInit, OnChanges {
   setSort(value: any | any[] | null): void {
     if (Array.isArray(value) || value === null) return;
     if (value === 'updatedAt' || value === 'createdAt' || value === 'title' || value === 'rank' || value === 'position') this.sortBy.set(value);
+  }
+
+  setFromDate(value: any): void {
+    const key = toDateKey(value);
+    this.fromDate.set(key);
+    const to = this.toDate();
+    if (key && to && to < key) {
+      this.toDate.set(null);
+    }
+  }
+
+  setToDate(value: any): void {
+    const key = toDateKey(value);
+    this.toDate.set(key);
+    const from = this.fromDate();
+    if (key && from && from > key) {
+      this.fromDate.set(null);
+    }
   }
 
   openCreateEditor(): void {
@@ -720,6 +824,11 @@ export class MyNotes implements OnInit, OnChanges {
           });
         }
       });
+  }
+
+  changeNoteStatus(note: any, active: boolean): void {
+    if (active === this.isActive(note)) return;
+    active ? this.activateNote(note) : this.archiveNote(note);
   }
 
   requestDelete(note: any, event?: Event): void {
@@ -949,7 +1058,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   /* ---------------------------------------------------------------------- */
-  /*                         Drag-and-Drop Handlers                          */
+  /*                             Drag Handlers                              */
   /* ---------------------------------------------------------------------- */
 
   onNoteDragStart(event: DragEvent, note: any): void {
@@ -1102,6 +1211,27 @@ export class MyNotes implements OnInit, OnChanges {
 
   noteUpdatedLabel(note: any): string {
     return this.dateTimeFormatter.formatRelativeDate(note?.updatedAt ?? note?.createdAt, 'Recently');
+  }
+
+  noteDateLabel(note: any): string {
+    return note?.noteDate
+      ? this.dateTimeFormatter.formatDateKey(note.noteDate, 'No date')
+      : 'No date';
+  }
+
+  noteChecklistTotal(note: any): number {
+    return mapStickyNoteChecklists(note?.checklists ?? [])
+      .reduce((total: number, checklist: any) => total + Number(checklist?.totalCount ?? 0), 0);
+  }
+
+  noteChecklistCompleted(note: any): number {
+    return mapStickyNoteChecklists(note?.checklists ?? [])
+      .reduce((total: number, checklist: any) => total + Number(checklist?.completedCount ?? 0), 0);
+  }
+
+  noteProgressPct(note: any): number {
+    const total = this.noteChecklistTotal(note);
+    return total > 0 ? Math.round((this.noteChecklistCompleted(note) / total) * 100) : 0;
   }
 
   /** Delegates to shared isNoteActive from sticky-note.function.ts */
@@ -1308,117 +1438,91 @@ export class MyNotes implements OnInit, OnChanges {
 
   bulkArchiveSelected(): void {
     const ids = Array.from(this.selectedNoteIds());
-    if (!ids.length) return;
+    if (!ids.length || this.bulkBusy()) return;
 
-    let completed = 0;
-    let updatedCount = 0;
-    ids.forEach((id) => {
-      const note = this.notes().find((n) => idOf(n) === id);
-      if (note && this.isActive(note)) {
-        this.stickyNoteApi
-          .archive(id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: (res) => {
+    this.bulkBusy.set(true);
+    from(ids)
+      .pipe(
+        mergeMap(id => {
+          const note = this.notes().find(n => idOf(n) === id);
+          if (!note || !this.isActive(note)) return of(false);
+          return this.stickyNoteApi.archive(id).pipe(
+            map(res => {
               if (res?.data) this.replaceNote(res.data);
-              completed++;
-              updatedCount++;
-              if (completed === ids.length) {
-                if (updatedCount > 0) {
-                  this.overdue.refresh();
-                  this.toastService.success(
-                    `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
-                  );
-                }
-                this.clearSelection();
-              }
-            },
-            error: () => {
-              completed++;
-              if (completed === ids.length) {
-                if (updatedCount > 0) {
-                  this.overdue.refresh();
-                  this.toastService.success(
-                    `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
-                  );
-                }
-                this.clearSelection();
-              }
-            }
-          });
-      } else {
-        completed++;
-        if (completed === ids.length) {
-          if (updatedCount > 0) {
-            this.overdue.refresh();
-            this.toastService.success(
-              `Archived ${updatedCount} ${updatedCount === 1 ? 'note' : 'notes'}`
-            );
-          }
-          this.clearSelection();
+              return true;
+            }),
+            catchError(() => of(false))
+          );
+        }, 3),
+        toArray(),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.bulkBusy.set(false))
+      )
+      .subscribe(results => {
+        const succeeded = results.filter(Boolean).length;
+        if (succeeded) {
+          this.overdue.refresh();
+          this.toastService.success(
+            `Archived ${succeeded} ${succeeded === 1 ? 'note' : 'notes'}`
+          );
         }
-      }
-    });
+        this.clearSelection();
+      });
   }
 
   bulkDeleteSelected(): void {
     const ids = Array.from(this.selectedNoteIds());
-    if (!ids.length) return;
+    if (!ids.length || this.bulkBusy()) return;
 
-    let completed = 0;
-    let deletedCount = 0;
-    ids.forEach((id) => {
-      this.stickyNoteApi
-        .delete(id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.notes.update((items) => items.filter((n) => idOf(n) !== id));
-            completed++;
-            deletedCount++;
-            if (completed === ids.length) {
-              if (deletedCount > 0) {
-                this.overdue.refresh();
-                this.toastService.success(
-                  `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
-                );
-              }
-              this.clearSelection();
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === ids.length) {
-              if (deletedCount > 0) {
-                this.overdue.refresh();
-                this.toastService.success(
-                  `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`
-                );
-              }
-              this.clearSelection();
-            }
-          }
-        });
-    });
+    this.bulkBusy.set(true);
+    from(ids)
+      .pipe(
+        mergeMap(id =>
+          this.stickyNoteApi.delete(id).pipe(
+            map(() => {
+              this.notes.update(items => items.filter(n => idOf(n) !== id));
+              return true;
+            }),
+            catchError(() => of(false))
+          ),
+          3
+        ),
+        toArray(),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.bulkBusy.set(false))
+      )
+      .subscribe(results => {
+        const succeeded = results.filter(Boolean).length;
+        if (succeeded) {
+          this.overdue.refresh();
+          this.toastService.success(
+            `Moved ${succeeded} ${succeeded === 1 ? 'note' : 'notes'} to trash`
+          );
+        }
+        this.clearSelection();
+      });
   }
 
-  copyNoteId(id: string, event?: Event): void {
+  copyNoteKey(key: string, event?: Event): void {
     event?.stopPropagation();
     event?.preventDefault();
-    if (!id) return;
-    navigator.clipboard?.writeText(id);
-    this.copiedNoteIds.update((set) => {
-      const next = new Set(set);
-      next.add(id);
-      return next;
-    });
-    setTimeout(() => {
+    if (!key || !navigator.clipboard) return;
+
+    navigator.clipboard.writeText(key).then(() => {
       this.copiedNoteIds.update((set) => {
         const next = new Set(set);
-        next.delete(id);
+        next.add(key);
         return next;
       });
-    }, 2000);
+      this.toastService.info(`Copied ${key} to clipboard`);
+      setTimeout(() => {
+        this.copiedNoteIds.update((set) => {
+          const next = new Set(set);
+          next.delete(key);
+          return next;
+        });
+      }, 2000);
+    }).catch(() => undefined);
   }
 
   isKeyCopied(id: string): boolean {
@@ -1438,6 +1542,8 @@ export class MyNotes implements OnInit, OnChanges {
     ++this.noteRequestVersion;
     this.columns.set([]);
     this.notes.set([]);
+    this.fromDate.set(null);
+    this.toDate.set(null);
     this.loadingNotes.set(false);
     this.notesError.set(null);
     this.busyIds.set(new Set());

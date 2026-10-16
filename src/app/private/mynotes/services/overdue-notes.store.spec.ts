@@ -46,14 +46,13 @@ describe('OverdueNotesStore', () => {
     expect(store.loading()).toBe(false);
   });
 
-  it('dismisses only the banner and retains dismissal on refresh until context changes', () => {
+  it('retains the open panel on refresh and resets it when context changes', () => {
     store.refresh('workspace', 'folder');
     getRequest().flush(response());
     store.open.set(true);
-    store.dismissed.set(true);
     store.refresh();
     getRequest().flush(response());
-    expect(store.bannerVisible()).toBe(false);
+    expect(store.bannerVisible()).toBe(true);
     expect(store.open()).toBe(true);
     store.refresh('workspace', 'other-folder');
     getRequest().flush(response());

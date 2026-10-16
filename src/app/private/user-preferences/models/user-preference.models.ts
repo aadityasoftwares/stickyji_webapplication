@@ -6,6 +6,8 @@ export const USER_PREFERENCE_KEYS = {
     SELECTED_FOLDER_ID: 'selectedFolderId',
     DEFAULT_NOTE_COLOR: 'defaultNoteColor',
     NOTE_VIEW: 'noteView',
+    TODAY_VIEW: 'todayView',
+    OVERDUE_VIEW: 'overdueView',
     WORKSPACE_VIEW: 'workspaceView',
     WORKSPACE_STATUS_FILTER: 'workspaceStatusFilter',
     WORKSPACE_ACCESS_FILTER: 'workspaceAccessFilter',
@@ -63,6 +65,9 @@ export type NoteView =
     | 'LIST'
     | 'TABLE'
     | 'KANBAN';
+
+export type TodayPreferenceView = 'KANBAN' | 'TABLE';
+export type OverduePreferenceView = 'BAR' | 'BUTTON';
 
 export type WorkspacePreferenceView =
     | 'GRID'
@@ -182,6 +187,8 @@ export interface UserPreferencesM {
     workspaceRoleSortOrder?: WorkspaceRolePreferenceSortOrder;
     defaultNoteColor: DefaultNoteColor;
     noteView: NoteView;
+    todayView: TodayPreferenceView;
+    overdueView: OverduePreferenceView;
     autosaveEnabled: boolean;
     autosaveInterval: number;
     emailNotifications: boolean;
@@ -244,6 +251,8 @@ export const DEFAULT_USER_PREFERENCES:
     workspaceRoleSortOrder: 'PRIORITY',
     defaultNoteColor: 'YELLOW',
     noteView: 'GRID',
+    todayView: 'KANBAN',
+    overdueView: 'BAR',
     autosaveEnabled: true,
     autosaveInterval: 5,
     emailNotifications: true,

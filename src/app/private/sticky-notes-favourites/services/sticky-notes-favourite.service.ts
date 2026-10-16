@@ -13,7 +13,7 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 export class StickyNotesFavouriteService {
   private readonly http = inject(HttpClient);
   private readonly toastService = inject(ToastService);
-    private readonly baseUrl = API_BASE_URL;
+  private readonly baseUrl = API_BASE_URL;
   private readonly favoriteBaseUrl = `${this.baseUrl}/stickynotefavorites`;
 
   /** Reactive map of stickyNoteId -> favoriteId */
@@ -66,10 +66,10 @@ export class StickyNotesFavouriteService {
    * Populate favoriteMap from a list of favorite records
    */
   populateFavorites(list: any[]): void {
-    const nextMap = new Map(this.favoriteMap());
+    const nextMap = new Map<string, string>();
     for (const item of list) {
-      const noteDoc = item?.stickyNote ?? item?.noteDoc ?? item?.note ?? item;
-      const noteId = idOf(noteDoc) || idOf(item?.stickyNoteId);
+      const noteDoc = item?.stickyNoteId ?? item?.stickyNote ?? item?.noteDoc ?? item?.note;
+      const noteId = idOf(noteDoc);
       const favId = idOf(item);
       if (noteId && favId) {
         nextMap.set(noteId, favId);
