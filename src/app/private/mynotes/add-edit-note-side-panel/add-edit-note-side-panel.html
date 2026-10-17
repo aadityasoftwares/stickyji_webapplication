@@ -50,7 +50,7 @@
                     [clearable]="false" [searchable]="false" [fullWidth]="true" />
             </div>
         </section>
-        <section class="note-fields" aria-label="Note details">
+        <section class="note-fields" appFocusNavigation aria-label="Note details">
             <div class="note-field note-title-field">
                 <app-label forId="note-title" text="Title" />
                 <div class="note-field-control">
@@ -193,7 +193,7 @@
                     } @else {
                     <div class="checklist-groups">
                         @for (checklistControl of checklists.controls; track checklistControl; let checklistIndex = $index) {
-                        <div class="checklist-group">
+                        <div class="checklist-group" appFocusNavigation (noNextFocus)="onChecklistNoNextFocus($event, checklistIndex)">
                             <div class="checklist-title-row">
                                 <app-badge class="checklist-number" [count]="checklistIndex + 1" variant="neutral" size="xs" />
                                 <app-input type="text" label="Checklist title" labelMode="hidden" placeholder="Checklist title"

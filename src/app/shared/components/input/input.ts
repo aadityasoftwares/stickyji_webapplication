@@ -431,8 +431,32 @@ export class Input implements ControlValueAccessor {
     this.focusControl();
   }
 
+  /**
+   * Focuses the native input or textarea control and places cursor at the specified position.
+   * Defaults to 'end' to place cursor at the end of existing text.
+   */
+  focus(position: 'end' | 'start' | 'all' = 'end'): void {
+    const el = this.nativeControl?.nativeElement;
+    if (!el) return;
+    el.focus();
+    if (typeof el.setSelectionRange === 'function') {
+      const len = el.value?.length ?? 0;
+      try {
+        if (position === 'end') {
+          el.setSelectionRange(len, len);
+        } else if (position === 'start') {
+          el.setSelectionRange(0, 0);
+        } else if (position === 'all') {
+          el.setSelectionRange(0, len);
+        }
+      } catch {
+        // Safe fallback
+      }
+    }
+  }
+
   private focusControl(): void {
-    queueMicrotask(() => this.nativeControl?.nativeElement.focus());
+    queueMicrotask(() => this.focus('end'));
   }
 
   private setValue(value: InputValue, emit: boolean): void {

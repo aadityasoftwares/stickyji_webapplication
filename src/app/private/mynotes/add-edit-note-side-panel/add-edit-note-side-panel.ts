@@ -96,6 +96,7 @@ import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
+import { FocusNavigationDirective, focusAtEnd } from '../../../shared/directives/focus-navigation.directive';
 
 @Component({
   selector: 'app-add-edit-note-side-panel',
@@ -109,6 +110,7 @@ import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-
     Button,
     Checkbox,
     DatepickerInput,
+    FocusNavigationDirective,
     Label,
     Loader,
     MatMenuModule,
@@ -499,7 +501,12 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   onTitleEnter(event: KeyboardEvent): void {
     event.preventDefault();
-    (event.target as HTMLElement | null)?.blur();
+    const contentInput = document.querySelector<HTMLTextAreaElement>('#note-content, textarea[name="note-content"]');
+    if (contentInput) {
+      focusAtEnd(contentInput);
+    } else {
+      (event.target as HTMLElement | null)?.blur();
+    }
   }
 
   close(): void {
@@ -577,9 +584,15 @@ export class AddEditNoteSidePanel implements OnChanges {
     const group = (event.target as HTMLElement)?.closest('.checklist-group');
     const firstTaskInput = group?.querySelector('.checklist-items input:not([disabled])') as HTMLInputElement | null;
     if (firstTaskInput) {
-      firstTaskInput.focus();
+      focusAtEnd(firstTaskInput);
     } else {
       this.addChecklistItem(index);
+    }
+  }
+
+  onChecklistNoNextFocus(event: { current: HTMLElement; key: string }, checklistIndex: number): void {
+    if (event.key === 'Enter') {
+      this.addChecklistItem(checklistIndex);
     }
   }
 
@@ -654,10 +667,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   private focusFirstInput(container: Element | null): void {
     if (!container) return;
     const input = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      'input:not([disabled]):not([type="checkbox"]), textarea:not([disabled])'
+      'input:not([disabled]):not([type="checkbox"]):not([type="radio"]), textarea:not([disabled])'
     );
     if (input) {
-      input.focus();
+      focusAtEnd(input);
     }
   }
 
@@ -1368,12 +1381,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   private focusTitle(): void {
     setTimeout(() => {
       if (!this.open) return;
-      const input = this.noteTitleInput?.nativeElement.querySelector('input:not([disabled])') as HTMLInputElement | null;
-      if (!input || document.activeElement === input) return;
-      input.focus({ preventScroll: true });
-      if (this.mode === 'edit' && input.value) {
-        input.setSelectionRange(0, input.value.length);
-      }
+      const input = (this.noteTitleInput?.nativeElement?.querySelector('input:not([disabled])')
+        || document.querySelector<HTMLInputElement>('#note-title input:not([disabled]), #note-title')) as HTMLInputElement | null;
+      if (!input) return;
+      focusAtEnd(input);
     }, 100);
   }
 }
