@@ -40,6 +40,7 @@ import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
@@ -70,6 +71,7 @@ export class ForgotPassword implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly seoService = inject(SeoService);
 
   @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
@@ -109,6 +111,8 @@ export class ForgotPassword implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initSeo();
+
     const inputEmail = this.initialEmail
       .trim()
       .toLowerCase();
@@ -345,5 +349,41 @@ export class ForgotPassword implements OnInit {
     focus();
     requestAnimationFrame(focus);
     setTimeout(focus, 120);
+  }
+
+  private initSeo(): void {
+    const forgotPasswordSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': 'https://stickyji.app/auth/forgot-password#webpage',
+      name: 'Reset Your Password | Sticky Ji',
+      url: 'https://stickyji.app/auth/forgot-password',
+      description:
+        'Forgot your Sticky Ji password? Enter your email to receive secure password recovery instructions and regain access to your visual workspace.',
+      isPartOf: {
+        '@type': 'WebApplication',
+        name: 'Sticky Ji',
+        url: 'https://stickyji.app',
+      },
+    };
+
+    this.seoService.update({
+      title: 'Reset Your Password | Sticky Ji Workspace',
+      description:
+        'Forgot your Sticky Ji password? Enter your email to receive secure password recovery instructions and regain access to your visual workspace.',
+      keywords: [
+        'sticky ji forgot password',
+        'recover sticky ji account',
+        'reset workspace password',
+        'sticky ji password recovery',
+        'digital sticky notes account recovery',
+      ],
+      canonicalUrl: '/auth/forgot-password',
+      ogTitle: 'Reset Your Password | Sticky Ji Workspace',
+      ogDescription:
+        'Recover access to your Sticky Ji account. Get password reset instructions delivered safely to your registered email.',
+      ogType: 'website',
+      jsonLd: forgotPasswordSchema,
+    });
   }
 }
