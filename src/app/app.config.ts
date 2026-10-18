@@ -13,6 +13,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { AuthService } from './public/auth/services/auth-service';
 import { AppErrorHandler } from './shared/services/app-error-handler.service';
+import { SeoService } from './shared/services/seo.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,6 +32,8 @@ export const appConfig: ApplicationConfig = {
 
     provideAppInitializer(() => {
       const authService = inject(AuthService);
+      const seoService = inject(SeoService);
+      seoService.initRouteListener();
       return firstValueFrom(authService.initializeSession());
     }),
   ],

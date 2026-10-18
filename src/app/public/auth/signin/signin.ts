@@ -47,6 +47,7 @@ import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import {
@@ -84,6 +85,7 @@ export class Signin implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly seoService = inject(SeoService);
 
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
@@ -139,6 +141,8 @@ export class Signin implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initSeo();
+
     const inputEmail = this.initialEmail
       .trim()
       .toLowerCase();
@@ -499,5 +503,53 @@ export class Signin implements OnInit {
     return Boolean(
       control.invalid && this.submitted(),
     );
+  }
+
+  private initSeo(): void {
+    const webAppSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      '@id': 'https://stickyji.app/#webapplication',
+      name: 'Sticky Ji',
+      url: 'https://stickyji.app/auth/login',
+      applicationCategory: 'ProductivityApplication',
+      operatingSystem: 'All modern web browsers, Windows, macOS, iOS, Android',
+      description:
+        'Sign in to Sticky Ji to manage your digital sticky notes, visual boards, smart folders, and daily tasks.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      featureList: [
+        'Digital Sticky Notes with custom colors & markdown',
+        'Smart Folders and Workspace organization',
+        'Today Daily Focus board',
+        'Team Collaboration with role-based permissions',
+        'Encrypted cloud auto-save and sync',
+      ],
+    };
+
+    this.seoService.update({
+      title: 'Sign In to Sticky Ji | Digital Sticky Notes & Visual Workspace',
+      description:
+        'Sign in to your Sticky Ji workspace. Access your digital sticky notes, visual boards, daily focus tasks, and collaborative workspaces. Safe, encrypted, and distraction-free.',
+      keywords: [
+        'sticky ji login',
+        'sign in sticky ji',
+        'digital sticky notes',
+        'visual workspace',
+        'online sticky notes login',
+        'kanban board login',
+        'task planner',
+        'calm productivity',
+      ],
+      canonicalUrl: '/auth/login',
+      ogTitle: 'Sign In to Sticky Ji | Digital Sticky Notes & Visual Workspace',
+      ogDescription:
+        'Access your digital sticky notes, visual boards, daily focus tasks, and collaborative workspaces on Sticky Ji.',
+      ogType: 'website',
+      jsonLd: webAppSchema,
+    });
   }
 }

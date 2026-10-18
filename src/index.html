@@ -2,9 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Sticky Ji — A calmer workspace for your ideas</title>
+    <title>Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Sticky Ji brings your notes, tasks, and everyday plans together on a calm, visual canvas with colorful sticky notes, smart folders, and a focused daily workflow."
+    />
+    <meta
+      name="keywords"
+      content="sticky notes, visual notes, digital sticky notes, online sticky notes, task planner, kanban board, productivity app, idea organizer, calm workspace"
+    />
+    <meta name="author" content="Sticky Ji" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="theme-color" content="#FFFDF9" />
+    <link rel="canonical" href="https://stickyji.app/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sticky Ji" />
+    <meta property="og:title" content="Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace" />
+    <meta
+      property="og:description"
+      content="Bring your notes, tasks, and everyday plans together on a calm, visual canvas. Color-coded sticky notes, smart folders, and daily focus planner."
+    />
+    <meta property="og:image" content="https://stickyji.app/StickyJiLogo.png" />
+    <meta property="og:url" content="https://stickyji.app/" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sticky Ji — Visual Sticky Notes & Calmer Workspace" />
+    <meta
+      name="twitter:description"
+      content="A simple, visual workspace to get ideas out of your head and into motion."
+    />
+    <meta name="twitter:image" content="https://stickyji.app/StickyJiLogo.png" />
+
     <link rel="icon" type="image/png" href="StickyJiLogo.png" />
     <link rel="apple-touch-icon" href="StickyJiLogo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +47,46 @@
       rel="stylesheet"
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+    <!-- Global Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://stickyji.app/#organization",
+            "name": "Sticky Ji",
+            "url": "https://stickyji.app/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://stickyji.app/StickyJiLogo.png"
+            }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://stickyji.app/#software",
+            "name": "Sticky Ji",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "All modern browsers, Windows, macOS, Linux, iOS, Android",
+            "description": "Visual sticky notes, kanban task boards, daily planner, and calm productivity workspace.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Visual color-coded sticky notes",
+              "Smart folders and workspaces",
+              "Today daily focus view",
+              "Thought-flow kanban progression",
+              "Team workspace collaboration",
+              "Encrypted, private-by-default architecture"
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <app-root></app-root>

@@ -21,7 +21,12 @@ export const routes: Routes = [
       import('./public/auth/accept-workspace-invitation/accept-workspace-invitation').then(
         (m) => m.AcceptWorkspaceInvitation,
       ),
-    title: 'Accept workspace invitation | Sticky Ji',
+    title: 'Join Workspace Invitation | Sticky Ji Collaboration',
+    data: {
+      description:
+        'Accept your team invitation to join a shared Sticky Ji workspace. Collaborate on notes, organize boards, and track progress together.',
+      robots: 'noindex, follow',
+    },
   },
   {
     path: '',

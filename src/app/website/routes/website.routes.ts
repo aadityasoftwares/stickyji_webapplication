@@ -15,8 +15,15 @@ export const WEBSITE_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'home' },
       {
         path: 'home',
-        title: 'Sticky Ji | A calmer workspace for your ideas',
+        title: 'Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace',
         loadComponent: () => import('../home/home').then((m) => m.Home),
+        data: {
+          description:
+            'Sticky Ji brings your notes, tasks, and everyday plans together on a calm, visual canvas with colorful sticky notes, smart folders, and a focused daily workflow.',
+          keywords:
+            'sticky notes, visual notes, digital sticky notes, task planner, kanban board, personal productivity, thought organizer, workspace planner',
+          canonicalUrl: '/home',
+        },
       },
       sectionRoute('features', 'features'),
       sectionRoute('how-it-works', 'how-it-works'),
@@ -26,8 +33,13 @@ export const WEBSITE_ROUTES: Routes = [
       sectionRoute('reviews', 'reviews'),
       {
         path: '**',
-        title: 'Page not found | Sticky Ji',
+        title: 'Page Not Found (404) | Sticky Ji',
         loadComponent: () => import('../not-found/not-found').then((m) => m.WebsiteNotFound),
+        data: {
+          description:
+            'The page you requested could not be found. Return to Sticky Ji home or sign in to your workspace.',
+          robots: 'noindex, follow',
+        },
       },
     ],
   },

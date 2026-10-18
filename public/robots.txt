@@ -1,0 +1,19 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /home
+Allow: /auth/login
+Allow: /auth/signup
+Allow: /features
+Allow: /how-it-works
+Allow: /use-cases
+Allow: /pricing
+Allow: /reviews
+
+# Disallow private application area and internal endpoints
+Disallow: /app/
+Disallow: /auth/reset-password
+Disallow: /auth/forgot-password
+
+# Sitemap
+Sitemap: https://stickyji.app/sitemap.xml

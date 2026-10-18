@@ -26,8 +26,11 @@
     isolation: isolate;
     display: flex;
     min-width: 0;
-    overflow: hidden;
-    padding: clamp(28px, 3.5vw, 48px);
+    overflow-y: hidden;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 110, 91, 0.25) transparent;
+    padding: clamp(24px, 3.2vw, 44px);
     flex-direction: column;
     background: linear-gradient(175deg, #FAF4EB 0%, #F5EDE0 100%);
     border-right: 1px solid $border-light;
@@ -418,6 +421,7 @@
 }
 
 @media (max-width: 560px) {
+
     .signup-shortcut,
     .back-home span {
         display: none;
@@ -487,10 +491,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
         scroll-behavior: auto !important;
         transition: none !important;
     }
-}
+}

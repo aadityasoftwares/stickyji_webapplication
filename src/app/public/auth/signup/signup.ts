@@ -5,6 +5,7 @@ import {
   DestroyRef,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   afterNextRender,
   inject,
@@ -46,6 +47,7 @@ import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
@@ -85,12 +87,13 @@ interface BrowserRegistrationContext {
   styleUrl: './signup.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Signup {
+export class Signup implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly seoService = inject(SeoService);
 
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
@@ -171,6 +174,10 @@ export class Signup {
 
       this.focusControl('firstName');
     });
+  }
+
+  ngOnInit(): void {
+    this.initSeo();
   }
 
   get firstNameControl() {
@@ -580,5 +587,52 @@ export class Signup {
     return Boolean(
       control.invalid && this.submitted(),
     );
+  }
+
+  private initSeo(): void {
+    const registerSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      '@id': 'https://stickyji.app/#webapplication',
+      name: 'Sticky Ji',
+      url: 'https://stickyji.app/auth/signup',
+      applicationCategory: 'ProductivityApplication',
+      operatingSystem: 'All modern web browsers, Windows, macOS, iOS, Android',
+      description:
+        'Create your free Sticky Ji account. Organize notes, tasks, and creative projects on a calm, visual digital sticky notes canvas.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      featureList: [
+        'Unlimited digital sticky notes with custom colors & markdown',
+        'Smart folders & project workspaces',
+        'Mindful Today daily focus dashboard',
+        'Team collaboration & live board sharing',
+        'Encrypted cloud auto-save & sync',
+      ],
+    };
+
+    this.seoService.update({
+      title: 'Sign Up Free | Sticky Ji — Digital Sticky Notes & Visual Productivity Workspace',
+      description:
+        'Create your free Sticky Ji account today. Organize ideas with colorful digital sticky notes, smart folders, visual kanban boards, and team collaboration.',
+      keywords: [
+        'sticky ji sign up',
+        'create sticky ji account',
+        'free digital sticky notes',
+        'visual productivity board',
+        'online note taking register',
+        'kanban task manager sign up',
+        'visual workspace register',
+      ],
+      canonicalUrl: '/auth/signup',
+      ogTitle: 'Sign Up Free | Sticky Ji — Digital Sticky Notes & Visual Productivity Workspace',
+      ogDescription:
+        'Start for free on Sticky Ji. Capture raw thoughts, plan daily goals, and organize your ideas visually.',
+      ogType: 'website',
+      jsonLd: registerSchema,
+    });
   }
 }
