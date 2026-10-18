@@ -32,18 +32,10 @@
     </nav>
 
     <div class="desktop-actions">
-      <app-button [label]="signInLabel" variant="outline" size="md" (buttonClick)="onSignIn()" />
-
-      <app-button
-        [label]="primaryActionLabel"
-        variant="primary"
-        size="md"
-        [hasIcon]="true"
-        iconPosition="right"
-        (buttonClick)="onPrimaryAction()"
-      >
-        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-      </app-button>
+      <button class="header-sign-in" type="button" (click)="onSignIn()">{{ signInLabel }}</button>
+      <button class="header-start" type="button" (click)="onPrimaryAction()">
+        {{ primaryActionLabel }} <app-icon [icon]="LucideArrowRight" size="md" />
+      </button>
     </div>
 
     <button

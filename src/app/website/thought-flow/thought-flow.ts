@@ -3,19 +3,15 @@ import {
   LucideArrowRight,
   LucideCheck,
   LucideCircleCheckBig,
-  LucideClock3,
+  LucideInfo,
   LucideLightbulb,
   LucideListChecks,
   LucideSparkles,
-  LucideUsers,
+  LucideSprout,
 } from '@lucide/angular';
 import { Avatar } from '../../shared/components/avatar/avatar';
-import { Badge } from '../../shared/components/badge/badge';
-import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
-import { LabelVariant, Label } from '../../shared/components/label/label';
-import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
 export type ThoughtFlowStageId = 'capture' | 'organize' | 'finish';
 
@@ -26,12 +22,11 @@ interface ThoughtFlowStage {
   title: string;
   description: string;
   icon: AppIconDefinition;
-  labelVariant: LabelVariant;
 }
 
 @Component({
   standalone: true,
-  imports: [AppIcon, Avatar, Badge, Button, Checkbox, Label, StickyCard],
+  imports: [AppIcon, Avatar, Checkbox],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-thought-flow',
   styleUrl: './thought-flow.scss',
@@ -40,10 +35,10 @@ interface ThoughtFlowStage {
 export class ThoughtFlow {
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheck = LucideCheck;
-  readonly LucideClock3 = LucideClock3;
+  readonly LucideInfo = LucideInfo;
   readonly LucideLightbulb = LucideLightbulb;
   readonly LucideSparkles = LucideSparkles;
-  readonly LucideUsers = LucideUsers;
+  readonly LucideSprout = LucideSprout;
 
   readonly stages: readonly ThoughtFlowStage[] = [
     {
@@ -53,7 +48,6 @@ export class ThoughtFlow {
       title: 'Capture the thought',
       description: 'Save the idea in seconds, before your attention moves somewhere else.',
       icon: LucideLightbulb,
-      labelVariant: 'noteYellow',
     },
     {
       id: 'organize',
@@ -62,7 +56,6 @@ export class ThoughtFlow {
       title: 'Shape the next step',
       description: 'Add a tiny checklist, a gentle deadline, or the person who can help.',
       icon: LucideListChecks,
-      labelVariant: 'noteBlue',
     },
     {
       id: 'finish',
@@ -71,7 +64,6 @@ export class ThoughtFlow {
       title: 'Move it to done',
       description: 'Finish without friction and leave your mind with a little more room.',
       icon: LucideCircleCheckBig,
-      labelVariant: 'noteGreen',
     },
   ];
 

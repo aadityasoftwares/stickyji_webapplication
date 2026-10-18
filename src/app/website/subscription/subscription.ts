@@ -16,6 +16,7 @@ import {
   LucideArrowRight,
   LucideCheck,
   LucideInfo,
+  LucideLock,
   LucideMinus,
   LucideRefreshCw,
   LucideShield,
@@ -25,11 +26,10 @@ import {
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
-import { TabItem, Tabs, TabValue } from '../../shared/components/tabs/tabs';
+import { TabItem, TabValue } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import {
-  BillingCycle,
   BillingInterval,
   ComparisonMatrixRow,
   ComparisonPlanValue,
@@ -41,10 +41,256 @@ import {
 } from './services/plans.service';
 import { BillingService, RazorpayPaymentSuccessResponse } from './services/billing.service';
 
+export const DEFAULT_PLANS: PlanCardDTO[] = [
+  {
+    id: 'plan-free',
+    name: 'Free',
+    code: 'FREE',
+    type: 'FREE',
+    description: 'All essential productivity features with free usage limits.',
+    badge: null,
+    isPopular: false,
+    isCurrent: false,
+    prices: [
+      {
+        id: null,
+        billingInterval: 'MONTHLY',
+        amountMajor: 0,
+        formatted: 'Free',
+        currencySymbol: '₹',
+      },
+      {
+        id: null,
+        billingInterval: 'YEARLY',
+        amountMajor: 0,
+        formatted: 'Free',
+        currencySymbol: '₹',
+      },
+    ],
+    pricing: {
+      monthly: {
+        id: null,
+        billingInterval: 'MONTHLY',
+        amountMajor: 0,
+        formatted: 'Free',
+        currencySymbol: '₹',
+      },
+      yearly: {
+        id: null,
+        billingInterval: 'YEARLY',
+        amountMajor: 0,
+        formatted: 'Free',
+        currencySymbol: '₹',
+      },
+    },
+    highlights: [
+      '3 Workspaces',
+      '500 Sticky Notes',
+      '100 MB Cloud Storage',
+      '3 AI Note-Take Tax',
+      'Kanban Boards & Checklists',
+    ],
+    features: [
+      {
+        code: 'WORKSPACES',
+        name: 'Workspaces',
+        type: 'QUOTA',
+        formattedLimit: '3',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'NOTES',
+        name: 'Sticky Notes',
+        type: 'QUOTA',
+        formattedLimit: '500',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'STORAGE',
+        name: 'Cloud Storage',
+        type: 'QUOTA',
+        formattedLimit: '100 MB',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+    ],
+    buttonText: 'Get started free',
+  },
+  {
+    id: 'plan-individual',
+    name: 'Individual',
+    code: 'INDIVIDUAL',
+    type: 'PAID',
+    description: 'More capacity for personal productivity.',
+    badge: null,
+    isPopular: false,
+    isCurrent: false,
+    prices: [
+      {
+        id: 'price-individual-monthly',
+        billingInterval: 'MONTHLY',
+        amountMajor: 49,
+        formatted: '₹49',
+        currencySymbol: '₹',
+        savingsPercentage: 0,
+      },
+      {
+        id: 'price-individual-yearly',
+        billingInterval: 'YEARLY',
+        amountMajor: 499,
+        formatted: '₹499',
+        monthlyEquivalent: 42,
+        savingsPercentage: 15,
+        currencySymbol: '₹',
+        pricePerMonthFormatted: '₹42',
+      },
+    ],
+    pricing: {
+      monthly: {
+        id: 'price-individual-monthly',
+        billingInterval: 'MONTHLY',
+        amountMajor: 49,
+        formatted: '₹49',
+        currencySymbol: '₹',
+      },
+      yearly: {
+        id: 'price-individual-yearly',
+        billingInterval: 'YEARLY',
+        amountMajor: 499,
+        formatted: '₹499',
+        monthlyEquivalent: 42,
+        savingsPercentage: 15,
+        currencySymbol: '₹',
+        pricePerMonthFormatted: '₹42',
+      },
+    },
+    highlights: [
+      '5 Workspaces',
+      '5,000 Sticky Notes',
+      '1 GB Cloud Storage',
+      '100 MB Note-Take Tax',
+      'Search & Productivity Filters',
+    ],
+    features: [
+      {
+        code: 'WORKSPACES',
+        name: 'Workspaces',
+        type: 'QUOTA',
+        formattedLimit: '5',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'NOTES',
+        name: 'Sticky Notes',
+        type: 'QUOTA',
+        formattedLimit: '5,000',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'STORAGE',
+        name: 'Cloud Storage',
+        type: 'QUOTA',
+        formattedLimit: '1 GB',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+    ],
+    buttonText: 'Upgrade to Individual',
+  },
+  {
+    id: 'plan-pro',
+    name: 'Pro',
+    code: 'PRO',
+    type: 'PAID',
+    description: 'Expanded capacity for power users and teams.',
+    badge: 'Popular',
+    isPopular: true,
+    isCurrent: false,
+    prices: [
+      {
+        id: 'price-pro-monthly',
+        billingInterval: 'MONTHLY',
+        amountMajor: 99,
+        formatted: '₹99',
+        currencySymbol: '₹',
+        savingsPercentage: 0,
+      },
+      {
+        id: 'price-pro-yearly',
+        billingInterval: 'YEARLY',
+        amountMajor: 999,
+        formatted: '₹999',
+        monthlyEquivalent: 83,
+        savingsPercentage: 15,
+        currencySymbol: '₹',
+        pricePerMonthFormatted: '₹83',
+      },
+    ],
+    pricing: {
+      monthly: {
+        id: 'price-pro-monthly',
+        billingInterval: 'MONTHLY',
+        amountMajor: 99,
+        formatted: '₹99',
+        currencySymbol: '₹',
+      },
+      yearly: {
+        id: 'price-pro-yearly',
+        billingInterval: 'YEARLY',
+        amountMajor: 999,
+        formatted: '₹999',
+        monthlyEquivalent: 83,
+        savingsPercentage: 15,
+        currencySymbol: '₹',
+        pricePerMonthFormatted: '₹83',
+      },
+    },
+    highlights: [
+      '20 Workspaces',
+      '25,000 Sticky Notes',
+      '10 GB Cloud Storage',
+      '3 MB Note-Take Tax',
+      'Team Member Collaboration & Roles',
+      'Activity & Audit History',
+    ],
+    features: [
+      {
+        code: 'WORKSPACES',
+        name: 'Workspaces',
+        type: 'QUOTA',
+        formattedLimit: '20',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'NOTES',
+        name: 'Sticky Notes',
+        type: 'QUOTA',
+        formattedLimit: '25,000',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+      {
+        code: 'STORAGE',
+        name: 'Cloud Storage',
+        type: 'QUOTA',
+        formattedLimit: '10 GB',
+        isUnlimited: false,
+        isEnabled: true,
+      },
+    ],
+    buttonText: 'Upgrade to Pro',
+  },
+];
+
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [Button, AppIcon, Badge, Tabs],
+  imports: [AppIcon, Badge],
   templateUrl: './subscription.html',
   styleUrl: './subscription.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,6 +313,7 @@ export class Subscription implements OnInit {
   readonly LucideInfo = LucideInfo;
   readonly LucideAlertCircle = LucideAlertCircle;
   readonly LucideRefreshCw = LucideRefreshCw;
+  readonly LucideLock = LucideLock;
 
   // Catalog State Signals
   readonly catalog = signal<SubscriptionCatalogResponse | null>(null);
@@ -78,13 +325,22 @@ export class Subscription implements OnInit {
   @Output() planSelected = new EventEmitter<PlanCardDTO>();
 
   // Computed state
-  readonly plans = computed<PlanCardDTO[]>(() => this.catalog()?.plans ?? []);
+  readonly plans = computed<PlanCardDTO[]>(() => {
+    const catPlans = this.catalog()?.plans;
+    if (catPlans && catPlans.length > 0) {
+      return catPlans;
+    }
+    return DEFAULT_PLANS;
+  });
+
   readonly comparisonMatrix = computed<ComparisonMatrixRow[]>(
     () => this.catalog()?.comparisonMatrix ?? [],
   );
+
   readonly userSubscription = computed<UserSubscriptionDTO | null>(
     () => this.catalog()?.userSubscription ?? this.catalog()?.currentSubscription ?? null,
   );
+
   readonly billingIntervals = computed<BillingInterval[]>(() => {
     const cat = this.catalog();
     if (cat?.billingIntervals?.length) {
@@ -100,18 +356,17 @@ export class Subscription implements OnInit {
     const intervals = this.billingIntervals();
     const plansList = this.plans();
 
-    // Calculate maximum savings percentage across plans for yearly cycle
     const yearlySavings = plansList.reduce((max, plan) => {
       const yrPrice = this.getPlanIntervalPrice(plan, 'YEARLY');
       return Math.max(max, yrPrice?.savingsPercentage ?? 0);
-    }, 0);
+    }, 15);
 
     return intervals.map((interval) => {
       if (interval === 'YEARLY') {
         return {
           value: 'YEARLY',
           label: 'Yearly billing',
-          count: yearlySavings > 0 ? `Save ${yearlySavings}%` : null,
+          count: yearlySavings > 0 ? `Save ${yearlySavings}%` : 'Save 15%',
         };
       }
       return {
@@ -230,13 +485,12 @@ export class Subscription implements OnInit {
     ) {
       return '';
     }
-    return this.selectedCycle() === 'YEARLY' ? '/year' : '/month';
+    return this.selectedCycle() === 'YEARLY' ? '/ month' : '/ month';
   }
 
   getButtonLabel(plan: PlanCardDTO): string {
     if (plan.isCurrent) return 'Current Plan';
     if (this.processingPlanId() === plan.id) return 'Starting checkout...';
-    if (!this.isPriceAvailable(plan)) return 'Unavailable';
     if (plan.buttonText) return plan.buttonText;
     if (plan.code === 'FREE') return 'Get started free';
     return 'Upgrade to ' + plan.name;
@@ -246,7 +500,6 @@ export class Subscription implements OnInit {
     if (this.processingPlanId() !== null) return true;
     if (plan.isCurrent) return true;
     if (plan.buttonDisabled) return true;
-    if (!this.isPriceAvailable(plan)) return true;
     return false;
   }
 
@@ -293,13 +546,12 @@ export class Subscription implements OnInit {
   choosePlan(plan: PlanCardDTO): void {
     this.planSelected.emit(plan);
 
-    // If current plan, no action needed
+    // If current plan, inform user
     if (plan.isCurrent) {
       this.toastService.info('You are already on the ' + plan.name + ' plan.');
       return;
     }
 
-    // Check pricing availability
     const price = this.getPrice(plan);
     const isFree =
       plan.code === 'FREE' ||
@@ -307,15 +559,6 @@ export class Subscription implements OnInit {
       (price !== null && (price.amountMajor === 0 || (price as any).amount === 0));
 
     const priceId = price?.id ?? price?.planPriceId ?? null;
-
-    if (!isFree && !priceId) {
-      this.toastService.warning(
-        'This billing cycle is not available for ' +
-          plan.name +
-          '. Please select another plan or cycle.',
-      );
-      return;
-    }
 
     const isAuthenticated = this.authStore.isAuthenticated();
 
@@ -342,6 +585,15 @@ export class Subscription implements OnInit {
       return;
     }
 
+    if (!priceId) {
+      this.toastService.warning(
+        'This billing cycle is not available for ' +
+          plan.name +
+          '. Please select another plan or cycle.',
+      );
+      return;
+    }
+
     // Prevent duplicate checkout request
     if (this.processingPlanId() !== null) {
       return;
@@ -351,7 +603,7 @@ export class Subscription implements OnInit {
     this.processingPlanId.set(plan.id);
 
     this.billingService
-      .subscribe(priceId!)
+      .subscribe(priceId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async (checkoutDetails) => {
@@ -391,7 +643,6 @@ export class Subscription implements OnInit {
   }
 
   private handlePaymentSuccess(paymentData: RazorpayPaymentSuccessResponse): void {
-    // Attempt verification with backend
     this.billingService
       .verifyPayment(paymentData)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -402,7 +653,6 @@ export class Subscription implements OnInit {
           this.loadPlans();
         },
         error: () => {
-          // If verify endpoint is not configured, inform user that confirmation is in progress
           this.toastService.success('Payment received! Confirming your subscription status...');
           this.processingPlanId.set(null);
           this.loadPlans();

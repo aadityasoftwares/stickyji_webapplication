@@ -1,20 +1,25 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { DOCUMENT, ViewportScroller } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
 import {
   LucideArrowRight,
   LucideArrowUp,
+  LucideBookOpen,
   LucideCheck,
-  LucideExternalLink,
   LucideHeart,
-  LucideStar,
-  LucideLink,
+  LucideHouse,
   LucideMail,
   LucideSparkles,
+  LucideUsers,
 } from '@lucide/angular';
-import { Badge } from '../../shared/components/badge/badge';
-import { Button } from '../../shared/components/button/button';
-import { Divider } from '../../shared/components/divider/divider';
-import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
-import { Label } from '../../shared/components/label/label';
+import { AppIcon } from '../../shared/components/icon/icon';
 
 export interface FooterLink {
   label: string;
@@ -25,93 +30,138 @@ export interface FooterLink {
 
 export interface FooterLinkGroup {
   title: string;
+  icon: 'sparkles' | 'home' | 'book' | 'users';
+  badgeColor: 'yellow' | 'pink' | 'blue' | 'green';
   links: readonly FooterLink[];
 }
 
 export interface FooterSocialLink {
   label: string;
   href: string;
-  icon: AppIconDefinition;
+  type: 'linkedin' | 'x' | 'instagram' | 'youtube';
 }
 
 export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
   {
     title: 'Product',
+    icon: 'sparkles',
+    badgeColor: 'yellow',
     links: [
       { label: 'Features', href: '/home#features' },
       { label: 'How it works', href: '/home#how-it-works' },
       { label: 'Use cases', href: '/home#use-cases' },
       { label: 'Pricing', href: '/home#pricing' },
+      { label: "What's new", href: '/home#features', badge: 'New' },
+      { label: 'Roadmap', href: '/home#features' },
     ],
   },
   {
-    title: 'Good to know',
+    title: 'Solutions',
+    icon: 'home',
+    badgeColor: 'pink',
     links: [
-      { label: 'Home', href: '/home' },
-      { label: 'Stories', href: '/home#reviews' },
-      { label: 'Use cases', href: '/home#use-cases' },
-      { label: 'Plans', href: '/home#pricing' },
+      { label: 'For students', href: '/home#use-cases' },
+      { label: 'For professionals', href: '/home#use-cases' },
+      { label: 'For creators', href: '/home#use-cases' },
+      { label: 'For everyday life', href: '/home#use-cases' },
+      { label: 'Small teams', href: '/home#use-cases' },
     ],
   },
   {
-    title: 'Get started',
+    title: 'Resources',
+    icon: 'book',
+    badgeColor: 'blue',
     links: [
-      { label: 'Create an account', href: '/auth/signup' },
-      { label: 'Sign in', href: '/auth/login' },
-      { label: 'How it works', href: '/home#how-it-works' },
-      { label: 'Forgot password', href: '/auth/forgot-password' },
+      { label: 'Blog', href: '/home#reviews' },
+      { label: 'Help center', href: '/home#how-it-works' },
+      { label: 'Guides', href: '/home#how-it-works' },
+      { label: 'Templates', href: '/home#features' },
+      { label: 'Product updates', href: '/home#features' },
+      { label: 'Status', href: '/home' },
+    ],
+  },
+  {
+    title: 'Company',
+    icon: 'users',
+    badgeColor: 'green',
+    links: [
+      { label: 'About us', href: '/home#how-it-works' },
+      { label: 'Careers', href: '/home' },
+      { label: 'Contact', href: 'mailto:hello@stickyji.app', external: true },
+      { label: 'Privacy policy', href: '/home' },
+      { label: 'Terms & conditions', href: '/home' },
     ],
   },
 ];
 
 @Component({
   standalone: true,
-  imports: [AppIcon, Badge, Button, Divider, Label],
+  imports: [AppIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-website-footer',
   styleUrl: './website-footer.scss',
   templateUrl: './website-footer.html',
 })
 export class WebsiteFooter {
+  private readonly document = inject(DOCUMENT);
+  private readonly scroller = inject(ViewportScroller);
+
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideArrowUp = LucideArrowUp;
   readonly LucideCheck = LucideCheck;
-  readonly LucideExternalLink = LucideExternalLink;
   readonly LucideHeart = LucideHeart;
-  readonly LucideInstagram = LucideHeart;
-  readonly LucideLinkedin = LucideHeart;
+  readonly LucideHouse = LucideHouse;
+  readonly LucideBookOpen = LucideBookOpen;
+  readonly LucideUsers = LucideUsers;
   readonly LucideMail = LucideMail;
   readonly LucideSparkles = LucideSparkles;
 
   @Input() brandName = 'Sticky Ji';
-  @Input() logoSrc = 'StickyJiVerticalLogo.png';
+  @Input() logoSrc = 'StickyJiHorizontalLogo.png';
   @Input() mascotSrc = 'StickyJiLogo.png';
   @Input() brandHref = '/home#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
-  @Input() ctaTitle = 'Your next good idea needs somewhere to land.';
-  @Input() ctaDescription = 'Start with one note. Invite your people when the idea gets bigger.';
+  @Input() ctaBadgeText = 'Ready to get organized?';
+  @Input() ctaHeadingLine1 = 'Your next big idea needs';
+  @Input() ctaHeadingHighlight = 'a home.';
+  @Input() ctaDescription = 'Start with one note. Invite your people when the ideas grow.';
   @Input() primaryActionLabel = 'Start for free';
   @Input() secondaryActionLabel = 'Sign in';
-  @Input() statusLabel = 'All notes are syncing';
   @Input() linkGroups: readonly FooterLinkGroup[] = DEFAULT_FOOTER_GROUPS;
-  @Input() socialLinks: readonly FooterSocialLink[] = [
-    { label: 'Instagram', href: 'https://instagram.com', icon: LucideHeart },
-    { label: 'LinkedIn', href: 'https://linkedin.com', icon: LucideHeart },
-    { label: 'Email us', href: 'mailto:hello@stickyji.app', icon: LucideMail },
-  ];
+
+  // Backward compatibility inputs
+  @Input() ctaTitle?: string;
+  @Input() statusLabel?: string;
+  @Input() socialLinks?: readonly unknown[];
 
   @Output() primaryActionClick = new EventEmitter<void>();
   @Output() secondaryActionClick = new EventEmitter<void>();
   @Output() linkSelected = new EventEmitter<FooterLink>();
-  @Output() socialSelected = new EventEmitter<FooterSocialLink>();
+  @Output() newsletterSubscribe = new EventEmitter<string>();
 
   readonly currentYear = new Date().getFullYear();
+  readonly newsletterEmail = signal('');
+  readonly subscribeSuccess = signal(false);
 
   onLinkSelected(link: FooterLink): void {
     this.linkSelected.emit(link);
   }
 
-  onSocialSelected(link: FooterSocialLink): void {
-    this.socialSelected.emit(link);
+  onSubscribe(event: Event): void {
+    event.preventDefault();
+    const email = this.newsletterEmail().trim();
+    if (email) {
+      this.newsletterSubscribe.emit(email);
+      this.subscribeSuccess.set(true);
+      this.newsletterEmail.set('');
+      setTimeout(() => this.subscribeSuccess.set(false), 4000);
+    }
+  }
+
+  scrollToTop(event: Event): void {
+    event.preventDefault();
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

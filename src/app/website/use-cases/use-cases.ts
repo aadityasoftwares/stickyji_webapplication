@@ -1,26 +1,22 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideBriefcaseBusiness,
-  LucideCalendarDays,
   LucideCheck,
   LucideClock3,
   LucideGraduationCap,
   LucideHouse,
   LucidePalette,
-  LucideSparkles,
+  LucideEllipsis,
+  LucideLeaf,
+  LucideList,
+  LucidePin,
   LucideUsersRound,
 } from '@lucide/angular';
 import { AvatarTone, Avatar } from '../../shared/components/avatar/avatar';
-import { Badge } from '../../shared/components/badge/badge';
-import { Button } from '../../shared/components/button/button';
-import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
-import { Label } from '../../shared/components/label/label';
-import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
 export type UserPersonaId = 'student' | 'professional' | 'creator' | 'life' | 'team';
-type PersonaNoteVariant = 'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple';
 
 interface PersonaTask {
   label: string;
@@ -33,9 +29,6 @@ interface UserPersona {
   label: string;
   shortLabel: string;
   icon: AppIconDefinition;
-  noteVariant: PersonaNoteVariant;
-  labelVariant: PersonaNoteVariant;
-  checkboxVariant: PersonaNoteVariant;
   avatarTone: AvatarTone;
   avatarName: string;
   avatarInitials: string;
@@ -51,7 +44,7 @@ interface UserPersona {
 
 @Component({
   standalone: true,
-  imports: [AppIcon, Avatar, Badge, Button, Checkbox, Label, StickyCard],
+  imports: [AppIcon, Avatar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-use-cases',
   styleUrl: './use-cases.scss',
@@ -59,10 +52,12 @@ interface UserPersona {
 })
 export class UseCases {
   readonly LucideArrowRight = LucideArrowRight;
-  readonly LucideCalendarDays = LucideCalendarDays;
   readonly LucideCheck = LucideCheck;
   readonly LucideClock3 = LucideClock3;
-  readonly LucideSparkles = LucideSparkles;
+  readonly LucideEllipsis = LucideEllipsis;
+  readonly LucideLeaf = LucideLeaf;
+  readonly LucideList = LucideList;
+  readonly LucidePin = LucidePin;
 
   readonly personas: readonly UserPersona[] = [
     {
@@ -70,9 +65,6 @@ export class UseCases {
       label: 'Students',
       shortLabel: 'Study',
       icon: LucideGraduationCap,
-      noteVariant: 'noteYellow',
-      labelVariant: 'noteYellow',
-      checkboxVariant: 'noteYellow',
       avatarTone: 'yellow',
       avatarName: 'Nina Kapoor',
       avatarInitials: 'NK',
@@ -99,9 +91,6 @@ export class UseCases {
       label: 'Professionals',
       shortLabel: 'Work',
       icon: LucideBriefcaseBusiness,
-      noteVariant: 'noteBlue',
-      labelVariant: 'noteBlue',
-      checkboxVariant: 'noteBlue',
       avatarTone: 'blue',
       avatarName: 'Arjun Mehta',
       avatarInitials: 'AM',
@@ -128,9 +117,6 @@ export class UseCases {
       label: 'Creators',
       shortLabel: 'Create',
       icon: LucidePalette,
-      noteVariant: 'notePink',
-      labelVariant: 'notePink',
-      checkboxVariant: 'notePink',
       avatarTone: 'pink',
       avatarName: 'Sara Kim',
       avatarInitials: 'SK',
@@ -153,9 +139,6 @@ export class UseCases {
       label: 'Everyday life',
       shortLabel: 'Life',
       icon: LucideHouse,
-      noteVariant: 'noteGreen',
-      labelVariant: 'noteGreen',
-      checkboxVariant: 'noteGreen',
       avatarTone: 'green',
       avatarName: 'Jamie Diaz',
       avatarInitials: 'JD',
@@ -178,9 +161,6 @@ export class UseCases {
       label: 'Small teams',
       shortLabel: 'Team',
       icon: LucideUsersRound,
-      noteVariant: 'notePurple',
-      labelVariant: 'notePurple',
-      checkboxVariant: 'notePurple',
       avatarTone: 'purple',
       avatarName: 'Maya Shah',
       avatarInitials: 'MS',
@@ -193,7 +173,7 @@ export class UseCases {
         { label: 'Share the final checklist', done: false },
       ],
       sideNoteTitle: 'Team promise',
-      sideNoteText: 'If it changes, update the note—not another meeting.',
+      sideNoteText: 'If it changes, update the noteâ€”not another meeting.',
       outcome: 'Everyone sees what is moving and who needs help.',
       quote: 'Enough structure to stay aligned, never enough to slow us down.',
     },

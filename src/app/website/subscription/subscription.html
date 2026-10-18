@@ -1,34 +1,127 @@
 <section id="pricing" class="subscription" aria-labelledby="subscription-title">
+  <!-- Background Symbols & Playful Doodles -->
+  <div class="subscription-decorations" aria-hidden="true">
+    <!-- Ambient Paint Swooshes -->
+    <div class="paint-swoosh swoosh-left"></div>
+    <div class="paint-swoosh swoosh-right"></div>
+
+    <!-- Top Left Title Rays -->
+    <svg class="sub-doodle doodle-title-rays" viewBox="0 0 60 50" fill="none">
+      <path
+        d="M15 36L6 24M28 22L24 6M44 32L54 22"
+        stroke="#0F766E"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
+    </svg>
+
+    <!-- Top Right Sparkle Star -->
+    <svg class="sub-doodle doodle-sparkle-top" viewBox="0 0 44 44" fill="none">
+      <path
+        d="M22 4V40M4 22H40M10 10L34 34M10 34L34 10"
+        stroke="#F59E0B"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      />
+    </svg>
+
+    <!-- Floating Mini Sticky Note (Left Flank) -->
+    <div class="mini-floating-note note-left">
+      <span class="mini-tape"></span>
+      <span class="mini-text">Start small.<br />Think big.</span>
+      <svg class="mini-smile" viewBox="0 0 32 32" fill="none">
+        <path
+          d="M8 8V12M24 8V12M6 18Q16 30 26 18"
+          stroke="#1F2937"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </div>
+
+    <!-- Left Flank Curly Noodle Doodle -->
+    <svg class="sub-doodle doodle-curly-left" viewBox="0 0 54 64" fill="none">
+      <path
+        d="M44 8C20 12 8 28 14 48C18 60 36 58 40 44C44 32 32 20 18 26"
+        stroke="#F97316"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
+    </svg>
+
+    <!-- Floating Mini Sticky Note (Right Flank) -->
+    <div class="mini-floating-note note-right">
+      <span class="mini-tape"></span>
+      <span class="mini-text">No stress.<br />Just flow.</span>
+      <svg class="mini-heart" viewBox="0 0 36 36" fill="none">
+        <path
+          d="M18 30C-2 15 9 2 18 12C27-2 38 15 18 30Z"
+          stroke="#EA580C"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+
+    <!-- Right Flank Curved Idea Arrow pointing to cards -->
+    <svg class="sub-doodle doodle-arrow-right" viewBox="0 0 95 80" fill="none">
+      <path
+        d="M12 16C42 12 78 24 84 58M70 54L84 58L88 42"
+        stroke="#16A34A"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+
+    <!-- Double Tick Marks (Bottom Left) -->
+    <svg class="sub-doodle doodle-ticks-left" viewBox="0 0 40 40" fill="none">
+      <path d="M10 28L20 8M20 28L30 8" stroke="#0F766E" stroke-width="3.5" stroke-linecap="round" />
+    </svg>
+  </div>
+
   <div class="subscription-shell">
-    <!-- Header -->
-    <header class="section-heading">
-      <span class="section-eyebrow">ROOM FOR YOUR NEXT CHAPTER</span>
-      <h2 id="subscription-title">
-        A little space to start.<br /><span>Room to grow from there.</span>
+    <!-- Header Section -->
+    <header class="subscription-heading">
+      <h2 id="subscription-title" class="pricing-title">
+        <span class="title-line-1">A little space to start.</span>
+        <span class="title-line-2">Room to grow from there.</span>
       </h2>
-      <p>
-        Find the workspace that fits your day. Explore our available plans and choose where to
-        begin.
+      <p class="pricing-subtitle">
+        Find the workspace that fits your day. Explore our plans and choose where to begin with
+        Sticky Ji.
       </p>
 
-      <!-- Billing Cycle Selector -->
-      @if (!loading() && !error() && billingIntervals().length > 1) {
-        <div class="billing-cycle-wrap">
-          <app-tabs
-            [items]="cycleTabs()"
-            [value]="selectedCycle()"
-            variant="segmented"
-            activeVariant="noteYellow"
-            shape="pill"
-            density="compact"
-            ariaLabel="Select billing cycle"
-            (valueChange)="onCycleChange($event)"
-          />
+      <!-- Billing Cycle Selector (Segmented Pill) -->
+      <div class="billing-cycle-wrap">
+        <div class="billing-cycle-pill" role="radiogroup" aria-label="Billing interval">
+          <button
+            type="button"
+            role="radio"
+            [attr.aria-checked]="selectedCycle() === 'MONTHLY'"
+            class="cycle-toggle-btn"
+            [class.is-active]="selectedCycle() === 'MONTHLY'"
+            (click)="onCycleChange('MONTHLY')"
+          >
+            Monthly billing
+          </button>
+          <button
+            type="button"
+            role="radio"
+            [attr.aria-checked]="selectedCycle() === 'YEARLY'"
+            class="cycle-toggle-btn"
+            [class.is-active]="selectedCycle() === 'YEARLY'"
+            (click)="onCycleChange('YEARLY')"
+          >
+            <span>Yearly billing</span>
+            <span class="save-badge">Save 15%</span>
+          </button>
         </div>
-      }
+      </div>
     </header>
 
-    <!-- Current Subscription Notification Banner -->
+    <!-- Current Subscription Notification Banner (for logged-in subscribers) -->
     @if (!loading() && userSubscription(); as sub) {
       <aside class="current-sub-banner" role="status">
         <div class="sub-banner-badge">
@@ -47,7 +140,6 @@
 
     <!-- Content State Handlers -->
     <div class="plans-content" [attr.aria-busy]="loading()">
-      <!-- Loading Skeleton State -->
       @if (loading()) {
         <p class="state-message" role="status">Loading available plans...</p>
         <div class="plans-grid" aria-hidden="true">
@@ -70,33 +162,26 @@
             </div>
           }
         </div>
-      } @else if (error()) {
-        <!-- Error State -->
+      } @else if (error() && !plans().length) {
         <div class="state-card" role="alert">
           <app-icon [icon]="LucideAlertCircle" size="lg" class="state-card-icon" />
           <h3>Plans are taking a little longer to load.</h3>
           <p>We could not retrieve the subscription catalog. Please try again in a moment.</p>
-          <app-button
-            label="Try again"
-            variant="outline"
-            [hasIcon]="true"
-            iconPosition="left"
-            (buttonClick)="loadPlans()"
-          >
-            <app-icon button-icon-left [icon]="LucideRefreshCw" size="inherit" />
-          </app-button>
+          <button type="button" class="btn-retry" (click)="loadPlans()">
+            <app-icon [icon]="LucideRefreshCw" size="sm" />
+            <span>Try again</span>
+          </button>
         </div>
       } @else if (!plans().length) {
-        <!-- Empty Catalog State -->
         <div class="state-card" role="status">
           <app-icon [icon]="LucideInfo" size="lg" class="state-card-icon" />
           <h3>New plans are on the way.</h3>
           <p>There are no public subscription plans available right now. Please check back soon.</p>
-          <app-button label="Refresh catalog" variant="outline" (buttonClick)="loadPlans()" />
+          <button type="button" class="btn-retry" (click)="loadPlans()">Refresh catalog</button>
         </div>
       } @else {
-        <!-- Dynamic Pricing Cards Grid (Folded Sticky Notes) -->
-        <div class="plans-grid">
+        <!-- The 3 Sticky Note Pricing Cards Grid -->
+        <div class="pricing-cards-grid">
           @for (plan of plans(); track plan.id) {
             <div
               class="plan-card-shell"
@@ -104,7 +189,7 @@
               [class.is-current-shell]="plan.isCurrent"
               [attr.data-plan-code]="plan.code"
             >
-              <!-- Washi Tape Strip at Top -->
+              <!-- Washi Tape Strip at Top Center -->
               <div class="sticky-tape-strip" aria-hidden="true"></div>
 
               <article
@@ -113,10 +198,10 @@
                 [class.is-current]="plan.isCurrent"
                 [attr.aria-labelledby]="'plan-' + plan.id"
               >
-                <!-- Tactile Paper Grain Overlay -->
+                <!-- Subtle Paper Fiber Grain Overlay -->
                 <div class="paper-grain-overlay" aria-hidden="true"></div>
 
-                <!-- Topline with Code & Badges -->
+                <!-- Upper Code, Badges & Heading -->
                 <div class="plan-topline">
                   <span class="plan-code">{{ plan.code }}</span>
                   <div class="topline-badges">
@@ -138,104 +223,104 @@
                         [icon]="LucideSparkles"
                       />
                     }
-                    @if (plan.badge) {
-                      <app-badge [label]="plan.badge" variant="neutral" size="xs" shape="pill" />
-                    }
                   </div>
                 </div>
 
-                <!-- Title & Description -->
                 <h3 [id]="'plan-' + plan.id" class="plan-name">{{ plan.name }}</h3>
                 <p class="plan-description">{{ plan.description }}</p>
 
                 <!-- Price Box -->
                 <div class="plan-price">
                   <div class="price-main">
-                    <strong>{{ priceDisplay(plan) }}</strong>
+                    <span class="price-val">{{ priceDisplay(plan) }}</span>
                     @if (intervalDisplay(plan)) {
                       <span class="price-interval">{{ intervalDisplay(plan) }}</span>
                     }
                   </div>
 
                   @if (selectedCycle() === 'YEARLY' && getPrice(plan); as yrPrice) {
-                    <div class="price-extras">
-                      @if (yrPrice.savingsPercentage && yrPrice.savingsPercentage > 0) {
-                        <app-badge
-                          [label]="'Save ' + yrPrice.savingsPercentage + '%'"
-                          variant="noteYellow"
-                          size="xs"
-                          shape="pill"
-                        />
-                      }
-                      @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
-                        <span class="price-per-month">
-                          Billed annually ({{ yrPrice.currencySymbol || '₹'
-                          }}{{ yrPrice.monthlyEquivalent }}/mo)
-                        </span>
-                      } @else if (yrPrice.pricePerMonthFormatted) {
-                        <span class="price-per-month">
-                          Billed annually ({{ yrPrice.pricePerMonthFormatted }}/mo)
-                        </span>
-                      }
-                    </div>
+                    @if (yrPrice.savingsPercentage && yrPrice.savingsPercentage > 0) {
+                      <div class="price-extras">
+                        <span class="save-pill">Save {{ yrPrice.savingsPercentage }}%</span>
+                        @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
+                          <span class="price-per-month">
+                            Billed annually ({{ yrPrice.currencySymbol || '₹'
+                            }}{{ yrPrice.monthlyEquivalent }}/mo)
+                          </span>
+                        } @else if (yrPrice.pricePerMonthFormatted) {
+                          <span class="price-per-month">
+                            Billed annually ({{ yrPrice.pricePerMonthFormatted }}/mo)
+                          </span>
+                        }
+                      </div>
+                    }
                   }
                 </div>
 
-                <!-- Highlights List -->
-                <ul class="plan-details" aria-label="Key plan features">
+                <!-- Features Checklist with Circular Color-Coded Check Badges -->
+                <ul class="plan-features-list" aria-label="Key plan features">
                   @if (plan.highlights && plan.highlights.length) {
                     @for (highlight of plan.highlights; track highlight) {
-                      <li>
-                        <app-icon [icon]="LucideCheck" size="sm" class="check-icon" />
-                        <span>{{ highlight }}</span>
+                      <li class="feature-item">
+                        <span
+                          class="feature-check-circle"
+                          [class]="'check-' + plan.code.toLowerCase()"
+                          aria-hidden="true"
+                        >
+                          <app-icon [icon]="LucideCheck" size="xs" />
+                        </span>
+                        <span class="feature-text">{{ highlight }}</span>
                       </li>
                     }
                   } @else if (plan.features && plan.features.length) {
                     @for (feat of plan.features; track feat.code) {
-                      <li>
-                        <app-icon [icon]="LucideCheck" size="sm" class="check-icon" />
-                        <span>{{ feat.name }}: {{ feat.formattedLimit || feat.displayValue }}</span>
+                      <li class="feature-item">
+                        <span
+                          class="feature-check-circle"
+                          [class]="'check-' + plan.code.toLowerCase()"
+                          aria-hidden="true"
+                        >
+                          <app-icon [icon]="LucideCheck" size="xs" />
+                        </span>
+                        <span class="feature-text"
+                          >{{ feat.name }}: {{ feat.formattedLimit || feat.displayValue }}</span
+                        >
                       </li>
                     }
                   }
                 </ul>
 
-                <!-- Action Button -->
-                <div class="plan-action">
-                  <app-button
-                    [label]="getButtonLabel(plan)"
-                    [variant]="getButtonVariant(plan)"
-                    size="lg"
-                    [fullWidth]="true"
-                    [hasIcon]="!isButtonDisabled(plan)"
-                    iconPosition="right"
+                <!-- Action Button & Trust Badge Footer -->
+                <div class="plan-action-box">
+                  <button
+                    type="button"
+                    class="plan-btn"
+                    [class.btn-outline]="plan.code === 'FREE'"
+                    [class.btn-forest]="plan.code !== 'FREE'"
                     [disabled]="isButtonDisabled(plan)"
-                    [loading]="processingPlanId() === plan.id"
-                    (buttonClick)="choosePlan(plan)"
+                    (click)="choosePlan(plan)"
                   >
-                    <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-                  </app-button>
+                    <span>{{ getButtonLabel(plan) }}</span>
+                    <app-icon [icon]="LucideArrowRight" size="sm" />
+                  </button>
 
-                  <small class="action-caption">
-                    @if (plan.isCurrent) {
-                      This is your active subscription.
-                    } @else if (plan.code === 'FREE') {
-                      No credit card required. Free forever.
-                    } @else {
-                      Secure checkout powered by Razorpay.
-                    }
-                  </small>
+                  @if (plan.code !== 'FREE') {
+                    <div class="secure-checkout-caption">
+                      <app-icon [icon]="LucideLock" size="xs" class="lock-icon" />
+                      <span>Secure checkout powered by Razorpay</span>
+                    </div>
+                  }
                 </div>
               </article>
 
-              <!-- Folded Sticky Corner -->
+              <!-- Curled Bottom-Right Corner Flap -->
               <span class="sticky-corner-shadow" aria-hidden="true"></span>
               <span class="sticky-corner" aria-hidden="true"></span>
             </div>
           }
         </div>
 
-        <!-- Plan Feature Comparison Table -->
+        <!-- Optional Comparison Matrix (Expanded if Matrix Available) -->
         @if (comparisonMatrix().length && plans().length) {
           <div class="comparison-section">
             <header class="comparison-header">
@@ -322,11 +407,5 @@
         }
       }
     </div>
-
-    <!-- Sticky Note Inspired Footer Quote -->
-    <footer class="pricing-footer">
-      <img src="StickyJiLogo.png" alt="Sticky Ji" class="pricing-footer-mascot" />
-      <p>Start with your ideas. Build your workspace one note at a time.</p>
-    </footer>
   </div>
 </section>

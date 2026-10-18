@@ -1,133 +1,278 @@
 <footer class="site-footer" aria-labelledby="footer-brand-name">
   <div class="footer-shell">
-    <section class="footer-note" aria-labelledby="footer-cta-title">
-      <span class="footer-note-tape" aria-hidden="true"></span>
+    <!-- Top Sticky Note CTA Card Container -->
+    <div class="footer-cta-container">
+      <!-- Decorative Doodles Outside the Note -->
+      <svg class="doodle-tick doodle-top-left" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path
+          d="M12 30L22 10M22 30L32 10"
+          stroke="#0F766E"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+      </svg>
+      <svg class="doodle-loop doodle-left" viewBox="0 0 54 64" fill="none" aria-hidden="true">
+        <path
+          d="M44 8C20 12 8 28 14 48C18 60 36 58 40 44C44 32 32 20 18 26"
+          stroke="#F97316"
+          stroke-width="3.5"
+          stroke-linecap="round"
+          fill="none"
+        />
+      </svg>
+      <svg class="doodle-tick doodle-top-right" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path
+          d="M8 28L18 8M18 28L28 8"
+          stroke="#0F766E"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+      </svg>
 
-      <div class="footer-note-copy">
-        <div class="footer-badge-row">
-          <app-badge
-            label="One last note"
-            variant="notePink"
-            size="sm"
-            shape="pill"
-            [icon]="LucideSparkles"
-          />
-          <img [src]="mascotSrc" alt="Sticky Ji mascot" class="footer-mascot-sticker" />
+      <!-- Main Yellow Sticky Note Card -->
+      <section class="footer-cta-note" aria-labelledby="footer-cta-title">
+        <!-- Translucent Adhesive Tape -->
+        <span class="cta-tape" aria-hidden="true"></span>
+
+        <!-- Left Copy Section -->
+        <div class="cta-copy">
+          <div class="cta-badge">
+            <app-icon [icon]="LucideSparkles" size="xs" />
+            <span>{{ ctaBadgeText }}</span>
+          </div>
+
+          <h2 id="footer-cta-title" class="cta-title">
+            <span>{{ ctaHeadingLine1 }}</span>
+            <span class="cta-highlight">
+              {{ ctaHeadingHighlight }}
+              <!-- Brush scribble underline -->
+              <svg class="brush-underline" viewBox="0 0 170 18" fill="none" aria-hidden="true">
+                <path
+                  d="M4 11C40 4 110 5 166 11C125 15 50 16 12 13"
+                  stroke="#F97316"
+                  stroke-width="4.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <!-- Orange double tick doodle -->
+              <span class="accent-ticks" aria-hidden="true"></span>
+            </span>
+          </h2>
+
+          <p class="cta-subtitle">{{ ctaDescription }}</p>
         </div>
 
-        <h2 id="footer-cta-title">{{ ctaTitle }}</h2>
-        <p>{{ ctaDescription }}</p>
-      </div>
+        <!-- Right Action Side (Buttons, Mascot, Checklist) -->
+        <div class="cta-action-side">
+          <!-- Mascot Smiling Sticky Note with Joy Ticks -->
+          <div class="cta-mascot-wrapper" aria-hidden="true">
+            <svg class="mascot-joy-ticks" viewBox="0 0 32 22" fill="none">
+              <path
+                d="M8 18L14 4M20 18L26 4"
+                stroke="#1F2937"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <div class="cta-mascot-note">
+              <img [src]="mascotSrc" alt="Sticky Ji Mascot" class="mascot-img" />
+            </div>
+          </div>
 
-      <div class="footer-note-actions">
-        <app-button
-          [label]="primaryActionLabel"
-          variant="primary"
-          size="lg"
-          [hasIcon]="true"
-          iconPosition="right"
-          (buttonClick)="primaryActionClick.emit()"
+          <!-- Buttons Group -->
+          <div class="cta-buttons">
+            <button type="button" class="btn-start-free" (click)="primaryActionClick.emit()">
+              <span>{{ primaryActionLabel }}</span>
+              <app-icon [icon]="LucideArrowRight" size="sm" />
+            </button>
+
+            <button type="button" class="btn-sign-in" (click)="secondaryActionClick.emit()">
+              {{ secondaryActionLabel }}
+            </button>
+          </div>
+
+          <!-- Perks Checklist -->
+          <div class="cta-perks">
+            <div class="perk-item">
+              <span class="perk-check">✓</span>
+              <span>Free forever</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-check">✓</span>
+              <span>No credit card</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-check">✓</span>
+              <span>Set up in seconds</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Dashed Separator Line -->
+    <div class="footer-divider" aria-hidden="true"></div>
+
+    <!-- Main Footer Columns Grid -->
+    <div class="footer-main-grid">
+      <!-- Left Column: Brand, Tagline, Socials, Newsletter -->
+      <div class="footer-brand-col">
+        <a
+          [attr.href]="brandHref"
+          class="footer-brand"
+          [attr.aria-label]="brandName + ' home'"
+          id="footer-brand-name"
         >
-          <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-        </app-button>
-
-        <app-button
-          [label]="secondaryActionLabel"
-          variant="outline"
-          size="lg"
-          (buttonClick)="secondaryActionClick.emit()"
-        />
-
-        <app-label
-          text="Free forever · No card required"
-          variant="noteGreen"
-          appearance="plain"
-          size="xs"
-          weight="semibold"
-          [icon]="LucideCheck"
-        />
-      </div>
-    </section>
-
-    <app-divider variant="noteYellow" lineStyle="dashed" spacing="xl" />
-
-    <div class="footer-board">
-      <div class="footer-brand-column">
-        <a class="footer-brand" [attr.href]="brandHref" [attr.aria-label]="brandName + ' home'">
           <img [src]="logoSrc" [alt]="brandName" class="footer-brand-logo-img" />
         </a>
 
-        <p>{{ description }}</p>
+        <p class="footer-desc">{{ description }}</p>
 
-        <div class="footer-status" role="status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span>{{ statusLabel }}</span>
+        <!-- Social Icons: LinkedIn, X, Instagram, YouTube -->
+        <div class="footer-socials" aria-label="Social links">
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-btn"
+            aria-label="LinkedIn"
+          >
+            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.64c-.92 0-1.66.74-1.66 1.66 0 .92.74 1.66 1.66 1.66.92 0 1.66-.74 1.66-1.66 0-.92-.74-1.66-1.66-1.66Z"
+              />
+            </svg>
+          </a>
+
+          <a
+            href="https://x.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-btn"
+            aria-label="X (formerly Twitter)"
+          >
+            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+              />
+            </svg>
+          </a>
+
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-btn"
+            aria-label="Instagram"
+          >
+            <svg
+              class="social-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </a>
+
+          <a
+            href="https://youtube.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-btn"
+            aria-label="YouTube"
+          >
+            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+              />
+            </svg>
+          </a>
         </div>
 
-        <div class="social-links" aria-label="Social links">
-          @for (social of socialLinks; track social.label) {
-            <a
-              [attr.href]="social.href"
-              [attr.aria-label]="social.label"
-              [attr.target]="social.href.startsWith('http') ? '_blank' : null"
-              [attr.rel]="social.href.startsWith('http') ? 'noopener noreferrer' : null"
-              (click)="onSocialSelected(social)"
-            >
-              <app-icon [icon]="social.icon" size="sm" />
-            </a>
+        <!-- Newsletter Subscription Box -->
+        <div class="footer-newsletter">
+          <div class="newsletter-title-row">
+            <app-icon [icon]="LucideMail" size="sm" class="newsletter-icon" />
+            <span class="newsletter-title">Get product updates</span>
+          </div>
+          <p class="newsletter-sub">New features, tips, and stories. No spam.</p>
+
+          <form class="newsletter-form" (submit)="onSubscribe($event)">
+            <input
+              type="email"
+              class="newsletter-input"
+              placeholder="Enter your email"
+              [value]="newsletterEmail()"
+              (input)="newsletterEmail.set($any($event.target).value)"
+              required
+            />
+            <button type="submit" class="newsletter-submit">Subscribe</button>
+          </form>
+          @if (subscribeSuccess()) {
+            <p class="newsletter-success">Thanks for subscribing!</p>
           }
         </div>
       </div>
 
-      <nav class="footer-navigation" aria-label="Footer navigation">
-        @for (group of linkGroups; track group.title; let groupIndex = $index) {
-          <section class="footer-link-group" [attr.aria-labelledby]="'footer-group-' + groupIndex">
-            <app-label
-              [labelId]="'footer-group-' + groupIndex"
-              [text]="group.title.toUpperCase()"
-              [variant]="
-                groupIndex === 0 ? 'noteYellow' : groupIndex === 1 ? 'notePink' : 'noteBlue'
-              "
-              appearance="tape"
-              size="xs"
-              weight="bold"
-            />
+      <!-- Navigation Columns -->
+      @for (group of linkGroups; track group.title) {
+        <div class="footer-nav-col">
+          <!-- Colorful Sticky Note Pill Header -->
+          <div class="col-pill-badge" [class]="'badge-' + group.badgeColor">
+            @if (group.icon === 'sparkles') {
+              <app-icon [icon]="LucideSparkles" size="xs" />
+            } @else if (group.icon === 'home') {
+              <app-icon [icon]="LucideHouse" size="xs" />
+            } @else if (group.icon === 'book') {
+              <app-icon [icon]="LucideBookOpen" size="xs" />
+            } @else if (group.icon === 'users') {
+              <app-icon [icon]="LucideUsers" size="xs" />
+            }
+            <span>{{ group.title }}</span>
+          </div>
 
-            <ul>
-              @for (link of group.links; track link.label) {
-                <li>
-                  <a
-                    [attr.href]="link.href"
-                    [attr.target]="link.external ? '_blank' : null"
-                    [attr.rel]="link.external ? 'noopener noreferrer' : null"
-                    (click)="onLinkSelected(link)"
-                  >
-                    <span>{{ link.label }}</span>
-                    @if (link.badge) {
-                      <app-badge [label]="link.badge" variant="noteGreen" size="xs" shape="pill" />
-                    }
-                    @if (link.external) {
-                      <app-icon [icon]="LucideExternalLink" size="xs" />
-                    }
-                  </a>
-                </li>
-              }
-            </ul>
-          </section>
-        }
-      </nav>
+          <ul class="col-links-list">
+            @for (link of group.links; track link.label) {
+              <li>
+                <a
+                  [attr.href]="link.href"
+                  [attr.target]="link.external ? '_blank' : null"
+                  [attr.rel]="link.external ? 'noopener noreferrer' : null"
+                  (click)="onLinkSelected(link)"
+                >
+                  <span>{{ link.label }}</span>
+                  @if (link.badge) {
+                    <span class="pill-new">{{ link.badge }}</span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
 
-    <div class="footer-bottom">
-      <p>© {{ currentYear }} {{ brandName }}. Keep the good thoughts.</p>
+    <!-- Bottom Bar -->
+    <div class="footer-bottom-bar">
+      <p class="footer-copyright">© {{ currentYear }} {{ brandName }}. All rights reserved.</p>
 
       <p class="footer-made-with">
-        Made with <app-icon [icon]="LucideHeart" size="xs" /> for beautifully busy minds.
+        <app-icon [icon]="LucideHeart" size="xs" class="heart-icon" />
+        <span>Built with love for ideas, plans and people.</span>
       </p>
 
-      <a class="back-to-top" href="#top">
-        <span>Back to top</span>
-        <app-icon [icon]="LucideArrowUp" size="sm" />
+      <a class="back-to-top-btn" href="#top" (click)="scrollToTop($event)">
+        <span class="arrow-box">
+          <app-icon [icon]="LucideArrowUp" size="xs" />
+        </span>
+        <span class="back-to-top-text">Back to top</span>
       </a>
     </div>
   </div>

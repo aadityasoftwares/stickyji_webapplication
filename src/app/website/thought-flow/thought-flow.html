@@ -1,19 +1,43 @@
-<section id="how-it-works" class="thought-flow" aria-labelledby="thought-flow-title">
+﻿<section id="how-it-works" class="thought-flow" aria-labelledby="thought-flow-title">
   <div class="thought-flow-shell">
     <header class="section-heading">
-      <div>
-        <span class="section-eyebrow">A SIMPLE WAY TO MOVE FORWARD</span>
+      <div class="heading-copy">
+        <span class="section-eyebrow"
+          >A SIMPLE WAY TO MOVE FORWARD
+          <svg class="eyebrow-rays" viewBox="0 0 36 32" aria-hidden="true">
+            <path d="m5 20 12-14M13 27l17-6" />
+          </svg>
+        </span>
         <h2 id="thought-flow-title">
-          From a passing thought<br /><span>to a little progress.</span>
+          From a passing thought<br />to a
+          <span class="heading-highlight"
+            >little progress.
+            <svg class="heading-underline" viewBox="0 0 150 32" aria-hidden="true">
+              <path d="M3 13Q80-1 111 6L61 26l76-7" />
+            </svg>
+            <svg class="heading-rays" viewBox="0 0 40 62" aria-hidden="true">
+              <path d="m6 15 12-9M12 30l19-2M8 45l16 8" />
+            </svg>
+          </span>
         </h2>
       </div>
-      <p>
+      <p class="heading-description">
         Capture the idea. Give it a next step. Enjoy getting it done. A familiar workflow that makes
         room for the way you think.
       </p>
+      <div class="heading-doodle" aria-hidden="true">
+        <svg viewBox="0 0 70 55"><path d="M62 33C59 1 31 3 13 32m0-14-2 17 16-5" /></svg
+        ><span>IDEAS<br />TURN INTO<br />REAL PROGRESS.</span>
+      </div>
     </header>
+
     <div class="flow-layout">
-      <div class="flow-steps" role="tablist" aria-label="Thought workflow stages">
+      <div
+        class="flow-steps"
+        role="tablist"
+        aria-label="Thought workflow stages"
+        aria-orientation="vertical"
+      >
         @for (stage of stages; track stage.id; let stageIndex = $index) {
           <button
             class="flow-step"
@@ -28,25 +52,29 @@
             (keydown)="onStageKeydown($event, stageIndex)"
           >
             <span class="step-number" aria-hidden="true">{{ stage.number }}</span>
-
-            <span class="step-icon" [class]="'step-icon step-icon-' + stage.id" aria-hidden="true">
-              <app-icon [icon]="stage.icon" size="md" />
+            <span [class]="'step-icon step-icon-' + stage.id" aria-hidden="true">
+              <svg class="icon-rays" viewBox="0 0 60 40">
+                <path d="m8 28-6-4m18-8-2-9m17 10 2-10" />
+              </svg>
+              <app-icon [icon]="stage.icon" [size]="36" [strokeWidth]="1.8" />
             </span>
-
-            <span class="step-copy">
-              <small>{{ stage.eyebrow }}</small>
-              <strong>{{ stage.title }}</strong>
-              <span>{{ stage.description }}</span>
-            </span>
-
-            <span class="step-arrow" aria-hidden="true">
-              <app-icon [icon]="LucideArrowRight" size="sm" />
-            </span>
+            <span class="step-copy"
+              ><small>{{ stage.eyebrow }}</small
+              ><strong>{{ stage.title }}</strong
+              ><span>{{ stage.description }}</span></span
+            >
+            <span class="step-arrow" aria-hidden="true"
+              ><app-icon [icon]="LucideArrowRight" [size]="23" [strokeWidth]="1.7"
+            /></span>
           </button>
         }
       </div>
 
-      <div class="preview-wrap">
+      <div class="preview-wrap" [attr.data-stage]="selectedStage">
+        <svg class="window-rays" viewBox="0 0 45 45" aria-hidden="true">
+          <path d="m9 20 4-13m5 26 15-13" />
+        </svg>
+        <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
         <div
           id="thought-flow-panel"
           class="workflow-preview"
@@ -56,90 +84,60 @@
         >
           <header class="preview-header">
             <div>
-              <app-label
-                text="INTERACTIVE PREVIEW"
-                variant="neutral"
-                appearance="plain"
-                size="xs"
-                weight="bold"
-              />
+              <span class="preview-eyebrow">INTERACTIVE PREVIEW</span>
               <h3>{{ activeStage.title }}</h3>
             </div>
-
-            <app-badge
-              [label]="activeStage.number + ' / 03'"
-              [variant]="activeStage.labelVariant"
-              size="sm"
-              shape="pill"
-            />
+            <span class="stage-count">{{ activeStage.number }} / 03</span>
           </header>
-
           @switch (selectedStage) {
             @case ('capture') {
               <div class="preview-stage capture-stage">
                 <div class="capture-source">
-                  <span class="source-icon"><app-icon [icon]="LucideLightbulb" size="sm" /></span>
+                  <span class="source-icon" aria-hidden="true"
+                    ><app-icon [icon]="LucideLightbulb" [size]="24" [strokeWidth]="1.6"
+                  /></span>
                   <span
                     ><small>QUICK CAPTURE</small><strong>Saved before it slipped away</strong></span
-                  >
-                  <app-badge label="Just now" variant="outline" size="xs" shape="pill" />
+                  ><span class="time-badge">Just now</span>
+                  <svg class="source-rays" viewBox="0 0 30 35" aria-hidden="true">
+                    <path d="m5 14 7-8m-2 17 10-2" />
+                  </svg>
                 </div>
-
-                <app-sticky-card
-                  variant="noteYellow"
-                  appearance="flat"
-                  shape="note"
-                  size="md"
-                  [fullWidth]="true"
-                  [minHeight]="230"
-                  [padding]="24"
-                  [hoverable]="true"
-                  eyebrow="NEW THOUGHT"
-                  cardTitle="What if planning felt lighter?"
-                >
+                <article class="preview-note capture-note">
+                  <span class="note-eyebrow">NEW THOUGHT</span>
+                  <h4>
+                    What if planning felt lighter?<svg
+                      class="note-rays"
+                      viewBox="0 0 40 40"
+                      aria-hidden="true"
+                    >
+                      <path d="m8 18 8-12m-1 23 16-5" />
+                    </svg>
+                  </h4>
                   <p class="note-body">
                     Build a homepage that feels like clearing a desk—not opening another complicated
                     tool.
                   </p>
-
-                  <div card-footer class="note-footer">
-                    <span class="note-owner">
-                      <app-avatar
+                  <div class="note-footer">
+                    <span class="note-owner"
+                      ><app-avatar
                         name="Alex Patel"
                         initials="AP"
-                        size="sm"
+                        [size]="48"
                         tone="pink"
                         [elevated]="true"
-                      />
-                      <span><small>Captured by</small><strong>You</strong></span>
-                    </span>
-                    <app-label text="Inbox" variant="noteYellow" appearance="soft" size="xs" />
+                      /><span><small>Captured by</small><strong>You</strong></span></span
+                    ><span class="note-tag">Inbox</span>
                   </div>
-                </app-sticky-card>
-
-                <p class="stage-caption">
-                  <app-icon [icon]="LucideClock3" size="xs" /> Try switching steps to explore the
-                  workflow.
-                </p>
+                </article>
               </div>
             }
-
             @case ('organize') {
               <div class="preview-stage organize-stage">
-                <app-sticky-card
-                  variant="noteBlue"
-                  appearance="flat"
-                  shape="note"
-                  size="md"
-                  [fullWidth]="true"
-                  [minHeight]="300"
-                  [padding]="24"
-                  [hoverable]="true"
-                  eyebrow="TODAY'S FOCUS"
-                  cardTitle="Make the homepage feel human"
-                >
+                <article class="preview-note organize-note">
+                  <span class="note-eyebrow">TODAY’S FOCUS</span>
+                  <h4>Make the homepage feel human</h4>
                   <p class="note-body">A big idea becomes easier when the next steps stay small.</p>
-
                   <div class="task-list" aria-label="Homepage task checklist">
                     <app-checkbox
                       inputId="flow-headline"
@@ -150,7 +148,6 @@
                       [checked]="checklist.headline"
                       (checkedChange)="updateTask('headline', $event)"
                     />
-
                     <app-checkbox
                       inputId="flow-mobile-copy"
                       label="Tighten the mobile copy"
@@ -159,7 +156,6 @@
                       [checked]="checklist.mobileCopy"
                       (checkedChange)="updateTask('mobileCopy', $event)"
                     />
-
                     <app-checkbox
                       inputId="flow-final-review"
                       label="Do one calm final review"
@@ -169,57 +165,48 @@
                       (checkedChange)="updateTask('finalReview', $event)"
                     />
                   </div>
-
-                  <div card-footer class="progress-footer">
-                    <span>{{ completedTaskCount }} of 3 tiny steps</span>
-                    <span class="mini-progress" aria-hidden="true"
+                  <div class="progress-footer">
+                    <span aria-live="polite">{{ completedTaskCount }} of 3 tiny steps</span
+                    ><span class="mini-progress" aria-hidden="true"
                       ><i [style.width.%]="(completedTaskCount / 3) * 100"></i
                     ></span>
                   </div>
-                </app-sticky-card>
+                </article>
               </div>
             }
-
             @case ('finish') {
               <div class="preview-stage finish-stage">
-                <div class="celebration-mark" aria-hidden="true">
-                  <app-icon [icon]="LucideCheck" size="lg" />
-                </div>
-
-                <app-sticky-card
-                  variant="noteGreen"
-                  appearance="flat"
-                  shape="note"
-                  size="md"
-                  [fullWidth]="true"
-                  [minHeight]="245"
-                  [padding]="24"
-                  eyebrow="DONE AT 10:24"
-                  cardTitle="Homepage story shared"
-                >
+                <article class="preview-note finish-note">
+                  <span class="celebration-mark" aria-hidden="true"
+                    ><app-icon [icon]="LucideCheck" size="lg"
+                  /></span>
+                  <span class="note-eyebrow">DONE AT 10:24</span>
+                  <h4>Homepage story shared</h4>
                   <p class="note-body">
                     The first draft is out of your head and with the people who can move it forward.
                   </p>
-
-                  <div card-footer class="done-footer">
-                    <span class="avatar-stack" aria-label="Shared with three teammates">
-                      <app-avatar name="Alex Patel" initials="AP" size="sm" tone="pink" />
-                      <app-avatar name="Maya Khan" initials="MK" size="sm" tone="blue" />
-                      <app-avatar name="Jordan Lee" initials="JL" size="sm" tone="yellow" />
-                    </span>
-                    <app-badge
-                      label="Complete"
-                      variant="noteGreen"
-                      size="sm"
-                      shape="pill"
-                      [icon]="LucideCheck"
-                    />
+                  <div class="done-footer">
+                    <span class="avatar-stack" aria-label="Shared with three teammates"
+                      ><app-avatar
+                        name="Alex Patel"
+                        initials="AP"
+                        size="md"
+                        tone="pink" /><app-avatar
+                        name="Maya Khan"
+                        initials="MK"
+                        size="md"
+                        tone="blue" /><app-avatar
+                        name="Jordan Lee"
+                        initials="JL"
+                        size="md"
+                        tone="yellow" /></span
+                    ><span class="complete-badge"
+                      ><app-icon [icon]="LucideCheck" size="sm" />Complete</span
+                    >
                   </div>
-                </app-sticky-card>
-
+                </article>
                 <div class="mind-space">
-                  <app-icon [icon]="LucideSparkles" size="sm" />
-                  <span
+                  <app-icon [icon]="LucideSparkles" size="md" /><span
                     ><strong>One less open loop.</strong
                     ><small>Your mind has more room now.</small></span
                   >
@@ -227,6 +214,13 @@
               </div>
             }
           }
+          <p class="stage-caption">
+            <app-icon [icon]="LucideInfo" [size]="19" />
+            <span>Try switching steps to explore the workflow.</span
+            ><svg viewBox="0 0 30 40" aria-hidden="true">
+              <path d="m4 10 6-6m-2 15 11-2M8 29l7 4" />
+            </svg>
+          </p>
         </div>
       </div>
     </div>
@@ -234,23 +228,25 @@
     <footer class="section-footer">
       <div class="footer-copy">
         <span class="footer-icon" aria-hidden="true"
-          ><app-icon [icon]="LucideSparkles" size="md"
+          ><app-icon [icon]="LucideSprout" [size]="32" [strokeWidth]="1.7"
         /></span>
         <div>
           <strong>Less to keep in your head. More room to create.</strong>
           <p>Start with one note and make it your own.</p>
+          <svg class="footer-copy-rays" viewBox="0 0 36 36" aria-hidden="true">
+            <path d="m7 17 8-10m-1 19 13-4" />
+          </svg>
         </div>
       </div>
-      <app-button
-        label="Create your first note"
-        variant="primary"
-        size="md"
-        [hasIcon]="true"
-        iconPosition="right"
-        (buttonClick)="exploreClick.emit()"
-      >
-        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-      </app-button>
+      <button class="create-note-button" type="button" (click)="exploreClick.emit()">
+        Create your first note <app-icon [icon]="LucideArrowRight" [size]="25" /><svg
+          class="button-rays"
+          viewBox="0 0 40 45"
+          aria-hidden="true"
+        >
+          <path d="m8 15 7-10m0 21 10-5m-8 16 12-1" />
+        </svg>
+      </button>
     </footer>
   </div>
 </section>

@@ -1,26 +1,25 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideBell,
-  LucideCalendarDays,
   LucideCheck,
-  LucideClock,
-  LucidePlay,
-  LucidePlus,
+  LucideCircleCheck,
+  LucideHouse,
+  LucideLeaf,
+  LucideLightbulb,
+  LucideNotebook,
+  LucidePanelLeft,
+  LucidePanelsTopLeft,
   LucideSearch,
   LucideSparkles,
-  LucideZap,
+  LucideUser,
 } from '@lucide/angular';
-
-import { Badge } from '../../shared/components/badge/badge';
-import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
-import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [AppIcon, Badge, Button, StickyCard],
+  imports: [AppIcon],
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,15 +27,20 @@ import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 export class Hero {
   @Output() readonly startFree = new EventEmitter<void>();
   @Output() readonly watchDemo = new EventEmitter<void>();
-
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideBell = LucideBell;
-  readonly LucideCalendarDays = LucideCalendarDays;
   readonly LucideCheck = LucideCheck;
-  readonly LucideClock = LucideClock;
-  readonly LucidePlay = LucidePlay;
-  readonly LucidePlus = LucidePlus;
+  readonly LucideCircleCheck = LucideCircleCheck;
+  readonly LucideHouse = LucideHouse;
+  readonly LucideNotebook = LucideNotebook;
+  readonly LucidePanelLeft = LucidePanelLeft;
+  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucideSearch = LucideSearch;
   readonly LucideSparkles = LucideSparkles;
-  readonly LucideZap = LucideZap;
+  readonly previewCategories = [
+    { title: 'Product Ideas', count: '5 notes', color: 'yellow', icon: LucideLightbulb },
+    { title: 'Today’s Tasks', count: '8 tasks', color: 'pink', icon: LucideCheck },
+    { title: 'Personal', count: '12 notes', color: 'blue', icon: LucideUser },
+    { title: 'Inspiration', count: '6 notes', color: 'green', icon: LucideLeaf },
+  ];
 }

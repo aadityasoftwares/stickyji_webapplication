@@ -1,20 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   LucideArrowRight,
-  LucideCheckCircle2,
+  LucideCheck,
   LucideChevronLeft,
   LucideChevronRight,
   LucideQuote,
+  LucidePin,
   LucideSparkles,
   LucideStar,
 } from '@lucide/angular';
 import { AvatarTone, Avatar } from '../../shared/components/avatar/avatar';
-import { Badge } from '../../shared/components/badge/badge';
-import { Button } from '../../shared/components/button/button';
-import { Divider } from '../../shared/components/divider/divider';
 import { AppIcon } from '../../shared/components/icon/icon';
-import { Label } from '../../shared/components/label/label';
-import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
 export type ReviewNoteVariant =
   'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple' | 'noteOrange';
@@ -129,7 +125,7 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
 
 @Component({
   standalone: true,
-  imports: [AppIcon, Avatar, Badge, Button, Divider, Label, StickyCard],
+  imports: [AppIcon, Avatar],
   changeDetection: ChangeDetectionStrategy.OnPush,
 
   selector: 'app-reviews',
@@ -138,10 +134,11 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
 })
 export class Reviews {
   readonly LucideArrowRight = LucideArrowRight;
-  readonly LucideCheckCircle2 = LucideCheckCircle2;
+  readonly LucideCheck = LucideCheck;
   readonly LucideChevronLeft = LucideChevronLeft;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideQuote = LucideQuote;
+  readonly LucidePin = LucidePin;
   readonly LucideSparkles = LucideSparkles;
   readonly LucideStar = LucideStar;
   readonly stars = [1, 2, 3, 4, 5] as const;

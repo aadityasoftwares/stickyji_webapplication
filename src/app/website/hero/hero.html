@@ -1,275 +1,169 @@
-<section id="top" class="hero" aria-labelledby="hero-title">
-  <div class="hero-grid" aria-hidden="true"></div>
-
+﻿<section id="top" class="hero" aria-labelledby="hero-title">
+  <div class="hero-decorations" aria-hidden="true">
+    <div class="paper-note note-yellow">
+      <span>Notes<br />Tasks<br />Plans<br />All in one<br />place.</span>
+      <svg class="note-smile" viewBox="0 0 40 40"><path d="M12 9v4m15-4v4M8 21q12 17 24-1" /></svg>
+      <svg class="note-rays" viewBox="0 0 64 64">
+        <path d="M13 28 18 8m10 27L45 17M38 47l21-3" />
+      </svg>
+    </div>
+    <div class="paper-note note-pink">
+      <span>A clearer<br />today,<br />brighter<br />tomorrow</span>
+      <svg class="note-heart" viewBox="0 0 40 40">
+        <path d="M20 33C-3 17 10 2 20 14 30-1 45 16 20 33Z" />
+      </svg>
+    </div>
+    <svg class="idea-arrow" viewBox="0 0 110 85">
+      <path d="M8 8q15 57 88 52m-17-9 19 9-15 17" />
+    </svg>
+    <div class="paper-note note-green">
+      <span>Turn<br />ideas<br />into<br />action</span>
+      <svg class="note-bulb" viewBox="0 0 50 65">
+        <path
+          d="M15 37C-1 19 13 7 25 12s16 18 3 28l-3 9-12-4 2-8Zm1-1 6 3 4-11m-12 21 9 3m-9 2 7 2M6 9 3 5m23-1 1-4m12 13 6-3m-3 17 7 1"
+        />
+      </svg>
+      <svg class="note-underline" viewBox="0 0 80 10"><path d="M3 5q35-4 73-1" /></svg>
+      <svg class="note-rays" viewBox="0 0 64 64"><path d="m15 28 3-21m12 31 17-17" /></svg>
+    </div>
+    <div class="paper-note note-blue">
+      <span>Same<br />ideas.<br />Happier<br />days.</span>
+      <svg class="note-smile" viewBox="0 0 40 40"><path d="M12 9v4m15-4v4M8 21q12 17 24-1" /></svg>
+    </div>
+    <svg class="little-rays" viewBox="0 0 60 50"><path d="m13 36-16-9m31-2-6-19" /></svg>
+    <div class="paint-swoosh swoosh-left"></div>
+    <div class="paint-swoosh swoosh-right"></div>
+  </div>
   <div class="hero-container">
     <div class="hero-copy">
       <div class="hero-eyebrow">
-        <img src="StickyJiLogo.png" alt="Sticky Ji" class="hero-eyebrow-mascot" />
-        <span class="hero-eyebrow-dot" aria-hidden="true"></span>
-        <span class="hero-eyebrow-text">A little clarity. A lot of possibility.</span>
+        <app-icon [icon]="LucideSparkles" size="sm" /><span
+          >Sticky notes for a clearer, brighter you.</span
+        >
       </div>
       <h1 id="hero-title" class="hero-title">
-        Big ideas. Clear next steps.<span class="hero-title-note">One happy workspace.</span>
+        Big ideas. Clear next steps.
+        <span class="hero-title-note"
+          >One happy workspace.
+          <svg class="title-underline" viewBox="0 0 310 18" aria-hidden="true">
+            <path d="M4 13Q130-5 302 9" />
+          </svg>
+          <svg class="title-rays" viewBox="0 0 60 65" aria-hidden="true">
+            <path d="m8 25 8-20m5 31 18-13m-12 28 20-1" />
+          </svg>
+        </span>
       </h1>
       <p class="hero-description">
-        Bring your notes, tasks, and everyday plans together. A simple, visual workspace to get
-        things out of your head and into motion.
+        Bring your notes, tasks, and everyday plans together in one simple,<br
+          class="desktop-break"
+        />
+        visual workspace to get things out of your head and into motion.
       </p>
       <div class="hero-actions">
-        <app-button
-          label="Get started for free"
-          variant="primary"
-          size="lg"
-          [fullWidth]="true"
-          [hasIcon]="true"
-          iconPosition="right"
-          (buttonClick)="startFree.emit()"
-        >
-          <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-        </app-button>
+        <button class="hero-primary" type="button" (click)="startFree.emit()">
+          Get started for free <app-icon [icon]="LucideArrowRight" size="md" />
+        </button>
         <a class="preview-link" href="/home#features"
           >Explore the workspace <app-icon [icon]="LucideArrowRight" size="sm"
         /></a>
       </div>
       <div class="hero-assurance">
-        <span><app-icon [icon]="LucideCheck" size="sm" /> Free to get started</span>
-        <span><app-icon [icon]="LucideCheck" size="sm" /> Your ideas, organized</span>
+        <span><app-icon [icon]="LucideCheck" size="sm" /> Free to get started</span
+        ><i aria-hidden="true">·</i
+        ><span><app-icon [icon]="LucideCheck" size="sm" /> Your ideas, organized</span>
       </div>
       <div class="hero-use-cases">
         <span>MADE FOR YOUR EVERYDAY</span>
-        <p>Personal projects <i></i> Work notes <i></i> Fresh ideas</p>
+        <p>
+          <span>Personal projects</span><i></i><span>Work notes</span><i></i><span>Fresh ideas</span
+          ><i></i><span>Team plans</span>
+        </p>
       </div>
     </div>
-    <div
-      id="features"
-      class="hero-visual"
-      role="group"
-      aria-label="Sticky Ji kanban workspace preview"
-    >
-      <div class="preview-heading">
-        <span><i></i> A clearer picture of your day</span><span>WORKSPACE PREVIEW</span>
+    <div id="features" class="hero-visual" role="group" aria-label="Sticky Ji workspace preview">
+      <div class="preview-caption" aria-hidden="true">
+        A workspace<br />that moves<br />with you.<svg viewBox="0 0 60 70">
+          <path d="M49 7C25 12 37 44 7 57m31-48 12-3-1 13M9 46 5 59l14-1" />
+        </svg>
       </div>
       <div class="workspace-window">
-        <div class="window-bar" aria-hidden="true">
-          <div class="window-dots"><i></i><i></i><i></i></div>
-          <span>stickyji.app / today</span>
-          <div class="window-status"><i></i> All changes saved</div>
-        </div>
-
-        <div class="workspace-shell">
-          <aside class="workspace-sidebar" aria-hidden="true">
-            <span class="workspace-mark">
-              <img src="StickyJiLogo.png" alt="Sticky Ji" class="workspace-mark-img" />
-            </span>
-            <nav>
-              <span class="nav-item is-active"><i></i>Today</span>
-              <span class="nav-item"><i></i>All notes</span>
-              <span class="nav-item"><i></i>Favorites</span>
-            </nav>
-            <div class="sidebar-spaces">
-              <small>SPACES</small>
-              <span><i class="space-dot dot-yellow"></i>Personal</span>
-              <span><i class="space-dot dot-blue"></i>Work</span>
-              <span><i class="space-dot dot-pink"></i>Ideas</span>
+        <aside class="workspace-sidebar" aria-hidden="true">
+          <img src="StickyJiHorizontalLogo.png" alt="" class="workspace-logo" />
+          <div class="sidebar-links">
+            <span class="is-active"><app-icon [icon]="LucideHouse" size="sm" />Home</span
+            ><span><app-icon [icon]="LucideNotebook" size="sm" />My Notes</span
+            ><span><app-icon [icon]="LucideCircleCheck" size="sm" />Tasks</span
+            ><span><app-icon [icon]="LucidePanelsTopLeft" size="sm" />Workspaces</span>
+          </div>
+          <div class="sidebar-spaces">
+            <small>MY WORKSPACES</small><span><i></i>Personal</span
+            ><span><i></i>Work &amp; ideas</span>
+          </div>
+        </aside>
+        <div class="workspace-main">
+          <div class="workspace-toolbar">
+            <app-icon [icon]="LucidePanelLeft" size="sm" />
+            <div class="workspace-tools">
+              <button
+                class="preview-search"
+                type="button"
+                (click)="startFree.emit()"
+                aria-label="Sign up to search your notes"
+              >
+                <app-icon [icon]="LucideSearch" size="sm" /><span>Search notes, tasks...</span>
+              </button>
+              <button
+                class="preview-bell"
+                type="button"
+                (click)="startFree.emit()"
+                aria-label="Sign up to manage notifications"
+              >
+                <app-icon [icon]="LucideBell" size="sm" /></button
+              ><span class="preview-avatar" aria-hidden="true">S</span>
             </div>
-            <div class="sidebar-user">
-              <span>AP</span>
-              <div><strong>Alex</strong><small>Free plan</small></div>
-            </div>
-          </aside>
-
-          <div class="workspace-main">
-            <header class="workspace-header">
-              <div>
-                <span class="workspace-kicker">YOUR DAY, AT A GLANCE</span>
-                <h2>Make room for what matters <span aria-hidden="true">✦</span></h2>
-              </div>
-              <div class="workspace-tools">
+          </div>
+          <div class="workspace-content">
+            <h2>Good morning! <span aria-hidden="true">☀️</span></h2>
+            <p>Ideas, tasks and plans — all in one happy workspace.</p>
+            <div class="workspace-categories">
+              @for (category of previewCategories; track category.title) {
                 <button
                   type="button"
-                  aria-label="Sign up to search your notes"
+                  [class]="'category-card category-' + category.color"
                   (click)="startFree.emit()"
                 >
-                  <app-icon [icon]="LucideSearch" size="sm" />
+                  <span class="category-icon"><app-icon [icon]="category.icon" size="md" /></span
+                  ><span
+                    ><strong>{{ category.title }}</strong
+                    ><small>{{ category.count }}</small></span
+                  >
                 </button>
-                <button
-                  type="button"
-                  aria-label="Sign up to manage notifications"
-                  (click)="startFree.emit()"
-                >
-                  <app-icon [icon]="LucideBell" size="sm" /><i></i>
-                </button>
-                <app-button
-                  label="New note"
-                  (buttonClick)="startFree.emit()"
-                  variant="primary"
-                  size="sm"
-                  [hasIcon]="true"
-                  iconPosition="left"
-                >
-                  <app-icon button-icon-left [icon]="LucidePlus" size="inherit" />
-                </app-button>
-              </div>
-            </header>
-
-            <div class="workspace-content">
-              <section class="focus-card" aria-label="Today's focus">
-                <div class="focus-copy">
-                  <span class="focus-icon"><app-icon [icon]="LucideZap" size="sm" /></span>
-                  <div>
-                    <small>TODAY'S ONE THING</small><strong>Finish the homepage story</strong
-                    ><span>3 of 5 steps complete</span>
-                  </div>
-                </div>
-                <div class="focus-progress">
-                  <strong>60%</strong><i><span></span></i>
-                </div>
-              </section>
-
-              <div class="board-heading">
-                <div>
-                  <h3>Today’s thought flow</h3>
-                  <span>Move a note forward when the idea does.</span>
-                </div>
-                <app-badge label="6 notes" variant="outline" size="sm" shape="pill" />
-              </div>
-
-              <div class="kanban-board">
-                <section class="kanban-column column-todo" aria-labelledby="todo-title">
-                  <header class="column-header">
-                    <div>
-                      <i></i>
-                      <h4 id="todo-title">To do</h4>
-                      <span>2</span>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="Create your first to-do note"
-                      (click)="startFree.emit()"
-                    >
-                      +
-                    </button>
-                  </header>
-                  <div class="column-notes">
-                    <app-sticky-card
-                      variant="noteYellow"
-                      appearance="flat"
-                      shape="note"
-                      size="sm"
-                      [fullWidth]="true"
-                      [minHeight]="132"
-                      [padding]="16"
-                      [hoverable]="true"
-                      eyebrow="NEXT UP"
-                      cardTitle="Make the first screen feel human"
-                    >
-                      <p>Use the words our customers already use.</p>
-                      <div card-footer class="card-meta">
-                        <span><app-icon [icon]="LucideCalendarDays" size="xs" /> Today</span>
-                        <app-badge label="Website" variant="outline" size="xs" shape="pill" />
-                      </div>
-                    </app-sticky-card>
-                    <article class="mini-note">
-                      <span class="note-label">IDEA</span>
-                      <strong>Add a tiny celebration after every completed note</strong>
-                      <footer><span>Delight</span><i>AP</i></footer>
-                    </article>
-                  </div>
-                </section>
-
-                <section class="kanban-column column-doing" aria-labelledby="doing-title">
-                  <header class="column-header">
-                    <div>
-                      <i></i>
-                      <h4 id="doing-title">Doing</h4>
-                      <span>2</span>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="Create your first in-progress note"
-                      (click)="startFree.emit()"
-                    >
-                      +
-                    </button>
-                  </header>
-                  <div class="column-notes">
-                    <app-sticky-card
-                      variant="noteBlue"
-                      appearance="flat"
-                      shape="note"
-                      size="sm"
-                      [fullWidth]="true"
-                      [minHeight]="170"
-                      [padding]="16"
-                      [hoverable]="true"
-                      eyebrow="IN PROGRESS"
-                      cardTitle="Polish mobile onboarding"
-                    >
-                      <div class="mini-list">
-                        <span class="is-done"><i></i>Welcome copy</span>
-                        <span class="is-done"><i></i>Color choices</span>
-                        <span><i></i>Final mobile check</span>
-                      </div>
-                      <div card-footer class="card-meta">
-                        <span><app-icon [icon]="LucideClock" size="xs" /> 25 min</span>
-                        <app-badge
-                          label="Almost there"
-                          variant="info"
-                          size="xs"
-                          shape="pill"
-                          [dot]="true"
-                        />
-                      </div>
-                    </app-sticky-card>
-                    <article class="mini-note">
-                      <span class="note-label">WRITING</span
-                      ><strong>Shorten the welcome message</strong>
-                      <div class="note-progress">
-                        <i><span></span></i><small>70%</small>
-                      </div>
-                    </article>
-                  </div>
-                </section>
-
-                <section class="kanban-column column-done" aria-labelledby="done-title">
-                  <header class="column-header">
-                    <div>
-                      <i></i>
-                      <h4 id="done-title">Done</h4>
-                      <span>2</span>
-                    </div>
-                    <span class="done-today">TODAY</span>
-                  </header>
-                  <div class="column-notes">
-                    <app-sticky-card
-                      variant="noteGreen"
-                      appearance="flat"
-                      shape="note"
-                      size="sm"
-                      [fullWidth]="true"
-                      [minHeight]="145"
-                      [padding]="16"
-                      eyebrow="DONE AT 10:24"
-                      cardTitle="Share the first draft"
-                    >
-                      <div class="done-state">
-                        <span><app-icon [icon]="LucideCheck" size="sm" /></span>
-                        <p>Shared with the team. Feedback already feels clearer.</p>
-                      </div>
-                      <div card-footer class="card-meta">
-                        <span class="team-faces"><i>AP</i><i>MK</i><i>+2</i></span>
-                        <app-badge label="Complete" variant="noteGreen" size="xs" shape="pill" />
-                      </div>
-                    </app-sticky-card>
-                    <article class="mini-note note-complete">
-                      <span class="complete-mark"><app-icon [icon]="LucideCheck" size="xs" /></span>
-                      <div>
-                        <small>DONE AT 09:10</small><strong>Choose the launch colors</strong>
-                      </div>
-                    </article>
-                  </div>
-                </section>
-              </div>
+              }
+            </div>
+            <div class="notes-heading">
+              <h3>Your recent notes</h3>
+              <button type="button" (click)="startFree.emit()">
+                View all <app-icon [icon]="LucideArrowRight" size="sm" />
+              </button>
+            </div>
+            <div class="preview-notes" aria-hidden="true">
+              <article>
+                <small>A LITTLE INSPIRATION</small>
+                <h4>Make room for big ideas.</h4>
+                <p>Every great thing starts with a little note.</p>
+                <span>Ideas worth keeping ✨</span>
+              </article>
+              <article>
+                <small>TODAY’S LITTLE WINS</small>
+                <h4>One step at a time.</h4>
+                <p>✓ Plan the day<br />✓ Make something you love<br />○ Leave room to dream</p>
+              </article>
+              <article>
+                <small>PERSONAL</small>
+                <h4>More of what matters.</h4>
+                <p>A fresh thought. A new plan.<br />A little space for you.</p>
+                <span>You’ve got this ♡</span>
+              </article>
             </div>
           </div>
         </div>
