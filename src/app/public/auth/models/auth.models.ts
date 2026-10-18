@@ -34,9 +34,7 @@ export interface AuthenticatedUser {
   id: string;
   email: string;
 
-  globalRoleId:
-  | string
-  | AuthRole;
+  globalRoleId: string | AuthRole;
 
   status: string;
   authProvider?: string;
@@ -57,8 +55,7 @@ export interface AuthSession {
   tokens: AuthTokens;
 }
 
-export interface AuthSessionResponse
-  extends ApiResponse<AuthSession> {
+export interface AuthSessionResponse extends ApiResponse<AuthSession> {
   data: AuthSession;
 }
 
@@ -90,13 +87,9 @@ export interface ClientContext {
   deviceName?: string;
 }
 
-export interface LoginRequest
-  extends LoginCredentials,
-  ClientContext { }
+export interface LoginRequest extends LoginCredentials, ClientContext {}
 
-export interface RegisterRequest
-  extends RegisterCredentials,
-  ClientContext { }
+export interface RegisterRequest extends RegisterCredentials, ClientContext {}
 
 export interface ForgotPasswordRequest {
   email: string;

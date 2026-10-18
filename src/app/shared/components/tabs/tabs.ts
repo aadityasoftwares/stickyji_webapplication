@@ -8,7 +8,7 @@ import {
   Input,
   Output,
   QueryList,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core';
 
 import { AppIcon, type AppIconDefinition } from '../icon/icon';
@@ -61,7 +61,7 @@ export interface TabItem {
   imports: [NgClass, AppIcon],
   templateUrl: './tabs.html',
   styleUrl: './tabs.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Tabs {
   @ViewChildren('tabButton')
@@ -97,7 +97,7 @@ export class Tabs {
       this.orientation === 'vertical' ? 'is-vertical' : '',
       this.fullWidth ? 'is-full-width' : '',
       this.scrollable ? 'is-scrollable' : '',
-      this.disabled ? 'is-disabled' : ''
+      this.disabled ? 'is-disabled' : '',
     ].filter(Boolean);
   }
 
@@ -120,7 +120,7 @@ export class Tabs {
   itemClasses(item: TabItem): Record<string, boolean> {
     return {
       'is-active': this.isSelected(item),
-      'is-danger': this.isDanger(item)
+      'is-danger': this.isDanger(item),
     };
   }
 
@@ -136,7 +136,7 @@ export class Tabs {
     if (this.disabled || item.disabled) return -1;
 
     const selectedEnabled = this.items.some(
-      candidate => !candidate.disabled && candidate.value === this.value
+      (candidate) => !candidate.disabled && candidate.value === this.value,
     );
 
     if (selectedEnabled) {
@@ -188,13 +188,13 @@ export class Tabs {
       button?.focus();
       button?.scrollIntoView({
         block: 'nearest',
-        inline: 'nearest'
+        inline: 'nearest',
       });
     });
   }
 
   private firstEnabledIndex(): number {
-    return this.items.findIndex(item => !item.disabled);
+    return this.items.findIndex((item) => !item.disabled);
   }
 
   private lastEnabledIndex(): number {
@@ -209,11 +209,7 @@ export class Tabs {
     if (!this.items.length) return -1;
 
     for (let step = 1; step <= this.items.length; step += 1) {
-      const index = (
-        currentIndex +
-        direction * step +
-        this.items.length
-      ) % this.items.length;
+      const index = (currentIndex + direction * step + this.items.length) % this.items.length;
 
       if (!this.items[index].disabled) return index;
     }

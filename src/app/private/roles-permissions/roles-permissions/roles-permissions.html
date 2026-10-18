@@ -9,682 +9,1312 @@
           </span>
         </span>
         <div>
-          <span class="workspace-kicker">
-            Inside {{ selectedWorkspaceLabel() }}
-          </span>
-          <h1 id="roles-permissions-page-title">
-            Manage roles and workspace access.
-          </h1>
+          <span class="workspace-kicker"> Inside {{ selectedWorkspaceLabel() }} </span>
+          <h1 id="roles-permissions-page-title">Manage roles and workspace access.</h1>
         </div>
       </div>
       <div class="workspace-header-actions">
         <div class="workspace-count-slot" aria-live="polite">
           @if (!loadingRoles() && !roleError() && selectedWorkspaceId()) {
-          <app-badge [label]="roles().length + (roles().length === 1 ? ' role' : ' roles')" variant="noteYellow"
-            size="sm" shape="pill" />
+            <app-badge
+              [label]="roles().length + (roles().length === 1 ? ' role' : ' roles')"
+              variant="noteYellow"
+              size="sm"
+              shape="pill"
+            />
           } @else {
-          <span class="workspace-count-placeholder" aria-hidden="true"></span>
+            <span class="workspace-count-placeholder" aria-hidden="true"></span>
           }
         </div>
         <div class="roles-permissions-workspace-picker">
-          <app-select [options]="workspaceOptions()" [ngModel]="selectedWorkspaceId()"
-            (ngModelChange)="onWorkspaceChange($event)" name="roles-permissions-workspace"
+          <app-select
+            [options]="workspaceOptions()"
+            [ngModel]="selectedWorkspaceId()"
+            (ngModelChange)="onWorkspaceChange($event)"
+            name="roles-permissions-workspace"
             [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
-            ariaLabel="Choose workspace for roles and permissions" variant="paper" shape="rounded" size="sm"
-            [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true" [fullWidth]="true" />
+            ariaLabel="Choose workspace for roles and permissions"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucidePanelsTopLeft"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
         </div>
-        <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue" size="md"
-          ariaLabel="Refresh workspace roles" appTooltip="Refresh workspace roles" tooltipTone="noteBlue"
-          tooltipPosition="bottom" tooltipSize="sm" [loading]="loadingRoles()"
+        <app-button
+          [icon]="LucideRefreshCw"
+          [iconOnly]="true"
+          appearance="standard"
+          variant="noteBlue"
+          size="md"
+          ariaLabel="Refresh workspace roles"
+          appTooltip="Refresh workspace roles"
+          tooltipTone="noteBlue"
+          tooltipPosition="bottom"
+          tooltipSize="sm"
+          [loading]="loadingRoles()"
           [disabled]="!selectedWorkspaceId() || loadingWorkspaces()"
-          (buttonClick)="refresh()" />
-        <app-button class="workspace-new-button" label="New role" [iconLeft]="LucidePlus" variant="noteYellow"
-          appearance="standard" size="md" [disabled]="!selectedWorkspaceId() || loadingWorkspaces() || loadingPermissions()"
-          (buttonClick)="openCreateRole()" />
+          (buttonClick)="refresh()"
+        />
+        <app-button
+          class="workspace-new-button"
+          label="New role"
+          [iconLeft]="LucidePlus"
+          variant="noteYellow"
+          appearance="standard"
+          size="md"
+          [disabled]="!selectedWorkspaceId() || loadingWorkspaces() || loadingPermissions()"
+          (buttonClick)="openCreateRole()"
+        />
       </div>
     </header>
-    <section class="workspace-explorer" [attr.aria-busy]="loadingRoles() || loadingPermissions() || loadingWorkspaces()">
+    <section
+      class="workspace-explorer"
+      [attr.aria-busy]="loadingRoles() || loadingPermissions() || loadingWorkspaces()"
+    >
       <div class="workspace-toolbar">
         <div class="workspace-toolbar-filters">
-          <app-tabs class="workspace-filter-tabs" [items]="roleTabs()" [value]="activeRoleTab()" variant="segmented"
-            shape="rounded" size="sm" density="compact" ariaLabel="Filter workspace roles" [fullWidth]="false"
-            [scrollable]="true" (valueChange)="setRoleTab($event)" />
+          <app-tabs
+            class="workspace-filter-tabs"
+            [items]="roleTabs()"
+            [value]="activeRoleTab()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Filter workspace roles"
+            [fullWidth]="false"
+            [scrollable]="true"
+            (valueChange)="setRoleTab($event)"
+          />
         </div>
         <div class="workspace-toolbar-actions">
           <div class="workspace-search">
-            <app-input type="search" label="Search roles" labelMode="hidden"
-              placeholder="Search role, code or permission" variant="paper" appearance="outlined" shape="rounded"
-              size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()" [fullWidth]="true"
-              ariaLabel="Search workspace roles" (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+            <app-input
+              type="search"
+              label="Search roles"
+              labelMode="hidden"
+              placeholder="Search role, code or permission"
+              variant="paper"
+              appearance="outlined"
+              shape="rounded"
+              size="sm"
+              [leadingIcon]="LucideSearch"
+              [clearable]="true"
+              [value]="searchTerm()"
+              [fullWidth]="true"
+              ariaLabel="Search workspace roles"
+              (valueChange)="updateSearch($event)"
+              (cleared)="clearSearch()"
+            />
           </div>
-          <app-select class="workspace-sort" [options]="roleSortOptions" [ngModel]="roleSort()"
-            (ngModelChange)="setRoleSort($event)" name="workspace-role-sort" placeholder="Sort"
-            ariaLabel="Sort workspace roles" variant="paper" shape="rounded" size="sm" [clearable]="false"
-            [searchable]="false" [fullWidth]="true" />
-          <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented" shape="rounded"
-            size="sm" density="compact" ariaLabel="Choose grid or list view" [scrollable]="false" [minTabWidth]="64"
-            (valueChange)="setView($event)" />
+          <app-select
+            class="workspace-sort"
+            [options]="roleSortOptions"
+            [ngModel]="roleSort()"
+            (ngModelChange)="setRoleSort($event)"
+            name="workspace-role-sort"
+            placeholder="Sort"
+            ariaLabel="Sort workspace roles"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="true"
+          />
+          <app-tabs
+            class="workspace-view-tabs"
+            [items]="viewTabs"
+            [value]="view()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Choose grid or list view"
+            [scrollable]="false"
+            [minTabWidth]="64"
+            (valueChange)="setView($event)"
+          />
         </div>
       </div>
       <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
         @if (!preferencesReady()) {
-        <div class="workspace-loader-state">
-          <app-loader mode="section" size="md" tone="colorful" label="Loading role preferences..." [minHeight]="360" />
-        </div>
+          <div class="workspace-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Loading role preferences..."
+              [minHeight]="360"
+            />
+          </div>
         } @else if (loadingWorkspaces()) {
-        <div class="workspace-loader-state">
-          <app-loader mode="section" size="md" tone="colorful" label="Loading your workspaces..."
-            description="Finding the spaces you can manage." [minHeight]="360" />
-        </div>
+          <div class="workspace-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Loading your workspaces..."
+              description="Finding the spaces you can manage."
+              [minHeight]="360"
+            />
+          </div>
         } @else if (workspaceError()) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon is-error">
-            <app-icon [icon]="LucideX" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            Couldn’t open your spaces
-          </span>
-          <h2>Workspaces are unavailable</h2>
-          <p>{{ workspaceError() }}</p>
-          <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-            (buttonClick)="loadWorkspaces(true)" />
-        </div>
-        } @else if (workspaces().length === 0) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon">
-            <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            No workspace yet
-          </span>
-          <h2>Create a workspace first</h2>
-          <p>
-            Workspace roles belong to a workspace, so create a
-            workspace before managing access.
-          </p>
-        </div>
-        } @else if (!selectedWorkspaceId()) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon">
-            <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            Choose your space
-          </span>
-          <h2>Select a workspace</h2>
-          <p>
-            Choose a workspace above to view and manage its roles.
-          </p>
-        </div>
-        } @else if (loadingRoles()) {
-        <div class="workspace-loader-state">
-          <app-loader mode="section" size="md" tone="colorful" label="Opening workspace roles..."
-            description="Getting role access ready." [minHeight]="360" />
-        </div>
-        } @else if (roleError()) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon is-error">
-            <app-icon [icon]="LucideX" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            Something slipped away
-          </span>
-          <h2>Couldn’t load roles</h2>
-          <p>{{ roleError() }}</p>
-          <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-            (buttonClick)="loadRoles()" />
-        </div>
-        } @else if (searchTerm() && visibleRoles().length === 0) {
-        <div class="workspace-empty-state is-compact">
-          <span class="workspace-empty-icon">
-            <app-icon [icon]="LucideSearch" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            No role matches
-          </span>
-          <h2>No role found</h2>
-          <p>
-            Try another role name, code or permission.
-          </p>
-          <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-        </div>
-        } @else if (visibleRoles().length === 0) {
-        <div class="workspace-empty-state is-compact">
-          <span class="workspace-empty-icon">
-            <app-icon [icon]="LucideShield" size="lg" />
-          </span>
-          <span class="workspace-empty-note">
-            No roles in this view
-          </span>
-          <h2>
-            {{
-            activeRoleTab() === 'inactive'
-            ? 'No inactive roles'
-            : 'Create your first custom role'
-            }}
-          </h2>
-          <p>
-            {{
-            activeRoleTab() === 'inactive'
-            ? 'Deactivated custom roles will appear here.'
-            : 'Create a reusable role and choose exactly what members can access.'
-            }}
-          </p>
-          @if (activeRoleTab() !== 'inactive') {
-          <app-button label="New role" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
-            (buttonClick)="openCreateRole()" />
-          }
-        </div>
-        } @else if (view() === 'grid') {
-        <div class="roles-permissions-card-grid" role="list" aria-label="Workspace roles">
-          @for (role of visibleRoles(); track roleId(role)) {
-          <article class="rp-role-tile" role="listitem" [class.is-inactive]="role.isActive === false"
-            [class.is-busy]="isRoleBusy(role)" [appHighlight]="canSelectRole(role) && (selectedRoleId() === roleId(role) || isRoleSelected(role))"
-            highlightRadius="0.875rem" (dblclick)="handleRoleDoubleClick(role, $event)"
-            (contextmenu)="openRoleContextMenu(role, $event)">
-            <app-workspace-role-wrapper [name]="roleDisplayName(role)" [description]="role.description || ''"
-              [isSystem]="!!role.isSystem" [isDefault]="!!role.isDefault" [isActive]="role.isActive !== false"
-              [permissionCount]="rolePermissionCount(role) + ' permissions'" [priorityLabel]="rolePriorityLabel(role)"
-              [statusLabel]="roleStatusLabel(role)" [statusVariant]="roleStatusVariant(role)"
-              [interactive]="!isRoleBusy(role)" [busy]="isRoleBusy(role)" (opened)="handleRoleClick(role, $event)"
-              (keyboardOpened)="openRole(role)">
-              <app-switch role-status [checked]="role.isActive !== false" variant="noteGreen" size="sm"
-                [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
-                [label]="roleStatusLabel(role)" [ariaLabel]="'Status for ' + roleDisplayName(role)"
-                (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()"
-                (checkedChange)="changeRoleStatus(role, $event)" />
-              <div role-actions class="workspace-role-card-actions workspace-table-action-group">
-                @if (role.isSystem) {
-                <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
-                  size="xs" [rounded]="true" [ariaLabel]="'Edit ' + roleDisplayName(role)"
-                  appTooltip="Edit role" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                  [disabled]="isRoleBusy(role)" (buttonClick)="openRole(role)" />
-                <app-button [icon]="LucideShieldCheck" [iconOnly]="true" variant="noteYellow"
-                  appearance="standard" size="xs" [rounded]="true" ariaLabel="System role"
-                  title="System role" [disabled]="true" />
-                } @else {
-                <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
-                  size="xs" [rounded]="true" [ariaLabel]="'Edit ' + roleDisplayName(role)"
-                  [appTooltip]="'Edit role'" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                  [disabled]="isRoleBusy(role)" (buttonClick)="openRole(role)" />
-                @if (role.isActive === false) {
-                <app-button [icon]="LucideRotateCcw" [iconOnly]="true" variant="noteYellow"
-                  appearance="standard" size="xs" [rounded]="true"
-                  [ariaLabel]="'Activate ' + roleDisplayName(role)" [appTooltip]="'Activate role'"
-                  tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" [disabled]="isRoleBusy(role)"
-                  (buttonClick)="changeRoleStatus(role, true)" />
-                }
-                }
-                <button type="button" class="workspace-table-menu-button" [matMenuTriggerFor]="roleCardMenu"
-                  [attr.aria-label]="'More actions for ' + roleDisplayName(role)"
-                  [appTooltip]="'More actions for ' + roleDisplayName(role)" tooltipTone="paper"
-                  tooltipPosition="top" tooltipSize="sm" [disabled]="isRoleBusy(role)"
-                  (click)="handleRoleMenuClick(role, $event)" (dblclick)="$event.stopPropagation()">
-                  <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                </button>
-              </div>
-            </app-workspace-role-wrapper>
-            <mat-menu #roleCardMenu="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
-              class="workspace-actions-menu">
-              <ng-container *ngTemplateOutlet="roleMenu; context: { $implicit: role }" />
-            </mat-menu>
-          </article>
-          }
-          @if (activeRoleTab() !== 'inactive') {
-          <button type="button" class="rp-create-tile" (click)="openCreateRole()">
-            <span class="rp-create-icon" aria-hidden="true">
-              <app-icon [icon]="LucidePlus" size="md" />
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon is-error">
+              <app-icon [icon]="LucideX" size="lg" />
             </span>
-            <strong class="rp-create-title">Create a new role</strong>
-            <small class="rp-create-sub">Set permissions for a reusable workspace role.</small>
-          </button>
-          }
-        </div>
-        } @else {
-        <div class="workspace-grouped-table" aria-label="Workspace roles grouped table">
-          <div class="workspace-table-groups-container">
-            @for (group of roleGroups(); track group.id) {
-            <section class="workspace-group" [style.--group-accent]="group.accent"
-              [class.is-collapsed]="isGroupCollapsed(group.id)" [attr.aria-labelledby]="'group-heading-' + group.id">
-              <header class="workspace-group-header">
-                <h3>
-                  <button type="button" class="workspace-group-toggle" [id]="'group-heading-' + group.id"
-                    [attr.aria-expanded]="!isGroupCollapsed(group.id)" [attr.aria-controls]="'group-body-' + group.id"
-                    (click)="toggleGroup(group.id)">
-                    <app-icon class="workspace-group-chevron"
-                      [icon]="isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown" size="sm" />
-                    <span class="workspace-group-accent-bar" aria-hidden="true"></span>
-                    <span class="workspace-group-label">{{ group.label }}</span>
-                    <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
-                      [ariaLabel]="group.count + (group.count === 1 ? ' role' : ' roles')" />
-                  </button>
-                </h3>
-                <div class="workspace-group-header-actions">
-                  @if (group.type === 'custom' && activeRoleTab() !== 'inactive') {
-                  <app-button [icon]="LucidePlus" [iconOnly]="true" variant="ghost" size="xs" ariaLabel="New role"
-                    appTooltip="Create role" tooltipTone="noteYellow" tooltipPosition="top" tooltipSize="sm"
-                    (buttonClick)="openCreateRole()" />
-                  }
-                </div>
-              </header>
-              @if (!isGroupCollapsed(group.id)) {
-              <div class="workspace-group-body" [id]="'group-body-' + group.id" role="region" tabindex="0"
-                [attr.aria-labelledby]="'group-heading-' + group.id">
-                @if (group.items.length > 0) {
-                <table class="workspace-gtable" [attr.aria-label]="group.label">
-                  <colgroup>
-                    <col class="workspace-gt-select" />
-                    <col class="workspace-gt-name" />
-                    <col class="workspace-gt-type" />
-                    <col class="workspace-gt-permissions" />
-                    <col class="workspace-gt-status" />
-                    <col class="workspace-gt-level" />
-                    <col class="workspace-gt-updated" />
-                    <col class="workspace-gt-actions" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th class="workspace-gt-select" scope="col">
-                        @if (hasSelectableRoles(group.items)) {
-                        <app-checkbox [checked]="isAllSelected(group.items)"
-                          [indeterminate]="isSomeSelected(group.items)"
-                          (checkedChange)="toggleSelectAll($event, group.items)" size="xs"
-                          ariaLabel="Select all roles in group" />
-                        }
-                      </th>
-                      <th class="workspace-gt-name" scope="col">
-                        <app-icon [icon]="LucideShield" size="xs" />
-                        Role
-                      </th>
-                      <th class="workspace-gt-type" scope="col">
-                        <app-icon [icon]="LucideLock" size="xs" />
-                        Type
-                      </th>
-                      <th class="workspace-gt-permissions" scope="col">
-                        <app-icon [icon]="LucideKey" size="xs" />
-                        Permissions
-                      </th>
-                      <th class="workspace-gt-status" scope="col">
-                        <app-icon [icon]="LucideCheck" size="xs" />
-                        Status
-                      </th>
-                      <th class="workspace-gt-level" scope="col">
-                        <app-icon [icon]="LucideShieldCheck" size="xs" />
-                        Level
-                      </th>
-                      <th class="workspace-gt-updated" scope="col">
-                        <app-icon [icon]="LucideClock3" size="xs" />
-                        Modified
-                      </th>
-                      <th class="workspace-gt-actions" scope="col">
-                        <span class="visually-hidden">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (role of group.items; track roleId(role)) {
-                    <tr [class.is-inactive]="role.isActive === false" [class.is-busy]="isRoleBusy(role)"
-                      [class.is-selected]="isRoleSelected(role)"
-                      [appHighlight]="canSelectRole(role) && (selectedRoleId() === roleId(role) || isRoleSelected(role))" [highlightInset]="true"
-                      (click)="handleRoleClick(role, $event)" (dblclick)="handleRoleDoubleClick(role, $event)"
-                      (contextmenu)="openRoleContextMenu(role, $event)">
-                      <td class="workspace-gt-select">
-                        @if (canSelectRole(role)) {
-                        <app-checkbox [checked]="isRoleSelected(role)"
-                          (checkedChange)="toggleRoleSelection(role, $event)" size="xs"
-                          [ariaLabel]="'Select ' + roleDisplayName(role)" (click)="$event.stopPropagation()" />
-                        }
-                      </td>
-                      <td class="workspace-gt-name" data-label="Role">
-                        <div class="workspace-table-name-main" role="button" [attr.tabindex]="isRoleBusy(role) ? -1 : 0"
-                          [attr.aria-label]="'Open role editor for ' + roleDisplayName(role)"
-                          (click)="openRole(role)"
-                          (keydown.enter)="$event.target === $event.currentTarget && openRole(role)">
-                          <span class="workspace-folder-thumbnail" [class.noteBlue]="role.isSystem"
-                            [class.noteYellow]="!role.isSystem" aria-hidden="true">
-                            <span></span>
-                            <app-icon [icon]="role.isSystem ? LucideLock : LucideShield" size="xs" />
-                          </span>
-                          <div class="workspace-table-copy">
-                            <div class="workspace-table-title-row">
-                              <strong class="workspace-name-editable" [appTooltip]="roleDisplayName(role)"
-                                tooltipTone="paper" tooltipPosition="top" tooltipSize="sm">
-                                {{ roleDisplayName(role) }}
-                              </strong>
-                              @if (role.isDefault) {
-                              <app-badge label="Default" variant="noteYellow" size="xs" shape="pill" />
-                              }
-                            </div>
-                            <small [appTooltip]="role.description || role.code" tooltipTone="paper"
-                              tooltipPosition="top" tooltipSize="sm">{{ role.description || role.code }}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="workspace-gt-type" data-label="Type">
-                        <app-badge [label]="roleTypeLabel(role)" [variant]="roleTypeVariant(role)" size="xs"
-                          shape="pill" />
-                      </td>
-                      <td class="workspace-gt-permissions" data-label="Permissions">
-                        <div class="role-table-permission-summary">
-                          <strong>{{ rolePermissionCount(role) }}</strong>
-                          <small [appTooltip]="rolePermissionPreview(role)" tooltipTone="paper" tooltipPosition="top"
-                            tooltipSize="sm">{{ rolePermissionPreview(role) }}</small>
-                        </div>
-                      </td>
-                      <td class="workspace-gt-status" data-label="Status">
-                        <app-switch [checked]="role.isActive !== false" variant="noteGreen" size="sm"
-                          [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
-                          [ariaLabel]="(role.isActive === false ? 'Activate ' : 'Deactivate ') + roleDisplayName(role)"
-                          [title]="role.isDefault ? 'Default role status cannot be changed' : (role.isSystem ? 'System role status cannot be changed' : (role.isActive === false ? 'Activate role' : 'Deactivate role'))"
-                          (checkedChange)="changeRoleStatus(role, $event)" />
-                      </td>
-                      <td class="workspace-gt-level" data-label="Level">
-                        <span class="role-table-text">{{ rolePriorityLabel(role) }}</span>
-                      </td>
-                      <td class="workspace-gt-updated" data-label="Modified">
-                        @if (role.updatedAt || role.createdAt) {
-                        <time class="workspace-gt-datetime" [attr.datetime]="role.updatedAt || role.createdAt">
-                          <span class="workspace-gt-date-text">{{ (role.updatedAt || role.createdAt) | userDate
-                            }}</span>
-                          <span class="workspace-gt-datetime-separator" aria-hidden="true">&middot;</span>
-                          <span class="workspace-gt-time-text">{{ (role.updatedAt || role.createdAt) | userTime
-                            }}</span>
-                        </time>
-                        } @else {
-                        <span class="workspace-table-muted">—</span>
-                        }
-                      </td>
-                      <td class="workspace-gt-actions" data-label="Actions">
-                        <div class="workspace-table-action-group">
-                          @if (role.isSystem) {
-                          <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
-                            size="xs" [rounded]="true" [ariaLabel]="'Edit ' + roleDisplayName(role)"
-                            appTooltip="Edit role" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                            [disabled]="isRoleBusy(role)" (buttonClick)="openRole(role)" />
-                          <app-button [icon]="LucideShieldCheck" [iconOnly]="true" variant="noteYellow"
-                            appearance="standard" size="xs" [rounded]="true" ariaLabel="System role"
-                            title="System role" [disabled]="true" />
-                          } @else {
-                          <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
-                            size="xs" [rounded]="true" [ariaLabel]="'Edit ' + roleDisplayName(role)"
-                            [appTooltip]="'Edit role'" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                            [disabled]="isRoleBusy(role)" (buttonClick)="openRole(role)" />
-                          @if (role.isActive === false) {
-                          <app-button [icon]="LucideRotateCcw" [iconOnly]="true" variant="noteYellow"
-                            appearance="standard" size="xs" [rounded]="true"
-                            [ariaLabel]="'Activate ' + roleDisplayName(role)" [appTooltip]="'Activate role'"
-                            tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" [disabled]="isRoleBusy(role)"
-                            (buttonClick)="changeRoleStatus(role, true)" />
-                          }
-                          }
-                          <button type="button" class="workspace-table-menu-button" [matMenuTriggerFor]="roleActions"
-                            [attr.aria-label]="'More actions for ' + roleDisplayName(role)"
-                            [appTooltip]="'More actions for ' + roleDisplayName(role)" tooltipTone="paper"
-                            tooltipPosition="top" tooltipSize="sm" [disabled]="isRoleBusy(role)"
-                            (click)="handleRoleMenuClick(role, $event)" (dblclick)="$event.stopPropagation()">
-                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                          </button>
-                        </div>
-                        <mat-menu #roleActions="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
-                          class="workspace-actions-menu">
-                          <ng-container *ngTemplateOutlet="roleMenu; context: { $implicit: role }" />
-                        </mat-menu>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-                } @else {
-                <div class="workspace-group-empty">
-                  <span>No {{ group.label.toLowerCase() }} found in this workspace.</span>
-                  @if (group.type === 'custom' && activeRoleTab() !== 'inactive') {
-                  <app-button label="Create role" [iconLeft]="LucidePlus" variant="outline" size="xs"
-                    (buttonClick)="openCreateRole()" />
-                  }
-                </div>
-                }
-              </div>
-              }
-            </section>
+            <span class="workspace-empty-note"> Couldn’t open your spaces </span>
+            <h2>Workspaces are unavailable</h2>
+            <p>{{ workspaceError() }}</p>
+            <app-button
+              label="Try again"
+              [iconLeft]="LucideRefreshCw"
+              variant="primary"
+              size="sm"
+              (buttonClick)="loadWorkspaces(true)"
+            />
+          </div>
+        } @else if (workspaces().length === 0) {
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+            </span>
+            <span class="workspace-empty-note"> No workspace yet </span>
+            <h2>Create a workspace first</h2>
+            <p>
+              Workspace roles belong to a workspace, so create a workspace before managing access.
+            </p>
+          </div>
+        } @else if (!selectedWorkspaceId()) {
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="LucidePanelsTopLeft" size="lg" />
+            </span>
+            <span class="workspace-empty-note"> Choose your space </span>
+            <h2>Select a workspace</h2>
+            <p>Choose a workspace above to view and manage its roles.</p>
+          </div>
+        } @else if (loadingRoles()) {
+          <div class="workspace-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Opening workspace roles..."
+              description="Getting role access ready."
+              [minHeight]="360"
+            />
+          </div>
+        } @else if (roleError()) {
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon is-error">
+              <app-icon [icon]="LucideX" size="lg" />
+            </span>
+            <span class="workspace-empty-note"> Something slipped away </span>
+            <h2>Couldn’t load roles</h2>
+            <p>{{ roleError() }}</p>
+            <app-button
+              label="Try again"
+              [iconLeft]="LucideRefreshCw"
+              variant="primary"
+              size="sm"
+              (buttonClick)="loadRoles()"
+            />
+          </div>
+        } @else if (searchTerm() && visibleRoles().length === 0) {
+          <div class="workspace-empty-state is-compact">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="LucideSearch" size="lg" />
+            </span>
+            <span class="workspace-empty-note"> No role matches </span>
+            <h2>No role found</h2>
+            <p>Try another role name, code or permission.</p>
+            <app-button
+              label="Clear search"
+              variant="outline"
+              size="sm"
+              (buttonClick)="clearSearch()"
+            />
+          </div>
+        } @else if (visibleRoles().length === 0) {
+          <div class="workspace-empty-state is-compact">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="LucideShield" size="lg" />
+            </span>
+            <span class="workspace-empty-note"> No roles in this view </span>
+            <h2>
+              {{
+                activeRoleTab() === 'inactive'
+                  ? 'No inactive roles'
+                  : 'Create your first custom role'
+              }}
+            </h2>
+            <p>
+              {{
+                activeRoleTab() === 'inactive'
+                  ? 'Deactivated custom roles will appear here.'
+                  : 'Create a reusable role and choose exactly what members can access.'
+              }}
+            </p>
+            @if (activeRoleTab() !== 'inactive') {
+              <app-button
+                label="New role"
+                [iconLeft]="LucidePlus"
+                variant="noteYellow"
+                size="sm"
+                (buttonClick)="openCreateRole()"
+              />
             }
           </div>
-        </div>
+        } @else if (view() === 'grid') {
+          <div class="roles-permissions-card-grid" role="list" aria-label="Workspace roles">
+            @for (role of visibleRoles(); track roleId(role)) {
+              <article
+                class="rp-role-tile"
+                role="listitem"
+                [class.is-inactive]="role.isActive === false"
+                [class.is-busy]="isRoleBusy(role)"
+                [appHighlight]="
+                  canSelectRole(role) && (selectedRoleId() === roleId(role) || isRoleSelected(role))
+                "
+                highlightRadius="0.875rem"
+                (dblclick)="handleRoleDoubleClick(role, $event)"
+                (contextmenu)="openRoleContextMenu(role, $event)"
+              >
+                <app-workspace-role-wrapper
+                  [name]="roleDisplayName(role)"
+                  [description]="role.description || ''"
+                  [isSystem]="!!role.isSystem"
+                  [isDefault]="!!role.isDefault"
+                  [isActive]="role.isActive !== false"
+                  [permissionCount]="rolePermissionCount(role) + ' permissions'"
+                  [priorityLabel]="rolePriorityLabel(role)"
+                  [statusLabel]="roleStatusLabel(role)"
+                  [statusVariant]="roleStatusVariant(role)"
+                  [interactive]="!isRoleBusy(role)"
+                  [busy]="isRoleBusy(role)"
+                  (opened)="handleRoleClick(role, $event)"
+                  (keyboardOpened)="openRole(role)"
+                >
+                  <app-switch
+                    role-status
+                    [checked]="role.isActive !== false"
+                    variant="noteGreen"
+                    size="sm"
+                    [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
+                    [label]="roleStatusLabel(role)"
+                    [ariaLabel]="'Status for ' + roleDisplayName(role)"
+                    (click)="$event.stopPropagation()"
+                    (keydown)="$event.stopPropagation()"
+                    (checkedChange)="changeRoleStatus(role, $event)"
+                  />
+                  <div
+                    role-actions
+                    class="workspace-role-card-actions workspace-table-action-group"
+                  >
+                    @if (role.isSystem) {
+                      <app-button
+                        [icon]="LucidePencil"
+                        [iconOnly]="true"
+                        variant="noteBlue"
+                        appearance="standard"
+                        size="xs"
+                        [rounded]="true"
+                        [ariaLabel]="'Edit ' + roleDisplayName(role)"
+                        appTooltip="Edit role"
+                        tooltipTone="paper"
+                        tooltipPosition="top"
+                        tooltipSize="sm"
+                        [disabled]="isRoleBusy(role)"
+                        (buttonClick)="openRole(role)"
+                      />
+                      <app-button
+                        [icon]="LucideShieldCheck"
+                        [iconOnly]="true"
+                        variant="noteYellow"
+                        appearance="standard"
+                        size="xs"
+                        [rounded]="true"
+                        ariaLabel="System role"
+                        title="System role"
+                        [disabled]="true"
+                      />
+                    } @else {
+                      <app-button
+                        [icon]="LucidePencil"
+                        [iconOnly]="true"
+                        variant="noteBlue"
+                        appearance="standard"
+                        size="xs"
+                        [rounded]="true"
+                        [ariaLabel]="'Edit ' + roleDisplayName(role)"
+                        [appTooltip]="'Edit role'"
+                        tooltipTone="paper"
+                        tooltipPosition="top"
+                        tooltipSize="sm"
+                        [disabled]="isRoleBusy(role)"
+                        (buttonClick)="openRole(role)"
+                      />
+                      @if (role.isActive === false) {
+                        <app-button
+                          [icon]="LucideRotateCcw"
+                          [iconOnly]="true"
+                          variant="noteYellow"
+                          appearance="standard"
+                          size="xs"
+                          [rounded]="true"
+                          [ariaLabel]="'Activate ' + roleDisplayName(role)"
+                          [appTooltip]="'Activate role'"
+                          tooltipTone="paper"
+                          tooltipPosition="top"
+                          tooltipSize="sm"
+                          [disabled]="isRoleBusy(role)"
+                          (buttonClick)="changeRoleStatus(role, true)"
+                        />
+                      }
+                    }
+                    <button
+                      type="button"
+                      class="workspace-table-menu-button"
+                      [matMenuTriggerFor]="roleCardMenu"
+                      [attr.aria-label]="'More actions for ' + roleDisplayName(role)"
+                      [appTooltip]="'More actions for ' + roleDisplayName(role)"
+                      tooltipTone="paper"
+                      tooltipPosition="top"
+                      tooltipSize="sm"
+                      [disabled]="isRoleBusy(role)"
+                      (click)="handleRoleMenuClick(role, $event)"
+                      (dblclick)="$event.stopPropagation()"
+                    >
+                      <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                    </button>
+                  </div>
+                </app-workspace-role-wrapper>
+                <mat-menu
+                  #roleCardMenu="matMenu"
+                  xPosition="before"
+                  yPosition="below"
+                  [overlapTrigger]="false"
+                  class="workspace-actions-menu"
+                >
+                  <ng-container *ngTemplateOutlet="roleMenu; context: { $implicit: role }" />
+                </mat-menu>
+              </article>
+            }
+            @if (activeRoleTab() !== 'inactive') {
+              <button type="button" class="rp-create-tile" (click)="openCreateRole()">
+                <span class="rp-create-icon" aria-hidden="true">
+                  <app-icon [icon]="LucidePlus" size="md" />
+                </span>
+                <strong class="rp-create-title">Create a new role</strong>
+                <small class="rp-create-sub">Set permissions for a reusable workspace role.</small>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="workspace-grouped-table" aria-label="Workspace roles grouped table">
+            <div class="workspace-table-groups-container">
+              @for (group of roleGroups(); track group.id) {
+                <section
+                  class="workspace-group"
+                  [style.--group-accent]="group.accent"
+                  [class.is-collapsed]="isGroupCollapsed(group.id)"
+                  [attr.aria-labelledby]="'group-heading-' + group.id"
+                >
+                  <header class="workspace-group-header">
+                    <h3>
+                      <button
+                        type="button"
+                        class="workspace-group-toggle"
+                        [id]="'group-heading-' + group.id"
+                        [attr.aria-expanded]="!isGroupCollapsed(group.id)"
+                        [attr.aria-controls]="'group-body-' + group.id"
+                        (click)="toggleGroup(group.id)"
+                      >
+                        <app-icon
+                          class="workspace-group-chevron"
+                          [icon]="
+                            isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
+                          "
+                          size="sm"
+                        />
+                        <span class="workspace-group-accent-bar" aria-hidden="true"></span>
+                        <span class="workspace-group-label">{{ group.label }}</span>
+                        <app-badge
+                          [label]="'' + group.count"
+                          variant="neutral"
+                          size="xs"
+                          shape="rounded"
+                          [ariaLabel]="group.count + (group.count === 1 ? ' role' : ' roles')"
+                        />
+                      </button>
+                    </h3>
+                    <div class="workspace-group-header-actions">
+                      @if (group.type === 'custom' && activeRoleTab() !== 'inactive') {
+                        <app-button
+                          [icon]="LucidePlus"
+                          [iconOnly]="true"
+                          variant="ghost"
+                          size="xs"
+                          ariaLabel="New role"
+                          appTooltip="Create role"
+                          tooltipTone="noteYellow"
+                          tooltipPosition="top"
+                          tooltipSize="sm"
+                          (buttonClick)="openCreateRole()"
+                        />
+                      }
+                    </div>
+                  </header>
+                  @if (!isGroupCollapsed(group.id)) {
+                    <div
+                      class="workspace-group-body"
+                      [id]="'group-body-' + group.id"
+                      role="region"
+                      tabindex="0"
+                      [attr.aria-labelledby]="'group-heading-' + group.id"
+                    >
+                      @if (group.items.length > 0) {
+                        <table class="workspace-gtable" [attr.aria-label]="group.label">
+                          <colgroup>
+                            <col class="workspace-gt-select" />
+                            <col class="workspace-gt-name" />
+                            <col class="workspace-gt-type" />
+                            <col class="workspace-gt-permissions" />
+                            <col class="workspace-gt-status" />
+                            <col class="workspace-gt-level" />
+                            <col class="workspace-gt-updated" />
+                            <col class="workspace-gt-actions" />
+                          </colgroup>
+                          <thead>
+                            <tr>
+                              <th class="workspace-gt-select" scope="col">
+                                @if (hasSelectableRoles(group.items)) {
+                                  <app-checkbox
+                                    [checked]="isAllSelected(group.items)"
+                                    [indeterminate]="isSomeSelected(group.items)"
+                                    (checkedChange)="toggleSelectAll($event, group.items)"
+                                    size="xs"
+                                    ariaLabel="Select all roles in group"
+                                  />
+                                }
+                              </th>
+                              <th class="workspace-gt-name" scope="col">
+                                <app-icon [icon]="LucideShield" size="xs" />
+                                Role
+                              </th>
+                              <th class="workspace-gt-type" scope="col">
+                                <app-icon [icon]="LucideLock" size="xs" />
+                                Type
+                              </th>
+                              <th class="workspace-gt-permissions" scope="col">
+                                <app-icon [icon]="LucideKey" size="xs" />
+                                Permissions
+                              </th>
+                              <th class="workspace-gt-status" scope="col">
+                                <app-icon [icon]="LucideCheck" size="xs" />
+                                Status
+                              </th>
+                              <th class="workspace-gt-level" scope="col">
+                                <app-icon [icon]="LucideShieldCheck" size="xs" />
+                                Level
+                              </th>
+                              <th class="workspace-gt-updated" scope="col">
+                                <app-icon [icon]="LucideClock3" size="xs" />
+                                Modified
+                              </th>
+                              <th class="workspace-gt-actions" scope="col">
+                                <span class="visually-hidden">Actions</span>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (role of group.items; track roleId(role)) {
+                              <tr
+                                [class.is-inactive]="role.isActive === false"
+                                [class.is-busy]="isRoleBusy(role)"
+                                [class.is-selected]="isRoleSelected(role)"
+                                [appHighlight]="
+                                  canSelectRole(role) &&
+                                  (selectedRoleId() === roleId(role) || isRoleSelected(role))
+                                "
+                                [highlightInset]="true"
+                                (click)="handleRoleClick(role, $event)"
+                                (dblclick)="handleRoleDoubleClick(role, $event)"
+                                (contextmenu)="openRoleContextMenu(role, $event)"
+                              >
+                                <td class="workspace-gt-select">
+                                  @if (canSelectRole(role)) {
+                                    <app-checkbox
+                                      [checked]="isRoleSelected(role)"
+                                      (checkedChange)="toggleRoleSelection(role, $event)"
+                                      size="xs"
+                                      [ariaLabel]="'Select ' + roleDisplayName(role)"
+                                      (click)="$event.stopPropagation()"
+                                    />
+                                  }
+                                </td>
+                                <td class="workspace-gt-name" data-label="Role">
+                                  <div
+                                    class="workspace-table-name-main"
+                                    role="button"
+                                    [attr.tabindex]="isRoleBusy(role) ? -1 : 0"
+                                    [attr.aria-label]="
+                                      'Open role editor for ' + roleDisplayName(role)
+                                    "
+                                    (click)="openRole(role)"
+                                    (keydown.enter)="
+                                      $event.target === $event.currentTarget && openRole(role)
+                                    "
+                                  >
+                                    <span
+                                      class="workspace-folder-thumbnail"
+                                      [class.noteBlue]="role.isSystem"
+                                      [class.noteYellow]="!role.isSystem"
+                                      aria-hidden="true"
+                                    >
+                                      <span></span>
+                                      <app-icon
+                                        [icon]="role.isSystem ? LucideLock : LucideShield"
+                                        size="xs"
+                                      />
+                                    </span>
+                                    <div class="workspace-table-copy">
+                                      <div class="workspace-table-title-row">
+                                        <strong
+                                          class="workspace-name-editable"
+                                          [appTooltip]="roleDisplayName(role)"
+                                          tooltipTone="paper"
+                                          tooltipPosition="top"
+                                          tooltipSize="sm"
+                                        >
+                                          {{ roleDisplayName(role) }}
+                                        </strong>
+                                        @if (role.isDefault) {
+                                          <app-badge
+                                            label="Default"
+                                            variant="noteYellow"
+                                            size="xs"
+                                            shape="pill"
+                                          />
+                                        }
+                                      </div>
+                                      <small
+                                        [appTooltip]="role.description || role.code"
+                                        tooltipTone="paper"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
+                                        >{{ role.description || role.code }}</small
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                                <td class="workspace-gt-type" data-label="Type">
+                                  <app-badge
+                                    [label]="roleTypeLabel(role)"
+                                    [variant]="roleTypeVariant(role)"
+                                    size="xs"
+                                    shape="pill"
+                                  />
+                                </td>
+                                <td class="workspace-gt-permissions" data-label="Permissions">
+                                  <div class="role-table-permission-summary">
+                                    <strong>{{ rolePermissionCount(role) }}</strong>
+                                    <small
+                                      [appTooltip]="rolePermissionPreview(role)"
+                                      tooltipTone="paper"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                      >{{ rolePermissionPreview(role) }}</small
+                                    >
+                                  </div>
+                                </td>
+                                <td class="workspace-gt-status" data-label="Status">
+                                  <app-switch
+                                    [checked]="role.isActive !== false"
+                                    variant="noteGreen"
+                                    size="sm"
+                                    [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
+                                    [ariaLabel]="
+                                      (role.isActive === false ? 'Activate ' : 'Deactivate ') +
+                                      roleDisplayName(role)
+                                    "
+                                    [title]="
+                                      role.isDefault
+                                        ? 'Default role status cannot be changed'
+                                        : role.isSystem
+                                          ? 'System role status cannot be changed'
+                                          : role.isActive === false
+                                            ? 'Activate role'
+                                            : 'Deactivate role'
+                                    "
+                                    (checkedChange)="changeRoleStatus(role, $event)"
+                                  />
+                                </td>
+                                <td class="workspace-gt-level" data-label="Level">
+                                  <span class="role-table-text">{{ rolePriorityLabel(role) }}</span>
+                                </td>
+                                <td class="workspace-gt-updated" data-label="Modified">
+                                  @if (role.updatedAt || role.createdAt) {
+                                    <time
+                                      class="workspace-gt-datetime"
+                                      [attr.datetime]="role.updatedAt || role.createdAt"
+                                    >
+                                      <span class="workspace-gt-date-text">{{
+                                        role.updatedAt || role.createdAt | userDate
+                                      }}</span>
+                                      <span
+                                        class="workspace-gt-datetime-separator"
+                                        aria-hidden="true"
+                                        >&middot;</span
+                                      >
+                                      <span class="workspace-gt-time-text">{{
+                                        role.updatedAt || role.createdAt | userTime
+                                      }}</span>
+                                    </time>
+                                  } @else {
+                                    <span class="workspace-table-muted">—</span>
+                                  }
+                                </td>
+                                <td class="workspace-gt-actions" data-label="Actions">
+                                  <div class="workspace-table-action-group">
+                                    @if (role.isSystem) {
+                                      <app-button
+                                        [icon]="LucidePencil"
+                                        [iconOnly]="true"
+                                        variant="noteBlue"
+                                        appearance="standard"
+                                        size="xs"
+                                        [rounded]="true"
+                                        [ariaLabel]="'Edit ' + roleDisplayName(role)"
+                                        appTooltip="Edit role"
+                                        tooltipTone="paper"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
+                                        [disabled]="isRoleBusy(role)"
+                                        (buttonClick)="openRole(role)"
+                                      />
+                                      <app-button
+                                        [icon]="LucideShieldCheck"
+                                        [iconOnly]="true"
+                                        variant="noteYellow"
+                                        appearance="standard"
+                                        size="xs"
+                                        [rounded]="true"
+                                        ariaLabel="System role"
+                                        title="System role"
+                                        [disabled]="true"
+                                      />
+                                    } @else {
+                                      <app-button
+                                        [icon]="LucidePencil"
+                                        [iconOnly]="true"
+                                        variant="noteBlue"
+                                        appearance="standard"
+                                        size="xs"
+                                        [rounded]="true"
+                                        [ariaLabel]="'Edit ' + roleDisplayName(role)"
+                                        [appTooltip]="'Edit role'"
+                                        tooltipTone="paper"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
+                                        [disabled]="isRoleBusy(role)"
+                                        (buttonClick)="openRole(role)"
+                                      />
+                                      @if (role.isActive === false) {
+                                        <app-button
+                                          [icon]="LucideRotateCcw"
+                                          [iconOnly]="true"
+                                          variant="noteYellow"
+                                          appearance="standard"
+                                          size="xs"
+                                          [rounded]="true"
+                                          [ariaLabel]="'Activate ' + roleDisplayName(role)"
+                                          [appTooltip]="'Activate role'"
+                                          tooltipTone="paper"
+                                          tooltipPosition="top"
+                                          tooltipSize="sm"
+                                          [disabled]="isRoleBusy(role)"
+                                          (buttonClick)="changeRoleStatus(role, true)"
+                                        />
+                                      }
+                                    }
+                                    <button
+                                      type="button"
+                                      class="workspace-table-menu-button"
+                                      [matMenuTriggerFor]="roleActions"
+                                      [attr.aria-label]="
+                                        'More actions for ' + roleDisplayName(role)
+                                      "
+                                      [appTooltip]="'More actions for ' + roleDisplayName(role)"
+                                      tooltipTone="paper"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                      [disabled]="isRoleBusy(role)"
+                                      (click)="handleRoleMenuClick(role, $event)"
+                                      (dblclick)="$event.stopPropagation()"
+                                    >
+                                      <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                    </button>
+                                  </div>
+                                  <mat-menu
+                                    #roleActions="matMenu"
+                                    xPosition="before"
+                                    yPosition="below"
+                                    [overlapTrigger]="false"
+                                    class="workspace-actions-menu"
+                                  >
+                                    <ng-container
+                                      *ngTemplateOutlet="roleMenu; context: { $implicit: role }"
+                                    />
+                                  </mat-menu>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="workspace-group-empty">
+                          <span>No {{ group.label.toLowerCase() }} found in this workspace.</span>
+                          @if (group.type === 'custom' && activeRoleTab() !== 'inactive') {
+                            <app-button
+                              label="Create role"
+                              [iconLeft]="LucidePlus"
+                              variant="outline"
+                              size="xs"
+                              (buttonClick)="openCreateRole()"
+                            />
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </section>
+              }
+            </div>
+          </div>
         }
       </div>
-      <app-bulk-action-panel [selectedCount]="selectedCount()" [totalCount]="visibleRoles().length"
-        [showDelete]="!bulkBusy()" [showClear]="!bulkBusy()" deleteLabel="Delete roles" position="bottom-center"
-        orientation="horizontal" variant="floating" (clearSelection)="clearSelection()"
-        (bulkDelete)="bulkDeleteSelected()">
-        <app-button [iconLeft]="LucideRotateCcw" label="Activate roles" variant="secondary" size="xs" shape="pill"
-          [disabled]="bulkBusy()" (buttonClick)="bulkActivateSelected()" />
-        <app-button [iconLeft]="LucidePower" label="Deactivate roles" variant="secondary" size="xs" shape="pill"
-          [disabled]="bulkBusy()" (buttonClick)="bulkDeactivateSelected()" />
+      <app-bulk-action-panel
+        [selectedCount]="selectedCount()"
+        [totalCount]="visibleRoles().length"
+        [showDelete]="!bulkBusy()"
+        [showClear]="!bulkBusy()"
+        deleteLabel="Delete roles"
+        position="bottom-center"
+        orientation="horizontal"
+        variant="floating"
+        (clearSelection)="clearSelection()"
+        (bulkDelete)="bulkDeleteSelected()"
+      >
+        <app-button
+          [iconLeft]="LucideRotateCcw"
+          label="Activate roles"
+          variant="secondary"
+          size="xs"
+          shape="pill"
+          [disabled]="bulkBusy()"
+          (buttonClick)="bulkActivateSelected()"
+        />
+        <app-button
+          [iconLeft]="LucidePower"
+          label="Deactivate roles"
+          variant="secondary"
+          size="xs"
+          shape="pill"
+          [disabled]="bulkBusy()"
+          (buttonClick)="bulkDeactivateSelected()"
+        />
       </app-bulk-action-panel>
       @if (false) {
-      <div class="workspace-toolbar">
-        <div class="workspace-toolbar-filters">
-          <app-select class="roles-permissions-module-picker" [options]="permissionModuleOptions()"
-            [ngModel]="permissionModule()" (ngModelChange)="setPermissionModule($event)"
-            name="permission-module-filter" placeholder="All modules" ariaLabel="Filter permissions by module"
-            variant="paper" shape="rounded" size="sm" [clearable]="false" [searchable]="true"
-            [fullWidth]="true" />
-        </div>
-        <div class="workspace-toolbar-actions">
-          <div class="workspace-search">
-            <app-input type="search" label="Search permissions" labelMode="hidden"
-              placeholder="Search permission, code or action" variant="paper" appearance="outlined"
-              shape="rounded" size="sm" [leadingIcon]="LucideSearch" [clearable]="true"
-              [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search permission catalog"
-              (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+        <div class="workspace-toolbar">
+          <div class="workspace-toolbar-filters">
+            <app-select
+              class="roles-permissions-module-picker"
+              [options]="permissionModuleOptions()"
+              [ngModel]="permissionModule()"
+              (ngModelChange)="setPermissionModule($event)"
+              name="permission-module-filter"
+              placeholder="All modules"
+              ariaLabel="Filter permissions by module"
+              variant="paper"
+              shape="rounded"
+              size="sm"
+              [clearable]="false"
+              [searchable]="true"
+              [fullWidth]="true"
+            />
           </div>
-          <app-select class="workspace-sort" [options]="permissionSortOptions" [ngModel]="permissionSort()"
-            (ngModelChange)="setPermissionSort($event)" name="permission-sort" placeholder="Sort"
-            ariaLabel="Sort permissions" variant="paper" shape="rounded" size="sm" [clearable]="false"
-            [searchable]="false" [fullWidth]="true" />
+          <div class="workspace-toolbar-actions">
+            <div class="workspace-search">
+              <app-input
+                type="search"
+                label="Search permissions"
+                labelMode="hidden"
+                placeholder="Search permission, code or action"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="sm"
+                [leadingIcon]="LucideSearch"
+                [clearable]="true"
+                [value]="searchTerm()"
+                [fullWidth]="true"
+                ariaLabel="Search permission catalog"
+                (valueChange)="updateSearch($event)"
+                (cleared)="clearSearch()"
+              />
+            </div>
+            <app-select
+              class="workspace-sort"
+              [options]="permissionSortOptions"
+              [ngModel]="permissionSort()"
+              (ngModelChange)="setPermissionSort($event)"
+              name="permission-sort"
+              placeholder="Sort"
+              ariaLabel="Sort permissions"
+              variant="paper"
+              shape="rounded"
+              size="sm"
+              [clearable]="false"
+              [searchable]="false"
+              [fullWidth]="true"
+            />
+          </div>
         </div>
-      </div>
-      <div class="workspace-explorer-body is-list">
-        @if (loadingPermissions()) {
-        <div class="workspace-loader-state">
-          <app-loader mode="section" size="md" tone="colorful" label="Loading permission catalog..."
-            description="Getting application permissions ready." [minHeight]="360" />
-        </div>
-        } @else if (permissionError()) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
-          <span class="workspace-empty-note">Catalog unavailable</span>
-          <h2>Couldn’t load permissions</h2>
-          <p>{{ permissionError() }}</p>
-          <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-            (buttonClick)="loadPermissions()" />
-        </div>
-        } @else if (visiblePermissions().length === 0) {
-        <div class="workspace-empty-state is-compact">
-          <span class="workspace-empty-icon"><app-icon [icon]="searchTerm() ? LucideSearch : LucideKey" size="lg" /></span>
-          <span class="workspace-empty-note">No permissions found</span>
-          <h2>{{ searchTerm() || permissionModule() !== 'all' ? 'No matching permissions' : 'Permission catalog is empty' }}</h2>
-          <p>{{ searchTerm() || permissionModule() !== 'all' ? 'Try another search or module filter.' : 'Create a permission to define an application capability.' }}</p>
-          @if (searchTerm()) {
-          <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-          } @else if (canManageGlobalPermissions()) {
-          <app-button label="New permission" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
-            (buttonClick)="openCreatePermission()" />
+        <div class="workspace-explorer-body is-list">
+          @if (loadingPermissions()) {
+            <div class="workspace-loader-state">
+              <app-loader
+                mode="section"
+                size="md"
+                tone="colorful"
+                label="Loading permission catalog..."
+                description="Getting application permissions ready."
+                [minHeight]="360"
+              />
+            </div>
+          } @else if (permissionError()) {
+            <div class="workspace-empty-state">
+              <span class="workspace-empty-icon is-error"
+                ><app-icon [icon]="LucideX" size="lg"
+              /></span>
+              <span class="workspace-empty-note">Catalog unavailable</span>
+              <h2>Couldn’t load permissions</h2>
+              <p>{{ permissionError() }}</p>
+              <app-button
+                label="Try again"
+                [iconLeft]="LucideRefreshCw"
+                variant="primary"
+                size="sm"
+                (buttonClick)="loadPermissions()"
+              />
+            </div>
+          } @else if (visiblePermissions().length === 0) {
+            <div class="workspace-empty-state is-compact">
+              <span class="workspace-empty-icon"
+                ><app-icon [icon]="searchTerm() ? LucideSearch : LucideKey" size="lg"
+              /></span>
+              <span class="workspace-empty-note">No permissions found</span>
+              <h2>
+                {{
+                  searchTerm() || permissionModule() !== 'all'
+                    ? 'No matching permissions'
+                    : 'Permission catalog is empty'
+                }}
+              </h2>
+              <p>
+                {{
+                  searchTerm() || permissionModule() !== 'all'
+                    ? 'Try another search or module filter.'
+                    : 'Create a permission to define an application capability.'
+                }}
+              </p>
+              @if (searchTerm()) {
+                <app-button
+                  label="Clear search"
+                  variant="outline"
+                  size="sm"
+                  (buttonClick)="clearSearch()"
+                />
+              } @else if (canManageGlobalPermissions()) {
+                <app-button
+                  label="New permission"
+                  [iconLeft]="LucidePlus"
+                  variant="noteYellow"
+                  size="sm"
+                  (buttonClick)="openCreatePermission()"
+                />
+              }
+            </div>
+          } @else {
+            <div class="workspace-grouped-table" aria-label="Permission catalog grouped table">
+              <div class="workspace-table-groups-container">
+                @for (group of visiblePermissionGroups(); track group.id) {
+                  <section
+                    class="workspace-group permission-catalog-group"
+                    [style.--group-accent]="'#8b5cf6'"
+                    [class.is-collapsed]="isPermissionGroupCollapsed(group.id)"
+                    [attr.aria-labelledby]="'permission-group-heading-' + group.id"
+                  >
+                    <header class="workspace-group-header">
+                      <h3>
+                        <button
+                          type="button"
+                          class="workspace-group-toggle"
+                          [id]="'permission-group-heading-' + group.id"
+                          [attr.aria-expanded]="!isPermissionGroupCollapsed(group.id)"
+                          [attr.aria-controls]="'permission-group-body-' + group.id"
+                          (click)="togglePermissionGroup(group.id)"
+                        >
+                          <app-icon
+                            class="workspace-group-chevron"
+                            [icon]="
+                              isPermissionGroupCollapsed(group.id)
+                                ? LucideChevronRight
+                                : LucideChevronDown
+                            "
+                            size="sm"
+                          />
+                          <span class="workspace-group-accent-bar" aria-hidden="true"></span>
+                          <span class="workspace-group-label">{{ group.label }}</span>
+                          <app-badge
+                            [label]="'' + group.count"
+                            variant="neutral"
+                            size="xs"
+                            shape="rounded"
+                            [ariaLabel]="
+                              group.count + (group.count === 1 ? ' permission' : ' permissions')
+                            "
+                          />
+                        </button>
+                      </h3>
+                    </header>
+                    @if (!isPermissionGroupCollapsed(group.id)) {
+                      <div
+                        class="workspace-group-body"
+                        [id]="'permission-group-body-' + group.id"
+                        role="region"
+                        tabindex="0"
+                        [attr.aria-labelledby]="'permission-group-heading-' + group.id"
+                      >
+                        <table
+                          class="workspace-gtable permission-catalog-table"
+                          [attr.aria-label]="group.label + ' permissions'"
+                        >
+                          <thead>
+                            <tr>
+                              <th scope="col">
+                                <app-icon [icon]="LucideKey" size="xs" /> Permission
+                              </th>
+                              <th scope="col">Code</th>
+                              <th scope="col">Action</th>
+                              <th scope="col">Access</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Status</th>
+                              <th scope="col"><span class="visually-hidden">Actions</span></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (permission of group.permissions; track permissionId(permission)) {
+                              <tr
+                                [class.is-inactive]="permission.isActive === false"
+                                [class.is-busy]="isPermissionBusy(permission)"
+                                (dblclick)="openPermission(permission)"
+                              >
+                                <td data-label="Permission">
+                                  <div class="workspace-table-copy">
+                                    <strong class="workspace-name-editable">{{
+                                      permission.displayName || permission.name
+                                    }}</strong>
+                                    <small>{{ permission.description || 'No description' }}</small>
+                                  </div>
+                                </td>
+                                <td data-label="Code">
+                                  <code class="rp-table-code">{{ permission.code }}</code>
+                                </td>
+                                <td data-label="Action">
+                                  <app-badge
+                                    [label]="actionLabel(permission.action)"
+                                    variant="noteBlue"
+                                    size="xs"
+                                    shape="pill"
+                                  />
+                                </td>
+                                <td data-label="Access">
+                                  <span class="role-table-text">{{
+                                    permissionAccessLabel(permission)
+                                  }}</span>
+                                </td>
+                                <td data-label="Type">
+                                  <app-badge
+                                    [label]="permission.isSystem ? 'System' : 'Custom'"
+                                    [variant]="permission.isSystem ? 'neutral' : 'noteYellow'"
+                                    size="xs"
+                                    shape="pill"
+                                  />
+                                </td>
+                                <td data-label="Status">
+                                  <app-badge
+                                    [label]="permission.isActive === false ? 'Inactive' : 'Active'"
+                                    [variant]="permissionStatusVariant(permission)"
+                                    size="xs"
+                                    shape="pill"
+                                    [dot]="true"
+                                  />
+                                </td>
+                                <td data-label="Actions">
+                                  <div class="workspace-table-action-group">
+                                    <app-button
+                                      [icon]="
+                                        canManageGlobalPermissions() ? LucidePencil : LucideShield
+                                      "
+                                      [iconOnly]="true"
+                                      variant="noteBlue"
+                                      appearance="standard"
+                                      size="xs"
+                                      [rounded]="true"
+                                      [ariaLabel]="
+                                        (canManageGlobalPermissions() ? 'Edit ' : 'Inspect ') +
+                                        (permission.displayName || permission.code)
+                                      "
+                                      [disabled]="isPermissionBusy(permission)"
+                                      (buttonClick)="openPermission(permission)"
+                                    />
+                                    @if (!permission.isSystem && canManageGlobalPermissions()) {
+                                      <app-button
+                                        [icon]="
+                                          permission.isActive === false
+                                            ? LucideRotateCcw
+                                            : LucidePower
+                                        "
+                                        [iconOnly]="true"
+                                        variant="noteYellow"
+                                        appearance="standard"
+                                        size="xs"
+                                        [rounded]="true"
+                                        [ariaLabel]="
+                                          (permission.isActive === false
+                                            ? 'Activate '
+                                            : 'Deactivate ') +
+                                          (permission.displayName || permission.code)
+                                        "
+                                        [disabled]="isPermissionBusy(permission)"
+                                        (buttonClick)="
+                                          changePermissionStatus(
+                                            permission,
+                                            permission.isActive === false
+                                          )
+                                        "
+                                      />
+                                      <app-button
+                                        [icon]="LucideTrash2"
+                                        [iconOnly]="true"
+                                        variant="danger"
+                                        appearance="standard"
+                                        size="xs"
+                                        [rounded]="true"
+                                        [ariaLabel]="
+                                          'Delete ' + (permission.displayName || permission.code)
+                                        "
+                                        [disabled]="isPermissionBusy(permission)"
+                                        (buttonClick)="requestDeletePermission(permission)"
+                                      />
+                                    }
+                                  </div>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    }
+                  </section>
+                }
+              </div>
+            </div>
           }
         </div>
-        } @else {
-        <div class="workspace-grouped-table" aria-label="Permission catalog grouped table">
-          <div class="workspace-table-groups-container">
-            @for (group of visiblePermissionGroups(); track group.id) {
-            <section class="workspace-group permission-catalog-group" [style.--group-accent]="'#8b5cf6'"
-              [class.is-collapsed]="isPermissionGroupCollapsed(group.id)"
-              [attr.aria-labelledby]="'permission-group-heading-' + group.id">
-              <header class="workspace-group-header">
-                <h3>
-                  <button type="button" class="workspace-group-toggle" [id]="'permission-group-heading-' + group.id"
-                    [attr.aria-expanded]="!isPermissionGroupCollapsed(group.id)"
-                    [attr.aria-controls]="'permission-group-body-' + group.id"
-                    (click)="togglePermissionGroup(group.id)">
-                    <app-icon class="workspace-group-chevron"
-                      [icon]="isPermissionGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown" size="sm" />
-                    <span class="workspace-group-accent-bar" aria-hidden="true"></span>
-                    <span class="workspace-group-label">{{ group.label }}</span>
-                    <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
-                      [ariaLabel]="group.count + (group.count === 1 ? ' permission' : ' permissions')" />
-                  </button>
-                </h3>
-              </header>
-              @if (!isPermissionGroupCollapsed(group.id)) {
-              <div class="workspace-group-body" [id]="'permission-group-body-' + group.id" role="region" tabindex="0"
-                [attr.aria-labelledby]="'permission-group-heading-' + group.id">
-                <table class="workspace-gtable permission-catalog-table" [attr.aria-label]="group.label + ' permissions'">
-                  <thead>
-                    <tr>
-                      <th scope="col"><app-icon [icon]="LucideKey" size="xs" /> Permission</th>
-                      <th scope="col">Code</th>
-                      <th scope="col">Action</th>
-                      <th scope="col">Access</th>
-                      <th scope="col">Type</th>
-                      <th scope="col">Status</th>
-                      <th scope="col"><span class="visually-hidden">Actions</span></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (permission of group.permissions; track permissionId(permission)) {
-                    <tr [class.is-inactive]="permission.isActive === false"
-                      [class.is-busy]="isPermissionBusy(permission)"
-                      (dblclick)="openPermission(permission)">
-                      <td data-label="Permission">
-                        <div class="workspace-table-copy">
-                          <strong class="workspace-name-editable">{{ permission.displayName || permission.name }}</strong>
-                          <small>{{ permission.description || 'No description' }}</small>
-                        </div>
-                      </td>
-                      <td data-label="Code"><code class="rp-table-code">{{ permission.code }}</code></td>
-                      <td data-label="Action"><app-badge [label]="actionLabel(permission.action)" variant="noteBlue" size="xs" shape="pill" /></td>
-                      <td data-label="Access"><span class="role-table-text">{{ permissionAccessLabel(permission) }}</span></td>
-                      <td data-label="Type"><app-badge [label]="permission.isSystem ? 'System' : 'Custom'"
-                        [variant]="permission.isSystem ? 'neutral' : 'noteYellow'" size="xs" shape="pill" /></td>
-                      <td data-label="Status"><app-badge [label]="permission.isActive === false ? 'Inactive' : 'Active'"
-                        [variant]="permissionStatusVariant(permission)" size="xs" shape="pill" [dot]="true" /></td>
-                      <td data-label="Actions">
-                        <div class="workspace-table-action-group">
-                          <app-button [icon]="canManageGlobalPermissions() ? LucidePencil : LucideShield"
-                            [iconOnly]="true" variant="noteBlue" appearance="standard" size="xs" [rounded]="true"
-                            [ariaLabel]="(canManageGlobalPermissions() ? 'Edit ' : 'Inspect ') + (permission.displayName || permission.code)"
-                            [disabled]="isPermissionBusy(permission)" (buttonClick)="openPermission(permission)" />
-                          @if (!permission.isSystem && canManageGlobalPermissions()) {
-                          <app-button [icon]="permission.isActive === false ? LucideRotateCcw : LucidePower"
-                            [iconOnly]="true" variant="noteYellow" appearance="standard" size="xs" [rounded]="true"
-                            [ariaLabel]="(permission.isActive === false ? 'Activate ' : 'Deactivate ') + (permission.displayName || permission.code)"
-                            [disabled]="isPermissionBusy(permission)"
-                            (buttonClick)="changePermissionStatus(permission, permission.isActive === false)" />
-                          <app-button [icon]="LucideTrash2" [iconOnly]="true" variant="danger" appearance="standard"
-                            size="xs" [rounded]="true" [ariaLabel]="'Delete ' + (permission.displayName || permission.code)"
-                            [disabled]="isPermissionBusy(permission)" (buttonClick)="requestDeletePermission(permission)" />
-                          }
-                        </div>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              }
-            </section>
-            }
-          </div>
-        </div>
-        }
-      </div>
       }
     </section>
   </main>
 </section>
-<button #roleContextMenuTrigger="matMenuTrigger" type="button" class="roles-context-menu-origin"
-  [style.left.px]="contextMenuPosition().x" [style.top.px]="contextMenuPosition().y"
-  [matMenuTriggerFor]="roleContextMenu" aria-hidden="true" tabindex="-1"></button>
-<mat-menu #roleContextMenu="matMenu" xPosition="after" yPosition="below" [overlapTrigger]="false"
-  class="workspace-actions-menu" (closed)="closeRoleContextMenu()">
+<button
+  #roleContextMenuTrigger="matMenuTrigger"
+  type="button"
+  class="roles-context-menu-origin"
+  [style.left.px]="contextMenuPosition().x"
+  [style.top.px]="contextMenuPosition().y"
+  [matMenuTriggerFor]="roleContextMenu"
+  aria-hidden="true"
+  tabindex="-1"
+></button>
+<mat-menu
+  #roleContextMenu="matMenu"
+  xPosition="after"
+  yPosition="below"
+  [overlapTrigger]="false"
+  class="workspace-actions-menu"
+  (closed)="closeRoleContextMenu()"
+>
   @if (contextMenuRole(); as role) {
-  <ng-container *ngTemplateOutlet="roleMenu; context: { $implicit: role }" />
+    <ng-container *ngTemplateOutlet="roleMenu; context: { $implicit: role }" />
   }
 </mat-menu>
-<app-view-role-permissions-modal [open]="permissionViewerOpen()" [role]="permissionViewerRole()"
-  [workspaceLabel]="selectedWorkspaceLabel()" [permissionGroups]="permissionGroups()" [loading]="loadingPermissions()"
-  [error]="permissionError()" (closed)="closePermissionViewer()" (retry)="loadPermissions()" />
-<app-add-edit-workspace-role-side-panel [open]="roleEditorOpen()" [workspaceId]="selectedWorkspaceId()"
-  [workspaceLabel]="selectedWorkspaceLabel()" [role]="editorRole()" [permissionGroups]="assignablePermissionGroups()"
-  (closed)="closeRoleEditor()" (saved)="onRoleSaved()" />
-<app-add-edit-permission-side-panel [open]="permissionEditorOpen()" [permission]="editorPermission()"
-  [readOnly]="permissionReadOnly()" (closed)="closePermissionEditor()" (saved)="onPermissionSaved($event)" />
+<app-view-role-permissions-modal
+  [open]="permissionViewerOpen()"
+  [role]="permissionViewerRole()"
+  [workspaceLabel]="selectedWorkspaceLabel()"
+  [permissionGroups]="permissionGroups()"
+  [loading]="loadingPermissions()"
+  [error]="permissionError()"
+  (closed)="closePermissionViewer()"
+  (retry)="loadPermissions()"
+/>
+<app-add-edit-workspace-role-side-panel
+  [open]="roleEditorOpen()"
+  [workspaceId]="selectedWorkspaceId()"
+  [workspaceLabel]="selectedWorkspaceLabel()"
+  [role]="editorRole()"
+  [permissionGroups]="assignablePermissionGroups()"
+  (closed)="closeRoleEditor()"
+  (saved)="onRoleSaved()"
+/>
+<app-add-edit-permission-side-panel
+  [open]="permissionEditorOpen()"
+  [permission]="editorPermission()"
+  [readOnly]="permissionReadOnly()"
+  (closed)="closePermissionEditor()"
+  (saved)="onPermissionSaved($event)"
+/>
 @if (deleteTarget(); as role) {
-<div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeleteDialog()">
-  <section class="roles-permissions-dialog-shell" role="alertdialog" aria-modal="true"
-    aria-labelledby="workspace-role-delete-title" (mousedown)="$event.stopPropagation()">
-    <app-sticky-card class="roles-permissions-dialog-note" variant="noteRed" appearance="elevated" shape="note"
-      size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
-      <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
-        <app-icon [icon]="LucideTrash2" size="sm" />
-      </span>
-      <span card-eyebrow class="roles-permissions-dialog-kicker">
-        Before you remove the role
-      </span>
-      <h2 card-title id="workspace-role-delete-title" class="roles-permissions-dialog-title">
-        Delete custom role?
-      </h2>
-      <p card-subtitle class="roles-permissions-dialog-subtitle">
-        “{{ roleDisplayName(role) }}” will be permanently removed
-        from {{ selectedWorkspaceLabel() }}.
-      </p>
-      <div class="roles-permissions-delete-message">
-        <span aria-hidden="true">
-          <app-icon [icon]="LucidePower" size="xs" />
+  <div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section
+      class="roles-permissions-dialog-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="workspace-role-delete-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="roles-permissions-dialog-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
+          <app-icon [icon]="LucideTrash2" size="sm" />
         </span>
-        <span>
-          If you may need this role later, deactivate it instead
-          of deleting it.
+        <span card-eyebrow class="roles-permissions-dialog-kicker">
+          Before you remove the role
         </span>
-      </div>
-      <div card-footer class="roles-permissions-dialog-actions">
-        <app-button label="Keep role" variant="secondary" size="sm" [disabled]="deleting()"
-          (buttonClick)="closeDeleteDialog()" />
-        <app-button label="Delete role" variant="danger" size="sm" [loading]="deleting()" [disabled]="deleting()"
-          (buttonClick)="confirmDelete()" />
-      </div>
-    </app-sticky-card>
-  </section>
-</div>
+        <h2 card-title id="workspace-role-delete-title" class="roles-permissions-dialog-title">
+          Delete custom role?
+        </h2>
+        <p card-subtitle class="roles-permissions-dialog-subtitle">
+          “{{ roleDisplayName(role) }}” will be permanently removed from
+          {{ selectedWorkspaceLabel() }}.
+        </p>
+        <div class="roles-permissions-delete-message">
+          <span aria-hidden="true">
+            <app-icon [icon]="LucidePower" size="xs" />
+          </span>
+          <span> If you may need this role later, deactivate it instead of deleting it. </span>
+        </div>
+        <div card-footer class="roles-permissions-dialog-actions">
+          <app-button
+            label="Keep role"
+            variant="secondary"
+            size="sm"
+            [disabled]="deleting()"
+            (buttonClick)="closeDeleteDialog()"
+          />
+          <app-button
+            label="Delete role"
+            variant="danger"
+            size="sm"
+            [loading]="deleting()"
+            [disabled]="deleting()"
+            (buttonClick)="confirmDelete()"
+          />
+        </div>
+      </app-sticky-card>
+    </section>
+  </div>
 }
 @if (deletePermissionTarget(); as permission) {
-<div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeletePermissionDialog()">
-  <section class="roles-permissions-dialog-shell" role="alertdialog" aria-modal="true"
-    aria-labelledby="permission-delete-title" (mousedown)="$event.stopPropagation()">
-    <app-sticky-card class="roles-permissions-dialog-note" variant="noteRed" appearance="elevated" shape="note"
-      size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
-      <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
-        <app-icon [icon]="LucideTrash2" size="sm" />
-      </span>
-      <span card-eyebrow class="roles-permissions-dialog-kicker">Permission catalog</span>
-      <h2 card-title id="permission-delete-title" class="roles-permissions-dialog-title">Delete permission?</h2>
-      <p card-subtitle class="roles-permissions-dialog-subtitle">
-        “{{ permission.displayName || permission.code }}” will be permanently removed from the application catalog.
-      </p>
-      <div class="roles-permissions-delete-message">
-        <span aria-hidden="true"><app-icon [icon]="LucidePower" size="xs" /></span>
-        <span>Roles using this permission may lose access. Deactivate it instead if it may be needed later.</span>
-      </div>
-      <div card-footer class="roles-permissions-dialog-actions">
-        <app-button label="Keep permission" variant="secondary" size="sm" [disabled]="deletingPermission()"
-          (buttonClick)="closeDeletePermissionDialog()" />
-        <app-button label="Delete permission" variant="danger" size="sm" [loading]="deletingPermission()"
-          [disabled]="deletingPermission()" (buttonClick)="confirmDeletePermission()" />
-      </div>
-    </app-sticky-card>
-  </section>
-</div>
+  <div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeletePermissionDialog()">
+    <section
+      class="roles-permissions-dialog-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="permission-delete-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="roles-permissions-dialog-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
+          <app-icon [icon]="LucideTrash2" size="sm" />
+        </span>
+        <span card-eyebrow class="roles-permissions-dialog-kicker">Permission catalog</span>
+        <h2 card-title id="permission-delete-title" class="roles-permissions-dialog-title">
+          Delete permission?
+        </h2>
+        <p card-subtitle class="roles-permissions-dialog-subtitle">
+          “{{ permission.displayName || permission.code }}” will be permanently removed from the
+          application catalog.
+        </p>
+        <div class="roles-permissions-delete-message">
+          <span aria-hidden="true"><app-icon [icon]="LucidePower" size="xs" /></span>
+          <span
+            >Roles using this permission may lose access. Deactivate it instead if it may be needed
+            later.</span
+          >
+        </div>
+        <div card-footer class="roles-permissions-dialog-actions">
+          <app-button
+            label="Keep permission"
+            variant="secondary"
+            size="sm"
+            [disabled]="deletingPermission()"
+            (buttonClick)="closeDeletePermissionDialog()"
+          />
+          <app-button
+            label="Delete permission"
+            variant="danger"
+            size="sm"
+            [loading]="deletingPermission()"
+            [disabled]="deletingPermission()"
+            (buttonClick)="confirmDeletePermission()"
+          />
+        </div>
+      </app-sticky-card>
+    </section>
+  </div>
 }
 <ng-template #roleMenu let-role>
-  <button mat-menu-item type="button" class="workspace-action-item is-primary" (click)="openRole(role)">
+  <button
+    mat-menu-item
+    type="button"
+    class="workspace-action-item is-primary"
+    (click)="openRole(role)"
+  >
     <span class="workspace-menu-item-icon" aria-hidden="true">
       <app-icon [icon]="LucidePencil" size="xs" />
     </span>
@@ -694,25 +1324,36 @@
     </span>
   </button>
   @if (!role.isSystem) {
-  <button mat-menu-item type="button" class="workspace-action-item"
-    (click)="changeRoleStatus(role, role.isActive === false)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="role.isActive === false ? LucideRotateCcw : LucidePower" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>{{ role.isActive === false ? 'Activate role' : 'Deactivate role' }}</strong>
-      <small>{{ role.isActive === false ? 'Make it assignable again' : 'Keep it saved but unavailable' }}</small>
-    </span>
-  </button>
-  <mat-divider />
-  <button mat-menu-item type="button" class="workspace-action-item workspace-menu-danger" (click)="requestDelete(role)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucideTrash2" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Delete role</strong>
-      <small>Permanently remove this custom role</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      class="workspace-action-item"
+      (click)="changeRoleStatus(role, role.isActive === false)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="role.isActive === false ? LucideRotateCcw : LucidePower" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>{{ role.isActive === false ? 'Activate role' : 'Deactivate role' }}</strong>
+        <small>{{
+          role.isActive === false ? 'Make it assignable again' : 'Keep it saved but unavailable'
+        }}</small>
+      </span>
+    </button>
+    <mat-divider />
+    <button
+      mat-menu-item
+      type="button"
+      class="workspace-action-item workspace-menu-danger"
+      (click)="requestDelete(role)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideTrash2" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Delete role</strong>
+        <small>Permanently remove this custom role</small>
+      </span>
+    </button>
   }
 </ng-template>

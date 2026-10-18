@@ -1,8 +1,23 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, EventEmitter,
-  Input, OnChanges, Output, SimpleChanges, ViewChild, inject, signal,
-  AfterViewInit, EmbeddedViewRef, PLATFORM_ID, Renderer2, TemplateRef, ViewContainerRef
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  inject,
+  signal,
+  AfterViewInit,
+  EmbeddedViewRef,
+  PLATFORM_ID,
+  Renderer2,
+  TemplateRef,
+  ViewContainerRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,7 +28,11 @@ import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
@@ -25,10 +44,21 @@ import { WorkspaceFolderWrapper } from '../workspace-folder-wrapper/workspace-fo
 @Component({
   selector: 'app-add-edit-workspace-side-panel',
   standalone: true,
-  imports: [Badge, FormsModule, AppInput, Button, Label, Loader, Select, SidePanel, Tooltip, WorkspaceFolderWrapper],
+  imports: [
+    Badge,
+    FormsModule,
+    AppInput,
+    Button,
+    Label,
+    Loader,
+    Select,
+    SidePanel,
+    Tooltip,
+    WorkspaceFolderWrapper,
+  ],
   templateUrl: './add-edit-workspace-side-panel.html',
   styleUrl: './add-edit-workspace-side-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -38,7 +68,8 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   private readonly previewPlatform = inject(PLATFORM_ID);
   private desktopPreviewView?: EmbeddedViewRef<unknown>;
   private previewViewReady = false;
-  @ViewChild('desktopPreview', { static: true }) private desktopPreviewTemplate!: TemplateRef<unknown>;
+  @ViewChild('desktopPreview', { static: true })
+  private desktopPreviewTemplate!: TemplateRef<unknown>;
 
   ngAfterViewInit(): void {
     this.previewViewReady = true;
@@ -49,7 +80,10 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (!this.previewViewReady || !isPlatformBrowser(this.previewPlatform)) return;
     queueMicrotask(() => {
       if (this.destroyRef.destroyed) return;
-      if (!this.open) { this.removeDesktopPreview(); return; }
+      if (!this.open) {
+        this.removeDesktopPreview();
+        return;
+      }
       if (this.desktopPreviewView) return;
       const view = this.previewContainer.createEmbeddedView(this.desktopPreviewTemplate);
       this.desktopPreviewView = view;
@@ -107,7 +141,7 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   readonly visibilityOptions: readonly SelectOption[] = [
     { label: 'Private', value: 'PRIVATE' },
     { label: 'Invite only', value: 'INVITE_ONLY' },
-    { label: 'Public', value: 'PUBLIC' }
+    { label: 'Public', value: 'PUBLIC' },
   ];
 
   constructor() {
@@ -119,27 +153,52 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     });
   }
 
-  get isEdit(): boolean { return !!this.editorId; }
-  get panelTitle(): string { return this.isEdit ? 'Edit workspace' : 'Create workspace'; }
-  get eyebrow(): string { return this.isEdit ? 'Tidy up this space' : 'A fresh sticky space'; }
-  get description(): string { return 'A space for your notes, folders and ideas.'; }
-  get headerIcon() { return this.isEdit ? LucidePencil : LucideFolder; }
-  get submitIcon() { return this.isEdit ? LucideCheck : LucidePlus; }
-  get submitLabel(): string { return this.isEdit ? 'Save changes' : 'Create workspace'; }
+  get isEdit(): boolean {
+    return !!this.editorId;
+  }
+  get panelTitle(): string {
+    return this.isEdit ? 'Edit workspace' : 'Create workspace';
+  }
+  get eyebrow(): string {
+    return this.isEdit ? 'Tidy up this space' : 'A fresh sticky space';
+  }
+  get description(): string {
+    return 'A space for your notes, folders and ideas.';
+  }
+  get headerIcon() {
+    return this.isEdit ? LucidePencil : LucideFolder;
+  }
+  get submitIcon() {
+    return this.isEdit ? LucideCheck : LucidePlus;
+  }
+  get submitLabel(): string {
+    return this.isEdit ? 'Save changes' : 'Create workspace';
+  }
   get submitTooltip(): string {
     if (this.loadingData()) return 'Loading workspace details';
     if (this.loading()) return this.isEdit ? 'Saving workspace changes' : 'Creating workspace';
     if (this.loadFailed()) return 'Reload the workspace before saving';
     const length = this.name().trim().length;
-    if (length < this.nameMinLength) return `Enter at least ${this.nameMinLength} characters for the workspace name`;
-    if (length > this.nameMaxLength) return `Use no more than ${this.nameMaxLength} characters for the workspace name`;
+    if (length < this.nameMinLength)
+      return `Enter at least ${this.nameMinLength} characters for the workspace name`;
+    if (length > this.nameMaxLength)
+      return `Use no more than ${this.nameMaxLength} characters for the workspace name`;
     return this.isEdit ? 'Save workspace changes' : 'Create this workspace';
   }
-  get isBusy(): boolean { return this.loading() || this.loadingData(); }
-  get statusText(): string { return this.dirty() ? 'Not saved' : this.isEdit ? 'Saved' : 'New workspace'; }
+  get isBusy(): boolean {
+    return this.loading() || this.loadingData();
+  }
+  get statusText(): string {
+    return this.dirty() ? 'Not saved' : this.isEdit ? 'Saved' : 'New workspace';
+  }
   get canSubmit(): boolean {
     const length = this.name().trim().length;
-    return !this.isBusy && !this.loadFailed() && length >= this.nameMinLength && length <= this.nameMaxLength;
+    return (
+      !this.isBusy &&
+      !this.loadFailed() &&
+      length >= this.nameMinLength &&
+      length <= this.nameMaxLength
+    );
   }
   get previewRole(): string {
     const source = this.previewSource();
@@ -151,15 +210,21 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     const source = this.previewSource();
     return Array.isArray(source?.summary?.folders)
       ? source.summary.folders
-      : Array.isArray(source?.folders) ? source.folders : [];
+      : Array.isArray(source?.folders)
+        ? source.folders
+        : [];
   }
   get previewMembers(): any[] {
     const source = this.previewSource();
     const members = Array.isArray(source?.summary?.members)
       ? source.summary.members
-      : Array.isArray(source?.members) ? source.members : [];
+      : Array.isArray(source?.members)
+        ? source.members
+        : [];
     return members.map((member: any, index: number) => {
-      const name = String(member?.displayName ?? member?.name ?? member?.email ?? 'Workspace member').trim();
+      const name = String(
+        member?.displayName ?? member?.name ?? member?.email ?? 'Workspace member',
+      ).trim();
       return {
         id: String(member?.id ?? `preview-member-${index}`),
         name,
@@ -179,7 +244,8 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   get previewFolderCount(): number | null {
     const source = this.previewSource();
     const value = source?.summary?.folderCount ?? source?.folderCount;
-    if (value === undefined || value === null) return this.isEdit ? this.previewFolders.length : null;
+    if (value === undefined || value === null)
+      return this.isEdit ? this.previewFolders.length : null;
     const count = Number(value);
     return Number.isFinite(count) ? Math.max(0, count) : null;
   }
@@ -194,8 +260,14 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (changes['open'] || changes['id'] || changes['workspace']) this.initialize();
   }
 
-  updateName(value: InputValue): void { this.name.set(String(value ?? '')); this.markDirty(); }
-  updateDescription(value: InputValue): void { this.workspaceDescription.set(String(value ?? '')); this.markDirty(); }
+  updateName(value: InputValue): void {
+    this.name.set(String(value ?? ''));
+    this.markDirty();
+  }
+  updateDescription(value: InputValue): void {
+    this.workspaceDescription.set(String(value ?? ''));
+    this.markDirty();
+  }
   updateVisibility(value: SelectValue): void {
     if (this.isPersonal()) return;
     const visibility = this.normalizeVisibility(value);
@@ -208,7 +280,9 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   submit(): void {
     if (this.isBusy || this.loadFailed()) return;
     if (!this.canSubmit) {
-      this.error.set(`Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`);
+      this.error.set(
+        `Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`,
+      );
       return;
     }
     const id = this.editorId;
@@ -216,30 +290,41 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     const payload: { name: string; description: string | null; visibility?: string } = {
       name: this.name().trim(),
       description: this.workspaceDescription().trim() || null,
-      ...(!this.isPersonal() ? { visibility: this.visibility() } : {})
+      ...(!this.isPersonal() ? { visibility: this.visibility() } : {}),
     };
-    const request$ = isEdit ? this.workspaceApi.update(id, payload) : this.workspaceApi.create(payload);
+    const request$ = isEdit
+      ? this.workspaceApi.update(id, payload)
+      : this.workspaceApi.create(payload);
     this.loading.set(true);
     this.error.set('');
-    request$.pipe(
-      takeUntil(this.sessionEnd$),
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.loading.set(false))
-    ).subscribe({
-      next: response => {
-        this.dirty.set(false);
-        const savedId = response?.data?.id || id || '';
-        this.toastService.success(isEdit ? 'Workspace changes were saved.' : 'Workspace created successfully.', {
-          title: isEdit ? 'Workspace updated' : 'Workspace created',
-          dedupeKey: `workspace-saved-${savedId || 'new'}`
-        });
-        if (response?.data) {
-          this.workspaceStore.upsert(response.data);
-        }
-        this.saved.emit(savedId);
-      },
-      error: error => this.showError(error, isEdit ? 'Unable to update workspace.' : 'Unable to create workspace.')
-    });
+    request$
+      .pipe(
+        takeUntil(this.sessionEnd$),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          this.dirty.set(false);
+          const savedId = response?.data?.id || id || '';
+          this.toastService.success(
+            isEdit ? 'Workspace changes were saved.' : 'Workspace created successfully.',
+            {
+              title: isEdit ? 'Workspace updated' : 'Workspace created',
+              dedupeKey: `workspace-saved-${savedId || 'new'}`,
+            },
+          );
+          if (response?.data) {
+            this.workspaceStore.upsert(response.data);
+          }
+          this.saved.emit(savedId);
+        },
+        error: (error) =>
+          this.showError(
+            error,
+            isEdit ? 'Unable to update workspace.' : 'Unable to create workspace.',
+          ),
+      });
   }
 
   close(): void {
@@ -266,42 +351,54 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     this.isPersonal.set(false);
     this.editorId = String(this.id || this.workspace?.id || '').trim();
 
-    if (!this.editorId) { this.focusName(); return; }
+    if (!this.editorId) {
+      this.focusName();
+      return;
+    }
     if (this.workspace?.id === this.editorId) {
       this.applyWorkspace(this.workspace);
     }
     const id = this.editorId;
     this.loadingData.set(true);
-    this.workspaceApi.getById(id).pipe(
-      takeUntil(this.sessionEnd$),
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.loadingData.set(false))
-    ).subscribe({
-      next: response => {
-        if (!this.open || this.editorId !== id) return;
-        this.applyWorkspace(response.data);
-        this.focusName();
-      },
-      error: error => {
-        this.loadFailed.set(true);
-        this.showError(error, 'Unable to load this workspace. Close the panel and try again.');
-      }
-    });
+    this.workspaceApi
+      .getById(id)
+      .pipe(
+        takeUntil(this.sessionEnd$),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingData.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          if (!this.open || this.editorId !== id) return;
+          this.applyWorkspace(response.data);
+          this.focusName();
+        },
+        error: (error) => {
+          this.loadFailed.set(true);
+          this.showError(error, 'Unable to load this workspace. Close the panel and try again.');
+        },
+      });
   }
 
   private applyWorkspace(workspace: any): void {
     this.previewSource.set(workspace);
     this.name.set(workspace.name || '');
     this.workspaceDescription.set(workspace.description || '');
-    this.isPersonal.set(Boolean(workspace.isPersonal || workspace.workspaceType === 'PERSONAL' || workspace.label === 'PERSONAL'));
-    this.visibility.set(this.isPersonal() ? 'PRIVATE' :
-      this.normalizeVisibility(workspace.visibility) || 'PRIVATE');
+    this.isPersonal.set(
+      Boolean(
+        workspace.isPersonal ||
+        workspace.workspaceType === 'PERSONAL' ||
+        workspace.label === 'PERSONAL',
+      ),
+    );
+    this.visibility.set(
+      this.isPersonal() ? 'PRIVATE' : this.normalizeVisibility(workspace.visibility) || 'PRIVATE',
+    );
     this.dirty.set(false);
   }
 
   private normalizeVisibility(value: unknown): string | null {
-    return value === 'PRIVATE' || value === 'PUBLIC' ||
-      value === 'INVITE_ONLY' ? value : null;
+    return value === 'PRIVATE' || value === 'PUBLIC' || value === 'INVITE_ONLY' ? value : null;
   }
 
   private markDirty(): void {
@@ -314,9 +411,19 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
     if (status === 401 || status === 403) {
       this.loadFailed.set(true);
     }
-    const text = extractErrorMessage(error, status === 403 ? 'You do not have permission to perform this action.' : status === 401 ? 'Your session has expired. Please sign in again.' : fallback);
+    const text = extractErrorMessage(
+      error,
+      status === 403
+        ? 'You do not have permission to perform this action.'
+        : status === 401
+          ? 'Your session has expired. Please sign in again.'
+          : fallback,
+    );
     this.error.set(text);
-    this.toastService.error(text, { title: 'Workspace', dedupeKey: `workspace-editor-${this.editorId || 'new'}` });
+    this.toastService.error(text, {
+      title: 'Workspace',
+      dedupeKey: `workspace-editor-${this.editorId || 'new'}`,
+    });
   }
 
   private focusName(): void {
@@ -326,7 +433,10 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
       this.focusFrame = requestAnimationFrame(() => {
         this.focusFrame = null;
         if (!this.open || this.loadingData()) return;
-        const input = this.workspaceNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
+        const input =
+          this.workspaceNameInput?.nativeElement.querySelector<HTMLInputElement>(
+            'input:not([disabled])',
+          );
         if (!input) return;
         input.focus({ preventScroll: true });
         input.setSelectionRange(input.value.length, input.value.length);
@@ -335,8 +445,8 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   }
 
   private cancelFocus(): void {
-    if (this.focusFrame !== null && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this.focusFrame);
+    if (this.focusFrame !== null && typeof cancelAnimationFrame === 'function')
+      cancelAnimationFrame(this.focusFrame);
     this.focusFrame = null;
   }
 }
-

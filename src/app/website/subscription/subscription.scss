@@ -134,8 +134,11 @@
   flex-direction: column;
   min-width: 0;
   isolation: isolate;
-  filter: drop-shadow(0 2px 4px rgba(44, 37, 22, 0.06)) drop-shadow(0 10px 22px rgba(44, 37, 22, 0.08));
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 220ms ease;
+  filter: drop-shadow(0 2px 4px rgba(44, 37, 22, 0.06))
+    drop-shadow(0 10px 22px rgba(44, 37, 22, 0.08));
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 220ms ease;
 
   @media (min-width: 900px) {
     &:nth-child(1) {
@@ -151,13 +154,14 @@
 
   &:hover {
     transform: translateY(-6px) rotate(0deg) !important;
-    filter: drop-shadow(0 4px 8px rgba(44, 37, 22, 0.08)) drop-shadow(0 18px 34px rgba(44, 37, 22, 0.14));
+    filter: drop-shadow(0 4px 8px rgba(44, 37, 22, 0.08))
+      drop-shadow(0 18px 34px rgba(44, 37, 22, 0.14));
   }
 }
 
 /* Palette Variations for the 3 Plans */
 /* 1. Free: Warm Clean Cream Sticky Paper */
-.plan-card-shell[data-plan-code="FREE"] {
+.plan-card-shell[data-plan-code='FREE'] {
   --card-surface: #fffdf5;
   --card-border: #e6ded1;
   --card-fold-color: #dcd0bc;
@@ -166,7 +170,7 @@
 }
 
 /* 2. Individual: Fresh Mint Sticky Paper */
-.plan-card-shell[data-plan-code="INDIVIDUAL"] {
+.plan-card-shell[data-plan-code='INDIVIDUAL'] {
   --card-surface: #f1f8ee;
   --card-border: #cbdfc3;
   --card-fold-color: #b0d2a2;
@@ -175,7 +179,7 @@
 }
 
 /* 3. Pro: Signature Vibrant Yellow Sticky Paper */
-.plan-card-shell[data-plan-code="PRO"] {
+.plan-card-shell[data-plan-code='PRO'] {
   --card-surface: #fef7b8;
   --card-border: #e2cb5a;
   --card-fold-color: #cdb233;
@@ -184,7 +188,8 @@
 }
 
 .plan-card-shell.is-popular-shell {
-  filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.12)) drop-shadow(0 14px 28px rgba(44, 37, 22, 0.11));
+  filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.12))
+    drop-shadow(0 14px 28px rgba(44, 37, 22, 0.11));
 }
 
 .plan-card {
@@ -206,7 +211,9 @@
     0 100%
   );
   overflow: hidden;
-  transition: border-color 180ms ease, background-color 180ms ease;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
 }
 
 .plan-card.is-popular {
@@ -228,7 +235,10 @@
     radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.88) 0 0.65px, transparent 0.85px),
     radial-gradient(circle at 73% 66%, rgba(41, 35, 24, 0.12) 0 0.5px, transparent 0.78px),
     radial-gradient(circle at 42% 80%, rgba(255, 255, 255, 0.6) 0 0.5px, transparent 0.74px);
-  background-size: 14px 14px, 19px 19px, 23px 23px;
+  background-size:
+    14px 14px,
+    19px 19px,
+    23px 23px;
 }
 
 /* Washi Tape Strip at Top */
@@ -262,8 +272,12 @@
       rgba(40, 30, 10, 0.12) 4px
     );
   }
-  &::before { left: 0; }
-  &::after { right: 0; }
+  &::before {
+    left: 0;
+  }
+  &::after {
+    right: 0;
+  }
 }
 
 /* Folded Corner Triangle */

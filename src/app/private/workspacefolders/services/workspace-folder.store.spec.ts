@@ -7,11 +7,14 @@ import type { WorkspaceFolder } from '../models/workspace-folder.models';
 
 describe('WorkspaceFolderStore request isolation', () => {
   const api = { getFolderOptions: vi.fn() };
-  const folder = (id: string, workspaceId = 'a') => ({ id, workspaceId, status: 'ACTIVE' }) as WorkspaceFolder;
+  const folder = (id: string, workspaceId = 'a') =>
+    ({ id, workspaceId, status: 'ACTIVE' }) as WorkspaceFolder;
   let store: WorkspaceFolderStore;
   beforeEach(() => {
     api.getFolderOptions.mockReset();
-    TestBed.configureTestingModule({ providers: [{ provide: WorkspaceFolderService, useValue: api }] });
+    TestBed.configureTestingModule({
+      providers: [{ provide: WorkspaceFolderService, useValue: api }],
+    });
     store = TestBed.inject(WorkspaceFolderStore);
   });
 

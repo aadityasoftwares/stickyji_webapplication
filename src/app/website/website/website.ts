@@ -7,4 +7,4 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './website.scss',
   templateUrl: './website.html',
 })
-export class Website { }
+export class Website {}

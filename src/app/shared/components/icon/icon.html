@@ -1,12 +1,17 @@
-<span class="app-icon" [ngClass]="iconClasses" [style.--app-icon-size]="resolvedSize" [style.--app-icon-fill]="fill"
-    [style.color]="color || null" [attr.role]="isDecorative ? null : 'img'" [attr.aria-label]="accessibleLabel"
-    [attr.aria-hidden]="isDecorative ? 'true' : null" [attr.title]="title">
-    <span class="app-icon-transform" [style.transform]="iconTransform">
-        <span class="app-icon-glyph" [class.app-icon-spin]="spin">
-            <ng-container *ngComponentOutlet="
-          icon;
-          inputs: lucideInputs
-        "></ng-container>
-        </span>
+<span
+  class="app-icon"
+  [ngClass]="iconClasses"
+  [style.--app-icon-size]="resolvedSize"
+  [style.--app-icon-fill]="fill"
+  [style.color]="color || null"
+  [attr.role]="isDecorative ? null : 'img'"
+  [attr.aria-label]="accessibleLabel"
+  [attr.aria-hidden]="isDecorative ? 'true' : null"
+  [attr.title]="title"
+>
+  <span class="app-icon-transform" [style.transform]="iconTransform">
+    <span class="app-icon-glyph" [class.app-icon-spin]="spin">
+      <ng-container *ngComponentOutlet="icon; inputs: lucideInputs"></ng-container>
     </span>
+  </span>
 </span>

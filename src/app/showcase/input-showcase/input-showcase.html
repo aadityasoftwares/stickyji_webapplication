@@ -1,256 +1,378 @@
 <section class="input-showcase">
-    <header class="showcase-hero">
-        <div class="showcase-hero-copy">
-            <p class="showcase-kicker">Common component · Input</p>
-            <h1>Inputs that feel like paper</h1>
-            <p class="showcase-lead">
-                One accessible input API for Angular forms, Lucide icons, sticky-note colors,
-                tape decoration, textarea content, and validation states.
-            </p>
+  <header class="showcase-hero">
+    <div class="showcase-hero-copy">
+      <p class="showcase-kicker">Common component · Input</p>
+      <h1>Inputs that feel like paper</h1>
+      <p class="showcase-lead">
+        One accessible input API for Angular forms, Lucide icons, sticky-note colors, tape
+        decoration, textarea content, and validation states.
+      </p>
+    </div>
+
+    <div class="hero-note" aria-hidden="true">
+      <span class="hero-note-tape"></span>
+      <span class="hero-note-label">Try it</span>
+      <strong>{{ search || 'Search your notes…' }}</strong>
+    </div>
+  </header>
+
+  <nav class="showcase-index" aria-label="Input showcase sections">
+    <a href="#core">Core</a>
+    <a href="#sticky-notes">Sticky notes</a>
+    <a href="#validation">Validation</a>
+    <a href="#textarea">Textarea</a>
+    <a href="#styles">Styles</a>
+    <a href="#states">States</a>
+  </nav>
+
+  <section id="core" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">01</span>
+        <h2>Core examples</h2>
+      </div>
+      <p>Native behavior with template-driven and reactive Angular forms.</p>
+    </div>
+
+    <div class="showcase-panel showcase-grid">
+      <div class="example-cell">
+        <span class="example-caption">ngModel + clear action</span>
+        <app-input
+          label="Your name"
+          placeholder="Enter your name"
+          hint="Two-way ngModel binding."
+          [leadingIcon]="LucideUser"
+          [(ngModel)]="name"
+          [clearable]="true"
+          [required]="true"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Reactive form + floating label</span>
+        <app-input
+          type="email"
+          label="Email address"
+          labelMode="floating"
+          placeholder="you@example.com"
+          [leadingIcon]="LucideMail"
+          [trailingIcon]="LucideAtSign"
+          [formControl]="emailControl"
+          successText="Email address looks good."
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Password visibility</span>
+        <app-input
+          type="password"
+          label="Password"
+          placeholder="Enter password"
+          [leadingIcon]="LucideLockKeyhole"
+          hint="Use the eye button to show or hide it."
+          [(ngModel)]="password"
+          [clearable]="true"
+          [passwordToggle]="true"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Pill search</span>
+        <app-input
+          type="search"
+          label="Search notes"
+          placeholder="Search by title or tag"
+          shape="pill"
+          [leadingIcon]="LucideSearch"
+          [(ngModel)]="search"
+          [clearable]="true"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Numeric field + affixes</span>
+        <app-input
+          type="number"
+          label="Estimate"
+          prefixText="$"
+          suffixText="USD"
+          [leadingIcon]="LucideDollarSign"
+          [min]="0"
+          [step]="5"
+          [(ngModel)]="estimate"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">URL field</span>
+        <app-input
+          label="Public note URL"
+          prefixText="https://"
+          suffixText="↗"
+          value="notes.example.com/launch"
+          [leadingIcon]="LucideLink"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section id="sticky-notes" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">02</span>
+        <h2>Sticky-note surfaces</h2>
+      </div>
+      <p>Tape is an independent decoration, so it works with every appearance.</p>
+    </div>
+
+    <div class="showcase-panel showcase-grid sticky-feature-grid">
+      <div class="example-cell">
+        <span class="example-caption">Yellow note + tape</span>
+        <app-input
+          label="Idea title"
+          labelDescription="A warm surface for new thoughts."
+          placeholder="Name your idea"
+          variant="noteYellow"
+          decoration="tape"
+          [leadingIcon]="LucideFileText"
+          [clearable]="true"
+          value="Launch checklist"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Pink note + tape</span>
+        <app-input
+          label="Tag"
+          placeholder="Add a label"
+          variant="notePink"
+          decoration="tape"
+          appearance="filled"
+          [leadingIcon]="LucideTag"
+          value="Important"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Blue note + date</span>
+        <app-input
+          type="date"
+          label="Review date"
+          variant="noteBlue"
+          decoration="tape"
+          [leadingIcon]="LucideCalendarDays"
+          value="2026-08-27"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Black note</span>
+        <app-input
+          label="Private note"
+          placeholder="Only you can see this"
+          variant="noteBlack"
+          decoration="tape"
+          [leadingIcon]="LucideLockKeyhole"
+        />
+      </div>
+    </div>
+
+    <div class="variant-board">
+      @for (variant of variants; track variant) {
+        <div class="variant-card" [class.variant-card-note]="isNoteVariant(variant)">
+          <app-input
+            [label]="displayName(variant)"
+            [variant]="variant"
+            appearance="filled"
+            [decoration]="isNoteVariant(variant) ? 'tape' : 'standard'"
+            [value]="displayName(variant) + ' input'"
+          />
         </div>
+      }
+    </div>
+  </section>
 
-        <div class="hero-note" aria-hidden="true">
-            <span class="hero-note-tape"></span>
-            <span class="hero-note-label">Try it</span>
-            <strong>{{ search || 'Search your notes…' }}</strong>
+  <section id="validation" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">03</span>
+        <h2>Validation states</h2>
+      </div>
+      <p>Message text takes precedence and automatically selects the matching status.</p>
+    </div>
+
+    <div class="showcase-panel showcase-grid">
+      <div class="example-cell">
+        <span class="state-chip state-chip-default">Default</span>
+        <app-input
+          label="Workspace name"
+          placeholder="Enter a name"
+          hint="Helpful information appears here."
+          [leadingIcon]="LucideFileText"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="state-chip state-chip-success">Success</span>
+        <app-input
+          label="Workspace name"
+          value="Sticky Studio"
+          successText="This name is available."
+          [leadingIcon]="LucideFileText"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="state-chip state-chip-warning">Warning</span>
+        <app-input
+          label="Storage"
+          value="Almost full"
+          warningText="You have 10% storage remaining."
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="state-chip state-chip-danger">Error</span>
+        <app-input
+          type="email"
+          label="Invite by email"
+          value="invalid-address"
+          errorText="Enter a valid email address."
+          [leadingIcon]="LucideMail"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section id="textarea" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">04</span>
+        <h2>Textarea and counter</h2>
+      </div>
+      <p>The same API changes the native control without creating another component.</p>
+    </div>
+
+    <div class="showcase-panel showcase-grid">
+      <div class="example-cell">
+        <span class="example-caption">Reactive textarea</span>
+        <app-input
+          label="Note title and summary"
+          placeholder="Write your note…"
+          [multiline]="true"
+          [rows]="5"
+          [maxLength]="240"
+          [showCounter]="true"
+          [clearable]="true"
+          resize="vertical"
+          [leadingIcon]="LucideFileText"
+          [formControl]="titleControl"
+        />
+      </div>
+
+      <div class="example-cell">
+        <span class="example-caption">Floating sticky textarea</span>
+        <app-input
+          label="Describe your idea"
+          labelMode="floating"
+          placeholder="Add the details"
+          variant="noteYellow"
+          appearance="filled"
+          decoration="tape"
+          [multiline]="true"
+          [rows]="5"
+          [maxLength]="240"
+          [showCounter]="true"
+          [(ngModel)]="noteContent"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section id="styles" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">05</span>
+        <h2>Appearances and shapes</h2>
+      </div>
+      <p>Visual configuration remains separate from input behavior.</p>
+    </div>
+
+    <div class="showcase-panel">
+      <div class="subsection">
+        <h3>Appearances</h3>
+        <div class="showcase-grid showcase-grid-three">
+          @for (appearance of appearances; track appearance) {
+            <app-input
+              [label]="displayName(appearance)"
+              [appearance]="appearance"
+              [value]="displayName(appearance) + ' surface'"
+              [leadingIcon]="LucideFileText"
+            />
+          }
         </div>
-    </header>
+      </div>
 
-    <nav class="showcase-index" aria-label="Input showcase sections">
-        <a href="#core">Core</a>
-        <a href="#sticky-notes">Sticky notes</a>
-        <a href="#validation">Validation</a>
-        <a href="#textarea">Textarea</a>
-        <a href="#styles">Styles</a>
-        <a href="#states">States</a>
-    </nav>
-
-    <section id="core" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">01</span>
-                <h2>Core examples</h2>
-            </div>
-            <p>Native behavior with template-driven and reactive Angular forms.</p>
+      <div class="subsection">
+        <h3>Shapes</h3>
+        <div class="showcase-grid">
+          @for (shape of shapes; track shape) {
+            <app-input
+              [label]="displayName(shape)"
+              [shape]="shape"
+              [value]="displayName(shape) + ' input'"
+              [leadingIcon]="LucideTag"
+            />
+          }
         </div>
+      </div>
 
-        <div class="showcase-panel showcase-grid">
-            <div class="example-cell">
-                <span class="example-caption">ngModel + clear action</span>
-                <app-input label="Your name" placeholder="Enter your name" hint="Two-way ngModel binding."
-                    [leadingIcon]="LucideUser" [(ngModel)]="name" [clearable]="true" [required]="true" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Reactive form + floating label</span>
-                <app-input type="email" label="Email address" labelMode="floating" placeholder="you@example.com"
-                    [leadingIcon]="LucideMail" [trailingIcon]="LucideAtSign" [formControl]="emailControl"
-                    successText="Email address looks good." />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Password visibility</span>
-                <app-input type="password" label="Password" placeholder="Enter password"
-                    [leadingIcon]="LucideLockKeyhole" hint="Use the eye button to show or hide it."
-                    [(ngModel)]="password" [clearable]="true" [passwordToggle]="true" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Pill search</span>
-                <app-input type="search" label="Search notes" placeholder="Search by title or tag" shape="pill"
-                    [leadingIcon]="LucideSearch" [(ngModel)]="search" [clearable]="true" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Numeric field + affixes</span>
-                <app-input type="number" label="Estimate" prefixText="$" suffixText="USD"
-                    [leadingIcon]="LucideDollarSign" [min]="0" [step]="5" [(ngModel)]="estimate" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">URL field</span>
-                <app-input label="Public note URL" prefixText="https://" suffixText="↗" value="notes.example.com/launch"
-                    [leadingIcon]="LucideLink" />
-            </div>
+      <div class="subsection">
+        <h3>Decoration</h3>
+        <div class="showcase-grid">
+          @for (decoration of decorations; track decoration) {
+            <app-input
+              [label]="displayName(decoration)"
+              [decoration]="decoration"
+              variant="noteGreen"
+              value="Decoration stays independent"
+            />
+          }
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <section id="sticky-notes" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">02</span>
-                <h2>Sticky-note surfaces</h2>
-            </div>
-            <p>Tape is an independent decoration, so it works with every appearance.</p>
-        </div>
+  <section id="states" class="showcase-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">06</span>
+        <h2>Sizes and system states</h2>
+      </div>
+      <p>All sizes use the shared UI constants from the component.</p>
+    </div>
 
-        <div class="showcase-panel showcase-grid sticky-feature-grid">
-            <div class="example-cell">
-                <span class="example-caption">Yellow note + tape</span>
-                <app-input label="Idea title" labelDescription="A warm surface for new thoughts."
-                    placeholder="Name your idea" variant="noteYellow" decoration="tape" [leadingIcon]="LucideFileText"
-                    [clearable]="true" value="Launch checklist" />
-            </div>
+    <div class="showcase-panel">
+      <div class="size-stack">
+        @for (size of sizes; track size) {
+          <div class="size-row">
+            <span class="size-token">{{ size }}</span>
+            <app-input
+              [label]="displayName(size)"
+              [size]="size"
+              [value]="sizeHeight(size) + ' input'"
+              [leadingIcon]="LucideFileText"
+            />
+          </div>
+        }
+      </div>
 
-            <div class="example-cell">
-                <span class="example-caption">Pink note + tape</span>
-                <app-input label="Tag" placeholder="Add a label" variant="notePink" decoration="tape"
-                    appearance="filled" [leadingIcon]="LucideTag" value="Important" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Blue note + date</span>
-                <app-input type="date" label="Review date" variant="noteBlue" decoration="tape"
-                    [leadingIcon]="LucideCalendarDays" value="2026-08-27" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Black note</span>
-                <app-input label="Private note" placeholder="Only you can see this" variant="noteBlack"
-                    decoration="tape" [leadingIcon]="LucideLockKeyhole" />
-            </div>
-        </div>
-
-        <div class="variant-board">
-            @for (variant of variants; track variant) {
-            <div class="variant-card" [class.variant-card-note]="isNoteVariant(variant)">
-                <app-input [label]="displayName(variant)" [variant]="variant" appearance="filled"
-                    [decoration]="isNoteVariant(variant) ? 'tape' : 'standard'"
-                    [value]="displayName(variant) + ' input'" />
-            </div>
-            }
-        </div>
-    </section>
-
-    <section id="validation" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">03</span>
-                <h2>Validation states</h2>
-            </div>
-            <p>Message text takes precedence and automatically selects the matching status.</p>
-        </div>
-
-        <div class="showcase-panel showcase-grid">
-            <div class="example-cell">
-                <span class="state-chip state-chip-default">Default</span>
-                <app-input label="Workspace name" placeholder="Enter a name" hint="Helpful information appears here."
-                    [leadingIcon]="LucideFileText" />
-            </div>
-
-            <div class="example-cell">
-                <span class="state-chip state-chip-success">Success</span>
-                <app-input label="Workspace name" value="Sticky Studio" successText="This name is available."
-                    [leadingIcon]="LucideFileText" />
-            </div>
-
-            <div class="example-cell">
-                <span class="state-chip state-chip-warning">Warning</span>
-                <app-input label="Storage" value="Almost full" warningText="You have 10% storage remaining." />
-            </div>
-
-            <div class="example-cell">
-                <span class="state-chip state-chip-danger">Error</span>
-                <app-input type="email" label="Invite by email" value="invalid-address"
-                    errorText="Enter a valid email address." [leadingIcon]="LucideMail" />
-            </div>
-        </div>
-    </section>
-
-    <section id="textarea" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">04</span>
-                <h2>Textarea and counter</h2>
-            </div>
-            <p>The same API changes the native control without creating another component.</p>
-        </div>
-
-        <div class="showcase-panel showcase-grid">
-            <div class="example-cell">
-                <span class="example-caption">Reactive textarea</span>
-                <app-input label="Note title and summary" placeholder="Write your note…" [multiline]="true" [rows]="5"
-                    [maxLength]="240" [showCounter]="true" [clearable]="true" resize="vertical"
-                    [leadingIcon]="LucideFileText" [formControl]="titleControl" />
-            </div>
-
-            <div class="example-cell">
-                <span class="example-caption">Floating sticky textarea</span>
-                <app-input label="Describe your idea" labelMode="floating" placeholder="Add the details"
-                    variant="noteYellow" appearance="filled" decoration="tape" [multiline]="true" [rows]="5"
-                    [maxLength]="240" [showCounter]="true" [(ngModel)]="noteContent" />
-            </div>
-        </div>
-    </section>
-
-    <section id="styles" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">05</span>
-                <h2>Appearances and shapes</h2>
-            </div>
-            <p>Visual configuration remains separate from input behavior.</p>
-        </div>
-
-        <div class="showcase-panel">
-            <div class="subsection">
-                <h3>Appearances</h3>
-                <div class="showcase-grid showcase-grid-three">
-                    @for (appearance of appearances; track appearance) {
-                    <app-input [label]="displayName(appearance)" [appearance]="appearance"
-                        [value]="displayName(appearance) + ' surface'" [leadingIcon]="LucideFileText" />
-                    }
-                </div>
-            </div>
-
-            <div class="subsection">
-                <h3>Shapes</h3>
-                <div class="showcase-grid">
-                    @for (shape of shapes; track shape) {
-                    <app-input [label]="displayName(shape)" [shape]="shape" [value]="displayName(shape) + ' input'"
-                        [leadingIcon]="LucideTag" />
-                    }
-                </div>
-            </div>
-
-            <div class="subsection">
-                <h3>Decoration</h3>
-                <div class="showcase-grid">
-                    @for (decoration of decorations; track decoration) {
-                    <app-input [label]="displayName(decoration)" [decoration]="decoration" variant="noteGreen"
-                        value="Decoration stays independent" />
-                    }
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="states" class="showcase-section">
-        <div class="section-heading">
-            <div>
-                <span class="section-number">06</span>
-                <h2>Sizes and system states</h2>
-            </div>
-            <p>All sizes use the shared UI constants from the component.</p>
-        </div>
-
-        <div class="showcase-panel">
-            <div class="size-stack">
-                @for (size of sizes; track size) {
-                <div class="size-row">
-                    <span class="size-token">{{ size }}</span>
-                    <app-input [label]="displayName(size)" [size]="size" [value]="sizeHeight(size) + ' input'"
-                        [leadingIcon]="LucideFileText" />
-                </div>
-                }
-            </div>
-
-            <div class="subsection state-grid">
-                <app-input label="Disabled" value="Unavailable" [disabled]="true" />
-                <app-input label="Read only" value="Cannot be changed" [readonly]="true" />
-                <app-input label="Loading" value="Checking availability" [loading]="true" />
-                <app-input label="Optional field" placeholder="No value required" [optional]="true" />
-            </div>
-        </div>
-    </section>
+      <div class="subsection state-grid">
+        <app-input label="Disabled" value="Unavailable" [disabled]="true" />
+        <app-input label="Read only" value="Cannot be changed" [readonly]="true" />
+        <app-input label="Loading" value="Checking availability" [loading]="true" />
+        <app-input label="Optional field" placeholder="No value required" [optional]="true" />
+      </div>
+    </div>
+  </section>
 </section>

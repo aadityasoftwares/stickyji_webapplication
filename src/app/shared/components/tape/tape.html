@@ -1,12 +1,17 @@
-<span class="app-tape" [ngClass]="tapeClasses" [style.width.px]="width" [style.height.px]="height"
-    [style.opacity]="resolvedOpacity" [style.transform]="'rotate(' + rotation + 'deg)'" aria-hidden="true">
-
-    <span class="app-tape-surface">
-        @if (text) {
-        <span class="app-tape-text">
-            {{ text }}
-        </span>
-        }
-    </span>
-
+<span
+  class="app-tape"
+  [ngClass]="tapeClasses"
+  [style.width.px]="width"
+  [style.height.px]="height"
+  [style.opacity]="resolvedOpacity"
+  [style.transform]="'rotate(' + rotation + 'deg)'"
+  aria-hidden="true"
+>
+  <span class="app-tape-surface">
+    @if (text) {
+      <span class="app-tape-text">
+        {{ text }}
+      </span>
+    }
+  </span>
 </span>

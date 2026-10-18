@@ -1,0 +1,17 @@
+# Artifacts & Build outputs
+dist
+.angular
+node_modules
+package-lock.json
+
+# IDE & Config
+.vscode
+.git
+
+# Static binary assets
+public/favicon.ico
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.ico

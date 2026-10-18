@@ -1,14 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
 export type LabelSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -39,10 +32,7 @@ export type LabelIconPosition = 'left' | 'right';
 @Component({
   selector: 'app-label',
   standalone: true,
-  imports: [
-    NgClass,
-    AppIcon,
-  ],
+  imports: [NgClass, AppIcon],
   templateUrl: './label.html',
   styleUrl: './label.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,4 +1,7 @@
-import type { ApiResponse, PaginatedApiResponse } from '../../workspace-members/models/workspace-member.models';
+import type {
+  ApiResponse,
+  PaginatedApiResponse,
+} from '../../workspace-members/models/workspace-member.models';
 
 export type StickyNoteAssigneeStatus = 'ACTIVE' | 'REMOVED';
 

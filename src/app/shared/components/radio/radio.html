@@ -1,31 +1,44 @@
 <label class="app-radio" [ngClass]="radioClasses" [attr.for]="inputId" [attr.title]="title">
-    <input class="app-radio-native" type="radio" [id]="inputId" [name]="name" [value]="value" [checked]="checked"
-        [disabled]="isDisabled" [required]="required" [attr.tabindex]="tabIndex" [attr.aria-label]="accessibleLabel"
-        [attr.aria-describedby]="resolvedAriaDescribedBy" [attr.aria-invalid]="invalid ? 'true' : null"
-        [attr.aria-readonly]="readonly ? 'true' : null" [attr.aria-checked]="checked" (change)="handleChange($event)"
-        (blur)="handleBlur()" />
+  <input
+    class="app-radio-native"
+    type="radio"
+    [id]="inputId"
+    [name]="name"
+    [value]="value"
+    [checked]="checked"
+    [disabled]="isDisabled"
+    [required]="required"
+    [attr.tabindex]="tabIndex"
+    [attr.aria-label]="accessibleLabel"
+    [attr.aria-describedby]="resolvedAriaDescribedBy"
+    [attr.aria-invalid]="invalid ? 'true' : null"
+    [attr.aria-readonly]="readonly ? 'true' : null"
+    [attr.aria-checked]="checked"
+    (change)="handleChange($event)"
+    (blur)="handleBlur()"
+  />
 
-    <span class="app-radio-control" aria-hidden="true">
-        <span class="app-radio-dot"></span>
+  <span class="app-radio-control" aria-hidden="true">
+    <span class="app-radio-dot"></span>
+  </span>
+
+  <span class="app-radio-content">
+    <span class="app-radio-label">
+      @if (label) {
+        {{ label }}
+      } @else {
+        <ng-content></ng-content>
+      }
+
+      @if (required) {
+        <span class="app-radio-required" aria-hidden="true">*</span>
+      }
     </span>
 
-    <span class="app-radio-content">
-        <span class="app-radio-label">
-            @if (label) {
-            {{ label }}
-            } @else {
-            <ng-content></ng-content>
-            }
-
-            @if (required) {
-            <span class="app-radio-required" aria-hidden="true">*</span>
-            }
-        </span>
-
-        @if (description) {
-        <span class="app-radio-description" [id]="resolvedDescriptionId">
-            {{ description }}
-        </span>
-        }
-    </span>
+    @if (description) {
+      <span class="app-radio-description" [id]="resolvedDescriptionId">
+        {{ description }}
+      </span>
+    }
+  </span>
 </label>

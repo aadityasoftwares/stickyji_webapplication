@@ -12,12 +12,12 @@ describe('AddEditPermissionSidePanel', () => {
   let fixture: ComponentFixture<AddEditPermissionSidePanel>;
   const api = {
     create: vi.fn(),
-    update: vi.fn()
+    update: vi.fn(),
   };
   const toast = {
     success: vi.fn(),
     warning: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -27,8 +27,8 @@ describe('AddEditPermissionSidePanel', () => {
       providers: [
         provideHttpClient(),
         { provide: PermissionApiService, useValue: api },
-        { provide: ToastService, useValue: toast }
-      ]
+        { provide: ToastService, useValue: toast },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddEditPermissionSidePanel);
@@ -53,14 +53,14 @@ describe('AddEditPermissionSidePanel', () => {
       access: 'GENERAL',
       sortOrder: 5,
       isSystem: false,
-      isActive: true
+      isActive: true,
     };
 
     component.permission = existing;
     component.open = true;
     component.ngOnChanges({
       open: new SimpleChange(false, true, false),
-      permission: new SimpleChange(null, existing, false)
+      permission: new SimpleChange(null, existing, false),
     });
 
     expect(component.mode).toBe('edit');
@@ -103,7 +103,7 @@ describe('AddEditPermissionSidePanel', () => {
       access: 'GENERAL',
       sortOrder: 0,
       isSystem: false,
-      isActive: true
+      isActive: true,
     };
     api.create.mockReturnValue(of({ data: created }));
     const savedSpy = vi.spyOn(component.saved, 'emit');
@@ -128,11 +128,14 @@ describe('AddEditPermissionSidePanel', () => {
       action: 'CREATE',
       access: 'GENERAL',
       sortOrder: 0,
-      isActive: true
+      isActive: true,
     });
     expect(savedSpy).toHaveBeenCalledWith(created);
     expect(closedSpy).toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith('“Create Notes” permission created.', expect.any(Object));
+    expect(toast.success).toHaveBeenCalledWith(
+      '“Create Notes” permission created.',
+      expect.any(Object),
+    );
   });
 
   it('submits update payload for existing permission', () => {
@@ -146,7 +149,7 @@ describe('AddEditPermissionSidePanel', () => {
       access: 'GENERAL',
       sortOrder: 0,
       isSystem: false,
-      isActive: true
+      isActive: true,
     };
     api.update.mockReturnValue(of({ data: { ...existing, displayName: 'Updated Folders' } }));
     const savedSpy = vi.spyOn(component.saved, 'emit');
@@ -155,7 +158,7 @@ describe('AddEditPermissionSidePanel', () => {
     component.open = true;
     component.ngOnChanges({
       open: new SimpleChange(false, true, false),
-      permission: new SimpleChange(null, existing, false)
+      permission: new SimpleChange(null, existing, false),
     });
 
     component.updateDisplayName('Updated Folders');
@@ -170,13 +173,15 @@ describe('AddEditPermissionSidePanel', () => {
       action: 'MANAGE',
       access: 'GENERAL',
       sortOrder: 0,
-      isActive: true
+      isActive: true,
     });
     expect(savedSpy).toHaveBeenCalled();
   });
 
   it('handles backend error responses gracefully', () => {
-    api.create.mockReturnValue(throwError(() => ({ error: { message: 'Permission code already in use' } })));
+    api.create.mockReturnValue(
+      throwError(() => ({ error: { message: 'Permission code already in use' } })),
+    );
     component.open = true;
     component.permission = null;
     component.ngOnChanges({ open: new SimpleChange(false, true, false) });

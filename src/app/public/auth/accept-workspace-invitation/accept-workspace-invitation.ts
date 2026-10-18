@@ -9,22 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-} from '@angular/router';
-import {
-  finalize,
-  switchMap,
-  throwError,
-} from 'rxjs';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize, switchMap, throwError } from 'rxjs';
 
 import {
   LucideArrowLeft,
@@ -49,10 +36,7 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 import { AuthService } from '../services/auth-service';
-import {
-  LoginCredentials,
-  RegisterCredentials,
-} from '../models/auth.models';
+import { LoginCredentials, RegisterCredentials } from '../models/auth.models';
 import {
   WorkspaceInvitationAcceptResult,
   WorkspaceInvitationApiResponse,
@@ -60,17 +44,9 @@ import {
   WorkspaceInvitationPublicService,
 } from '../services/workspace-invitation-public.service';
 
-type InvitationPageState =
-  | 'loading'
-  | 'ready'
-  | 'invalid'
-  | 'accepted';
+type InvitationPageState = 'loading' | 'ready' | 'invalid' | 'accepted';
 
-type InvitationFormControl =
-  | 'firstName'
-  | 'lastName'
-  | 'password'
-  | 'acceptTerms';
+type InvitationFormControl = 'firstName' | 'lastName' | 'password' | 'acceptTerms';
 
 interface BrowserRegistrationContext {
   timezoneCode: string;
@@ -98,8 +74,7 @@ interface BrowserRegistrationContext {
 export class AcceptWorkspaceInvitation implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly invitationService =
-    inject(WorkspaceInvitationPublicService);
+  private readonly invitationService = inject(WorkspaceInvitationPublicService);
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -122,23 +97,17 @@ export class AcceptWorkspaceInvitation implements OnInit {
   @Input() logoAlt = 'Sticky Ji';
   @Input() redirectUrl = '/app';
 
-  readonly pageState =
-    signal<InvitationPageState>('loading');
+  readonly pageState = signal<InvitationPageState>('loading');
 
-  readonly invitation =
-    signal<WorkspaceInvitationPreview | null>(null);
+  readonly invitation = signal<WorkspaceInvitationPreview | null>(null);
 
-  readonly accepted =
-    signal<WorkspaceInvitationAcceptResult | null>(null);
+  readonly accepted = signal<WorkspaceInvitationAcceptResult | null>(null);
 
-  readonly loading =
-    signal(false);
+  readonly loading = signal(false);
 
-  readonly submitted =
-    signal(false);
+  readonly submitted = signal(false);
 
-  readonly pageError =
-    signal<string | null>(null);
+  readonly pageError = signal<string | null>(null);
 
   /**
    * Becomes true after login/register succeeds and before /accept finishes.
@@ -146,61 +115,32 @@ export class AcceptWorkspaceInvitation implements OnInit {
    * submitted through registration a second time if accepting the invitation
    * fails because of a temporary network/server error.
    */
-  readonly authCompleted =
-    signal(false);
+  readonly authCompleted = signal(false);
 
   private token = '';
   private authenticatedAccessToken = '';
 
-  readonly invitationForm =
-    this.formBuilder.nonNullable.group({
-      firstName: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(50),
-        ],
-      ],
+  readonly invitationForm = this.formBuilder.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
 
-      lastName: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(50),
-        ],
-      ],
+    lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
 
-      email: [
-        {
-          value: '',
-          disabled: true,
-        },
-      ],
+    email: [
+      {
+        value: '',
+        disabled: true,
+      },
+    ],
 
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(128),
-        ],
-      ],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
 
-      rememberMe: [true],
+    rememberMe: [true],
 
-      acceptTerms: [
-        false,
-        [Validators.requiredTrue],
-      ],
-    });
+    acceptTerms: [false, [Validators.requiredTrue]],
+  });
 
   ngOnInit(): void {
-    this.token =
-      this.route.snapshot.queryParamMap
-        .get('token')
-        ?.trim() || '';
+    this.token = this.route.snapshot.queryParamMap.get('token')?.trim() || '';
 
     if (!this.token) {
       this.setInvalidInvitation(
@@ -241,35 +181,21 @@ export class AcceptWorkspaceInvitation implements OnInit {
   }
 
   get invitationEmail(): string {
-    return (
-      this.invitation()?.email
-        ?.trim()
-        .toLowerCase() || ''
-    );
+    return this.invitation()?.email?.trim().toLowerCase() || '';
   }
 
   get workspaceName(): string {
-    return (
-      this.invitation()?.workspace?.name?.trim() ||
-      'Shared workspace'
-    );
+    return this.invitation()?.workspace?.name?.trim() || 'Shared workspace';
   }
 
   get roleName(): string {
     const role = this.invitation()?.role;
 
-    return (
-      role?.displayName?.trim() ||
-      role?.name?.trim() ||
-      'Member'
-    );
+    return role?.displayName?.trim() || role?.name?.trim() || 'Member';
   }
 
   get inviterName(): string {
-    return (
-      this.invitation()?.invitedBy?.name?.trim() ||
-      'A workspace member'
-    );
+    return this.invitation()?.invitedBy?.name?.trim() || 'A workspace member';
   }
 
   get invitationMessage(): string {
@@ -289,28 +215,19 @@ export class AcceptWorkspaceInvitation implements OnInit {
       return '—';
     }
 
-    return new Intl.DateTimeFormat(
-      'en-IN',
-      {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      },
-    ).format(date);
+    return new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
   }
 
   get firstNameError(): string {
-    return this.nameError(
-      this.firstNameControl,
-      'First name',
-    );
+    return this.nameError(this.firstNameControl, 'First name');
   }
 
   get lastNameError(): string {
-    return this.nameError(
-      this.lastNameControl,
-      'Last name',
-    );
+    return this.nameError(this.lastNameControl, 'Last name');
   }
 
   get passwordError(): string {
@@ -344,15 +261,11 @@ export class AcceptWorkspaceInvitation implements OnInit {
   }
 
   get primaryActionLabel(): string {
-    return this.isExistingUser
-      ? 'Sign in & join workspace'
-      : 'Create account & join workspace';
+    return this.isExistingUser ? 'Sign in & join workspace' : 'Create account & join workspace';
   }
 
   get primaryLoadingLabel(): string {
-    return this.isExistingUser
-      ? 'Signing in & joining…'
-      : 'Creating account & joining…';
+    return this.isExistingUser ? 'Signing in & joining…' : 'Creating account & joining…';
   }
 
   loadInvitation(): void {
@@ -375,46 +288,32 @@ export class AcceptWorkspaceInvitation implements OnInit {
         }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (!response?.success || !response?.data) {
-            this.setInvalidInvitation(
-              response?.message ||
-              'This invitation could not be opened.',
-            );
+            this.setInvalidInvitation(response?.message || 'This invitation could not be opened.');
             return;
           }
 
           this.invitation.set(response.data);
 
-          this.emailControl.setValue(
-            response.data.email.trim().toLowerCase(),
-            {
-              emitEvent: false,
-            },
-          );
+          this.emailControl.setValue(response.data.email.trim().toLowerCase(), {
+            emitEvent: false,
+          });
 
-          this.configureFormForInvitation(
-            response.data.userExists,
-          );
+          this.configureFormForInvitation(response.data.userExists);
 
           this.pageState.set('ready');
           this.focusInitialField();
         },
 
         error: (error: HttpErrorResponse) => {
-          this.setInvalidInvitation(
-            this.resolveInvitationError(error),
-          );
+          this.setInvalidInvitation(this.resolveInvitationError(error));
         },
       });
   }
 
   submit(): void {
-    if (
-      this.loading() ||
-      this.pageState() !== 'ready' ||
-      this.authCompleted()
-    ) {
+    if (this.loading() || this.pageState() !== 'ready' || this.authCompleted()) {
       return;
     }
 
@@ -430,11 +329,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
   }
 
   retryAccept(): void {
-    if (
-      this.loading() ||
-      this.pageState() !== 'ready' ||
-      !this.authCompleted()
-    ) {
+    if (this.loading() || this.pageState() !== 'ready' || !this.authCompleted()) {
       return;
     }
 
@@ -442,10 +337,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
     this.loading.set(true);
 
     this.invitationService
-      .accept(
-        this.token,
-        this.authenticatedAccessToken || undefined,
-      )
+      .accept(this.token, this.authenticatedAccessToken || undefined)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
@@ -453,14 +345,11 @@ export class AcceptWorkspaceInvitation implements OnInit {
         }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.handleAcceptSuccess(response);
         },
-        error: error => {
-          this.handleSubmitError(
-            error,
-            this.isExistingUser,
-          );
+        error: (error) => {
+          this.handleSubmitError(error, this.isExistingUser);
         },
       });
   }
@@ -470,33 +359,20 @@ export class AcceptWorkspaceInvitation implements OnInit {
       return;
     }
 
-    void this.router.navigate(
-      ['/auth/login'],
-      {
-        queryParams: {
-          email:
-            this.invitationEmail || undefined,
-          returnUrl:
-            this.router.url,
-        },
+    void this.router.navigate(['/auth/login'], {
+      queryParams: {
+        email: this.invitationEmail || undefined,
+        returnUrl: this.router.url,
       },
-    );
+    });
   }
 
   openWorkspace(): void {
-    const workspaceId =
-      this.accepted()?.workspaceId ||
-      this.invitation()?.workspace?.id ||
-      '';
+    const workspaceId = this.accepted()?.workspaceId || this.invitation()?.workspace?.id || '';
 
-    void this.router.navigate(
-      [this.safeRedirectUrl()],
-      {
-        queryParams: workspaceId
-          ? { workspaceId }
-          : undefined,
-      },
-    );
+    void this.router.navigate([this.safeRedirectUrl()], {
+      queryParams: workspaceId ? { workspaceId } : undefined,
+    });
   }
 
   private submitExistingUser(): void {
@@ -518,29 +394,16 @@ export class AcceptWorkspaceInvitation implements OnInit {
     this.authService
       .login(credentials)
       .pipe(
-        switchMap(response => {
+        switchMap((response) => {
           if (!response?.success) {
-            return throwError(
-              () =>
-                new Error(
-                  response?.message ||
-                  'Unable to sign in.',
-                ),
-            );
+            return throwError(() => new Error(response?.message || 'Unable to sign in.'));
           }
 
-          const accessToken =
-            this.extractAccessToken(response);
+          const accessToken = this.extractAccessToken(response);
 
-          this.markAuthenticationComplete(
-            accessToken,
-            false,
-          );
+          this.markAuthenticationComplete(accessToken, false);
 
-          return this.invitationService.accept(
-            this.token,
-            accessToken || undefined,
-          );
+          return this.invitationService.accept(this.token, accessToken || undefined);
         }),
 
         takeUntilDestroyed(this.destroyRef),
@@ -550,11 +413,11 @@ export class AcceptWorkspaceInvitation implements OnInit {
         }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.handleAcceptSuccess(response);
         },
 
-        error: error => {
+        error: (error) => {
           this.handleSubmitError(error, true);
         },
       });
@@ -568,58 +431,36 @@ export class AcceptWorkspaceInvitation implements OnInit {
       this.acceptTermsControl,
     ];
 
-    controls.forEach(
-      control => control.markAsTouched(),
-    );
+    controls.forEach((control) => control.markAsTouched());
 
-    if (
-      controls.some(
-        control => control.invalid,
-      )
-    ) {
-      this.focusControl(
-        this.firstInvalidControl(),
-      );
+    if (controls.some((control) => control.invalid)) {
+      this.focusControl(this.firstInvalidControl());
       return;
     }
 
-    const browserContext =
-      this.getBrowserRegistrationContext();
+    const browserContext = this.getBrowserRegistrationContext();
 
     const credentials: RegisterCredentials = {
-      firstName:
-        this.normalizeName(
-          this.firstNameControl.value,
-        ),
+      firstName: this.normalizeName(this.firstNameControl.value),
 
-      lastName:
-        this.normalizeName(
-          this.lastNameControl.value,
-        ),
+      lastName: this.normalizeName(this.lastNameControl.value),
 
-      email:
-        this.invitationEmail,
+      email: this.invitationEmail,
 
-      password:
-        this.passwordControl.value,
+      password: this.passwordControl.value,
 
-      termsAccepted:
-        this.acceptTermsControl.value,
+      termsAccepted: this.acceptTermsControl.value,
 
-      privacyPolicyAccepted:
-        this.acceptTermsControl.value,
+      privacyPolicyAccepted: this.acceptTermsControl.value,
 
-      timezoneCode:
-        browserContext.timezoneCode,
+      timezoneCode: browserContext.timezoneCode,
 
-      locale:
-        browserContext.locale,
+      locale: browserContext.locale,
 
       ...(browserContext.countryCodeHint
         ? {
-          countryCodeHint:
-            browserContext.countryCodeHint,
-        }
+            countryCodeHint: browserContext.countryCodeHint,
+          }
         : {}),
     };
 
@@ -628,29 +469,18 @@ export class AcceptWorkspaceInvitation implements OnInit {
     this.authService
       .register(credentials)
       .pipe(
-        switchMap(response => {
+        switchMap((response) => {
           if (!response?.success) {
             return throwError(
-              () =>
-                new Error(
-                  response?.message ||
-                  'Unable to create your account.',
-                ),
+              () => new Error(response?.message || 'Unable to create your account.'),
             );
           }
 
-          const accessToken =
-            this.extractAccessToken(response);
+          const accessToken = this.extractAccessToken(response);
 
-          this.markAuthenticationComplete(
-            accessToken,
-            true,
-          );
+          this.markAuthenticationComplete(accessToken, true);
 
-          return this.invitationService.accept(
-            this.token,
-            accessToken || undefined,
-          );
+          return this.invitationService.accept(this.token, accessToken || undefined);
         }),
 
         takeUntilDestroyed(this.destroyRef),
@@ -660,22 +490,18 @@ export class AcceptWorkspaceInvitation implements OnInit {
         }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.handleAcceptSuccess(response);
         },
 
-        error: error => {
+        error: (error) => {
           this.handleSubmitError(error, false);
         },
       });
   }
 
-  private markAuthenticationComplete(
-    accessToken: string,
-    accountCreated: boolean,
-  ): void {
-    this.authenticatedAccessToken =
-      accessToken.trim();
+  private markAuthenticationComplete(accessToken: string, accountCreated: boolean): void {
+    this.authenticatedAccessToken = accessToken.trim();
 
     this.authCompleted.set(true);
 
@@ -683,8 +509,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
       return;
     }
 
-    const currentInvitation =
-      this.invitation();
+    const currentInvitation = this.invitation();
 
     if (!currentInvitation) {
       return;
@@ -700,19 +525,14 @@ export class AcceptWorkspaceInvitation implements OnInit {
     });
   }
 
-  private configureFormForInvitation(
-    userExists: boolean,
-  ): void {
+  private configureFormForInvitation(userExists: boolean): void {
     this.submitted.set(false);
     this.authCompleted.set(false);
     this.authenticatedAccessToken = '';
 
-    this.passwordControl.reset(
-      '',
-      {
-        emitEvent: false,
-      },
-    );
+    this.passwordControl.reset('', {
+      emitEvent: false,
+    });
 
     if (userExists) {
       this.firstNameControl.disable({
@@ -752,14 +572,10 @@ export class AcceptWorkspaceInvitation implements OnInit {
   }
 
   private handleAcceptSuccess(
-    response:
-      WorkspaceInvitationApiResponse<WorkspaceInvitationAcceptResult>,
+    response: WorkspaceInvitationApiResponse<WorkspaceInvitationAcceptResult>,
   ): void {
     if (!response?.success || !response?.data) {
-      this.pageError.set(
-        response?.message ||
-        'The invitation could not be accepted.',
-      );
+      this.pageError.set(response?.message || 'The invitation could not be accepted.');
       return;
     }
 
@@ -767,61 +583,38 @@ export class AcceptWorkspaceInvitation implements OnInit {
     this.pageState.set('accepted');
     this.pageError.set(null);
 
-    this.toastService.success(
-      response.message ||
-      `You joined ${this.workspaceName}.`,
-      {
-        title: 'Invitation accepted',
-        dedupeKey:
-          'workspace-invitation-accepted',
-      },
-    );
+    this.toastService.success(response.message || `You joined ${this.workspaceName}.`, {
+      title: 'Invitation accepted',
+      dedupeKey: 'workspace-invitation-accepted',
+    });
   }
 
-  private handleSubmitError(
-    error: unknown,
-    existingUser: boolean,
-  ): void {
-    const authenticationAlreadyCompleted =
-      this.authCompleted();
+  private handleSubmitError(error: unknown, existingUser: boolean): void {
+    const authenticationAlreadyCompleted = this.authCompleted();
 
-    const message =
-      this.resolveSubmitError(
-        error,
-        existingUser,
-        authenticationAlreadyCompleted,
-      );
+    const message = this.resolveSubmitError(error, existingUser, authenticationAlreadyCompleted);
 
     this.pageError.set(message);
 
-    this.toastService.error(
-      message,
-      {
-        title: authenticationAlreadyCompleted
-          ? 'Could not join workspace'
-          : existingUser
-            ? 'Could not sign in'
-            : 'Could not create account',
+    this.toastService.error(message, {
+      title: authenticationAlreadyCompleted
+        ? 'Could not join workspace'
+        : existingUser
+          ? 'Could not sign in'
+          : 'Could not create account',
 
-        duration: 6_000,
+      duration: 6_000,
 
-        dedupeKey:
-          'workspace-invitation-submit-error',
-      },
-    );
+      dedupeKey: 'workspace-invitation-submit-error',
+    });
 
-    if (
-      !authenticationAlreadyCompleted &&
-      existingUser
-    ) {
+    if (!authenticationAlreadyCompleted && existingUser) {
       this.passwordControl.markAsTouched();
       this.focusControl('password');
     }
   }
 
-  private setInvalidInvitation(
-    message: string,
-  ): void {
+  private setInvalidInvitation(message: string): void {
     this.invitation.set(null);
     this.accepted.set(null);
     this.authCompleted.set(false);
@@ -830,17 +623,13 @@ export class AcceptWorkspaceInvitation implements OnInit {
     this.pageState.set('invalid');
   }
 
-  private getBrowserRegistrationContext():
-    BrowserRegistrationContext {
+  private getBrowserRegistrationContext(): BrowserRegistrationContext {
     return {
-      locale:
-        this.resolveBrowserLocale(),
+      locale: this.resolveBrowserLocale(),
 
-      timezoneCode:
-        this.resolveBrowserTimezone(),
+      timezoneCode: this.resolveBrowserTimezone(),
 
-      countryCodeHint:
-        'IN',
+      countryCodeHint: 'IN',
     };
   }
 
@@ -849,41 +638,24 @@ export class AcceptWorkspaceInvitation implements OnInit {
       return 'en-IN';
     }
 
-    return (
-      navigator.languages?.find(Boolean) ||
-      navigator.language ||
-      'en-IN'
-    );
+    return navigator.languages?.find(Boolean) || navigator.language || 'en-IN';
   }
 
   private resolveBrowserTimezone(): string {
     try {
-      const timezone =
-        Intl.DateTimeFormat()
-          .resolvedOptions()
-          .timeZone ||
-        'Asia/Kolkata';
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
 
-      return timezone === 'Asia/Calcutta'
-        ? 'Asia/Kolkata'
-        : timezone;
+      return timezone === 'Asia/Calcutta' ? 'Asia/Kolkata' : timezone;
     } catch {
       return 'Asia/Kolkata';
     }
   }
 
-  private normalizeName(
-    value: string,
-  ): string {
-    return value
-      .trim()
-      .replace(/\s+/g, ' ');
+  private normalizeName(value: string): string {
+    return value.trim().replace(/\s+/g, ' ');
   }
 
-  private nameError(
-    control: AbstractControl,
-    label: string,
-  ): string {
+  private nameError(control: AbstractControl, label: string): string {
     if (!this.shouldShowError(control)) {
       return '';
     }
@@ -903,8 +675,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
     return '';
   }
 
-  private firstInvalidControl():
-    InvitationFormControl {
+  private firstInvalidControl(): InvitationFormControl {
     if (this.firstNameControl.invalid) {
       return 'firstName';
     }
@@ -931,19 +702,12 @@ export class AcceptWorkspaceInvitation implements OnInit {
     });
   }
 
-  private focusControl(
-    control: InvitationFormControl,
-  ): void {
-    const ids:
-      Record<InvitationFormControl, string> = {
-      firstName:
-        'invitation-first-name',
-      lastName:
-        'invitation-last-name',
-      password:
-        'invitation-password',
-      acceptTerms:
-        'invitation-terms',
+  private focusControl(control: InvitationFormControl): void {
+    const ids: Record<InvitationFormControl, string> = {
+      firstName: 'invitation-first-name',
+      lastName: 'invitation-last-name',
+      password: 'invitation-password',
+      acceptTerms: 'invitation-terms',
     };
 
     this.runOnNextFrame(() => {
@@ -951,19 +715,12 @@ export class AcceptWorkspaceInvitation implements OnInit {
         return;
       }
 
-      document
-        .getElementById(ids[control])
-        ?.focus();
+      document.getElementById(ids[control])?.focus();
     });
   }
 
-  private runOnNextFrame(
-    callback: () => void,
-  ): void {
-    if (
-      typeof requestAnimationFrame ===
-      'function'
-    ) {
+  private runOnNextFrame(callback: () => void): void {
+    if (typeof requestAnimationFrame === 'function') {
       requestAnimationFrame(callback);
       return;
     }
@@ -971,31 +728,17 @@ export class AcceptWorkspaceInvitation implements OnInit {
     setTimeout(callback, 0);
   }
 
-  private shouldShowError(
-    control: AbstractControl,
-  ): boolean {
+  private shouldShowError(control: AbstractControl): boolean {
     return Boolean(
-      control.enabled &&
-      control.invalid &&
-      (
-        this.submitted() ||
-        control.touched ||
-        control.dirty
-      ),
+      control.enabled && control.invalid && (this.submitted() || control.touched || control.dirty),
     );
   }
 
-  private resolveInvitationError(
-    error: HttpErrorResponse,
-  ): string {
-    const message =
-      extractErrorMessage(error, '');
+  private resolveInvitationError(error: HttpErrorResponse): string {
+    const message = extractErrorMessage(error, '');
 
     if (error.status === 0) {
-      return (
-        'Unable to reach the server. ' +
-        'Check your connection and try again.'
-      );
+      return 'Unable to reach the server. ' + 'Check your connection and try again.';
     }
 
     if (
@@ -1004,16 +747,10 @@ export class AcceptWorkspaceInvitation implements OnInit {
       error.status === 409 ||
       error.status === 410
     ) {
-      return (
-        message ||
-        'This invitation is invalid, expired, cancelled, or has already been used.'
-      );
+      return message || 'This invitation is invalid, expired, cancelled, or has already been used.';
     }
 
-    return (
-      message ||
-      'We could not open this workspace invitation.'
-    );
+    return message || 'We could not open this workspace invitation.';
   }
 
   private resolveSubmitError(
@@ -1022,8 +759,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
     authenticationAlreadyCompleted: boolean,
   ): string {
     if (error instanceof HttpErrorResponse) {
-      const message =
-      extractErrorMessage(error, '');
+      const message = extractErrorMessage(error, '');
 
       if (error.status === 0) {
         return authenticationAlreadyCompleted
@@ -1031,15 +767,8 @@ export class AcceptWorkspaceInvitation implements OnInit {
           : 'Unable to reach the server. Check your connection and try again.';
       }
 
-      if (
-        error.status === 401 &&
-        !authenticationAlreadyCompleted &&
-        existingUser
-      ) {
-        return (
-          message ||
-          'The password is incorrect. Please try again.'
-        );
+      if (error.status === 401 && !authenticationAlreadyCompleted && existingUser) {
+        return message || 'The password is incorrect. Please try again.';
       }
 
       if (authenticationAlreadyCompleted) {
@@ -1050,33 +779,23 @@ export class AcceptWorkspaceInvitation implements OnInit {
       }
 
       if (error.status === 409) {
-        return (
-          message ||
-          'This invitation or account has already been processed.'
-        );
+        return message || 'This invitation or account has already been processed.';
       }
 
       return (
         message ||
-        (
-          existingUser
-            ? 'We could not sign you in and join the workspace.'
-            : 'We could not create your account and join the workspace.'
-        )
+        (existingUser
+          ? 'We could not sign you in and join the workspace.'
+          : 'We could not create your account and join the workspace.')
       );
     }
 
-    if (
-      error instanceof Error &&
-      error.message.trim()
-    ) {
+    if (error instanceof Error && error.message.trim()) {
       return error.message.trim();
     }
 
     if (authenticationAlreadyCompleted) {
-      return (
-        'Your account is ready, but workspace access could not be completed. Try joining again.'
-      );
+      return 'Your account is ready, but workspace access could not be completed. Try joining again.';
     }
 
     return existingUser
@@ -1084,65 +803,40 @@ export class AcceptWorkspaceInvitation implements OnInit {
       : 'We could not create your account and join the workspace.';
   }
 
-  private extractAccessToken(
-    response: unknown,
-  ): string {
-    if (
-      !response ||
-      typeof response !== 'object'
-    ) {
+  private extractAccessToken(response: unknown): string {
+    if (!response || typeof response !== 'object') {
       return '';
     }
 
-    const root =
-      response as Record<string, unknown>;
+    const root = response as Record<string, unknown>;
 
     const data = root['data'];
 
-    if (
-      !data ||
-      typeof data !== 'object'
-    ) {
+    if (!data || typeof data !== 'object') {
       return '';
     }
 
-    const dataRecord =
-      data as Record<string, unknown>;
+    const dataRecord = data as Record<string, unknown>;
 
-    const directAccessToken =
-      dataRecord['accessToken'];
+    const directAccessToken = dataRecord['accessToken'];
 
-    if (
-      typeof directAccessToken === 'string' &&
-      directAccessToken.trim()
-    ) {
+    if (typeof directAccessToken === 'string' && directAccessToken.trim()) {
       return directAccessToken.trim();
     }
 
     const tokens = dataRecord['tokens'];
 
-    if (
-      !tokens ||
-      typeof tokens !== 'object'
-    ) {
+    if (!tokens || typeof tokens !== 'object') {
       return '';
     }
 
-    const nestedAccessToken =
-      (tokens as Record<string, unknown>)[
-      'accessToken'
-      ];
+    const nestedAccessToken = (tokens as Record<string, unknown>)['accessToken'];
 
-    return typeof nestedAccessToken === 'string'
-      ? nestedAccessToken.trim()
-      : '';
+    return typeof nestedAccessToken === 'string' ? nestedAccessToken.trim() : '';
   }
 
   private safeRedirectUrl(): string {
-    return (
-      this.redirectUrl.startsWith('/') &&
-      !this.redirectUrl.startsWith('//')
-    )
+    return this.redirectUrl.startsWith('/') && !this.redirectUrl.startsWith('//')
       ? this.redirectUrl
       : '/app';
   }

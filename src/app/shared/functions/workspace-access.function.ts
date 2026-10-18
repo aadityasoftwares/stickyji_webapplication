@@ -8,10 +8,7 @@ export type WorkspaceAction =
   | 'canPermanentlyDelete'
   | 'canLeave';
 
-export function canWorkspaceAction(
-  workspace: any,
-  action: WorkspaceAction | string,
-): boolean {
+export function canWorkspaceAction(workspace: any, action: WorkspaceAction | string): boolean {
   if (!workspace) return false;
 
   const status = String(workspace.status ?? 'ACTIVE').toUpperCase();
@@ -22,7 +19,11 @@ export function canWorkspaceAction(
     if (workspace.allowedActions[action] !== true) return false;
 
     const membership = workspace.access?.membership;
-    if (workspace.access?.isOwner !== true && membership?.status && membership.status !== 'ACTIVE') {
+    if (
+      workspace.access?.isOwner !== true &&
+      membership?.status &&
+      membership.status !== 'ACTIVE'
+    ) {
       return false;
     }
 
@@ -36,16 +37,15 @@ export function canWorkspaceAction(
   const isOwner = Boolean(
     workspace.isOwner === true ||
     workspace.access?.isOwner === true ||
-    String(workspace.role ?? '').toLowerCase() === 'owner'
+    String(workspace.role ?? '').toLowerCase() === 'owner',
   );
   const isPersonal = Boolean(
     workspace.isPersonal === true ||
     workspace.workspaceType === 'PERSONAL' ||
-    workspace.label === 'PERSONAL'
+    workspace.label === 'PERSONAL',
   );
   const isInvited = Boolean(
-    workspace.isInvited === true ||
-    (!isOwner && workspace.label === 'INVITED')
+    workspace.isInvited === true || (!isOwner && workspace.label === 'INVITED'),
   );
 
   const membership = workspace.access?.membership;
@@ -98,4 +98,3 @@ export function canWorkspaceAction(
       return false;
   }
 }
-

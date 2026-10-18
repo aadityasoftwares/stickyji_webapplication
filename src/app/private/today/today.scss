@@ -6,136 +6,785 @@
    Shared tabs, selects, inputs and buttons retain their own styles.
    ========================================================== */
 :host {
-    --today-font-12: 0.75rem;
-    --today-font-13: 0.8125rem;
-    --today-font-14: 0.875rem;
-    --today-font-15: 0.9375rem;
-    --today-column-width: clamp(19.5rem, 24vw, 21rem);
-    display: flex;
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    max-height: 100%;
-    overflow: hidden;
-    color: $text-primary;
-    font-family: $font-body;
+  --today-font-12: 0.75rem;
+  --today-font-13: 0.8125rem;
+  --today-font-14: 0.875rem;
+  --today-font-15: 0.9375rem;
+  --today-column-width: clamp(19.5rem, 24vw, 21rem);
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  color: $text-primary;
+  font-family: $font-body;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* Page */
 .today-page {
-    display: flex;
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    padding: clamp(0.875rem, 1.5vw, 1.375rem) clamp(0.875rem, 1.8vw, 1.75rem) 0;
-    overflow: hidden;
-    background: $paper;
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(0.875rem, 1.5vw, 1.375rem) clamp(0.875rem, 1.8vw, 1.75rem) 0;
+  overflow: hidden;
+  background: $paper;
 }
 
 .today-main {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    width: min(100%, 96rem);
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    margin-inline: auto;
-    overflow: hidden;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: min(100%, 96rem);
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin-inline: auto;
+  overflow: hidden;
 }
 
 /* Header */
 .today-header {
-    display: grid;
-    grid-template-columns: minmax(22rem, 1fr) auto;
-    align-items: center;
-    flex: 0 0 auto;
-    min-width: 0;
-    gap: 0.65rem 1rem;
+  display: grid;
+  grid-template-columns: minmax(22rem, 1fr) auto;
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  gap: 0.65rem 1rem;
 }
 
 .today-intro {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.75rem;
 }
 
-.today-intro>div {
-    min-width: 0;
+.today-intro > div {
+  min-width: 0;
 }
 
 .today-intro h1 {
-    max-width: 46rem;
-    margin: 0.2rem 0 0;
-    overflow: hidden;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: clamp(1.1rem, 1.4vw, 1.4rem);
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  max-width: 46rem;
+  margin: 0.2rem 0 0;
+  overflow: hidden;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-subtitle {
-    margin: 0.25rem 0 0;
-    overflow: hidden;
-    color: $text-secondary;
-    font-size: var(--today-font-13);
-    font-weight: 500;
-    line-height: 1.4;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  margin: 0.25rem 0 0;
+  overflow: hidden;
+  color: $text-secondary;
+  font-size: var(--today-font-13);
+  font-weight: 500;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-kicker,
 .today-empty-note {
-    color: $accent;
-    font-weight: 700;
+  color: $accent;
+  font-weight: 700;
 }
 
 .today-kicker {
-    display: block;
-    overflow: hidden;
-    font-family: $font-note;
-    font-size: var(--today-font-14);
-    line-height: 1.25;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  font-family: $font-note;
+  font-size: var(--today-font-14);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-calendar-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  width: 3.25rem;
+  min-width: 3.25rem;
+  height: 3.35rem;
+  padding: 0;
+  overflow: hidden;
+  color: $heading;
+  background: #fff;
+  border: 1px solid rgba($accent, 0.28);
+  border-radius: $radius-xs;
+  box-shadow: 0 2px 6px rgba($heading, 0.04);
+  text-align: center;
+}
+
+.today-calendar-mark strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 0;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.today-calendar-top {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0;
+  color: $note-button-yellow-text;
+  background: color-mix(in srgb, $note-button-yellow 60%, white);
+  border-bottom: 1px solid rgba($accent, 0.15);
+  font-family: $font-mono;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.today-header-actions {
+  display: grid;
+  grid-template-columns: auto minmax(19rem, 24rem) auto;
+  align-items: end;
+  justify-content: end;
+  min-width: 0;
+  gap: 0.625rem;
+}
+
+.today-note-count-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 4.75rem;
+  min-height: 2.25rem;
+}
+
+.today-note-count,
+.today-note-count-placeholder {
+  white-space: nowrap;
+}
+
+.today-note-count-placeholder {
+  width: 4.75rem;
+  height: 1.5rem;
+  visibility: hidden;
+}
+
+.today-header-context-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
+  align-items: end;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.today-header-picker-field,
+.today-header-picker-control {
+  display: grid;
+  min-width: 0;
+}
+
+.today-header-picker-field {
+  gap: 0.25rem;
+}
+
+.today-header-context-separator {
+  display: grid;
+  place-items: center;
+  width: 0.75rem;
+  height: 2.25rem;
+  color: $text-light;
+  font-size: var(--today-font-14);
+  font-weight: 600;
+}
+
+.today-header-command-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: max-content;
+  gap: 0.5rem;
+}
+
+/* Explorer shell */
+.today-explorer {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin-top: 0.65rem;
+  overflow: hidden;
+  background: $paper;
+  border: 1px solid rgba($border, 0.9);
+  border-bottom: 0;
+  border-radius: 0.875rem 0.875rem 0 0;
+  box-shadow: 0 0.5rem 1.6rem rgba($heading, 0.045);
+}
+
+.today-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  background: $paper;
+  border-bottom: 1px solid rgba($border, 0.82);
+}
+
+.today-toolbar-left,
+.today-toolbar-controls {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.today-toolbar-left {
+  gap: 0.5rem;
+}
+
+.today-toolbar-left app-tabs {
+  flex: 0 0 auto;
+}
+
+.today-toolbar-controls {
+  flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.today-toolbar-members,
+.today-toolbar-members-skeleton {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-left: 0.125rem;
+  padding: 0.125rem 0.25rem;
+}
+
+.today-toolbar-members-skeleton {
+  min-height: 2rem;
+}
+
+.today-toolbar-members-skeleton span {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: -0.4375rem;
+  background: linear-gradient(90deg, rgba($border, 0.45), rgba($paper, 0.95), rgba($border, 0.45));
+  background-size: 220% 100%;
+  border: 2px solid $page-bg;
+  border-radius: 0.625rem;
+  animation: today-members-skeleton 1.25s ease-in-out infinite;
+}
+
+.today-toolbar-members-skeleton span:first-child {
+  margin-left: 0;
+}
+
+.today-toolbar-members-skeleton span:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.today-toolbar-members-skeleton span:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+@keyframes today-members-skeleton {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.today-search,
+.today-layout-select,
+.today-font-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.today-font-select {
+  width: 9.5rem;
+}
+
+.today-layout-select {
+  width: 7.5rem;
+}
+
+.today-search {
+  flex: 1 1 10rem;
+  width: auto;
+  max-width: 20rem;
+}
+
+.today-search app-input,
+.today-layout-select app-select,
+.today-font-select app-select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.today-explorer-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.75rem;
+  overflow: hidden;
+  background: $paper;
+}
+
+.today-explorer-body.is-table,
+.today-explorer-body.is-list {
+  padding: 0;
+}
+
+/* Loading and empty states */
+.today-loader-state {
+  display: grid;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+}
+
+.today-loader-state app-loader {
+  display: block;
+  width: min(100%, 35rem);
+}
+
+.today-empty-state {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.today-empty-state.is-compact {
+  min-height: 15rem;
+}
+
+.today-empty-state h2 {
+  margin: 0.625rem 0 0;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: 1rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.today-empty-state p {
+  max-width: 28rem;
+  margin: 0.375rem 0 1rem;
+  color: $text-light;
+  font-size: var(--today-font-13);
+  line-height: 1.5;
+}
+
+.today-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  color: #765500;
+  background: rgba($note-yellow, 0.28);
+  border: 1px solid rgba(#8c6800, 0.1);
+  border-radius: 0.75rem;
+}
+
+.today-empty-icon.is-error {
+  color: $danger;
+  background: rgba($danger, 0.07);
+  border-color: rgba($danger, 0.14);
+}
+
+.today-empty-note {
+  margin-top: 0.75rem;
+  font-family: $font-note;
+  font-size: var(--today-font-14);
+}
+
+/* Kanban */
+.today-kanban {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: 0.625rem;
+  padding: 0.05rem 0.05rem 0.65rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
+  touch-action: pan-x pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.2) transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-focus-color, #{$primary});
+    outline-offset: -2px;
+  }
+}
+
+.today-kanban::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.today-kanban::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.today-kanban::-webkit-scrollbar-thumb {
+  background: rgba($heading, 0.18);
+  border: 0.125rem solid $paper;
+  border-radius: 999px;
+}
+
+.today-kanban-columns {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  gap: 0.625rem;
+}
+
+.today-kanban-column {
+  display: flex;
+  flex: 0 0 var(--today-column-width);
+  flex-direction: column;
+  width: var(--today-column-width);
+  min-width: var(--today-column-width);
+  max-width: var(--today-column-width);
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid $border-light;
+  border-radius: $radius-xs;
+  box-shadow: none;
+}
+
+.today-kanban-divider {
+  display: none;
+}
+
+.today-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 2.375rem;
+  gap: 0.5rem;
+  padding: 0.35rem 0.625rem;
+  background: color-mix(in srgb, var(--column-accent) 5%, $paper);
+  border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 12%, $border-light);
+  border-radius: 0;
+}
+
+.today-column-title,
+.today-column-actions,
+.today-table-actions {
+  display: flex;
+  align-items: center;
+}
+
+.today-column-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.55rem;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.today-column-title h3 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: $heading;
+  font-size: var(--today-font-13);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-column-dot {
+  flex: 0 0 auto;
+  width: 0.7rem;
+  height: 0.7rem;
+  background: var(--column-accent);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 0.18rem color-mix(in srgb, var(--column-accent) 12%, transparent),
+    inset 0 0.08rem 0.12rem rgba(255, 255, 255, 0.5);
+}
+
+.today-column-actions,
+.today-table-actions {
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
+.today-column-actions {
+  gap: 0.4rem;
+}
+
+.today-column-drag-handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.today-kanban-column > app-divider {
+  display: none;
+}
+
+.today-column-notes {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  gap: 0.65rem;
+  padding: 0.75rem 0.625rem 0.625rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.16) transparent;
+}
+
+.today-column-notes::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.today-column-notes::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.today-column-notes::-webkit-scrollbar-thumb {
+  background: rgba($heading, 0.15);
+  border: 0.12rem solid transparent;
+  border-radius: 999px;
+}
+
+.today-empty-column {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 15rem;
+  padding: 1.5rem 0.75rem 3.5rem;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.today-empty-column strong {
+  margin-top: 0.65rem;
+  color: $heading;
+  font-size: var(--today-font-14);
+  font-weight: 800;
+}
+
+.today-empty-column small {
+  max-width: 13.75rem;
+  color: $text-light;
+  font-size: var(--today-font-13);
+  line-height: 1.45;
+}
+
+.today-empty-column-visual {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 5.25rem;
+  height: 4.75rem;
+  color: var(--column-accent);
+  place-items: center;
+}
+
+.today-empty-column-visual::before,
+.today-empty-column-visual::after {
+  position: absolute;
+  z-index: -1;
+  content: '';
+  border-radius: 46% 54% 58% 42% / 51% 42% 58% 49%;
+}
+
+.today-empty-column-visual::before {
+  inset: 0.25rem 0.15rem 0.1rem 0.2rem;
+  background: color-mix(in srgb, var(--column-accent) 9%, transparent);
+  transform: rotate(-8deg);
+}
+
+.today-empty-column-visual::after {
+  right: 0.1rem;
+  bottom: 0;
+  width: 2.15rem;
+  height: 2.15rem;
+  background: color-mix(in srgb, var(--column-accent) 16%, $paper);
+  box-shadow: 0 0.25rem 0.65rem rgba($heading, 0.045);
+}
+
+.today-add-column-rail {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 0 0 15rem;
+  width: 15rem;
+  min-width: 15rem;
+  padding: 1rem 0.75rem;
+  background: rgba($paper, 0.56);
+  border: 1px dashed rgba($border, 0.9);
+  border-radius: 0.75rem;
+}
+
+.today-add-column-inner {
+  display: grid;
+  width: 100%;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
+.today-add-column-inner small {
+  color: $text-light;
+  font-family: var(--today-note-font-family, #{$font-body});
+  font-size: max(12px, calc(var(--today-note-font-size, 14px) - 1px));
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Reference workspace shell. Table rows retain their existing styles. */
+.today-page.today-workspace {
+  padding: 0.875rem 1rem 0;
+  background: $paper;
+
+  .today-main {
+    container: today-workspace / inline-size;
+    width: 100%;
+  }
+
+  .today-header {
+    grid-template-columns: minmax(19rem, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    padding: 0 0.5rem 0.75rem;
+    background: $paper;
+  }
+
+  .today-intro {
+    gap: 1rem;
+  }
+
+  .today-kicker {
+    display: block;
+    color: $accent;
+    font-family: $font-note;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    transform: rotate(-1deg);
+    transform-origin: left center;
+  }
+
+  .today-intro h1 {
+    margin-top: 0.25rem;
+    font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  .today-subtitle {
+    margin: 0.2rem 0 0;
+    color: $text-secondary;
+    font-size: var(--today-font-14);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .today-calendar-mark {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    flex: 0 0 auto;
     width: 3.25rem;
     min-width: 3.25rem;
     height: 3.35rem;
-    padding: 0;
-    overflow: hidden;
-    color: $heading;
-    background: #fff;
     border: 1px solid rgba($accent, 0.28);
     border-radius: $radius-xs;
+    background: #fff;
     box-shadow: 0 2px 6px rgba($heading, 0.04);
-    text-align: center;
-}
+    overflow: hidden;
+  }
 
-.today-calendar-mark strong {
+  .today-calendar-top {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 0;
+    background: color-mix(in srgb, $note-button-yellow 60%, white);
+    border-bottom: 1px solid rgba($accent, 0.15);
+    color: $note-button-yellow-text;
+    font-family: $font-mono;
+    font-size: 0.6rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .today-calendar-mark strong {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -147,1378 +796,803 @@
     font-size: 1.5rem;
     font-weight: 800;
     line-height: 1;
-    white-space: nowrap;
-}
+  }
 
-.today-calendar-top {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 0;
-    color: $note-button-yellow-text;
-    background: color-mix(in srgb, $note-button-yellow 60%, white);
-    border-bottom: 1px solid rgba($accent, 0.15);
-    font-family: $font-mono;
-    font-size: 0.6rem;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.today-header-actions {
-    display: grid;
-    grid-template-columns: auto minmax(19rem, 24rem) auto;
-    align-items: end;
-    justify-content: end;
-    min-width: 0;
-    gap: 0.625rem;
-}
-
-.today-note-count-slot {
-    display: flex;
+  .today-header-actions {
+    grid-template-columns: auto minmax(18rem, 23rem) auto;
     align-items: center;
-    justify-content: flex-end;
-    min-width: 4.75rem;
-    min-height: 2.25rem;
-}
+    gap: 0.875rem;
+  }
 
-.today-note-count,
-.today-note-count-placeholder {
-    white-space: nowrap;
-}
-
-.today-note-count-placeholder {
-    width: 4.75rem;
-    height: 1.5rem;
-    visibility: hidden;
-}
-
-.today-header-context-picker {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
-    align-items: end;
-    min-width: 0;
+  .today-header-context-picker {
     gap: 0.5rem;
-}
+  }
+  .today-header-context-separator {
+    align-self: center;
+  }
 
-.today-header-picker-field,
-.today-header-picker-control {
-    display: grid;
-    min-width: 0;
-}
-
-.today-header-picker-field {
-    gap: 0.25rem;
-}
-
-.today-header-context-separator {
-    display: grid;
-    place-items: center;
-    width: 0.75rem;
-    height: 2.25rem;
-    color: $text-light;
-    font-size: var(--today-font-14);
-    font-weight: 600;
-}
-
-.today-header-command-group {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    min-width: max-content;
-    gap: 0.5rem;
-}
-
-/* Explorer shell */
-.today-explorer {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    margin-top: 0.65rem;
-    overflow: hidden;
+  .today-explorer {
+    margin: 0;
     background: $paper;
-    border: 1px solid rgba($border, 0.9);
+    border: 1px solid $border-light;
     border-bottom: 0;
     border-radius: 0.875rem 0.875rem 0 0;
-    box-shadow: 0 0.5rem 1.6rem rgba($heading, 0.045);
-}
+    box-shadow: none;
+  }
 
-.today-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    flex: 0 0 auto;
-    min-width: 0;
-    gap: 0.5rem;
-    padding: 0.5rem 0.65rem;
+  .today-toolbar {
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
     background: $paper;
-    border-bottom: 1px solid rgba($border, 0.82);
-}
+    border-bottom: 1px solid $border-light;
+  }
 
-.today-toolbar-left,
-.today-toolbar-controls {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-}
-
-.today-toolbar-left {
-    gap: 0.5rem;
-}
-
-.today-toolbar-left app-tabs {
+  .today-toolbar-left {
     flex: 0 0 auto;
-}
-
-.today-toolbar-controls {
-    flex-wrap: wrap;
-    margin-left: auto;
-    justify-content: flex-end;
-    gap: 0.375rem;
-}
-
-.today-toolbar-members,
-.today-toolbar-members-skeleton {
-    display: inline-flex;
-    align-items: center;
-    flex: 0 0 auto;
-    min-width: 0;
-    margin-left: 0.125rem;
-    padding: 0.125rem 0.25rem;
-}
-
-.today-toolbar-members-skeleton {
-    min-height: 2rem;
-}
-
-.today-toolbar-members-skeleton span {
-    width: 1.75rem;
-    height: 1.75rem;
-    margin-left: -0.4375rem;
-    background: linear-gradient(90deg, rgba($border, 0.45), rgba($paper, 0.95), rgba($border, 0.45));
-    background-size: 220% 100%;
-    border: 2px solid $page-bg;
-    border-radius: 0.625rem;
-    animation: today-members-skeleton 1.25s ease-in-out infinite;
-}
-
-.today-toolbar-members-skeleton span:first-child {
-    margin-left: 0;
-}
-
-.today-toolbar-members-skeleton span:nth-child(2) {
-    animation-delay: 0.08s;
-}
-
-.today-toolbar-members-skeleton span:nth-child(3) {
-    animation-delay: 0.16s;
-}
-
-@keyframes today-members-skeleton {
-    from {
-        background-position: 100% 0;
-    }
-
-    to {
-        background-position: -100% 0;
-    }
-}
-
-.today-search,
-.today-layout-select,
-.today-font-select {
-    width: 100%;
-    min-width: 0;
-}
-
-.today-font-select {
-    width: 9.5rem;
-}
-
-.today-layout-select {
-    width: 7.5rem;
-}
-
-.today-search {
-    flex: 1 1 10rem;
     width: auto;
-    max-width: 20rem;
-}
+    padding-right: 0.75rem;
+    border-right: 1px solid $border-light;
+  }
 
-.today-search app-input,
-.today-layout-select app-select,
-.today-font-select app-select {
-    display: block;
-    width: 100%;
-    min-width: 0;
-}
+  .today-search {
+    flex: 1 1 11rem;
+    width: auto;
+    max-width: none;
+    margin: 0;
+  }
 
-.today-explorer-body {
+  .today-toolbar-team {
     display: flex;
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    padding: 0.75rem;
-    overflow: hidden;
-    background: $paper;
-}
-
-.today-explorer-body.is-table,
-.today-explorer-body.is-list {
-    padding: 0;
-}
-
-/* Loading and empty states */
-.today-loader-state {
-    display: grid;
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
-    place-items: center;
-}
-
-.today-loader-state app-loader {
-    display: block;
-    width: min(100%, 35rem);
-}
-
-.today-empty-state {
-    display: grid;
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    padding: clamp(1.25rem, 3vw, 2rem);
-    place-content: center;
-    justify-items: center;
-    text-align: center;
-}
-
-.today-empty-state.is-compact {
-    min-height: 15rem;
-}
-
-.today-empty-state h2 {
-    margin: 0.625rem 0 0;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: 1rem;
-    font-weight: 750;
-    line-height: 1.35;
-}
-
-.today-empty-state p {
-    max-width: 28rem;
-    margin: 0.375rem 0 1rem;
-    color: $text-light;
-    font-size: var(--today-font-13);
-    line-height: 1.5;
-}
-
-.today-empty-icon {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    color: #765500;
-    background: rgba($note-yellow, 0.28);
-    border: 1px solid rgba(#8c6800, 0.1);
-    border-radius: 0.75rem;
-}
-
-.today-empty-icon.is-error {
-    color: $danger;
-    background: rgba($danger, 0.07);
-    border-color: rgba($danger, 0.14);
-}
-
-.today-empty-note {
-    margin-top: 0.75rem;
-    font-family: $font-note;
-    font-size: var(--today-font-14);
-}
-
-/* Kanban */
-.today-kanban {
-    display: flex;
-    flex: 1 1 auto;
-    align-items: stretch;
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    gap: 0.625rem;
-    padding: 0.05rem 0.05rem 0.65rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
-    overscroll-behavior-y: auto;
-    touch-action: pan-x pan-y;
-    scrollbar-width: thin;
-    scrollbar-color: rgba($heading, 0.2) transparent;
-
-    &:focus-visible {
-        outline: 2px solid var(--app-focus-color, #{$primary});
-        outline-offset: -2px;
-    }
-}
-
-.today-kanban::-webkit-scrollbar {
-    height: 0.5rem;
-}
-
-.today-kanban::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.today-kanban::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.18);
-    border: 0.125rem solid $paper;
-    border-radius: 999px;
-}
-
-.today-kanban-columns {
-    display: flex;
+    align-items: center;
     flex: 0 0 auto;
-    align-items: stretch;
-    height: 100%;
-    min-height: 0;
-    gap: 0.625rem;
-}
+    padding-inline: 0.375rem;
+  }
 
-.today-kanban-column {
+  .today-toolbar-team:empty {
+    display: none;
+  }
+
+  .today-toolbar-controls {
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    width: auto;
+    margin: 0;
+    padding: 0 0 0 0.75rem;
+    border-left: 1px solid $border-light;
+  }
+
+  .today-display-settings,
+  .today-toolbar-utilities {
     display: flex;
-    flex: 0 0 var(--today-column-width);
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .today-display-settings {
+    flex: 0 1 auto;
+  }
+
+  .today-toolbar-utilities {
+    padding-left: 0.75rem;
+    border-left: 1px solid $border-light;
+  }
+
+  .today-font-select {
+    width: 9rem;
+  }
+  .today-layout-select {
+    width: 6.75rem;
+  }
+
+  .today-explorer-body:not(.is-table):not(.is-list) {
+    padding: 0.5rem 0.75rem 0;
+    background: $paper;
+  }
+
+  .today-kanban {
+    --today-column-width: clamp(17rem, calc((100cqw - 3.5rem) / 4), 22rem);
+    padding-bottom: 0;
+    gap: 0.625rem;
+  }
+
+  .today-kanban-columns {
+    gap: 0.625rem;
+  }
+
+  /* Zoho-style Kanban column: clear vertical lanes without bulky card layout */
+  .today-kanban-column {
+    display: flex;
     flex-direction: column;
-    width: var(--today-column-width);
-    min-width: var(--today-column-width);
-    max-width: var(--today-column-width);
-    height: 100%;
-    min-height: 0;
-    padding: 0;
-    overflow: hidden;
     background: transparent;
     border: 1px solid $border-light;
     border-radius: $radius-xs;
     box-shadow: none;
-}
+    overflow: hidden;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
 
-.today-kanban-divider {
-    display: none;
-}
+    &:hover {
+      border-color: rgba($border, 0.9);
+    }
+  }
 
-.today-column-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 0 0 auto;
-    min-width: 0;
+  .today-column-header {
     min-height: 2.375rem;
-    gap: 0.5rem;
     padding: 0.35rem 0.625rem;
     background: color-mix(in srgb, var(--column-accent) 5%, $paper);
     border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 12%, $border-light);
     border-radius: 0;
-}
+  }
 
-.today-column-title,
-.today-column-actions,
-.today-table-actions {
-    display: flex;
-    align-items: center;
-}
+  .today-column-title {
+    gap: 0.45rem;
+  }
+  .today-column-actions {
+    gap: 0.2rem;
+  }
 
-.today-column-title {
-    flex: 1 1 auto;
-    min-width: 0;
-    gap: 0.55rem;
-    cursor: grab;
-
-    &:active {
-        cursor: grabbing;
-    }
-}
-
-.today-column-title h3 {
-    min-width: 0;
-    margin: 0;
-    overflow: hidden;
-    color: $heading;
+  .today-column-title h3 {
     font-size: var(--today-font-13);
-    font-weight: 800;
-    line-height: 1.35;
-    letter-spacing: 0.015em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
 
-.today-column-dot {
-    flex: 0 0 auto;
-    width: 0.7rem;
-    height: 0.7rem;
-    background: var(--column-accent);
-    border-radius: 999px;
-    box-shadow:
-        0 0 0 0.18rem color-mix(in srgb, var(--column-accent) 12%, transparent),
-        inset 0 0.08rem 0.12rem rgba(255, 255, 255, 0.5);
-}
+  .today-column-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    box-shadow: inset 0 1px 2px rgba(white, 0.4);
+  }
 
-.today-column-actions,
-.today-table-actions {
-    flex: 0 0 auto;
-    gap: 0.25rem;
-}
+  .today-column-notes {
+    gap: 0.5rem;
+    padding: 0.5rem 0.45rem;
+  }
 
-.today-column-actions {
-    gap: 0.4rem;
-}
+  .today-column-notes.cdk-drop-list-receiving {
+    outline: 2px dashed var(--column-accent);
+    outline-offset: -2px;
+    background: color-mix(in srgb, var(--column-accent) 4%, transparent);
+  }
 
-.today-column-drag-handle {
-    cursor: grab;
+  .today-draggable-note.cdk-drag-placeholder {
+    opacity: 0.3;
+    animation: none;
+    border-color: var(--column-accent);
+  }
 
-    &:active {
-        cursor: grabbing;
+  /* Space-efficient note representation inside Zoho-style Kanban lanes:
+       Prevents long notes from consuming entire column space */
+  .today-kanban-column .today-draggable-note {
+    .sticky-note {
+      min-height: auto;
+      max-height: 18.5rem;
+      padding: 0.625rem 0.75rem 0.55rem;
+      border-radius: $radius-xs;
+      box-shadow: 0 1px 3px rgba($heading, 0.05);
+
+      &:hover {
+        box-shadow: 0 3px 8px rgba($heading, 0.08);
+      }
     }
-}
 
-.today-kanban-column>app-divider {
-    display: none;
-}
+    .sticky-note__header {
+      min-height: 1.35rem;
+      margin-bottom: 0.25rem;
+      gap: 0.25rem;
+    }
 
-.today-column-notes {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    gap: 0.65rem;
-    padding: 0.75rem 0.625rem 0.625rem;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgba($heading, 0.16) transparent;
-}
+    .sticky-note__title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
 
-.today-column-notes::-webkit-scrollbar {
-    width: 0.4rem;
-}
+    .sticky-note__description {
+      margin-top: 0.25rem;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
 
-.today-column-notes::-webkit-scrollbar-track {
-    background: transparent;
-}
+    .sticky-note__checklists {
+      margin-top: 0.45rem;
+      padding-top: 0.4rem;
+      gap: 0.35rem;
+    }
 
-.today-column-notes::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.15);
-    border: 0.12rem solid transparent;
-    border-radius: 999px;
-}
+    .sticky-note__checklist-heading {
+      font-size: 0.75rem;
+    }
 
-.today-empty-column {
-    display: grid;
-    flex: 1 1 auto;
-    min-height: 15rem;
-    padding: 1.5rem 0.75rem 3.5rem;
+    .sticky-note__checklist-items {
+      max-height: 5.5rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .sticky-note__footer {
+      margin-top: 0.35rem;
+      padding-top: 0.35rem;
+    }
+  }
+
+  .today-empty-column {
+    flex: 1 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    min-height: 12rem;
+    margin: 0.25rem;
+    padding: 1.5rem 0.75rem 1rem;
+    gap: 0.5rem;
     place-content: center;
     justify-items: center;
-    gap: 0.5rem;
+    border: 1px dashed rgba($border, 0.7);
+    border-radius: $radius-xs;
     text-align: center;
-}
+    background: color-mix(in srgb, $paper 90%, white);
+  }
 
-.today-empty-column strong {
-    margin-top: 0.65rem;
-    color: $heading;
-    font-size: var(--today-font-14);
-    font-weight: 800;
-}
-
-.today-empty-column small {
-    max-width: 13.75rem;
-    color: $text-light;
+  .today-empty-column strong {
+    margin-top: 0.2rem;
     font-size: var(--today-font-13);
-    line-height: 1.45;
-}
+    font-weight: 750;
+  }
 
-.today-empty-column-visual {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    width: 5.25rem;
-    height: 4.75rem;
-    color: var(--column-accent);
-    place-items: center;
-}
-
-.today-empty-column-visual::before,
-.today-empty-column-visual::after {
-    position: absolute;
-    z-index: -1;
-    content: '';
-    border-radius: 46% 54% 58% 42% / 51% 42% 58% 49%;
-}
-
-.today-empty-column-visual::before {
-    inset: 0.25rem 0.15rem 0.1rem 0.2rem;
-    background: color-mix(in srgb, var(--column-accent) 9%, transparent);
-    transform: rotate(-8deg);
-}
-
-.today-empty-column-visual::after {
-    right: 0.1rem;
-    bottom: 0;
-    width: 2.15rem;
-    height: 2.15rem;
-    background: color-mix(in srgb, var(--column-accent) 16%, $paper);
-    box-shadow: 0 0.25rem 0.65rem rgba($heading, 0.045);
-}
-
-.today-add-column-rail {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 0 0 15rem;
-    width: 15rem;
-    min-width: 15rem;
-    padding: 1rem 0.75rem;
-    background: rgba($paper, 0.56);
-    border: 1px dashed rgba($border, 0.9);
-    border-radius: 0.75rem;
-}
-
-.today-add-column-inner {
-    display: grid;
-    width: 100%;
-    gap: 0.55rem;
-    justify-items: center;
-}
-
-.today-add-column-inner small {
-    color: $text-light;
-    font-family: var(--today-note-font-family, #{$font-body});
-    font-size: max(12px, calc(var(--today-note-font-size, 14px) - 1px));
-    font-weight: 500;
+  .today-empty-column small {
+    max-width: 12rem;
+    color: $text-secondary;
+    font-size: var(--today-font-12);
     line-height: 1.4;
-    text-align: center;
-}
+  }
 
-/* Reference workspace shell. Table rows retain their existing styles. */
-.today-page.today-workspace {
-    padding: 0.875rem 1rem 0;
-    background: $paper;
+  .today-empty-column-visual {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin-bottom: 0.15rem;
+    color: var(--column-accent);
+    background: color-mix(in srgb, var(--column-accent) 8%, white);
+    border-radius: 50%;
+  }
 
-    .today-main {
-        container: today-workspace / inline-size;
-        width: 100%;
-    }
+  .today-empty-column-visual::before,
+  .today-empty-column-visual::after {
+    display: none;
+  }
 
+  .today-empty-column app-button {
+    margin-top: 0.4rem;
+  }
+
+  .today-add-column-rail {
+    align-self: flex-start;
+    padding: 0.625rem;
+    background: transparent;
+    border: 1px dashed rgba($border, 0.7);
+    border-radius: $radius-xs;
+  }
+
+  @container today-workspace (max-width: 74rem) {
     .today-header {
-        grid-template-columns: minmax(19rem, 1fr) auto;
-        align-items: center;
-        gap: 0.75rem 1.5rem;
-        padding: 0 0.5rem 0.75rem;
-        background: $paper;
-    }
-
-    .today-intro { gap: 1rem; }
-
-    .today-kicker {
-        display: block;
-        color: $accent;
-        font-family: $font-note;
-        font-size: 1.15rem;
-        font-weight: 700;
-        line-height: 1.15;
-        letter-spacing: 0.01em;
-        transform: rotate(-1deg);
-        transform-origin: left center;
-    }
-
-    .today-intro h1 {
-        margin-top: 0.25rem;
-        font-size: clamp(1.25rem, 1.5vw, 1.5rem);
-        font-weight: 800;
-        line-height: 1.2;
-        letter-spacing: -0.025em;
-    }
-
-    .today-subtitle {
-        margin: 0.2rem 0 0;
-        color: $text-secondary;
-        font-size: var(--today-font-14);
-        font-weight: 500;
-        line-height: 1.4;
-    }
-
-    .today-calendar-mark {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        width: 3.25rem;
-        min-width: 3.25rem;
-        height: 3.35rem;
-        border: 1px solid rgba($accent, 0.28);
-        border-radius: $radius-xs;
-        background: #fff;
-        box-shadow: 0 2px 6px rgba($heading, 0.04);
-        overflow: hidden;
-    }
-
-    .today-calendar-top {
-        display: block;
-        width: 100%;
-        padding: 0.25rem 0;
-        background: color-mix(in srgb, $note-button-yellow 60%, white);
-        border-bottom: 1px solid rgba($accent, 0.15);
-        color: $note-button-yellow-text;
-        font-family: $font-mono;
-        font-size: 0.6rem;
-        font-weight: 800;
-        line-height: 1;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        text-align: center;
-    }
-
-    .today-calendar-mark strong {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1 1 auto;
-        width: 100%;
-        padding: 0;
-        color: $heading;
-        font-family: $font-heading;
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
     }
 
     .today-header-actions {
-        grid-template-columns: auto minmax(18rem, 23rem) auto;
-        align-items: center;
-        gap: 0.875rem;
+      grid-template-columns: minmax(0, 1fr) auto;
+      width: 100%;
     }
 
-    .today-header-context-picker { gap: 0.5rem; }
-    .today-header-context-separator { align-self: center; }
-
-    .today-explorer {
-        margin: 0;
-        background: $paper;
-        border: 1px solid $border-light;
-        border-bottom: 0;
-        border-radius: 0.875rem 0.875rem 0 0;
-        box-shadow: none;
+    .today-note-count-slot {
+      display: none;
+    }
+    .today-header-context-picker {
+      width: min(100%, 34rem);
     }
 
+    .today-toolbar-controls {
+      flex: 1 1 100%;
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .today-toolbar-utilities {
+      margin-left: auto;
+    }
+  }
+
+  @container today-workspace (max-width: 44rem) {
+    .today-header {
+      padding-inline: 0;
+    }
+    .today-header-actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .today-header-context-picker {
+      width: 100%;
+    }
+    .today-header-command-group {
+      justify-content: flex-start;
+    }
     .today-toolbar {
-        column-gap: 0.75rem;
-        row-gap: 0.5rem;
-        padding: 0.625rem 0.875rem;
-        background: $paper;
-        border-bottom: 1px solid $border-light;
+      gap: 0.625rem;
+      padding: 0.75rem;
     }
-
     .today-toolbar-left {
-        flex: 0 0 auto;
-        width: auto;
-        padding-right: 0.75rem;
-        border-right: 1px solid $border-light;
+      padding-right: 0;
+      border-right: 0;
     }
 
     .today-search {
-        flex: 1 1 11rem;
-        width: auto;
-        max-width: none;
-        margin: 0;
+      order: 1;
+      flex-basis: 100%;
     }
-
-    .today-toolbar-team {
-        display: flex;
-        align-items: center;
-        flex: 0 0 auto;
-        padding-inline: 0.375rem;
-    }
-
-    .today-toolbar-team:empty { display: none; }
 
     .today-toolbar-controls {
-        flex: 0 1 auto;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: 0.75rem;
-        width: auto;
-        margin: 0;
-        padding: 0 0 0 0.75rem;
-        border-left: 1px solid $border-light;
+      order: 2;
+      flex-direction: row;
     }
 
-    .today-display-settings,
-    .today-toolbar-utilities {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        min-width: 0;
-        gap: 0.5rem;
+    .today-display-settings {
+      flex: 1 1 100%;
     }
-
-    .today-display-settings { flex: 0 1 auto; }
+    .today-font-select {
+      flex: 1 1 9rem;
+    }
+    .today-layout-select {
+      flex: 1 1 6.75rem;
+    }
 
     .today-toolbar-utilities {
-        padding-left: 0.75rem;
-        border-left: 1px solid $border-light;
-    }
-
-    .today-font-select { width: 9rem; }
-    .today-layout-select { width: 6.75rem; }
-
-    .today-explorer-body:not(.is-table):not(.is-list) {
-        padding: 0.5rem 0.75rem 0;
-        background: $paper;
+      padding-left: 0;
+      margin-left: 0;
+      border-left: 0;
     }
 
     .today-kanban {
-        --today-column-width: clamp(17rem, calc((100cqw - 3.5rem) / 4), 22rem);
-        padding-bottom: 0;
-        gap: 0.625rem;
+      --today-column-width: min(21rem, calc(100cqw - 2rem));
+    }
+    .today-explorer-body:not(.is-table):not(.is-list) {
+      padding: 0.5rem 0.5rem 0;
     }
 
-    .today-kanban-columns { gap: 0.625rem; }
-
-    /* Zoho-style Kanban column: clear vertical lanes without bulky card layout */
-    .today-kanban-column {
-        display: flex;
-        flex-direction: column;
-        background: transparent;
-        border: 1px solid $border-light;
-        border-radius: $radius-xs;
-        box-shadow: none;
-        overflow: hidden;
-        transition: border-color 150ms ease, background-color 150ms ease;
-
-        &:hover {
-            border-color: rgba($border, 0.9);
-        }
+    .today-intro h1 {
+      white-space: normal;
     }
+  }
 
-    .today-column-header {
-        min-height: 2.375rem;
-        padding: 0.35rem 0.625rem;
-        background: color-mix(in srgb, var(--column-accent) 5%, $paper);
-        border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 12%, $border-light);
-        border-radius: 0;
+  @media (prefers-reduced-motion: reduce) {
+    .today-kanban-column,
+    .today-draggable-note {
+      transition: none;
     }
-
-    .today-column-title { gap: 0.45rem; }
-    .today-column-actions { gap: 0.2rem; }
-
-    .today-column-title h3 {
-        font-size: var(--today-font-13);
-        font-weight: 750;
-        letter-spacing: -0.01em;
-    }
-
-    .today-column-dot {
-        width: 0.55rem;
-        height: 0.55rem;
-        border-radius: 50%;
-        box-shadow: inset 0 1px 2px rgba(white, 0.4);
-    }
-
-    .today-column-notes {
-        gap: 0.5rem;
-        padding: 0.5rem 0.45rem;
-    }
-
-    .today-column-notes.cdk-drop-list-receiving {
-        outline: 2px dashed var(--column-accent);
-        outline-offset: -2px;
-        background: color-mix(in srgb, var(--column-accent) 4%, transparent);
-    }
-
-    .today-draggable-note.cdk-drag-placeholder {
-        opacity: 0.3;
-        animation: none;
-        border-color: var(--column-accent);
-    }
-
-    /* Space-efficient note representation inside Zoho-style Kanban lanes:
-       Prevents long notes from consuming entire column space */
-    .today-kanban-column .today-draggable-note {
-        .sticky-note {
-            min-height: auto;
-            max-height: 18.5rem;
-            padding: 0.625rem 0.75rem 0.55rem;
-            border-radius: $radius-xs;
-            box-shadow: 0 1px 3px rgba($heading, 0.05);
-
-            &:hover {
-                box-shadow: 0 3px 8px rgba($heading, 0.08);
-            }
-        }
-
-        .sticky-note__header {
-            min-height: 1.35rem;
-            margin-bottom: 0.25rem;
-            gap: 0.25rem;
-        }
-
-        .sticky-note__title {
-            font-size: 0.875rem;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        .sticky-note__description {
-            margin-top: 0.25rem;
-            font-size: 0.8125rem;
-            line-height: 1.4;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
-        }
-
-        .sticky-note__checklists {
-            margin-top: 0.45rem;
-            padding-top: 0.4rem;
-            gap: 0.35rem;
-        }
-
-        .sticky-note__checklist-heading {
-            font-size: 0.75rem;
-        }
-
-        .sticky-note__checklist-items {
-            max-height: 5.5rem;
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
-
-        .sticky-note__footer {
-            margin-top: 0.35rem;
-            padding-top: 0.35rem;
-        }
-    }
-
-    .today-empty-column {
-        flex: 1 0 auto;
-        grid-template-columns: minmax(0, 1fr);
-        grid-auto-rows: min-content;
-        min-height: 12rem;
-        margin: 0.25rem;
-        padding: 1.5rem 0.75rem 1rem;
-        gap: 0.5rem;
-        place-content: center;
-        justify-items: center;
-        border: 1px dashed rgba($border, 0.7);
-        border-radius: $radius-xs;
-        text-align: center;
-        background: color-mix(in srgb, $paper 90%, white);
-    }
-
-    .today-empty-column strong {
-        margin-top: 0.2rem;
-        font-size: var(--today-font-13);
-        font-weight: 750;
-    }
-
-    .today-empty-column small {
-        max-width: 12rem;
-        color: $text-secondary;
-        font-size: var(--today-font-12);
-        line-height: 1.4;
-    }
-
-    .today-empty-column-visual {
-        width: 3.25rem;
-        height: 3.25rem;
-        margin-bottom: 0.15rem;
-        color: var(--column-accent);
-        background: color-mix(in srgb, var(--column-accent) 8%, white);
-        border-radius: 50%;
-    }
-
-    .today-empty-column-visual::before,
-    .today-empty-column-visual::after { display: none; }
-
-    .today-empty-column app-button { margin-top: 0.4rem; }
-
-    .today-add-column-rail {
-        align-self: flex-start;
-        padding: 0.625rem;
-        background: transparent;
-        border: 1px dashed rgba($border, 0.7);
-        border-radius: $radius-xs;
-    }
-
-    @container today-workspace (max-width: 74rem) {
-        .today-header {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0.75rem;
-        }
-
-        .today-header-actions {
-            grid-template-columns: minmax(0, 1fr) auto;
-            width: 100%;
-        }
-
-        .today-note-count-slot { display: none; }
-        .today-header-context-picker { width: min(100%, 34rem); }
-
-        .today-toolbar-controls {
-            flex: 1 1 100%;
-            padding-left: 0;
-            border-left: 0;
-        }
-
-        .today-toolbar-utilities { margin-left: auto; }
-    }
-
-    @container today-workspace (max-width: 44rem) {
-        .today-header { padding-inline: 0; }
-        .today-header-actions { grid-template-columns: minmax(0, 1fr); }
-        .today-header-context-picker { width: 100%; }
-        .today-header-command-group { justify-content: flex-start; }
-        .today-toolbar { gap: 0.625rem; padding: 0.75rem; }
-        .today-toolbar-left { padding-right: 0; border-right: 0; }
-
-        .today-search {
-            order: 1;
-            flex-basis: 100%;
-        }
-
-        .today-toolbar-controls {
-            order: 2;
-            flex-direction: row;
-        }
-
-        .today-display-settings { flex: 1 1 100%; }
-        .today-font-select { flex: 1 1 9rem; }
-        .today-layout-select { flex: 1 1 6.75rem; }
-
-        .today-toolbar-utilities {
-            padding-left: 0;
-            margin-left: 0;
-            border-left: 0;
-        }
-
-        .today-kanban { --today-column-width: min(21rem, calc(100cqw - 2rem)); }
-        .today-explorer-body:not(.is-table):not(.is-list) { padding: 0.5rem 0.5rem 0; }
-
-        .today-intro h1 { white-space: normal; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .today-kanban-column,
-        .today-draggable-note { transition: none; }
-    }
+  }
 }
 
 :host ::ng-deep .today-workspace .today-column-actions .app-button {
-    background: #fff;
-    border-color: $border-light;
-    box-shadow: 0 2px 5px rgba($heading, 0.05);
+  background: #fff;
+  border-color: $border-light;
+  box-shadow: 0 2px 5px rgba($heading, 0.05);
 }
 
 :host ::ng-deep .today-workspace .today-column-actions .app-button:hover:not(:disabled) {
-    background: $page-bg;
-    border-color: $border;
+  background: $page-bg;
+  border-color: $border;
 }
 
 :host ::ng-deep .today-workspace .today-empty-column .app-button-outline {
-    background: $paper;
-    border-color: rgba($note-mustard, 0.35);
+  background: $paper;
+  border-color: rgba($note-mustard, 0.35);
 }
 
 :host ::ng-deep .today-workspace .today-toolbar-left .app-tab.is-active {
-    background: linear-gradient(180deg, #fff8d4, $note-button-yellow);
-    border-color: rgba($note-mustard, 0.3);
-    box-shadow: 0 2px 5px rgba($accent, 0.07);
+  background: linear-gradient(180deg, #fff8d4, $note-button-yellow);
+  border-color: rgba($note-mustard, 0.3);
+  box-shadow: 0 2px 5px rgba($accent, 0.07);
 }
 
 :host ::ng-deep .today-workspace .today-column-actions .app-button:hover:not(:disabled) {
-    background: rgba($heading, 0.06);
-    border-color: transparent;
+  background: rgba($heading, 0.06);
+  border-color: transparent;
 }
 
 /* List view */
 /* Grouped list: native tables retain aligned columns and table semantics. */
 .today-grouped-table {
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    padding: 1rem;
-    overflow-y: auto;
-    background: var(--app-paper);
-    color: var(--app-text);
-    scrollbar-width: thin;
-    scrollbar-color: var(--app-border) transparent;
-    letter-spacing: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  background: var(--app-paper);
+  color: var(--app-text);
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
+  letter-spacing: 0;
 }
 
 .today-group {
-    min-width: 0;
-    margin-bottom: 1.5rem;
+  min-width: 0;
+  margin-bottom: 1.5rem;
 }
 
-.today-group:last-child { margin-bottom: 0; }
+.today-group:last-child {
+  margin-bottom: 0;
+}
 
 .today-group-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--app-paper-muted);
-    border-radius: $radius-xs;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--app-paper-muted);
+  border-radius: $radius-xs;
 }
 
 .today-group-header h3 {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    font: inherit;
-    letter-spacing: 0;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: 0;
 }
 
 .today-group-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    width: 100%;
-    min-width: 0;
-    min-height: 2rem;
-    padding: 0.25rem;
-    border: 0;
-    border-radius: $radius-xs;
-    background: transparent;
-    color: inherit;
-    font: 600 var(--today-font-14)/1.4 $font-body;
-    text-align: left;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-width: 0;
+  min-height: 2rem;
+  padding: 0.25rem;
+  border: 0;
+  border-radius: $radius-xs;
+  background: transparent;
+  color: inherit;
+  font: 600 var(--today-font-14)/1.4 $font-body;
+  text-align: left;
+  cursor: pointer;
 }
 
 .today-group-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-group-toggle app-badge,
 .today-group-chevron,
-.today-group-accent-bar { flex-shrink: 0; }
+.today-group-accent-bar {
+  flex-shrink: 0;
+}
 
-.today-group-chevron { color: var(--app-text-muted); }
+.today-group-chevron {
+  color: var(--app-text-muted);
+}
 
 .today-group-accent-bar {
-    width: 0.1875rem;
-    height: 1rem;
-    background: var(--group-accent, var(--app-focus-color));
-    border-radius: $radius-xs;
+  width: 0.1875rem;
+  height: 1rem;
+  background: var(--group-accent, var(--app-focus-color));
+  border-radius: $radius-xs;
 }
 
 .today-group-toggle:hover {
-    background: color-mix(in srgb, var(--app-text) 4%, transparent);
+  background: color-mix(in srgb, var(--app-text) 4%, transparent);
 }
 
 .today-group-toggle:focus-visible,
 .today-group-body:focus-visible,
 .today-gt-title:focus-visible {
-    outline: 2px solid var(--app-focus-color);
-    outline-offset: -2px;
+  outline: 2px solid var(--app-focus-color);
+  outline-offset: -2px;
 }
 
 .today-group-body {
-    min-width: 0;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--app-border) transparent;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
 }
 
 .today-group-empty {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    min-height: 4rem;
-    padding: 0.75rem;
-    color: var(--app-text-muted);
-    font-size: var(--today-font-13);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 4rem;
+  padding: 0.75rem;
+  color: var(--app-text-muted);
+  font-size: var(--today-font-13);
 }
 
-$today-table-detail-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px;
-$today-table-compact-columns: 32px 36px minmax(170px, 1.8fr) minmax(240px, 2.6fr) minmax(95px, 0.9fr) 144px;
+$today-table-detail-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr)
+  minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px;
+$today-table-compact-columns: 32px 36px minmax(170px, 1.8fr) minmax(240px, 2.6fr)
+  minmax(95px, 0.9fr) 144px;
 
 .today-gtable {
-    display: grid;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    color: inherit;
-    font-family: $font-body;
-    font-size: var(--today-font-13);
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  color: inherit;
+  font-family: $font-body;
+  font-size: var(--today-font-13);
 }
 
 .today-gtable.is-detail {
-    --today-table-columns: #{$today-table-detail-columns};
+  --today-table-columns: #{$today-table-detail-columns};
 }
 
 .today-gtable.is-compact {
-    --today-table-columns: #{$today-table-compact-columns};
+  --today-table-columns: #{$today-table-compact-columns};
 }
 
 .today-gtable thead,
 .today-gtable tbody {
-    display: contents;
+  display: contents;
 }
 
 .today-gtable tr {
-    display: grid;
-    grid-template-columns: var(--today-table-columns);
-    align-items: stretch;
-    width: 100%;
-    box-sizing: border-box;
+  display: grid;
+  grid-template-columns: var(--today-table-columns);
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .today-gt-title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .today-gtable th,
 .today-gtable td {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 0.625rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--app-border-light);
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--app-border-light);
 }
 
 .today-gtable th {
-    height: 2.5rem;
-    color: var(--app-text-muted);
-    font-size: var(--today-font-12);
-    font-weight: 600;
-    white-space: nowrap;
+  height: 2.5rem;
+  color: var(--app-text-muted);
+  font-size: var(--today-font-12);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .today-gtable th app-icon {
-    display: inline-flex;
-    margin-right: 0.375rem;
-    vertical-align: middle;
+  display: inline-flex;
+  margin-right: 0.375rem;
+  vertical-align: middle;
 }
 
 .today-gtable tbody tr {
-    min-height: 3.5rem;
-    height: auto;
-    transition: background-color 120ms ease;
+  min-height: 3.5rem;
+  height: auto;
+  transition: background-color 120ms ease;
 }
 
 .today-gtable td + td {
-    border-left: 1px solid color-mix(in srgb, var(--app-border-light) 50%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--app-border-light) 50%, transparent);
 }
 
 .today-gtable tbody tr:hover,
 .today-gtable tbody tr:focus-within {
-    background: color-mix(in srgb, var(--app-paper-muted) 55%, var(--app-paper));
+  background: color-mix(in srgb, var(--app-paper-muted) 55%, var(--app-paper));
 }
 
 .today-gtable tbody tr.is-selected {
-    background: color-mix(in srgb, var(--app-focus-color) 8%, var(--app-paper));
+  background: color-mix(in srgb, var(--app-focus-color) 8%, var(--app-paper));
 }
 
-.today-gtable tbody tr.is-completed .today-gt-title { color: var(--app-text-muted); }
+.today-gtable tbody tr.is-completed .today-gt-title {
+  color: var(--app-text-muted);
+}
 
 .today-gtable td.today-gt-drag,
 .today-gtable th.today-gt-drag {
-    justify-content: center;
-    width: 32px;
-    min-width: 32px;
-    padding: 0 0.15rem;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  padding: 0 0.15rem;
 }
 
 .today-gtable td.today-gt-select,
 .today-gtable th.today-gt-select {
-    justify-content: center;
-    width: 36px;
-    min-width: 36px;
-    padding: 0 0.2rem;
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  padding: 0 0.2rem;
 }
 
 .today-table-drag-handle,
 .today-group-drag-handle {
-    display: inline-grid;
-    place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    color: var(--app-text-muted);
-    background: transparent;
-    border: 0;
-    border-radius: $radius-xs;
-    cursor: grab;
-    transition: color 120ms ease, background-color 120ms ease;
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  color: var(--app-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: $radius-xs;
+  cursor: grab;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
 
-    &:hover {
-        color: var(--app-text);
-        background: color-mix(in srgb, var(--app-text) 8%, transparent);
-    }
+  &:hover {
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-text) 8%, transparent);
+  }
 
-    &:active {
-        cursor: grabbing;
-    }
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .today-group-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .today-gt-note-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.2rem;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.2rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .today-gt-title {
-    display: block;
-    width: 100%;
-    padding: 0;
-    overflow: hidden;
-    border: 0;
-    border-radius: $radius-xs;
-    background: transparent;
-    color: inherit;
-    font-family: var(--today-note-font-family, #{$font-body});
-    font-size: var(--today-note-font-size, 14px);
-    font-weight: 600;
-    line-height: 1.4;
-    text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: text;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: $radius-xs;
+  background: transparent;
+  color: inherit;
+  font-family: var(--today-note-font-family, #{$font-body});
+  font-size: var(--today-note-font-size, 14px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
 }
 
-.today-gt-title:disabled { cursor: default; }
+.today-gt-title:disabled {
+  cursor: default;
+}
 
 .today-gt-owner {
-    display: block;
-    overflow: hidden;
-    color: var(--app-text-muted);
-    font-size: var(--today-font-12);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: var(--today-font-12);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-gt-description-text {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow-wrap: anywhere;
-    font-family: var(--today-note-font-family, #{$font-body});
-    font-size: var(--today-note-font-size, 14px);
-    line-height: 1.45;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+  font-family: var(--today-note-font-family, #{$font-body});
+  font-size: var(--today-note-font-size, 14px);
+  line-height: 1.45;
 }
 
 .today-gt-date-text,
 .today-gt-updated {
-    font-size: var(--today-font-12);
-    white-space: nowrap;
+  font-size: var(--today-font-12);
+  white-space: nowrap;
 }
 
 .today-gt-updated small {
-    display: block;
-    color: var(--app-text-muted);
-    font-size: inherit;
+  display: block;
+  color: var(--app-text-muted);
+  font-size: inherit;
 }
 
 .today-gt-folder app-badge {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .today-gtable td.today-gt-actions,
 .today-gtable th.today-gt-actions {
-    justify-content: flex-end;
-    width: 144px;
-    min-width: 144px;
-    padding-left: 0.25rem;
-    padding-right: 0.5rem;
+  justify-content: flex-end;
+  width: 144px;
+  min-width: 144px;
+  padding-left: 0.25rem;
+  padding-right: 0.5rem;
 }
 
 .today-gt-key-wrapper {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
 }
 
 .today-gt-key-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.375rem;
-    font-family: $font-mono;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.03em;
-    color: var(--app-text-muted);
-    background: color-mix(in srgb, var(--app-border-light) 65%, var(--app-paper));
-    border: 1px solid var(--app-border-light);
-    border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  font-family: $font-mono;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  color: var(--app-text-muted);
+  background: color-mix(in srgb, var(--app-border-light) 65%, var(--app-paper));
+  border: 1px solid var(--app-border-light);
+  border-radius: 0.25rem;
 }
 
 .today-gt-key-copy {
-    display: inline-grid;
-    place-items: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    padding: 0;
-    color: var(--app-text-muted);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 120ms ease;
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  color: var(--app-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 120ms ease;
 
-    &:hover {
-        color: var(--app-text);
-        background: color-mix(in srgb, var(--app-text) 8%, var(--app-paper));
-        border-color: var(--app-border-light);
-    }
+  &:hover {
+    color: var(--app-text);
+    background: color-mix(in srgb, var(--app-text) 8%, var(--app-paper));
+    border-color: var(--app-border-light);
+  }
 
-    &:focus-visible {
-        outline: none;
-        box-shadow: var(--app-focus-ring);
-    }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
 }
 
 .today-table-action-group {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.25rem;
-    padding: 0.25rem;
-    background: var(--app-paper, #ffffff);
-    border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
-    border-radius: 9999px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--app-paper, #ffffff);
+  border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* ==========================================================
@@ -1528,782 +1602,803 @@ $today-table-compact-columns: 32px 36px minmax(170px, 1.8fr) minmax(240px, 2.6fr
 /* Active Drop List Highlight (when dragging over a table group body) */
 .today-group-body.cdk-drop-list-dragging,
 .today-gtable tbody.cdk-drop-list-dragging {
-    background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 3.5%, transparent);
-    border-radius: $radius-xs;
-    transition: background-color 150ms ease;
+  background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 3.5%, transparent);
+  border-radius: $radius-xs;
+  transition: background-color 150ms ease;
 }
 
 /* Animations for non-dragged items reordering */
 .today-group.cdk-drag-animating,
 .today-gtable tr.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .today-table-groups-container.cdk-drop-list-dragging .today-group:not(.cdk-drag-placeholder),
 .today-gtable tbody.cdk-drop-list-dragging tr:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* 1. TABLE ROW DRAG PREVIEW (Floating row under cursor) */
 tr.cdk-drag-preview {
-    display: grid !important;
-    grid-template-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
+  display: grid !important;
+  grid-template-columns:
+    32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr)
+    minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  min-height: 3.5rem !important;
+  padding: 0 !important;
+  background: var(--app-paper, #ffffff) !important;
+  border: 1.5px solid var(--app-focus-color, #3b82f6) !important;
+  border-radius: 0.625rem !important;
+  box-shadow:
+    0 1.25rem 3rem rgba(0, 0, 0, 0.2),
+    0 0.5rem 1.25rem rgba(59, 130, 246, 0.16) !important;
+  transform: scale(1.01) rotate(0.8deg);
+  opacity: 0.97 !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+
+  td {
+    display: flex !important;
     align-items: center !important;
+    min-width: 0 !important;
+    height: 100% !important;
     box-sizing: border-box !important;
-    min-height: 3.5rem !important;
-    padding: 0 !important;
-    background: var(--app-paper, #ffffff) !important;
-    border: 1.5px solid var(--app-focus-color, #3b82f6) !important;
-    border-radius: 0.625rem !important;
-    box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.2), 0 0.5rem 1.25rem rgba(59, 130, 246, 0.16) !important;
-    transform: scale(1.01) rotate(0.8deg);
-    opacity: 0.97 !important;
-    z-index: 9999 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
+    padding: 0.625rem 0.75rem !important;
+    text-align: left !important;
+    background: transparent !important;
 
-    td {
-        display: flex !important;
-        align-items: center !important;
-        min-width: 0 !important;
-        height: 100% !important;
-        box-sizing: border-box !important;
-        padding: 0.625rem 0.75rem !important;
-        text-align: left !important;
-        background: transparent !important;
-
-        & + td {
-            border-left: 1px solid color-mix(in srgb, var(--app-border-light) 50%, transparent) !important;
-        }
+    & + td {
+      border-left: 1px solid color-mix(in srgb, var(--app-border-light) 50%, transparent) !important;
     }
+  }
 
-    .today-gt-drag,
-    .today-gt-select {
-        justify-content: center !important;
-    }
+  .today-gt-drag,
+  .today-gt-select {
+    justify-content: center !important;
+  }
 }
 
 /* 2. TABLE ROW PLACEHOLDER (Slot left behind in table) */
 tr.cdk-drag-placeholder {
-    display: grid !important;
-    grid-template-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
-    align-items: center !important;
-    min-height: 3.5rem !important;
-    background: color-mix(in srgb, var(--app-focus-color, #3b82f6) 10%, var(--app-paper-muted, #f8fafc)) !important;
-    border: 2px dashed color-mix(in srgb, var(--app-focus-color, #3b82f6) 60%, transparent) !important;
-    border-radius: 0.5rem !important;
-    opacity: 0.75 !important;
-    box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns:
+    32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr)
+    minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px !important;
+  align-items: center !important;
+  min-height: 3.5rem !important;
+  background: color-mix(
+    in srgb,
+    var(--app-focus-color, #3b82f6) 10%,
+    var(--app-paper-muted, #f8fafc)
+  ) !important;
+  border: 2px dashed color-mix(in srgb, var(--app-focus-color, #3b82f6) 60%, transparent) !important;
+  border-radius: 0.5rem !important;
+  opacity: 0.75 !important;
+  box-sizing: border-box !important;
 
-    td {
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
+  td {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 }
 
 /* 3. TABLE GROUP / COLUMN DRAG PREVIEW (Floating group under cursor) */
 section.today-group.cdk-drag-preview {
-    background: var(--app-paper, #ffffff) !important;
-    border: 2px solid color-mix(in srgb, var(--group-accent, #3b82f6) 70%, var(--app-border)) !important;
-    border-radius: 0.875rem !important;
-    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.22), 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
-    transform: scale(1.01) rotate(0.6deg);
-    opacity: 0.97 !important;
-    z-index: 9999 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
+  background: var(--app-paper, #ffffff) !important;
+  border: 2px solid color-mix(in srgb, var(--group-accent, #3b82f6) 70%, var(--app-border)) !important;
+  border-radius: 0.875rem !important;
+  box-shadow:
+    0 1.5rem 3.5rem rgba(0, 0, 0, 0.22),
+    0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.01) rotate(0.6deg);
+  opacity: 0.97 !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
 }
 
 /* 4. TABLE GROUP / COLUMN PLACEHOLDER (Slot left behind in groups container) */
 section.today-group.cdk-drag-placeholder {
-    background: color-mix(in srgb, var(--group-accent, #3b82f6) 10%, var(--app-paper-muted, #f8fafc)) !important;
-    border: 2px dashed color-mix(in srgb, var(--group-accent, #3b82f6) 50%, transparent) !important;
-    border-radius: 0.875rem !important;
-    min-height: 5rem !important;
-    opacity: 0.65 !important;
-    box-sizing: border-box !important;
+  background: color-mix(
+    in srgb,
+    var(--group-accent, #3b82f6) 10%,
+    var(--app-paper-muted, #f8fafc)
+  ) !important;
+  border: 2px dashed color-mix(in srgb, var(--group-accent, #3b82f6) 50%, transparent) !important;
+  border-radius: 0.875rem !important;
+  min-height: 5rem !important;
+  opacity: 0.65 !important;
+  box-sizing: border-box !important;
 
-    .today-group-body,
-    .today-group-header {
-        opacity: 0.35 !important;
-    }
+  .today-group-body,
+  .today-group-header {
+    opacity: 0.35 !important;
+  }
 }
 
 .today-table-menu-button {
-    display: inline-grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
-    border-radius: 9999px;
-    background: var(--app-paper, #ffffff);
-    color: var(--app-text-muted, #64748b);
-    cursor: pointer;
-    transition: all 120ms ease;
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--app-border-light, rgba(0, 0, 0, 0.12));
+  border-radius: 9999px;
+  background: var(--app-paper, #ffffff);
+  color: var(--app-text-muted, #64748b);
+  cursor: pointer;
+  transition: all 120ms ease;
 }
 
 .today-table-menu-button:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--app-text) 6%, var(--app-paper));
-    color: var(--app-text, #0f172a);
-    border-color: var(--app-border, rgba(0, 0, 0, 0.2));
+  background: color-mix(in srgb, var(--app-text) 6%, var(--app-paper));
+  color: var(--app-text, #0f172a);
+  border-color: var(--app-border, rgba(0, 0, 0, 0.2));
 }
 
 @media (max-width: 52rem) {
-    .today-grouped-table { padding: 0.75rem; }
+  .today-grouped-table {
+    padding: 0.75rem;
+  }
 }
 
 .today-table-title-input {
-    width: min(100%, 34rem);
-    min-height: 2rem;
-    padding: 0.3rem 0.5rem;
-    color: var(--app-text);
-    background: var(--app-paper);
-    border: 1px solid var(--app-focus-color);
-    border-radius: $radius-xs;
-    outline: none;
-    box-shadow: var(--app-focus-ring);
-    font-family: var(--today-note-font-family, #{$font-body});
-    font-size: var(--today-note-font-size, 14px);
-    font-weight: 700;
-    line-height: 1.3;
+  width: min(100%, 34rem);
+  min-height: 2rem;
+  padding: 0.3rem 0.5rem;
+  color: var(--app-text);
+  background: var(--app-paper);
+  border: 1px solid var(--app-focus-color);
+  border-radius: $radius-xs;
+  outline: none;
+  box-shadow: var(--app-focus-ring);
+  font-family: var(--today-note-font-family, #{$font-body});
+  font-size: var(--today-note-font-size, 14px);
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .today-table-progress-wrap {
-    display: grid;
-    width: 100%;
-    max-width: 7rem;
-    gap: 0.32rem;
+  display: grid;
+  width: 100%;
+  max-width: 7rem;
+  gap: 0.32rem;
 }
 
 .today-table-progress-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    color: var(--app-text-muted);
-    font-size: var(--today-font-12);
-    line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--app-text-muted);
+  font-size: var(--today-font-12);
+  line-height: 1;
 }
 
 .today-table-progress-label strong {
-    color: var(--app-text);
-    font-weight: 600;
+  color: var(--app-text);
+  font-weight: 600;
 }
 
 .today-table-progress-track {
-    display: block;
-    width: 100%;
-    height: 0.28rem;
-    overflow: hidden;
-    background: var(--app-border-light);
-    border-radius: 999px;
+  display: block;
+  width: 100%;
+  height: 0.28rem;
+  overflow: hidden;
+  background: var(--app-border-light);
+  border-radius: 999px;
 }
 
-.today-table-progress-track>span {
-    display: block;
-    height: 100%;
-    background: $success;
-    border-radius: inherit;
+.today-table-progress-track > span {
+  display: block;
+  height: 100%;
+  background: $success;
+  border-radius: inherit;
 }
 
 .today-table-muted {
-    color: var(--app-text-muted);
-    font-size: var(--today-font-13);
+  color: var(--app-text-muted);
+  font-size: var(--today-font-13);
 }
 
-
 .today-note-quick-edit {
-    display: inline-flex;
-    flex: 0 0 auto;
+  display: inline-flex;
+  flex: 0 0 auto;
 }
 
 .today-note-menu-trigger {
-    display: inline-grid;
-    flex: 0 0 auto;
-    width: 1.875rem;
-    height: 1.875rem;
-    padding: 0;
-    color: var(--app-text-muted);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: $radius-xs;
-    cursor: pointer;
-    place-items: center;
-    transition:
-        color 140ms ease,
-        background-color 140ms ease,
-        border-color 140ms ease,
-        box-shadow 140ms ease;
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 1.875rem;
+  height: 1.875rem;
+  padding: 0;
+  color: var(--app-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-xs;
+  cursor: pointer;
+  place-items: center;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .today-note-menu-trigger:hover:not(:disabled) {
-    color: var(--app-text);
-    background: var(--app-paper-muted);
-    border-color: var(--app-border);
+  color: var(--app-text);
+  background: var(--app-paper-muted);
+  border-color: var(--app-border);
 }
 
 .today-note-menu-trigger:focus-visible {
-    outline: none;
-    box-shadow: var(--app-focus-ring);
+  outline: none;
+  box-shadow: var(--app-focus-ring);
 }
 
 .today-note-menu-trigger:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 ::ng-deep .today-note-actions-menu.mat-mdc-menu-panel {
-    min-width: 15rem;
-    max-width: 17rem;
-    overflow: hidden;
-    background: $paper;
-    border: 1px solid rgba($border, 0.82);
-    border-radius: 0.75rem;
-    box-shadow: $shadow-lg;
+  min-width: 15rem;
+  max-width: 17rem;
+  overflow: hidden;
+  background: $paper;
+  border: 1px solid rgba($border, 0.82);
+  border-radius: 0.75rem;
+  box-shadow: $shadow-lg;
 }
 
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-content {
-    padding: 0.35rem;
+  padding: 0.35rem;
 }
 
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item {
-    min-height: 3.25rem;
-    padding: 0.45rem 0.5rem;
-    color: $text-secondary;
-    border-radius: 0.5rem;
-    font-family: $font-body;
-    line-height: 1.2;
+  min-height: 3.25rem;
+  padding: 0.45rem 0.5rem;
+  color: $text-secondary;
+  border-radius: 0.5rem;
+  font-family: $font-body;
+  line-height: 1.2;
 }
 
-::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item+.today-note-action-item {
-    margin-top: 0.125rem;
+::ng-deep
+  .today-note-actions-menu
+  .mat-mdc-menu-item.today-note-action-item
+  + .today-note-action-item {
+  margin-top: 0.125rem;
 }
 
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:hover,
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:focus-visible {
-    background: rgba($note-yellow, 0.18);
+  background: rgba($note-yellow, 0.18);
 }
 
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item-text {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 0.625rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.625rem;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-item-icon {
-    display: grid;
-    flex: 0 0 1.875rem;
-    width: 1.875rem;
-    height: 1.875rem;
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.58);
-    border: 1px solid rgba($border, 0.72);
-    border-radius: 0.4375rem;
-    place-items: center;
+  display: grid;
+  flex: 0 0 1.875rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  color: $text-secondary;
+  background: rgba($paper-dark, 0.58);
+  border: 1px solid rgba($border, 0.72);
+  border-radius: 0.4375rem;
+  place-items: center;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-item-icon.is-forward {
-    color: $note-button-yellow-text;
-    background: rgba($note-button-yellow, 0.32);
-    border-color: rgba($note-button-yellow-text, 0.12);
+  color: $note-button-yellow-text;
+  background: rgba($note-button-yellow, 0.32);
+  border-color: rgba($note-button-yellow-text, 0.12);
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-width: 0;
-    gap: 0.125rem;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy strong {
-    color: $heading;
-    font-size: var(--today-font-14);
-    font-weight: 730;
-    line-height: 1.25;
+  color: $heading;
+  font-size: var(--today-font-14);
+  font-weight: 730;
+  line-height: 1.25;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy small {
-    color: $text-light;
-    font-size: var(--today-font-12);
-    font-weight: 500;
-    line-height: 1.3;
+  color: $text-light;
+  font-size: var(--today-font-12);
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-danger {
-    color: $danger;
+  color: $danger;
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-danger .today-note-menu-item-icon {
-    color: $danger;
-    background: rgba($danger, 0.065);
-    border-color: rgba($danger, 0.14);
+  color: $danger;
+  background: rgba($danger, 0.065);
+  border-color: rgba($danger, 0.14);
 }
 
 ::ng-deep .today-note-actions-menu .today-note-menu-danger .today-note-menu-item-copy strong {
-    color: $danger;
+  color: $danger;
 }
 
 ::ng-deep .today-note-actions-menu .mat-divider {
-    margin-block: 0.25rem;
-    border-color: $border-light;
+  margin-block: 0.25rem;
+  border-color: $border-light;
 }
 
 /* Drag and drop – Note cards */
 .today-draggable-note {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    cursor: grab;
-    transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+  width: 100%;
+  min-width: 0;
+  cursor: grab;
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .today-draggable-note:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .today-draggable-note.cdk-drag-dragging {
-    z-index: 50;
-    cursor: grabbing;
-    opacity: 0.4;
-    transform: scale(0.975);
+  z-index: 50;
+  cursor: grabbing;
+  opacity: 0.4;
+  transform: scale(0.975);
 }
 
 .today-draggable-note.cdk-drag-preview {
-    box-sizing: border-box;
-    border-radius: 0.6rem;
-    box-shadow:
-        0 0.5rem 1.25rem rgba($heading, 0.12),
-        0 1.5rem 3rem rgba($heading, 0.18);
-    opacity: 0.98;
-    transform: rotate(1.2deg) scale(1.02);
-    transition: box-shadow 100ms ease;
+  box-sizing: border-box;
+  border-radius: 0.6rem;
+  box-shadow:
+    0 0.5rem 1.25rem rgba($heading, 0.12),
+    0 1.5rem 3rem rgba($heading, 0.18);
+  opacity: 0.98;
+  transform: rotate(1.2deg) scale(1.02);
+  transition: box-shadow 100ms ease;
 }
 
 .today-draggable-note.cdk-drag-placeholder {
-    opacity: 0;
-    min-height: 4rem;
-    border-radius: 0.6rem;
-    background: rgba($note-yellow, 0.08);
-    border: 2px dashed rgba($note-yellow, 0.4);
-    animation: today-placeholder-pulse 1.2s ease-in-out infinite;
+  opacity: 0;
+  min-height: 4rem;
+  border-radius: 0.6rem;
+  background: rgba($note-yellow, 0.08);
+  border: 2px dashed rgba($note-yellow, 0.4);
+  animation: today-placeholder-pulse 1.2s ease-in-out infinite;
 }
 
 @keyframes today-placeholder-pulse {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .today-column-notes.cdk-drop-list-dragging .today-draggable-note:not(.cdk-drag-placeholder) {
-    transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Highlight the column drop zone when a note hovers over it */
 .today-column-notes.cdk-drop-list-receiving {
-    border-radius: 0.5rem;
-    background: rgba($note-yellow, 0.06);
-    outline: 2px dashed rgba($note-yellow, 0.35);
-    outline-offset: 2px;
+  border-radius: 0.5rem;
+  background: rgba($note-yellow, 0.06);
+  outline: 2px dashed rgba($note-yellow, 0.35);
+  outline-offset: 2px;
 }
 
 /* Column Drag and drop */
 .today-kanban-column.cdk-drag-dragging {
-    z-index: 100;
-    opacity: 0.95;
-    cursor: grabbing;
+  z-index: 100;
+  opacity: 0.95;
+  cursor: grabbing;
 }
 
 .today-kanban-column.cdk-drag-preview {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    width: var(--today-column-width) !important;
-    max-width: var(--today-column-width) !important;
-    max-height: 85vh;
-    padding: 0.75rem 0.65rem;
-    background: rgba($paper, 0.98);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba($border, 0.95);
-    border-radius: $radius-md;
-    box-shadow: 0 1.25rem 3.5rem rgba($heading, 0.22);
-    overflow: hidden;
-    transform: rotate(0.8deg);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: var(--today-column-width) !important;
+  max-width: var(--today-column-width) !important;
+  max-height: 85vh;
+  padding: 0.75rem 0.65rem;
+  background: rgba($paper, 0.98);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba($border, 0.95);
+  border-radius: $radius-md;
+  box-shadow: 0 1.25rem 3.5rem rgba($heading, 0.22);
+  overflow: hidden;
+  transform: rotate(0.8deg);
 }
 
 .today-kanban-column.cdk-drag-placeholder {
-    box-sizing: border-box;
-    opacity: 0.35;
-    border: 2px dashed color-mix(in srgb, var(--column-accent, #{$border}) 50%, $heading);
-    border-radius: $radius-md;
-    background: color-mix(in srgb, $page-bg 60%, transparent);
+  box-sizing: border-box;
+  opacity: 0.35;
+  border: 2px dashed color-mix(in srgb, var(--column-accent, #{$border}) 50%, $heading);
+  border-radius: $radius-md;
+  background: color-mix(in srgb, $page-bg 60%, transparent);
 }
 
 .today-kanban-columns.cdk-drop-list-dragging .today-kanban-column:not(.cdk-drag-placeholder) {
-    transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Responsive */
 @media (max-width: 90rem) {
-    .today-header {
-        grid-template-columns: minmax(18rem, 1fr) auto;
-    }
+  .today-header {
+    grid-template-columns: minmax(18rem, 1fr) auto;
+  }
 
-    .today-header-actions {
-        grid-template-columns: minmax(21rem, 28rem) auto;
-    }
+  .today-header-actions {
+    grid-template-columns: minmax(21rem, 28rem) auto;
+  }
 
-    .today-note-count-slot {
-        display: none;
-    }
+  .today-note-count-slot {
+    display: none;
+  }
 }
 
 @media (max-width: 75rem) {
-    .today-header {
-        grid-template-columns: minmax(0, 1fr);
-        align-items: stretch;
-    }
+  .today-header {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
 
-    .today-header-actions {
-        grid-template-columns: minmax(0, 1fr) auto;
-        width: 100%;
-    }
+  .today-header-actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+  }
 
-    .today-header-context-picker {
-        width: min(100%, 42rem);
-    }
+  .today-header-context-picker {
+    width: min(100%, 42rem);
+  }
 
-    .today-toolbar-controls {
-        justify-content: flex-end;
-    }
+  .today-toolbar-controls {
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 62rem) {
-    :host {
-        --today-column-width: 19.5rem;
-    }
+  :host {
+    --today-column-width: 19.5rem;
+  }
 
-    .today-page {
-        padding: 0.875rem 0.875rem 0;
-    }
+  .today-page {
+    padding: 0.875rem 0.875rem 0;
+  }
 
-    .today-add-column-rail {
-        flex-basis: 13rem;
-        width: 13rem;
-        min-width: 13rem;
-    }
-
+  .today-add-column-rail {
+    flex-basis: 13rem;
+    width: 13rem;
+    min-width: 13rem;
+  }
 }
 
 @media (max-width: 52rem) {
-    .today-header-actions {
-        grid-template-columns: minmax(0, 1fr);
-    }
+  .today-header-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-    .today-header-context-picker {
-        width: 100%;
-        max-width: none;
-    }
+  .today-header-context-picker {
+    width: 100%;
+    max-width: none;
+  }
 
-    .today-header-command-group {
-        justify-content: flex-start;
-        min-width: 0;
-    }
+  .today-header-command-group {
+    justify-content: flex-start;
+    min-width: 0;
+  }
 
-    .today-toolbar-left,
-    .today-search,
-    .today-toolbar-controls {
-        width: 100%;
-    }
+  .today-toolbar-left,
+  .today-search,
+  .today-toolbar-controls {
+    width: 100%;
+  }
 
-    .today-search {
-        flex-basis: 100%;
-        max-width: none;
-    }
+  .today-search {
+    flex-basis: 100%;
+    max-width: none;
+  }
 
-    .today-toolbar-controls {
-        justify-content: stretch;
-    }
+  .today-toolbar-controls {
+    justify-content: stretch;
+  }
 
-    .today-font-select {
-        flex: 1 1 auto;
-        width: auto;
-    }
+  .today-font-select {
+    flex: 1 1 auto;
+    width: auto;
+  }
 
-    .today-layout-select {
-        flex: 0 0 8.5rem;
-    }
-
+  .today-layout-select {
+    flex: 0 0 8.5rem;
+  }
 }
 
 @media (max-width: 43.75rem) {
-    :host {
-        --today-column-width: min(19.5rem, 86vw);
-    }
+  :host {
+    --today-column-width: min(19.5rem, 86vw);
+  }
 
-    .today-page {
-        padding: 0.75rem 0.75rem 0;
-    }
+  .today-page {
+    padding: 0.75rem 0.75rem 0;
+  }
 
-    .today-intro {
-        gap: 0.75rem;
-    }
+  .today-intro {
+    gap: 0.75rem;
+  }
 
-    .today-calendar-mark {
-        width: 3.4rem;
-        height: 3.7rem;
-    }
+  .today-calendar-mark {
+    width: 3.4rem;
+    height: 3.7rem;
+  }
 
-    .today-calendar-mark strong {
-        font-size: 1.5rem;
-    }
+  .today-calendar-mark strong {
+    font-size: 1.5rem;
+  }
 
-    .today-header-context-picker {
-        grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
-    }
+  .today-header-context-picker {
+    grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
+  }
 
-    .today-explorer {
-        margin-top: 0.75rem;
-    }
+  .today-explorer {
+    margin-top: 0.75rem;
+  }
 
-    .today-explorer-body {
-        padding: 0.5rem;
-    }
+  .today-explorer-body {
+    padding: 0.5rem;
+  }
 
-    .today-explorer-body.is-table,
-    .today-explorer-body.is-list {
-        padding: 0;
-    }
+  .today-explorer-body.is-table,
+  .today-explorer-body.is-list {
+    padding: 0;
+  }
 
-    .today-kanban {
-        gap: 0.5rem;
-    }
+  .today-kanban {
+    gap: 0.5rem;
+  }
 
-    .today-kanban-column {
-        padding: 0;
-    }
+  .today-kanban-column {
+    padding: 0;
+  }
 
-    .today-add-column-rail {
-        flex-basis: 11rem;
-        width: 11rem;
-        min-width: 11rem;
-    }
+  .today-add-column-rail {
+    flex-basis: 11rem;
+    width: 11rem;
+    min-width: 11rem;
+  }
 }
 
 @media (max-width: 36rem) {
-    .today-header-context-picker {
-        grid-template-columns: minmax(0, 1fr);
-    }
+  .today-header-context-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-    .today-header-context-separator {
-        display: none;
-    }
+  .today-header-context-separator {
+    display: none;
+  }
 
-    .today-header-command-group {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        width: 100%;
-    }
+  .today-header-command-group {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+  }
 
-    .today-intro h1,
-    .today-subtitle {
-        white-space: normal;
-    }
+  .today-intro h1,
+  .today-subtitle {
+    white-space: normal;
+  }
 
-    .today-toolbar-left {
-        overflow-x: auto;
-        scrollbar-width: none;
-    }
+  .today-toolbar-left {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
 
-    .today-toolbar-left::-webkit-scrollbar {
-        display: none;
-    }
-
+  .today-toolbar-left::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (max-width: 27rem) {
-    :host {
-        --today-column-width: calc(100vw - 3.25rem);
-    }
+  :host {
+    --today-column-width: calc(100vw - 3.25rem);
+  }
 
-    .today-page {
-        padding: 0.625rem 0.625rem 0;
-    }
+  .today-page {
+    padding: 0.625rem 0.625rem 0;
+  }
 
-    .today-calendar-mark {
-        display: none;
-    }
+  .today-calendar-mark {
+    display: none;
+  }
 
-    .today-toolbar-controls {
-        flex-direction: column;
-    }
+  .today-toolbar-controls {
+    flex-direction: column;
+  }
 
-    .today-font-select,
-    .today-layout-select {
-        width: 100%;
-        flex-basis: auto;
-    }
+  .today-font-select,
+  .today-layout-select {
+    width: 100%;
+    flex-basis: auto;
+  }
 
-    .today-add-column-rail {
-        flex-basis: 9.5rem;
-        width: 9.5rem;
-        min-width: 9.5rem;
-    }
+  .today-add-column-rail {
+    flex-basis: 9.5rem;
+    width: 9.5rem;
+    min-width: 9.5rem;
+  }
 }
 
 @media (max-height: 42rem) and (min-width: 43.751rem) {
-    .today-page {
-        padding-top: 0.625rem;
-    }
+  .today-page {
+    padding-top: 0.625rem;
+  }
 
-    .today-calendar-mark {
-        width: 3.4rem;
-        height: 3.4rem;
-        grid-template-rows: 1rem 1fr 0.9rem;
-    }
+  .today-calendar-mark {
+    width: 3.4rem;
+    height: 3.4rem;
+    grid-template-rows: 1rem 1fr 0.9rem;
+  }
 
-    .today-subtitle {
-        display: none;
-    }
+  .today-subtitle {
+    display: none;
+  }
 
-    .today-explorer {
-        margin-top: 0.625rem;
-    }
+  .today-explorer {
+    margin-top: 0.625rem;
+  }
 
-    .today-toolbar {
-        padding-block: 0.5rem;
-    }
+  .today-toolbar {
+    padding-block: 0.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .today-toolbar-members-skeleton span,
-    .today-column-notes.cdk-drop-list-dragging .today-draggable-note:not(.cdk-drag-placeholder),
-    .today-gtable tbody tr {
-        animation: none;
-        transition: none;
-    }
+  .today-toolbar-members-skeleton span,
+  .today-column-notes.cdk-drop-list-dragging .today-draggable-note:not(.cdk-drag-placeholder),
+  .today-gtable tbody tr {
+    animation: none;
+    transition: none;
+  }
 }
 
 /* Today-only font menu: the shared Select implementation is untouched. */
 .today-font-trigger {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    width: 100%;
-    min-height: 38px;
-    padding: 0 10px;
-    color: $text-primary;
-    background: transparent;
-    border: 1px solid $border;
-    border-radius: 8px;
-    font: 650 14px/1.35 $font-body;
-    text-align: left;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  color: $text-primary;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font: 650 14px/1.35 $font-body;
+  text-align: left;
+  cursor: pointer;
 }
 
 .today-font-trigger:hover {
-    background: rgba($heading, 0.035);
+  background: rgba($heading, 0.035);
 }
 
 .today-font-trigger:focus-visible,
 .today-font-option:focus-visible {
-    outline: 2px solid $accent;
-    outline-offset: -2px;
+  outline: 2px solid $accent;
+  outline-offset: -2px;
 }
 
 .today-font-sample {
-    display: inline-grid;
-    flex: 0 0 30px;
-    width: 30px;
-    place-items: center;
-    font-size: 21px;
-    line-height: 1.4;
-    font-weight: 400;
+  display: inline-grid;
+  flex: 0 0 30px;
+  width: 30px;
+  place-items: center;
+  font-size: 21px;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .today-font-label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-font-menu {
-    width: 300px;
-    max-width: calc(100vw - 24px);
-    max-height: min(400px, calc(100dvh - 24px));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 6px;
-    color: $text-primary;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: 10px;
-    box-shadow: 0 12px 32px rgba($heading, 0.14);
-    font-family: $font-body;
-    scrollbar-width: thin;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  max-height: min(400px, calc(100dvh - 24px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  color: $text-primary;
+  background: $paper;
+  border: 1px solid $border;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba($heading, 0.14);
+  font-family: $font-body;
+  scrollbar-width: thin;
 }
 
 .today-font-menu-heading {
-    padding: 9px 10px;
-    color: $text-secondary;
-    font-size: 12px;
-    font-weight: 700;
+  padding: 9px 10px;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .today-font-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 42px;
-    padding: 6px 9px;
-    color: inherit;
-    background: transparent;
-    border: 0;
-    border-radius: 6px;
-    text-align: left;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 6px 9px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
 }
 
 .today-font-option:hover,
 .today-font-option:focus-visible {
-    background: $paper-dark;
+  background: $paper-dark;
 }
 
 .today-font-option.is-selected {
-    background: rgba($note-yellow, 0.35);
+  background: rgba($note-yellow, 0.35);
 }
 
 .today-font-option-label {
-    flex: 1;
-    min-width: 0;
-    font-size: 17px;
-    line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.3;
 }
 
 /* Preserve the original toolbar's font field dimensions. */
 .today-font-trigger {
-    border-radius: 12px;
+  border-radius: 12px;
 }
 
 .today-draggable-note {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
 .today-trash-view {
-    display: block;
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 
 .today-explorer-body:has(.today-trash-view) {
-    padding: 0;
+  padding: 0;
 }
 
 /* ==========================================================
@@ -2311,32 +2406,32 @@ section.today-group.cdk-drag-placeholder {
    Trash stays separate from Kanban/List view tabs.
    ========================================================== */
 .today-toolbar-utility-divider {
-    flex: 0 0 1px;
-    width: 1px;
-    height: 1.75rem;
-    margin-inline: 0.15rem;
-    background: rgba($border, 0.95);
+  flex: 0 0 1px;
+  width: 1px;
+  height: 1.75rem;
+  margin-inline: 0.15rem;
+  background: rgba($border, 0.95);
 }
 
 @media (max-width: 75rem) {
-    .today-toolbar-controls {
-        flex-wrap: wrap;
-    }
+  .today-toolbar-controls {
+    flex-wrap: wrap;
+  }
 
-    .today-toolbar-utility-divider {
-        display: none;
-    }
+  .today-toolbar-utility-divider {
+    display: none;
+  }
 }
 
 @media (max-width: 52rem) {
-    .today-toolbar-controls app-button {
-        margin-left: auto;
-    }
+  .today-toolbar-controls app-button {
+    margin-left: auto;
+  }
 }
 
 @media (max-width: 36rem) {
-    .today-toolbar-controls app-button {
-        width: 100%;
-        margin-left: 0;
-    }
+  .today-toolbar-controls app-button {
+    width: 100%;
+    margin-left: 0;
+  }
 }

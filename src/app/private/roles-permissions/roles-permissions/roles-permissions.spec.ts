@@ -13,28 +13,53 @@ import type { WorkspaceRole } from '../models/workspace-role.models';
 import type { Permission } from '../models/permission.models';
 
 const role = (id: string, isSystem = false): WorkspaceRole => ({
-  id, name: id, displayName: id, code: id, type: isSystem ? 'SYSTEM' : 'CUSTOM',
-  scope: 'WORKSPACE', permissions: [], isSystem, isDefault: false, priority: 0, isActive: true
+  id,
+  name: id,
+  displayName: id,
+  code: id,
+  type: isSystem ? 'SYSTEM' : 'CUSTOM',
+  scope: 'WORKSPACE',
+  permissions: [],
+  isSystem,
+  isDefault: false,
+  priority: 0,
+  isActive: true,
 });
 
 const permission = (id: string, isSystem = false): Permission => ({
-  id, _id: id, name: id, displayName: id, code: id, module: 'NOTES', action: 'READ',
-  access: 'GENERAL', sortOrder: 1, isSystem, isActive: true
+  id,
+  _id: id,
+  name: id,
+  displayName: id,
+  code: id,
+  module: 'NOTES',
+  action: 'READ',
+  access: 'GENERAL',
+  sortOrder: 1,
+  isSystem,
+  isActive: true,
 });
 
 describe('RolesPermissions', () => {
   const preferenceStore = {
-    ready: signal(true), workspaceRoleView: signal('GRID'),
-    workspaceRoleStatusFilter: signal('ALL'), workspaceRoleSortOrder: signal('PRIORITY'),
+    ready: signal(true),
+    workspaceRoleView: signal('GRID'),
+    workspaceRoleStatusFilter: signal('ALL'),
+    workspaceRoleSortOrder: signal('PRIORITY'),
     load: vi.fn(),
     setAndSave: vi.fn((key: string, value: string) => {
       if (key === 'workspaceRoleView') preferenceStore.workspaceRoleView.set(value);
       if (key === 'workspaceRoleStatusFilter') preferenceStore.workspaceRoleStatusFilter.set(value);
       if (key === 'workspaceRoleSortOrder') preferenceStore.workspaceRoleSortOrder.set(value);
-    })
+    }),
   };
   const selectedId = signal<string | null>('workspace');
-  const api = { getWorkspaceRoles: vi.fn(), delete: vi.fn(), changeStatus: vi.fn(), getByCode: vi.fn() };
+  const api = {
+    getWorkspaceRoles: vi.fn(),
+    delete: vi.fn(),
+    changeStatus: vi.fn(),
+    getByCode: vi.fn(),
+  };
   const permissions = {
     getGrouped: vi.fn(),
     getAll: vi.fn(),
@@ -43,17 +68,21 @@ describe('RolesPermissions', () => {
     create: vi.fn(),
     update: vi.fn(),
     changeStatus: vi.fn(),
-    delete: vi.fn()
+    delete: vi.fn(),
   };
   const toast = { success: vi.fn(), warning: vi.fn(), error: vi.fn() };
   const authStore = {
     canManageGlobalPermissions: signal(true),
     user: signal({ id: 'user1' }),
-    role: signal({ scope: 'GLOBAL', code: 'SUPER_ADMIN' })
+    role: signal({ scope: 'GLOBAL', code: 'SUPER_ADMIN' }),
   };
   const store = {
-    selectedId, workspaces: signal([{ id: 'workspace', name: 'Workspace' }]),
-    loading: signal(false), error: signal(null), load: vi.fn(), select: vi.fn()
+    selectedId,
+    workspaces: signal([{ id: 'workspace', name: 'Workspace' }]),
+    loading: signal(false),
+    error: signal(null),
+    load: vi.fn(),
+    select: vi.fn(),
   };
   let component: RolesPermissions;
 
@@ -67,15 +96,18 @@ describe('RolesPermissions', () => {
     authStore.canManageGlobalPermissions.set(true);
     api.getWorkspaceRoles.mockReturnValue(of([]));
     permissions.getGrouped.mockReturnValue(of([]));
-    TestBed.configureTestingModule({ imports: [RolesPermissions], providers: [
-      provideHttpClient(),
-      { provide: WorkspaceRoleApiService, useValue: api },
-      { provide: PermissionApiService, useValue: permissions },
-      { provide: AuthStore, useValue: authStore },
-      { provide: WorkspaceStore, useValue: store },
-      { provide: UserPreferenceStore, useValue: preferenceStore },
-      { provide: ToastService, useValue: toast }
-    ] });
+    TestBed.configureTestingModule({
+      imports: [RolesPermissions],
+      providers: [
+        provideHttpClient(),
+        { provide: WorkspaceRoleApiService, useValue: api },
+        { provide: PermissionApiService, useValue: permissions },
+        { provide: AuthStore, useValue: authStore },
+        { provide: WorkspaceStore, useValue: store },
+        { provide: UserPreferenceStore, useValue: preferenceStore },
+        { provide: ToastService, useValue: toast },
+      ],
+    });
     component = TestBed.runInInjectionContext(() => new RolesPermissions());
     TestBed.tick();
   });
@@ -96,16 +128,26 @@ describe('RolesPermissions', () => {
     component.setRoleTab('inactive');
     component.setRoleSort('createdAt');
     expect(preferenceStore.setAndSave).toHaveBeenCalledWith('workspaceRoleView', 'GRID');
-    expect(preferenceStore.setAndSave).toHaveBeenCalledWith('workspaceRoleStatusFilter', 'INACTIVE');
-    expect(preferenceStore.setAndSave).toHaveBeenCalledWith('workspaceRoleSortOrder', 'RECENTLY_CREATED');
+    expect(preferenceStore.setAndSave).toHaveBeenCalledWith(
+      'workspaceRoleStatusFilter',
+      'INACTIVE',
+    );
+    expect(preferenceStore.setAndSave).toHaveBeenCalledWith(
+      'workspaceRoleSortOrder',
+      'RECENTLY_CREATED',
+    );
     selectedId.set('another-workspace');
     TestBed.tick();
     expect(component.activeRoleTab()).toBe('inactive');
   });
 
   it.each([
-    ['ROLE_LEVEL', 'priority'], ['UPDATED_AT', 'updatedAt'], ['NAME', 'name'],
-    ['CREATED_AT', 'createdAt'], ['OLDEST_FIRST', 'oldest'], ['unknown', 'priority']
+    ['ROLE_LEVEL', 'priority'],
+    ['UPDATED_AT', 'updatedAt'],
+    ['NAME', 'name'],
+    ['CREATED_AT', 'createdAt'],
+    ['OLDEST_FIRST', 'oldest'],
+    ['unknown', 'priority'],
   ])('restores sort alias %s as %s', (saved, expected) => {
     preferenceStore.workspaceRoleSortOrder.set(saved);
     expect(component.roleSort()).toBe(expected);
@@ -114,10 +156,14 @@ describe('RolesPermissions', () => {
   it('preserves failed selections and reports partial bulk deletion', () => {
     component.roles.set([role('one'), role('two'), role('system', true)]);
     component.selectedRoleIds.set(new Set(['one', 'two', 'system']));
-    api.delete.mockImplementation(id => id === 'one' ? of({ data: null }) : throwError(() => ({ error: { message: 'Assigned role' } })));
+    api.delete.mockImplementation((id) =>
+      id === 'one'
+        ? of({ data: null })
+        : throwError(() => ({ error: { message: 'Assigned role' } })),
+    );
     component.bulkDeleteSelected();
-    expect(api.delete.mock.calls.map(call => call[0])).toEqual(['one', 'two']);
-    expect(component.roles().map(item => item.id)).toEqual(['two', 'system']);
+    expect(api.delete.mock.calls.map((call) => call[0])).toEqual(['one', 'two']);
+    expect(component.roles().map((item) => item.id)).toEqual(['two', 'system']);
     expect([...component.selectedRoleIds()]).toEqual(['two', 'system']);
     expect(toast.error).toHaveBeenCalledWith('Assigned role', expect.any(Object));
     expect(component.bulkBusy()).toBe(false);
@@ -158,7 +204,7 @@ describe('RolesPermissions', () => {
   it('excludes default and system roles from individual and group selection', () => {
     const defaults = [{ ...role('Default'), isDefault: true }, role('System', true)];
     const custom = role('Custom');
-    defaults.forEach(item => component.toggleRoleSelection(item, true));
+    defaults.forEach((item) => component.toggleRoleSelection(item, true));
     expect(component.selectedCount()).toBe(0);
     component.toggleSelectAll(true, [...defaults, custom]);
     expect([...component.selectedRoleIds()]).toEqual(['Custom']);
@@ -171,16 +217,19 @@ describe('RolesPermissions', () => {
   it('retains search, status filters and sorting', () => {
     component.roles.set([role('Zulu'), role('Alpha'), { ...role('Inactive'), isActive: false }]);
     component.setRoleSort('name');
-    expect(component.visibleRoles().map(item => item.id)).toEqual(['Alpha', 'Zulu']);
+    expect(component.visibleRoles().map((item) => item.id)).toEqual(['Alpha', 'Zulu']);
     component.updateSearch('alp');
-    expect(component.visibleRoles().map(item => item.id)).toEqual(['Alpha']);
+    expect(component.visibleRoles().map((item) => item.id)).toEqual(['Alpha']);
     component.clearSearch();
     component.setRoleTab('inactive');
-    expect(component.visibleRoles().map(item => item.id)).toEqual(['Inactive']);
+    expect(component.visibleRoles().map((item) => item.id)).toEqual(['Inactive']);
   });
 
   it.each([
-    ['grid', false], ['list', false], ['grid', true], ['list', true]
+    ['grid', false],
+    ['list', false],
+    ['grid', true],
+    ['list', true],
   ] as const)('renders the shared layout and menu in %s for system=%s', async (view, system) => {
     const fixture = TestBed.createComponent(RolesPermissions);
     fixture.detectChanges();
@@ -197,7 +246,8 @@ describe('RolesPermissions', () => {
     if (view === 'grid') expect(root.querySelector('app-workspace-role-wrapper')).not.toBeNull();
     else expect(root.querySelector('.workspace-grouped-table .workspace-gtable')).not.toBeNull();
     const item = root.querySelector<HTMLElement>(view === 'grid' ? '.rp-role-tile' : 'tbody tr')!;
-    const clickable = view === 'grid' ? item.querySelector<HTMLElement>('.role-wrapper__body')! : item;
+    const clickable =
+      view === 'grid' ? item.querySelector<HTMLElement>('.role-wrapper__body')! : item;
     clickable.click();
     fixture.detectChanges();
     expect(rendered.selectedRoleId()).toBe(system ? null : 'Editor');
@@ -211,9 +261,11 @@ describe('RolesPermissions', () => {
     rendered.clearSelection();
     fixture.detectChanges();
     expect(item.classList.contains('app-highlight-active')).toBe(false);
-    const trigger = root.querySelector<HTMLButtonElement>(view === 'grid'
-      ? '.workspace-role-card-actions .workspace-table-menu-button'
-      : '.workspace-table-menu-button');
+    const trigger = root.querySelector<HTMLButtonElement>(
+      view === 'grid'
+        ? '.workspace-role-card-actions .workspace-table-menu-button'
+        : '.workspace-table-menu-button',
+    );
     expect(trigger).not.toBeNull();
     trigger!.click();
     fixture.detectChanges();
@@ -229,7 +281,9 @@ describe('RolesPermissions', () => {
   it('does not open the editor when action controls are double-clicked', () => {
     const button = document.createElement('button');
     const event = new MouseEvent('dblclick', { bubbles: true });
-    button.addEventListener('dblclick', current => component.handleRoleDoubleClick(role('Editor'), current));
+    button.addEventListener('dblclick', (current) =>
+      component.handleRoleDoubleClick(role('Editor'), current),
+    );
     button.dispatchEvent(event);
     expect(component.roleEditorOpen()).toBe(false);
     component.handleRoleDoubleClick(role('Editor'), new MouseEvent('dblclick'));
@@ -240,28 +294,38 @@ describe('RolesPermissions', () => {
     expect(component.roleEditorOpen()).toBe(true);
   });
 
-  it.each(['grid', 'list'] as const)('opens an editable system-role context menu in %s', async view => {
-    const fixture = TestBed.createComponent(RolesPermissions);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const rendered = fixture.componentInstance;
-    rendered.roles.set([role('Owner', true)]);
-    rendered.setView(view);
-    fixture.detectChanges();
-    const root: HTMLElement = fixture.nativeElement;
-    const item = root.querySelector<HTMLElement>(view === 'grid' ? '.rp-role-tile' : 'tbody tr')!;
-    item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 80, clientY: 120 }));
-    fixture.detectChanges();
-    await new Promise<void>(resolve => setTimeout(resolve, 0));
-    await fixture.whenStable();
-    fixture.detectChanges();
-    const menu = document.querySelector('.mat-mdc-menu-panel');
-    expect(rendered.selectedRoleId()).toBeNull();
-    expect(rendered.contextMenuPosition()).toEqual({ x: 80, y: 120 });
-    expect(menu?.textContent).toContain('Edit role');
-    expect(menu?.textContent).not.toContain('Delete role');
-    fixture.destroy();
-  });
+  it.each(['grid', 'list'] as const)(
+    'opens an editable system-role context menu in %s',
+    async (view) => {
+      const fixture = TestBed.createComponent(RolesPermissions);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const rendered = fixture.componentInstance;
+      rendered.roles.set([role('Owner', true)]);
+      rendered.setView(view);
+      fixture.detectChanges();
+      const root: HTMLElement = fixture.nativeElement;
+      const item = root.querySelector<HTMLElement>(view === 'grid' ? '.rp-role-tile' : 'tbody tr')!;
+      item.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 80,
+          clientY: 120,
+        }),
+      );
+      fixture.detectChanges();
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const menu = document.querySelector('.mat-mdc-menu-panel');
+      expect(rendered.selectedRoleId()).toBeNull();
+      expect(rendered.contextMenuPosition()).toEqual({ x: 80, y: 120 });
+      expect(menu?.textContent).toContain('Edit role');
+      expect(menu?.textContent).not.toContain('Delete role');
+      fixture.destroy();
+    },
+  );
 
   it('allows authorized global users to create and manage permissions', () => {
     component.openCreatePermission();
@@ -277,7 +341,7 @@ describe('RolesPermissions', () => {
     expect(component.permissionEditorOpen()).toBe(false);
     expect(toast.warning).toHaveBeenCalledWith(
       'You do not have permission to manage global permissions.',
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 
@@ -291,7 +355,7 @@ describe('RolesPermissions', () => {
     expect(component.permissionGroups()[0].permissions[0].isActive).toBe(false);
     expect(toast.success).toHaveBeenCalledWith(
       '“notes_create” is now inactive.',
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 
@@ -311,10 +375,7 @@ describe('RolesPermissions', () => {
     expect(permissions.delete).toHaveBeenCalledWith('custom_perm');
     expect(component.deletePermissionTarget()).toBeNull();
     expect(component.permissionGroups().length).toBe(0);
-    expect(toast.success).toHaveBeenCalledWith(
-      '“custom_perm” was deleted.',
-      expect.any(Object)
-    );
+    expect(toast.success).toHaveBeenCalledWith('“custom_perm” was deleted.', expect.any(Object));
   });
 
   it('keeps the permission catalog internal for role creation', () => {
@@ -322,7 +383,7 @@ describe('RolesPermissions', () => {
     const perm2 = { ...permission('p2'), module: 'FOLDERS' };
     component.permissionGroups.set([
       { module: 'NOTES', permissions: [perm1] },
-      { module: 'FOLDERS', permissions: [perm2] }
+      { module: 'FOLDERS', permissions: [perm2] },
     ]);
 
     expect(component.visiblePermissions().length).toBe(2);
@@ -341,10 +402,12 @@ describe('RolesPermissions', () => {
     await fixture.whenStable();
 
     const rendered = fixture.componentInstance;
-    rendered.permissionGroups.set([{
-      module: 'NOTES',
-      permissions: [permission('notes_read', true), permission('notes_share')]
-    }]);
+    rendered.permissionGroups.set([
+      {
+        module: 'NOTES',
+        permissions: [permission('notes_read', true), permission('notes_share')],
+      },
+    ]);
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;

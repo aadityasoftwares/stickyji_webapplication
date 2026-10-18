@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { UI } from '../../constants/ui.constants';
 
@@ -29,31 +23,12 @@ export type CardVariant =
 export type CardAppearance = 'elevated' | 'outlined' | 'flat';
 
 export type CardShape =
-  | 'rounded'
-  | 'soft'
-  | 'square'
-  | 'note'
-  | 'cut'
-  | 'ticket'
-  | 'folded'
-  | 'stickyFold';
+  'rounded' | 'soft' | 'square' | 'note' | 'cut' | 'ticket' | 'folded' | 'stickyFold';
 
 export type BackendCardShape =
-  | 'ROUNDED'
-  | 'SOFT'
-  | 'SQUARE'
-  | 'NOTE'
-  | 'CUT'
-  | 'TICKET'
-  | 'FOLDED'
-  | 'STICKY_FOLD';
+  'ROUNDED' | 'SOFT' | 'SQUARE' | 'NOTE' | 'CUT' | 'TICKET' | 'FOLDED' | 'STICKY_FOLD';
 
-export type CardShapeInput =
-  | CardShape
-  | BackendCardShape
-  | string
-  | null
-  | undefined;
+export type CardShapeInput = CardShape | BackendCardShape | string | null | undefined;
 
 export type CardLayout = 'vertical' | 'horizontal';
 export type CardShadow = 'none' | 'sm' | 'md' | 'lg';
@@ -89,12 +64,12 @@ const CARD_SHAPE_ALIASES: Readonly<Record<string, CardShape>> = {
 
 /** Converts backend enum values and UI aliases to one supported card shape. */
 export function resolveCardShape(value: CardShapeInput): CardShape {
-  const normalized = String(value ?? 'stickyFold').trim().toLowerCase();
+  const normalized = String(value ?? 'stickyFold')
+    .trim()
+    .toLowerCase();
   return (
     CARD_SHAPE_ALIASES[normalized] ??
-    (CARD_SHAPES.has(normalized as CardShape)
-      ? (normalized as CardShape)
-      : 'stickyFold')
+    (CARD_SHAPES.has(normalized as CardShape) ? (normalized as CardShape) : 'stickyFold')
   );
 }
 
@@ -149,8 +124,7 @@ export class StickyCard {
   @Input() ariaLabelledBy?: string;
   @Input() ariaDescribedBy?: string;
 
-  @Output() readonly cardClick =
-    new EventEmitter<MouseEvent | KeyboardEvent>();
+  @Output() readonly cardClick = new EventEmitter<MouseEvent | KeyboardEvent>();
 
   get resolvedShape(): CardShape {
     return resolveCardShape(this.shape);
@@ -243,10 +217,7 @@ export class StickyCard {
   }
 
   onCardClick(event: MouseEvent): void {
-    if (
-      !this.isInteractive ||
-      this.isNestedInteractiveElement(event.target, event.currentTarget)
-    ) {
+    if (!this.isInteractive || this.isNestedInteractiveElement(event.target, event.currentTarget)) {
       return;
     }
 

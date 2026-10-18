@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideArrowUp,
@@ -21,7 +15,6 @@ import { Button } from '../../shared/components/button/button';
 import { Divider } from '../../shared/components/divider/divider';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
-
 
 export interface FooterLink {
   label: string;

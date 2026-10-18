@@ -5,23 +5,23 @@
    ========================================================== */
 
 :host {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    width: max-content;
-    height: max-content;
+  width: max-content;
+  height: max-content;
 
-    color: inherit;
-    line-height: 0;
-    vertical-align: middle;
+  color: inherit;
+  line-height: 0;
+  vertical-align: middle;
 }
 
 :host.app-icon-host-fit {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 /* ==========================================================
@@ -29,39 +29,39 @@
    ========================================================== */
 
 .app-icon {
-    --app-icon-size: 20px;
-    --app-icon-fill: none;
+  --app-icon-size: 20px;
+  --app-icon-fill: none;
 
-    position: relative;
-    isolation: isolate;
+  position: relative;
+  isolation: isolate;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    width: var(--app-icon-size);
-    height: var(--app-icon-size);
+  width: var(--app-icon-size);
+  height: var(--app-icon-size);
 
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    color: inherit;
-    line-height: 0;
-    vertical-align: middle;
+  color: inherit;
+  line-height: 0;
+  vertical-align: middle;
 
-    transition:
-        color 160ms ease,
-        background-color 160ms ease,
-        border-color 160ms ease,
-        box-shadow 160ms ease,
-        opacity 160ms ease,
-        transform 160ms ease;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 :host.app-icon-host-fit .app-icon {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 /*
@@ -71,28 +71,28 @@
 */
 
 .app-icon-transform {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    transform-origin: center;
+  transform-origin: center;
 }
 
 .app-icon-glyph {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    color: inherit;
+  color: inherit;
 
-    line-height: 0;
-    transform-origin: center;
+  line-height: 0;
+  transform-origin: center;
 }
 
 /*
@@ -100,23 +100,23 @@
   ::ng-deep is required to style that generated SVG.
 */
 
-:host ::ng-deep .app-icon-glyph>svg {
-    display: block;
+:host ::ng-deep .app-icon-glyph > svg {
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    overflow: visible;
+  overflow: visible;
 
-    color: inherit;
-    fill: var(--app-icon-fill, none);
-    stroke: currentColor;
+  color: inherit;
+  fill: var(--app-icon-fill, none);
+  stroke: currentColor;
 
-    transform-origin: center;
+  transform-origin: center;
 
-    pointer-events: none;
+  pointer-events: none;
 }
 
 /*
@@ -124,8 +124,8 @@
   The parent button or control remains responsible for clicks.
 */
 
-:host ::ng-deep .app-icon-glyph>svg * {
-    pointer-events: none;
+:host ::ng-deep .app-icon-glyph > svg * {
+  pointer-events: none;
 }
 
 /* ==========================================================
@@ -133,7 +133,7 @@
    ========================================================== */
 
 .app-icon-has-surface {
-    border: 1px solid transparent;
+  border: 1px solid transparent;
 }
 
 /*
@@ -142,22 +142,22 @@
 */
 
 .app-icon-has-surface .app-icon-transform {
-    width: 56%;
-    height: 56%;
+  width: 56%;
+  height: 56%;
 }
 
 /* Surface shapes */
 
 .app-icon-shape-square {
-    border-radius: 3px;
+  border-radius: 3px;
 }
 
 .app-icon-shape-rounded {
-    border-radius: 30%;
+  border-radius: 30%;
 }
 
 .app-icon-shape-circle {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 /* ==========================================================
@@ -165,75 +165,75 @@
    ========================================================== */
 
 .app-icon-tone-inherit {
-    color: inherit;
+  color: inherit;
 }
 
 .app-icon-tone-primary {
-    color: $primary;
+  color: $primary;
 }
 
 .app-icon-tone-secondary {
-    color: $secondary;
+  color: $secondary;
 }
 
 .app-icon-tone-muted {
-    color: $text-light;
+  color: $text-light;
 }
 
 .app-icon-tone-accent {
-    color: $accent;
+  color: $accent;
 }
 
 .app-icon-tone-success {
-    color: $button-success-bg;
+  color: $button-success-bg;
 }
 
 .app-icon-tone-warning {
-    color: $button-warning-bg;
+  color: $button-warning-bg;
 }
 
 .app-icon-tone-danger {
-    color: $button-danger-bg;
+  color: $button-danger-bg;
 }
 
 .app-icon-tone-info {
-    color: $button-info-bg;
+  color: $button-info-bg;
 }
 
 .app-icon-tone-noteYellow {
-    color: #8a6500;
+  color: #8a6500;
 }
 
 .app-icon-tone-noteOrange {
-    color: #a34508;
+  color: #a34508;
 }
 
 .app-icon-tone-notePink {
-    color: #a72c5f;
+  color: #a72c5f;
 }
 
 .app-icon-tone-noteRed {
-    color: #b42323;
+  color: #b42323;
 }
 
 .app-icon-tone-noteGreen {
-    color: #24753a;
+  color: #24753a;
 }
 
 .app-icon-tone-noteBlue {
-    color: #1f6393;
+  color: #1f6393;
 }
 
 .app-icon-tone-notePurple {
-    color: #7040a0;
+  color: #7040a0;
 }
 
 .app-icon-tone-noteBrown {
-    color: $note-button-brown;
+  color: $note-button-brown;
 }
 
 .app-icon-tone-noteBlack {
-    color: $note-button-black;
+  color: $note-button-black;
 }
 
 /* ==========================================================
@@ -241,44 +241,42 @@
    ========================================================== */
 
 .app-icon-surface-none {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .app-icon-surface-soft {
-    background-color: rgba($primary, 0.065);
-    border-color: rgba($primary, 0.08);
+  background-color: rgba($primary, 0.065);
+  border-color: rgba($primary, 0.08);
 }
 
 .app-icon-surface-paper {
-    background:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.9) 0%,
-            rgba($paper, 0.92) 48%,
-            rgba($paper-dark, 0.95) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba($paper, 0.92) 48%,
+    rgba($paper-dark, 0.95) 100%
+  );
 
-    border-color: $border;
+  border-color: $border;
 
-    box-shadow:
-        0 1px 0 rgba(94, 79, 57, 0.12),
-        0 3px 8px rgba(46, 38, 25, 0.08);
+  box-shadow:
+    0 1px 0 rgba(94, 79, 57, 0.12),
+    0 3px 8px rgba(46, 38, 25, 0.08);
 }
 
 .app-icon-surface-dark {
-    color: #ffffff;
+  color: #ffffff;
 
-    background-color: $primary;
-    background-image:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.12),
-            rgba(255, 255, 255, 0));
+  background-color: $primary;
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
 
-    border-color: #000000;
+  border-color: #000000;
 
-    box-shadow:
-        0 2px 0 #000000,
-        0 4px 9px rgba(17, 17, 17, 0.16);
+  box-shadow:
+    0 2px 0 #000000,
+    0 4px 9px rgba(17, 17, 17, 0.16);
 }
 
 /* ==========================================================
@@ -286,45 +284,45 @@
    ========================================================== */
 
 .app-icon-surface-noteYellow {
-    color: #725400;
-    background-color: $note-button-yellow;
-    border-color: rgba(114, 84, 0, 0.2);
+  color: #725400;
+  background-color: $note-button-yellow;
+  border-color: rgba(114, 84, 0, 0.2);
 }
 
 .app-icon-surface-noteOrange {
-    color: #8e3f0a;
-    background-color: $note-button-orange;
-    border-color: rgba(142, 63, 10, 0.2);
+  color: #8e3f0a;
+  background-color: $note-button-orange;
+  border-color: rgba(142, 63, 10, 0.2);
 }
 
 .app-icon-surface-notePink {
-    color: #9b2957;
-    background-color: $note-button-pink;
-    border-color: rgba(155, 41, 87, 0.2);
+  color: #9b2957;
+  background-color: $note-button-pink;
+  border-color: rgba(155, 41, 87, 0.2);
 }
 
 .app-icon-surface-noteRed {
-    color: #9f2424;
-    background-color: $note-button-red;
-    border-color: rgba(159, 36, 36, 0.2);
+  color: #9f2424;
+  background-color: $note-button-red;
+  border-color: rgba(159, 36, 36, 0.2);
 }
 
 .app-icon-surface-noteGreen {
-    color: #286b34;
-    background-color: $note-button-green;
-    border-color: rgba(40, 107, 52, 0.2);
+  color: #286b34;
+  background-color: $note-button-green;
+  border-color: rgba(40, 107, 52, 0.2);
 }
 
 .app-icon-surface-noteBlue {
-    color: #245f8a;
-    background-color: $note-button-blue;
-    border-color: rgba(36, 95, 138, 0.2);
+  color: #245f8a;
+  background-color: $note-button-blue;
+  border-color: rgba(36, 95, 138, 0.2);
 }
 
 .app-icon-surface-notePurple {
-    color: #67408c;
-    background-color: $note-button-purple;
-    border-color: rgba(103, 64, 140, 0.2);
+  color: #67408c;
+  background-color: $note-button-purple;
+  border-color: rgba(103, 64, 140, 0.2);
 }
 
 /* Shared sticky-note paper treatment */
@@ -336,34 +334,32 @@
 .app-icon-surface-noteGreen,
 .app-icon-surface-noteBlue,
 .app-icon-surface-notePurple {
-    background-image:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.34) 0%,
-            rgba(255, 255, 255, 0.06) 55%,
-            rgba(17, 17, 17, 0.035) 100%);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.06) 55%,
+    rgba(17, 17, 17, 0.035) 100%
+  );
 
-    box-shadow:
-        0 1px 0 rgba(94, 79, 57, 0.15),
-        0 3px 7px rgba(46, 38, 25, 0.09);
+  box-shadow:
+    0 1px 0 rgba(94, 79, 57, 0.15),
+    0 3px 7px rgba(46, 38, 25, 0.09);
 }
 
 /* Subtle paper highlight */
 
 .app-icon-has-surface::before {
-    content: '';
+  content: '';
 
-    position: absolute;
-    inset: 0;
-    z-index: -1;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 
-    border-radius: inherit;
+  border-radius: inherit;
 
-    background:
-        linear-gradient(180deg,
-            rgba(255, 255, 255, 0.18),
-            rgba(255, 255, 255, 0));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
 
-    pointer-events: none;
+  pointer-events: none;
 }
 
 /* ==========================================================
@@ -372,14 +368,14 @@
 
 :host-context(.app-button-icon),
 :host-context(.app-button-split-icon) {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 :host-context(.app-button-icon) .app-icon,
 :host-context(.app-button-split-icon) .app-icon {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 /*
@@ -388,7 +384,7 @@
 */
 
 :host-context(.app-button) .app-icon-tone-inherit {
-    color: inherit;
+  color: inherit;
 }
 
 /* ==========================================================
@@ -396,35 +392,34 @@
    ========================================================== */
 
 .app-icon-spin {
-    animation: app-icon-spin 0.85s linear infinite;
+  animation: app-icon-spin 0.85s linear infinite;
 }
 
 .app-icon-pulse {
-    animation: app-icon-pulse 1.5s ease-in-out infinite;
+  animation: app-icon-pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes app-icon-spin {
-    from {
-        transform: rotate(0deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
 
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes app-icon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.62;
-        transform: scale(0.92);
-    }
+  50% {
+    opacity: 0.62;
+    transform: scale(0.92);
+  }
 }
 
 /* ==========================================================
@@ -432,23 +427,22 @@
    ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-
-    .app-icon,
-    .app-icon-transform,
-    .app-icon-spin,
-    .app-icon-pulse {
-        transition: none;
-        animation: none;
-    }
+  .app-icon,
+  .app-icon-transform,
+  .app-icon-spin,
+  .app-icon-pulse {
+    transition: none;
+    animation: none;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-icon-has-surface {
-        border-color: ButtonText;
-    }
+  .app-icon-has-surface {
+    border-color: ButtonText;
+  }
 
-    .app-icon-surface-dark {
-        color: ButtonText;
-        background: ButtonFace;
-    }
+  .app-icon-surface-dark {
+    color: ButtonText;
+    background: ButtonFace;
+  }
 }

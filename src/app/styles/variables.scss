@@ -10,92 +10,83 @@ $primary: #111111;
 $primary-hover: #000000;
 $primary-light: #2d2d2d;
 
-$secondary: #7A6E5B;
-$accent: #D97706;
-
+$secondary: #7a6e5b;
+$accent: #d97706;
 
 /* ==========================
    Notebook / Paper Colors
    ========================== */
 
-$app-bg: #F7F2E8;
-$page-bg: #FDF9F2;
+$app-bg: #f7f2e8;
+$page-bg: #fdf9f2;
 
-$paper: #FFFDF8;
-$paper-light: #FFFCF7;
-$paper-dark: #F4EEE2;
-
+$paper: #fffdf8;
+$paper-light: #fffcf7;
+$paper-dark: #f4eee2;
 
 /* ==========================
    Text
    ========================== */
 
-$text-primary: #1D1D1D;
-$text-secondary: #5F5F5F;
+$text-primary: #1d1d1d;
+$text-secondary: #5f5f5f;
 $text-light: #888888;
 
 $heading: #111111;
-
 
 /* ==========================
    Borders
    ========================== */
 
-$border: #DDD5C8;
-$border-light: #EEE7DC;
-
+$border: #ddd5c8;
+$border-light: #eee7dc;
 
 /* ==========================
    Shadows
    ========================== */
 
-$shadow-sm: 0 2px 6px rgba(0, 0, 0, .06);
+$shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
 
-$shadow: 0 8px 24px rgba(0, 0, 0, .08);
+$shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 
-$shadow-lg: 0 16px 40px rgba(0, 0, 0, .12);
-
+$shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
 
 /* ==========================
    Status Colors
    ========================== */
 
-$success: #16A34A;
-$warning: #D97706;
-$danger: #DC2626;
-$info: #2563EB;
-
+$success: #16a34a;
+$warning: #d97706;
+$danger: #dc2626;
+$info: #2563eb;
 
 /* ==========================
    Sticky Note Colors
    ========================== */
 
-$note-yellow: #FFF6A8;
-$note-pink: #FFD6E7;
-$note-blue: #DCEEFF;
-$note-green: #DFF8D8;
-$note-orange: #FFE3C2;
-$note-purple: #ECE0FF;
-$note-red: #FFD7D7;
-
+$note-yellow: #fff6a8;
+$note-pink: #ffd6e7;
+$note-blue: #dceeff;
+$note-green: #dff8d8;
+$note-orange: #ffe3c2;
+$note-purple: #ece0ff;
+$note-red: #ffd7d7;
 
 /* ==========================
    Sidebar
    ========================== */
 
-$sidebar-bg: #F5EFE4;
-$sidebar-hover: #ECE4D7;
+$sidebar-bg: #f5efe4;
+$sidebar-hover: #ece4d7;
 $sidebar-active: #111111;
-$sidebar-active-text: #FFFFFF;
-
+$sidebar-active-text: #ffffff;
 
 /* ==========================
    Header
    ========================== */
 
-$header-bg: rgba(255, 255, 255, .65);
-$header-border: rgba(0, 0, 0, .05);
-
+$header-bg: rgba(255, 255, 255, 0.65);
+$header-border: rgba(0, 0, 0, 0.05);
 
 /* ==========================
    Buttons
@@ -106,7 +97,7 @@ $btn-primary-hover: #000000;
 $btn-primary-text: white;
 
 $btn-secondary-bg: white;
-$btn-secondary-border: #D7D0C4;
+$btn-secondary-border: #d7d0c4;
 $btn-secondary-text: #222;
 
 /* ==========================================================
@@ -146,38 +137,48 @@ $note-button-yellow-text: #302b14;
 
 /* Tactile paper-style shadows */
 
-$button-shadow-paper: 0 1px 1px rgba(17, 17, 17, 0.08),
-   0 2px 0 rgba(17, 17, 17, 0.08);
+$button-shadow-paper:
+  0 1px 1px rgba(17, 17, 17, 0.08),
+  0 2px 0 rgba(17, 17, 17, 0.08);
 
-$button-shadow-paper-hover: 0 2px 2px rgba(17, 17, 17, 0.08),
-   0 4px 0 rgba(17, 17, 17, 0.08);
+$button-shadow-paper-hover:
+  0 2px 2px rgba(17, 17, 17, 0.08),
+  0 4px 0 rgba(17, 17, 17, 0.08);
 
-$button-shadow-dark: 0 2px 0 #000000,
-   0 4px 10px rgba(17, 17, 17, 0.16);
+$button-shadow-dark:
+  0 2px 0 #000000,
+  0 4px 10px rgba(17, 17, 17, 0.16);
 
-$button-shadow-dark-hover: 0 3px 0 #000000,
-   0 6px 14px rgba(17, 17, 17, 0.2);
+$button-shadow-dark-hover:
+  0 3px 0 #000000,
+  0 6px 14px rgba(17, 17, 17, 0.2);
 
 $button-shadow-active: 0 1px 0 rgba(17, 17, 17, 0.14);
 /* Tactile paper-style button shadows */
 
-$button-shadow-paper: 0 1px 1px rgba(17, 17, 17, 0.08),
-   0 2px 0 rgba(17, 17, 17, 0.08);
+$button-shadow-paper:
+  0 1px 1px rgba(17, 17, 17, 0.08),
+  0 2px 0 rgba(17, 17, 17, 0.08);
 
-$button-shadow-paper-hover: 0 2px 2px rgba(17, 17, 17, 0.08),
-   0 4px 0 rgba(17, 17, 17, 0.08);
+$button-shadow-paper-hover:
+  0 2px 2px rgba(17, 17, 17, 0.08),
+  0 4px 0 rgba(17, 17, 17, 0.08);
 
-$button-shadow-dark: 0 2px 0 #000000,
-   0 4px 10px rgba(17, 17, 17, 0.16);
+$button-shadow-dark:
+  0 2px 0 #000000,
+  0 4px 10px rgba(17, 17, 17, 0.16);
 
-$button-shadow-dark-hover: 0 3px 0 #000000,
-   0 6px 14px rgba(17, 17, 17, 0.2);
+$button-shadow-dark-hover:
+  0 3px 0 #000000,
+  0 6px 14px rgba(17, 17, 17, 0.2);
 
 $button-shadow-active: 0 1px 0 rgba(17, 17, 17, 0.14);
 
-$button-tape-shadow: drop-shadow(0 2px 2px rgba(17, 24, 39, 0.13)) drop-shadow(0 4px 5px rgba(17, 24, 39, 0.08));
+$button-tape-shadow: drop-shadow(0 2px 2px rgba(17, 24, 39, 0.13))
+  drop-shadow(0 4px 5px rgba(17, 24, 39, 0.08));
 
-$button-tape-shadow-hover: drop-shadow(0 4px 3px rgba(17, 24, 39, 0.15)) drop-shadow(0 7px 8px rgba(17, 24, 39, 0.1));
+$button-tape-shadow-hover: drop-shadow(0 4px 3px rgba(17, 24, 39, 0.15))
+  drop-shadow(0 7px 8px rgba(17, 24, 39, 0.1));
 /*
   Use softer sticky-note colors for buttons.
   Your main palette currently redeclares note colors later,
@@ -199,29 +200,28 @@ $note-button-yellow-text: #302b14;
 /* Reusable sticky-note button generator */
 
 @mixin sticky-note-button($background, $text-color) {
-   color: $text-color;
-   background: $background;
-   border-color: darken($background, 12%);
+  color: $text-color;
+  background: $background;
+  border-color: darken($background, 12%);
 
-   box-shadow:
-      0 2px 0 darken($background, 18%),
-      0 5px 12px rgba(17, 17, 17, 0.09);
+  box-shadow:
+    0 2px 0 darken($background, 18%),
+    0 5px 12px rgba(17, 17, 17, 0.09);
 
-   &:hover:not(:disabled) {
-      background: lighten($background, 2%);
-      border-color: darken($background, 16%);
+  &:hover:not(:disabled) {
+    background: lighten($background, 2%);
+    border-color: darken($background, 16%);
 
-      box-shadow:
-         0 3px 0 darken($background, 18%),
-         0 7px 15px rgba(17, 17, 17, 0.12);
-   }
+    box-shadow:
+      0 3px 0 darken($background, 18%),
+      0 7px 15px rgba(17, 17, 17, 0.12);
+  }
 
-   &:active:not(:disabled) {
-      background: darken($background, 3%);
-      box-shadow: 0 1px 0 darken($background, 18%);
-   }
+  &:active:not(:disabled) {
+    background: darken($background, 3%);
+    box-shadow: 0 1px 0 darken($background, 18%);
+  }
 }
-
 
 /* ==========================
    Radius
@@ -233,22 +233,19 @@ $radius-md: 16px;
 $radius-lg: 20px;
 $radius-xl: 26px;
 
-
 /* ==========================
    Transition
    ========================== */
 
-$transition: all .25s ease;
-
+$transition: all 0.25s ease;
 
 /* ==========================
    Glass Effect
    ========================== */
 
-$glass: rgba(255, 255, 255, .55);
+$glass: rgba(255, 255, 255, 0.55);
 
-$glass-border: rgba(255, 255, 255, .4);
-
+$glass-border: rgba(255, 255, 255, 0.4);
 
 /* ==========================
    Z Index
@@ -287,248 +284,248 @@ $font-note-gochi-hand: 'Gochi Hand', cursive;
 /* ==========================
    🔴 Red Colors
    ========================== */
-$note-red: #FF6B6B;
-$note-dark-red: #C62828;
-$note-crimson: #DC143C;
-$note-scarlet: #FF2400;
-$note-firebrick: #B22222;
+$note-red: #ff6b6b;
+$note-dark-red: #c62828;
+$note-crimson: #dc143c;
+$note-scarlet: #ff2400;
+$note-firebrick: #b22222;
 $note-maroon: #800000;
 $note-burgundy: #800020;
-$note-ruby: #E0115F;
+$note-ruby: #e0115f;
 $note-carmine: #960018;
-$note-cherry: #DE3163;
-$note-rose: #FF007F;
-$note-blood-red: #8A0303;
-$note-brick-red: #CB4154;
-$note-indian-red: #CD5C5C;
-$note-coral-red: #FF6F61;
-$note-salmon: #FA8072;
-$note-tomato: #FF6347;
-$note-light-coral: #F08080;
+$note-cherry: #de3163;
+$note-rose: #ff007f;
+$note-blood-red: #8a0303;
+$note-brick-red: #cb4154;
+$note-indian-red: #cd5c5c;
+$note-coral-red: #ff6f61;
+$note-salmon: #fa8072;
+$note-tomato: #ff6347;
+$note-light-coral: #f08080;
 
 /* ==========================
    🟠 Orange Colors
    ========================== */
-$note-orange: #FFA500;
-$note-dark-orange: #FF8C00;
-$note-coral: #FF7F50;
-$note-peach: #FFDAB9;
-$note-apricot: #FBCEB1;
-$note-tangerine: #F28500;
-$note-amber: #FFBF00;
-$note-burnt-orange: #CC5500;
-$note-rust: #B7410E;
-$note-copper: #B87333;
-$note-pumpkin: #FF7518;
-$note-persimmon: #EC5800;
-$note-mandarin: #F37A48;
-$note-orange-red: #FF4500;
-$note-sunset-orange: #FD5E53;
+$note-orange: #ffa500;
+$note-dark-orange: #ff8c00;
+$note-coral: #ff7f50;
+$note-peach: #ffdab9;
+$note-apricot: #fbceb1;
+$note-tangerine: #f28500;
+$note-amber: #ffbf00;
+$note-burnt-orange: #cc5500;
+$note-rust: #b7410e;
+$note-copper: #b87333;
+$note-pumpkin: #ff7518;
+$note-persimmon: #ec5800;
+$note-mandarin: #f37a48;
+$note-orange-red: #ff4500;
+$note-sunset-orange: #fd5e53;
 
 /* ==========================
    🟡 Yellow Colors
    ========================== */
-$note-yellow: #FFEB3B;
-$note-gold: #FFD700;
-$note-goldenrod: #DAA520;
-$note-mustard: #E1AD01;
-$note-lemon: #FFF44F;
-$note-banana: #FFE135;
-$note-canary: #FFFF99;
-$note-flax: #EEDC82;
-$note-khaki: #F0E68C;
-$note-beige: #F5F5DC;
-$note-cream: #FFFDD0;
-$note-ivory: #FFFFF0;
-$note-cornsilk: #FFF8DC;
-$note-light-yellow: #FFFFE0;
-$note-pale-goldenrod: #EEE8AA;
+$note-yellow: #ffeb3b;
+$note-gold: #ffd700;
+$note-goldenrod: #daa520;
+$note-mustard: #e1ad01;
+$note-lemon: #fff44f;
+$note-banana: #ffe135;
+$note-canary: #ffff99;
+$note-flax: #eedc82;
+$note-khaki: #f0e68c;
+$note-beige: #f5f5dc;
+$note-cream: #fffdd0;
+$note-ivory: #fffff0;
+$note-cornsilk: #fff8dc;
+$note-light-yellow: #ffffe0;
+$note-pale-goldenrod: #eee8aa;
 
 /* ==========================
    🟢 Green Colors
    ========================== */
-$note-green: #4CAF50;
+$note-green: #4caf50;
 $note-dark-green: #006400;
-$note-forest-green: #228B22;
-$note-lime: #00FF00;
-$note-lime-green: #32CD32;
+$note-forest-green: #228b22;
+$note-lime: #00ff00;
+$note-lime-green: #32cd32;
 $note-olive: #808000;
-$note-olive-drab: #6B8E23;
-$note-sea-green: #2E8B57;
-$note-spring-green: #00FF7F;
-$note-mint: #98FF98;
-$note-mint-cream: #F5FFFA;
-$note-emerald: #50C878;
-$note-jade: #00A86B;
-$note-fern: #4F7942;
-$note-moss: #8A9A5B;
-$note-sage: #9CAF88;
-$note-pistachio: #93C572;
-$note-chartreuse: #7FFF00;
-$note-lawn-green: #7CFC00;
-$note-kelly-green: #4CBB17;
-$note-hunter-green: #355E3B;
+$note-olive-drab: #6b8e23;
+$note-sea-green: #2e8b57;
+$note-spring-green: #00ff7f;
+$note-mint: #98ff98;
+$note-mint-cream: #f5fffa;
+$note-emerald: #50c878;
+$note-jade: #00a86b;
+$note-fern: #4f7942;
+$note-moss: #8a9a5b;
+$note-sage: #9caf88;
+$note-pistachio: #93c572;
+$note-chartreuse: #7fff00;
+$note-lawn-green: #7cfc00;
+$note-kelly-green: #4cbb17;
+$note-hunter-green: #355e3b;
 $note-avocado: #568203;
-$note-celadon: #ACE1AF;
-$note-shamrock: #45CEA2;
+$note-celadon: #ace1af;
+$note-shamrock: #45cea2;
 
 /* ==========================
    🔵 Blue Colors
    ========================== */
-$note-blue: #2196F3;
+$note-blue: #2196f3;
 $note-navy: #000080;
 $note-midnight-blue: #191970;
-$note-royal-blue: #4169E1;
-$note-sky-blue: #87CEEB;
-$note-light-blue: #ADD8E6;
-$note-deep-sky-blue: #00BFFF;
-$note-dodger-blue: #1E90FF;
-$note-steel-blue: #4682B4;
-$note-powder-blue: #B0E0E6;
-$note-cornflower-blue: #6495ED;
-$note-baby-blue: #89CFF0;
-$note-turquoise: #40E0D0;
-$note-cyan: #00FFFF;
-$note-aqua: #00FFFF;
+$note-royal-blue: #4169e1;
+$note-sky-blue: #87ceeb;
+$note-light-blue: #add8e6;
+$note-deep-sky-blue: #00bfff;
+$note-dodger-blue: #1e90ff;
+$note-steel-blue: #4682b4;
+$note-powder-blue: #b0e0e6;
+$note-cornflower-blue: #6495ed;
+$note-baby-blue: #89cff0;
+$note-turquoise: #40e0d0;
+$note-cyan: #00ffff;
+$note-aqua: #00ffff;
 $note-teal: #008080;
-$note-cerulean: #2A52BE;
-$note-sapphire: #0F52BA;
-$note-cobalt-blue: #0047AB;
-$note-azure: #007FFF;
+$note-cerulean: #2a52be;
+$note-sapphire: #0f52ba;
+$note-cobalt-blue: #0047ab;
+$note-azure: #007fff;
 $note-prussian-blue: #003153;
-$note-ice-blue: #D6F5FF;
-$note-denim: #1560BD;
+$note-ice-blue: #d6f5ff;
+$note-denim: #1560bd;
 
 /* ==========================
    🟣 Purple Colors
    ========================== */
-$note-purple: #9C27B0;
-$note-violet: #8F00FF;
-$note-lavender: #E6E6FA;
-$note-lilac: #C8A2C8;
-$note-orchid: #DA70D6;
-$note-plum: #DDA0DD;
-$note-indigo: #4B0082;
-$note-magenta: #FF00FF;
-$note-fuchsia: #FF00FF;
-$note-amethyst: #9966CC;
-$note-mauve: #E0B0FF;
-$note-periwinkle: #CCCCFF;
+$note-purple: #9c27b0;
+$note-violet: #8f00ff;
+$note-lavender: #e6e6fa;
+$note-lilac: #c8a2c8;
+$note-orchid: #da70d6;
+$note-plum: #dda0dd;
+$note-indigo: #4b0082;
+$note-magenta: #ff00ff;
+$note-fuchsia: #ff00ff;
+$note-amethyst: #9966cc;
+$note-mauve: #e0b0ff;
+$note-periwinkle: #ccccff;
 $note-eggplant: #614051;
-$note-grape: #6F2DA8;
-$note-heliotrope: #DF73FF;
+$note-grape: #6f2da8;
+$note-heliotrope: #df73ff;
 
 /* ==========================
    🩷 Pink Colors
    ========================== */
-$note-pink: #FFC0CB;
-$note-hot-pink: #FF69B4;
-$note-deep-pink: #FF1493;
-$note-baby-pink: #F4C2C2;
-$note-light-pink: #FFB6C1;
-$note-rose-pink: #FF66CC;
-$note-bubblegum: #FFB7D5;
-$note-cotton-candy: #FFBCD9;
-$note-blush: #DE5D83;
-$note-flamingo: #FC8EAC;
-$note-carnation: #FFA6C9;
-$note-raspberry: #E30B5D;
-$note-watermelon: #FC6C85;
+$note-pink: #ffc0cb;
+$note-hot-pink: #ff69b4;
+$note-deep-pink: #ff1493;
+$note-baby-pink: #f4c2c2;
+$note-light-pink: #ffb6c1;
+$note-rose-pink: #ff66cc;
+$note-bubblegum: #ffb7d5;
+$note-cotton-candy: #ffbcd9;
+$note-blush: #de5d83;
+$note-flamingo: #fc8eac;
+$note-carnation: #ffa6c9;
+$note-raspberry: #e30b5d;
+$note-watermelon: #fc6c85;
 
 /* ==========================
    🤎 Brown Colors
    ========================== */
-$note-brown: #8B4513;
-$note-saddle-brown: #8B4513;
-$note-chocolate: #D2691E;
-$note-coffee: #6F4E37;
-$note-espresso: #4B3621;
+$note-brown: #8b4513;
+$note-saddle-brown: #8b4513;
+$note-chocolate: #d2691e;
+$note-coffee: #6f4e37;
+$note-espresso: #4b3621;
 $note-mocha: #967969;
-$note-cocoa: #7B3F00;
-$note-walnut: #5D432C;
-$note-mahogany: #C04000;
+$note-cocoa: #7b3f00;
+$note-walnut: #5d432c;
+$note-mahogany: #c04000;
 $note-chestnut: #954535;
-$note-tan: #D2B48C;
-$note-camel: #C19A6B;
-$note-sand: #C2B280;
-$note-caramel: #AF6F09;
-$note-bronze: #CD7F32;
+$note-tan: #d2b48c;
+$note-camel: #c19a6b;
+$note-sand: #c2b280;
+$note-caramel: #af6f09;
+$note-bronze: #cd7f32;
 $note-sepia: #704214;
 $note-umber: #635147;
-$note-taupe: #483C32;
+$note-taupe: #483c32;
 
 /* ==========================
    ⚪ White Colors
    ========================== */
-$note-white: #FFFFFF;
-$note-snow: #FFFAFA;
-$note-ghost-white: #F8F8FF;
-$note-floral-white: #FFFAF0;
-$note-linen: #FAF0E6;
-$note-seashell: #FFF5EE;
-$note-old-lace: #FDF5E6;
-$note-white-smoke: #F5F5F5;
-$note-alice-blue: #F0F8FF;
+$note-white: #ffffff;
+$note-snow: #fffafa;
+$note-ghost-white: #f8f8ff;
+$note-floral-white: #fffaf0;
+$note-linen: #faf0e6;
+$note-seashell: #fff5ee;
+$note-old-lace: #fdf5e6;
+$note-white-smoke: #f5f5f5;
+$note-alice-blue: #f0f8ff;
 
 /* ==========================
    ⚫ Black & Gray Colors
    ========================== */
 $note-black: #000000;
-$note-charcoal: #36454F;
+$note-charcoal: #36454f;
 $note-jet-black: #343434;
 $note-onyx: #353839;
-$note-ebony: #555D50;
+$note-ebony: #555d50;
 $note-graphite: #383838;
 $note-gray: #808080;
-$note-dark-gray: #A9A9A9;
+$note-dark-gray: #a9a9a9;
 $note-dim-gray: #696969;
 $note-slate-gray: #708090;
-$note-light-gray: #D3D3D3;
-$note-silver: #C0C0C0;
-$note-ash: #B2BEB5;
+$note-light-gray: #d3d3d3;
+$note-silver: #c0c0c0;
+$note-ash: #b2beb5;
 $note-smoke: #738276;
-$note-platinum: #E5E4E2;
+$note-platinum: #e5e4e2;
 $note-pewter: #899499;
-$note-gunmetal: #2A3439;
+$note-gunmetal: #2a3439;
 
 /* ==========================
    🌈 Miscellaneous Colors
    ========================== */
-$note-pearl: #FDEEF4;
-$note-champagne: #F7E7CE;
-$note-stone: #928E85;
-$note-dusty-rose: #DCAE96;
-$note-antique-white: #FAEBD7;
-$note-bisque: #FFE4C4;
-$note-wheat: #F5DEB3;
-$note-honeydew: #F0FFF0;
-$note-papaya-whip: #FFEFD5;
-$note-moccasin: #FFE4B5;
-$note-navajo-white: #FFDEAD;
-$note-lavender-blush: #FFF0F5;
-$note-misty-rose: #FFE4E1;
-$note-gainsboro: #DCDCDC;
+$note-pearl: #fdeef4;
+$note-champagne: #f7e7ce;
+$note-stone: #928e85;
+$note-dusty-rose: #dcae96;
+$note-antique-white: #faebd7;
+$note-bisque: #ffe4c4;
+$note-wheat: #f5deb3;
+$note-honeydew: #f0fff0;
+$note-papaya-whip: #ffefd5;
+$note-moccasin: #ffe4b5;
+$note-navajo-white: #ffdead;
+$note-lavender-blush: #fff0f5;
+$note-misty-rose: #ffe4e1;
+$note-gainsboro: #dcdcdc;
 
 /* ==========================
    💎 Metallic Colors
    ========================== */
-$note-rose-gold: #B76E79;
-$note-metallic-blue: #32527B;
-$note-metallic-red: #A62C2B;
-$note-metallic-green: #3AA76D;
-$note-metallic-purple: #6A4C93;
-$note-metallic-black: #1C1C1C;
+$note-rose-gold: #b76e79;
+$note-metallic-blue: #32527b;
+$note-metallic-red: #a62c2b;
+$note-metallic-green: #3aa76d;
+$note-metallic-purple: #6a4c93;
+$note-metallic-black: #1c1c1c;
 
 /* ==========================
    🌟 Neon Colors
    ========================== */
-$note-neon-green: #39FF14;
-$note-neon-yellow: #FFFF33;
-$note-neon-pink: #FF10F0;
-$note-neon-orange: #FF5F1F;
-$note-neon-blue: #1F51FF;
-$note-neon-purple: #BC13FE;
-$note-neon-cyan: #00FFFF;
-$note-electric-lime: #CCFF00;
-$note-electric-blue: #7DF9FF;
-$note-electric-purple: #BF00FF;
+$note-neon-green: #39ff14;
+$note-neon-yellow: #ffff33;
+$note-neon-pink: #ff10f0;
+$note-neon-orange: #ff5f1f;
+$note-neon-blue: #1f51ff;
+$note-neon-purple: #bc13fe;
+$note-neon-cyan: #00ffff;
+$note-electric-lime: #ccff00;
+$note-electric-blue: #7df9ff;
+$note-electric-purple: #bf00ff;

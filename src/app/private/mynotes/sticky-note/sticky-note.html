@@ -1,249 +1,387 @@
-<article class="sticky-note" [ngClass]="cardClasses"
-    [style.--note-font-family]="fontFamily" [style.--note-font-size]="fontSize + 'px'"
-    [attr.data-note-id]="noteId" [attr.aria-label]="title" [attr.inert]="preview ? '' : null"
-    [attr.aria-busy]="isSaving" [attr.aria-disabled]="disabled" (click)="onCardClick($event)">
-
-    <!-- Paper surface & background fold -->
-    <span class="sticky-note__paper" aria-hidden="true">
-        <span class="sticky-note__surface">
-            <span class="sticky-note__paper-pattern"></span>
-        </span>
+<article
+  class="sticky-note"
+  [ngClass]="cardClasses"
+  [style.--note-font-family]="fontFamily"
+  [style.--note-font-size]="fontSize + 'px'"
+  [attr.data-note-id]="noteId"
+  [attr.aria-label]="title"
+  [attr.inert]="preview ? '' : null"
+  [attr.aria-busy]="isSaving"
+  [attr.aria-disabled]="disabled"
+  (click)="onCardClick($event)"
+>
+  <!-- Paper surface & background fold -->
+  <span class="sticky-note__paper" aria-hidden="true">
+    <span class="sticky-note__surface">
+      <span class="sticky-note__paper-pattern"></span>
     </span>
-    <span class="sticky-note__fold" aria-hidden="true"></span>
+  </span>
+  <span class="sticky-note__fold" aria-hidden="true"></span>
 
-    <!-- 1. Header -->
-    <header class="sticky-note__header">
-        @if (showDragHandle) {
-        <span class="sticky-note__grip" aria-hidden="true">
-            <app-icon [icon]="LucideGrip" size="sm" />
-        </span>
-        }
-        @if (noteKey) {
-        <app-badge class="sticky-note__key-badge" [label]="noteKey"
-            variant="neutral" size="xs" shape="pill"
-            [ariaLabel]="'Note key: ' + noteKey" />
-        }
-        @if (isSaving) {
-        <span class="sticky-note__saving-label" role="status">
-            Saving…
-        </span>
-        }
-        @if (!preview) {
-        <div class="sticky-note__header-actions">
-            <button type="button" class="sticky-note__favorite-trigger" [class.is-favorited]="isFavorite"
-                [disabled]="disabled || isFavoriteBusy"
-                [attr.aria-label]="isFavorite ? 'Remove ' + title + ' from favourites' : 'Add ' + title + ' to favourites'"
-                [title]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
-                (click)="toggleFavorite($event)">
-                <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
-            </button>
-
-            <button type="button" class="sticky-note__edit-trigger" [disabled]="disabled"
-                [attr.aria-label]="'Edit ' + title" [title]="'Edit ' + title"
-                (click)="requestEdit($event)">
-                <app-icon [icon]="LucidePencil" size="xs" />
-            </button>
-
-            <button type="button" class="sticky-note__menu-trigger" [matMenuTriggerFor]="noteActionsMenu"
-                [disabled]="disabled" [attr.aria-label]="'More actions for ' + title" title="More note actions"
-                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
-                <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-            </button>
-
-            <mat-menu #noteActionsMenu="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
-                class="sticky-note-actions-menu">
-                @if (showMoveActions) {
-                <button mat-menu-item type="button" class="sticky-note-action-item"
-                    [disabled]="!canMoveBackward" (click)="requestMove('backward', $event)">
-                    <span class="sticky-note-menu-item-icon" aria-hidden="true">
-                        <app-icon [icon]="LucideArrowLeft" size="xs" />
-                    </span>
-                    <span class="sticky-note-menu-item-copy">
-                        <strong>Move left</strong>
-                        <small>Send to previous column</small>
-                    </span>
-                </button>
-
-                <button mat-menu-item type="button" class="sticky-note-action-item"
-                    [disabled]="!canMoveForward" (click)="requestMove('forward', $event)">
-                    <span class="sticky-note-menu-item-icon is-forward" aria-hidden="true">
-                        <app-icon [icon]="LucideArrowRight" size="xs" />
-                    </span>
-                    <span class="sticky-note-menu-item-copy">
-                        <strong>Move right</strong>
-                        <small>Send to next column</small>
-                    </span>
-                </button>
-
-                <mat-divider />
-                }
-
-                <button mat-menu-item type="button" class="sticky-note-action-item sticky-note-menu-favorite"
-                    [disabled]="disabled || isFavoriteBusy" (click)="toggleFavorite($event)">
-                    <span class="sticky-note-menu-item-icon is-fav-icon" aria-hidden="true">
-                        <app-icon [icon]="isFavorite ? LucideStarOff : LucideStar" size="xs" />
-                    </span>
-                    <span class="sticky-note-menu-item-copy">
-                        <strong>{{ isFavorite ? 'Remove from favourites' : 'Add to favourites' }}</strong>
-                        <small>{{ isFavorite ? 'Unstar this note' : 'Save to your favourites' }}</small>
-                    </span>
-                </button>
-
-                <mat-divider />
-
-                <button mat-menu-item type="button" class="sticky-note-action-item sticky-note-menu-danger"
-                    (click)="requestDelete($event)">
-                    <span class="sticky-note-menu-item-icon" aria-hidden="true">
-                        <app-icon [icon]="LucideTrash2" size="xs" />
-                    </span>
-                    <span class="sticky-note-menu-item-copy">
-                        <strong>Move to trash</strong>
-                        <small>Recoverable for 60 days</small>
-                    </span>
-                </button>
-            </mat-menu>
-        </div>
-        }
-    </header>
-
-    <!-- 2. Content -->
-    <div class="sticky-note__content">
-        <!-- Title -->
-        @if (editingTitle && !preview) {
-        <div class="sticky-note__inline-editor sticky-note__inline-editor--title" (click)="$event.stopPropagation()"
-            (keydown)="onTitleKeydown($event)" (focusout)="saveTitle()">
-            <app-input label="Note title" labelMode="hidden" placeholder="Note title" [variant]="inputVariant"
-                appearance="outlined" shape="soft" size="sm" [fullWidth]="true" [clearable]="true" [maxLength]="200"
-                [disabled]="titleUpdating" [(ngModel)]="titleDraft" />
-        </div>
-        } @else {
-        <h3 class="sticky-note__title" [attr.tabindex]="preview ? null : 0" [attr.role]="preview ? null : 'button'"
-            [attr.title]="preview || data?.inlineEditing === false ? null : 'Click to rename'"
-            (click)="startTitleEdit($event)" (keydown.enter)="startTitleEdit($event)"
-            (keydown.space)="startTitleEdit($event)">
-            {{ title }}
-            @if (titleUpdating) {
-            <span class="sticky-note__saving-dot" aria-label="Saving title"></span>
-            }
-        </h3>
-        }
-
-        <!-- Description -->
-        @if (isDetail || description || editingDescription) {
-        @if (editingDescription && !preview) {
-        <div class="sticky-note__inline-editor sticky-note__inline-editor--description"
-            (click)="$event.stopPropagation()" (focusout)="saveDescription()">
-            <app-input label="Note description" labelMode="hidden" placeholder="Add a description…"
-                [variant]="inputVariant" appearance="filled" shape="soft" size="sm" [multiline]="true" [rows]="3"
-                [maxLength]="10000" resize="vertical" [fullWidth]="true"
-                [disabled]="descriptionUpdating"
-                [(ngModel)]="descriptionDraft" (keydown)="onDescriptionKeydown($event)" />
-            <small>Ctrl/⌘ + Enter to save</small>
-        </div>
-        } @else {
-        <p class="sticky-note__description" [attr.tabindex]="preview ? null : 0" [attr.role]="preview ? null : 'button'"
-            [class.is-empty]="!description"
-            [attr.title]="preview || data?.inlineEditing === false ? null : 'Click to edit description'"
-            (click)="startDescriptionEdit($event)" (keydown.enter)="startDescriptionEdit($event)">
-            {{ description || 'Add a description…' }}
-            @if (descriptionUpdating) {
-            <span class="sticky-note__saving-dot" aria-label="Saving description"></span>
-            }
-        </p>
-        }
-        }
-
-        <!-- Checklist -->
-        @if (isDetail && checklists.length) {
-        <div class="sticky-note__checklists">
-            <app-divider class="sticky-note__checklist-divider" variant="neutral" lineStyle="dashed" spacing="none"
-                [thickness]="1" />
-            @for (checklist of checklists; track checklist.id || checklist._id || $index) {
-            <section class="sticky-note__checklist">
-                <div class="sticky-note__checklist-heading">
-                    <strong>{{ checklist?.title || 'Checklist' }}</strong>
-                    <span>{{ checklist?.completedCount ?? 0 }}/{{ checklist?.totalCount ?? (checklist?.items?.length || 0) }}</span>
-                </div>
-                <div class="sticky-note__checklist-items">
-                    @for (item of visibleItems(checklist); track item.id || item._id || $index) {
-                    <app-checkbox class="sticky-note__check-item" [label]="item?.title || 'Checklist item'"
-                        [checked]="item?.isCompleted === true"
-                        [disabled]="disabled || item?.updating || isItemUpdating(item?.id ?? item?._id)"
-                        [readonly]="preview" [variant]="controlVariant" size="sm" [fullWidth]="true"
-                        (checkedChange)="changeChecklistItem(item, $event)" />
-                    }
-                </div>
-                @if (hiddenItemCount(checklist) > 0 || isChecklistExpanded(checklist)) {
-                @if (preview) {
-                <span class="sticky-note__preview-more">
-                    +{{ hiddenItemCount(checklist) }} more
-                </span>
-                } @else {
-                <app-button class="sticky-note__more"
-                    [label]="checklistMoreLabel(checklist)"
-                    [iconLeft]="checklistMoreIcon(checklist)"
-                    appearance="standard" variant="link" size="xs"
-                    (buttonClick)="toggleChecklist(checklist, $event)" />
-                }
-                }
-            </section>
-            }
-        </div>
-        }
-    </div>
-
-    <!-- 3. Metadata (Progress Bar) -->
-    @if (isDetail && totalChecklistItems > 0) {
-    <div class="sticky-note__progress" aria-label="Checklist progress">
-        <div class="sticky-note__progress-label">
-            <span>{{ completedChecklistItems }} of {{ totalChecklistItems }} complete</span>
-            <strong>{{ progress }}%</strong>
-        </div>
-        <span class="sticky-note__progress-track">
-            <span [style.width.%]="progress"></span>
-        </span>
-    </div>
+  <!-- 1. Header -->
+  <header class="sticky-note__header">
+    @if (showDragHandle) {
+      <span class="sticky-note__grip" aria-hidden="true">
+        <app-icon [icon]="LucideGrip" size="sm" />
+      </span>
     }
+    @if (noteKey) {
+      <app-badge
+        class="sticky-note__key-badge"
+        [label]="noteKey"
+        variant="neutral"
+        size="xs"
+        shape="pill"
+        [ariaLabel]="'Note key: ' + noteKey"
+      />
+    }
+    @if (isSaving) {
+      <span class="sticky-note__saving-label" role="status"> Saving… </span>
+    }
+    @if (!preview) {
+      <div class="sticky-note__header-actions">
+        <button
+          type="button"
+          class="sticky-note__favorite-trigger"
+          [class.is-favorited]="isFavorite"
+          [disabled]="disabled || isFavoriteBusy"
+          [attr.aria-label]="
+            isFavorite ? 'Remove ' + title + ' from favourites' : 'Add ' + title + ' to favourites'
+          "
+          [title]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+          (click)="toggleFavorite($event)"
+        >
+          <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
+        </button>
 
-    <!-- 4. Footer (Badges, Due date, Assignees) -->
-    @if (isDetail && hasFooterContent) {
-    <footer class="sticky-note__footer">
-        <div class="sticky-note__meta">
-            @if (isCompleted) {
-            <app-badge label="Completed" variant="success" size="xs" shape="pill" [icon]="LucideCheckCircle2" />
-            }
-            @if (dueLabel) {
-            <app-badge [label]="dueLabel" [variant]="badgeVariant" size="xs" shape="pill" [icon]="LucideCalendarDays" />
-            }
-            @if (timeEstimate) {
-            <app-badge [label]="timeEstimate" variant="neutral" size="xs" shape="pill" [icon]="LucideClock3" />
-            }
-            @if (tag) {
-            <app-badge [label]="tag" [variant]="badgeVariant" size="xs" shape="pill" />
-            }
-        </div>
-        @if (assignees.length) {
-        <div class="sticky-note__assignees" aria-label="Assigned members">
-            @for (assignee of assignees; track assignee.id || assignee._id || $index) {
-            <span class="sticky-note__avatar" [title]="avatarName(assignee)">
-                @if (avatarImage(assignee)) {
-                <img [src]="avatarImage(assignee)" [alt]="avatarName(assignee)" />
-                } @else {
-                {{ avatarInitials(assignee) }}
-                }
+        <button
+          type="button"
+          class="sticky-note__edit-trigger"
+          [disabled]="disabled"
+          [attr.aria-label]="'Edit ' + title"
+          [title]="'Edit ' + title"
+          (click)="requestEdit($event)"
+        >
+          <app-icon [icon]="LucidePencil" size="xs" />
+        </button>
+
+        <button
+          type="button"
+          class="sticky-note__menu-trigger"
+          [matMenuTriggerFor]="noteActionsMenu"
+          [disabled]="disabled"
+          [attr.aria-label]="'More actions for ' + title"
+          title="More note actions"
+          (click)="$event.stopPropagation()"
+          (dblclick)="$event.stopPropagation()"
+        >
+          <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+        </button>
+
+        <mat-menu
+          #noteActionsMenu="matMenu"
+          xPosition="before"
+          yPosition="below"
+          [overlapTrigger]="false"
+          class="sticky-note-actions-menu"
+        >
+          @if (showMoveActions) {
+            <button
+              mat-menu-item
+              type="button"
+              class="sticky-note-action-item"
+              [disabled]="!canMoveBackward"
+              (click)="requestMove('backward', $event)"
+            >
+              <span class="sticky-note-menu-item-icon" aria-hidden="true">
+                <app-icon [icon]="LucideArrowLeft" size="xs" />
+              </span>
+              <span class="sticky-note-menu-item-copy">
+                <strong>Move left</strong>
+                <small>Send to previous column</small>
+              </span>
+            </button>
+
+            <button
+              mat-menu-item
+              type="button"
+              class="sticky-note-action-item"
+              [disabled]="!canMoveForward"
+              (click)="requestMove('forward', $event)"
+            >
+              <span class="sticky-note-menu-item-icon is-forward" aria-hidden="true">
+                <app-icon [icon]="LucideArrowRight" size="xs" />
+              </span>
+              <span class="sticky-note-menu-item-copy">
+                <strong>Move right</strong>
+                <small>Send to next column</small>
+              </span>
+            </button>
+
+            <mat-divider />
+          }
+
+          <button
+            mat-menu-item
+            type="button"
+            class="sticky-note-action-item sticky-note-menu-favorite"
+            [disabled]="disabled || isFavoriteBusy"
+            (click)="toggleFavorite($event)"
+          >
+            <span class="sticky-note-menu-item-icon is-fav-icon" aria-hidden="true">
+              <app-icon [icon]="isFavorite ? LucideStarOff : LucideStar" size="xs" />
             </span>
-            }
-        </div>
-        }
-    </footer>
+            <span class="sticky-note-menu-item-copy">
+              <strong>{{ isFavorite ? 'Remove from favourites' : 'Add to favourites' }}</strong>
+              <small>{{ isFavorite ? 'Unstar this note' : 'Save to your favourites' }}</small>
+            </span>
+          </button>
+
+          <mat-divider />
+
+          <button
+            mat-menu-item
+            type="button"
+            class="sticky-note-action-item sticky-note-menu-danger"
+            (click)="requestDelete($event)"
+          >
+            <span class="sticky-note-menu-item-icon" aria-hidden="true">
+              <app-icon [icon]="LucideTrash2" size="xs" />
+            </span>
+            <span class="sticky-note-menu-item-copy">
+              <strong>Move to trash</strong>
+              <small>Recoverable for 60 days</small>
+            </span>
+          </button>
+        </mat-menu>
+      </div>
     }
+  </header>
+
+  <!-- 2. Content -->
+  <div class="sticky-note__content">
+    <!-- Title -->
+    @if (editingTitle && !preview) {
+      <div
+        class="sticky-note__inline-editor sticky-note__inline-editor--title"
+        (click)="$event.stopPropagation()"
+        (keydown)="onTitleKeydown($event)"
+        (focusout)="saveTitle()"
+      >
+        <app-input
+          label="Note title"
+          labelMode="hidden"
+          placeholder="Note title"
+          [variant]="inputVariant"
+          appearance="outlined"
+          shape="soft"
+          size="sm"
+          [fullWidth]="true"
+          [clearable]="true"
+          [maxLength]="200"
+          [disabled]="titleUpdating"
+          [(ngModel)]="titleDraft"
+        />
+      </div>
+    } @else {
+      <h3
+        class="sticky-note__title"
+        [attr.tabindex]="preview ? null : 0"
+        [attr.role]="preview ? null : 'button'"
+        [attr.title]="preview || data?.inlineEditing === false ? null : 'Click to rename'"
+        (click)="startTitleEdit($event)"
+        (keydown.enter)="startTitleEdit($event)"
+        (keydown.space)="startTitleEdit($event)"
+      >
+        {{ title }}
+        @if (titleUpdating) {
+          <span class="sticky-note__saving-dot" aria-label="Saving title"></span>
+        }
+      </h3>
+    }
+
+    <!-- Description -->
+    @if (isDetail || description || editingDescription) {
+      @if (editingDescription && !preview) {
+        <div
+          class="sticky-note__inline-editor sticky-note__inline-editor--description"
+          (click)="$event.stopPropagation()"
+          (focusout)="saveDescription()"
+        >
+          <app-input
+            label="Note description"
+            labelMode="hidden"
+            placeholder="Add a description…"
+            [variant]="inputVariant"
+            appearance="filled"
+            shape="soft"
+            size="sm"
+            [multiline]="true"
+            [rows]="3"
+            [maxLength]="10000"
+            resize="vertical"
+            [fullWidth]="true"
+            [disabled]="descriptionUpdating"
+            [(ngModel)]="descriptionDraft"
+            (keydown)="onDescriptionKeydown($event)"
+          />
+          <small>Ctrl/⌘ + Enter to save</small>
+        </div>
+      } @else {
+        <p
+          class="sticky-note__description"
+          [attr.tabindex]="preview ? null : 0"
+          [attr.role]="preview ? null : 'button'"
+          [class.is-empty]="!description"
+          [attr.title]="
+            preview || data?.inlineEditing === false ? null : 'Click to edit description'
+          "
+          (click)="startDescriptionEdit($event)"
+          (keydown.enter)="startDescriptionEdit($event)"
+        >
+          {{ description || 'Add a description…' }}
+          @if (descriptionUpdating) {
+            <span class="sticky-note__saving-dot" aria-label="Saving description"></span>
+          }
+        </p>
+      }
+    }
+
+    <!-- Checklist -->
+    @if (isDetail && checklists.length) {
+      <div class="sticky-note__checklists">
+        <app-divider
+          class="sticky-note__checklist-divider"
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="none"
+          [thickness]="1"
+        />
+        @for (checklist of checklists; track checklist.id || checklist._id || $index) {
+          <section class="sticky-note__checklist">
+            <div class="sticky-note__checklist-heading">
+              <strong>{{ checklist?.title || 'Checklist' }}</strong>
+              <span
+                >{{ checklist?.completedCount ?? 0 }}/{{
+                  checklist?.totalCount ?? (checklist?.items?.length || 0)
+                }}</span
+              >
+            </div>
+            <div class="sticky-note__checklist-items">
+              @for (item of visibleItems(checklist); track item.id || item._id || $index) {
+                <app-checkbox
+                  class="sticky-note__check-item"
+                  [label]="item?.title || 'Checklist item'"
+                  [checked]="item?.isCompleted === true"
+                  [disabled]="disabled || item?.updating || isItemUpdating(item?.id ?? item?._id)"
+                  [readonly]="preview"
+                  [variant]="controlVariant"
+                  size="sm"
+                  [fullWidth]="true"
+                  (checkedChange)="changeChecklistItem(item, $event)"
+                />
+              }
+            </div>
+            @if (hiddenItemCount(checklist) > 0 || isChecklistExpanded(checklist)) {
+              @if (preview) {
+                <span class="sticky-note__preview-more">
+                  +{{ hiddenItemCount(checklist) }} more
+                </span>
+              } @else {
+                <app-button
+                  class="sticky-note__more"
+                  [label]="checklistMoreLabel(checklist)"
+                  [iconLeft]="checklistMoreIcon(checklist)"
+                  appearance="standard"
+                  variant="link"
+                  size="xs"
+                  (buttonClick)="toggleChecklist(checklist, $event)"
+                />
+              }
+            }
+          </section>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- 3. Metadata (Progress Bar) -->
+  @if (isDetail && totalChecklistItems > 0) {
+    <div class="sticky-note__progress" aria-label="Checklist progress">
+      <div class="sticky-note__progress-label">
+        <span>{{ completedChecklistItems }} of {{ totalChecklistItems }} complete</span>
+        <strong>{{ progress }}%</strong>
+      </div>
+      <span class="sticky-note__progress-track">
+        <span [style.width.%]="progress"></span>
+      </span>
+    </div>
+  }
+
+  <!-- 4. Footer (Badges, Due date, Assignees) -->
+  @if (isDetail && hasFooterContent) {
+    <footer class="sticky-note__footer">
+      <div class="sticky-note__meta">
+        @if (isCompleted) {
+          <app-badge
+            label="Completed"
+            variant="success"
+            size="xs"
+            shape="pill"
+            [icon]="LucideCheckCircle2"
+          />
+        }
+        @if (dueLabel) {
+          <app-badge
+            [label]="dueLabel"
+            [variant]="badgeVariant"
+            size="xs"
+            shape="pill"
+            [icon]="LucideCalendarDays"
+          />
+        }
+        @if (timeEstimate) {
+          <app-badge
+            [label]="timeEstimate"
+            variant="neutral"
+            size="xs"
+            shape="pill"
+            [icon]="LucideClock3"
+          />
+        }
+        @if (tag) {
+          <app-badge [label]="tag" [variant]="badgeVariant" size="xs" shape="pill" />
+        }
+      </div>
+      @if (assignees.length) {
+        <div class="sticky-note__assignees" aria-label="Assigned members">
+          @for (assignee of assignees; track assignee.id || assignee._id || $index) {
+            <span class="sticky-note__avatar" [title]="avatarName(assignee)">
+              @if (avatarImage(assignee)) {
+                <img [src]="avatarImage(assignee)" [alt]="avatarName(assignee)" />
+              } @else {
+                {{ avatarInitials(assignee) }}
+              }
+            </span>
+          }
+        </div>
+      }
+    </footer>
+  }
 </article>
 
 @if (!preview) {
-<app-delete-confirm-modal [open]="showDeleteConfirm" mode="trash" title="Move this note to Trash?"
+  <app-delete-confirm-modal
+    [open]="showDeleteConfirm"
+    mode="trash"
+    title="Move this note to Trash?"
     [itemName]="title"
     message="It will disappear from here, but it is not gone permanently."
-    supportingText="You can restore it from Sticky Note Trash for up to 60 days." confirmLabel="Move to trash"
-    cancelLabel="Keep note" [busy]="isDeleting"
-    (closed)="closeDeleteConfirm()" (confirmed)="confirmDelete()" />
+    supportingText="You can restore it from Sticky Note Trash for up to 60 days."
+    confirmLabel="Move to trash"
+    cancelLabel="Keep note"
+    [busy]="isDeleting"
+    (closed)="closeDeleteConfirm()"
+    (confirmed)="confirmDelete()"
+  />
 }

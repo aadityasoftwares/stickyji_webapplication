@@ -2,13 +2,13 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 // ============================================================================
@@ -16,10 +16,10 @@
 // ============================================================================
 
 :host ::ng-deep app-side-panel {
-    .app-side-panel-body {
-        background-color: var(--editor-body, #{$paper}) !important;
-        color: var(--editor-ink, #{$text-primary});
-    }
+  .app-side-panel-body {
+    background-color: var(--editor-body, #{$paper}) !important;
+    color: var(--editor-ink, #{$text-primary});
+  }
 }
 
 // ============================================================================
@@ -27,45 +27,45 @@
 // ============================================================================
 
 .invite-editor {
-    --editor-paper: #{$paper};
-    --editor-body: var(--editor-paper);
-    --editor-ink: #{$text-primary};
-    --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading, 0.14)};
+  --editor-paper: #{$paper};
+  --editor-body: var(--editor-paper);
+  --editor-ink: #{$text-primary};
+  --editor-muted: #{$text-secondary};
+  --editor-rule: #{rgba($heading, 0.14)};
 
-    display: grid;
-    align-content: start;
-    gap: 0;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    color: var(--editor-ink);
-    background: transparent;
-    font-family: $font-body;
+  display: grid;
+  align-content: start;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--editor-ink);
+  background: transparent;
+  font-family: $font-body;
 }
 
 .invite-editor app-input,
 .invite-editor app-select {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 
 .invite-editor ::ng-deep {
-    .app-input-wrapper {
-        --app-input-background: #ffffff;
-        --app-input-border: #{$border};
-    }
+  .app-input-wrapper {
+    --app-input-background: #ffffff;
+    --app-input-border: #{$border};
+  }
 
-    .app-select-wrapper {
-        --app-select-background: #ffffff;
-        --app-select-border: #{$border};
-    }
+  .app-select-wrapper {
+    --app-select-background: #ffffff;
+    --app-select-border: #{$border};
+  }
 
-    .app-label {
-        color: var(--editor-muted);
-        font-size: 12px;
-    }
+  .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+  }
 }
 
 // ============================================================================
@@ -73,36 +73,36 @@
 // ============================================================================
 
 .invite-field {
-    display: grid;
-    grid-template-columns: 56px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px;
-    min-width: 0;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--editor-rule);
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--editor-rule);
 
-    &:last-of-type {
-        border-bottom: none;
-    }
+  &:last-of-type {
+    border-bottom: none;
+  }
 }
 
 .invite-field-label {
-    padding-top: 9px;
-    min-width: 0;
+  padding-top: 9px;
+  min-width: 0;
 }
 
 .invite-field-control {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
 }
 
 .invite-field-hint {
-    padding-inline: 1px;
-    color: $text-light;
-    font-size: 0.63rem;
-    font-weight: 600;
-    line-height: 1.4;
+  padding-inline: 1px;
+  color: $text-light;
+  font-size: 0.63rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 // ============================================================================
@@ -110,23 +110,23 @@
 // ============================================================================
 
 .invite-mode-field .invite-field-label {
-    // align with the tabs center line
-    padding-top: 7px;
+  // align with the tabs center line
+  padding-top: 7px;
 }
 
 // Tabs shrink to content width — don't stretch to full block
 .invite-mode-field app-tabs {
-    display: inline-flex;
-    width: auto;
+  display: inline-flex;
+  width: auto;
 }
 
 .invite-mode-caption {
-    margin: 0;
-    padding-inline: 1px;
-    color: $text-light;
-    font-size: 0.62rem;
-    font-weight: 600;
-    line-height: 1.4;
+  margin: 0;
+  padding-inline: 1px;
+  color: $text-light;
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 // ============================================================================
@@ -134,15 +134,15 @@
 // ============================================================================
 
 .invite-email-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-inline: 2px;
-    color: $text-light;
-    font-size: 0.61rem;
-    font-weight: 600;
-    line-height: 1.35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-inline: 2px;
+  color: $text-light;
+  font-size: 0.61rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 // ============================================================================
@@ -150,131 +150,136 @@
 // ============================================================================
 
 .invite-email-chips {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
 }
 
 // The chip itself
 .invite-chip {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
 
-    max-width: 100%;
-    height: 26px;
-    padding: 0 0 0 9px;
+  max-width: 100%;
+  height: 26px;
+  padding: 0 0 0 9px;
 
-    color: #614900;
-    background: $note-button-yellow;
-    border: 1px solid rgba(97, 73, 0, 0.22);
-    border-radius: 8px;
+  color: #614900;
+  background: $note-button-yellow;
+  border: 1px solid rgba(97, 73, 0, 0.22);
+  border-radius: 8px;
 
-    font-family: $font-body;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.012em;
-    line-height: 1;
-    white-space: nowrap;
+  font-family: $font-body;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.012em;
+  line-height: 1;
+  white-space: nowrap;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    transition: background-color 160ms ease, border-color 160ms ease;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
 
-    // When hovering the REMOVE button, tint the whole chip red
-    &:has(.invite-chip-remove:hover:not(:disabled)) {
-        background: #ffe4e1;
-        border-color: rgba($danger, 0.36);
+  // When hovering the REMOVE button, tint the whole chip red
+  &:has(.invite-chip-remove:hover:not(:disabled)) {
+    background: #ffe4e1;
+    border-color: rgba($danger, 0.36);
 
-        .invite-chip-label {
-            color: #7f1d1d;
-        }
+    .invite-chip-label {
+      color: #7f1d1d;
     }
+  }
 
-    // When hovering the EDIT button, tint chip subtly blue-grey
-    &:has(.invite-chip-edit:hover:not(:disabled)) {
-        background: color.mix(#e8f0fe, $note-button-yellow, 40%);
-        border-color: rgba(37, 99, 235, 0.24);
-    }
+  // When hovering the EDIT button, tint chip subtly blue-grey
+  &:has(.invite-chip-edit:hover:not(:disabled)) {
+    background: color.mix(#e8f0fe, $note-button-yellow, 40%);
+    border-color: rgba(37, 99, 235, 0.24);
+  }
 }
 
 .invite-chip-label {
-    display: inline-block;
-    min-width: 0;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: color 160ms ease;
+  display: inline-block;
+  min-width: 0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 160ms ease;
 }
 
 // Shared button base
 .invite-chip-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
-    margin: 0 1px;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0 1px;
 
-    padding: 0;
-    background: transparent;
-    border: 0;
-    border-radius: 50%;
-    outline: none;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  outline: none;
 
-    color: inherit;
-    cursor: pointer;
-    opacity: 0.65;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.65;
 
-    font-size: 10px;
+  font-size: 10px;
 
-    transition: background-color 150ms ease, opacity 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease,
+    color 150ms ease;
 
-    &:focus-visible {
-        outline: 2px solid currentColor;
-        outline-offset: 1px;
-    }
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.35;
-    }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
 }
 
 // Edit button — pencil
 .invite-chip-edit {
-    margin-left: 3px;
+  margin-left: 3px;
 
-    &:hover:not(:disabled) {
-        background: rgba(37, 99, 235, 0.12);
-        color: #1d4ed8;
-        opacity: 1;
-    }
+  &:hover:not(:disabled) {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+    opacity: 1;
+  }
 
-    &:active:not(:disabled) {
-        transform: scale(0.88);
-    }
+  &:active:not(:disabled) {
+    transform: scale(0.88);
+  }
 }
 
 // Remove button — X, right-edge
 .invite-chip-remove {
-    margin-right: 3px;
+  margin-right: 3px;
 
-    &:hover:not(:disabled) {
-        background: rgba($danger, 0.14);
-        color: $danger;
-        opacity: 1;
-    }
+  &:hover:not(:disabled) {
+    background: rgba($danger, 0.14);
+    color: $danger;
+    opacity: 1;
+  }
 
-    &:active:not(:disabled) {
-        transform: scale(0.88);
-    }
+  &:active:not(:disabled) {
+    transform: scale(0.88);
+  }
 }
 
 // ============================================================================
@@ -282,20 +287,20 @@
 // ============================================================================
 
 .invite-individual-label-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-    padding-top: 9px;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding-top: 9px;
+  min-width: 0;
 }
 
 .invite-individual-label-text {
-    color: $text-secondary;
-    font-size: 0.72rem;
-    font-weight: 760;
-    line-height: 1.25;
-    letter-spacing: 0.005em;
+  color: $text-secondary;
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
 }
 
 // ============================================================================
@@ -303,45 +308,45 @@
 // ============================================================================
 
 .invite-empty-state {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 10px;
-    min-height: 54px;
-    background: rgba($paper, 0.72);
-    border: 1px dashed rgba($border, 0.9);
-    border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  min-height: 54px;
+  background: rgba($paper, 0.72);
+  border: 1px dashed rgba($border, 0.9);
+  border-radius: 9px;
 
-    > div {
-        display: grid;
-        gap: 1px;
-        min-width: 0;
-    }
+  > div {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+  }
 
-    strong {
-        color: $text-secondary;
-        font-size: 0.67rem;
-        font-weight: 720;
-        line-height: 1.3;
-    }
+  strong {
+    color: $text-secondary;
+    font-size: 0.67rem;
+    font-weight: 720;
+    line-height: 1.3;
+  }
 
-    span {
-        color: $text-light;
-        font-size: 0.61rem;
-        font-weight: 600;
-        line-height: 1.4;
-    }
+  span {
+    color: $text-light;
+    font-size: 0.61rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
 }
 
 .invite-empty-icon {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    flex: 0 0 auto;
-    place-items: center;
-    color: $text-secondary;
-    background: rgba($note-yellow, 0.34);
-    border-radius: 8px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: $text-secondary;
+  background: rgba($note-yellow, 0.34);
+  border-radius: 8px;
 }
 
 // ============================================================================
@@ -349,50 +354,52 @@
 // ============================================================================
 
 .invite-role-list {
-    display: grid;
-    gap: 7px;
-    min-width: 0;
-    max-height: 280px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding-right: 3px;
-    scrollbar-width: thin;
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  max-height: 280px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 3px;
+  scrollbar-width: thin;
 }
 
 .invite-role-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(170px, 0.65fr);
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    padding: 6px 8px;
-    background: rgba($paper, 0.76);
-    border: 1px solid rgba($border, 0.7);
-    border-radius: 9px;
-    transition: background 140ms ease, border-color 140ms ease;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 0.65fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 8px;
+  background: rgba($paper, 0.76);
+  border: 1px solid rgba($border, 0.7);
+  border-radius: 9px;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease;
 
-    &:hover {
-        background: $paper;
-        border-color: rgba($secondary, 0.36);
-    }
+  &:hover {
+    background: $paper;
+    border-color: rgba($secondary, 0.36);
+  }
 }
 
 .invite-role-email {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
 
-    .invite-chip {
-        max-width: 100%;
-    }
+  .invite-chip {
+    max-width: 100%;
+  }
 }
 
 .invite-recipient-role {
-    display: block;
-    width: 100%;
-    min-width: 0;
+  display: block;
+  width: 100%;
+  min-width: 0;
 }
 
 // ============================================================================
@@ -400,41 +407,41 @@
 // ============================================================================
 
 .invite-access-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    padding: 10px 0 2px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 0 2px;
 
-    > div {
-        display: grid;
-        gap: 2px;
-        min-width: 0;
-    }
+  > div {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
 
-    strong {
-        color: $heading;
-        font-size: 0.68rem;
-        font-weight: 760;
-        line-height: 1.3;
-    }
+  strong {
+    color: $heading;
+    font-size: 0.68rem;
+    font-weight: 760;
+    line-height: 1.3;
+  }
 
-    span {
-        color: $text-light;
-        font-size: 0.62rem;
-        font-weight: 600;
-        line-height: 1.42;
-    }
+  span {
+    color: $text-light;
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.42;
+  }
 }
 
 .invite-access-icon {
-    display: grid;
-    width: 24px;
-    height: 24px;
-    flex: 0 0 auto;
-    place-items: center;
-    color: $heading;
-    background: rgba($note-button-yellow, 0.58);
-    border-radius: 7px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: $heading;
+  background: rgba($note-button-yellow, 0.58);
+  border-radius: 7px;
 }
 
 // ============================================================================
@@ -442,15 +449,15 @@
 // ============================================================================
 
 .invite-error {
-    margin-top: 6px;
-    padding: 8px 10px;
-    color: $danger;
-    background: rgba($danger, 0.06);
-    border-left: 3px solid rgba($danger, 0.65);
-    border-radius: 0 7px 7px 0;
-    font-size: 0.67rem;
-    font-weight: 700;
-    line-height: 1.4;
+  margin-top: 6px;
+  padding: 8px 10px;
+  color: $danger;
+  background: rgba($danger, 0.06);
+  border-left: 3px solid rgba($danger, 0.65);
+  border-radius: 0 7px 7px 0;
+  font-size: 0.67rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 // ============================================================================
@@ -458,29 +465,29 @@
 // ============================================================================
 
 .invite-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    min-width: 0;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
 }
 
 .invite-status {
-    overflow: hidden;
-    color: $text-light;
-    font-family: $font-note;
-    font-size: 0.76rem;
-    font-weight: 650;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  color: $text-light;
+  font-family: $font-note;
+  font-size: 0.76rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .invite-actions {
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-    gap: 7px;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 7px;
 }
 
 // ============================================================================
@@ -488,39 +495,39 @@
 // ============================================================================
 
 @media (max-width: 680px) {
-    .invite-role-row {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 7px;
-    }
+  .invite-role-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
 }
 
 @media (max-width: 575.98px) {
-    .invite-field {
-        grid-template-columns: 44px minmax(0, 1fr);
-        gap: 6px;
-    }
+  .invite-field {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px;
+  }
 
-    .invite-role-list {
-        max-height: 220px;
-    }
+  .invite-role-list {
+    max-height: 220px;
+  }
 
-    .invite-status {
-        display: none;
-    }
+  .invite-status {
+    display: none;
+  }
 
-    .invite-actions,
-    .invite-actions app-button {
-        width: 100%;
-        min-width: 0;
-    }
+  .invite-actions,
+  .invite-actions app-button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 // Reduced motion
 @media (prefers-reduced-motion: reduce) {
-    .invite-chip,
-    .invite-chip-btn,
-    .invite-chip-label,
-    .invite-role-row {
-        transition: none;
-    }
+  .invite-chip,
+  .invite-chip-btn,
+  .invite-chip-label,
+  .invite-role-row {
+    transition: none;
+  }
 }

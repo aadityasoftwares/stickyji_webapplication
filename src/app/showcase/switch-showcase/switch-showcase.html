@@ -1,211 +1,328 @@
 <main class="switch-showcase">
-    <header class="showcase-hero">
+  <header class="showcase-hero">
+    <div>
+      <span class="showcase-eyebrow">Sticky Ji design system</span>
+      <h1>Switch component</h1>
+      <p>
+        Accessible binary controls for preferences, permissions, notifications, syncing, and note
+        behavior.
+      </p>
+    </div>
+
+    <div class="hero-control">
+      <app-switch
+        label="Cloud sync"
+        description="Keep notes available on every device."
+        variant="noteBlue"
+        size="lg"
+        [checked]="cloudSync()"
+        [loading]="syncing()"
+        [onIcon]="icons.cloud"
+        [offIcon]="icons.cloudOff"
+        (checkedChange)="setCloudSync($event)"
+      />
+    </div>
+  </header>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">01</span>
+      <div>
+        <h2>Semantic variants</h2>
+        <p>Application colors with the same reusable behavior.</p>
+      </div>
+    </div>
+
+    <div class="switch-grid">
+      @for (item of semanticVariants; track item.value) {
+        <div class="switch-spec">
+          <app-switch
+            [label]="item.label"
+            [variant]="item.value"
+            [checked]="true"
+            [onIcon]="item.icon"
+          />
+          <code>{{ item.value }}</code>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="showcase-section note-section">
+    <div class="section-heading">
+      <span class="section-number">02</span>
+      <div>
+        <h2>Sticky-note variants</h2>
+        <p>Every note color is available as an active switch track.</p>
+      </div>
+    </div>
+
+    <div class="switch-grid">
+      @for (item of noteVariants; track item.value) {
+        <div class="switch-spec">
+          <app-switch
+            [label]="item.label"
+            [variant]="item.value"
+            [checked]="true"
+            [onIcon]="item.icon"
+          />
+          <code>{{ item.value }}</code>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="showcase-section split-section">
+    <div>
+      <div class="section-heading">
+        <span class="section-number">03</span>
         <div>
-            <span class="showcase-eyebrow">Sticky Ji design system</span>
-            <h1>Switch component</h1>
-            <p>
-                Accessible binary controls for preferences, permissions,
-                notifications, syncing, and note behavior.
-            </p>
+          <h2>Sizes</h2>
+          <p>Three touch-friendly presets.</p>
         </div>
+      </div>
 
-        <div class="hero-control">
-            <app-switch label="Cloud sync" description="Keep notes available on every device." variant="noteBlue"
-                size="lg" [checked]="cloudSync()" [loading]="syncing()" [onIcon]="icons.cloud"
-                [offIcon]="icons.cloudOff" (checkedChange)="setCloudSync($event)" />
-        </div>
-    </header>
+      <div class="switch-stack">
+        @for (item of sizes; track item.value) {
+          <app-switch
+            [label]="item.label"
+            [size]="item.value"
+            variant="noteYellow"
+            [checked]="true"
+            [onIcon]="icons.check"
+          />
+        }
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">01</span>
-            <div>
-                <h2>Semantic variants</h2>
-                <p>Application colors with the same reusable behavior.</p>
-            </div>
-        </div>
-
-        <div class="switch-grid">
-            @for (item of semanticVariants; track item.value) {
-            <div class="switch-spec">
-                <app-switch [label]="item.label" [variant]="item.value" [checked]="true" [onIcon]="item.icon" />
-                <code>{{ item.value }}</code>
-            </div>
-            }
-        </div>
-    </section>
-
-    <section class="showcase-section note-section">
-        <div class="section-heading">
-            <span class="section-number">02</span>
-            <div>
-                <h2>Sticky-note variants</h2>
-                <p>Every note color is available as an active switch track.</p>
-            </div>
-        </div>
-
-        <div class="switch-grid">
-            @for (item of noteVariants; track item.value) {
-            <div class="switch-spec">
-                <app-switch [label]="item.label" [variant]="item.value" [checked]="true" [onIcon]="item.icon" />
-                <code>{{ item.value }}</code>
-            </div>
-            }
-        </div>
-    </section>
-
-    <section class="showcase-section split-section">
+    <div>
+      <div class="section-heading">
+        <span class="section-number">04</span>
         <div>
-            <div class="section-heading">
-                <span class="section-number">03</span>
-                <div>
-                    <h2>Sizes</h2>
-                    <p>Three touch-friendly presets.</p>
-                </div>
-            </div>
-
-            <div class="switch-stack">
-                @for (item of sizes; track item.value) {
-                <app-switch [label]="item.label" [size]="item.value" variant="noteYellow" [checked]="true"
-                    [onIcon]="icons.check" />
-                }
-            </div>
+          <h2>Label positions</h2>
+          <p>Place the control before or after its content.</p>
         </div>
+      </div>
 
+      <div class="switch-stack position-examples">
+        <app-switch
+          label="Control on the left"
+          description="The default placement."
+          [checked]="true"
+        />
+        <app-switch
+          label="Control on the right"
+          description="Useful in settings lists."
+          labelPosition="left"
+          variant="notePurple"
+          [checked]="true"
+          [fullWidth]="true"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">05</span>
+      <div>
+        <h2>Icons</h2>
+        <p>Optional on/off Lucide icons render inside the moving thumb.</p>
+      </div>
+    </div>
+
+    <div class="switch-grid">
+      <div class="switch-spec">
+        <app-switch
+          label="Notifications"
+          variant="notePink"
+          [checked]="notifications()"
+          [onIcon]="icons.bell"
+          [offIcon]="icons.bellOff"
+          (checkedChange)="notifications.set($event)"
+        />
+      </div>
+      <div class="switch-spec">
+        <app-switch
+          label="Dark mode"
+          variant="noteBlack"
+          [checked]="darkMode()"
+          [onIcon]="icons.moon"
+          [offIcon]="icons.sun"
+          (checkedChange)="darkMode.set($event)"
+        />
+      </div>
+      <div class="switch-spec">
+        <app-switch
+          label="Note sounds"
+          variant="noteOrange"
+          [checked]="sounds()"
+          [onIcon]="icons.volume"
+          [offIcon]="icons.volumeOff"
+          (checkedChange)="sounds.set($event)"
+        />
+      </div>
+      <div class="switch-spec">
+        <app-switch
+          label="Visible to team"
+          variant="noteGreen"
+          [checked]="sharedEditing()"
+          [onIcon]="icons.eye"
+          [offIcon]="icons.eyeOff"
+          (checkedChange)="sharedEditing.set($event)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">06</span>
+      <div>
+        <h2>States</h2>
+        <p>Checked, unchecked, disabled, read-only, loading, required, and invalid.</p>
+      </div>
+    </div>
+
+    <div class="state-grid">
+      <app-switch label="Checked" [checked]="true" />
+      <app-switch label="Unchecked" [checked]="false" />
+      <app-switch label="Disabled off" [disabled]="true" />
+      <app-switch label="Disabled on" [checked]="true" [disabled]="true" />
+      <app-switch
+        label="Read-only"
+        description="Can be focused but not changed."
+        [checked]="true"
+        [readonly]="true"
+        variant="info"
+      />
+      <app-switch label="Loading" [checked]="true" [loading]="true" variant="noteBlue" />
+      <app-switch label="Required preference" [required]="true" />
+      <app-switch label="Invalid selection" [required]="true" [invalid]="true" variant="danger" />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">07</span>
+      <div>
+        <h2>Angular Forms</h2>
+        <p>The component works with reactive forms through ControlValueAccessor.</p>
+      </div>
+    </div>
+
+    <div class="forms-demo">
+      <app-switch
+        label="Auto-save notes"
+        description="Reactive FormControl value."
+        [formControl]="autoSaveControl"
+        variant="success"
+        [onIcon]="icons.check"
+      />
+
+      <div class="form-value">
+        Form value:
+        <strong>{{ autoSaveControl.value ? 'true' : 'false' }}</strong>
+      </div>
+
+      <app-switch
+        label="Managed by administrator"
+        description="Disabled by its FormControl."
+        [formControl]="disabledControl"
+        variant="noteBrown"
+        [onIcon]="icons.lock"
+      />
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">08</span>
+      <div>
+        <h2>Sticky Ji settings</h2>
+        <p>A real application settings pattern using full-width switches.</p>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <div class="settings-icon">
+          <app-switch
+            ariaLabel="Settings enabled"
+            variant="noteYellow"
+            size="sm"
+            [checked]="true"
+            [readonly]="true"
+            [onIcon]="icons.stickyNote"
+          />
+        </div>
         <div>
-            <div class="section-heading">
-                <span class="section-number">04</span>
-                <div>
-                    <h2>Label positions</h2>
-                    <p>Place the control before or after its content.</p>
-                </div>
-            </div>
-
-            <div class="switch-stack position-examples">
-                <app-switch label="Control on the left" description="The default placement." [checked]="true" />
-                <app-switch label="Control on the right" description="Useful in settings lists." labelPosition="left"
-                    variant="notePurple" [checked]="true" [fullWidth]="true" />
-            </div>
+          <h3>Workspace preferences</h3>
+          <p>Changes are saved automatically.</p>
         </div>
-    </section>
+      </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">05</span>
-            <div>
-                <h2>Icons</h2>
-                <p>Optional on/off Lucide icons render inside the moving thumb.</p>
-            </div>
-        </div>
+      <div class="settings-list">
+        <app-switch
+          label="Push notifications"
+          description="Receive reminders and shared-note updates."
+          labelPosition="left"
+          variant="notePink"
+          [checked]="notifications()"
+          [fullWidth]="true"
+          [onIcon]="icons.bell"
+          [offIcon]="icons.bellOff"
+          (checkedChange)="notifications.set($event)"
+        />
 
-        <div class="switch-grid">
-            <div class="switch-spec">
-                <app-switch label="Notifications" variant="notePink" [checked]="notifications()" [onIcon]="icons.bell"
-                    [offIcon]="icons.bellOff" (checkedChange)="notifications.set($event)" />
-            </div>
-            <div class="switch-spec">
-                <app-switch label="Dark mode" variant="noteBlack" [checked]="darkMode()" [onIcon]="icons.moon"
-                    [offIcon]="icons.sun" (checkedChange)="darkMode.set($event)" />
-            </div>
-            <div class="switch-spec">
-                <app-switch label="Note sounds" variant="noteOrange" [checked]="sounds()" [onIcon]="icons.volume"
-                    [offIcon]="icons.volumeOff" (checkedChange)="sounds.set($event)" />
-            </div>
-            <div class="switch-spec">
-                <app-switch label="Visible to team" variant="noteGreen" [checked]="sharedEditing()" [onIcon]="icons.eye"
-                    [offIcon]="icons.eyeOff" (checkedChange)="sharedEditing.set($event)" />
-            </div>
-        </div>
-    </section>
+        <app-switch
+          label="Cloud synchronization"
+          description="Keep your notes backed up across devices."
+          labelPosition="left"
+          variant="noteBlue"
+          [checked]="cloudSync()"
+          [loading]="syncing()"
+          [fullWidth]="true"
+          [onIcon]="icons.cloud"
+          [offIcon]="icons.cloudOff"
+          (checkedChange)="setCloudSync($event)"
+        />
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">06</span>
-            <div>
-                <h2>States</h2>
-                <p>Checked, unchecked, disabled, read-only, loading, required, and invalid.</p>
-            </div>
-        </div>
+        <app-switch
+          label="Collaborative editing"
+          description="Allow invited members to edit shared notes."
+          labelPosition="left"
+          variant="noteGreen"
+          [checked]="sharedEditing()"
+          [fullWidth]="true"
+          [onIcon]="icons.users"
+          [offIcon]="icons.lock"
+          (checkedChange)="sharedEditing.set($event)"
+        />
 
-        <div class="state-grid">
-            <app-switch label="Checked" [checked]="true" />
-            <app-switch label="Unchecked" [checked]="false" />
-            <app-switch label="Disabled off" [disabled]="true" />
-            <app-switch label="Disabled on" [checked]="true" [disabled]="true" />
-            <app-switch label="Read-only" description="Can be focused but not changed." [checked]="true"
-                [readonly]="true" variant="info" />
-            <app-switch label="Loading" [checked]="true" [loading]="true" variant="noteBlue" />
-            <app-switch label="Required preference" [required]="true" />
-            <app-switch label="Invalid selection" [required]="true" [invalid]="true" variant="danger" />
-        </div>
-    </section>
+        <app-switch
+          label="Dark workspace"
+          description="Use a darker interface in low-light environments."
+          labelPosition="left"
+          variant="noteBlack"
+          [checked]="darkMode()"
+          [fullWidth]="true"
+          [onIcon]="icons.moon"
+          [offIcon]="icons.sun"
+          (checkedChange)="darkMode.set($event)"
+        />
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">07</span>
-            <div>
-                <h2>Angular Forms</h2>
-                <p>The component works with reactive forms through ControlValueAccessor.</p>
-            </div>
-        </div>
-
-        <div class="forms-demo">
-            <app-switch label="Auto-save notes" description="Reactive FormControl value."
-                [formControl]="autoSaveControl" variant="success" [onIcon]="icons.check" />
-
-            <div class="form-value">
-                Form value:
-                <strong>{{ autoSaveControl.value ? 'true' : 'false' }}</strong>
-            </div>
-
-            <app-switch label="Managed by administrator" description="Disabled by its FormControl."
-                [formControl]="disabledControl" variant="noteBrown" [onIcon]="icons.lock" />
-        </div>
-    </section>
-
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">08</span>
-            <div>
-                <h2>Sticky Ji settings</h2>
-                <p>A real application settings pattern using full-width switches.</p>
-            </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <div class="settings-icon">
-                    <app-switch ariaLabel="Settings enabled" variant="noteYellow" size="sm" [checked]="true"
-                        [readonly]="true" [onIcon]="icons.stickyNote" />
-                </div>
-                <div>
-                    <h3>Workspace preferences</h3>
-                    <p>Changes are saved automatically.</p>
-                </div>
-            </div>
-
-            <div class="settings-list">
-                <app-switch label="Push notifications" description="Receive reminders and shared-note updates."
-                    labelPosition="left" variant="notePink" [checked]="notifications()" [fullWidth]="true"
-                    [onIcon]="icons.bell" [offIcon]="icons.bellOff" (checkedChange)="notifications.set($event)" />
-
-                <app-switch label="Cloud synchronization" description="Keep your notes backed up across devices."
-                    labelPosition="left" variant="noteBlue" [checked]="cloudSync()" [loading]="syncing()"
-                    [fullWidth]="true" [onIcon]="icons.cloud" [offIcon]="icons.cloudOff"
-                    (checkedChange)="setCloudSync($event)" />
-
-                <app-switch label="Collaborative editing" description="Allow invited members to edit shared notes."
-                    labelPosition="left" variant="noteGreen" [checked]="sharedEditing()" [fullWidth]="true"
-                    [onIcon]="icons.users" [offIcon]="icons.lock" (checkedChange)="sharedEditing.set($event)" />
-
-                <app-switch label="Dark workspace" description="Use a darker interface in low-light environments."
-                    labelPosition="left" variant="noteBlack" [checked]="darkMode()" [fullWidth]="true"
-                    [onIcon]="icons.moon" [offIcon]="icons.sun" (checkedChange)="darkMode.set($event)" />
-
-                <app-switch label="Enhanced account protection" description="Required by your workspace administrator."
-                    labelPosition="left" variant="success" [checked]="true" [readonly]="true" [fullWidth]="true"
-                    [onIcon]="icons.shield" />
-            </div>
-        </div>
-    </section>
+        <app-switch
+          label="Enhanced account protection"
+          description="Required by your workspace administrator."
+          labelPosition="left"
+          variant="success"
+          [checked]="true"
+          [readonly]="true"
+          [fullWidth]="true"
+          [onIcon]="icons.shield"
+        />
+      </div>
+    </div>
+  </section>
 </main>

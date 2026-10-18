@@ -1,17 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { UI } from '../../constants/ui.constants';
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -39,14 +30,7 @@ export type ButtonVariant =
 export type ButtonAppearance = 'standard' | 'tape';
 export type ButtonType = 'button' | 'submit' | 'reset';
 
-export type ButtonWidth =
-  | 'auto'
-  | 'full'
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl';
+export type ButtonWidth = 'auto' | 'full' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type ButtonIconPosition = 'left' | 'right';
 
@@ -156,21 +140,13 @@ export class Button {
 
   get showLeftIcon(): boolean {
     return (
-      !this.iconOnly &&
-      Boolean(
-        this.iconLeft ||
-        (this.hasIcon && this.iconPosition === 'left')
-      )
+      !this.iconOnly && Boolean(this.iconLeft || (this.hasIcon && this.iconPosition === 'left'))
     );
   }
 
   get showRightIcon(): boolean {
     return (
-      !this.iconOnly &&
-      Boolean(
-        this.iconRight ||
-        (this.hasIcon && this.iconPosition === 'right')
-      )
+      !this.iconOnly && Boolean(this.iconRight || (this.hasIcon && this.iconPosition === 'right'))
     );
   }
 

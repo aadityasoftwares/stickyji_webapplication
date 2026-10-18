@@ -1,376 +1,378 @@
 @use '../../styles/variables' as *;
 
 :host {
-    display: block;
-    min-height: 100%;
-    color: $text-primary;
-    background: $app-bg;
-    font-family: $font-body;
+  display: block;
+  min-height: 100%;
+  color: $text-primary;
+  background: $app-bg;
+  font-family: $font-body;
 }
 
 .badge-showcase {
-    width: min(1180px, calc(100% - 32px));
-    margin: 0 auto;
-    padding: 40px 0 72px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 72px;
 }
 
 .showcase-hero,
 .showcase-section {
-    border: 1px solid $border;
-    background: rgba($paper, 0.95);
-    box-shadow: $shadow-sm;
+  border: 1px solid $border;
+  background: rgba($paper, 0.95);
+  box-shadow: $shadow-sm;
 }
 
 .showcase-hero {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 28px;
-    padding: clamp(24px, 5vw, 48px);
-    border-radius: $radius-lg;
-    overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: clamp(24px, 5vw, 48px);
+  border-radius: $radius-lg;
+  overflow: hidden;
 }
 
 .showcase-hero::after {
-    content: '';
-    position: absolute;
-    right: -30px;
-    bottom: -82px;
-    width: 245px;
-    height: 180px;
-    background: $note-button-yellow;
-    opacity: 0.46;
-    transform: rotate(-6deg);
+  content: '';
+  position: absolute;
+  right: -30px;
+  bottom: -82px;
+  width: 245px;
+  height: 180px;
+  background: $note-button-yellow;
+  opacity: 0.46;
+  transform: rotate(-6deg);
 }
 
 .showcase-eyebrow,
 .section-number {
-    display: inline-flex;
-    color: $secondary;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+  display: inline-flex;
+  color: $secondary;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .showcase-hero h1,
 .section-heading h2 {
-    margin: 0;
-    color: $heading;
-    font-family: $font-heading;
-    font-weight: 700;
+  margin: 0;
+  color: $heading;
+  font-family: $font-heading;
+  font-weight: 700;
 }
 
 .showcase-hero h1 {
-    margin-top: 8px;
-    font-size: clamp(38px, 6vw, 60px);
-    line-height: 0.98;
+  margin-top: 8px;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: 0.98;
 }
 
 .showcase-hero p {
-    max-width: 650px;
-    margin: 16px 0 0;
-    color: $text-secondary;
-    font-size: 16px;
-    line-height: 1.65;
+  max-width: 650px;
+  margin: 16px 0 0;
+  color: $text-secondary;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 .hero-badges {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 10px;
-    max-width: 330px;
-    transform: rotate(2deg);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 330px;
+  transform: rotate(2deg);
 }
 
 .showcase-section {
-    margin-top: 20px;
-    padding: clamp(22px, 4vw, 36px);
-    border-radius: $radius-md;
+  margin-top: 20px;
+  padding: clamp(22px, 4vw, 36px);
+  border-radius: $radius-md;
 }
 
 .section-heading,
 .heading-copy {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .section-heading {
-    margin-bottom: 26px;
+  margin-bottom: 26px;
 }
 
 .section-number {
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 34px;
-    height: 25px;
-    border-radius: 999px;
-    color: #5b4600;
-    background: $note-button-yellow;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 25px;
+  border-radius: 999px;
+  color: #5b4600;
+  background: $note-button-yellow;
 }
 
 .section-heading h2 {
-    font-size: 30px;
-    line-height: 1.1;
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .section-heading p {
-    margin: 6px 0 0;
-    color: $text-secondary;
-    line-height: 1.55;
+  margin: 6px 0 0;
+  color: $text-secondary;
+  line-height: 1.55;
 }
 
 .section-heading-actions {
-    align-items: center;
-    justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .badge-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .badge-row-bottom {
-    align-items: flex-end;
+  align-items: flex-end;
 }
 
 .badge-spec {
-    display: inline-flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 8px;
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.badge-spec>span {
-    color: $text-light;
-    font-size: 10px;
-    font-weight: 700;
+.badge-spec > span {
+  color: $text-light;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .note-section {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
 
 .note-section::before {
-    content: '';
-    position: absolute;
-    right: -55px;
-    top: -55px;
-    width: 140px;
-    height: 140px;
-    border-radius: 28%;
-    background: $note-button-pink;
-    opacity: 0.25;
-    transform: rotate(12deg);
+  content: '';
+  position: absolute;
+  right: -55px;
+  top: -55px;
+  width: 140px;
+  height: 140px;
+  border-radius: 28%;
+  background: $note-button-pink;
+  opacity: 0.25;
+  transform: rotate(12deg);
 }
 
 .split-section {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 42px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 42px;
 }
 
 .count-demo {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.count-demo>div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-width: 0;
-    padding: 14px;
-    border: 1px solid $border-light;
-    border-radius: $radius-sm;
-    background: $paper-light;
+.count-demo > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  background: $paper-light;
 }
 
-.count-demo>div>span {
-    min-width: 0;
-    overflow: hidden;
-    color: $text-secondary;
-    font-size: 12px;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.count-demo > div > span {
+  min-width: 0;
+  overflow: hidden;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reset-button {
-    padding: 9px 14px;
-    border: 1px solid $border;
-    border-radius: 999px;
-    color: $text-primary;
-    background: $paper;
-    box-shadow: $shadow-sm;
-    font: 700 13px/1 $font-body;
-    cursor: pointer;
-    transition: transform 160ms ease, background-color 160ms ease;
+  padding: 9px 14px;
+  border: 1px solid $border;
+  border-radius: 999px;
+  color: $text-primary;
+  background: $paper;
+  box-shadow: $shadow-sm;
+  font: 700 13px/1 $font-body;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
 }
 
 .reset-button:hover {
-    background: $paper-dark;
-    transform: translateY(-1px);
+  background: $paper-dark;
+  transform: translateY(-1px);
 }
 
 .reset-button:focus-visible {
-    outline: 3px solid rgba($accent, 0.28);
-    outline-offset: 2px;
+  outline: 3px solid rgba($accent, 0.28);
+  outline-offset: 2px;
 }
 
 .filter-row {
-    min-height: 32px;
+  min-height: 32px;
 }
 
 .empty-message {
-    color: $text-light;
-    font-size: 13px;
-    font-style: italic;
+  color: $text-light;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .event-message {
-    margin: 16px 0 0;
-    padding: 10px 14px;
-    border-left: 3px solid $accent;
-    border-radius: 0 $radius-xs $radius-xs 0;
-    color: $text-secondary;
-    background: $paper-dark;
-    font-size: 13px;
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid $accent;
+  border-radius: 0 $radius-xs $radius-xs 0;
+  color: $text-secondary;
+  background: $paper-dark;
+  font-size: 13px;
 }
 
 .pattern-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .note-preview {
-    position: relative;
-    min-width: 0;
-    min-height: 210px;
-    padding: 22px;
-    border: 1px solid rgba(94, 79, 57, 0.13);
-    border-radius: 3px 3px $radius-sm $radius-sm;
-    box-shadow:
-        0 2px 0 rgba(94, 79, 57, 0.12),
-        0 8px 18px rgba(46, 38, 25, 0.11);
-    transition: transform 180ms ease, box-shadow 180ms ease;
+  position: relative;
+  min-width: 0;
+  min-height: 210px;
+  padding: 22px;
+  border: 1px solid rgba(94, 79, 57, 0.13);
+  border-radius: 3px 3px $radius-sm $radius-sm;
+  box-shadow:
+    0 2px 0 rgba(94, 79, 57, 0.12),
+    0 8px 18px rgba(46, 38, 25, 0.11);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .note-preview::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    width: 72px;
-    height: 17px;
-    background: rgba(255, 255, 255, 0.48);
-    box-shadow: 0 1px 3px rgba(46, 38, 25, 0.08);
-    transform: translateX(-50%) rotate(-2deg);
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 72px;
+  height: 17px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 1px 3px rgba(46, 38, 25, 0.08);
+  transform: translateX(-50%) rotate(-2deg);
 }
 
 .note-preview:hover {
-    box-shadow:
-        0 3px 0 rgba(94, 79, 57, 0.12),
-        0 13px 28px rgba(46, 38, 25, 0.14);
-    transform: translateY(-3px) rotate(-0.3deg);
+  box-shadow:
+    0 3px 0 rgba(94, 79, 57, 0.12),
+    0 13px 28px rgba(46, 38, 25, 0.14);
+  transform: translateY(-3px) rotate(-0.3deg);
 }
 
 .note-yellow {
-    background: $note-button-yellow;
+  background: $note-button-yellow;
 }
 
 .note-blue {
-    background: $note-button-blue;
+  background: $note-button-blue;
 }
 
 .note-pink {
-    background: $note-button-pink;
+  background: $note-button-pink;
 }
 
 .note-heading,
 .note-preview footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .note-preview h3 {
-    margin: 28px 0 10px;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: 26px;
-    line-height: 1.05;
+  margin: 28px 0 10px;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: 26px;
+  line-height: 1.05;
 }
 
 .note-preview p {
-    margin: 0;
-    color: rgba($text-primary, 0.76);
-    font-size: 14px;
-    line-height: 1.55;
+  margin: 0;
+  color: rgba($text-primary, 0.76);
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .note-preview footer {
-    margin-top: 24px;
+  margin-top: 24px;
 }
 
 @media (max-width: 1000px) {
-    .count-demo {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .count-demo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-    .pattern-grid {
-        grid-template-columns: 1fr;
-    }
+  .pattern-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
+  .showcase-hero,
+  .section-heading-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-    .showcase-hero,
-    .section-heading-actions {
-        align-items: flex-start;
-        flex-direction: column;
-    }
+  .hero-badges {
+    justify-content: flex-start;
+    max-width: none;
+  }
 
-    .hero-badges {
-        justify-content: flex-start;
-        max-width: none;
-    }
-
-    .split-section {
-        grid-template-columns: 1fr;
-    }
+  .split-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
-    .badge-showcase {
-        width: min(100% - 20px, 1180px);
-        padding: 20px 0 48px;
-    }
+  .badge-showcase {
+    width: min(100% - 20px, 1180px);
+    padding: 20px 0 48px;
+  }
 
-    .count-demo {
-        grid-template-columns: 1fr;
-    }
+  .count-demo {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .reset-button,
-    .note-preview {
-        transition: none;
-    }
+  .reset-button,
+  .note-preview {
+    transition: none;
+  }
 }

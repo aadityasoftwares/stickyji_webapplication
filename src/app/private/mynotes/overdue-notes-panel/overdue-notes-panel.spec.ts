@@ -7,17 +7,37 @@ import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 const notes = [
-  { id: 'one', noteKey: 'ST-000001', title: 'Yesterday task', content: '', noteDate: '2026-10-04', daysOverdue: 1,
-    workspaceId: 'workspace', workspaceFolderId: 'folder', column: { id: 'todo', name: 'To Do', type: 'TODO' } },
-  { id: 'two', noteKey: 'ST-000002', title: 'Earlier task', content: '', noteDate: '2026-10-02', daysOverdue: 3,
-    workspaceId: 'workspace', workspaceFolderId: 'folder', column: { id: 'doing', name: 'In Progress', type: 'IN_PROGRESS' } }
+  {
+    id: 'one',
+    noteKey: 'ST-000001',
+    title: 'Yesterday task',
+    content: '',
+    noteDate: '2026-10-04',
+    daysOverdue: 1,
+    workspaceId: 'workspace',
+    workspaceFolderId: 'folder',
+    column: { id: 'todo', name: 'To Do', type: 'TODO' },
+  },
+  {
+    id: 'two',
+    noteKey: 'ST-000002',
+    title: 'Earlier task',
+    content: '',
+    noteDate: '2026-10-02',
+    daysOverdue: 3,
+    workspaceId: 'workspace',
+    workspaceFolderId: 'folder',
+    column: { id: 'doing', name: 'In Progress', type: 'IN_PROGRESS' },
+  },
 ];
 const data = {
-  today: '2026-10-05', total: 2, notes,
+  today: '2026-10-05',
+  total: 2,
+  notes,
   byColumn: [
     { columnId: 'todo', name: 'To Do', type: 'TODO', count: 1 },
-    { columnId: 'doing', name: 'In Progress', type: 'IN_PROGRESS', count: 1 }
-  ]
+    { columnId: 'doing', name: 'In Progress', type: 'IN_PROGRESS', count: 1 },
+  ],
 };
 
 describe('OverdueNotesPanel', () => {
@@ -25,7 +45,10 @@ describe('OverdueNotesPanel', () => {
   let component: OverdueNotesPanel;
   let element: HTMLElement;
   beforeEach(async () => {
-    TestBed.configureTestingModule({ imports: [OverdueNotesPanel], providers: [provideHttpClient()] });
+    TestBed.configureTestingModule({
+      imports: [OverdueNotesPanel],
+      providers: [provideHttpClient()],
+    });
     fixture = TestBed.createComponent(OverdueNotesPanel);
     component = fixture.componentInstance;
     element = fixture.nativeElement;
@@ -35,7 +58,7 @@ describe('OverdueNotesPanel', () => {
   });
 
   it('groups by backend date and formats planned dates with user preferences', () => {
-    expect(component.groups().map(group => group.date)).toEqual(['2026-10-04', '2026-10-02']);
+    expect(component.groups().map((group) => group.date)).toEqual(['2026-10-04', '2026-10-02']);
     expect(element.querySelector('.overdue-group h3')?.textContent).toContain('Yesterday');
     const formatted = TestBed.inject(UserDateTimeFormatterService).formatDateKey(notes[1].noteDate);
     expect(element.textContent).toContain(`Planned: ${formatted}`);
@@ -43,7 +66,7 @@ describe('OverdueNotesPanel', () => {
   });
 
   it('supports individual and select-all selection without changing API notes', async () => {
-    component.selectionChange.subscribe(ids => fixture.componentRef.setInput('selectedIds', ids));
+    component.selectionChange.subscribe((ids) => fixture.componentRef.setInput('selectedIds', ids));
     const checkboxes = element.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
     checkboxes[1].click();
     await fixture.whenStable();
@@ -76,7 +99,9 @@ describe('OverdueNotesPanel', () => {
     expect(bring).toHaveBeenLastCalledWith(['one']);
     fixture.componentRef.setInput('selectedIds', new Set(['one', 'two']));
     await fixture.whenStable();
-    const bulk = element.querySelector<HTMLButtonElement>('.overdue-footer app-button:last-child button');
+    const bulk = element.querySelector<HTMLButtonElement>(
+      '.overdue-footer app-button:last-child button',
+    );
     bulk?.click();
     expect(bring).toHaveBeenLastCalledWith(['one', 'two']);
     fixture.componentRef.setInput('busy', true);
@@ -128,7 +153,8 @@ describe('OverdueNotesPanel', () => {
     expect(open).not.toHaveBeenCalled();
     await fixture.whenStable();
     await vi.waitFor(() => expect(open).toHaveBeenCalledWith(notes[0]));
-    const shell = fixture.debugElement.query(By.directive(SidePanel)).componentInstance as SidePanel;
+    const shell = fixture.debugElement.query(By.directive(SidePanel))
+      .componentInstance as SidePanel;
     expect(shell.rendered()).toBe(false);
     expect(document.body.style.overflow).not.toBe('hidden');
   });

@@ -1,29 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-import {
-  NgClass,
-  NgComponentOutlet,
-} from '@angular/common';
+import { NgClass, NgComponentOutlet } from '@angular/common';
 
-import type {
-  LucideIcon as LucideIconComponent,
-} from '@lucide/angular';
+import type { LucideIcon as LucideIconComponent } from '@lucide/angular';
 
 export type AppIconDefinition = LucideIconComponent;
 
-export type AppIconSize =
-  | 'inherit'
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | '2xl'
-  | number;
+export type AppIconSize = 'inherit' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | number;
 
 export type AppIconTone =
   | 'inherit'
@@ -58,24 +41,14 @@ export type AppIconSurface =
   | 'noteBlue'
   | 'notePurple';
 
-export type AppIconShape =
-  | 'square'
-  | 'rounded'
-  | 'circle';
+export type AppIconShape = 'square' | 'rounded' | 'circle';
 
-export type AppIconFlip =
-  | 'none'
-  | 'horizontal'
-  | 'vertical'
-  | 'both';
+export type AppIconFlip = 'none' | 'horizontal' | 'vertical' | 'both';
 
 @Component({
   selector: 'app-icon',
   standalone: true,
-  imports: [
-    NgClass,
-    NgComponentOutlet,
-  ],
+  imports: [NgClass, NgComponentOutlet],
   templateUrl: './icon.html',
   styleUrl: './icon.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -165,10 +138,7 @@ export class AppIcon {
       return `${this.size}px`;
     }
 
-    const sizes: Record<
-      Exclude<AppIconSize, number>,
-      string
-    > = {
+    const sizes: Record<Exclude<AppIconSize, number>, string> = {
       inherit: '100%',
       xs: '14px',
       sm: '16px',
@@ -186,10 +156,7 @@ export class AppIcon {
       return this.size;
     }
 
-    const sizes: Record<
-      Exclude<AppIconSize, number>,
-      number
-    > = {
+    const sizes: Record<Exclude<AppIconSize, number>, number> = {
       inherit: 24,
       xs: 14,
       sm: 16,
@@ -243,23 +210,18 @@ export class AppIcon {
         break;
     }
 
-    return transforms.length > 0
-      ? transforms.join(' ')
-      : 'none';
+    return transforms.length > 0 ? transforms.join(' ') : 'none';
   }
 
   get iconClasses(): Record<string, boolean> {
     return {
       [`app-icon-tone-${this.tone}`]: true,
       [`app-icon-surface-${this.surface}`]: true,
-      [`app-icon-shape-${this.shape}`]:
-        this.surface !== 'none',
+      [`app-icon-shape-${this.shape}`]: this.surface !== 'none',
 
-      'app-icon-has-surface':
-        this.surface !== 'none',
+      'app-icon-has-surface': this.surface !== 'none',
 
-      'app-icon-pulse':
-        this.pulse,
+      'app-icon-pulse': this.pulse,
     };
   }
 }

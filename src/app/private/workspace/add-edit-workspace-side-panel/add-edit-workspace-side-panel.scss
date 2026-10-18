@@ -1,237 +1,237 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 :host ::ng-deep app-side-panel {
-    .app-side-panel-body {
-        background-color: var(--editor-body, #{$paper}) !important;
-        color: var(--editor-ink, #{$text-primary});
-    }
+  .app-side-panel-body {
+    background-color: var(--editor-body, #{$paper}) !important;
+    color: var(--editor-ink, #{$text-primary});
+  }
 }
 
 .workspace-editor {
-    --editor-paper: #{$paper};
-    --editor-body: var(--editor-paper);
-    --editor-ink: #{$text-primary};
-    --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading, 0.14)};
-    display: grid;
-    align-content: start;
-    gap: 18px;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    color: var(--editor-ink);
-    background: transparent;
-    font-family: $font-body;
+  --editor-paper: #{$paper};
+  --editor-body: var(--editor-paper);
+  --editor-ink: #{$text-primary};
+  --editor-muted: #{$text-secondary};
+  --editor-rule: #{rgba($heading, 0.14)};
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--editor-ink);
+  background: transparent;
+  font-family: $font-body;
 }
 
 .workspace-editor app-input,
 .workspace-editor app-select {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 
 .workspace-editor ::ng-deep {
-    .app-input-wrapper {
-        --app-input-background: #ffffff;
-        --app-input-border: #{$border};
-    }
+  .app-input-wrapper {
+    --app-input-background: #ffffff;
+    --app-input-border: #{$border};
+  }
 
-    .app-select-wrapper {
-        --app-select-background: #ffffff;
-        --app-select-border: #{$border};
-    }
+  .app-select-wrapper {
+    --app-select-background: #ffffff;
+    --app-select-border: #{$border};
+  }
 
-    .app-label {
-        color: var(--editor-muted);
-        font-size: 12px;
-    }
+  .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+  }
 }
 
 .workspace-fields {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .workspace-field {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .workspace-field > app-label {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .workspace-field-control {
-    min-width: 0;
+  min-width: 0;
 }
 
 .workspace-details-field ::ng-deep .app-input-textarea {
-    min-height: 108px;
-    line-height: 1.6;
+  min-height: 108px;
+  line-height: 1.6;
 }
 
 .workspace-field-counter,
 .workspace-field-hint {
-    display: block;
-    text-align: right;
-    padding: 3px 8px 0;
-    color: var(--editor-muted);
-    font-size: 10px;
+  display: block;
+  text-align: right;
+  padding: 3px 8px 0;
+  color: var(--editor-muted);
+  font-size: 10px;
 }
 
 .workspace-selection-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .workspace-selection-row > app-label {
-    padding-top: 6px;
+  padding-top: 6px;
 }
 
 .workspace-selection-control {
-    display: grid;
-    gap: 4px;
-    width: 100%;
-    min-width: 0;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
 }
 
 .workspace-selection-hint {
-    color: var(--editor-muted);
-    font-size: 11px;
-    line-height: 1.4;
+  color: var(--editor-muted);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .workspace-access-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .workspace-access-row > app-label {
-    padding-top: 6px;
+  padding-top: 6px;
 }
 
 .workspace-access-control {
-    display: grid;
-    gap: 4px;
-    width: 100%;
-    max-width: 240px;
-    min-width: 0;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  max-width: 240px;
+  min-width: 0;
 }
 
 .workspace-access-hint {
-    color: var(--editor-muted);
-    font-size: 11px;
-    line-height: 1.4;
+  color: var(--editor-muted);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 /* Match the supplied note editor's body-mounted desktop preview. */
 .workspace-external-preview {
-    position: fixed;
-    z-index: 2147483000;
-    top: 90px;
-    right: calc(45vw + 24px);
-    display: grid;
-    gap: 12px;
-    width: min(320px, calc(55vw - 48px));
-    max-height: calc(100dvh - 120px);
-    overflow: visible;
-    color: $text-primary;
-    font-family: $font-body;
-    pointer-events: none;
+  position: fixed;
+  z-index: 2147483000;
+  top: 90px;
+  right: calc(45vw + 24px);
+  display: grid;
+  gap: 12px;
+  width: min(320px, calc(55vw - 48px));
+  max-height: calc(100dvh - 120px);
+  overflow: visible;
+  color: $text-primary;
+  font-family: $font-body;
+  pointer-events: none;
 }
 
 .workspace-external-preview app-badge,
 .workspace-mobile-preview app-badge {
-    justify-self: start;
+  justify-self: start;
 }
 
 .workspace-external-preview app-workspace-folder-wrapper,
 .workspace-mobile-preview app-workspace-folder-wrapper {
-    display: block;
-    width: 100%;
-    min-width: 0;
+  display: block;
+  width: 100%;
+  min-width: 0;
 }
 
 .workspace-mobile-preview {
-    display: none;
+  display: none;
 }
 
 .workspace-editor-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .workspace-editor-footer-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .workspace-editor-error {
-    padding: 10px;
-    color: #9B2626;
-    background: #FDEAE7;
-    border-radius: 8px;
-    font-size: 12px;
-    line-height: 1.5;
+  padding: 10px;
+  color: #9b2626;
+  background: #fdeae7;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 @media (max-width: 1199.98px) {
-    .workspace-external-preview {
-        display: none;
-    }
+  .workspace-external-preview {
+    display: none;
+  }
 
-    .workspace-mobile-preview {
-        display: grid;
-        gap: 12px;
-        width: 100%;
-        max-width: 340px;
-        justify-self: center;
-    }
+  .workspace-mobile-preview {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    max-width: 340px;
+    justify-self: center;
+  }
 }
 
 @media (max-width: 575.98px) {
-    .workspace-editor {
-        gap: 14px;
-    }
+  .workspace-editor {
+    gap: 14px;
+  }
 
-    .workspace-field,
-    .workspace-selection-row,
-    .workspace-access-row {
-        grid-template-columns: 48px minmax(0, 1fr);
-        gap: 6px;
-    }
+  .workspace-field,
+  .workspace-selection-row,
+  .workspace-access-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 6px;
+  }
 
-    .workspace-access-control {
-        max-width: none;
-    }
+  .workspace-access-control {
+    max-width: none;
+  }
 }

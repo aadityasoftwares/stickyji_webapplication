@@ -1,112 +1,140 @@
-<article class="invitation-card" [ngClass]="themeClasses" [class.is-busy]="busy"
-    [class.is-interactive]="interactive" (click)="onCardClick($event)"
-    (dblclick)="onCardDblClick($event)">
+<article
+  class="invitation-card"
+  [ngClass]="themeClasses"
+  [class.is-busy]="busy"
+  [class.is-interactive]="interactive"
+  (click)="onCardClick($event)"
+  (dblclick)="onCardDblClick($event)"
+>
+  <!-- Curved Header Band — status badge lives here -->
+  <div class="invitation-card__band" aria-hidden="true">
+    <div class="invitation-card__band-badge" (click)="$event.stopPropagation()">
+      <app-badge
+        [label]="statusLabel"
+        [variant]="statusBadgeVariant"
+        size="xs"
+        shape="pill"
+        [dot]="true"
+      />
+    </div>
+  </div>
 
-    <!-- Curved Header Band — status badge lives here -->
-    <div class="invitation-card__band" aria-hidden="true">
-        <div class="invitation-card__band-badge" (click)="$event.stopPropagation()">
-            <app-badge [label]="statusLabel" [variant]="statusBadgeVariant" size="xs" shape="pill" [dot]="true" />
-        </div>
+  <!-- Avatar with mail mark (overlaps the band) -->
+  <div class="invitation-card__avatar-zone">
+    <div class="invitation-card__avatar-frame">
+      <app-avatar [name]="resolvedName" [size]="56" shape="circle" tone="blue" />
+    </div>
+    <span
+      class="invitation-card__envelope-mark"
+      title="Workspace Invitation"
+      aria-label="Workspace Invitation"
+    >
+      <app-icon [icon]="LucideMail" size="xs" />
+    </span>
+  </div>
+
+  <!-- Identity (name / user + role) -->
+  <div class="invitation-card__identity">
+    <div class="invitation-card__name-row">
+      <h3 class="invitation-card__name" [title]="resolvedName">{{ resolvedName }}</h3>
+      <span class="invitation-card__invite-pill">Invite</span>
     </div>
 
-    <!-- Avatar with mail mark (overlaps the band) -->
-    <div class="invitation-card__avatar-zone">
-        <div class="invitation-card__avatar-frame">
-            <app-avatar [name]="resolvedName" [size]="56" shape="circle" tone="blue" />
-        </div>
-        <span class="invitation-card__envelope-mark" title="Workspace Invitation" aria-label="Workspace Invitation">
-            <app-icon [icon]="LucideMail" size="xs" />
+    <div class="invitation-card__role-row">
+      <app-icon [icon]="LucideShield" size="xs" />
+      <span class="invitation-card__role">{{ roleBadgeLabel }}</span>
+    </div>
+  </div>
+
+  <!-- Dashed divider with invitation ID -->
+  <div class="invitation-card__divider" aria-hidden="true">
+    <span class="invitation-card__mid-id">{{ displayId }}</span>
+  </div>
+
+  <!-- Field rows -->
+  <div class="invitation-card__fields" role="group" aria-label="Invitation details">
+    @if (resolvedEmail) {
+      <div class="invitation-card__field" (click)="$event.stopPropagation()">
+        <span class="invitation-card__field-label">
+          <app-icon [icon]="LucideMail" size="xs" />
+          Email
         </span>
+        <span class="invitation-card__field-value" [title]="resolvedEmail">{{
+          resolvedEmail
+        }}</span>
+        <button
+          class="invitation-card__copy-btn"
+          [class.is-copied]="emailCopied"
+          (click)="copyEmail($event)"
+          [title]="emailCopied ? 'Copied!' : 'Copy email'"
+          aria-label="Copy email address"
+        >
+          <app-icon [icon]="emailCopied ? LucideCheck : LucideCopy" size="xs" />
+        </button>
+      </div>
+    }
+
+    <div class="invitation-card__field">
+      <span class="invitation-card__field-label">
+        <app-icon [icon]="LucideUserCheck" size="xs" />
+        Invited by
+      </span>
+      <span class="invitation-card__field-value" [title]="invitedByLabel">{{
+        invitedByLabel
+      }}</span>
     </div>
 
-    <!-- Identity (name / user + role) -->
-    <div class="invitation-card__identity">
-        <div class="invitation-card__name-row">
-            <h3 class="invitation-card__name" [title]="resolvedName">{{ resolvedName }}</h3>
-            <span class="invitation-card__invite-pill">Invite</span>
-        </div>
-
-        <div class="invitation-card__role-row">
-            <app-icon [icon]="LucideShield" size="xs" />
-            <span class="invitation-card__role">{{ roleBadgeLabel }}</span>
-        </div>
+    <div class="invitation-card__field">
+      <span class="invitation-card__field-label">
+        <app-icon [icon]="LucideCalendar" size="xs" />
+        Sent
+      </span>
+      <span class="invitation-card__field-value" [title]="createdDateLabel">{{
+        createdDateLabel
+      }}</span>
     </div>
 
-    <!-- Dashed divider with invitation ID -->
-    <div class="invitation-card__divider" aria-hidden="true">
-        <span class="invitation-card__mid-id">{{ displayId }}</span>
+    <div class="invitation-card__field">
+      <span class="invitation-card__field-label">
+        <app-icon [icon]="LucideClock" size="xs" />
+        Expires
+      </span>
+      <span
+        class="invitation-card__field-value"
+        [class.is-muted]="isExpired"
+        [title]="expiresDateLabel"
+        >{{ expiresDateLabel }}</span
+      >
     </div>
 
-    <!-- Field rows -->
-    <div class="invitation-card__fields" role="group" aria-label="Invitation details">
+    @if (resolvedMessage) {
+      <div class="invitation-card__field invitation-card__field--message">
+        <span class="invitation-card__field-label">
+          <app-icon [icon]="LucideFileText" size="xs" />
+          Note
+        </span>
+        <span
+          class="invitation-card__field-value invitation-card__message-val"
+          [title]="resolvedMessage"
+        >
+          {{ resolvedMessage }}
+        </span>
+      </div>
+    }
+  </div>
 
-        @if (resolvedEmail) {
-        <div class="invitation-card__field" (click)="$event.stopPropagation()">
-            <span class="invitation-card__field-label">
-                <app-icon [icon]="LucideMail" size="xs" />
-                Email
-            </span>
-            <span class="invitation-card__field-value" [title]="resolvedEmail">{{ resolvedEmail }}</span>
-            <button class="invitation-card__copy-btn" [class.is-copied]="emailCopied"
-                (click)="copyEmail($event)" [title]="emailCopied ? 'Copied!' : 'Copy email'"
-                aria-label="Copy email address">
-                <app-icon [icon]="emailCopied ? LucideCheck : LucideCopy" size="xs" />
-            </button>
-        </div>
-        }
+  <!-- Optional extra content -->
+  <ng-content select="[card-extra]" />
 
-        <div class="invitation-card__field">
-            <span class="invitation-card__field-label">
-                <app-icon [icon]="LucideUserCheck" size="xs" />
-                Invited by
-            </span>
-            <span class="invitation-card__field-value" [title]="invitedByLabel">{{ invitedByLabel }}</span>
-        </div>
-
-        <div class="invitation-card__field">
-            <span class="invitation-card__field-label">
-                <app-icon [icon]="LucideCalendar" size="xs" />
-                Sent
-            </span>
-            <span class="invitation-card__field-value" [title]="createdDateLabel">{{ createdDateLabel }}</span>
-        </div>
-
-        <div class="invitation-card__field">
-            <span class="invitation-card__field-label">
-                <app-icon [icon]="LucideClock" size="xs" />
-                Expires
-            </span>
-            <span class="invitation-card__field-value" [class.is-muted]="isExpired"
-                [title]="expiresDateLabel">{{ expiresDateLabel }}</span>
-        </div>
-
-        @if (resolvedMessage) {
-        <div class="invitation-card__field invitation-card__field--message">
-            <span class="invitation-card__field-label">
-                <app-icon [icon]="LucideFileText" size="xs" />
-                Note
-            </span>
-            <span class="invitation-card__field-value invitation-card__message-val" [title]="resolvedMessage">
-                {{ resolvedMessage }}
-            </span>
-        </div>
-        }
-
+  <!-- Footer — all action buttons live here -->
+  <div class="invitation-card__footer" (click)="$event.stopPropagation()">
+    <!-- grows: [card-footer] = Cancel invitation / primary button -->
+    <div class="invitation-card__footer-main">
+      <ng-content select="[card-footer]" />
     </div>
-
-    <!-- Optional extra content -->
-    <ng-content select="[card-extra]" />
-
-    <!-- Footer — all action buttons live here -->
-    <div class="invitation-card__footer" (click)="$event.stopPropagation()">
-        <!-- grows: [card-footer] = Cancel invitation / primary button -->
-        <div class="invitation-card__footer-main">
-            <ng-content select="[card-footer]" />
-        </div>
-        <!-- fixed: [card-actions] = 3-dot menu -->
-        <div class="invitation-card__footer-extra">
-            <ng-content select="[card-actions]" />
-        </div>
+    <!-- fixed: [card-actions] = 3-dot menu -->
+    <div class="invitation-card__footer-extra">
+      <ng-content select="[card-actions]" />
     </div>
-
+  </div>
 </article>

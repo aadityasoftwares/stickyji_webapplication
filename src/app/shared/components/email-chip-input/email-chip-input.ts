@@ -4,7 +4,7 @@ import {
   EventEmitter,
   Input,
   Output,
-  signal
+  signal,
 } from '@angular/core';
 import { LucideMail, LucideX } from '@lucide/angular';
 
@@ -16,7 +16,7 @@ import { AppIcon } from '../icon/icon';
   imports: [AppIcon],
   templateUrl: './email-chip-input.html',
   styleUrl: './email-chip-input.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmailChipInput {
   @Input() emails: readonly string[] = [];
@@ -41,7 +41,8 @@ export class EmailChipInput {
 
   onKeydown(event: Event): void {
     const keyboardEvent = event as KeyboardEvent;
-    const separator = keyboardEvent.key === 'Enter' || keyboardEvent.key === ',' || keyboardEvent.key === ';';
+    const separator =
+      keyboardEvent.key === 'Enter' || keyboardEvent.key === ',' || keyboardEvent.key === ';';
     const tabWithValue = keyboardEvent.key === 'Tab' && !!this.draft().trim();
 
     if (!separator && !tabWithValue) return;
@@ -65,7 +66,7 @@ export class EmailChipInput {
 
   removeEmail(email: string): void {
     if (this.disabled) return;
-    this.emailsChange.emit(this.emails.filter(item => item !== email));
+    this.emailsChange.emit(this.emails.filter((item) => item !== email));
     this.validationMessage.set(null);
   }
 
@@ -78,12 +79,12 @@ export class EmailChipInput {
   private addTokens(rawValue: string): void {
     const tokens = rawValue
       .split(/[\s,;]+/)
-      .map(value => value.trim().toLowerCase())
+      .map((value) => value.trim().toLowerCase())
       .filter(Boolean);
 
     if (!tokens.length) return;
 
-    const current = new Set(this.emails.map(email => email.toLowerCase()));
+    const current = new Set(this.emails.map((email) => email.toLowerCase()));
     const invalid: string[] = [];
     let added = 0;
 
@@ -110,7 +111,7 @@ export class EmailChipInput {
     if (invalid.length) {
       const preview = invalid.slice(0, 2).join(', ');
       this.validationMessage.set(
-        `${preview}${invalid.length > 2 ? ' and more' : ''} ${invalid.length === 1 ? 'is' : 'are'} not valid.`
+        `${preview}${invalid.length > 2 ? ' and more' : ''} ${invalid.length === 1 ? 'is' : 'are'} not valid.`,
       );
     } else if (current.size < this.maxEmails) {
       this.validationMessage.set(null);

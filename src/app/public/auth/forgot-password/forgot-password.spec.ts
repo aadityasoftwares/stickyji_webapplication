@@ -14,10 +14,7 @@ describe('ForgotPassword', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ForgotPassword],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForgotPassword);

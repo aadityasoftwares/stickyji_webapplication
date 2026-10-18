@@ -2,13 +2,13 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -16,39 +16,39 @@
    ========================================================================== */
 
 .column-editor {
-    --editor-paper: #{$paper};
-    --editor-body: #{$paper};
-    --editor-ink: #{$text-primary};
-    --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading, 0.14)};
-    display: grid;
-    align-content: start;
-    gap: 18px;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    color: var(--editor-ink);
-    background: transparent;
-    font-family: $font-body;
+  --editor-paper: #{$paper};
+  --editor-body: #{$paper};
+  --editor-ink: #{$text-primary};
+  --editor-muted: #{$text-secondary};
+  --editor-rule: #{rgba($heading, 0.14)};
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--editor-ink);
+  background: transparent;
+  font-family: $font-body;
 }
 
 .column-editor app-input,
 .column-editor app-select {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 
 .column-editor ::ng-deep {
-    .app-input-wrapper {
-        --app-input-background: #ffffff;
-        --app-input-border: #{$border};
-    }
+  .app-input-wrapper {
+    --app-input-background: #ffffff;
+    --app-input-border: #{$border};
+  }
 
-    .app-select-wrapper {
-        --app-select-background: #ffffff;
-        --app-select-border: #{$border};
-    }
+  .app-select-wrapper {
+    --app-select-background: #ffffff;
+    --app-select-border: #{$border};
+  }
 }
 
 /* ==========================================================================
@@ -56,27 +56,27 @@
    ========================================================================== */
 
 .column-context {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
 }
 
 .column-context-field {
-    min-width: 0;
+  min-width: 0;
 }
 
 .column-context-slash {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    font-weight: 500;
-    color: var(--editor-muted, #{$text-light});
-    opacity: 0.55;
-    user-select: none;
-    line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--editor-muted, #{$text-light});
+  opacity: 0.55;
+  user-select: none;
+  line-height: 1;
 }
 
 /* ==========================================================================
@@ -84,42 +84,42 @@
    ========================================================================== */
 
 .column-fields {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .column-field {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
 }
 
 .column-field > app-label {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .column-field-control {
-    min-width: 0;
+  min-width: 0;
 }
 
 .column-name-field ::ng-deep .app-input-control {
-    font-size: 16px;
-    font-weight: 600;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .column-field-counter {
-    display: block;
-    text-align: right;
-    padding: 3px 8px 0;
-    color: var(--editor-muted);
-    font-size: 10px;
+  display: block;
+  text-align: right;
+  padding: 3px 8px 0;
+  color: var(--editor-muted);
+  font-size: 10px;
 }
 
 .column-editor ::ng-deep .app-label {
-    color: var(--editor-muted);
-    font-size: 12px;
+  color: var(--editor-muted);
+  font-size: 12px;
 }
 
 /* ==========================================================================
@@ -128,102 +128,105 @@
 
 .column-appearance,
 .column-position-section {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
 }
 
 .column-color-control,
 .column-position-control {
-    min-width: 0;
+  min-width: 0;
 }
 
 .column-color-swatches {
-    display: grid;
-    gap: 8px;
-    padding-top: 4px;
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
 }
 
 .column-color-options {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .column-color-option {
-    display: flex;
-    align-items: center;
-    min-height: 38px;
-    gap: 8px;
-    padding: 7px 9px;
-    color: var(--editor-ink);
-    background: var(--editor-paper, #{$paper});
-    border: 1px solid rgba($heading, 0.12);
-    border-radius: $radius-sm;
-    font: 600 12px/1.2 $font-body;
-    cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  gap: 8px;
+  padding: 7px 9px;
+  color: var(--editor-ink);
+  background: var(--editor-paper, #{$paper});
+  border: 1px solid rgba($heading, 0.12);
+  border-radius: $radius-sm;
+  font: 600 12px/1.2 $font-body;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .column-color-option:hover:not(:disabled) {
-    background: rgba($heading, 0.04);
+  background: rgba($heading, 0.04);
 }
 
 .column-color-option:focus-visible {
-    outline: none;
-    box-shadow: var(--app-focus-ring);
+  outline: none;
+  box-shadow: var(--app-focus-ring);
 }
 
 .column-color-option.is-selected {
-    color: $heading;
-    border-color: color-mix(in srgb, var(--column-swatch-color, #{$primary}) 55%, $border);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--column-swatch-color, #{$primary}) 22%, transparent);
+  color: $heading;
+  border-color: color-mix(in srgb, var(--column-swatch-color, #{$primary}) 55%, $border);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--column-swatch-color, #{$primary}) 22%, transparent);
 }
 
 .column-color-option:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .column-color-swatch {
-    flex: 0 0 auto;
-    width: 14px;
-    height: 14px;
-    background: var(--column-swatch-color);
-    border: 1px solid rgba($heading, 0.14);
-    border-radius: 50%;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  background: var(--column-swatch-color);
+  border: 1px solid rgba($heading, 0.14);
+  border-radius: 50%;
 }
 
 [data-column-color='yellow'] {
-    --column-swatch-color: #{$note-yellow};
-    --column-color: #{$note-yellow};
+  --column-swatch-color: #{$note-yellow};
+  --column-color: #{$note-yellow};
 }
 
 [data-column-color='blue'] {
-    --column-swatch-color: #{$note-blue};
-    --column-color: #{$note-blue};
+  --column-swatch-color: #{$note-blue};
+  --column-color: #{$note-blue};
 }
 
 [data-column-color='green'] {
-    --column-swatch-color: #{$note-green};
-    --column-color: #{$note-green};
+  --column-swatch-color: #{$note-green};
+  --column-color: #{$note-green};
 }
 
 [data-column-color='pink'] {
-    --column-swatch-color: #{$note-pink};
-    --column-color: #{$note-pink};
+  --column-swatch-color: #{$note-pink};
+  --column-color: #{$note-pink};
 }
 
 [data-column-color='purple'] {
-    --column-swatch-color: #{$note-purple};
-    --column-color: #{$note-purple};
+  --column-swatch-color: #{$note-purple};
+  --column-color: #{$note-purple};
 }
 
 [data-column-color='orange'] {
-    --column-swatch-color: #{$note-orange};
-    --column-color: #{$note-orange};
+  --column-swatch-color: #{$note-orange};
+  --column-color: #{$note-orange};
 }
 
 /* ==========================================================================
@@ -231,44 +234,44 @@
    ========================================================================== */
 
 .column-meta {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    padding: 10px 12px;
-    background: rgba($heading, 0.035);
-    border: 1px solid var(--editor-rule);
-    border-radius: $radius-sm;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba($heading, 0.035);
+  border: 1px solid var(--editor-rule);
+  border-radius: $radius-sm;
 }
 
 .column-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .column-meta-item span {
-    color: var(--editor-muted);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  color: var(--editor-muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .column-meta-item strong {
-    color: var(--editor-ink);
-    font-size: 13px;
-    font-weight: 700;
+  color: var(--editor-ink);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .column-system-note {
-    margin: 0;
-    padding: 6px 10px;
-    color: var(--editor-muted);
-    font-size: 11px;
-    line-height: 1.4;
-    background: rgba($note-blue, 0.1);
-    border-left: 3px solid #{$note-blue};
-    border-radius: 0 4px 4px 0;
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--editor-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  background: rgba($note-blue, 0.1);
+  border-left: 3px solid #{$note-blue};
+  border-radius: 0 4px 4px 0;
 }
 
 /* ==========================================================================
@@ -277,139 +280,139 @@
 
 /* Floating preview is a fixed sibling, matching note-external-preview */
 .column-external-preview {
-    position: fixed;
-    z-index: 2147483000;
-    top: 90px;
-    right: 720px;
-    width: min(320px, calc(100vw - 760px));
-    max-height: calc(100dvh - 120px);
-    overflow: hidden;
-    display: grid;
-    gap: 12px;
-    pointer-events: none;
+  position: fixed;
+  z-index: 2147483000;
+  top: 90px;
+  right: 720px;
+  width: min(320px, calc(100vw - 760px));
+  max-height: calc(100dvh - 120px);
+  overflow: hidden;
+  display: grid;
+  gap: 12px;
+  pointer-events: none;
 }
 
 .column-external-preview app-badge {
-    justify-self: start;
+  justify-self: start;
 }
 
 .column-preview-card {
-    display: grid;
-    gap: 10px;
-    padding: 12px;
-    background: $paper;
-    border: 1px solid rgba($heading, 0.12);
-    border-radius: $radius-sm;
-    box-shadow: 0 0.5rem 1.6rem rgba($heading, 0.08);
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: $paper;
+  border: 1px solid rgba($heading, 0.12);
+  border-radius: $radius-sm;
+  box-shadow: 0 0.5rem 1.6rem rgba($heading, 0.08);
 }
 
 .column-preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .column-preview-title {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
 }
 
 .column-preview-title strong {
-    overflow: hidden;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: 13px;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .column-preview-dot {
-    flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    background: var(--column-color, #{$note-yellow});
-    border-radius: 50%;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  background: var(--column-color, #{$note-yellow});
+  border-radius: 50%;
 }
 
 .column-preview-add {
-    display: grid;
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    color: $text-secondary;
-    background: $page-bg;
-    border: 1px solid $border-light;
-    border-radius: $radius-xs;
-    place-items: center;
+  display: grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  color: $text-secondary;
+  background: $page-bg;
+  border: 1px solid $border-light;
+  border-radius: $radius-xs;
+  place-items: center;
 }
 
 .column-preview-rule {
-    height: 1px;
-    background: $border-light;
+  height: 1px;
+  background: $border-light;
 }
 
 .column-preview-empty {
-    display: grid;
-    min-height: 120px;
-    place-content: center;
-    justify-items: center;
-    gap: 5px;
+  display: grid;
+  min-height: 120px;
+  place-content: center;
+  justify-items: center;
+  gap: 5px;
 }
 
 .column-preview-empty > span {
-    display: block;
-    width: 74px;
-    height: 8px;
-    background: color-mix(in srgb, var(--column-color, #{$note-yellow}) 22%, $paper-dark);
-    border-radius: 999px;
+  display: block;
+  width: 74px;
+  height: 8px;
+  background: color-mix(in srgb, var(--column-color, #{$note-yellow}) 22%, $paper-dark);
+  border-radius: 999px;
 }
 
 .column-preview-empty > span:nth-child(2) {
-    width: 96px;
+  width: 96px;
 }
 
 .column-preview-empty > span:nth-child(3) {
-    width: 58px;
+  width: 58px;
 }
 
 .column-preview-empty small {
-    margin-top: 5px;
-    color: $text-light;
-    font-size: 10px;
+  margin-top: 5px;
+  color: $text-light;
+  font-size: 10px;
 }
 
 .column-mobile-preview {
-    display: none;
+  display: none;
 }
 
 .column-editor-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .column-editor-footer-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .column-editor-error {
-    padding: 10px;
-    color: #9B2626;
-    background: #FDEAE7;
-    font-size: 12px;
-    border-radius: 8px;
+  padding: 10px;
+  color: #9b2626;
+  background: #fdeae7;
+  font-size: 12px;
+  border-radius: 8px;
 }
 
 /* ==========================================================================
@@ -417,56 +420,56 @@
    ========================================================================== */
 
 @media (max-width: 1199.98px) {
-    .column-external-preview {
-        display: none;
-    }
+  .column-external-preview {
+    display: none;
+  }
 
-    .column-mobile-preview {
-        display: grid;
-        gap: 12px;
-        max-width: 340px;
-        width: 100%;
-        justify-self: center;
-    }
+  .column-mobile-preview {
+    display: grid;
+    gap: 12px;
+    max-width: 340px;
+    width: 100%;
+    justify-self: center;
+  }
 }
 
 @media (max-width: 640px) {
-    .column-context {
-        grid-template-columns: 1fr;
-    }
+  .column-context {
+    grid-template-columns: 1fr;
+  }
 
-    .column-color-options {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .column-color-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 575.98px) {
-    .column-field,
-    .column-appearance,
-    .column-position-section {
-        grid-template-columns: 48px minmax(0, 1fr);
-        gap: 6px;
-    }
+  .column-field,
+  .column-appearance,
+  .column-position-section {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 6px;
+  }
 
-    .column-meta {
-        grid-template-columns: 1fr;
-    }
+  .column-meta {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    :host ::ng-deep .app-side-panel-body,
-    .column-editor {
-        transition: none;
-    }
+  :host ::ng-deep .app-side-panel-body,
+  .column-editor {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
-    :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
-    .column-editor[data-color] {
-        --editor-body: Canvas;
-        --editor-paper: Canvas;
-        --editor-ink: CanvasText;
-        --editor-muted: CanvasText;
-        --editor-rule: CanvasText;
-    }
+  :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
+  .column-editor[data-color] {
+    --editor-body: Canvas;
+    --editor-paper: Canvas;
+    --editor-ink: CanvasText;
+    --editor-muted: CanvasText;
+    --editor-rule: CanvasText;
+  }
 }

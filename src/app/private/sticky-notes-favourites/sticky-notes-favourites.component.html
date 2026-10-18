@@ -1,275 +1,516 @@
 <section class="workspace-page" aria-labelledby="favourites-page-title">
-    <main class="workspace-main">
-        <header class="workspace-header">
-            <div class="workspace-intro">
-                <span class="workspace-intro-mark" aria-hidden="true">
-                    <app-icon [icon]="LucideStar" size="md" />
-                </span>
-                <div>
-                    <span class="workspace-kicker">Notes library · Favourites</span>
-                    <h1 id="favourites-page-title">Keep important notes <span>close at hand.</span></h1>
-                </div>
-            </div>
+  <main class="workspace-main">
+    <header class="workspace-header">
+      <div class="workspace-intro">
+        <span class="workspace-intro-mark" aria-hidden="true">
+          <app-icon [icon]="LucideStar" size="md" />
+        </span>
+        <div>
+          <span class="workspace-kicker">Notes library · Favourites</span>
+          <h1 id="favourites-page-title">Keep important notes <span>close at hand.</span></h1>
+        </div>
+      </div>
 
-            <div class="workspace-header-actions">
-                <div class="workspace-count-slot" aria-live="polite">
-                    @if (!loading()) {
-                    <app-badge [label]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')"
-                        variant="noteYellow" size="sm" shape="pill" />
-                    } @else {
-                    <span class="workspace-count-placeholder" aria-hidden="true"></span>
-                    }
-                </div>
-                <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
-                    size="md" ariaLabel="Refresh favourites" appTooltip="Refresh favourites" tooltipTone="noteBlue"
-                    tooltipPosition="bottom" tooltipSize="sm" [loading]="loading()" (buttonClick)="refresh()" />
-            </div>
-        </header>
+      <div class="workspace-header-actions">
+        <div class="workspace-count-slot" aria-live="polite">
+          @if (!loading()) {
+            <app-badge
+              [label]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')"
+              variant="noteYellow"
+              size="sm"
+              shape="pill"
+            />
+          } @else {
+            <span class="workspace-count-placeholder" aria-hidden="true"></span>
+          }
+        </div>
+        <app-button
+          [icon]="LucideRefreshCw"
+          [iconOnly]="true"
+          appearance="standard"
+          variant="noteBlue"
+          size="md"
+          ariaLabel="Refresh favourites"
+          appTooltip="Refresh favourites"
+          tooltipTone="noteBlue"
+          tooltipPosition="bottom"
+          tooltipSize="sm"
+          [loading]="loading()"
+          (buttonClick)="refresh()"
+        />
+      </div>
+    </header>
 
-        <section class="workspace-explorer" [attr.aria-busy]="loading()">
-            <div class="workspace-toolbar">
-                <div class="workspace-toolbar-filters">
-                    <app-tabs class="workspace-status-tabs" [items]="noteTabs()" [value]="activeTab()"
-                        variant="segmented" activeVariant="noteYellow" shape="rounded" size="sm" density="compact"
-                        ariaLabel="Filter favourites by status" [scrollable]="false"
-                        (valueChange)="setNoteTab($event)" />
-                </div>
+    <section class="workspace-explorer" [attr.aria-busy]="loading()">
+      <div class="workspace-toolbar">
+        <div class="workspace-toolbar-filters">
+          <app-tabs
+            class="workspace-status-tabs"
+            [items]="noteTabs()"
+            [value]="activeTab()"
+            variant="segmented"
+            activeVariant="noteYellow"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Filter favourites by status"
+            [scrollable]="false"
+            (valueChange)="setNoteTab($event)"
+          />
+        </div>
 
-                <div class="workspace-toolbar-actions">
-                    <div class="workspace-search">
-                        <app-input type="search" label="Search favourites" labelMode="hidden"
-                            placeholder="Search favourites..." variant="paper" appearance="outlined" shape="rounded"
-                            size="sm" [leadingIcon]="LucideSearch" [clearable]="true" [value]="searchTerm()"
-                            [fullWidth]="true" ariaLabel="Search favourite notes"
-                            (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
-                    </div>
-                    <app-select class="workspace-sort" [options]="sortOptions" [ngModel]="sortBy()"
-                        (ngModelChange)="setSort($event)" name="favourites-sort" placeholder="Sort favourites"
-                        ariaLabel="Sort favourite notes" variant="paper" shape="rounded" size="sm"
-                        [iconLeft]="LucideClock3" [clearable]="false" [searchable]="false" [fullWidth]="true" />
-                    <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented"
-                        shape="rounded" size="sm" density="compact" ariaLabel="Choose grid or list view"
-                        [scrollable]="false" [minTabWidth]="64" (valueChange)="setNoteView($event)" />
-                </div>
-            </div>
+        <div class="workspace-toolbar-actions">
+          <div class="workspace-search">
+            <app-input
+              type="search"
+              label="Search favourites"
+              labelMode="hidden"
+              placeholder="Search favourites..."
+              variant="paper"
+              appearance="outlined"
+              shape="rounded"
+              size="sm"
+              [leadingIcon]="LucideSearch"
+              [clearable]="true"
+              [value]="searchTerm()"
+              [fullWidth]="true"
+              ariaLabel="Search favourite notes"
+              (valueChange)="updateSearch($event)"
+              (cleared)="clearSearch()"
+            />
+          </div>
+          <app-select
+            class="workspace-sort"
+            [options]="sortOptions"
+            [ngModel]="sortBy()"
+            (ngModelChange)="setSort($event)"
+            name="favourites-sort"
+            placeholder="Sort favourites"
+            ariaLabel="Sort favourite notes"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucideClock3"
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="true"
+          />
+          <app-tabs
+            class="workspace-view-tabs"
+            [items]="viewTabs"
+            [value]="view()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Choose grid or list view"
+            [scrollable]="false"
+            [minTabWidth]="64"
+            (valueChange)="setNoteView($event)"
+          />
+        </div>
+      </div>
 
-            <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
-                @if (loading() && notes().length === 0) {
-                <div class="workspace-loader-state">
-                    <app-loader mode="section" size="md" tone="colorful" label="Opening favourite notes..."
-                        description="Gathering your starred sticky notes." [minHeight]="390" />
-                </div>
-                } @else if (error()) {
-                <div class="workspace-empty-state">
-                    <span class="workspace-empty-icon is-error"><app-icon [icon]="LucideX" size="lg" /></span>
-                    <span class="workspace-empty-note">Couldn’t open favourites</span>
-                    <h2>Favourites are unavailable</h2>
-                    <p>{{ error() }}</p>
-                    <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-                        (buttonClick)="loadFavourites(true)" />
-                </div>
-                } @else if (visibleNotes().length === 0) {
-                <div class="workspace-empty-state is-compact">
-                    <span class="workspace-empty-icon">
-                        <app-icon [icon]="searchTerm() ? LucideSearch : LucideStar" size="lg" />
-                    </span>
-                    <span class="workspace-empty-note">
-                        {{ searchTerm() ? 'Nothing matches your search' : 'No favourite notes yet' }}
-                    </span>
-                    <h2>{{ searchTerm() ? 'No notes found' : 'Start starring your notes' }}</h2>
-                    <p>{{ searchTerm() ? 'Try another keyword or clear the search.' : 'Star important notes in My Notes or Workspace to find them here.' }}</p>
-                    @if (searchTerm()) {
-                    <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-                    }
-                </div>
-                } @else if (view() === 'grid') {
-                <div class="notes-grid" role="list" aria-label="Favourite sticky notes">
-                    @for (note of visibleNotes(); track noteId(note)) {
-                    <article class="notes-grid-item" role="listitem" [class.is-archived]="isArchived(note)"
-                        [class.is-busy]="isBusy(note)" (dblclick)="openEditEditor(note, $event)">
-                        <app-sticky-note [data]="stickyNoteData(note)" (editRequested)="openEditEditor(note)"
-                            (favoriteToggled)="onFavoriteToggled($event)"
-                            (titleChangeRequested)="updateNoteTitle($event)"
-                            (descriptionChangeRequested)="updateNoteDescription($event)"
-                            (deleted)="onNoteDeleted($event)" (deleteRequested)="onNoteDeleted(noteId(note))"
-                            (noteUpdated)="onNoteUpdated($event)" />
-                    </article>
-                    }
-                </div>
-                } @else {
-                <div class="workspace-grouped-table" aria-label="Favourite notes grouped table">
-                    <div class="workspace-table-groups-container">
-                        @for (group of noteGroups(); track group.id) {
-                        <section class="workspace-group" [style.--group-accent]="group.accent">
-                            <header class="workspace-group-header">
-                                <h3 class="workspace-group-toggle is-static">
-                                    <span class="workspace-group-accent-bar" aria-hidden="true"></span>
-                                    <span class="workspace-group-label">{{ group.label }}</span>
-                                    <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded" />
-                                </h3>
-                            </header>
-                            <div class="workspace-group-body" role="region" tabindex="0"
-                                [attr.aria-label]="group.label">
-                                @if (group.items.length > 0) {
-                                <table class="workspace-gtable" [attr.aria-label]="group.label">
-                                    <thead>
-                                        <tr>
-                                            <th class="workspace-gt-name" scope="col">Note</th>
-                                            <th class="workspace-gt-description" scope="col">Description</th>
-                                            <th class="workspace-gt-date" scope="col">Date</th>
-                                            <th class="workspace-gt-folder" scope="col">Folder</th>
-                                            <th class="workspace-gt-column" scope="col">Column</th>
-                                            <th class="workspace-gt-progress" scope="col">Progress</th>
-                                            <th class="workspace-gt-status" scope="col">Status</th>
-                                            <th class="workspace-gt-updated" scope="col">Modified</th>
-                                            <th class="workspace-gt-actions" scope="col">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @for (note of group.items; track noteId(note)) {
-                                        <tr [class.is-archived]="isArchived(note)" [class.is-busy]="isBusy(note)"
-                                            (dblclick)="openEditEditor(note, $event)">
-                                            <td class="workspace-gt-name" data-label="Note">
-                                                <div class="workspace-table-name-main" role="button"
-                                                    [attr.tabindex]="isBusy(note) ? -1 : 0"
-                                                    [attr.aria-label]="'Edit ' + noteTitle(note)"
-                                                    (click)="openEditEditor(note, $event)"
-                                                    (keydown.enter)="openEditEditor(note, $event)">
-                                                    <span [class]="'notes-table-note-mark is-' + noteColorKey(note)"
-                                                        aria-hidden="true"></span>
-                                                    <div class="workspace-table-copy">
-                                                        @if (noteKey(note); as key) {
-                                                        <span class="notes-table-key-wrapper">
-                                                            <span class="notes-table-key-badge">{{ key }}</span>
-                                                            <button type="button" class="workspace-gt-key-copy"
-                                                                [attr.aria-label]="'Copy ' + key"
-                                                                [appTooltip]="isKeyCopied(key) ? 'Copied' : 'Copy note key'"
-                                                                tooltipPosition="top" tooltipSize="sm"
-                                                                (click)="copyNoteKey(key, $event)">
-                                                                <app-icon [icon]="isKeyCopied(key) ? LucideCheck : LucideCopy" size="xs" />
-                                                            </button>
-                                                        </span>
-                                                        }
-                                                        <strong>{{ noteTitle(note) }}</strong>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="workspace-gt-description" data-label="Description">
-                                                <span class="notes-table-description-text">{{ noteContent(note) || 'No description' }}</span>
-                                            </td>
-                                            <td class="workspace-gt-date" data-label="Date">
-                                                <span class="workspace-gt-date-text">{{ noteDateLabel(note) }}</span>
-                                            </td>
-                                            <td class="workspace-gt-folder" data-label="Folder">
-                                                <span class="notes-table-column-pill"><app-icon [icon]="LucideFolderOpen" size="xs" />{{ noteFolderName(note) }}</span>
-                                            </td>
-                                            <td class="workspace-gt-column" data-label="Column">
-                                                <span class="notes-table-column-pill"><app-icon [icon]="LucideColumns3" size="xs" />{{ noteColumnName(note) }}</span>
-                                            </td>
-                                            <td class="workspace-gt-progress" data-label="Progress">
-                                                @if (noteChecklistTotal(note) > 0) {
-                                                <div class="notes-table-progress" role="progressbar"
-                                                    [attr.aria-label]="noteTitle(note) + ' checklist progress'"
-                                                    aria-valuemin="0" aria-valuemax="100"
-                                                    [attr.aria-valuenow]="noteProgressPct(note)">
-                                                    <span class="notes-table-progress-label">
-                                                        <span>{{ noteChecklistCompleted(note) }}/{{ noteChecklistTotal(note) }}</span>
-                                                        <strong>{{ noteProgressPct(note) }}%</strong>
-                                                    </span>
-                                                    <span class="notes-table-progress-track"><span [style.width.%]="noteProgressPct(note)"></span></span>
-                                                </div>
-                                                } @else {
-                                                <span class="workspace-table-muted">—</span>
-                                                }
-                                            </td>
-                                            <td class="workspace-gt-status" data-label="Status">
-                                                <app-switch [checked]="isActive(note)" variant="noteGreen" size="sm"
-                                                    [loading]="isBusy(note)" [disabled]="isBusy(note)"
-                                                    [ariaLabel]="(isActive(note) ? 'Archive ' : 'Activate ') + noteTitle(note)"
-                                                    (click)="$event.stopPropagation()"
-                                                    (checkedChange)="changeNoteStatus(note, $event)" />
-                                            </td>
-                                            <td class="workspace-gt-updated" data-label="Modified">
-                                                <span class="workspace-gt-date-text">{{ (note.updatedAt || note.createdAt) | userDate }}</span>
-                                                <small class="workspace-gt-time-text">{{ (note.updatedAt || note.createdAt) | userTime }}</small>
-                                            </td>
-                                            <td class="workspace-gt-actions" data-label="Actions">
-                                                <div class="workspace-table-action-group">
-                                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
-                                                        size="xs" [rounded]="true" [disabled]="isBusy(note)"
-                                                        [ariaLabel]="'Edit ' + noteTitle(note)" appTooltip="Edit note"
-                                                        tooltipPosition="top" tooltipSize="sm"
-                                                        (buttonClick)="openEditEditor(note, $event)" />
-                                                    <app-button [icon]="LucideStarOff" [iconOnly]="true" variant="noteYellow"
-                                                        size="xs" [rounded]="true" [disabled]="isBusy(note)"
-                                                        [ariaLabel]="'Remove ' + noteTitle(note) + ' from favourites'"
-                                                        appTooltip="Remove from favourites" tooltipPosition="top" tooltipSize="sm"
-                                                        (buttonClick)="toggleFavorite(note, $event)" />
-                                                    <button type="button" class="workspace-table-menu-button" [matMenuTriggerFor]="noteActions"
-                                                        [disabled]="isBusy(note)" [attr.aria-label]="'More actions for ' + noteTitle(note)"
-                                                        (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()">
-                                                        <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                                                    </button>
-                                                </div>
-                                                <mat-menu #noteActions="matMenu" xPosition="before" yPosition="below"
-                                                    [overlapTrigger]="false" class="workspace-actions-menu">
-                                                        @if (isActive(note)) {
-                                                        <button mat-menu-item type="button" class="workspace-action-item" (click)="archiveNote(note)">
-                                                            <span class="workspace-menu-item-icon"><app-icon [icon]="LucideArchive" size="xs" /></span>
-                                                            <span class="workspace-menu-item-copy"><strong>Archive</strong><small>Move out of active notes</small></span>
-                                                        </button>
-                                                        } @else {
-                                                        <button mat-menu-item type="button" class="workspace-action-item" (click)="activateNote(note)">
-                                                            <span class="workspace-menu-item-icon"><app-icon [icon]="LucideRotateCcw" size="xs" /></span>
-                                                            <span class="workspace-menu-item-copy"><strong>Restore</strong><small>Make this note active</small></span>
-                                                        </button>
-                                                        }
-                                                        <mat-divider />
-                                                        <button mat-menu-item type="button" class="workspace-action-item workspace-menu-danger"
-                                                            (click)="requestDelete(note)">
-                                                            <span class="workspace-menu-item-icon"><app-icon [icon]="LucideTrash2" size="xs" /></span>
-                                                            <span class="workspace-menu-item-copy"><strong>Move to trash</strong><small>Remove this note</small></span>
-                                                        </button>
-                                                </mat-menu>
-                                            </td>
-                                        </tr>
-                                        }
-                                    </tbody>
-                                </table>
+      <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
+        @if (loading() && notes().length === 0) {
+          <div class="workspace-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Opening favourite notes..."
+              description="Gathering your starred sticky notes."
+              [minHeight]="390"
+            />
+          </div>
+        } @else if (error()) {
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon is-error"
+              ><app-icon [icon]="LucideX" size="lg"
+            /></span>
+            <span class="workspace-empty-note">Couldn’t open favourites</span>
+            <h2>Favourites are unavailable</h2>
+            <p>{{ error() }}</p>
+            <app-button
+              label="Try again"
+              [iconLeft]="LucideRefreshCw"
+              variant="primary"
+              size="sm"
+              (buttonClick)="loadFavourites(true)"
+            />
+          </div>
+        } @else if (visibleNotes().length === 0) {
+          <div class="workspace-empty-state is-compact">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="searchTerm() ? LucideSearch : LucideStar" size="lg" />
+            </span>
+            <span class="workspace-empty-note">
+              {{ searchTerm() ? 'Nothing matches your search' : 'No favourite notes yet' }}
+            </span>
+            <h2>{{ searchTerm() ? 'No notes found' : 'Start starring your notes' }}</h2>
+            <p>
+              {{
+                searchTerm()
+                  ? 'Try another keyword or clear the search.'
+                  : 'Star important notes in My Notes or Workspace to find them here.'
+              }}
+            </p>
+            @if (searchTerm()) {
+              <app-button
+                label="Clear search"
+                variant="outline"
+                size="sm"
+                (buttonClick)="clearSearch()"
+              />
+            }
+          </div>
+        } @else if (view() === 'grid') {
+          <div class="notes-grid" role="list" aria-label="Favourite sticky notes">
+            @for (note of visibleNotes(); track noteId(note)) {
+              <article
+                class="notes-grid-item"
+                role="listitem"
+                [class.is-archived]="isArchived(note)"
+                [class.is-busy]="isBusy(note)"
+                (dblclick)="openEditEditor(note, $event)"
+              >
+                <app-sticky-note
+                  [data]="stickyNoteData(note)"
+                  (editRequested)="openEditEditor(note)"
+                  (favoriteToggled)="onFavoriteToggled($event)"
+                  (titleChangeRequested)="updateNoteTitle($event)"
+                  (descriptionChangeRequested)="updateNoteDescription($event)"
+                  (deleted)="onNoteDeleted($event)"
+                  (deleteRequested)="onNoteDeleted(noteId(note))"
+                  (noteUpdated)="onNoteUpdated($event)"
+                />
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="workspace-grouped-table" aria-label="Favourite notes grouped table">
+            <div class="workspace-table-groups-container">
+              @for (group of noteGroups(); track group.id) {
+                <section class="workspace-group" [style.--group-accent]="group.accent">
+                  <header class="workspace-group-header">
+                    <h3 class="workspace-group-toggle is-static">
+                      <span class="workspace-group-accent-bar" aria-hidden="true"></span>
+                      <span class="workspace-group-label">{{ group.label }}</span>
+                      <app-badge
+                        [label]="'' + group.count"
+                        variant="neutral"
+                        size="xs"
+                        shape="rounded"
+                      />
+                    </h3>
+                  </header>
+                  <div
+                    class="workspace-group-body"
+                    role="region"
+                    tabindex="0"
+                    [attr.aria-label]="group.label"
+                  >
+                    @if (group.items.length > 0) {
+                      <table class="workspace-gtable" [attr.aria-label]="group.label">
+                        <thead>
+                          <tr>
+                            <th class="workspace-gt-name" scope="col">Note</th>
+                            <th class="workspace-gt-description" scope="col">Description</th>
+                            <th class="workspace-gt-date" scope="col">Date</th>
+                            <th class="workspace-gt-folder" scope="col">Folder</th>
+                            <th class="workspace-gt-column" scope="col">Column</th>
+                            <th class="workspace-gt-progress" scope="col">Progress</th>
+                            <th class="workspace-gt-status" scope="col">Status</th>
+                            <th class="workspace-gt-updated" scope="col">Modified</th>
+                            <th class="workspace-gt-actions" scope="col">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (note of group.items; track noteId(note)) {
+                            <tr
+                              [class.is-archived]="isArchived(note)"
+                              [class.is-busy]="isBusy(note)"
+                              (dblclick)="openEditEditor(note, $event)"
+                            >
+                              <td class="workspace-gt-name" data-label="Note">
+                                <div
+                                  class="workspace-table-name-main"
+                                  role="button"
+                                  [attr.tabindex]="isBusy(note) ? -1 : 0"
+                                  [attr.aria-label]="'Edit ' + noteTitle(note)"
+                                  (click)="openEditEditor(note, $event)"
+                                  (keydown.enter)="openEditEditor(note, $event)"
+                                >
+                                  <span
+                                    [class]="'notes-table-note-mark is-' + noteColorKey(note)"
+                                    aria-hidden="true"
+                                  ></span>
+                                  <div class="workspace-table-copy">
+                                    @if (noteKey(note); as key) {
+                                      <span class="notes-table-key-wrapper">
+                                        <span class="notes-table-key-badge">{{ key }}</span>
+                                        <button
+                                          type="button"
+                                          class="workspace-gt-key-copy"
+                                          [attr.aria-label]="'Copy ' + key"
+                                          [appTooltip]="
+                                            isKeyCopied(key) ? 'Copied' : 'Copy note key'
+                                          "
+                                          tooltipPosition="top"
+                                          tooltipSize="sm"
+                                          (click)="copyNoteKey(key, $event)"
+                                        >
+                                          <app-icon
+                                            [icon]="isKeyCopied(key) ? LucideCheck : LucideCopy"
+                                            size="xs"
+                                          />
+                                        </button>
+                                      </span>
+                                    }
+                                    <strong>{{ noteTitle(note) }}</strong>
+                                  </div>
+                                </div>
+                              </td>
+                              <td class="workspace-gt-description" data-label="Description">
+                                <span class="notes-table-description-text">{{
+                                  noteContent(note) || 'No description'
+                                }}</span>
+                              </td>
+                              <td class="workspace-gt-date" data-label="Date">
+                                <span class="workspace-gt-date-text">{{
+                                  noteDateLabel(note)
+                                }}</span>
+                              </td>
+                              <td class="workspace-gt-folder" data-label="Folder">
+                                <span class="notes-table-column-pill"
+                                  ><app-icon [icon]="LucideFolderOpen" size="xs" />{{
+                                    noteFolderName(note)
+                                  }}</span
+                                >
+                              </td>
+                              <td class="workspace-gt-column" data-label="Column">
+                                <span class="notes-table-column-pill"
+                                  ><app-icon [icon]="LucideColumns3" size="xs" />{{
+                                    noteColumnName(note)
+                                  }}</span
+                                >
+                              </td>
+                              <td class="workspace-gt-progress" data-label="Progress">
+                                @if (noteChecklistTotal(note) > 0) {
+                                  <div
+                                    class="notes-table-progress"
+                                    role="progressbar"
+                                    [attr.aria-label]="noteTitle(note) + ' checklist progress'"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    [attr.aria-valuenow]="noteProgressPct(note)"
+                                  >
+                                    <span class="notes-table-progress-label">
+                                      <span
+                                        >{{ noteChecklistCompleted(note) }}/{{
+                                          noteChecklistTotal(note)
+                                        }}</span
+                                      >
+                                      <strong>{{ noteProgressPct(note) }}%</strong>
+                                    </span>
+                                    <span class="notes-table-progress-track"
+                                      ><span [style.width.%]="noteProgressPct(note)"></span
+                                    ></span>
+                                  </div>
                                 } @else {
-                                <div class="workspace-group-empty">No notes in this section</div>
+                                  <span class="workspace-table-muted">—</span>
                                 }
-                            </div>
-                        </section>
-                        }
-                    </div>
-                </div>
-                }
+                              </td>
+                              <td class="workspace-gt-status" data-label="Status">
+                                <app-switch
+                                  [checked]="isActive(note)"
+                                  variant="noteGreen"
+                                  size="sm"
+                                  [loading]="isBusy(note)"
+                                  [disabled]="isBusy(note)"
+                                  [ariaLabel]="
+                                    (isActive(note) ? 'Archive ' : 'Activate ') + noteTitle(note)
+                                  "
+                                  (click)="$event.stopPropagation()"
+                                  (checkedChange)="changeNoteStatus(note, $event)"
+                                />
+                              </td>
+                              <td class="workspace-gt-updated" data-label="Modified">
+                                <span class="workspace-gt-date-text">{{
+                                  note.updatedAt || note.createdAt | userDate
+                                }}</span>
+                                <small class="workspace-gt-time-text">{{
+                                  note.updatedAt || note.createdAt | userTime
+                                }}</small>
+                              </td>
+                              <td class="workspace-gt-actions" data-label="Actions">
+                                <div class="workspace-table-action-group">
+                                  <app-button
+                                    [icon]="LucidePencil"
+                                    [iconOnly]="true"
+                                    variant="noteBlue"
+                                    size="xs"
+                                    [rounded]="true"
+                                    [disabled]="isBusy(note)"
+                                    [ariaLabel]="'Edit ' + noteTitle(note)"
+                                    appTooltip="Edit note"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                    (buttonClick)="openEditEditor(note, $event)"
+                                  />
+                                  <app-button
+                                    [icon]="LucideStarOff"
+                                    [iconOnly]="true"
+                                    variant="noteYellow"
+                                    size="xs"
+                                    [rounded]="true"
+                                    [disabled]="isBusy(note)"
+                                    [ariaLabel]="'Remove ' + noteTitle(note) + ' from favourites'"
+                                    appTooltip="Remove from favourites"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                    (buttonClick)="toggleFavorite(note, $event)"
+                                  />
+                                  <button
+                                    type="button"
+                                    class="workspace-table-menu-button"
+                                    [matMenuTriggerFor]="noteActions"
+                                    [disabled]="isBusy(note)"
+                                    [attr.aria-label]="'More actions for ' + noteTitle(note)"
+                                    (click)="$event.stopPropagation()"
+                                    (dblclick)="$event.stopPropagation()"
+                                  >
+                                    <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                  </button>
+                                </div>
+                                <mat-menu
+                                  #noteActions="matMenu"
+                                  xPosition="before"
+                                  yPosition="below"
+                                  [overlapTrigger]="false"
+                                  class="workspace-actions-menu"
+                                >
+                                  @if (isActive(note)) {
+                                    <button
+                                      mat-menu-item
+                                      type="button"
+                                      class="workspace-action-item"
+                                      (click)="archiveNote(note)"
+                                    >
+                                      <span class="workspace-menu-item-icon"
+                                        ><app-icon [icon]="LucideArchive" size="xs"
+                                      /></span>
+                                      <span class="workspace-menu-item-copy"
+                                        ><strong>Archive</strong
+                                        ><small>Move out of active notes</small></span
+                                      >
+                                    </button>
+                                  } @else {
+                                    <button
+                                      mat-menu-item
+                                      type="button"
+                                      class="workspace-action-item"
+                                      (click)="activateNote(note)"
+                                    >
+                                      <span class="workspace-menu-item-icon"
+                                        ><app-icon [icon]="LucideRotateCcw" size="xs"
+                                      /></span>
+                                      <span class="workspace-menu-item-copy"
+                                        ><strong>Restore</strong
+                                        ><small>Make this note active</small></span
+                                      >
+                                    </button>
+                                  }
+                                  <mat-divider />
+                                  <button
+                                    mat-menu-item
+                                    type="button"
+                                    class="workspace-action-item workspace-menu-danger"
+                                    (click)="requestDelete(note)"
+                                  >
+                                    <span class="workspace-menu-item-icon"
+                                      ><app-icon [icon]="LucideTrash2" size="xs"
+                                    /></span>
+                                    <span class="workspace-menu-item-copy"
+                                      ><strong>Move to trash</strong
+                                      ><small>Remove this note</small></span
+                                    >
+                                  </button>
+                                </mat-menu>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <div class="workspace-group-empty">No notes in this section</div>
+                    }
+                  </div>
+                </section>
+              }
             </div>
-        </section>
-    </main>
+          </div>
+        }
+      </div>
+    </section>
+  </main>
 </section>
 
-<app-add-edit-note-side-panel [open]="notePanelOpen()" [mode]="notePanelMode()" [id]="notePanelId()"
-    (closed)="closeNotePanel()" (saved)="onNoteSaved($event)" />
+<app-add-edit-note-side-panel
+  [open]="notePanelOpen()"
+  [mode]="notePanelMode()"
+  [id]="notePanelId()"
+  (closed)="closeNotePanel()"
+  (saved)="onNoteSaved($event)"
+/>
 
 @if (deleteTarget(); as note) {
-<div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
-    <section class="workspace-dialog-shell workspace-delete-shell" role="alertdialog" aria-modal="true"
-        aria-labelledby="favourites-delete-title" (mousedown)="$event.stopPropagation()">
-        <app-sticky-card class="workspace-dialog-note" variant="noteRed" appearance="elevated" shape="note" size="sm"
-            [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
-            <span card-icon class="workspace-dialog-icon"><app-icon [icon]="LucideTrash2" size="sm" /></span>
-            <span card-eyebrow class="workspace-dialog-kicker">Before you remove it</span>
-            <h2 card-title id="favourites-delete-title" class="workspace-dialog-title">Move note to trash?</h2>
-            <p card-subtitle class="workspace-dialog-subtitle">“{{ noteTitle(note) }}” will be moved to trash.</p>
-            <div card-footer class="workspace-dialog-actions">
-                <app-button label="Keep note" variant="secondary" size="sm" [disabled]="deleting()"
-                    (buttonClick)="closeDeleteDialog()" />
-                <app-button label="Move to trash" variant="danger" size="sm" [loading]="deleting()"
-                    [disabled]="deleting()" (buttonClick)="confirmDelete()" />
-            </div>
-        </app-sticky-card>
+  <div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section
+      class="workspace-dialog-shell workspace-delete-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="favourites-delete-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="workspace-dialog-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="workspace-dialog-icon"
+          ><app-icon [icon]="LucideTrash2" size="sm"
+        /></span>
+        <span card-eyebrow class="workspace-dialog-kicker">Before you remove it</span>
+        <h2 card-title id="favourites-delete-title" class="workspace-dialog-title">
+          Move note to trash?
+        </h2>
+        <p card-subtitle class="workspace-dialog-subtitle">
+          “{{ noteTitle(note) }}” will be moved to trash.
+        </p>
+        <div card-footer class="workspace-dialog-actions">
+          <app-button
+            label="Keep note"
+            variant="secondary"
+            size="sm"
+            [disabled]="deleting()"
+            (buttonClick)="closeDeleteDialog()"
+          />
+          <app-button
+            label="Move to trash"
+            variant="danger"
+            size="sm"
+            [loading]="deleting()"
+            [disabled]="deleting()"
+            (buttonClick)="confirmDelete()"
+          />
+        </div>
+      </app-sticky-card>
     </section>
-</div>
+  </div>
 }

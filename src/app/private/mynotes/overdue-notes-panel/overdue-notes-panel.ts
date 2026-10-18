@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { LucideCalendarDays, LucideCheckCircle2, LucideClock3, LucideExternalLink } from '@lucide/angular';
+import {
+  LucideCalendarDays,
+  LucideCheckCircle2,
+  LucideClock3,
+  LucideExternalLink,
+} from '@lucide/angular';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
@@ -16,7 +21,7 @@ import { STICKY_NOTE_COLUMN_TYPES } from '../../../shared/constants/common.const
   imports: [AppIcon, Badge, Button, Checkbox, Loader, SidePanel, Tabs, UserDatePipe],
   templateUrl: './overdue-notes-panel.html',
   styleUrl: './overdue-notes-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverdueNotesPanel {
   readonly columnTypes = STICKY_NOTE_COLUMN_TYPES;
@@ -44,13 +49,19 @@ export class OverdueNotesPanel {
 
   readonly filterTabs = computed<readonly TabItem[]>(() => [
     { value: '', label: 'All', count: this.data()?.total ?? 0 },
-    ...(this.data()?.byColumn ?? []).filter((column: any) => column.type !== this.columnTypes.COMPLETED).map((column: any) => ({
-      value: column.columnId, label: column.name, count: column.count
-    }))
+    ...(this.data()?.byColumn ?? [])
+      .filter((column: any) => column.type !== this.columnTypes.COMPLETED)
+      .map((column: any) => ({
+        value: column.columnId,
+        label: column.name,
+        count: column.count,
+      })),
   ]);
-  readonly visibleNotes = computed(() => (this.data()?.notes ?? []).filter((note: any) =>
-    !this.columnFilter() || note.column.id === this.columnFilter()
-  ));
+  readonly visibleNotes = computed(() =>
+    (this.data()?.notes ?? []).filter(
+      (note: any) => !this.columnFilter() || note.column.id === this.columnFilter(),
+    ),
+  );
   readonly groups = computed(() => {
     const groups = new Map<string, { date: string; yesterday: boolean; notes: any[] }>();
     for (const note of this.visibleNotes()) {
@@ -64,8 +75,13 @@ export class OverdueNotesPanel {
     return [...groups.values()].sort((a, b) => b.date.localeCompare(a.date));
   });
   readonly selected = computed(() => [...this.selectedIds()]);
-  readonly visibleSelectedCount = computed(() => this.visibleNotes().filter((note: any) => this.selectedIds().has(note.id)).length);
-  readonly allVisibleSelected = computed(() => this.visibleNotes().length > 0 && this.visibleSelectedCount() === this.visibleNotes().length);
+  readonly visibleSelectedCount = computed(
+    () => this.visibleNotes().filter((note: any) => this.selectedIds().has(note.id)).length,
+  );
+  readonly allVisibleSelected = computed(
+    () =>
+      this.visibleNotes().length > 0 && this.visibleSelectedCount() === this.visibleNotes().length,
+  );
   readonly disabled = computed(() => this.busy() || this.loading() || !!this.error());
 
   selectNote(id: string, checked: boolean): void {

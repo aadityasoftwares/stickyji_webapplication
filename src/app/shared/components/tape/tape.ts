@@ -1,16 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
-export type TapeSize =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl';
+export type TapeSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type TapeVariant =
   | 'yellow'
@@ -25,10 +16,7 @@ export type TapeVariant =
   | 'paper'
   | 'neutral';
 
-export type TapeShape =
-  | 'straight'
-  | 'torn'
-  | 'rough';
+export type TapeShape = 'straight' | 'torn' | 'rough';
 
 export type TapePosition =
   | 'inline'
@@ -41,9 +29,7 @@ export type TapePosition =
   | 'leftCenter'
   | 'rightCenter';
 
-export type TapePlacement =
-  | 'inside'
-  | 'overlap';
+export type TapePlacement = 'inside' | 'overlap';
 
 @Component({
   selector: 'app-tape',
@@ -145,9 +131,6 @@ export class Tape {
       return 0.82;
     }
 
-    return Math.min(
-      1,
-      Math.max(0, value),
-    );
+    return Math.min(1, Math.max(0, value));
   }
 }

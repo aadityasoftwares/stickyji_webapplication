@@ -1,29 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-import {
-  NgClass,
-} from '@angular/common';
+import { NgClass } from '@angular/common';
 
-import {
-  LucideMapPin,
-  LucidePaperclip,
-} from '@lucide/angular';
+import { LucideMapPin, LucidePaperclip } from '@lucide/angular';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
-export type StickyNotePinSize =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl';
+export type StickyNotePinSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type StickyNotePinVariant =
   | 'pushPin'
@@ -59,104 +42,70 @@ export type StickyNotePinPosition =
   | 'leftCenter'
   | 'rightCenter';
 
-export type StickyNotePinPlacement =
-  | 'inside'
-  | 'overlap';
+export type StickyNotePinPlacement = 'inside' | 'overlap';
 
 @Component({
   selector: 'app-sticky-note-pin',
   standalone: true,
 
-  imports: [
-    NgClass,
-    AppIcon,
-  ],
+  imports: [NgClass, AppIcon],
 
   templateUrl: './sticky-note-pin.html',
   styleUrl: './sticky-note-pin.scss',
 
-  changeDetection:
-    ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 
   host: {
-    '[class.app-sticky-note-pin-host-overlay]':
-      'position !== "inline"',
+    '[class.app-sticky-note-pin-host-overlay]': 'position !== "inline"',
 
-    '[class.app-sticky-note-pin-host-inline]':
-      'position === "inline"',
+    '[class.app-sticky-note-pin-host-inline]': 'position === "inline"',
 
-    '[class.app-sticky-note-pin-host-top-left]':
-      'position === "topLeft"',
+    '[class.app-sticky-note-pin-host-top-left]': 'position === "topLeft"',
 
-    '[class.app-sticky-note-pin-host-top-center]':
-      'position === "topCenter"',
+    '[class.app-sticky-note-pin-host-top-center]': 'position === "topCenter"',
 
-    '[class.app-sticky-note-pin-host-top-right]':
-      'position === "topRight"',
+    '[class.app-sticky-note-pin-host-top-right]': 'position === "topRight"',
 
-    '[class.app-sticky-note-pin-host-bottom-left]':
-      'position === "bottomLeft"',
+    '[class.app-sticky-note-pin-host-bottom-left]': 'position === "bottomLeft"',
 
-    '[class.app-sticky-note-pin-host-bottom-center]':
-      'position === "bottomCenter"',
+    '[class.app-sticky-note-pin-host-bottom-center]': 'position === "bottomCenter"',
 
-    '[class.app-sticky-note-pin-host-bottom-right]':
-      'position === "bottomRight"',
+    '[class.app-sticky-note-pin-host-bottom-right]': 'position === "bottomRight"',
 
-    '[class.app-sticky-note-pin-host-left-center]':
-      'position === "leftCenter"',
+    '[class.app-sticky-note-pin-host-left-center]': 'position === "leftCenter"',
 
-    '[class.app-sticky-note-pin-host-right-center]':
-      'position === "rightCenter"',
+    '[class.app-sticky-note-pin-host-right-center]': 'position === "rightCenter"',
 
-    '[class.app-sticky-note-pin-host-inside]':
-      'placement === "inside"',
+    '[class.app-sticky-note-pin-host-inside]': 'placement === "inside"',
 
-    '[class.app-sticky-note-pin-host-overlap]':
-      'placement === "overlap"',
+    '[class.app-sticky-note-pin-host-overlap]': 'placement === "overlap"',
 
-    '[style.--sticky-pin-edge-inset]':
-      'edgeInset + "px"',
+    '[style.--sticky-pin-edge-inset]': 'edgeInset + "px"',
 
-    '[style.--sticky-pin-offset-x]':
-      'offsetX + "px"',
+    '[style.--sticky-pin-offset-x]': 'offsetX + "px"',
 
-    '[style.--sticky-pin-offset-y]':
-      'offsetY + "px"',
+    '[style.--sticky-pin-offset-y]': 'offsetY + "px"',
 
-    '[style.z-index]':
-      'zIndex',
+    '[style.z-index]': 'zIndex',
 
-    '[style.pointer-events]':
-      'interactive ? "auto" : "none"',
+    '[style.pointer-events]': 'interactive ? "auto" : "none"',
   },
 })
 export class StickyNotePin {
+  @Input()
+  variant: StickyNotePinVariant = 'pushPin';
 
   @Input()
-  variant:
-    StickyNotePinVariant =
-    'pushPin';
+  tone: StickyNotePinTone = 'red';
 
   @Input()
-  tone:
-    StickyNotePinTone =
-    'red';
+  size: StickyNotePinSize = 'md';
 
   @Input()
-  size:
-    StickyNotePinSize =
-    'md';
+  position: StickyNotePinPosition = 'topCenter';
 
   @Input()
-  position:
-    StickyNotePinPosition =
-    'topCenter';
-
-  @Input()
-  placement:
-    StickyNotePinPlacement =
-    'overlap';
+  placement: StickyNotePinPlacement = 'overlap';
 
   @Input()
   edgeInset = 8;
@@ -204,70 +153,40 @@ export class StickyNotePin {
   @Input()
   zIndex = 12;
 
-  readonly LucideMapPin =
-    LucideMapPin;
+  readonly LucideMapPin = LucideMapPin;
 
-  readonly LucidePaperclip =
-    LucidePaperclip;
+  readonly LucidePaperclip = LucidePaperclip;
 
-  get pinClasses():
-    Record<string, boolean> {
-
+  get pinClasses(): Record<string, boolean> {
     return {
-      [`sticky-note-pin-${this.variant}`]:
-        true,
+      [`sticky-note-pin-${this.variant}`]: true,
 
-      [`sticky-note-pin-${this.tone}`]:
-        true,
+      [`sticky-note-pin-${this.tone}`]: true,
 
-      [`sticky-note-pin-${this.size}`]:
-        true,
+      [`sticky-note-pin-${this.size}`]: true,
 
-      'sticky-note-pin-shadow':
-        this.shadow,
+      'sticky-note-pin-shadow': this.shadow,
 
-      'sticky-note-pin-shine':
-        this.shine,
+      'sticky-note-pin-shine': this.shine,
 
-      'sticky-note-pin-interactive':
-        this.interactive,
+      'sticky-note-pin-interactive': this.interactive,
     };
   }
 
-  get isIconVariant():
-    boolean {
-
-    return (
-      this.variant ===
-      'mapPin' ||
-      this.variant ===
-      'paperclip'
-    );
+  get isIconVariant(): boolean {
+    return this.variant === 'mapPin' || this.variant === 'paperclip';
   }
 
-  get resolvedIcon():
-    AppIconDefinition {
-
-    if (
-      this.icon
-    ) {
+  get resolvedIcon(): AppIconDefinition {
+    if (this.icon) {
       return this.icon;
     }
 
-    return (
-      this.variant ===
-        'paperclip'
-        ? this.LucidePaperclip
-        : this.LucideMapPin
-    );
+    return this.variant === 'paperclip' ? this.LucidePaperclip : this.LucideMapPin;
   }
 
-  get resolvedIconSize():
-    'xs' | 'sm' | 'md' {
-
-    switch (
-    this.size
-    ) {
+  get resolvedIconSize(): 'xs' | 'sm' | 'md' {
+    switch (this.size) {
       case 'xs':
       case 'sm':
         return 'xs';
@@ -282,27 +201,15 @@ export class StickyNotePin {
     }
   }
 
-  get resolvedAriaHidden():
-    'true' | null {
-
-    return this.decorative
-      ? 'true'
-      : null;
+  get resolvedAriaHidden(): 'true' | null {
+    return this.decorative ? 'true' : null;
   }
 
-  get resolvedRole():
-    'img' | null {
-
-    return this.decorative
-      ? null
-      : 'img';
+  get resolvedRole(): 'img' | null {
+    return this.decorative ? null : 'img';
   }
 
-  get resolvedAriaLabel():
-    string | null {
-
-    return this.decorative
-      ? null
-      : this.ariaLabel;
+  get resolvedAriaLabel(): string | null {
+    return this.decorative ? null : this.ariaLabel;
   }
 }

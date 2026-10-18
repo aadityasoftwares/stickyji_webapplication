@@ -1,174 +1,261 @@
 <ng-template #desktopPreview>
-    <aside class="workspace-external-preview" [style.display]="!open ? 'none' : null"
-        aria-label="Live role preview" inert>
-        <app-badge label="Live preview" variant="neutral" size="sm" />
-        <app-workspace-role-wrapper
-            [name]="displayName() || 'Role name'"
-            [description]="description() || 'Describe what this role allows members to do.'"
-            [isSystem]="!!role?.isSystem"
-            [isDefault]="isDefaultRole"
-            [isActive]="active()"
-            [permissionCount]="selectedCount() + ' permissions'"
-            [priorityLabel]="previewPriorityLabel"
-            [statusLabel]="active() ? 'Active' : 'Inactive'"
-            [statusVariant]="active() ? 'success' : 'warning'"
-            [interactive]="false" />
-    </aside>
+  <aside
+    class="workspace-external-preview"
+    [style.display]="!open ? 'none' : null"
+    aria-label="Live role preview"
+    inert
+  >
+    <app-badge label="Live preview" variant="neutral" size="sm" />
+    <app-workspace-role-wrapper
+      [name]="displayName() || 'Role name'"
+      [description]="description() || 'Describe what this role allows members to do.'"
+      [isSystem]="!!role?.isSystem"
+      [isDefault]="isDefaultRole"
+      [isActive]="active()"
+      [permissionCount]="selectedCount() + ' permissions'"
+      [priorityLabel]="previewPriorityLabel"
+      [statusLabel]="active() ? 'Active' : 'Inactive'"
+      [statusVariant]="active() ? 'success' : 'warning'"
+      [interactive]="false"
+    />
+  </aside>
 </ng-template>
 
-<app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="descriptionText"
-    [headerNote]="headerNote" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="isBusy"
-    ariaLabel="Workspace role editor" (closed)="close()">
-
-    <form panel-body class="workspace-editor" (ngSubmit)="$event.preventDefault()" novalidate>
-        @if (isReadOnly) {
-        <div class="role-editor-protected-note" role="note">
-            <span aria-hidden="true"><app-icon [icon]="LucideLock" size="xs" /></span>
-            <div>
-                <strong>Default role</strong>
-                <small>Default role values and permissions are managed by the application and cannot be changed.</small>
-            </div>
+<app-side-panel
+  [open]="open"
+  [title]="panelTitle"
+  [eyebrow]="eyebrow"
+  [description]="descriptionText"
+  [headerNote]="headerNote"
+  [icon]="headerIcon"
+  tone="yellow"
+  [width]="580"
+  [busy]="isBusy"
+  ariaLabel="Workspace role editor"
+  (closed)="close()"
+>
+  <form panel-body class="workspace-editor" (ngSubmit)="$event.preventDefault()" novalidate>
+    @if (isReadOnly) {
+      <div class="role-editor-protected-note" role="note">
+        <span aria-hidden="true"><app-icon [icon]="LucideLock" size="xs" /></span>
+        <div>
+          <strong>Default role</strong>
+          <small
+            >Default role values and permissions are managed by the application and cannot be
+            changed.</small
+          >
         </div>
-        }
+      </div>
+    }
 
-        <section class="workspace-fields" aria-label="Role details">
-            <!-- Role Name -->
-            <div class="workspace-field workspace-name-field">
-                <app-label forId="workspace-role-name" text="Name" [required]="!isReadOnly" />
-                <div class="workspace-field-control">
-                    <app-input #roleNameInput inputId="workspace-role-name" label="Role name" labelMode="hidden"
-                        placeholder="e.g. Content editor" variant="paper" appearance="simple" shape="rounded" size="md"
-                        [required]="!isReadOnly" [maxLength]="80" [value]="displayName()"
-                        [disabled]="isBusy || isReadOnly" [fullWidth]="true" [clearable]="false" autocomplete="off"
-                        (valueChange)="updateDisplayName($event)" (enterKey)="submit()" />
-                    <span class="workspace-field-counter">{{ displayName().length }}/80</span>
-                </div>
-            </div>
+    <section class="workspace-fields" aria-label="Role details">
+      <!-- Role Name -->
+      <div class="workspace-field workspace-name-field">
+        <app-label forId="workspace-role-name" text="Name" [required]="!isReadOnly" />
+        <div class="workspace-field-control">
+          <app-input
+            #roleNameInput
+            inputId="workspace-role-name"
+            label="Role name"
+            labelMode="hidden"
+            placeholder="e.g. Content editor"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="md"
+            [required]="!isReadOnly"
+            [maxLength]="80"
+            [value]="displayName()"
+            [disabled]="isBusy || isReadOnly"
+            [fullWidth]="true"
+            [clearable]="false"
+            autocomplete="off"
+            (valueChange)="updateDisplayName($event)"
+            (enterKey)="submit()"
+          />
+          <span class="workspace-field-counter">{{ displayName().length }}/80</span>
+        </div>
+      </div>
 
-            <!-- Details / Description -->
-            <div class="workspace-field workspace-details-field">
-                <app-label forId="workspace-role-description" text="Details" />
-                <div class="workspace-field-control">
-                    <app-input inputId="workspace-role-description" label="Description" labelMode="hidden"
-                        placeholder="Describe when this role should be used..." variant="paper" appearance="simple" shape="rounded" size="md"
-                        [multiline]="true" [rows]="3" resize="vertical" [clearable]="false" [maxLength]="300"
-                        [value]="description()" [disabled]="isBusy || isReadOnly" [fullWidth]="true"
-                        (valueChange)="updateDescription($event)" />
-                    <span class="workspace-field-hint">Optional</span>
-                </div>
-            </div>
-        </section>
+      <!-- Details / Description -->
+      <div class="workspace-field workspace-details-field">
+        <app-label forId="workspace-role-description" text="Details" />
+        <div class="workspace-field-control">
+          <app-input
+            inputId="workspace-role-description"
+            label="Description"
+            labelMode="hidden"
+            placeholder="Describe when this role should be used..."
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="md"
+            [multiline]="true"
+            [rows]="3"
+            resize="vertical"
+            [clearable]="false"
+            [maxLength]="300"
+            [value]="description()"
+            [disabled]="isBusy || isReadOnly"
+            [fullWidth]="true"
+            (valueChange)="updateDescription($event)"
+          />
+          <span class="workspace-field-hint">Optional</span>
+        </div>
+      </div>
+    </section>
 
-        <!-- Status / Active Switch Row -->
-        <section class="workspace-access-row" aria-label="Role status">
-            <app-label forId="workspace-role-status" text="Status" />
-            <div class="workspace-access-control">
-                <app-switch inputId="workspace-role-status" [checked]="active()"
-                    (checkedChange)="!isReadOnly && !isBusy && active.set($event)"
-                    [disabled]="isBusy || isReadOnly" variant="noteGreen" size="sm"
-                    [label]="active() ? 'Active role' : 'Inactive role'"
-                    [description]="active() ? 'This role can be assigned to members.' : 'Saved but unavailable for new assignments.'" />
-            </div>
-        </section>
+    <!-- Status / Active Switch Row -->
+    <section class="workspace-access-row" aria-label="Role status">
+      <app-label forId="workspace-role-status" text="Status" />
+      <div class="workspace-access-control">
+        <app-switch
+          inputId="workspace-role-status"
+          [checked]="active()"
+          (checkedChange)="!isReadOnly && !isBusy && active.set($event)"
+          [disabled]="isBusy || isReadOnly"
+          variant="noteGreen"
+          size="sm"
+          [label]="active() ? 'Active role' : 'Inactive role'"
+          [description]="
+            active()
+              ? 'This role can be assigned to members.'
+              : 'Saved but unavailable for new assignments.'
+          "
+        />
+      </div>
+    </section>
 
-        <!-- Permissions Section -->
-        <section class="role-editor-permissions" aria-labelledby="role-permissions-title">
-            <header class="role-editor-section-heading">
-                <div>
-                    <span class="role-editor-section-icon" aria-hidden="true">
-                        <app-icon [icon]="LucideShield" size="xs" />
+    <!-- Permissions Section -->
+    <section class="role-editor-permissions" aria-labelledby="role-permissions-title">
+      <header class="role-editor-section-heading">
+        <div>
+          <span class="role-editor-section-icon" aria-hidden="true">
+            <app-icon [icon]="LucideShield" size="xs" />
+          </span>
+          <div>
+            <h3 id="role-permissions-title">Permissions</h3>
+            <small>Choose what members with this role can do</small>
+          </div>
+        </div>
+
+        <span class="role-editor-permission-count">
+          {{ selectedCount() }}/{{ totalPermissionCount() }}
+        </span>
+      </header>
+
+      @if (permissionGroups.length === 0) {
+        <div class="role-editor-permissions-empty">
+          <app-icon [icon]="LucideShield" size="sm" />
+          <strong>No permissions available</strong>
+          <small>Load active permission definitions before editing a role.</small>
+        </div>
+      } @else {
+        <div class="role-editor-groups">
+          @for (group of permissionGroups; track group.module) {
+            <section class="role-editor-group">
+              <header class="role-editor-group-header">
+                <app-checkbox
+                  class="role-editor-group-toggle"
+                  variant="noteYellow"
+                  size="sm"
+                  [checked]="isGroupSelected(group)"
+                  [indeterminate]="isGroupPartiallySelected(group)"
+                  [disabled]="isBusy || isReadOnly"
+                  [fullWidth]="true"
+                  [ariaLabel]="'Toggle all ' + moduleLabel(group.module) + ' permissions'"
+                  (checkedChange)="toggleGroup(group)"
+                >
+                  <span class="role-editor-group-copy">
+                    <strong>{{ moduleLabel(group.module) }}</strong>
+                    <small
+                      >{{ selectedInGroup(group) }} of
+                      {{ group.permissions.length }} selected</small
+                    >
+                  </span>
+                </app-checkbox>
+              </header>
+
+              <div class="role-editor-permission-list">
+                @for (permission of group.permissions; track permissionId(permission)) {
+                  <app-checkbox
+                    class="role-editor-permission"
+                    variant="noteYellow"
+                    size="sm"
+                    [class.is-selected]="isPermissionSelected(permission)"
+                    [checked]="isPermissionSelected(permission)"
+                    [disabled]="isBusy || isReadOnly || permission.isActive === false"
+                    [fullWidth]="true"
+                    [ariaLabel]="'Toggle ' + permission.displayName"
+                    (checkedChange)="togglePermission(permission)"
+                  >
+                    <span class="role-editor-permission-copy">
+                      <span class="role-editor-permission-title-row">
+                        <strong>{{ permission.displayName }}</strong>
+                        <span
+                          >{{ permissionActionLabel(permission) }} ·
+                          {{ permissionAccessLabel(permission) }}</span
+                        >
+                      </span>
+                      <small>{{ permission.description || permission.code }}</small>
                     </span>
-                    <div>
-                        <h3 id="role-permissions-title">Permissions</h3>
-                        <small>Choose what members with this role can do</small>
-                    </div>
-                </div>
-
-                <span class="role-editor-permission-count">
-                    {{ selectedCount() }}/{{ totalPermissionCount() }}
-                </span>
-            </header>
-
-            @if (permissionGroups.length === 0) {
-            <div class="role-editor-permissions-empty">
-                <app-icon [icon]="LucideShield" size="sm" />
-                <strong>No permissions available</strong>
-                <small>Load active permission definitions before editing a role.</small>
-            </div>
-            } @else {
-            <div class="role-editor-groups">
-                @for (group of permissionGroups; track group.module) {
-                <section class="role-editor-group">
-                    <header class="role-editor-group-header">
-                        <app-checkbox class="role-editor-group-toggle" variant="noteYellow" size="sm"
-                            [checked]="isGroupSelected(group)" [indeterminate]="isGroupPartiallySelected(group)"
-                            [disabled]="isBusy || isReadOnly" [fullWidth]="true"
-                            [ariaLabel]="'Toggle all ' + moduleLabel(group.module) + ' permissions'"
-                            (checkedChange)="toggleGroup(group)">
-                            <span class="role-editor-group-copy">
-                                <strong>{{ moduleLabel(group.module) }}</strong>
-                                <small>{{ selectedInGroup(group) }} of {{ group.permissions.length }} selected</small>
-                            </span>
-                        </app-checkbox>
-                    </header>
-
-                    <div class="role-editor-permission-list">
-                        @for (permission of group.permissions; track permissionId(permission)) {
-                        <app-checkbox class="role-editor-permission" variant="noteYellow" size="sm"
-                            [class.is-selected]="isPermissionSelected(permission)"
-                            [checked]="isPermissionSelected(permission)"
-                            [disabled]="isBusy || isReadOnly || permission.isActive === false"
-                            [fullWidth]="true" [ariaLabel]="'Toggle ' + permission.displayName"
-                            (checkedChange)="togglePermission(permission)">
-                            <span class="role-editor-permission-copy">
-                                <span class="role-editor-permission-title-row">
-                                    <strong>{{ permission.displayName }}</strong>
-                                    <span>{{ permissionActionLabel(permission) }} · {{ permissionAccessLabel(permission) }}</span>
-                                </span>
-                                <small>{{ permission.description || permission.code }}</small>
-                            </span>
-                        </app-checkbox>
-                        }
-                    </div>
-                </section>
+                  </app-checkbox>
                 }
-            </div>
-            }
-        </section>
-
-        <!-- Inline Mobile Preview (shown under 1200px) -->
-        <section class="workspace-mobile-preview" aria-label="Live role preview" inert>
-            <app-badge label="Live preview" variant="neutral" size="sm" />
-            <app-workspace-role-wrapper
-                [name]="displayName() || 'Role name'"
-                [description]="description() || 'Describe what this role allows members to do.'"
-                [isSystem]="!!role?.isSystem"
-                [isDefault]="isDefaultRole"
-                [isActive]="active()"
-                [permissionCount]="selectedCount() + ' permissions'"
-                [priorityLabel]="previewPriorityLabel"
-                [statusLabel]="active() ? 'Active' : 'Inactive'"
-                [statusVariant]="active() ? 'success' : 'warning'"
-                [interactive]="false" />
-        </section>
-
-        @if (error()) {
-        <div class="workspace-editor-error" role="alert">{{ error() }}</div>
-        }
-    </form>
-
-    <div panel-footer class="workspace-editor-footer">
-        <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
-
-        <div class="workspace-editor-footer-actions">
-            <app-button [label]="isReadOnly ? 'Close' : 'Cancel'" variant="secondary" appearance="standard" size="sm"
-                [disabled]="isBusy" (buttonClick)="close()" />
-
-            @if (!isReadOnly) {
-            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                size="sm" [loading]="saving()" [loadingText]="mode === 'create' ? 'Creating...' : 'Saving...'"
-                [disabled]="!canSubmit" (buttonClick)="submit()" />
-            }
+              </div>
+            </section>
+          }
         </div>
+      }
+    </section>
+
+    <!-- Inline Mobile Preview (shown under 1200px) -->
+    <section class="workspace-mobile-preview" aria-label="Live role preview" inert>
+      <app-badge label="Live preview" variant="neutral" size="sm" />
+      <app-workspace-role-wrapper
+        [name]="displayName() || 'Role name'"
+        [description]="description() || 'Describe what this role allows members to do.'"
+        [isSystem]="!!role?.isSystem"
+        [isDefault]="isDefaultRole"
+        [isActive]="active()"
+        [permissionCount]="selectedCount() + ' permissions'"
+        [priorityLabel]="previewPriorityLabel"
+        [statusLabel]="active() ? 'Active' : 'Inactive'"
+        [statusVariant]="active() ? 'success' : 'warning'"
+        [interactive]="false"
+      />
+    </section>
+
+    @if (error()) {
+      <div class="workspace-editor-error" role="alert">{{ error() }}</div>
+    }
+  </form>
+
+  <div panel-footer class="workspace-editor-footer">
+    <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
+
+    <div class="workspace-editor-footer-actions">
+      <app-button
+        [label]="isReadOnly ? 'Close' : 'Cancel'"
+        variant="secondary"
+        appearance="standard"
+        size="sm"
+        [disabled]="isBusy"
+        (buttonClick)="close()"
+      />
+
+      @if (!isReadOnly) {
+        <app-button
+          [label]="submitLabel"
+          [iconLeft]="submitIcon"
+          variant="noteYellow"
+          appearance="standard"
+          size="sm"
+          [loading]="saving()"
+          [loadingText]="mode === 'create' ? 'Creating...' : 'Saving...'"
+          [disabled]="!canSubmit"
+          (buttonClick)="submit()"
+        />
+      }
     </div>
+  </div>
 </app-side-panel>

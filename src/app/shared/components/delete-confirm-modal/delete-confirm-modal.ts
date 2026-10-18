@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+} from '@angular/core';
 import { LucideArchiveRestore, LucideTrash2, LucideTriangleAlert, LucideX } from '@lucide/angular';
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
@@ -10,9 +17,8 @@ import { AppIcon } from '../icon/icon';
   imports: [CommonModule, Button, AppIcon],
   templateUrl: './delete-confirm-modal.html',
   styleUrl: './delete-confirm-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class DeleteConfirmModal {
   @Input() open = false;
   @Input() title = 'Move to trash?';

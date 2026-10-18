@@ -1,9 +1,5 @@
 export type WorkspaceInvitationStatus =
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'REJECTED'
-  | 'EXPIRED'
-  | 'CANCELLED';
+  'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED';
 
 export type WorkspaceInvitationSkipCode =
   | 'SELF'
@@ -23,9 +19,7 @@ export interface WorkspaceInvitationReference {
   code?: string;
 }
 
-export type WorkspaceInvitationRef =
-  | string
-  | WorkspaceInvitationReference;
+export type WorkspaceInvitationRef = string | WorkspaceInvitationReference;
 
 export interface WorkspaceInvitation {
   id?: string;

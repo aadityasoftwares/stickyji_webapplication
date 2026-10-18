@@ -39,10 +39,7 @@ import {
   SubscriptionCatalogResponse,
   UserSubscriptionDTO,
 } from './services/plans.service';
-import {
-  BillingService,
-  RazorpayPaymentSuccessResponse,
-} from './services/billing.service';
+import { BillingService, RazorpayPaymentSuccessResponse } from './services/billing.service';
 
 @Component({
   selector: 'app-subscription',
@@ -259,10 +256,7 @@ export class Subscription implements OnInit {
     return 'outline';
   }
 
-  getFeatureValue(
-    row: ComparisonMatrixRow,
-    plan: PlanCardDTO,
-  ): ComparisonPlanValue | null {
+  getFeatureValue(row: ComparisonMatrixRow, plan: PlanCardDTO): ComparisonPlanValue | null {
     if (row.plans) {
       const val = row.plans[plan.code] ?? row.plans[plan.id];
       if (val) return val;
@@ -376,15 +370,12 @@ export class Subscription implements OnInit {
               this.processingPlanId.set(null);
             } else {
               this.toastService.error(
-                result.error?.description ||
-                  'Payment could not be completed. Please try again.',
+                result.error?.description || 'Payment could not be completed. Please try again.',
               );
               this.processingPlanId.set(null);
             }
           } catch (err: any) {
-            this.toastService.error(
-              err?.message || 'Payment gateway could not be launched.',
-            );
+            this.toastService.error(err?.message || 'Payment gateway could not be launched.');
             this.processingPlanId.set(null);
           }
         },
@@ -399,26 +390,20 @@ export class Subscription implements OnInit {
       });
   }
 
-  private handlePaymentSuccess(
-    paymentData: RazorpayPaymentSuccessResponse,
-  ): void {
+  private handlePaymentSuccess(paymentData: RazorpayPaymentSuccessResponse): void {
     // Attempt verification with backend
     this.billingService
       .verifyPayment(paymentData)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toastService.success(
-            'Payment verified! Your subscription is now active.',
-          );
+          this.toastService.success('Payment verified! Your subscription is now active.');
           this.processingPlanId.set(null);
           this.loadPlans();
         },
         error: () => {
           // If verify endpoint is not configured, inform user that confirmation is in progress
-          this.toastService.success(
-            'Payment received! Confirming your subscription status...',
-          );
+          this.toastService.success('Payment received! Confirming your subscription status...');
           this.processingPlanId.set(null);
           this.loadPlans();
         },

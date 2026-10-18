@@ -5,7 +5,7 @@ import {
   OnInit,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +29,7 @@ import {
   LucideStickyNote,
   LucideTrash2,
   LucideType,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { AppIcon } from '../../shared/components/icon/icon';
@@ -50,11 +50,7 @@ import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
 
 import { VIEW_TABS } from '../../shared/constants/common.constants';
-import {
-  extractErrorMessage,
-  extractList,
-  idOf
-} from '../../shared/functions/common.function';
+import { extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
 import {
   getNoteContent,
   getNoteTimestamp,
@@ -62,7 +58,7 @@ import {
   isNoteActive,
   isNoteArchived,
   isNoteDeleted,
-  toColorCssClass
+  toColorCssClass,
 } from '../../shared/functions/sticky-note.function';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
@@ -92,11 +88,11 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     Tabs,
     Tooltip,
     UserDatePipe,
-    UserTimePipe
+    UserTimePipe,
   ],
   templateUrl: './sticky-notes-favourites.component.html',
   styleUrl: './sticky-notes-favourites.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNotesFavouritesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -161,7 +157,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
     { label: 'Recently favourited', value: 'favoritedAt', icon: LucideClock3 },
     { label: 'Recently updated', value: 'updatedAt', icon: LucideClock3 },
     { label: 'Recently created', value: 'createdAt', icon: LucideClock3 },
-    { label: 'Title A–Z', value: 'title', icon: LucideType }
+    { label: 'Title A–Z', value: 'title', icon: LucideType },
   ] as const;
 
   /* View tabs */
@@ -194,21 +190,41 @@ export class StickyNotesFavouritesComponent implements OnInit {
         id: noteId,
         favoriteId: favoriteId || noteId,
         isFavorite: true,
-        favoritedAt: item?.createdAt ?? noteDoc?.createdAt
+        favoritedAt: item?.createdAt ?? noteDoc?.createdAt,
       });
     }
 
     return result;
   });
 
-  readonly totalCount = computed(() => this.notes().filter(note => !isNoteDeleted(note)).length);
-  readonly activeCount = computed(() => this.notes().filter(note => isNoteActive(note)).length);
-  readonly archivedCount = computed(() => this.notes().filter(note => isNoteArchived(note)).length);
+  readonly totalCount = computed(() => this.notes().filter((note) => !isNoteDeleted(note)).length);
+  readonly activeCount = computed(() => this.notes().filter((note) => isNoteActive(note)).length);
+  readonly archivedCount = computed(
+    () => this.notes().filter((note) => isNoteArchived(note)).length,
+  );
 
   readonly noteTabs = computed<readonly any[]>(() => [
-    { value: 'all',      label: 'All',      count: this.totalCount(),    icon: LucideStar,       ariaLabel: 'All favourites' },
-    { value: 'active',   label: 'Active',   count: this.activeCount(),   icon: LucideStickyNote, ariaLabel: 'Active favourites' },
-    { value: 'archived', label: 'Archived', count: this.archivedCount(), icon: LucideArchive,    ariaLabel: 'Archived favourites' }
+    {
+      value: 'all',
+      label: 'All',
+      count: this.totalCount(),
+      icon: LucideStar,
+      ariaLabel: 'All favourites',
+    },
+    {
+      value: 'active',
+      label: 'Active',
+      count: this.activeCount(),
+      icon: LucideStickyNote,
+      ariaLabel: 'Active favourites',
+    },
+    {
+      value: 'archived',
+      label: 'Archived',
+      count: this.archivedCount(),
+      icon: LucideArchive,
+      ariaLabel: 'Archived favourites',
+    },
   ]);
 
   readonly visibleNotes = computed(() => {
@@ -217,7 +233,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
     const sort = this.sortBy();
 
     return [...this.notes()]
-      .filter(note => {
+      .filter((note) => {
         if (isNoteDeleted(note)) return false;
         if (tab === 'active' && !isNoteActive(note)) return false;
         if (tab === 'archived' && !isNoteArchived(note)) return false;
@@ -254,20 +270,20 @@ export class StickyNotesFavouritesComponent implements OnInit {
         label: 'Active favourites',
         status: 'ACTIVE',
         accent: '#10b981',
-        items: notes.filter(note => isNoteActive(note))
+        items: notes.filter((note) => isNoteActive(note)),
       },
       {
         id: 'archived',
         label: 'Archived favourites',
         status: 'ARCHIVED',
         accent: '#64748b',
-        items: notes.filter(note => isNoteArchived(note))
-      }
+        items: notes.filter((note) => isNoteArchived(note)),
+      },
     ];
 
     return groups
-      .filter(group => tab === 'all' || group.id === tab)
-      .map(group => ({ ...group, count: group.items.length }));
+      .filter((group) => tab === 'all' || group.id === tab)
+      .map((group) => ({ ...group, count: group.items.length }));
   });
 
   /* -------------------------------------------------------------------------- */
@@ -291,7 +307,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .getAll({ status: 'ACTIVE', limit: 500, sortBy: 'createdAt', sortOrder: 'desc' })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false))
+        finalize(() => this.loading.set(false)),
       )
       .subscribe({
         next: (response: any) => {
@@ -304,7 +320,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
           const message = extractErrorMessage(err, 'Could not load favourite notes.');
           this.error.set(message);
           this.toastService.error(message);
-        }
+        },
       });
   }
 
@@ -328,11 +344,11 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .toggleFavorite(noteId, favoriteId, this.noteTitle(note))
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.setBusy(noteId, false))
+        finalize(() => this.setBusy(noteId, false)),
       )
       .subscribe({
-        next: result => result.isFavorite ? this.refresh() : this.onNoteDeleted(noteId),
-        error: () => undefined
+        next: (result) => (result.isFavorite ? this.refresh() : this.onNoteDeleted(noteId)),
+        error: () => undefined,
       });
   }
 
@@ -368,7 +384,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .archive(noteId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.setBusy(noteId, false))
+        finalize(() => this.setBusy(noteId, false)),
       )
       .subscribe({
         next: () => {
@@ -377,7 +393,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
         },
         error: (err: any) => {
           this.toastService.error(extractErrorMessage(err, 'Could not archive note.'));
-        }
+        },
       });
   }
 
@@ -390,7 +406,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .updateStatus(noteId, 'ACTIVE')
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.setBusy(noteId, false))
+        finalize(() => this.setBusy(noteId, false)),
       )
       .subscribe({
         next: () => {
@@ -399,7 +415,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
         },
         error: (err: any) => {
           this.toastService.error(extractErrorMessage(err, 'Could not restore note.'));
-        }
+        },
       });
   }
 
@@ -425,7 +441,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
         finalize(() => {
           this.deleting.set(false);
           this.closeDeleteDialog();
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -434,14 +450,14 @@ export class StickyNotesFavouritesComponent implements OnInit {
         },
         error: (err: any) => {
           this.toastService.error(extractErrorMessage(err, 'Could not delete note.'));
-        }
+        },
       });
   }
 
   updateNoteTitle(change: any): void {
     const noteId = String(change?.noteId ?? '').trim();
     const title = String(change?.title ?? '').trim();
-    const note = this.notes().find(item => idOf(item) === noteId);
+    const note = this.notes().find((item) => idOf(item) === noteId);
 
     if (!noteId || !title || !note || this.isBusy(note)) return;
     if (this.noteTitle(note) === title) return;
@@ -451,7 +467,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .update(noteId, { title })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.setBusy(noteId, false))
+        finalize(() => this.setBusy(noteId, false)),
       )
       .subscribe({
         next: () => {
@@ -459,14 +475,14 @@ export class StickyNotesFavouritesComponent implements OnInit {
         },
         error: (err: any) => {
           this.toastService.error(extractErrorMessage(err, 'Could not rename note.'));
-        }
+        },
       });
   }
 
   updateNoteDescription(change: any): void {
     const noteId = String(change?.noteId ?? '').trim();
     const content = String(change?.description ?? change?.content ?? '').trim();
-    const note = this.notes().find(item => idOf(item) === noteId);
+    const note = this.notes().find((item) => idOf(item) === noteId);
 
     if (!noteId || !note || this.isBusy(note)) return;
 
@@ -475,7 +491,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .update(noteId, { content })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.setBusy(noteId, false))
+        finalize(() => this.setBusy(noteId, false)),
       )
       .subscribe({
         next: () => {
@@ -483,13 +499,13 @@ export class StickyNotesFavouritesComponent implements OnInit {
         },
         error: (err: any) => {
           this.toastService.error(extractErrorMessage(err, 'Could not update note content.'));
-        }
+        },
       });
   }
 
   onNoteDeleted(noteId: string): void {
-    this.rawFavorites.update(favs =>
-      favs.filter(item => idOf(item?.stickyNoteId ?? item) !== noteId)
+    this.rawFavorites.update((favs) =>
+      favs.filter((item) => idOf(item?.stickyNoteId ?? item) !== noteId),
     );
   }
 
@@ -522,13 +538,15 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   setSort(sort: unknown): void {
-    if (this.sortOptions.some(option => option.value === sort)) {
+    if (this.sortOptions.some((option) => option.value === sort)) {
       this.sortBy.set(sort as FavouriteSort);
     }
   }
 
   isCompactLayout(): boolean {
-    const layout = String(this.stickyNoteLayout() ?? 'DETAIL').trim().toUpperCase();
+    const layout = String(this.stickyNoteLayout() ?? 'DETAIL')
+      .trim()
+      .toUpperCase();
     return layout === 'COMPACT' || layout === 'PLAIN';
   }
 
@@ -578,16 +596,20 @@ export class StickyNotesFavouritesComponent implements OnInit {
 
   noteChecklistTotal(note: any): number {
     const checklists = Array.isArray(note?.checklists) ? note.checklists : [];
-    return checklists.reduce((total: number, checklist: any) =>
-      total + Number(checklist?.totalCount ?? checklist?.items?.length ?? 0), 0);
+    return checklists.reduce(
+      (total: number, checklist: any) =>
+        total + Number(checklist?.totalCount ?? checklist?.items?.length ?? 0),
+      0,
+    );
   }
 
   noteChecklistCompleted(note: any): number {
     const checklists = Array.isArray(note?.checklists) ? note.checklists : [];
     return checklists.reduce((total: number, checklist: any) => {
-      const completed = checklist?.completedCount
-        ?? checklist?.items?.filter((item: any) => item?.isCompleted === true).length
-        ?? 0;
+      const completed =
+        checklist?.completedCount ??
+        checklist?.items?.filter((item: any) => item?.isCompleted === true).length ??
+        0;
       return total + Number(completed);
     }, 0);
   }
@@ -598,7 +620,10 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   noteUpdatedLabel(note: any): string {
-    return this.dateTimeFormatter.formatRelativeDate(note?.updatedAt ?? note?.createdAt, 'Recently');
+    return this.dateTimeFormatter.formatRelativeDate(
+      note?.updatedAt ?? note?.createdAt,
+      'Recently',
+    );
   }
 
   noteColorKey(note: any): string {
@@ -623,17 +648,20 @@ export class StickyNotesFavouritesComponent implements OnInit {
     event?.preventDefault();
     if (!key || !navigator.clipboard) return;
 
-    navigator.clipboard.writeText(key).then(() => {
-      this.copiedKeys.update(keys => new Set(keys).add(key));
-      this.toastService.info(`Copied ${key} to clipboard`);
-      setTimeout(() => {
-        this.copiedKeys.update(keys => {
-          const next = new Set(keys);
-          next.delete(key);
-          return next;
-        });
-      }, 2000);
-    }).catch(() => undefined);
+    navigator.clipboard
+      .writeText(key)
+      .then(() => {
+        this.copiedKeys.update((keys) => new Set(keys).add(key));
+        this.toastService.info(`Copied ${key} to clipboard`);
+        setTimeout(() => {
+          this.copiedKeys.update((keys) => {
+            const next = new Set(keys);
+            next.delete(key);
+            return next;
+          });
+        }, 2000);
+      })
+      .catch(() => undefined);
   }
 
   isKeyCopied(key: string): boolean {
@@ -646,7 +674,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   private setBusy(id: string, busy: boolean): void {
-    this.busyIds.update(current => {
+    this.busyIds.update((current) => {
       const next = new Set(current);
       if (busy) {
         next.add(id);
@@ -667,9 +695,11 @@ export class StickyNotesFavouritesComponent implements OnInit {
     return {
       ...note,
       id: idOf(note),
-      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number'
-        ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
-        : undefined),
+      noteKey:
+        note?.noteKey ??
+        (typeof note?.stickyNoteNumber === 'number'
+          ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
+          : undefined),
       title,
       content,
       description: content && content !== title ? content : '',
@@ -695,7 +725,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
       showMoveActions: false,
       actionsDisabled: this.isBusy(note),
       minHeight: 156,
-      padding: 12
+      padding: 12,
     };
   }
 }

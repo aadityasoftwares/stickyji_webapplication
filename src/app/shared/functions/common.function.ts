@@ -141,7 +141,9 @@ export function sortItemsByPosition<T = any>(items: any): T[] {
     if (!items || !Array.isArray(items)) {
       return [];
     }
-    return [...items].sort((a: any, b: any) => (Number(a?.position) || 0) - (Number(b?.position) || 0));
+    return [...items].sort(
+      (a: any, b: any) => (Number(a?.position) || 0) - (Number(b?.position) || 0),
+    );
   } catch (error) {
     console.error('Error in sortItemsByPosition:', error);
     return Array.isArray(items) ? [...items] : [];

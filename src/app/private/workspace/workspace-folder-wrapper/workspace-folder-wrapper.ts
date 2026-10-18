@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideCalendarDays,
@@ -9,7 +16,7 @@ import {
   LucideLock,
   LucideShield,
   LucideStar,
-  LucideUsers
+  LucideUsers,
 } from '@lucide/angular';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { MembersStack } from '../../workspace-members/members-stack/members-stack';
@@ -114,11 +121,11 @@ export class WorkspaceFolderWrapper {
   get folderPreviews(): Array<{ id: string; name: string }> {
     return (Array.isArray(this.folders) ? this.folders : [])
       .map((folder, index) => {
-        const name = String(typeof folder === 'string' ? folder : folder?.name ?? '').trim();
-        const id = String(typeof folder === 'object' ? folder?.id ?? '' : '').trim();
+        const name = String(typeof folder === 'string' ? folder : (folder?.name ?? '')).trim();
+        const id = String(typeof folder === 'object' ? (folder?.id ?? '') : '').trim();
         return { id: id || `folder-${index}`, name };
       })
-      .filter(folder => !!folder.name);
+      .filter((folder) => !!folder.name);
   }
 
   get visibleFolderPreviews(): Array<{ id: string; name: string }> {
@@ -132,10 +139,11 @@ export class WorkspaceFolderWrapper {
 
   get resolvedCountTooltip(): string {
     if (this.countTooltip) return this.countTooltip;
-    if (this.countLabel && !this.folderCount && this.folderPreviews.length === 0) return this.countLabel;
+    if (this.countLabel && !this.folderCount && this.folderPreviews.length === 0)
+      return this.countLabel;
     const count = Math.max(this.folderCount ?? 0, this.folderPreviews.length);
     const label = this.resolvedCountLabel ?? `${count} ${count === 1 ? 'folder' : 'folders'}`;
-    const names = this.folderPreviews.map(folder => folder.name);
+    const names = this.folderPreviews.map((folder) => folder.name);
 
     if (count === 0) return this.countLabel || 'No folders in this workspace';
     if (names.length === 0) return label;

@@ -1,98 +1,96 @@
-export type WorkspaceFolderStatus =
-    | 'ACTIVE'
-    | 'INACTIVE'
-    | 'ARCHIVED'
-    | 'DELETED';
+export type WorkspaceFolderStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'DELETED';
 
 export interface WorkspaceFolderUserSummary {
-    _id: string;
-    name?: string;
-    email?: string;
-    avatar?: string | null;
+  _id: string;
+  name?: string;
+  email?: string;
+  avatar?: string | null;
 }
 
 export interface WorkspaceFolderWorkspaceSummary {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string | null;
-    isPersonal?: boolean;
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  isPersonal?: boolean;
 }
 
 export interface WorkspaceFolderStickyNoteSummary {
-    stickyNoteCount?: number;
-    stickyNotesCount?: number;
-    total?: number;
-    active?: number;
-    archived?: number;
+  stickyNoteCount?: number;
+  stickyNotesCount?: number;
+  total?: number;
+  active?: number;
+  archived?: number;
 }
 
 export interface WorkspaceFolder {
-    id: string;
-    workspaceId: string | WorkspaceFolderWorkspaceSummary;
-    name: string;
-    slug: string;
-    description?: string | null;
-    icon?: string | null;
-    color?: string | null;
-    position: number;
-    isDefault: boolean;
-    status: WorkspaceFolderStatus;
-    summary?: WorkspaceFolderStickyNoteSummary;
-    createdBy?: string | WorkspaceFolderUserSummary | null;
-    updatedBy?: string | WorkspaceFolderUserSummary | null;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt?: string | null;
-    deletedBy?: string | WorkspaceFolderUserSummary | null;
-    purgeAfter?: string | null;
+  id: string;
+  workspaceId: string | WorkspaceFolderWorkspaceSummary;
+  name: string;
+  slug: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  position: number;
+  isDefault: boolean;
+  status: WorkspaceFolderStatus;
+  summary?: WorkspaceFolderStickyNoteSummary;
+  createdBy?: string | WorkspaceFolderUserSummary | null;
+  updatedBy?: string | WorkspaceFolderUserSummary | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  deletedBy?: string | WorkspaceFolderUserSummary | null;
+  purgeAfter?: string | null;
 }
 
 export interface WorkspaceFolderCreateRequest {
-    workspaceId: string;
-    name: string;
-    slug?: string;
-    description?: string | null;
-    icon?: string | null;
-    color?: string | null;
-    position?: number;
+  workspaceId: string;
+  name: string;
+  slug?: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  position?: number;
 }
 
 export interface WorkspaceFolderUpdateRequest {
-    name?: string;
-    slug?: string;
-    description?: string | null;
-    icon?: string | null;
-    color?: string | null;
-    position?: number;
+  name?: string;
+  slug?: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  position?: number;
 }
 
 export interface WorkspaceFolderQuery {
-    workspaceId?: string;
-    page?: number;
-    limit?: number;
-    search?: string;
-    status?: WorkspaceFolderStatus | 'ALL';
-    isDefault?: boolean;
-    createdBy?: string;
-    sortBy?: 'name' | 'position' | 'createdAt' | 'updatedAt';
-    sortOrder?: 'asc' | 'desc';
+  workspaceId?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: WorkspaceFolderStatus | 'ALL';
+  isDefault?: boolean;
+  createdBy?: string;
+  sortBy?: 'name' | 'position' | 'createdAt' | 'updatedAt';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 export interface Pagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages?: number;
+  page: number;
+  limit: number;
+  total: number;
+  totalPages?: number;
 }
 
 export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
-    meta: Pagination & { counts?: Partial<Record<'all' | 'active' | 'inactive' | 'archived' | 'deleted', number>> };
-    pagination?: Pagination;
+  meta: Pagination & {
+    counts?: Partial<Record<'all' | 'active' | 'inactive' | 'archived' | 'deleted', number>>;
+  };
+  pagination?: Pagination;
 }

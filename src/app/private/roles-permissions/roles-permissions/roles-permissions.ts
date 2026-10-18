@@ -49,7 +49,11 @@ import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Switch } from '../../../shared/components/switch/switch';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
@@ -89,8 +93,12 @@ type RoleTab = 'all' | 'system' | 'custom' | 'inactive';
 type RoleSort = 'updatedAt' | 'name' | 'priority' | 'createdAt' | 'nameDesc' | 'oldest';
 
 const ROLE_SORT_PREFERENCES: Record<RoleSort, string> = {
-  priority: 'PRIORITY', updatedAt: 'RECENTLY_UPDATED', name: 'NAME_ASC',
-  createdAt: 'RECENTLY_CREATED', nameDesc: 'NAME_DESC', oldest: 'OLDEST_FIRST'
+  priority: 'PRIORITY',
+  updatedAt: 'RECENTLY_UPDATED',
+  name: 'NAME_ASC',
+  createdAt: 'RECENTLY_CREATED',
+  nameDesc: 'NAME_DESC',
+  oldest: 'OLDEST_FIRST',
 };
 
 @Component({
@@ -178,16 +186,16 @@ export class RolesPermissions implements OnInit, OnChanges {
   readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
 
   readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
-    this.workspaces().map(workspace => ({
+    this.workspaces().map((workspace) => ({
       label: workspace.name?.trim() || 'Untitled workspace',
       value: workspace.id,
-      icon: LucidePanelsTopLeft
-    }))
+      icon: LucidePanelsTopLeft,
+    })),
   );
 
   readonly selectedWorkspaceLabel = computed(() => {
     const selectedId = this.selectedWorkspaceId();
-    const workspace = this.workspaces().find(item => item.id === selectedId);
+    const workspace = this.workspaces().find((item) => item.id === selectedId);
     return workspace?.name?.trim() || 'Select workspace';
   });
 
@@ -200,7 +208,8 @@ export class RolesPermissions implements OnInit, OnChanges {
   readonly permissionError = signal<string | null>(null);
 
   readonly view = computed<AccessView>(() =>
-    String(this.userPreferenceStore.workspaceRoleView()).toUpperCase() === 'LIST' ? 'list' : 'grid');
+    String(this.userPreferenceStore.workspaceRoleView()).toUpperCase() === 'LIST' ? 'list' : 'grid',
+  );
   readonly activeRoleTab = computed<RoleTab>(() => {
     const value = String(this.userPreferenceStore.workspaceRoleStatusFilter()).toLowerCase();
     return value === 'system' || value === 'custom' || value === 'inactive' ? value : 'all';
@@ -208,12 +217,21 @@ export class RolesPermissions implements OnInit, OnChanges {
   readonly searchTerm = signal('');
   readonly roleSort = computed<RoleSort>(() => {
     switch (String(this.userPreferenceStore.workspaceRoleSortOrder()).toUpperCase()) {
-      case 'RECENTLY_UPDATED': case 'UPDATED_AT': return 'updatedAt';
-      case 'NAME_ASC': case 'NAME': return 'name';
-      case 'RECENTLY_CREATED': case 'CREATED_AT': return 'createdAt';
-      case 'NAME_DESC': return 'nameDesc';
-      case 'OLDEST_FIRST': return 'oldest';
-      default: return 'priority';
+      case 'RECENTLY_UPDATED':
+      case 'UPDATED_AT':
+        return 'updatedAt';
+      case 'NAME_ASC':
+      case 'NAME':
+        return 'name';
+      case 'RECENTLY_CREATED':
+      case 'CREATED_AT':
+        return 'createdAt';
+      case 'NAME_DESC':
+        return 'nameDesc';
+      case 'OLDEST_FIRST':
+        return 'oldest';
+      default:
+        return 'priority';
     }
   });
   readonly permissionModule = signal('all');
@@ -242,34 +260,66 @@ export class RolesPermissions implements OnInit, OnChanges {
     { label: 'Module', value: 'module' },
     { label: 'Name A–Z', value: 'name' },
     { label: 'Code', value: 'code' },
-    { label: 'Action', value: 'action' }
+    { label: 'Action', value: 'action' },
   ];
 
-  readonly activeRolesCount = computed(() => this.roles().filter(role => role.isActive !== false).length);
-  readonly systemRolesCount = computed(() => this.roles().filter(role => role.isSystem && role.isActive !== false).length);
-  readonly customRolesCount = computed(() => this.roles().filter(role => !role.isSystem && role.isActive !== false).length);
-  readonly inactiveRolesCount = computed(() => this.roles().filter(role => !role.isSystem && role.isActive === false).length);
+  readonly activeRolesCount = computed(
+    () => this.roles().filter((role) => role.isActive !== false).length,
+  );
+  readonly systemRolesCount = computed(
+    () => this.roles().filter((role) => role.isSystem && role.isActive !== false).length,
+  );
+  readonly customRolesCount = computed(
+    () => this.roles().filter((role) => !role.isSystem && role.isActive !== false).length,
+  );
+  readonly inactiveRolesCount = computed(
+    () => this.roles().filter((role) => !role.isSystem && role.isActive === false).length,
+  );
 
   readonly allPermissions = computed<readonly Permission[]>(() =>
-    this.permissionGroups().flatMap(group => group.permissions)
+    this.permissionGroups().flatMap((group) => group.permissions),
   );
 
   readonly assignablePermissionGroups = computed<readonly PermissionGroup[]>(() =>
     this.permissionGroups()
-      .map(group => ({
+      .map((group) => ({
         ...group,
-        permissions: group.permissions.filter(permission => permission.isActive !== false)
+        permissions: group.permissions.filter((permission) => permission.isActive !== false),
       }))
-      .filter(group => group.permissions.length > 0)
+      .filter((group) => group.permissions.length > 0),
   );
 
   readonly viewTabs: readonly TabItem[] = VIEW_TABS;
 
   readonly roleTabs = computed<readonly TabItem[]>(() => [
-    { value: 'all', label: 'All', count: this.activeRolesCount(), icon: LucideShield, ariaLabel: 'All active roles' },
-    { value: 'system', label: 'System', count: this.systemRolesCount(), icon: LucideLock, ariaLabel: 'System roles' },
-    { value: 'custom', label: 'Custom', count: this.customRolesCount(), icon: LucidePencil, ariaLabel: 'Custom roles' },
-    { value: 'inactive', label: 'Inactive', count: this.inactiveRolesCount(), icon: LucidePower, ariaLabel: 'Inactive roles' }
+    {
+      value: 'all',
+      label: 'All',
+      count: this.activeRolesCount(),
+      icon: LucideShield,
+      ariaLabel: 'All active roles',
+    },
+    {
+      value: 'system',
+      label: 'System',
+      count: this.systemRolesCount(),
+      icon: LucideLock,
+      ariaLabel: 'System roles',
+    },
+    {
+      value: 'custom',
+      label: 'Custom',
+      count: this.customRolesCount(),
+      icon: LucidePencil,
+      ariaLabel: 'Custom roles',
+    },
+    {
+      value: 'inactive',
+      label: 'Inactive',
+      count: this.inactiveRolesCount(),
+      icon: LucidePower,
+      ariaLabel: 'Inactive roles',
+    },
   ]);
 
   readonly roleSortOptions: readonly SelectOption[] = [
@@ -278,15 +328,15 @@ export class RolesPermissions implements OnInit, OnChanges {
     { label: 'Role A–Z', value: 'name' },
     { label: 'Role Z–A', value: 'nameDesc' },
     { label: 'Recently created', value: 'createdAt' },
-    { label: 'Oldest first', value: 'oldest' }
+    { label: 'Oldest first', value: 'oldest' },
   ];
 
   readonly permissionModuleOptions = computed<readonly SelectOption[]>(() => [
     { label: 'All modules', value: 'all' },
-    ...this.permissionGroups().map(group => ({
+    ...this.permissionGroups().map((group) => ({
       label: this.moduleLabel(group.module),
-      value: group.module
-    }))
+      value: group.module,
+    })),
   ]);
 
   readonly visibleRoles = computed(() => {
@@ -295,7 +345,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     const sort = this.roleSort();
 
     return [...this.roles()]
-      .filter(role => {
+      .filter((role) => {
         if (tab === 'all' && role.isActive === false) return false;
         if (tab === 'system' && (!role.isSystem || role.isActive === false)) return false;
         if (tab === 'custom' && (role.isSystem || role.isActive === false)) return false;
@@ -304,10 +354,10 @@ export class RolesPermissions implements OnInit, OnChanges {
         if (!search) return true;
 
         const permissionText = (Array.isArray(role.permissions) ? role.permissions : [])
-          .map(permission =>
+          .map((permission) =>
             typeof permission === 'string'
               ? permission
-              : `${permission?.displayName ?? ''} ${permission?.code ?? ''} ${permission?.module ?? ''}`
+              : `${permission?.displayName ?? ''} ${permission?.code ?? ''} ${permission?.module ?? ''}`,
           )
           .join(' ');
 
@@ -316,15 +366,16 @@ export class RolesPermissions implements OnInit, OnChanges {
           role.name,
           role.code,
           role.description ?? '',
-          permissionText
-        ].some(value => String(value).toLowerCase().includes(search));
+          permissionText,
+        ].some((value) => String(value).toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'name' || sort === 'nameDesc') {
-          return (sort === 'nameDesc' ? -1 : 1) * this.roleDisplayName(first).localeCompare(
-            this.roleDisplayName(second),
-            undefined,
-            { sensitivity: 'base' }
+          return (
+            (sort === 'nameDesc' ? -1 : 1) *
+            this.roleDisplayName(first).localeCompare(this.roleDisplayName(second), undefined, {
+              sensitivity: 'base',
+            })
           );
         }
 
@@ -334,8 +385,10 @@ export class RolesPermissions implements OnInit, OnChanges {
           return this.roleDisplayName(first).localeCompare(this.roleDisplayName(second));
         }
 
-        if (sort === 'createdAt') return this.timestamp(second.createdAt) - this.timestamp(first.createdAt);
-        if (sort === 'oldest') return this.timestamp(first.createdAt) - this.timestamp(second.createdAt);
+        if (sort === 'createdAt')
+          return this.timestamp(second.createdAt) - this.timestamp(first.createdAt);
+        if (sort === 'oldest')
+          return this.timestamp(first.createdAt) - this.timestamp(second.createdAt);
         return this.timestamp(second.updatedAt) - this.timestamp(first.updatedAt);
       });
   });
@@ -344,9 +397,9 @@ export class RolesPermissions implements OnInit, OnChanges {
     const roles = this.visibleRoles();
     const tab = this.activeRoleTab();
 
-    const systemRoles = roles.filter(role => role.isSystem && role.isActive !== false);
-    const customRoles = roles.filter(role => !role.isSystem && role.isActive !== false);
-    const inactiveRoles = roles.filter(role => role.isActive === false);
+    const systemRoles = roles.filter((role) => role.isSystem && role.isActive !== false);
+    const customRoles = roles.filter((role) => !role.isSystem && role.isActive !== false);
+    const inactiveRoles = roles.filter((role) => role.isActive === false);
     const groups: WorkspaceRoleGroup[] = [
       {
         id: 'system',
@@ -374,9 +427,9 @@ export class RolesPermissions implements OnInit, OnChanges {
       },
     ];
 
-    return groups.filter(group => tab === 'all'
-      ? group.type !== 'inactive' || group.count > 0
-      : group.type === tab);
+    return groups.filter((group) =>
+      tab === 'all' ? group.type !== 'inactive' || group.count > 0 : group.type === tab,
+    );
   });
 
   readonly visiblePermissions = computed(() => {
@@ -385,7 +438,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     const sort = this.permissionSort();
 
     return [...this.allPermissions()]
-      .filter(permission => {
+      .filter((permission) => {
         if (module !== 'all' && permission.module !== module) return false;
         if (!search) return true;
 
@@ -396,15 +449,15 @@ export class RolesPermissions implements OnInit, OnChanges {
           permission.module,
           permission.action,
           permission.access,
-          permission.description ?? ''
-        ].some(value => String(value).toLowerCase().includes(search));
+          permission.description ?? '',
+        ].some((value) => String(value).toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'name') {
           return String(first.displayName ?? first.name ?? '').localeCompare(
             String(second.displayName ?? second.name ?? ''),
             undefined,
-            { sensitivity: 'base' }
+            { sensitivity: 'base' },
           );
         }
         if (sort === 'code') {
@@ -435,7 +488,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       label: this.moduleLabel(module),
       module,
       count: perms.length,
-      permissions: perms
+      permissions: perms,
     }));
   });
 
@@ -503,26 +556,32 @@ export class RolesPermissions implements OnInit, OnChanges {
         finalize(() => {
           if (requestVersion === this.roleRequestVersion) this.loadingRoles.set(false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: roles => {
-          if (requestVersion !== this.roleRequestVersion || this.selectedWorkspaceId() !== id) return;
+        next: (roles) => {
+          if (requestVersion !== this.roleRequestVersion || this.selectedWorkspaceId() !== id)
+            return;
           this.roles.set(roles);
-          const roleIds = new Set(roles.filter(role => this.canSelectRole(role)).map(role => this.roleId(role)));
-          this.selectedRoleIds.update(selected => new Set([...selected].filter(roleId => roleIds.has(roleId))));
+          const roleIds = new Set(
+            roles.filter((role) => this.canSelectRole(role)).map((role) => this.roleId(role)),
+          );
+          this.selectedRoleIds.update(
+            (selected) => new Set([...selected].filter((roleId) => roleIds.has(roleId))),
+          );
         },
-        error: error => {
-          if (requestVersion !== this.roleRequestVersion || this.selectedWorkspaceId() !== id) return;
+        error: (error) => {
+          if (requestVersion !== this.roleRequestVersion || this.selectedWorkspaceId() !== id)
+            return;
 
           this.roles.set([]);
           const message = extractErrorMessage(error, 'Unable to load workspace roles.');
           this.roleError.set(message);
           this.toastService.error(message, {
             title: 'Could not load roles',
-            dedupeKey: 'workspace-roles-load-error'
+            dedupeKey: 'workspace-roles-load-error',
           });
-        }
+        },
       });
   }
 
@@ -538,14 +597,14 @@ export class RolesPermissions implements OnInit, OnChanges {
         finalize(() => {
           if (requestVersion === this.permissionRequestVersion) this.loadingPermissions.set(false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: groups => {
+        next: (groups) => {
           if (requestVersion !== this.permissionRequestVersion) return;
           this.permissionGroups.set(groups);
         },
-        error: error => {
+        error: (error) => {
           if (requestVersion !== this.permissionRequestVersion) return;
 
           this.permissionGroups.set([]);
@@ -553,9 +612,9 @@ export class RolesPermissions implements OnInit, OnChanges {
           this.permissionError.set(message);
           this.toastService.error(message, {
             title: 'Could not load permissions',
-            dedupeKey: 'permissions-load-error'
+            dedupeKey: 'permissions-load-error',
           });
-        }
+        },
       });
   }
 
@@ -576,14 +635,20 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   setRoleTab(value: TabValue): void {
     if (value === 'all' || value === 'system' || value === 'custom' || value === 'inactive') {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_ROLE_STATUS_FILTER, value.toUpperCase());
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.WORKSPACE_ROLE_STATUS_FILTER,
+        value.toUpperCase(),
+      );
       this.clearSelection();
     }
   }
 
   setView(value: TabValue): void {
     if (value === 'grid' || value === 'list') {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_ROLE_VIEW, value.toUpperCase());
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.WORKSPACE_ROLE_VIEW,
+        value.toUpperCase(),
+      );
       this.clearSelection();
     }
   }
@@ -597,8 +662,14 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   setRoleSort(value: SelectValue | SelectValue[] | null): void {
-    if (typeof value === 'string' && Object.prototype.hasOwnProperty.call(ROLE_SORT_PREFERENCES, value)) {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_ROLE_SORT_ORDER, ROLE_SORT_PREFERENCES[value as RoleSort]);
+    if (
+      typeof value === 'string' &&
+      Object.prototype.hasOwnProperty.call(ROLE_SORT_PREFERENCES, value)
+    ) {
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.WORKSPACE_ROLE_SORT_ORDER,
+        ROLE_SORT_PREFERENCES[value as RoleSort],
+      );
     }
   }
 
@@ -611,7 +682,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     if (!this.selectedWorkspaceId()) {
       this.toastService.warning('Select a workspace before creating a role.', {
         title: 'Workspace required',
-        dedupeKey: 'workspace-role-workspace-required'
+        dedupeKey: 'workspace-role-workspace-required',
       });
       return;
     }
@@ -622,19 +693,30 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   handleRoleClick(role: WorkspaceRole, event?: Event): void {
     const target = event?.target as Element | null;
-    if (target?.closest('button, input, a, app-checkbox, app-button, app-switch, .mat-mdc-menu-panel, .mat-mdc-menu-item')) return;
+    if (
+      target?.closest(
+        'button, input, a, app-checkbox, app-button, app-switch, .mat-mdc-menu-panel, .mat-mdc-menu-item',
+      )
+    )
+      return;
     if (this.isRoleBusy(role)) return;
     this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) || null : null);
   }
 
   handleRoleDoubleClick(role: WorkspaceRole, event: MouseEvent): void {
     const target = event.target as Element | null;
-    if (target?.closest('button, input, a, app-checkbox, app-button, app-switch, .mat-mdc-menu-panel, .mat-mdc-menu-item')) return;
+    if (
+      target?.closest(
+        'button, input, a, app-checkbox, app-button, app-switch, .mat-mdc-menu-panel, .mat-mdc-menu-item',
+      )
+    )
+      return;
     this.openRole(role);
   }
 
   handleRoleMenuClick(role: WorkspaceRole, _event: Event): void {
-    if (!this.isRoleBusy(role)) this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) || null : null);
+    if (!this.isRoleBusy(role))
+      this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) || null : null);
   }
 
   openRoleContextMenu(role: WorkspaceRole, event: MouseEvent): void {
@@ -647,9 +729,11 @@ export class RolesPermissions implements OnInit, OnChanges {
     this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) : null);
     this.contextMenuRole.set(role);
     this.contextMenuPosition.set({ x: event.clientX, y: event.clientY });
-    timer(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (this.contextMenuRole() === role) trigger.openMenu();
-    });
+    timer(0)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.contextMenuRole() === role) trigger.openMenu();
+      });
   }
 
   closeRoleContextMenu(): void {
@@ -698,31 +782,31 @@ export class RolesPermissions implements OnInit, OnChanges {
       .changeStatus(id, isActive)
       .pipe(
         finalize(() => this.setRoleBusy(id, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (workspaceId !== this.selectedWorkspaceId()) return;
-          this.roles.update(items =>
-            items.map(item => this.roleId(item) === id ? response.data : item)
+          this.roles.update((items) =>
+            items.map((item) => (this.roleId(item) === id ? response.data : item)),
           );
 
           this.toastService.success(
             `“${this.roleDisplayName(role)}” is now ${isActive ? 'active' : 'inactive'}.`,
             {
               title: isActive ? 'Role activated' : 'Role deactivated',
-              dedupeKey: `workspace-role-status-${id}`
-            }
+              dedupeKey: `workspace-role-status-${id}`,
+            },
           );
         },
-        error: error => {
+        error: (error) => {
           if (workspaceId !== this.selectedWorkspaceId()) return;
           const message = extractErrorMessage(error, 'Unable to update role status.');
           this.toastService.error(message, {
             title: 'Role status failed',
-            dedupeKey: `workspace-role-status-error-${id}`
+            dedupeKey: `workspace-role-status-error-${id}`,
           });
-        }
+        },
       });
   }
 
@@ -753,29 +837,31 @@ export class RolesPermissions implements OnInit, OnChanges {
           this.deleting.set(false);
           this.setRoleBusy(id, false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           if (workspaceId !== this.selectedWorkspaceId()) return;
           this.deleteTarget.set(null);
-          this.roles.update(items => items.filter(item => this.roleId(item) !== id));
-          this.selectedRoleIds.update(selected => new Set([...selected].filter(roleId => roleId !== id)));
+          this.roles.update((items) => items.filter((item) => this.roleId(item) !== id));
+          this.selectedRoleIds.update(
+            (selected) => new Set([...selected].filter((roleId) => roleId !== id)),
+          );
 
           this.toastService.success(`“${this.roleDisplayName(role)}” was deleted.`, {
             title: 'Role deleted',
-            dedupeKey: 'workspace-role-delete-success'
+            dedupeKey: 'workspace-role-delete-success',
           });
         },
-        error: error => {
+        error: (error) => {
           if (workspaceId !== this.selectedWorkspaceId()) return;
           this.deleteTarget.set(null);
           const message = extractErrorMessage(error, 'Unable to delete workspace role.');
           this.toastService.error(message, {
             title: 'Could not delete role',
-            dedupeKey: 'workspace-role-delete-error'
+            dedupeKey: 'workspace-role-delete-error',
           });
-        }
+        },
       });
   }
 
@@ -814,10 +900,10 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   rolePermissionPreview(role: WorkspaceRole): string {
     const names = (Array.isArray(role.permissions) ? role.permissions : [])
-      .map(permission =>
+      .map((permission) =>
         typeof permission === 'string'
           ? ''
-          : String(permission?.displayName ?? permission?.code ?? '').trim()
+          : String(permission?.displayName ?? permission?.code ?? '').trim(),
       )
       .filter(Boolean)
       .slice(0, 2);
@@ -880,9 +966,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     const requestedId = String(this.workspaceId ?? '').trim();
     if (!requestedId) return false;
 
-    const exists = this.workspaces().some(
-      workspace => workspace.id === requestedId
-    );
+    const exists = this.workspaces().some((workspace) => workspace.id === requestedId);
 
     if (!exists) return false;
 
@@ -919,7 +1003,7 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   togglePermissionGroup(groupId: string): void {
-    this.collapsedPermissionGroups.update(prev => {
+    this.collapsedPermissionGroups.update((prev) => {
       const next = new Set(prev);
       if (next.has(groupId)) {
         next.delete(groupId);
@@ -948,7 +1032,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     if (!this.canManageGlobalPermissions()) {
       this.toastService.warning('You do not have permission to manage global permissions.', {
         title: 'Unauthorized',
-        dedupeKey: 'perm-create-unauthorized'
+        dedupeKey: 'perm-create-unauthorized',
       });
       return;
     }
@@ -983,7 +1067,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     if (!this.canManageGlobalPermissions()) {
       this.toastService.warning('You do not have permission to change permission status.', {
         title: 'Unauthorized',
-        dedupeKey: 'perm-status-unauthorized'
+        dedupeKey: 'perm-status-unauthorized',
       });
       return;
     }
@@ -996,33 +1080,33 @@ export class RolesPermissions implements OnInit, OnChanges {
       .changeStatus(id, isActive)
       .pipe(
         finalize(() => this.setPermissionBusy(id, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           const updated = response.data;
-          this.permissionGroups.update(groups =>
-            groups.map(g => ({
+          this.permissionGroups.update((groups) =>
+            groups.map((g) => ({
               ...g,
-              permissions: g.permissions.map(p => this.permissionId(p) === id ? updated : p)
-            }))
+              permissions: g.permissions.map((p) => (this.permissionId(p) === id ? updated : p)),
+            })),
           );
           this.toastService.success(
             `“${permission.displayName || permission.code}” is now ${isActive ? 'active' : 'inactive'}.`,
             {
               title: isActive ? 'Permission activated' : 'Permission deactivated',
-              dedupeKey: `perm-status-${id}`
-            }
+              dedupeKey: `perm-status-${id}`,
+            },
           );
           if (this.selectedWorkspaceId()) this.loadRoles();
         },
-        error: error => {
+        error: (error) => {
           const message = extractErrorMessage(error, 'Unable to update permission status.');
           this.toastService.error(message, {
             title: 'Permission status failed',
-            dedupeKey: `perm-status-error-${id}`
+            dedupeKey: `perm-status-error-${id}`,
           });
-        }
+        },
       });
   }
 
@@ -1030,7 +1114,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     if (!this.canManageGlobalPermissions()) {
       this.toastService.warning('You do not have permission to delete permissions.', {
         title: 'Unauthorized',
-        dedupeKey: 'perm-delete-unauthorized'
+        dedupeKey: 'perm-delete-unauthorized',
       });
       return;
     }
@@ -1061,38 +1145,38 @@ export class RolesPermissions implements OnInit, OnChanges {
           this.deletingPermission.set(false);
           this.setPermissionBusy(id, false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.deletePermissionTarget.set(null);
-          this.permissionGroups.update(groups =>
+          this.permissionGroups.update((groups) =>
             groups
-              .map(g => ({
+              .map((g) => ({
                 ...g,
-                permissions: g.permissions.filter(p => this.permissionId(p) !== id)
+                permissions: g.permissions.filter((p) => this.permissionId(p) !== id),
               }))
-              .filter(g => g.permissions.length > 0)
+              .filter((g) => g.permissions.length > 0),
           );
           this.toastService.success(`“${perm.displayName || perm.code}” was deleted.`, {
             title: 'Permission deleted',
-            dedupeKey: 'perm-delete-success'
+            dedupeKey: 'perm-delete-success',
           });
           if (this.selectedWorkspaceId()) this.loadRoles();
         },
-        error: error => {
+        error: (error) => {
           this.deletePermissionTarget.set(null);
           const message = extractErrorMessage(error, 'Unable to delete permission.');
           this.toastService.error(message, {
             title: 'Could not delete permission',
-            dedupeKey: 'perm-delete-error'
+            dedupeKey: 'perm-delete-error',
           });
-        }
+        },
       });
   }
 
   toggleGroup(groupId: string): void {
-    this.collapsedGroups.update(prev => {
+    this.collapsedGroups.update((prev) => {
       const next = new Set(prev);
       if (next.has(groupId)) {
         next.delete(groupId);
@@ -1112,7 +1196,7 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   hasSelectableRoles(items: WorkspaceRole[]): boolean {
-    return items.some(role => this.canSelectRole(role));
+    return items.some((role) => this.canSelectRole(role));
   }
 
   isRoleSelected(role: WorkspaceRole): boolean {
@@ -1124,7 +1208,7 @@ export class RolesPermissions implements OnInit, OnChanges {
     if (!this.canSelectRole(role)) return;
     const id = this.roleId(role);
     if (!id) return;
-    this.selectedRoleIds.update(prev => {
+    this.selectedRoleIds.update((prev) => {
       const next = new Set(prev);
       if (checked) {
         next.add(id);
@@ -1136,20 +1220,20 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   isAllSelected(items: WorkspaceRole[]): boolean {
-    items = items.filter(role => this.canSelectRole(role));
+    items = items.filter((role) => this.canSelectRole(role));
     if (!items.length) return false;
     const selected = this.selectedRoleIds();
-    return items.every(r => {
+    return items.every((r) => {
       const id = this.roleId(r);
       return !!id && selected.has(id);
     });
   }
 
   isSomeSelected(items: WorkspaceRole[]): boolean {
-    items = items.filter(role => this.canSelectRole(role));
+    items = items.filter((role) => this.canSelectRole(role));
     if (!items.length) return false;
     const selected = this.selectedRoleIds();
-    const count = items.filter(r => {
+    const count = items.filter((r) => {
       const id = this.roleId(r);
       return !!id && selected.has(id);
     }).length;
@@ -1157,9 +1241,9 @@ export class RolesPermissions implements OnInit, OnChanges {
   }
 
   toggleSelectAll(checked: boolean, items: WorkspaceRole[]): void {
-    this.selectedRoleIds.update(prev => {
+    this.selectedRoleIds.update((prev) => {
       const next = new Set(prev);
-      items.forEach(r => {
+      items.forEach((r) => {
         const id = this.roleId(r);
         if (!id) return;
         if (checked && this.canSelectRole(r)) {
@@ -1191,53 +1275,81 @@ export class RolesPermissions implements OnInit, OnChanges {
   private runBulkAction(action: 'delete' | 'activate' | 'deactivate'): void {
     if (this.bulkBusy()) return;
     const selected = this.selectedRoleIds();
-    const roles = this.roles().filter(role => {
+    const roles = this.roles().filter((role) => {
       const id = this.roleId(role);
-      return !!id && selected.has(id) && this.canSelectRole(role) && !this.isRoleBusy(role) &&
-        (action === 'delete' || (action === 'activate' ? role.isActive === false : role.isActive !== false));
+      return (
+        !!id &&
+        selected.has(id) &&
+        this.canSelectRole(role) &&
+        !this.isRoleBusy(role) &&
+        (action === 'delete' ||
+          (action === 'activate' ? role.isActive === false : role.isActive !== false))
+      );
     });
     if (!roles.length) {
-      if (action === 'delete') this.toastService.warning('No selected custom roles are available to delete.');
+      if (action === 'delete')
+        this.toastService.warning('No selected custom roles are available to delete.');
       return;
     }
 
     const workspaceId = this.selectedWorkspaceId();
     this.bulkBusy.set(true);
-    roles.forEach(role => this.setRoleBusy(this.roleId(role), true));
-    forkJoin(roles.map(role => {
-      const id = this.roleId(role);
-      const request: Observable<WorkspaceRole | null> = action === 'delete'
-        ? this.roleApi.delete(id).pipe(map(() => null))
-        : this.roleApi.changeStatus(id, action === 'activate').pipe(map(response => response.data));
-      return request.pipe(
-        map(updated => ({ id, updated, error: '' })),
-        catchError(error => of({ id, updated: null, error: extractErrorMessage(error, 'Unable to update workspace role.') }))
-      );
-    })).pipe(
-      finalize(() => {
-        this.bulkBusy.set(false);
-        roles.forEach(role => this.setRoleBusy(this.roleId(role), false));
+    roles.forEach((role) => this.setRoleBusy(this.roleId(role), true));
+    forkJoin(
+      roles.map((role) => {
+        const id = this.roleId(role);
+        const request: Observable<WorkspaceRole | null> =
+          action === 'delete'
+            ? this.roleApi.delete(id).pipe(map(() => null))
+            : this.roleApi
+                .changeStatus(id, action === 'activate')
+                .pipe(map((response) => response.data));
+        return request.pipe(
+          map((updated) => ({ id, updated, error: '' })),
+          catchError((error) =>
+            of({
+              id,
+              updated: null,
+              error: extractErrorMessage(error, 'Unable to update workspace role.'),
+            }),
+          ),
+        );
       }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(results => {
-      if (workspaceId !== this.selectedWorkspaceId()) return;
-      const succeeded = results.filter(result => !result.error);
-      const successfulIds = new Set(succeeded.map(result => result.id));
-      const updates = new Map(succeeded.map(result => [result.id, result.updated]));
-      this.roles.update(items => action === 'delete'
-        ? items.filter(item => !successfulIds.has(this.roleId(item)))
-        : items.map(item => updates.get(this.roleId(item)) ?? item));
-      this.selectedRoleIds.update(ids => new Set([...ids].filter(id => !successfulIds.has(id))));
-      if (succeeded.length) {
-        this.toastService.success(`${succeeded.length} ${succeeded.length === 1 ? 'role' : 'roles'} ${action === 'delete' ? 'deleted' : action === 'activate' ? 'activated' : 'deactivated'}.`);
-      }
-      const failed = results.filter(result => result.error);
-      if (failed.length) this.toastService.error(failed[0].error, { title: `${failed.length} role actions failed` });
-    });
+    )
+      .pipe(
+        finalize(() => {
+          this.bulkBusy.set(false);
+          roles.forEach((role) => this.setRoleBusy(this.roleId(role), false));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((results) => {
+        if (workspaceId !== this.selectedWorkspaceId()) return;
+        const succeeded = results.filter((result) => !result.error);
+        const successfulIds = new Set(succeeded.map((result) => result.id));
+        const updates = new Map(succeeded.map((result) => [result.id, result.updated]));
+        this.roles.update((items) =>
+          action === 'delete'
+            ? items.filter((item) => !successfulIds.has(this.roleId(item)))
+            : items.map((item) => updates.get(this.roleId(item)) ?? item),
+        );
+        this.selectedRoleIds.update(
+          (ids) => new Set([...ids].filter((id) => !successfulIds.has(id))),
+        );
+        if (succeeded.length) {
+          this.toastService.success(
+            `${succeeded.length} ${succeeded.length === 1 ? 'role' : 'roles'} ${action === 'delete' ? 'deleted' : action === 'activate' ? 'activated' : 'deactivated'}.`,
+          );
+        }
+        const failed = results.filter((result) => result.error);
+        if (failed.length)
+          this.toastService.error(failed[0].error, {
+            title: `${failed.length} role actions failed`,
+          });
+      });
   }
 
   private readonly timestamp = toTimestamp;
 
   private readonly humanize = humanize;
-
 }

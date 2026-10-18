@@ -7,7 +7,12 @@ import { WorkspaceService } from '../services/workspace.service';
 import { WorkspaceStore } from '../services/workspace.store';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
-const workspaceItem = { id: 'shared', name: 'Shared space', status: 'ACTIVE', visibility: 'PRIVATE' };
+const workspaceItem = {
+  id: 'shared',
+  name: 'Shared space',
+  status: 'ACTIVE',
+  visibility: 'PRIVATE',
+};
 
 describe('AddEditWorkspaceSidePanel', () => {
   let fixture: ComponentFixture<AddEditWorkspaceSidePanel>;
@@ -25,8 +30,12 @@ describe('AddEditWorkspaceSidePanel', () => {
         { provide: WorkspaceService, useValue: api },
         { provide: WorkspaceStore, useValue: store },
         { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-      ]
-    }).overrideComponent(AddEditWorkspaceSidePanel, { set: { template: '<ng-template #desktopPreview></ng-template>', imports: [] } }).compileComponents();
+      ],
+    })
+      .overrideComponent(AddEditWorkspaceSidePanel, {
+        set: { template: '<ng-template #desktopPreview></ng-template>', imports: [] },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(AddEditWorkspaceSidePanel);
     component = fixture.componentInstance;
   });
@@ -44,7 +53,11 @@ describe('AddEditWorkspaceSidePanel', () => {
     component.updateVisibility('PUBLIC');
     component.updateName('New name');
     component.submit();
-    expect(api.update).toHaveBeenCalledExactlyOnceWith('shared', { name: 'New name', description: null, visibility: 'PUBLIC' });
+    expect(api.update).toHaveBeenCalledExactlyOnceWith('shared', {
+      name: 'New name',
+      description: null,
+      visibility: 'PUBLIC',
+    });
   });
 
   it('creates new workspace when no id is passed', () => {
@@ -75,7 +88,9 @@ describe('AddEditWorkspaceSidePanel', () => {
   });
 
   it('handles error response and sets error state', () => {
-    api.update.mockReturnValue(throwError(() => ({ status: 403, error: { message: 'Forbidden' } })));
+    api.update.mockReturnValue(
+      throwError(() => ({ status: 403, error: { message: 'Forbidden' } })),
+    );
     open();
     component.updateName('New Name');
     component.submit();
@@ -93,7 +108,9 @@ describe('AddEditWorkspaceSidePanel', () => {
   });
 
   it('keeps personal workspace visibility private', () => {
-    api.getById.mockReturnValue(of({ data: { ...workspaceItem, id: 'personal-1', isPersonal: true } }));
+    api.getById.mockReturnValue(
+      of({ data: { ...workspaceItem, id: 'personal-1', isPersonal: true } }),
+    );
     open('personal-1');
     expect(component.isPersonal()).toBe(true);
     expect(component.visibility()).toBe('PRIVATE');

@@ -2,350 +2,348 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: inline-flex;
-    max-width: 100%;
-    vertical-align: middle;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
 }
 
 :host.app-switch-host-full {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 .app-switch {
-    --app-switch-width: 44px;
-    --app-switch-height: 24px;
-    --app-switch-thumb-size: 20px;
-    --app-switch-travel: 20px;
-    --app-switch-active: #{$primary};
-    --app-switch-active-border: #{$primary};
-    --app-switch-active-text: #ffffff;
+  --app-switch-width: 44px;
+  --app-switch-height: 24px;
+  --app-switch-thumb-size: 20px;
+  --app-switch-travel: 20px;
+  --app-switch-active: #{$primary};
+  --app-switch-active-border: #{$primary};
+  --app-switch-active-text: #ffffff;
 
-    display: inline-flex;
-    align-items: center;
-    gap: 11px;
-    max-width: 100%;
-    margin: 0;
-    color: $text-primary;
-    font-family: $font-body;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  max-width: 100%;
+  margin: 0;
+  color: $text-primary;
+  font-family: $font-body;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-switch-full {
-    width: 100%;
+  width: 100%;
 }
 
 .app-switch-label-left {
-    justify-content: space-between;
+  justify-content: space-between;
 }
 
 .app-switch-label-left .app-switch-content {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 .app-switch-label-right .app-switch-content {
-    flex: 0 1 auto;
+  flex: 0 1 auto;
 }
 
 .app-switch-control {
-    position: relative;
-    display: inline-flex;
-    flex: 0 0 auto;
-    width: var(--app-switch-width);
-    height: var(--app-switch-height);
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: var(--app-switch-width);
+  height: var(--app-switch-height);
 }
 
 .app-switch-input {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-    cursor: inherit;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
 }
 
 .app-switch-track {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 1px;
-    overflow: hidden;
-    border: 1px solid $border;
-    border-radius: 999px;
-    background:
-        linear-gradient(180deg, rgba(17, 17, 17, 0.035), rgba(255, 255, 255, 0.12)),
-        $paper-dark;
-    box-shadow:
-        inset 0 1px 2px rgba(17, 17, 17, 0.08),
-        0 1px 0 rgba(255, 255, 255, 0.8);
-    transition:
-        background-color 180ms ease,
-        border-color 180ms ease,
-        box-shadow 180ms ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1px;
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.035), rgba(255, 255, 255, 0.12)), $paper-dark;
+  box-shadow:
+    inset 0 1px 2px rgba(17, 17, 17, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .app-switch-thumb {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 var(--app-switch-thumb-size);
-    width: var(--app-switch-thumb-size);
-    height: var(--app-switch-thumb-size);
-    border: 1px solid rgba(17, 17, 17, 0.08);
-    border-radius: 50%;
-    color: $text-secondary;
-    background: $paper;
-    box-shadow:
-        0 1px 2px rgba(17, 17, 17, 0.18),
-        0 2px 5px rgba(46, 38, 25, 0.12);
-    transform: translateX(0);
-    transition:
-        color 180ms ease,
-        background-color 180ms ease,
-        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-        box-shadow 180ms ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--app-switch-thumb-size);
+  width: var(--app-switch-thumb-size);
+  height: var(--app-switch-thumb-size);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 50%;
+  color: $text-secondary;
+  background: $paper;
+  box-shadow:
+    0 1px 2px rgba(17, 17, 17, 0.18),
+    0 2px 5px rgba(46, 38, 25, 0.12);
+  transform: translateX(0);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 180ms ease;
 }
 
 .app-switch-checked .app-switch-track {
-    border-color: var(--app-switch-active-border);
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(17, 17, 17, 0.035)),
-        var(--app-switch-active);
-    box-shadow:
-        inset 0 1px 2px rgba(17, 17, 17, 0.1),
-        0 2px 0 color-mix(in srgb, var(--app-switch-active) 76%, black);
+  border-color: var(--app-switch-active-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(17, 17, 17, 0.035)),
+    var(--app-switch-active);
+  box-shadow:
+    inset 0 1px 2px rgba(17, 17, 17, 0.1),
+    0 2px 0 color-mix(in srgb, var(--app-switch-active) 76%, black);
 }
 
 .app-switch-checked .app-switch-thumb {
-    color: var(--app-switch-active);
-    transform: translateX(var(--app-switch-travel));
+  color: var(--app-switch-active);
+  transform: translateX(var(--app-switch-travel));
 }
 
 .app-switch:hover:not(.app-switch-disabled):not(.app-switch-readonly) .app-switch-thumb {
-    box-shadow:
-        0 2px 3px rgba(17, 17, 17, 0.2),
-        0 4px 8px rgba(46, 38, 25, 0.14);
+  box-shadow:
+    0 2px 3px rgba(17, 17, 17, 0.2),
+    0 4px 8px rgba(46, 38, 25, 0.14);
 }
 
-.app-switch-input:focus-visible+.app-switch-track {
-    outline: 3px solid rgba($accent, 0.28);
-    outline-offset: 3px;
+.app-switch-input:focus-visible + .app-switch-track {
+  outline: 3px solid rgba($accent, 0.28);
+  outline-offset: 3px;
 }
 
-.app-switch-input:active:not(:disabled)+.app-switch-track .app-switch-thumb {
-    width: calc(var(--app-switch-thumb-size) + 2px);
+.app-switch-input:active:not(:disabled) + .app-switch-track .app-switch-thumb {
+  width: calc(var(--app-switch-thumb-size) + 2px);
 }
 
 .app-switch-content {
-    display: inline-flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 3px;
-    line-height: 1.25;
+  display: inline-flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.25;
 }
 
 .app-switch-label-text {
-    color: $text-primary;
-    font-size: 14px;
-    font-weight: 700;
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .app-switch-description {
-    color: $text-secondary;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.4;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .app-switch-required {
-    color: $danger;
-    font-weight: 900;
+  color: $danger;
+  font-weight: 900;
 }
 
 .app-switch-icon {
-    display: inline-flex;
-    width: 62%;
-    height: 62%;
-    line-height: 0;
+  display: inline-flex;
+  width: 62%;
+  height: 62%;
+  line-height: 0;
 }
 
 /* Sizes */
 
 .app-switch-sm {
-    --app-switch-width: 36px;
-    --app-switch-height: 20px;
-    --app-switch-thumb-size: 16px;
-    --app-switch-travel: 16px;
-    gap: 9px;
+  --app-switch-width: 36px;
+  --app-switch-height: 20px;
+  --app-switch-thumb-size: 16px;
+  --app-switch-travel: 16px;
+  gap: 9px;
 }
 
 .app-switch-sm .app-switch-label-text {
-    font-size: 13px;
+  font-size: 13px;
 }
 
 .app-switch-sm .app-switch-description {
-    font-size: 11px;
+  font-size: 11px;
 }
 
 .app-switch-lg {
-    --app-switch-width: 52px;
-    --app-switch-height: 28px;
-    --app-switch-thumb-size: 24px;
-    --app-switch-travel: 24px;
-    gap: 13px;
+  --app-switch-width: 52px;
+  --app-switch-height: 28px;
+  --app-switch-thumb-size: 24px;
+  --app-switch-travel: 24px;
+  gap: 13px;
 }
 
 .app-switch-lg .app-switch-label-text {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 .app-switch-lg .app-switch-description {
-    font-size: 13px;
+  font-size: 13px;
 }
 
 /* Variants */
 
 .app-switch-primary {
-    --app-switch-active: #{$primary};
-    --app-switch-active-border: #{$primary};
+  --app-switch-active: #{$primary};
+  --app-switch-active-border: #{$primary};
 }
 
 .app-switch-accent {
-    --app-switch-active: #{$accent};
-    --app-switch-active-border: #{color.adjust($accent, $lightness: -7%)};
+  --app-switch-active: #{$accent};
+  --app-switch-active-border: #{color.adjust($accent, $lightness: -7%)};
 }
 
 .app-switch-success {
-    --app-switch-active: #{$success};
-    --app-switch-active-border: #{color.adjust($success, $lightness: -7%)};
+  --app-switch-active: #{$success};
+  --app-switch-active-border: #{color.adjust($success, $lightness: -7%)};
 }
 
 .app-switch-warning {
-    --app-switch-active: #{$warning};
-    --app-switch-active-border: #{color.adjust($warning, $lightness: -7%)};
+  --app-switch-active: #{$warning};
+  --app-switch-active-border: #{color.adjust($warning, $lightness: -7%)};
 }
 
 .app-switch-danger {
-    --app-switch-active: #{$danger};
-    --app-switch-active-border: #{color.adjust($danger, $lightness: -7%)};
+  --app-switch-active: #{$danger};
+  --app-switch-active-border: #{color.adjust($danger, $lightness: -7%)};
 }
 
 .app-switch-info {
-    --app-switch-active: #{$info};
-    --app-switch-active-border: #{color.adjust($info, $lightness: -7%)};
+  --app-switch-active: #{$info};
+  --app-switch-active-border: #{color.adjust($info, $lightness: -7%)};
 }
 
 .app-switch-noteYellow {
-    --app-switch-active: #{$note-button-yellow};
-    --app-switch-active-border: #{color.adjust($note-button-yellow, $lightness: -17%)};
+  --app-switch-active: #{$note-button-yellow};
+  --app-switch-active-border: #{color.adjust($note-button-yellow, $lightness: -17%)};
 }
 
 .app-switch-noteOrange {
-    --app-switch-active: #{$note-button-orange};
-    --app-switch-active-border: #{color.adjust($note-button-orange, $lightness: -17%)};
+  --app-switch-active: #{$note-button-orange};
+  --app-switch-active-border: #{color.adjust($note-button-orange, $lightness: -17%)};
 }
 
 .app-switch-notePink {
-    --app-switch-active: #{$note-button-pink};
-    --app-switch-active-border: #{color.adjust($note-button-pink, $lightness: -17%)};
+  --app-switch-active: #{$note-button-pink};
+  --app-switch-active-border: #{color.adjust($note-button-pink, $lightness: -17%)};
 }
 
 .app-switch-noteRed {
-    --app-switch-active: #{$note-button-red};
-    --app-switch-active-border: #{color.adjust($note-button-red, $lightness: -17%)};
+  --app-switch-active: #{$note-button-red};
+  --app-switch-active-border: #{color.adjust($note-button-red, $lightness: -17%)};
 }
 
 .app-switch-noteGreen {
-    --app-switch-active: #{$note-button-green};
-    --app-switch-active-border: #{color.adjust($note-button-green, $lightness: -17%)};
+  --app-switch-active: #{$note-button-green};
+  --app-switch-active-border: #{color.adjust($note-button-green, $lightness: -17%)};
 }
 
 .app-switch-noteBlue {
-    --app-switch-active: #{$note-button-blue};
-    --app-switch-active-border: #{color.adjust($note-button-blue, $lightness: -17%)};
+  --app-switch-active: #{$note-button-blue};
+  --app-switch-active-border: #{color.adjust($note-button-blue, $lightness: -17%)};
 }
 
 .app-switch-notePurple {
-    --app-switch-active: #{$note-button-purple};
-    --app-switch-active-border: #{color.adjust($note-button-purple, $lightness: -17%)};
+  --app-switch-active: #{$note-button-purple};
+  --app-switch-active-border: #{color.adjust($note-button-purple, $lightness: -17%)};
 }
 
 .app-switch-noteBrown {
-    --app-switch-active: #{$note-button-brown};
-    --app-switch-active-border: #{color.adjust($note-button-brown, $lightness: -10%)};
+  --app-switch-active: #{$note-button-brown};
+  --app-switch-active-border: #{color.adjust($note-button-brown, $lightness: -10%)};
 }
 
 .app-switch-noteBlack {
-    --app-switch-active: #{$note-black};
-    --app-switch-active-border: #000000;
+  --app-switch-active: #{$note-black};
+  --app-switch-active-border: #000000;
 }
 
 /* States */
 
 .app-switch-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .app-switch-readonly {
-    cursor: default;
+  cursor: default;
 }
 
 .app-switch-readonly .app-switch-track {
-    filter: saturate(0.72);
+  filter: saturate(0.72);
 }
 
 .app-switch-invalid .app-switch-track {
-    outline: 2px solid rgba($danger, 0.28);
-    outline-offset: 2px;
+  outline: 2px solid rgba($danger, 0.28);
+  outline-offset: 2px;
 }
 
 .app-switch-spinner {
-    width: 55%;
-    height: 55%;
-    box-sizing: border-box;
-    border: 1.5px solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: app-switch-spin 0.75s linear infinite;
+  width: 55%;
+  height: 55%;
+  box-sizing: border-box;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: app-switch-spin 0.75s linear infinite;
 }
 
 @keyframes app-switch-spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .app-switch-track,
+  .app-switch-thumb {
+    transition: none;
+  }
 
-    .app-switch-track,
-    .app-switch-thumb {
-        transition: none;
-    }
-
-    .app-switch-spinner {
-        animation-duration: 1.3s;
-    }
+  .app-switch-spinner {
+    animation-duration: 1.3s;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-switch-track {
-        border-color: ButtonText;
-    }
+  .app-switch-track {
+    border-color: ButtonText;
+  }
 
-    .app-switch-checked .app-switch-track {
-        background: Highlight;
-    }
+  .app-switch-checked .app-switch-track {
+    background: Highlight;
+  }
 
-    .app-switch-thumb {
-        background: ButtonFace;
-    }
+  .app-switch-thumb {
+    background: ButtonFace;
+  }
 }

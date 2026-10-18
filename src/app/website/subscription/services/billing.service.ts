@@ -43,8 +43,7 @@ export class BillingService {
       })
       .pipe(
         map((response) => {
-          const data =
-            response?.data ?? (response as unknown as RazorpayCheckoutDetails);
+          const data = response?.data ?? (response as unknown as RazorpayCheckoutDetails);
           if (!data || !data.orderId || !data.keyId) {
             throw new Error('Billing order details could not be initialized.');
           }
@@ -53,13 +52,8 @@ export class BillingService {
       );
   }
 
-  verifyPayment(
-    payload: RazorpayPaymentSuccessResponse,
-  ): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
-      API_ENDPOINTS.billing.verify,
-      payload,
-    );
+  verifyPayment(payload: RazorpayPaymentSuccessResponse): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(API_ENDPOINTS.billing.verify, payload);
   }
 
   loadRazorpayScript(): Promise<boolean> {

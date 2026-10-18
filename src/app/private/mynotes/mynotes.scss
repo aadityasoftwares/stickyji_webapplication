@@ -2,7 +2,10 @@
 @use '../../styles/explorer' as explorer;
 
 @include explorer.shell;
-@include explorer.grouped-table(36px minmax(170px, 1.45fr) minmax(180px, 1.8fr) minmax(90px, 0.75fr) minmax(105px, 0.9fr) minmax(100px, 0.85fr) minmax(82px, 0.7fr) minmax(115px, 0.9fr) 130px);
+@include explorer.grouped-table(
+  36px minmax(170px, 1.45fr) minmax(180px, 1.8fr) minmax(90px, 0.75fr) minmax(105px, 0.9fr)
+    minmax(100px, 0.85fr) minmax(82px, 0.7fr) minmax(115px, 0.9fr) 130px
+);
 @include explorer.table-details;
 @include explorer.actions-menu;
 
@@ -11,15 +14,15 @@
    ========================================================== */
 
 .folder-workspace-picker {
-    flex: 0 1 15rem;
-    width: 15rem;
-    min-width: 10rem;
+  flex: 0 1 15rem;
+  width: 15rem;
+  min-width: 10rem;
 
-    app-select {
-        display: block;
-        width: 100%;
-        min-width: 0;
-    }
+  app-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* ==========================================================
@@ -27,21 +30,21 @@
    ========================================================== */
 
 .notes-date-range {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 0 0 auto;
 
-    app-datepicker-input {
-        width: 8.75rem;
-        flex: 0 0 8.75rem;
-    }
+  app-datepicker-input {
+    width: 8.75rem;
+    flex: 0 0 8.75rem;
+  }
 }
 
 .notes-date-separator {
-    color: var(--app-text-muted, #{$text-secondary});
-    font-size: 0.8125rem;
-    user-select: none;
+  color: var(--app-text-muted, #{$text-secondary});
+  font-size: 0.8125rem;
+  user-select: none;
 }
 
 /* ==========================================================
@@ -49,23 +52,23 @@
    ========================================================== */
 
 .workspace-explorer-body {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    padding: 0.625rem;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: $paper;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.625rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: $paper;
 }
 
 .workspace-explorer-body.is-list,
 .workspace-explorer-body.is-table {
-    padding: 0;
-    overflow: hidden;
+  padding: 0;
+  overflow: hidden;
 }
 
 /* ==========================================================
@@ -73,94 +76,93 @@
    ========================================================== */
 
 .notes-drag-hint {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem 0.4rem;
-    margin: 0;
-    font-size: 0.75rem;
-    color: $text-primary;
-    user-select: none;
-    pointer-events: none;
-    flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem 0.4rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: $text-primary;
+  user-select: none;
+  pointer-events: none;
+  flex: 0 0 auto;
 }
 
 .notes-grid {
-    display: block;
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: min-content;
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: min-content;
 
-    // A height-free multi-column layout gives the compact masonry effect without
-    // creating hidden horizontal columns. The explorer body owns vertical scrolling.
-    columns: 16.5rem;
-    column-gap: 0.875rem;
-    column-fill: balance;
-    overflow: visible;
+  // A height-free multi-column layout gives the compact masonry effect without
+  // creating hidden horizontal columns. The explorer body owns vertical scrolling.
+  columns: 16.5rem;
+  column-gap: 0.875rem;
+  column-fill: balance;
+  overflow: visible;
 
-    padding: 0.25rem 0.5rem 1.5rem;
-    box-sizing: border-box;
-
+  padding: 0.25rem 0.5rem 1.5rem;
+  box-sizing: border-box;
 }
 
 .notes-grid-item {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-    margin: 0 0 0.875rem;
-    min-width: 0;
-    vertical-align: top;
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 0.875rem;
+  min-width: 0;
+  vertical-align: top;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
 
-    transition:
-        opacity 140ms ease,
-        transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 140ms ease,
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  app-sticky-note {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &.is-archived {
+    opacity: 0.78;
+  }
+
+  &.is-busy {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &[draggable='true'] {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &.is-dragging {
+    opacity: 0.35;
+    transform: scale(0.97);
+    pointer-events: none;
+  }
+
+  &.is-drop-target {
+    outline: 2.5px dashed rgba(var(--color-accent-rgb, 99, 102, 241), 0.75);
+    outline-offset: 3px;
+    border-radius: 0.75rem;
+    transition: outline 80ms ease;
 
     &:hover {
-        transform: translateY(-2px);
+      transform: none;
     }
-
-    app-sticky-note {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    &.is-archived {
-        opacity: 0.78;
-    }
-
-    &.is-busy {
-        pointer-events: none;
-        opacity: 0.5;
-    }
-
-    &[draggable="true"] {
-        cursor: grab;
-
-        &:active {
-            cursor: grabbing;
-        }
-    }
-
-    &.is-dragging {
-        opacity: 0.35;
-        transform: scale(0.97);
-        pointer-events: none;
-    }
-
-    &.is-drop-target {
-        outline: 2.5px dashed rgba(var(--color-accent-rgb, 99, 102, 241), 0.75);
-        outline-offset: 3px;
-        border-radius: 0.75rem;
-        transition: outline 80ms ease;
-
-        &:hover {
-            transform: none;
-        }
-    }
+  }
 }
 
 /* ==========================================================
@@ -168,68 +170,68 @@
    ========================================================== */
 
 .note-create-card {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin: 0 0 0.875rem;
-    min-width: 0;
-    min-height: 12rem;
-    vertical-align: top;
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-    padding: 1rem;
-    color: $text-secondary;
-    background: rgba($note-yellow, 0.12);
-    border: 1px dashed rgba($accent, 0.30);
-    border-radius: 0.75rem;
-    cursor: pointer;
-    text-align: center;
-    gap: 0.35rem;
-    transition:
-        background-color 140ms ease,
-        border-color 140ms ease;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 0.875rem;
+  min-width: 0;
+  min-height: 12rem;
+  vertical-align: top;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  padding: 1rem;
+  color: $text-secondary;
+  background: rgba($note-yellow, 0.12);
+  border: 1px dashed rgba($accent, 0.3);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-align: center;
+  gap: 0.35rem;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
 
-    &:hover:not(:disabled),
-    &:focus-visible:not(:disabled) {
-        background: rgba($note-yellow, 0.18);
-        border-color: rgba($accent, 0.45);
-        outline: none;
-    }
+  &:hover:not(:disabled),
+  &:focus-visible:not(:disabled) {
+    background: rgba($note-yellow, 0.18);
+    border-color: rgba($accent, 0.45);
+    outline: none;
+  }
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 
-    strong {
-        color: $heading;
-        font-size: var(--workspace-font-14, 0.875rem);
-        font-weight: 750;
-        line-height: 1.35;
-    }
+  strong {
+    color: $heading;
+    font-size: var(--workspace-font-14, 0.875rem);
+    font-weight: 750;
+    line-height: 1.35;
+  }
 
-    small {
-        max-width: 12rem;
-        color: $text-light;
-        font-size: var(--workspace-font-13, 0.8125rem);
-        font-weight: 500;
-        line-height: 1.4;
-    }
+  small {
+    max-width: 12rem;
+    color: $text-light;
+    font-size: var(--workspace-font-13, 0.8125rem);
+    font-weight: 500;
+    line-height: 1.4;
+  }
 }
 
 .note-create-icon {
-    display: grid;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin-bottom: 0.2rem;
-    color: #765500;
-    background: rgba($paper, 0.64);
-    border: 1px solid rgba(#8c6800, 0.10);
-    border-radius: 0.75rem;
-    place-items: center;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.2rem;
+  color: #765500;
+  background: rgba($paper, 0.64);
+  border: 1px solid rgba(#8c6800, 0.1);
+  border-radius: 0.75rem;
+  place-items: center;
 }
 
 /* ==========================================================
@@ -237,160 +239,207 @@
    ========================================================== */
 
 .notes-table-note-mark {
-    display: block;
-    flex: 0 0 0.45rem;
-    width: 0.45rem;
-    height: 2rem;
-    border-radius: $radius-xs;
-    background: $note-yellow;
+  display: block;
+  flex: 0 0 0.45rem;
+  width: 0.45rem;
+  height: 2rem;
+  border-radius: $radius-xs;
+  background: $note-yellow;
 
-    &.is-pink { background: $note-pink; }
-    &.is-blue { background: $note-blue; }
-    &.is-green { background: $note-green; }
-    &.is-orange { background: $note-orange; }
-    &.is-purple { background: $note-purple; }
-    &.is-red { background: $note-red; }
-    &.is-brown { background: #8b5a2b; }
-    &.is-black { background: #1e293b; }
-    &.is-white { background: #e2e8f0; }
+  &.is-pink {
+    background: $note-pink;
+  }
+  &.is-blue {
+    background: $note-blue;
+  }
+  &.is-green {
+    background: $note-green;
+  }
+  &.is-orange {
+    background: $note-orange;
+  }
+  &.is-purple {
+    background: $note-purple;
+  }
+  &.is-red {
+    background: $note-red;
+  }
+  &.is-brown {
+    background: #8b5a2b;
+  }
+  &.is-black {
+    background: #1e293b;
+  }
+  &.is-white {
+    background: #e2e8f0;
+  }
 }
 
 .notes-table-color {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: var(--workspace-font-13, 0.8125rem);
-    color: var(--app-text, #{$text-primary});
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--workspace-font-13, 0.8125rem);
+  color: var(--app-text, #{$text-primary});
 }
 
 .notes-table-color-dot {
-    display: inline-block;
-    width: 0.625rem;
-    height: 0.625rem;
-    border-radius: 9999px;
-    background: $note-yellow;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: $note-yellow;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 
-    &.is-pink { background: $note-pink; }
-    &.is-blue { background: $note-blue; }
-    &.is-green { background: $note-green; }
-    &.is-orange { background: $note-orange; }
-    &.is-purple { background: $note-purple; }
-    &.is-red { background: $note-red; }
-    &.is-brown { background: #8b5a2b; }
-    &.is-black { background: #1e293b; }
-    &.is-white { background: #e2e8f0; }
+  &.is-pink {
+    background: $note-pink;
+  }
+  &.is-blue {
+    background: $note-blue;
+  }
+  &.is-green {
+    background: $note-green;
+  }
+  &.is-orange {
+    background: $note-orange;
+  }
+  &.is-purple {
+    background: $note-purple;
+  }
+  &.is-red {
+    background: $note-red;
+  }
+  &.is-brown {
+    background: #8b5a2b;
+  }
+  &.is-black {
+    background: #1e293b;
+  }
+  &.is-white {
+    background: #e2e8f0;
+  }
 }
 
 .notes-table-column-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--app-text-muted, #{$text-secondary});
-    background: var(--app-paper-muted, #f8fafc);
-    border: 1px solid var(--app-border-light, rgba($border, 0.65));
-    border-radius: 9999px;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--app-text-muted, #{$text-secondary});
+  background: var(--app-paper-muted, #f8fafc);
+  border: 1px solid var(--app-border-light, rgba($border, 0.65));
+  border-radius: 9999px;
+  white-space: nowrap;
 }
 
 .notes-table-key-wrapper {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
 }
 
 .notes-table-key-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.375rem;
-    color: var(--app-text-muted, #{$text-secondary});
-    background: color-mix(in srgb, var(--app-border-light, #{$border-light}) 65%, var(--app-paper, #{$paper}));
-    border: 1px solid var(--app-border-light, #{$border-light});
-    border-radius: 0.25rem;
-    font-family: $font-mono;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  color: var(--app-text-muted, #{$text-secondary});
+  background: color-mix(
+    in srgb,
+    var(--app-border-light, #{$border-light}) 65%,
+    var(--app-paper, #{$paper})
+  );
+  border: 1px solid var(--app-border-light, #{$border-light});
+  border-radius: 0.25rem;
+  font-family: $font-mono;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.03em;
 }
 
 .workspace-gt-key-copy {
-    display: inline-grid;
-    width: 1.35rem;
-    height: 1.35rem;
-    padding: 0;
-    color: var(--app-text-muted, #{$text-secondary});
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    place-items: center;
-    transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+  display: inline-grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  color: var(--app-text-muted, #{$text-secondary});
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  place-items: center;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
 
-    &:hover {
-        color: var(--app-text, #{$text-primary});
-        background: color-mix(in srgb, var(--app-text, #{$text-primary}) 8%, var(--app-paper, #{$paper}));
-        border-color: var(--app-border-light, #{$border-light});
-    }
+  &:hover {
+    color: var(--app-text, #{$text-primary});
+    background: color-mix(
+      in srgb,
+      var(--app-text, #{$text-primary}) 8%,
+      var(--app-paper, #{$paper})
+    );
+    border-color: var(--app-border-light, #{$border-light});
+  }
 
-    &:focus-visible {
-        outline: none;
-        box-shadow: var(--app-focus-ring);
-    }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
 }
 
 .notes-table-description-text {
-    display: -webkit-box;
-    overflow: hidden;
-    color: var(--app-text, #{$text-primary});
-    font-size: var(--workspace-font-13, 0.8125rem);
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-    white-space: pre-wrap;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--app-text, #{$text-primary});
+  font-size: var(--workspace-font-13, 0.8125rem);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .notes-table-progress {
-    display: grid;
-    width: 100%;
-    max-width: 7rem;
-    gap: 0.32rem;
+  display: grid;
+  width: 100%;
+  max-width: 7rem;
+  gap: 0.32rem;
 }
 
 .notes-table-progress-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    color: var(--app-text-muted, #{$text-secondary});
-    font-size: 0.75rem;
-    line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--app-text-muted, #{$text-secondary});
+  font-size: 0.75rem;
+  line-height: 1;
 
-    strong {
-        color: var(--app-text, #{$text-primary});
-        font-weight: 600;
-    }
+  strong {
+    color: var(--app-text, #{$text-primary});
+    font-weight: 600;
+  }
 }
 
 .notes-table-progress-track {
-    display: block;
-    width: 100%;
-    height: 0.28rem;
-    overflow: hidden;
-    background: var(--app-border-light, #{$border-light});
-    border-radius: 999px;
+  display: block;
+  width: 100%;
+  height: 0.28rem;
+  overflow: hidden;
+  background: var(--app-border-light, #{$border-light});
+  border-radius: 999px;
 
-    > span {
-        display: block;
-        height: 100%;
-        background: $success;
-        border-radius: inherit;
-    }
+  > span {
+    display: block;
+    height: 100%;
+    background: $success;
+    border-radius: inherit;
+  }
 }
 
 /* ==========================================================
@@ -398,105 +447,101 @@
    ========================================================== */
 
 .workspace-dialog-backdrop {
-    position: fixed;
-    z-index: 1100;
-    inset: 0;
-    display: grid;
-    padding: 1.5rem;
-    background:
-        radial-gradient(circle at 50% 32%,
-            rgba($note-yellow, 0.12),
-            transparent 25rem),
-        radial-gradient(circle at 20% 80%,
-            rgba($note-blue, 0.07),
-            transparent 24rem),
-        rgba($heading, 0.49);
-    backdrop-filter: blur(0.4375rem);
-    -webkit-backdrop-filter: blur(0.4375rem);
-    place-items: center;
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  display: grid;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at 50% 32%, rgba($note-yellow, 0.12), transparent 25rem),
+    radial-gradient(circle at 20% 80%, rgba($note-blue, 0.07), transparent 24rem),
+    rgba($heading, 0.49);
+  backdrop-filter: blur(0.4375rem);
+  -webkit-backdrop-filter: blur(0.4375rem);
+  place-items: center;
 }
 
 .workspace-dialog-shell {
-    width: min(100%, 34.375rem);
-    max-height: calc(100dvh - 3rem);
+  width: min(100%, 34.375rem);
+  max-height: calc(100dvh - 3rem);
 }
 
 .workspace-delete-shell {
-    width: min(100%, 29.375rem);
+  width: min(100%, 29.375rem);
 }
 
 .workspace-dialog-note {
-    display: block;
-    width: 100%;
-    filter: drop-shadow(0 1.75rem 2.5rem rgba($heading, 0.15));
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 1.75rem 2.5rem rgba($heading, 0.15));
 }
 
 .workspace-dialog-icon {
-    display: grid;
-    width: 2.375rem;
-    height: 2.375rem;
-    color: $danger;
-    background: rgba($paper, 0.70);
-    border: 1px solid rgba($danger, 0.14);
-    border-radius: 0.5rem 0.6875rem 0.5rem 0.625rem;
-    place-items: center;
+  display: grid;
+  width: 2.375rem;
+  height: 2.375rem;
+  color: $danger;
+  background: rgba($paper, 0.7);
+  border: 1px solid rgba($danger, 0.14);
+  border-radius: 0.5rem 0.6875rem 0.5rem 0.625rem;
+  place-items: center;
 
-    &.is-danger {
-        color: $danger;
-        border-color: rgba($danger, 0.24);
-    }
+  &.is-danger {
+    color: $danger;
+    border-color: rgba($danger, 0.24);
+  }
 }
 
 .workspace-dialog-kicker {
-    font-family: $font-note;
-    font-size: var(--workspace-font-14, 0.875rem);
-    font-weight: 700;
+  font-family: $font-note;
+  font-size: var(--workspace-font-14, 0.875rem);
+  font-weight: 700;
 
-    &.is-danger {
-        color: $danger;
-    }
+  &.is-danger {
+    color: $danger;
+  }
 }
 
 .workspace-dialog-title {
-    margin: 0;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: var(--workspace-font-15, 0.9375rem);
-    font-weight: 750;
+  margin: 0;
+  color: $heading;
+  font-family: $font-heading;
+  font-size: var(--workspace-font-15, 0.9375rem);
+  font-weight: 750;
 }
 
 .workspace-dialog-subtitle {
-    margin: 0.375rem 0 0;
-    color: $text-secondary;
-    font-size: var(--workspace-font-13, 0.8125rem);
-    line-height: 1.5;
+  margin: 0.375rem 0 0;
+  color: $text-secondary;
+  font-size: var(--workspace-font-13, 0.8125rem);
+  line-height: 1.5;
 }
 
 .workspace-delete-message {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.625rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba($danger, 0.06);
-    border: 1px solid rgba($danger, 0.12);
-    border-radius: 0.5rem;
-    color: $text-secondary;
-    font-size: var(--workspace-font-13, 0.8125rem);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba($danger, 0.06);
+  border: 1px solid rgba($danger, 0.12);
+  border-radius: 0.5rem;
+  color: $text-secondary;
+  font-size: var(--workspace-font-13, 0.8125rem);
 }
 
 .workspace-delete-message-icon {
-    display: grid;
-    color: $danger;
-    place-items: center;
+  display: grid;
+  color: $danger;
+  place-items: center;
 }
 
 .workspace-dialog-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 0.5rem;
 }
 
 /* ==========================================================
@@ -506,81 +551,81 @@
 @include explorer.responsive;
 
 @media (max-width: 62rem) {
-    .notes-grid {
-        columns: 15rem;
-        column-gap: 0.75rem;
-    }
+  .notes-grid {
+    columns: 15rem;
+    column-gap: 0.75rem;
+  }
 }
 
 @media (max-width: 43.75rem) {
-    .folder-header-actions {
-        flex-wrap: wrap;
-    }
+  .folder-header-actions {
+    flex-wrap: wrap;
+  }
 
-    .folder-workspace-picker {
-        flex: 1 1 calc(50% - 0.5rem);
-        width: auto;
-        min-width: 8.5rem;
-    }
+  .folder-workspace-picker {
+    flex: 1 1 calc(50% - 0.5rem);
+    width: auto;
+    min-width: 8.5rem;
+  }
 
-    .notes-date-range {
-        width: 100%;
-        flex: 1 1 100%;
+  .notes-date-range {
+    width: 100%;
+    flex: 1 1 100%;
 
-        app-datepicker-input {
-            flex: 1 1 0;
-            width: auto;
-        }
+    app-datepicker-input {
+      flex: 1 1 0;
+      width: auto;
     }
+  }
 
-    .notes-grid {
-        columns: 2 14rem;
-        column-gap: 0.625rem;
-        padding: 0.125rem 0.25rem 0.5rem;
-    }
+  .notes-grid {
+    columns: 2 14rem;
+    column-gap: 0.625rem;
+    padding: 0.125rem 0.25rem 0.5rem;
+  }
 
-    .note-create-card {
-        min-height: 10.5rem;
-    }
+  .note-create-card {
+    min-height: 10.5rem;
+  }
 }
 
 @media (max-width: 36rem) {
-    .folder-workspace-picker {
-        flex: 1 1 100%;
-        width: 100%;
-    }
+  .folder-workspace-picker {
+    flex: 1 1 100%;
+    width: 100%;
+  }
 
-    .notes-grid {
-        columns: 1 auto;
-    }
+  .notes-grid {
+    columns: 1 auto;
+  }
 
-    .note-create-card {
-        min-height: 9.5rem;
-    }
+  .note-create-card {
+    min-height: 9.5rem;
+  }
 
-    .workspace-dialog-backdrop {
-        align-items: end;
-        padding: 0.625rem;
-    }
+  .workspace-dialog-backdrop {
+    align-items: end;
+    padding: 0.625rem;
+  }
 
-    .workspace-dialog-shell {
-        width: 100%;
-        max-height: calc(100dvh - 1.25rem);
-    }
+  .workspace-dialog-shell {
+    width: 100%;
+    max-height: calc(100dvh - 1.25rem);
+  }
 
-    .workspace-dialog-actions {
-        align-items: stretch;
-        flex-direction: column-reverse;
+  .workspace-dialog-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
 
-        app-button {
-            width: 100%;
-        }
+    app-button {
+      width: 100%;
     }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .notes-grid-item,
-    .note-create-card {
-        transition: none;
-    }
+  .notes-grid-item,
+  .note-create-card {
+    transition: none;
+  }
 }

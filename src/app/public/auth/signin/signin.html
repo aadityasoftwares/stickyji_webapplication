@@ -1,196 +1,301 @@
 <main id="signin-main" class="sign-in-page">
-    <section class="auth-layout" aria-labelledby="sign-in-title">
-        <aside class="story-panel" aria-label="A calmer home for your thoughts">
-            <div class="story-grid" aria-hidden="true"></div>
+  <section class="auth-layout" aria-labelledby="sign-in-title">
+    <aside class="story-panel" aria-label="A calmer home for your thoughts">
+      <div class="story-grid" aria-hidden="true"></div>
 
-            <header class="story-topbar">
-                <a class="brand-link" [routerLink]="brandHref" [attr.aria-label]="brandName + ' home'">
-                    @if (logoSrc) {
-                    <img class="brand-logo" [src]="logoSrc" [alt]="logoAlt || brandName" />
-                    } @else {
-                    <span class="brand-mark" aria-hidden="true">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
+      <header class="story-topbar">
+        <a class="brand-link" [routerLink]="brandHref" [attr.aria-label]="brandName + ' home'">
+          @if (logoSrc) {
+            <img class="brand-logo" [src]="logoSrc" [alt]="logoAlt || brandName" />
+          } @else {
+            <span class="brand-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
 
-                    <strong>{{ brandName }}</strong>
-                    }
-                </a>
+            <strong>{{ brandName }}</strong>
+          }
+        </a>
 
-                <app-badge label="Welcome back" variant="noteYellow" size="sm" shape="pill"
-                    [icon]="LucideSparkles" role="status" />
-            </header>
+        <app-badge
+          label="Welcome back"
+          variant="noteYellow"
+          size="sm"
+          shape="pill"
+          [icon]="LucideSparkles"
+          role="status"
+        />
+      </header>
 
-            <div class="story-content">
-                <span class="handwritten-kicker">
-                    Your creative space
-                </span>
+      <div class="story-content">
+        <span class="handwritten-kicker"> Your creative space </span>
 
-                <h2>
-                    Ready to pick up
-                    <span>where you left off?</span>
-                </h2>
+        <h2>
+          Ready to pick up
+          <span>where you left off?</span>
+        </h2>
 
-                <p class="story-description">
-                    Your workspaces, notes, and ideas are right here waiting for you.
-                </p>
+        <p class="story-description">
+          Your workspaces, notes, and ideas are right here waiting for you.
+        </p>
 
-                <div class="thought-flow" aria-label="Preview of sticky notes in your workspace">
-                    <app-sticky-card class="thought-note thought-note-yellow" variant="noteYellow" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
-                        eyebrow="FOCUS" cardTitle="Today's Priorities">
-                        <app-icon card-icon [icon]="LucideSparkles" size="sm" />
+        <div class="thought-flow" aria-label="Preview of sticky notes in your workspace">
+          <app-sticky-card
+            class="thought-note thought-note-yellow"
+            variant="noteYellow"
+            appearance="flat"
+            shape="note"
+            size="sm"
+            shadow="sm"
+            [fullWidth]="true"
+            [minHeight]="110"
+            [padding]="14"
+            eyebrow="FOCUS"
+            cardTitle="Today's Priorities"
+          >
+            <app-icon card-icon [icon]="LucideSparkles" size="sm" />
 
-                        <p>
-                            Keep your momentum going.
-                        </p>
-                    </app-sticky-card>
+            <p>Keep your momentum going.</p>
+          </app-sticky-card>
 
-                    <app-sticky-card class="thought-note thought-note-pink" variant="notePink" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
-                        eyebrow="CAPTURE" cardTitle="Fresh Thoughts">
-                        <app-icon card-icon [icon]="LucideLightbulb" size="sm" />
+          <app-sticky-card
+            class="thought-note thought-note-pink"
+            variant="notePink"
+            appearance="flat"
+            shape="note"
+            size="sm"
+            shadow="sm"
+            [fullWidth]="true"
+            [minHeight]="110"
+            [padding]="14"
+            eyebrow="CAPTURE"
+            cardTitle="Fresh Thoughts"
+          >
+            <app-icon card-icon [icon]="LucideLightbulb" size="sm" />
 
-                        <p>
-                            Ready when inspiration strikes.
-                        </p>
-                    </app-sticky-card>
+            <p>Ready when inspiration strikes.</p>
+          </app-sticky-card>
 
-                    <app-sticky-card class="thought-note thought-note-green" variant="noteGreen" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
-                        eyebrow="PROGRESS" cardTitle="Clear & Calmer">
-                        <app-icon card-icon [icon]="LucideCheckCircle2" size="sm" />
+          <app-sticky-card
+            class="thought-note thought-note-green"
+            variant="noteGreen"
+            appearance="flat"
+            shape="note"
+            size="sm"
+            shadow="sm"
+            [fullWidth]="true"
+            [minHeight]="110"
+            [padding]="14"
+            eyebrow="PROGRESS"
+            cardTitle="Clear & Calmer"
+          >
+            <app-icon card-icon [icon]="LucideCheckCircle2" size="sm" />
 
-                        <p>
-                            No mental clutter, just progress.
-                        </p>
-                    </app-sticky-card>
-                </div>
+            <p>No mental clutter, just progress.</p>
+          </app-sticky-card>
+        </div>
+      </div>
+
+      <footer class="story-footer">
+        <span>
+          <app-icon [icon]="LucideShieldCheck" size="xs" />
+          Private by default
+        </span>
+
+        <span>
+          <app-icon [icon]="LucideClock3" size="xs" />
+          Instant access
+        </span>
+
+        <span>
+          <app-icon [icon]="LucideSparkles" size="xs" />
+          Free forever
+        </span>
+      </footer>
+    </aside>
+
+    <section class="form-panel">
+      <header class="form-topbar">
+        <a class="back-home" [routerLink]="brandHref">
+          <app-icon [icon]="LucideArrowLeft" size="xs" />
+          <span>Back to home</span>
+        </a>
+
+        <div class="signup-shortcut">
+          <span>New here?</span>
+          <app-button
+            label="Create account"
+            variant="outline"
+            size="sm"
+            type="button"
+            [disabled]="loading()"
+            (buttonClick)="onSignup()"
+          />
+        </div>
+      </header>
+
+      <div class="form-area">
+        <div class="form-container">
+          <header class="login-heading">
+            <span class="login-kicker"> Welcome back </span>
+
+            <h1 id="sign-in-title">Sign in to your account</h1>
+
+            <p>Enter your email and password to continue.</p>
+          </header>
+
+          <form
+            class="sign-in-form"
+            [formGroup]="signInForm"
+            [attr.aria-busy]="loading()"
+            (ngSubmit)="submit()"
+            novalidate
+          >
+            <div class="auth-field">
+              <label class="field-label" for="sign-in-email"> Email address </label>
+
+              <app-input
+                inputId="sign-in-email"
+                [autofocus]="true"
+                name="email"
+                type="email"
+                label="Email address"
+                labelMode="hidden"
+                placeholder="you@example.com"
+                autocomplete="email"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideMail"
+                [required]="true"
+                [fullWidth]="true"
+                [formControl]="emailControl"
+                [status]="emailError ? 'danger' : 'default'"
+                [errorText]="emailError"
+              />
             </div>
 
-            <footer class="story-footer">
-                <span>
-                    <app-icon [icon]="LucideShieldCheck" size="xs" />
-                    Private by default
-                </span>
+            <div class="auth-field">
+              <div class="field-heading">
+                <label class="field-label" for="sign-in-password"> Password </label>
 
-                <span>
-                    <app-icon [icon]="LucideClock3" size="xs" />
-                    Instant access
-                </span>
+                <app-button
+                  label="Forgot password?"
+                  variant="link"
+                  size="sm"
+                  type="button"
+                  [disabled]="loading()"
+                  (buttonClick)="onForgotPassword()"
+                />
+              </div>
 
-                <span>
-                    <app-icon [icon]="LucideSparkles" size="xs" />
-                    Free forever
-                </span>
-            </footer>
-        </aside>
-
-        <section class="form-panel">
-            <header class="form-topbar">
-                <a class="back-home" [routerLink]="brandHref">
-                    <app-icon [icon]="LucideArrowLeft" size="xs" />
-                    <span>Back to home</span>
-                </a>
-
-                <div class="signup-shortcut">
-                    <span>New here?</span>
-                    <app-button label="Create account" variant="outline" size="sm" type="button" [disabled]="loading()"
-                        (buttonClick)="onSignup()" />
-                </div>
-            </header>
-
-            <div class="form-area">
-                <div class="form-container">
-                    <header class="login-heading">
-                        <span class="login-kicker">
-                            Welcome back
-                        </span>
-
-                        <h1 id="sign-in-title">
-                            Sign in to your account
-                        </h1>
-
-                        <p>
-                            Enter your email and password to continue.
-                        </p>
-                    </header>
-
-                    <form class="sign-in-form" [formGroup]="signInForm" [attr.aria-busy]="loading()"
-                        (ngSubmit)="submit()" novalidate>
-                        <div class="auth-field">
-                            <label class="field-label" for="sign-in-email">
-                                Email address
-                            </label>
-
-                            <app-input inputId="sign-in-email" [autofocus]="true" name="email" type="email" label="Email address"
-                                labelMode="hidden" placeholder="you@example.com" autocomplete="email" variant="paper"
-                                appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideMail"
-                                [required]="true" [fullWidth]="true" [formControl]="emailControl"
-                                [status]="emailError ? 'danger' : 'default'" [errorText]="emailError" />
-                        </div>
-
-                        <div class="auth-field">
-                            <div class="field-heading">
-                                <label class="field-label" for="sign-in-password">
-                                    Password
-                                </label>
-
-                                <app-button label="Forgot password?" variant="link" size="sm" type="button"
-                                    [disabled]="loading()" (buttonClick)="onForgotPassword()" />
-                            </div>
-
-                            <app-input inputId="sign-in-password" name="password" type="password" label="Password"
-                                labelMode="hidden" placeholder="Enter your password" autocomplete="current-password"
-                                variant="paper" appearance="outlined" shape="rounded" size="md"
-                                [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
-                                [fullWidth]="true" [formControl]="passwordControl"
-                                [status]="passwordError ? 'danger' : 'default'" [errorText]="passwordError" />
-                        </div>
-
-                        <div class="remember-block">
-                            <app-checkbox inputId="remember-workspace" label="Keep me signed in on this device"
-                                variant="primary" size="sm" formControlName="rememberMe" />
-                        </div>
-
-                        <app-button class="sign-in-submit" label="Sign in to my workspace" loadingText="Signing in…"
-                            variant="primary" size="lg" type="submit" [height]="48"
-                            [fullWidth]="true" [hasIcon]="true" iconPosition="right" [loading]="loading()">
-                            <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-                        </app-button>
-
-                        @if (showGoogleSignIn) {
-                        <app-divider label="or continue with" [hasLabel]="true" variant="neutral" spacing="xs" />
-
-                        <app-button label="Continue with Google" variant="outline" size="md" type="button" [height]="46"
-                            [fullWidth]="true" [hasIcon]="true" iconPosition="left" [disabled]="loading()"
-                            (buttonClick)="onGoogleSignIn()">
-                            <span button-icon-left class="google-mark" aria-hidden="true">
-                                <svg width="18" height="18" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                                </svg>
-                            </span>
-                        </app-button>
-                        }
-                    </form>
-
-                    <p class="mobile-signup">
-                        New to {{ brandName }}?
-                        <button type="button" [disabled]="loading()" (click)="onSignup()">
-                            Create a free account
-                        </button>
-                    </p>
-
-                    <p class="privacy-note">
-                        <app-icon [icon]="LucideShieldCheck" size="xs" />
-                        Encrypted & private. Your notes stay yours.
-                    </p>
-                </div>
+              <app-input
+                inputId="sign-in-password"
+                name="password"
+                type="password"
+                label="Password"
+                labelMode="hidden"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideLockKeyhole"
+                [passwordToggle]="true"
+                [required]="true"
+                [fullWidth]="true"
+                [formControl]="passwordControl"
+                [status]="passwordError ? 'danger' : 'default'"
+                [errorText]="passwordError"
+              />
             </div>
-        </section>
+
+            <div class="remember-block">
+              <app-checkbox
+                inputId="remember-workspace"
+                label="Keep me signed in on this device"
+                variant="primary"
+                size="sm"
+                formControlName="rememberMe"
+              />
+            </div>
+
+            <app-button
+              class="sign-in-submit"
+              label="Sign in to my workspace"
+              loadingText="Signing in…"
+              variant="primary"
+              size="lg"
+              type="submit"
+              [height]="48"
+              [fullWidth]="true"
+              [hasIcon]="true"
+              iconPosition="right"
+              [loading]="loading()"
+            >
+              <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+            </app-button>
+
+            @if (showGoogleSignIn) {
+              <app-divider
+                label="or continue with"
+                [hasLabel]="true"
+                variant="neutral"
+                spacing="xs"
+              />
+
+              <app-button
+                label="Continue with Google"
+                variant="outline"
+                size="md"
+                type="button"
+                [height]="46"
+                [fullWidth]="true"
+                [hasIcon]="true"
+                iconPosition="left"
+                [disabled]="loading()"
+                (buttonClick)="onGoogleSignIn()"
+              >
+                <span button-icon-left class="google-mark" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                </span>
+              </app-button>
+            }
+          </form>
+
+          <p class="mobile-signup">
+            New to {{ brandName }}?
+            <button type="button" [disabled]="loading()" (click)="onSignup()">
+              Create a free account
+            </button>
+          </p>
+
+          <p class="privacy-note">
+            <app-icon [icon]="LucideShieldCheck" size="xs" />
+            Encrypted & private. Your notes stay yours.
+          </p>
+        </div>
+      </div>
     </section>
+  </section>
 </main>

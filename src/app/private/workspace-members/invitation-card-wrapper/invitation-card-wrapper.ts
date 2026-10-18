@@ -4,7 +4,7 @@ import {
   EventEmitter,
   inject,
   Input,
-  Output
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -17,7 +17,7 @@ import {
   LucideMoreHorizontal,
   LucideShield,
   LucideUserCheck,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
@@ -27,21 +27,16 @@ import { idOf } from '../../../shared/functions/common.function';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 import type {
   WorkspaceInvitation,
-  WorkspaceInvitationStatus
+  WorkspaceInvitationStatus,
 } from '../models/workspace-invitation.models';
 
 @Component({
   selector: 'app-invitation-card-wrapper',
   standalone: true,
-  imports: [
-    CommonModule,
-    AppIcon,
-    Avatar,
-    Badge
-  ],
+  imports: [CommonModule, AppIcon, Avatar, Badge],
   templateUrl: './invitation-card-wrapper.html',
   styleUrl: './invitation-card-wrapper.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvitationCardWrapper {
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
@@ -81,14 +76,17 @@ export class InvitationCardWrapper {
     event.stopPropagation();
     const email = this.resolvedEmail;
     if (!email || this.emailCopied) return;
-    navigator.clipboard.writeText(email).then(() => {
-      this.emailCopied = true;
-      if (this._copyTimer) clearTimeout(this._copyTimer);
-      this._copyTimer = setTimeout(() => {
-        this.emailCopied = false;
-        this._copyTimer = null;
-      }, 1800);
-    }).catch(() => {});
+    navigator.clipboard
+      .writeText(email)
+      .then(() => {
+        this.emailCopied = true;
+        if (this._copyTimer) clearTimeout(this._copyTimer);
+        this._copyTimer = setTimeout(() => {
+          this.emailCopied = false;
+          this._copyTimer = null;
+        }, 1800);
+      })
+      .catch(() => {});
   }
 
   get resolvedEmail(): string {
@@ -154,7 +152,12 @@ export class InvitationCardWrapper {
   }
 
   get displayId(): string {
-    const raw = this.invitationId || idOf(this.invitation) || this.invitation?.id || this.invitation?._id || '';
+    const raw =
+      this.invitationId ||
+      idOf(this.invitation) ||
+      this.invitation?.id ||
+      this.invitation?._id ||
+      '';
     if (!raw) return '';
     return raw.length > 8 ? '#' + raw.slice(-5).toUpperCase() : raw;
   }
@@ -201,11 +204,11 @@ export class InvitationCardWrapper {
 
   get themeClasses(): Record<string, boolean> {
     return {
-      'invitation-card--pending':   this.isPending && !this.isExpired,
-      'invitation-card--accepted':  this.resolvedStatus === 'ACCEPTED',
-      'invitation-card--expired':   this.isExpired || this.resolvedStatus === 'EXPIRED',
+      'invitation-card--pending': this.isPending && !this.isExpired,
+      'invitation-card--accepted': this.resolvedStatus === 'ACCEPTED',
+      'invitation-card--expired': this.isExpired || this.resolvedStatus === 'EXPIRED',
       'invitation-card--cancelled': this.resolvedStatus === 'CANCELLED',
-      'invitation-card--rejected':  this.resolvedStatus === 'REJECTED'
+      'invitation-card--rejected': this.resolvedStatus === 'REJECTED',
     };
   }
 

@@ -9,24 +9,11 @@ import {
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
-export type AvatarSize =
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | '2xl'
-  | number;
+export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | number;
 
-export type AvatarShape =
-  | 'circle'
-  | 'rounded'
-  | 'square';
+export type AvatarShape = 'circle' | 'rounded' | 'square';
 
 export type AvatarTone =
   | 'neutral'
@@ -41,20 +28,12 @@ export type AvatarTone =
   | 'brown'
   | 'black';
 
-export type AvatarStatus =
-  | 'none'
-  | 'online'
-  | 'offline'
-  | 'away'
-  | 'busy';
+export type AvatarStatus = 'none' | 'online' | 'offline' | 'away' | 'busy';
 
 @Component({
   selector: 'app-avatar',
   standalone: true,
-  imports: [
-    NgClass,
-    AppIcon,
-  ],
+  imports: [NgClass, AppIcon],
   templateUrl: './avatar.html',
   styleUrl: './avatar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,10 +101,7 @@ export class Avatar implements OnChanges {
       return providedInitials.slice(0, 2).toUpperCase();
     }
 
-    const words = this.name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
+    const words = this.name.trim().split(/\s+/).filter(Boolean);
 
     if (words.length === 0) {
       return '?';
@@ -143,18 +119,11 @@ export class Avatar implements OnChanges {
       return null;
     }
 
-    const identity =
-      this.ariaLabel ||
-      this.alt ||
-      this.name ||
-      this.resolvedInitials ||
-      'User';
+    const identity = this.ariaLabel || this.alt || this.name || this.resolvedInitials || 'User';
 
     const statusLabel = this.resolvedStatusLabel;
 
-    return statusLabel
-      ? `${identity}, ${statusLabel}`
-      : identity;
+    return statusLabel ? `${identity}, ${statusLabel}` : identity;
   }
 
   get resolvedStatusLabel(): string | null {

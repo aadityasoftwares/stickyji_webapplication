@@ -1,20 +1,38 @@
-<span class="app-avatar" [ngClass]="avatarClasses" [style.--app-avatar-size]="resolvedSize"
-    [attr.role]="decorative ? null : 'img'" [attr.aria-label]="accessibleLabel"
-    [attr.aria-hidden]="decorative ? 'true' : null" [attr.title]="title || accessibleLabel">
-    @if (hasImage) {
-    <img class="app-avatar-image" [src]="src!" alt="" [attr.loading]="loading" [attr.referrerpolicy]="referrerPolicy"
-        [style.object-position]="objectPosition" (load)="handleImageLoad($event)" (error)="handleImageError($event)" />
-    } @else if (fallbackIcon) {
+<span
+  class="app-avatar"
+  [ngClass]="avatarClasses"
+  [style.--app-avatar-size]="resolvedSize"
+  [attr.role]="decorative ? null : 'img'"
+  [attr.aria-label]="accessibleLabel"
+  [attr.aria-hidden]="decorative ? 'true' : null"
+  [attr.title]="title || accessibleLabel"
+>
+  @if (hasImage) {
+    <img
+      class="app-avatar-image"
+      [src]="src!"
+      alt=""
+      [attr.loading]="loading"
+      [attr.referrerpolicy]="referrerPolicy"
+      [style.object-position]="objectPosition"
+      (load)="handleImageLoad($event)"
+      (error)="handleImageError($event)"
+    />
+  } @else if (fallbackIcon) {
     <span class="app-avatar-icon" aria-hidden="true">
-        <app-icon [icon]="fallbackIcon" size="inherit" />
+      <app-icon [icon]="fallbackIcon" size="inherit" />
     </span>
-    } @else {
+  } @else {
     <span class="app-avatar-initials" aria-hidden="true">
-        {{ resolvedInitials }}
+      {{ resolvedInitials }}
     </span>
-    }
+  }
 
-    @if (status !== 'none') {
-    <span class="app-avatar-status" [ngClass]="'app-avatar-status-' + status" aria-hidden="true"></span>
-    }
+  @if (status !== 'none') {
+    <span
+      class="app-avatar-status"
+      [ngClass]="'app-avatar-status-' + status"
+      aria-hidden="true"
+    ></span>
+  }
 </span>

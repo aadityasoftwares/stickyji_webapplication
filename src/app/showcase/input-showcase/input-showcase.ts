@@ -73,11 +73,7 @@ export class InputShowcase {
     'noteBlack',
   ];
 
-  readonly appearances: InputAppearance[] = [
-    'outlined',
-    'filled',
-    'underlined',
-  ];
+  readonly appearances: InputAppearance[] = ['outlined', 'filled', 'underlined'];
 
   readonly decorations: InputDecoration[] = ['standard', 'tape'];
   readonly shapes: InputShape[] = ['rounded', 'soft', 'square', 'pill'];

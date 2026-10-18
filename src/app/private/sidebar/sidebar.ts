@@ -1,17 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
-import {
-  RouterLink,
-  RouterLinkActive,
-} from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import {
   LucideCalendarDays,
@@ -29,22 +20,12 @@ import {
   LucideX,
 } from '@lucide/angular';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../../shared/components/icon/icon';
+import { AppIcon, type AppIconDefinition } from '../../shared/components/icon/icon';
 
-import {
-  Select,
-  type SelectOption,
-  type SelectValue,
-} from '../../shared/components/select/select';
+import { Select, type SelectOption, type SelectValue } from '../../shared/components/select/select';
 
-import {
-  Divider,
-} from '../../shared/components/divider/divider';
+import { Divider } from '../../shared/components/divider/divider';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
-
 
 interface SidebarItem {
   label: string;
@@ -62,18 +43,11 @@ export interface SidebarWorkspace extends SelectOption {
   memberCount?: number;
 }
 
-
 @Component({
   selector: 'app-sidebar',
   standalone: true,
 
-  imports: [
-    FormsModule,
-    RouterLink,
-    RouterLinkActive,
-    AppIcon,
-    Divider,
-  ],
+  imports: [FormsModule, RouterLink, RouterLinkActive, AppIcon, Divider],
 
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
@@ -81,7 +55,6 @@ export interface SidebarWorkspace extends SelectOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
-
   @Input()
   collapsed = false;
 
@@ -97,23 +70,17 @@ export class Sidebar {
   @Input()
   workspaces: readonly SidebarWorkspace[] = [];
 
+  @Output()
+  collapsedChange = new EventEmitter<boolean>();
 
   @Output()
-  collapsedChange =
-    new EventEmitter<boolean>();
+  mobileClosed = new EventEmitter<void>();
 
   @Output()
-  mobileClosed =
-    new EventEmitter<void>();
+  workspaceChange = new EventEmitter<string>();
 
   @Output()
-  workspaceChange =
-    new EventEmitter<string>();
-
-  @Output()
-  logout =
-    new EventEmitter<void>();
-
+  logout = new EventEmitter<void>();
 
   /*
    * ============================================================
@@ -138,89 +105,85 @@ export class Sidebar {
    *   Preferences
    */
 
-  readonly navigationGroups:
-    readonly SidebarGroup[] = [
+  readonly navigationGroups: readonly SidebarGroup[] = [
+    {
+      label: 'Home',
 
-      {
-        label: 'Home',
+      items: [
+        {
+          label: 'Today',
+          route: APP_ROUTES.TODAY,
+          icon: LucideCalendarDays,
+        },
+      ],
+    },
 
-        items: [
-          {
-            label: 'Today',
-      route: APP_ROUTES.TODAY,
-            icon: LucideCalendarDays,
-          },
-        ],
-      },
+    {
+      label: 'Workspace',
 
-      {
-        label: 'Workspace',
+      items: [
+        {
+          label: 'Workspaces',
+          route: APP_ROUTES.WORKSPACES,
+          icon: LucidePanelsTopLeft,
+        },
 
-        items: [
-          {
-            label: 'Workspaces',
-      route: APP_ROUTES.WORKSPACES,
-            icon: LucidePanelsTopLeft,
-          },
+        {
+          label: 'Folders',
+          route: APP_ROUTES.WORKSPACE_FOLDERS,
+          icon: LucideFolderOpen,
+        },
 
-          {
-            label: 'Folders',
-      route: APP_ROUTES.WORKSPACE_FOLDERS,
-            icon: LucideFolderOpen,
-          },
+        {
+          label: 'Members',
+          route: APP_ROUTES.WORKSPACE_MEMBERS,
+          icon: LucideUsersRound,
+        },
 
-          {
-            label: 'Members',
-      route: APP_ROUTES.WORKSPACE_MEMBERS,
-            icon: LucideUsersRound,
-          },
+        {
+          label: 'Roles & permissions',
+          route: APP_ROUTES.ROLES_PERMISSIONS,
+          icon: LucideShieldCheck,
+        },
+      ],
+    },
 
-          {
-            label: 'Roles & permissions',
-      route: APP_ROUTES.ROLES_PERMISSIONS,
-            icon: LucideShieldCheck,
-          },
-        ],
-      },
+    {
+      label: 'Notes',
 
-      {
-        label: 'Notes',
+      items: [
+        {
+          label: 'Notes',
+          route: APP_ROUTES.MY_NOTES,
+          icon: LucideStickyNote,
+        },
 
-        items: [
-          {
-            label: 'Notes',
-      route: APP_ROUTES.MY_NOTES,
-            icon: LucideStickyNote,
-          },
+        {
+          label: 'Favourites',
+          route: APP_ROUTES.FAVORITE_NOTES,
+          icon: LucideStar,
+        },
+      ],
+    },
 
-          {
-            label: 'Favourites',
-      route: APP_ROUTES.FAVORITE_NOTES,
-            icon: LucideStar,
-          },
-        ],
-      },
+    {
+      label: 'Account',
 
-      {
-        label: 'Account',
+      items: [
+        {
+          label: 'Profile',
+          route: APP_ROUTES.PROFILE,
+          icon: LucideCircleUserRound,
+        },
 
-        items: [
-          {
-            label: 'Profile',
-      route: APP_ROUTES.PROFILE,
-            icon: LucideCircleUserRound,
-          },
-
-          {
-            label: 'Preferences',
-      route: APP_ROUTES.PREFERENCES,
-            icon: LucideSlidersHorizontal,
-          },
-        ],
-      },
-
-    ];
-
+        {
+          label: 'Preferences',
+          route: APP_ROUTES.PREFERENCES,
+          icon: LucideSlidersHorizontal,
+        },
+      ],
+    },
+  ];
 
   /*
    * ============================================================
@@ -228,18 +191,13 @@ export class Sidebar {
    * ============================================================
    */
 
-  readonly LucidePanelLeftClose =
-    LucidePanelLeftClose;
+  readonly LucidePanelLeftClose = LucidePanelLeftClose;
 
-  readonly LucidePanelLeftOpen =
-    LucidePanelLeftOpen;
+  readonly LucidePanelLeftOpen = LucidePanelLeftOpen;
 
-  readonly LucideLogOut =
-    LucideLogOut;
+  readonly LucideLogOut = LucideLogOut;
 
-  readonly LucideX =
-    LucideX;
-
+  readonly LucideX = LucideX;
 
   /*
    * ============================================================
@@ -248,16 +206,11 @@ export class Sidebar {
    */
 
   get activeWorkspaceLabel(): string {
-
     return (
-      this.workspaces.find(
-        workspace =>
-          workspace.value === this.workspaceId,
-      )?.label ?? 'My workspace'
+      this.workspaces.find((workspace) => workspace.value === this.workspaceId)?.label ??
+      'My workspace'
     );
-
   }
-
 
   /*
    * ============================================================
@@ -266,13 +219,8 @@ export class Sidebar {
    */
 
   toggleCollapsed(): void {
-
-    this.collapsedChange.emit(
-      !this.collapsed,
-    );
-
+    this.collapsedChange.emit(!this.collapsed);
   }
-
 
   /*
    * ============================================================
@@ -281,15 +229,12 @@ export class Sidebar {
    */
 
   closeMobileNavigation(): void {
-
     if (!this.mobileOpen) {
       return;
     }
 
     this.mobileClosed.emit();
-
   }
-
 
   /*
    * ============================================================
@@ -297,23 +242,15 @@ export class Sidebar {
    * ============================================================
    */
 
-  onWorkspaceChange(
-    value: SelectValue | SelectValue[] | null,
-  ): void {
-
-    if (
-      typeof value !== 'string' ||
-      value === this.workspaceId
-    ) {
+  onWorkspaceChange(value: SelectValue | SelectValue[] | null): void {
+    if (typeof value !== 'string' || value === this.workspaceId) {
       return;
     }
 
     this.workspaceChange.emit(value);
 
     this.closeMobileNavigation();
-
   }
-
 
   /*
    * ============================================================
@@ -322,11 +259,8 @@ export class Sidebar {
    */
 
   requestLogout(): void {
-
     this.closeMobileNavigation();
 
     this.logout.emit();
-
   }
-
 }

@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideCheckCircle2,
@@ -22,14 +16,8 @@ import { AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
-
 export type ReviewNoteVariant =
-  | 'noteYellow'
-  | 'noteBlue'
-  | 'notePink'
-  | 'noteGreen'
-  | 'notePurple'
-  | 'noteOrange';
+  'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple' | 'noteOrange';
 
 export interface UserReview {
   id: string;
@@ -54,7 +42,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Design student',
     audience: 'Student note',
     headline: 'I stopped rewriting the same list every morning.',
-    quote: 'My assignments, revision notes, and normal life finally sit in one place. It feels visual enough to understand in a glance and simple enough that I actually keep using it.',
+    quote:
+      'My assignments, revision notes, and normal life finally sit in one place. It feels visual enough to understand in a glance and simple enough that I actually keep using it.',
     result: 'A calmer exam week with fewer forgotten deadlines.',
     usedFor: 'Study planning',
     rating: 5,
@@ -68,7 +57,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Product manager',
     audience: 'Work note',
     headline: 'It shows me the work—not the machinery around it.',
-    quote: 'I needed a place for the three decisions that matter today, not another system to administer. Sticky Ji gives me exactly that and gets out of the way.',
+    quote:
+      'I needed a place for the three decisions that matter today, not another system to administer. Sticky Ji gives me exactly that and gets out of the way.',
     result: 'Priorities stay visible between meetings and messages.',
     usedFor: 'Daily priorities',
     rating: 5,
@@ -82,7 +72,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Independent creator',
     audience: 'Creator note',
     headline: 'My rough ideas finally have somewhere safe to be rough.',
-    quote: 'I can capture a half-formed idea without immediately turning it into a project. When I am ready, the next step is already waiting beside it.',
+    quote:
+      'I can capture a half-formed idea without immediately turning it into a project. When I am ready, the next step is already waiting beside it.',
     result: 'More ideas survive long enough to become finished work.',
     usedFor: 'Content ideas',
     rating: 5,
@@ -96,7 +87,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Everyday planner',
     audience: 'Life note',
     headline: 'It is like the note on my fridge, except it comes with me.',
-    quote: 'Groceries, appointments, calls, and little promises used to disappear into different apps. Now I have one friendly place to look before leaving the house.',
+    quote:
+      'Groceries, appointments, calls, and little promises used to disappear into different apps. Now I have one friendly place to look before leaving the house.',
     result: 'Less mental remembering and more room to be present.',
     usedFor: 'Life admin',
     rating: 5,
@@ -110,7 +102,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Small-team lead',
     audience: 'Team note',
     headline: 'Enough structure to align us, never enough to slow us down.',
-    quote: 'The team can see what moved, what is waiting, and where someone needs help. We spend less time reporting progress and more time making it.',
+    quote:
+      'The team can see what moved, what is waiting, and where someone needs help. We spend less time reporting progress and more time making it.',
     result: 'Clearer handoffs without adding another status meeting.',
     usedFor: 'Team launches',
     rating: 5,
@@ -124,7 +117,8 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Freelance developer',
     audience: 'Freelance note',
     headline: 'Small client promises no longer live in my memory.',
-    quote: 'I pin the follow-up while I am still on the call, give it one next step, and move on. That tiny habit has made my work feel much more dependable.',
+    quote:
+      'I pin the follow-up while I am still on the call, give it one next step, and move on. That tiny habit has made my work feel much more dependable.',
     result: 'Fewer dropped follow-ups across multiple client projects.',
     usedFor: 'Client work',
     rating: 5,
@@ -135,15 +129,7 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
 
 @Component({
   standalone: true,
-  imports: [
-    AppIcon,
-    Avatar,
-    Badge,
-    Button,
-    Divider,
-    Label,
-    StickyCard,
-  ],
+  imports: [AppIcon, Avatar, Badge, Button, Divider, Label, StickyCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
 
   selector: 'app-reviews',
@@ -185,11 +171,16 @@ export class Reviews {
   selectedReviewId = this.reviewItems[0].id;
 
   get activeReview(): UserReview {
-    return this.reviewItems.find((review) => review.id === this.selectedReviewId) ?? this.reviewItems[0];
+    return (
+      this.reviewItems.find((review) => review.id === this.selectedReviewId) ?? this.reviewItems[0]
+    );
   }
 
   get activeIndex(): number {
-    return Math.max(0, this.reviewItems.findIndex((review) => review.id === this.selectedReviewId));
+    return Math.max(
+      0,
+      this.reviewItems.findIndex((review) => review.id === this.selectedReviewId),
+    );
   }
 
   get sideReviews(): readonly UserReview[] {
@@ -200,7 +191,9 @@ export class Reviews {
     return [1, 2]
       .map((offset) => this.reviewItems[(this.activeIndex + offset) % this.reviewItems.length])
       .filter((review) => review.id !== this.activeReview.id)
-      .filter((review, index, reviews) => reviews.findIndex((item) => item.id === review.id) === index);
+      .filter(
+        (review, index, reviews) => reviews.findIndex((item) => item.id === review.id) === index,
+      );
   }
 
   selectReview(review: UserReview): void {
@@ -236,10 +229,11 @@ export class Reviews {
 
     event.preventDefault();
 
-    const nextIndex = (currentIndex + direction + this.reviewItems.length) % this.reviewItems.length;
-    const tabs = (event.currentTarget as HTMLElement)
-      .parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    const nextIndex =
+      (currentIndex + direction + this.reviewItems.length) % this.reviewItems.length;
+    const tabs = (
+      event.currentTarget as HTMLElement
+    ).parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
 
     this.selectReview(this.reviewItems[nextIndex]);
     tabs?.[nextIndex]?.focus();

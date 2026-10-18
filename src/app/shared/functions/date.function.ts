@@ -9,13 +9,12 @@
 export type DateKey = `${number}-${number}-${number}`;
 
 export function toTimestamp(value: string | Date | null | undefined): number {
-    if (!value) return 0;
-    const timestamp = new Date(value).getTime();
-    return Number.isNaN(timestamp) ? 0 : timestamp;
+  if (!value) return 0;
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
-export const DATE_KEY_PATTERN =
-    /^(\d{4})-(\d{2})-(\d{2})$/;
+export const DATE_KEY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /**
  * Returns true only for a real YYYY-MM-DD calendar date.
@@ -24,31 +23,23 @@ export const DATE_KEY_PATTERN =
  * - 2026-02-30 -> false
  * - 2026-09-11T00:00:00.000Z -> false
  */
-export function isValidDateKey(
-    value: any,
-): value is DateKey {
-    try {
-        if (typeof value !== 'string') {
-            return false;
-        }
-
-        const match = value.match(
-            DATE_KEY_PATTERN,
-        );
-
-        if (!match) {
-            return false;
-        }
-
-        return isRealCalendarDate(
-            Number(match[1]),
-            Number(match[2]),
-            Number(match[3]),
-        );
-    } catch (error) {
-        console.error('Error in isValidDateKey:', error);
-        return false;
+export function isValidDateKey(value: any): value is DateKey {
+  try {
+    if (typeof value !== 'string') {
+      return false;
     }
+
+    const match = value.match(DATE_KEY_PATTERN);
+
+    if (!match) {
+      return false;
+    }
+
+    return isRealCalendarDate(Number(match[1]), Number(match[2]), Number(match[3]));
+  } catch (error) {
+    console.error('Error in isValidDateKey:', error);
+    return false;
+  }
 }
 
 /**
@@ -65,69 +56,55 @@ export function isValidDateKey(
  * constructing a Date object. This prevents timezone conversion from shifting
  * the selected logical day.
  */
-export function toDateKey(
-    value: any,
-): DateKey | null {
-    try {
-        if (
-            value === null ||
-            value === undefined ||
-            value === ''
-        ) {
-            return null;
-        }
-
-        if (value instanceof Date) {
-            if (Number.isNaN(value.getTime())) {
-                return null;
-            }
-
-            return buildDateKey(
-                value.getFullYear(),
-                value.getMonth() + 1,
-                value.getDate(),
-            );
-        }
-
-        if (typeof value !== 'string') {
-            return null;
-        }
-
-        const normalized = value.trim();
-
-        if (!normalized) {
-            return null;
-        }
-
-        const backendMatch = normalized.match(
-            /^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/,
-        );
-
-        if (backendMatch) {
-            return buildDateKey(
-                Number(backendMatch[1]),
-                Number(backendMatch[2]),
-                Number(backendMatch[3]),
-            );
-        }
-
-        const displayMatch = normalized.match(
-            /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/,
-        );
-
-        if (displayMatch) {
-            return buildDateKey(
-                Number(displayMatch[3]),
-                Number(displayMatch[2]),
-                Number(displayMatch[1]),
-            );
-        }
-
-        return null;
-    } catch (error) {
-        console.error('Error in toDateKey:', error);
-        return null;
+export function toDateKey(value: any): DateKey | null {
+  try {
+    if (value === null || value === undefined || value === '') {
+      return null;
     }
+
+    if (value instanceof Date) {
+      if (Number.isNaN(value.getTime())) {
+        return null;
+      }
+
+      return buildDateKey(value.getFullYear(), value.getMonth() + 1, value.getDate());
+    }
+
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+
+    if (!normalized) {
+      return null;
+    }
+
+    const backendMatch = normalized.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/);
+
+    if (backendMatch) {
+      return buildDateKey(
+        Number(backendMatch[1]),
+        Number(backendMatch[2]),
+        Number(backendMatch[3]),
+      );
+    }
+
+    const displayMatch = normalized.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+
+    if (displayMatch) {
+      return buildDateKey(
+        Number(displayMatch[3]),
+        Number(displayMatch[2]),
+        Number(displayMatch[1]),
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in toDateKey:', error);
+    return null;
+  }
 }
 
 /**
@@ -137,82 +114,63 @@ export function toDateKey(
  * For server concepts such as the Today filter, prefer backend datePreset=TODAY
  * so the user's saved timezone remains the source of truth.
  */
-export function todayDateKey(
-    now: any = new Date(),
-): DateKey {
-    try {
-        const date = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
-        return (buildDateKey(
-            date.getFullYear(),
-            date.getMonth() + 1,
-            date.getDate(),
-        ) ?? '2026-01-01') as DateKey;
-    } catch (error) {
-        console.error('Error in todayDateKey:', error);
-        const fallback = new Date();
-        return `${fallback.getFullYear()}-${String(fallback.getMonth() + 1).padStart(2, '0')}-${String(fallback.getDate()).padStart(2, '0')}` as DateKey;
-    }
+export function todayDateKey(now: any = new Date()): DateKey {
+  try {
+    const date = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
+    return (buildDateKey(date.getFullYear(), date.getMonth() + 1, date.getDate()) ??
+      '2026-01-01') as DateKey;
+  } catch (error) {
+    console.error('Error in todayDateKey:', error);
+    const fallback = new Date();
+    return `${fallback.getFullYear()}-${String(fallback.getMonth() + 1).padStart(2, '0')}-${String(fallback.getDate()).padStart(2, '0')}` as DateKey;
+  }
 }
 
 /**
  * Converts a DateKey to a local Date for UI-only formatting/calendar controls.
  * Noon is used to stay comfortably away from DST midnight edge cases.
  */
-export function dateKeyToLocalDate(
-    value: any,
-): Date | null {
-    try {
-        const key = toDateKey(value);
+export function dateKeyToLocalDate(value: any): Date | null {
+  try {
+    const key = toDateKey(value);
 
-        if (!key) {
-            return null;
-        }
-
-        const [year, month, day] =
-            key.split('-').map(Number);
-
-        return new Date(
-            year,
-            month - 1,
-            day,
-            12,
-            0,
-            0,
-            0,
-        );
-    } catch (error) {
-        console.error('Error in dateKeyToLocalDate:', error);
-        return null;
+    if (!key) {
+      return null;
     }
+
+    const [year, month, day] = key.split('-').map(Number);
+
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
+  } catch (error) {
+    console.error('Error in dateKeyToLocalDate:', error);
+    return null;
+  }
 }
 
 /**
  * Locale-aware display helper. Storage/API format remains YYYY-MM-DD.
  */
 export function formatDateKey(
-    value: any,
-    locale: any = 'en-IN',
-    options: any = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    },
+  value: any,
+  locale: any = 'en-IN',
+  options: any = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  },
 ): string {
-    try {
-        const date = dateKeyToLocalDate(value);
+  try {
+    const date = dateKeyToLocalDate(value);
 
-        if (!date) {
-            return '';
-        }
-
-        return new Intl.DateTimeFormat(
-            String(locale || 'en-IN'),
-            options,
-        ).format(date);
-    } catch (error) {
-        console.error('Error in formatDateKey:', error);
-        return '';
+    if (!date) {
+      return '';
     }
+
+    return new Intl.DateTimeFormat(String(locale || 'en-IN'), options).format(date);
+  } catch (error) {
+    console.error('Error in formatDateKey:', error);
+    return '';
+  }
 }
 
 /**
@@ -224,120 +182,104 @@ export function formatDateKey(
  * @returns Formatted display string like "Sep 28".
  */
 export function formatDateKeyDisplay(
-    value: any,
-    fallback: any = 'No date',
-    locale: any = 'en'
+  value: any,
+  fallback: any = 'No date',
+  locale: any = 'en',
 ): string {
-    try {
-        const defaultFallback = String(fallback ?? 'No date');
-        if (!value) {
-            return defaultFallback;
-        }
-        const dateKey = toDateKey(value);
-        if (!dateKey) {
-            return typeof value === 'string' ? value.trim() || defaultFallback : defaultFallback;
-        }
-        return formatDateKey(dateKey, locale, {
-            month: 'short',
-            day: 'numeric'
-        }) || defaultFallback;
-    } catch (error) {
-        console.error('Error in formatDateKeyDisplay:', error);
-        return String(fallback ?? 'No date');
+  try {
+    const defaultFallback = String(fallback ?? 'No date');
+    if (!value) {
+      return defaultFallback;
     }
+    const dateKey = toDateKey(value);
+    if (!dateKey) {
+      return typeof value === 'string' ? value.trim() || defaultFallback : defaultFallback;
+    }
+    return (
+      formatDateKey(dateKey, locale, {
+        month: 'short',
+        day: 'numeric',
+      }) || defaultFallback
+    );
+  } catch (error) {
+    console.error('Error in formatDateKeyDisplay:', error);
+    return String(fallback ?? 'No date');
+  }
 }
 
 /**
  * Formats a date/time value using Intl.DateTimeFormat with a safe fallback.
  */
 export function formatDateTime(
-    value: any,
-    fallback: any = '',
-    locale: any = 'en-IN',
-    options: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    },
+  value: any,
+  fallback: any = '',
+  locale: any = 'en-IN',
+  options: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  },
 ): string {
-    try {
-        const defaultFallback = String(fallback ?? '');
-        if (!value) {
-            return defaultFallback;
-        }
-
-        const date = value instanceof Date ? value : new Date(value);
-        if (Number.isNaN(date.getTime())) {
-            return defaultFallback;
-        }
-
-        return new Intl.DateTimeFormat(String(locale || 'en-IN'), options).format(date);
-    } catch (error) {
-        console.error('Error in formatDateTime:', error);
-        return String(fallback ?? '');
+  try {
+    const defaultFallback = String(fallback ?? '');
+    if (!value) {
+      return defaultFallback;
     }
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return defaultFallback;
+    }
+
+    return new Intl.DateTimeFormat(String(locale || 'en-IN'), options).format(date);
+  } catch (error) {
+    console.error('Error in formatDateTime:', error);
+    return String(fallback ?? '');
+  }
 }
 
-function buildDateKey(
-    year: any,
-    month: any,
-    day: any,
-): DateKey | null {
-    try {
-        const y = Number(year);
-        const m = Number(month);
-        const d = Number(day);
+function buildDateKey(year: any, month: any, day: any): DateKey | null {
+  try {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
 
-        if (!isRealCalendarDate(y, m, d)) {
-            return null;
-        }
-
-        return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` as DateKey;
-    } catch (error) {
-        console.error('Error in buildDateKey:', error);
-        return null;
+    if (!isRealCalendarDate(y, m, d)) {
+      return null;
     }
+
+    return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` as DateKey;
+  } catch (error) {
+    console.error('Error in buildDateKey:', error);
+    return null;
+  }
 }
 
-function isRealCalendarDate(
-    year: any,
-    month: any,
-    day: any,
-): boolean {
-    try {
-        const y = Number(year);
-        const m = Number(month);
-        const d = Number(day);
+function isRealCalendarDate(year: any, month: any, day: any): boolean {
+  try {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
 
-        if (
-            !Number.isInteger(y) ||
-            !Number.isInteger(m) ||
-            !Number.isInteger(d) ||
-            y < 1000 ||
-            y > 9999 ||
-            m < 1 ||
-            m > 12 ||
-            d < 1 ||
-            d > 31
-        ) {
-            return false;
-        }
-
-        const date = new Date(
-            Date.UTC(
-                y,
-                m - 1,
-                d,
-            ),
-        );
-
-        return (
-            date.getUTCFullYear() === y &&
-            date.getUTCMonth() === m - 1 &&
-            date.getUTCDate() === d
-        );
-    } catch (error) {
-        console.error('Error in isRealCalendarDate:', error);
-        return false;
+    if (
+      !Number.isInteger(y) ||
+      !Number.isInteger(m) ||
+      !Number.isInteger(d) ||
+      y < 1000 ||
+      y > 9999 ||
+      m < 1 ||
+      m > 12 ||
+      d < 1 ||
+      d > 31
+    ) {
+      return false;
     }
+
+    const date = new Date(Date.UTC(y, m - 1, d));
+
+    return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+  } catch (error) {
+    console.error('Error in isRealCalendarDate:', error);
+    return false;
+  }
 }

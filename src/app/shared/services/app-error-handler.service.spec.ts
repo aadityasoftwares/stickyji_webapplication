@@ -12,7 +12,11 @@ describe('AppErrorHandler', () => {
 
     handler.handleError(rejection);
 
-    expect(log).toHaveBeenCalledWith('ERROR', expect.stringContaining('EDITOR_LOAD_FAILED'), rejection);
+    expect(log).toHaveBeenCalledWith(
+      'ERROR',
+      expect.stringContaining('EDITOR_LOAD_FAILED'),
+      rejection,
+    );
     expect(log.mock.calls[0][1]).toContain('Request failed');
   });
 

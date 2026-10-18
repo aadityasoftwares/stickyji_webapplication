@@ -28,17 +28,42 @@ describe('Today', () => {
       preferences.updatePreference(key, value);
     });
     TestBed.inject(WorkspaceStore).setWorkspaces([{ id: 'workspace', name: 'Workspace' }] as any);
-    TestBed.inject(WorkspaceFolderStore).setFolders('workspace', [{ id: 'folder', name: 'Notes', status: 'ACTIVE' }] as any);
+    TestBed.inject(WorkspaceFolderStore).setFolders('workspace', [
+      { id: 'folder', name: 'Notes', status: 'ACTIVE' },
+    ] as any);
     TestBed.inject(StickyNoteColumnStore).setColumns('workspace', 'folder', [
       { id: 'todo', name: 'To do', position: 0, type: 'TODO' },
       { id: 'doing', name: 'In progress', position: 1, type: 'IN_PROGRESS' },
-      { id: 'done', name: 'Done', position: 2, type: 'COMPLETED' }
+      { id: 'done', name: 'Done', position: 2, type: 'COMPLETED' },
     ] as any);
-    TestBed.inject(UserPreferenceStore).updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, 'DETAIL');
+    TestBed.inject(UserPreferenceStore).updatePreference(
+      USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT,
+      'DETAIL',
+    );
     component.stickyNotes.set([
-      { id: 'second', title: 'Second note', description: 'Later task', columnId: 'todo', rank: 'b' },
-      { id: 'first', title: 'First note', description: 'Matching task', columnId: 'todo', rank: 'a', creatorEmail: 'owner@example.test', updatedAt: '2026-10-04T00:00:00Z' },
-      { id: 'third', title: 'Third note', description: 'Active task', columnId: 'doing', rank: 'a' }
+      {
+        id: 'second',
+        title: 'Second note',
+        description: 'Later task',
+        columnId: 'todo',
+        rank: 'b',
+      },
+      {
+        id: 'first',
+        title: 'First note',
+        description: 'Matching task',
+        columnId: 'todo',
+        rank: 'a',
+        creatorEmail: 'owner@example.test',
+        updatedAt: '2026-10-04T00:00:00Z',
+      },
+      {
+        id: 'third',
+        title: 'Third note',
+        description: 'Active task',
+        columnId: 'doing',
+        rank: 'a',
+      },
     ]);
     component.setView('table');
     await fixture.whenStable();
@@ -50,17 +75,19 @@ describe('Today', () => {
   });
 
   it('groups notes in column and rank order, retaining empty stages', () => {
-    expect(component.tableGroups().map(group => [group.id, group.count])).toEqual([
-      ['todo', 2], ['doing', 1], ['done', 0]
+    expect(component.tableGroups().map((group) => [group.id, group.count])).toEqual([
+      ['todo', 2],
+      ['doing', 1],
+      ['done', 0],
     ]);
-    expect(component.tableGroups()[0].notes.map(note => note.id)).toEqual(['first', 'second']);
+    expect(component.tableGroups()[0].notes.map((note) => note.id)).toEqual(['first', 'second']);
     expect(fixture.nativeElement.querySelectorAll('.today-group-empty')).toHaveLength(1);
   });
 
   it('updates group counts and hides empty groups during search', async () => {
     component.updateSearch('Matching');
     await fixture.whenStable();
-    expect(component.tableGroups().map(group => [group.id, group.count])).toEqual([['todo', 1]]);
+    expect(component.tableGroups().map((group) => [group.id, group.count])).toEqual([['todo', 1]]);
     expect(fixture.nativeElement.querySelectorAll('.today-gtable tbody tr')).toHaveLength(1);
     component.clearSearch();
     await fixture.whenStable();
@@ -88,11 +115,20 @@ describe('Today', () => {
   });
 
   it('preserves detail metadata and compact view columns', async () => {
-    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(9);
-    expect(fixture.nativeElement.querySelector('.today-gt-owner').textContent).toContain('owner@example.test');
-    TestBed.inject(UserPreferenceStore).updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT, 'COMPACT');
+    expect(
+      fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th'),
+    ).toHaveLength(9);
+    expect(fixture.nativeElement.querySelector('.today-gt-owner').textContent).toContain(
+      'owner@example.test',
+    );
+    TestBed.inject(UserPreferenceStore).updatePreference(
+      USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT,
+      'COMPACT',
+    );
     await fixture.whenStable();
-    expect(fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th')).toHaveLength(6);
+    expect(
+      fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th'),
+    ).toHaveLength(6);
     expect(fixture.nativeElement.querySelector('td.today-gt-updated')).toBeNull();
   });
 
@@ -101,7 +137,9 @@ describe('Today', () => {
     fixture.nativeElement.querySelector('button[aria-label="Rename First note"]').click();
     await fixture.whenStable();
     expect(rename.mock.calls[0][0].id).toBe('first');
-    expect(fixture.nativeElement.querySelector('[data-inline-note-title]').value).toBe('First note');
+    expect(fixture.nativeElement.querySelector('[data-inline-note-title]').value).toBe(
+      'First note',
+    );
     component.cancelTableTitleEdit();
     const edit = vi.spyOn(component, 'openNoteEditPanel').mockImplementation(() => {});
     fixture.nativeElement.querySelector('button[aria-label="Edit Third note"]').click();
@@ -160,31 +198,37 @@ describe('Today', () => {
     });
     const preventDefault = vi.fn();
 
-    component.onKanbanWheel({
-      target: noteColumn,
-      deltaX: 0,
-      deltaY: 80,
-      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-      ctrlKey: false,
-      shiftKey: false,
-      defaultPrevented: false,
-      preventDefault,
-    } as unknown as WheelEvent, board);
+    component.onKanbanWheel(
+      {
+        target: noteColumn,
+        deltaX: 0,
+        deltaY: 80,
+        deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+        ctrlKey: false,
+        shiftKey: false,
+        defaultPrevented: false,
+        preventDefault,
+      } as unknown as WheelEvent,
+      board,
+    );
 
     expect(board.scrollLeft).toBe(0);
     expect(preventDefault).not.toHaveBeenCalled();
 
     noteColumn.scrollTop = 400;
-    component.onKanbanWheel({
-      target: noteColumn,
-      deltaX: 0,
-      deltaY: 80,
-      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-      ctrlKey: false,
-      shiftKey: false,
-      defaultPrevented: false,
-      preventDefault,
-    } as unknown as WheelEvent, board);
+    component.onKanbanWheel(
+      {
+        target: noteColumn,
+        deltaX: 0,
+        deltaY: 80,
+        deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+        ctrlKey: false,
+        shiftKey: false,
+        defaultPrevented: false,
+        preventDefault,
+      } as unknown as WheelEvent,
+      board,
+    );
 
     expect(board.scrollLeft).toBe(80);
     expect(preventDefault).toHaveBeenCalledOnce();

@@ -1,9 +1,4 @@
-export type PlainQueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
+export type PlainQueryValue = string | number | boolean | null | undefined;
 
 /**
  * Removes undefined, null, and empty-string entries from a shallow object.
@@ -30,7 +25,9 @@ export function removeEmptyValues<T extends Record<string, unknown>>(value: T): 
 /**
  * Safely constructs a query-parameter record, omitting empty optional values.
  */
-export function buildQueryParams(filters: Record<string, PlainQueryValue> = {}): Record<string, string> {
+export function buildQueryParams(
+  filters: Record<string, PlainQueryValue> = {},
+): Record<string, string> {
   const params: Record<string, string> = {};
 
   try {
@@ -45,4 +42,3 @@ export function buildQueryParams(filters: Record<string, PlainQueryValue> = {}):
 
   return params;
 }
-

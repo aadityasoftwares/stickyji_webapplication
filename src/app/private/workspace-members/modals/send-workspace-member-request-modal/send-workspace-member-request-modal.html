@@ -1,88 +1,175 @@
 @if (open) {
-<div class="modal fade show d-block member-request-modal" tabindex="-1" role="dialog" aria-modal="true"
-    aria-labelledby="member-request-modal-title" aria-describedby="member-request-modal-description"
-    (mousedown)="onBackdropMouseDown($event)">
-    <div class="modal-dialog modal-dialog-centered" role="document" (mousedown)="$event.stopPropagation()">
-        <section class="modal-content member-request-content">
-            <header class="modal-header member-request-header">
-                <div class="member-request-heading">
-                    <span class="member-request-icon" aria-hidden="true">
-                        <app-icon [icon]="headerIcon" size="sm" />
-                    </span>
+  <div
+    class="modal fade show d-block member-request-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="member-request-modal-title"
+    aria-describedby="member-request-modal-description"
+    (mousedown)="onBackdropMouseDown($event)"
+  >
+    <div
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <section class="modal-content member-request-content">
+        <header class="modal-header member-request-header">
+          <div class="member-request-heading">
+            <span class="member-request-icon" aria-hidden="true">
+              <app-icon [icon]="headerIcon" size="sm" />
+            </span>
 
-                    <div class="member-request-heading-copy">
-                        <span class="member-request-kicker">{{ eyebrow }}</span>
-                        <h2 id="member-request-modal-title" class="modal-title member-request-title">{{ title }}</h2>
-                        <p id="member-request-modal-description" class="member-request-description">{{ description }}
-                        </p>
-                    </div>
-                </div>
+            <div class="member-request-heading-copy">
+              <span class="member-request-kicker">{{ eyebrow }}</span>
+              <h2 id="member-request-modal-title" class="modal-title member-request-title">
+                {{ title }}
+              </h2>
+              <p id="member-request-modal-description" class="member-request-description">
+                {{ description }}
+              </p>
+            </div>
+          </div>
 
-                <app-button class="member-request-close" [icon]="LucideX" [iconOnly]="true" variant="ghost"
-                    appearance="standard" size="sm" ariaLabel="Close invitation modal" title="Close"
-                    [disabled]="saving()" (buttonClick)="close()" />
-            </header>
+          <app-button
+            class="member-request-close"
+            [icon]="LucideX"
+            [iconOnly]="true"
+            variant="ghost"
+            appearance="standard"
+            size="sm"
+            ariaLabel="Close invitation modal"
+            title="Close"
+            [disabled]="saving()"
+            (buttonClick)="close()"
+          />
+        </header>
 
-            <app-divider class="member-request-divider" variant="neutral" lineStyle="dashed" spacing="none"
-                [thickness]="1" />
+        <app-divider
+          class="member-request-divider"
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="none"
+          [thickness]="1"
+        />
 
-            <div class="modal-body member-request-body">
-                <div class="member-request-form">
-                    @if (!isEdit) {
-                    <app-input type="email" label="Email address"
-                        labelDescription="The invitation link will be sent here." placeholder="name@example.com"
-                        variant="paper" appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideMail"
-                        [required]="true" [clearable]="true" [value]="email()" [disabled]="saving()" [fullWidth]="true"
-                        autocomplete="email" (valueChange)="updateEmail($event)" />
-                    }
+        <div class="modal-body member-request-body">
+          <div class="member-request-form">
+            @if (!isEdit) {
+              <app-input
+                type="email"
+                label="Email address"
+                labelDescription="The invitation link will be sent here."
+                placeholder="name@example.com"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideMail"
+                [required]="true"
+                [clearable]="true"
+                [value]="email()"
+                [disabled]="saving()"
+                [fullWidth]="true"
+                autocomplete="email"
+                (valueChange)="updateEmail($event)"
+              />
+            }
 
-                    <div class="member-request-field">
-                        <app-label for="workspace-member-role" text="Workspace role" />
-                        <app-select id="workspace-member-role" [options]="availableRoleOptions()" [ngModel]="roleId()"
-                            [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateRoleId($event)"
-                            name="workspace-member-role"
-                            [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
-                            ariaLabel="Choose workspace role" variant="paper" shape="rounded" size="md"
-                            [disabled]="saving() || loadingRoles()" [clearable]="false" [searchable]="true"
-                            [fullWidth]="true" />
+            <div class="member-request-field">
+              <app-label for="workspace-member-role" text="Workspace role" />
+              <app-select
+                id="workspace-member-role"
+                [options]="availableRoleOptions()"
+                [ngModel]="roleId()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="updateRoleId($event)"
+                name="workspace-member-role"
+                [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
+                ariaLabel="Choose workspace role"
+                variant="paper"
+                shape="rounded"
+                size="md"
+                [disabled]="saving() || loadingRoles()"
+                [clearable]="false"
+                [searchable]="true"
+                [fullWidth]="true"
+              />
 
-                        @if (!loadingRoles() && availableRoleOptions().length === 0) {
-                        <small class="member-request-help">No assignable workspace role is available.</small>
-                        }
-                    </div>
-
-                    @if (!isEdit) {
-                    <app-input [type]="'text'" label="Personal message"
-                        labelDescription="Optional note included with the invitation."
-                        placeholder="Add a short welcome message..." variant="paper" appearance="outlined"
-                        shape="rounded" size="md" [leadingIcon]="LucideMessageSquareText" [required]="false"
-                        [clearable]="true" [value]="message()" [disabled]="saving()" [fullWidth]="true" [rows]="3"
-                        [maxLength]="500" (valueChange)="updateMessage($event)" />
-
-                    <div class="member-request-info">
-                        <app-icon [icon]="LucideShield" size="xs" />
-                        <span>The selected role is assigned only after the recipient accepts the invitation.</span>
-                    </div>
-                    }
-
-                    @if (error()) {
-                    <div class="member-request-error" role="alert">{{ error() }}</div>
-                    }
-                </div>
+              @if (!loadingRoles() && availableRoleOptions().length === 0) {
+                <small class="member-request-help"
+                  >No assignable workspace role is available.</small
+                >
+              }
             </div>
 
-            <app-divider class="member-request-divider" variant="neutral" lineStyle="solid" spacing="none"
-                [thickness]="1" />
+            @if (!isEdit) {
+              <app-input
+                [type]="'text'"
+                label="Personal message"
+                labelDescription="Optional note included with the invitation."
+                placeholder="Add a short welcome message..."
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideMessageSquareText"
+                [required]="false"
+                [clearable]="true"
+                [value]="message()"
+                [disabled]="saving()"
+                [fullWidth]="true"
+                [rows]="3"
+                [maxLength]="500"
+                (valueChange)="updateMessage($event)"
+              />
 
-            <footer class="modal-footer member-request-footer">
-                <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="saving()"
-                    (buttonClick)="close()" />
-                <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                    size="sm" [loading]="saving()" [loadingText]="isEdit ? 'Updating...' : 'Sending...'"
-                    [disabled]="!canSubmit" (buttonClick)="submit()" />
-            </footer>
-        </section>
+              <div class="member-request-info">
+                <app-icon [icon]="LucideShield" size="xs" />
+                <span
+                  >The selected role is assigned only after the recipient accepts the
+                  invitation.</span
+                >
+              </div>
+            }
+
+            @if (error()) {
+              <div class="member-request-error" role="alert">{{ error() }}</div>
+            }
+          </div>
+        </div>
+
+        <app-divider
+          class="member-request-divider"
+          variant="neutral"
+          lineStyle="solid"
+          spacing="none"
+          [thickness]="1"
+        />
+
+        <footer class="modal-footer member-request-footer">
+          <app-button
+            label="Cancel"
+            variant="secondary"
+            appearance="standard"
+            size="sm"
+            [disabled]="saving()"
+            (buttonClick)="close()"
+          />
+          <app-button
+            [label]="submitLabel"
+            [iconLeft]="submitIcon"
+            variant="noteYellow"
+            appearance="standard"
+            size="sm"
+            [loading]="saving()"
+            [loadingText]="isEdit ? 'Updating...' : 'Sending...'"
+            [disabled]="!canSubmit"
+            (buttonClick)="submit()"
+          />
+        </footer>
+      </section>
     </div>
-</div>
-<div class="modal-backdrop fade show member-request-backdrop" aria-hidden="true"></div>
+  </div>
+  <div class="modal-backdrop fade show member-request-backdrop" aria-hidden="true"></div>
 }

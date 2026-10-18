@@ -3,12 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { COMMON_MESSAGES } from '../constants/common.messages';
 
 export type QueryParamValue =
-  | string
-  | number
-  | boolean
-  | readonly (string | number | boolean)[]
-  | null
-  | undefined;
+  string | number | boolean | readonly (string | number | boolean)[] | null | undefined;
 
 /**
  * Extracts a human-readable error message from HTTP errors, Error instances,
@@ -16,7 +11,7 @@ export type QueryParamValue =
  */
 export function extractErrorMessage(
   error: unknown,
-  fallback: unknown = COMMON_MESSAGES.ERROR.GENERIC
+  fallback: unknown = COMMON_MESSAGES.ERROR.GENERIC,
 ): string {
   try {
     const defaultFallback = String(fallback ?? COMMON_MESSAGES.ERROR.GENERIC);

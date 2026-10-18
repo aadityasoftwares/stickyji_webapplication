@@ -1,13 +1,12 @@
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
-import { AvatarSize, AvatarShape, AvatarTone, AvatarStatus, Avatar } from '../../../shared/components/avatar/avatar';
+  AvatarSize,
+  AvatarShape,
+  AvatarTone,
+  AvatarStatus,
+  Avatar,
+} from '../../../shared/components/avatar/avatar';
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
-
 
 /**
  * Public aliases preserve a clean members-stack API while keeping every
@@ -40,7 +39,7 @@ export interface MembersStackItem {
   imports: [Avatar, Tooltip],
   templateUrl: './members-stack.html',
   styleUrl: './members-stack.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MembersStack {
   @Input({ required: true }) members: readonly MembersStackItem[] = [];
@@ -55,11 +54,9 @@ export class MembersStack {
   @Input() disabled = false;
   @Input() ariaLabel = 'Members';
 
-  @Output() readonly memberClick =
-    new EventEmitter<MembersStackItem>();
+  @Output() readonly memberClick = new EventEmitter<MembersStackItem>();
 
-  @Output() readonly overflowClick =
-    new EventEmitter<number>();
+  @Output() readonly overflowClick = new EventEmitter<number>();
 
   private readonly automaticTones: readonly AvatarTone[] = [
     'yellow',
@@ -67,7 +64,7 @@ export class MembersStack {
     'blue',
     'green',
     'orange',
-    'purple'
+    'purple',
   ];
 
   get normalizedMaxVisible(): number {
@@ -83,10 +80,7 @@ export class MembersStack {
   }
 
   get overflowCount(): number {
-    return Math.max(
-      0,
-      this.members.length - this.normalizedMaxVisible
-    );
+    return Math.max(0, this.members.length - this.normalizedMaxVisible);
   }
 
   get hasOverflow(): boolean {
@@ -96,14 +90,11 @@ export class MembersStack {
   get stackLabel(): string {
     const count = this.members.length;
 
-    return `${this.ariaLabel}: ${count} ${count === 1 ? 'person' : 'people'
-      }`;
+    return `${this.ariaLabel}: ${count} ${count === 1 ? 'person' : 'people'}`;
   }
 
   get sizeName(): string | null {
-    return typeof this.size === 'string'
-      ? this.size
-      : null;
+    return typeof this.size === 'string' ? this.size : null;
   }
 
   get customSize(): number | null {
@@ -126,9 +117,7 @@ export class MembersStack {
       hash = ((hash << 5) - hash + source.charCodeAt(index)) | 0;
     }
 
-    return this.automaticTones[
-      (hash >>> 0) % this.automaticTones.length
-    ];
+    return this.automaticTones[(hash >>> 0) % this.automaticTones.length];
   }
 
   memberTitle(member: MembersStackItem): string {
@@ -136,31 +125,21 @@ export class MembersStack {
   }
 
   overflowInitials(): string {
-    return this.overflowCount > 99
-      ? '99+'
-      : `+${this.overflowCount}`;
+    return this.overflowCount > 99 ? '99+' : `+${this.overflowCount}`;
   }
 
   overflowTitle(): string {
-    return `${this.overflowCount} more ${this.overflowCount === 1 ? 'member' : 'members'
-      }`;
+    return `${this.overflowCount} more ${this.overflowCount === 1 ? 'member' : 'members'}`;
   }
 
   itemZIndex(index: number): number {
     return this.visibleMembers.length - index + 1;
   }
 
-  selectMember(
-    member: MembersStackItem,
-    event: Event
-  ): void {
+  selectMember(member: MembersStackItem, event: Event): void {
     event.stopPropagation();
 
-    if (
-      !this.interactive ||
-      this.disabled ||
-      member.disabled
-    ) {
+    if (!this.interactive || this.disabled || member.disabled) {
       return;
     }
 

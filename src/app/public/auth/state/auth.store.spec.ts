@@ -6,19 +6,31 @@ import { WorkspaceRoleApiService } from '../../../private/roles-permissions/serv
 import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
 import type { AuthenticatedUser } from '../models/auth.models';
 
-const account = (roleId = 'global-role'): AuthenticatedUser => ({ id: 'user', email: 'user@example.test',
-  globalRoleId: roleId, status: 'ACTIVE', isEmailVerified: true, isMfaEnabled: false });
-const globalRole = { id: 'global-role', scope: 'GLOBAL', isActive: true,
-  permissions: [{ module: 'WORKSPACE', action: 'CREATE', isActive: true }] };
+const account = (roleId = 'global-role'): AuthenticatedUser => ({
+  id: 'user',
+  email: 'user@example.test',
+  globalRoleId: roleId,
+  status: 'ACTIVE',
+  isEmailVerified: true,
+  isMfaEnabled: false,
+});
+const globalRole = {
+  id: 'global-role',
+  scope: 'GLOBAL',
+  isActive: true,
+  permissions: [{ module: 'WORKSPACE', action: 'CREATE', isActive: true }],
+};
 
 describe('Global workspace creation permission', () => {
   const roles = { getById: vi.fn() };
   beforeEach(() => {
     roles.getById.mockReset().mockReturnValue(of({ data: globalRole }));
-    TestBed.configureTestingModule({ providers: [
-      { provide: WorkspaceRoleApiService, useValue: roles },
-      { provide: UserPreferenceStore, useValue: { reset: vi.fn() } },
-    ] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: WorkspaceRoleApiService, useValue: roles },
+        { provide: UserPreferenceStore, useValue: { reset: vi.fn() } },
+      ],
+    });
   });
 
   it('resolves the authenticated global role once and never uses a workspace role', () => {
@@ -29,7 +41,9 @@ describe('Global workspace creation permission', () => {
     TestBed.tick();
     expect(roles.getById).toHaveBeenCalledExactlyOnceWith('global-role');
     expect(store.canCreateWorkspace()).toBe(true);
-    roles.getById.mockReturnValue(of({ data: { ...globalRole, id: 'invited-role', scope: 'WORKSPACE' } }));
+    roles.getById.mockReturnValue(
+      of({ data: { ...globalRole, id: 'invited-role', scope: 'WORKSPACE' } }),
+    );
     store.setUser(account('invited-role'));
     expect(store.canCreateWorkspace()).toBe(false);
     TestBed.tick();

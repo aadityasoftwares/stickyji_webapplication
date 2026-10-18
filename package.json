@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:dates": "ng test --watch=false --ts-config tsconfig.user-date-regression.json --include src/app/shared/services/user-date-time-formatter.service.spec.ts --include src/app/shared/pipes/user-date.pipe.spec.ts --include src/app/private/workspace/workspace.spec.ts --include src/app/private/workspace/workspace-trash/workspace-trash.spec.ts --include src/app/private/user-preferences/services/user-preference.store.spec.ts --include src/app/private/user-preferences/user-preferences/user-preferences.spec.ts --include src/app/guards/auth.guard.spec.ts",
-    "test:overdue": "ng test --watch=false --ts-config tsconfig.overdue-regression.json --include src/app/private/mynotes/services/overdue-notes.store.spec.ts --include src/app/private/mynotes/overdue-notes-panel/overdue-notes-panel.spec.ts --include src/app/private/mynotes/mynotes.spec.ts --include src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts --include src/app/private/today/today.spec.ts --include src/app/shared/components/side-panel/side-panel.spec.ts"
+    "test:overdue": "ng test --watch=false --ts-config tsconfig.overdue-regression.json --include src/app/private/mynotes/services/overdue-notes.store.spec.ts --include src/app/private/mynotes/overdue-notes-panel/overdue-notes-panel.spec.ts --include src/app/private/mynotes/mynotes.spec.ts --include src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts --include src/app/private/today/today.spec.ts --include src/app/shared/components/side-panel/side-panel.spec.ts",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\""
   },
   "private": true,
   "packageManager": "npm@10.9.8",

@@ -15,7 +15,16 @@ import { canWorkspaceAction } from '../../shared/functions/workspace-access.func
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, filter, finalize, take, timer } from 'rxjs';
+import {
+  Subject,
+  Subscription,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  take,
+  timer,
+} from 'rxjs';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import {
@@ -155,8 +164,8 @@ export class Workspace implements OnInit {
   private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
   private readonly authStore = inject(AuthStore);
-  readonly accessFilter = computed<WorkspaceAccessFilter>(
-    () => this.resolveAccessFilter(this.userPreferenceStore.workspaceAccessFilter())
+  readonly accessFilter = computed<WorkspaceAccessFilter>(() =>
+    this.resolveAccessFilter(this.userPreferenceStore.workspaceAccessFilter()),
   );
   readonly accessFilters = signal<any[]>([...WORKSPACE_ACCESS_FILTERS]);
   readonly preferencesReady = this.userPreferenceStore.ready;
@@ -171,19 +180,30 @@ export class Workspace implements OnInit {
     return 'No workspaces yet.';
   });
   readonly canCreateWorkspaceInCurrentView = computed(
-    () => this.accessFilter() !== WorkspaceAccessFilter.SHARED
+    () => this.accessFilter() !== WorkspaceAccessFilter.SHARED,
   );
   readonly bulkBusy = signal(false);
 
   can(workspace: any, action: any): boolean {
-    const current = this.workspaces().find(item => idOf(item) === idOf(workspace)) ?? workspace;
+    const current = this.workspaces().find((item) => idOf(item) === idOf(workspace)) ?? workspace;
     return canWorkspaceAction(current, action);
   }
 
   canBulk(action: 'canArchive' | 'canTrash'): boolean {
-    const selected = this.workspaces().filter(item => this.selectedWorkspaceIds().has(idOf(item)));
-    return !this.bulkBusy() && selected.length > 0 && selected.length === this.selectedCount() &&
-      selected.every(item => this.can(item, action) && !this.isBusy(item) && (action !== 'canArchive' || this.isActive(item)));
+    const selected = this.workspaces().filter((item) =>
+      this.selectedWorkspaceIds().has(idOf(item)),
+    );
+    return (
+      !this.bulkBusy() &&
+      selected.length > 0 &&
+      selected.length === this.selectedCount() &&
+      selected.every(
+        (item) =>
+          this.can(item, action) &&
+          !this.isBusy(item) &&
+          (action !== 'canArchive' || this.isActive(item)),
+      )
+    );
   }
 
   setWorkspaceFilter(value: unknown): void {
@@ -205,7 +225,7 @@ export class Workspace implements OnInit {
     if (!['ALL', 'ACTIVE', 'ARCHIVED'].includes(status) || status === this.statusFilter()) return;
 
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.WORKSPACE_STATUS_FILTER, status);
-    this.collapsedGroups.update(current => {
+    this.collapsedGroups.update((current) => {
       const next = new Set(current);
       if (status === 'ACTIVE') next.delete('active');
       if (status === 'ARCHIVED') next.delete('archived');
@@ -237,13 +257,15 @@ export class Workspace implements OnInit {
     const value = this.userPreferenceStore.workspaceSortOrder();
     return (
       (Object.keys(WORKSPACE_SORT_PREFERENCES) as (keyof typeof WORKSPACE_SORT_PREFERENCES)[]).find(
-        (key) => WORKSPACE_SORT_PREFERENCES[key] === value
+        (key) => WORKSPACE_SORT_PREFERENCES[key] === value,
       ) ?? 'recent'
     );
   });
 
   readonly view = computed<'grid' | 'list'>(() =>
-    String(this.userPreferenceStore.workspaceView() ?? '').toUpperCase() === 'LIST' ? 'list' : 'grid'
+    String(this.userPreferenceStore.workspaceView() ?? '').toUpperCase() === 'LIST'
+      ? 'list'
+      : 'grid',
   );
 
   readonly workspaceEditorOpen = signal(false);
@@ -252,10 +274,12 @@ export class Workspace implements OnInit {
   readonly contextMenuWorkspace = signal<any | null>(null);
   readonly contextMenuWorkspaceId = computed(() => idOf(this.contextMenuWorkspace()) || null);
   readonly contextMenuPosition = signal({ x: 0, y: 0 });
-  readonly workspaceContextMenuTrigger = viewChild.required<MatMenuTrigger>('workspaceContextMenuTrigger');
+  readonly workspaceContextMenuTrigger = viewChild.required<MatMenuTrigger>(
+    'workspaceContextMenuTrigger',
+  );
   readonly editorWorkspace = computed(() => {
     const id = this.workspaceEditorId();
-    return id ? this.workspaces().find((item) => idOf(item) === id) ?? null : null;
+    return id ? (this.workspaces().find((item) => idOf(item) === id) ?? null) : null;
   });
 
   readonly inlineRenameId = signal<string | null>(null);
@@ -291,15 +315,30 @@ export class Workspace implements OnInit {
         count: c?.all ?? this.pagination()?.total,
         icon: LucidePanelsTopLeft,
       },
-      { value: WorkspaceAccessFilter.OWNED, label: 'My spaces', count: ownedCount, icon: LucideFolder },
-      { value: WorkspaceAccessFilter.SHARED, label: 'Shared with me', count: sharedCount, icon: LucideUsers },
+      {
+        value: WorkspaceAccessFilter.OWNED,
+        label: 'My spaces',
+        count: ownedCount,
+        icon: LucideFolder,
+      },
+      {
+        value: WorkspaceAccessFilter.SHARED,
+        label: 'Shared with me',
+        count: sharedCount,
+        icon: LucideUsers,
+      },
     ];
   });
 
   readonly statusTabs = computed<TabItem[]>(() => {
     const counts = this.counts();
     return [
-      { value: 'ALL', label: 'All', count: counts?.all ?? this.pagination()?.total, icon: LucidePanelsTopLeft },
+      {
+        value: 'ALL',
+        label: 'All',
+        count: counts?.all ?? this.pagination()?.total,
+        icon: LucidePanelsTopLeft,
+      },
       { value: 'ACTIVE', label: 'Active', count: counts?.active, icon: LucideCheck },
       { value: 'ARCHIVED', label: 'Archived', count: counts?.archived, icon: LucideArchive },
     ];
@@ -313,7 +352,8 @@ export class Workspace implements OnInit {
 
     const filtered = list.filter((item) => {
       const isOwner = item.isOwner === true || item.access?.isOwner === true;
-      if (!isOwner && item.access?.membership?.status && item.access.membership.status !== 'ACTIVE') return false;
+      if (!isOwner && item.access?.membership?.status && item.access.membership.status !== 'ACTIVE')
+        return false;
       const status = String(item?.status ?? 'ACTIVE');
       if (status === 'DELETED' || status === 'TRASHED') return false;
       if (selectedStatus !== 'ALL' && status !== selectedStatus) return false;
@@ -358,13 +398,16 @@ export class Workspace implements OnInit {
         status: 'ARCHIVED',
         accent: GROUP_ACCENTS.SLATE,
         items: archivedItems,
-        count: Number.isFinite(Number(counts?.archived)) ? Number(counts.archived) : archivedItems.length,
+        count: Number.isFinite(Number(counts?.archived))
+          ? Number(counts.archived)
+          : archivedItems.length,
       },
     ];
 
-    return groups.filter((group) =>
-      (selectedStatus === 'ALL' || group.status === selectedStatus) &&
-      (group.count > 0 || !isSearchActive)
+    return groups.filter(
+      (group) =>
+        (selectedStatus === 'ALL' || group.status === selectedStatus) &&
+        (group.count > 0 || !isSearchActive),
     );
   });
 
@@ -472,7 +515,7 @@ export class Workspace implements OnInit {
 
       if (updatedCount > 0) {
         this.toastService.success(
-          `Archived ${updatedCount} ${updatedCount === 1 ? 'workspace' : 'workspaces'}`
+          `Archived ${updatedCount} ${updatedCount === 1 ? 'workspace' : 'workspaces'}`,
         );
       }
       this.clearSelection();
@@ -497,8 +540,10 @@ export class Workspace implements OnInit {
             updatedCount++;
             finish();
           },
-          error: error => {
-            this.toastService.error(extractErrorMessage(error, 'Workspace action failed. Refresh and try again.'));
+          error: (error) => {
+            this.toastService.error(
+              extractErrorMessage(error, 'Workspace action failed. Refresh and try again.'),
+            );
             finish();
           },
         });
@@ -519,7 +564,7 @@ export class Workspace implements OnInit {
 
       if (deletedCount > 0) {
         this.toastService.success(
-          `Moved ${deletedCount} ${deletedCount === 1 ? 'workspace' : 'workspaces'} to trash`
+          `Moved ${deletedCount} ${deletedCount === 1 ? 'workspace' : 'workspaces'} to trash`,
         );
       }
       this.clearSelection();
@@ -541,8 +586,10 @@ export class Workspace implements OnInit {
             deletedCount++;
             finish();
           },
-          error: error => {
-            this.toastService.error(extractErrorMessage(error, 'Workspace action failed. Refresh and try again.'));
+          error: (error) => {
+            this.toastService.error(
+              extractErrorMessage(error, 'Workspace action failed. Refresh and try again.'),
+            );
             finish();
           },
         });
@@ -567,26 +614,30 @@ export class Workspace implements OnInit {
           this.loading.set(false);
           this.loadSubscription = null;
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
           const list = extractList<any>(response)
-            .filter(item => item.access?.isOwner === true || !item.access?.membership?.status || item.access.membership.status === 'ACTIVE')
-            .map((item) =>
-            this.prepareWorkspace(item)
-          );
+            .filter(
+              (item) =>
+                item.access?.isOwner === true ||
+                !item.access?.membership?.status ||
+                item.access.membership.status === 'ACTIVE',
+            )
+            .map((item) => this.prepareWorkspace(item));
           this.workspaces.set(list);
           const deleteTarget = this.deleteTarget();
           if (deleteTarget && !this.can(deleteTarget, 'canTrash')) this.deleteTarget.set(null);
-          const renameTarget = list.find(item => idOf(item) === this.inlineRenameId());
-          if (this.inlineRenameId() && !this.can(renameTarget ?? null, 'canEdit')) this.cancelInlineRename();
+          const renameTarget = list.find((item) => idOf(item) === this.inlineRenameId());
+          if (this.inlineRenameId() && !this.can(renameTarget ?? null, 'canEdit'))
+            this.cancelInlineRename();
           this.workspaceStore.setWorkspaces(list as any);
 
           this.updatePaginationAndCounts(response, list);
 
           const preferredId = savedId || this.userPreferenceStore.selectedWorkspaceId();
-          if (preferredId && list.some(item => idOf(item) === preferredId)) {
+          if (preferredId && list.some((item) => idOf(item) === preferredId)) {
             this.workspaceStore.select(preferredId);
           }
         },
@@ -613,7 +664,10 @@ export class Workspace implements OnInit {
   }
 
   onSortChange(value: any): void {
-    if (value !== this.sortBy() && Object.prototype.hasOwnProperty.call(WORKSPACE_SORT_PREFERENCES, value)) {
+    if (
+      value !== this.sortBy() &&
+      Object.prototype.hasOwnProperty.call(WORKSPACE_SORT_PREFERENCES, value)
+    ) {
       this.userPreferenceStore.setAndSave(
         USER_PREFERENCE_KEYS.WORKSPACE_SORT_ORDER,
         WORKSPACE_SORT_PREFERENCES[value as keyof typeof WORKSPACE_SORT_PREFERENCES],
@@ -873,7 +927,7 @@ export class Workspace implements OnInit {
       .update(id, { name: trimmed })
       .pipe(
         finalize(() => this.inlineRenameSubmitting.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -929,19 +983,22 @@ export class Workspace implements OnInit {
       .delete(id)
       .pipe(
         finalize(() => this.setBusy(id, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.removeLocalWorkspace(id);
           this.syncCountsAfterDelete(workspace);
 
-          this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)), {
-            title: 'Workspace moved to trash',
-            dedupeKey: `workspace-delete-${id}`,
-          });
+          this.toastService.success(
+            WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)),
+            {
+              title: 'Workspace moved to trash',
+              dedupeKey: `workspace-delete-${id}`,
+            },
+          );
 
-          if (this.workspaces().length === 0 && this.page() > 1) this.page.update(p => p - 1);
+          if (this.workspaces().length === 0 && this.page() > 1) this.page.update((p) => p - 1);
           this.loadWorkspaces('', true);
         },
         error: (error: any) => {
@@ -984,7 +1041,7 @@ export class Workspace implements OnInit {
           this.deleting.set(false);
           this.setBusy(id, false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -992,12 +1049,15 @@ export class Workspace implements OnInit {
           this.removeLocalWorkspace(id);
           this.syncCountsAfterDelete(workspace);
 
-          this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)), {
-            title: 'Workspace moved to trash',
-            dedupeKey: `workspace-delete-${id}`,
-          });
+          this.toastService.success(
+            WORKSPACE_MESSAGES.SUCCESS.MOVED_TO_TRASH(this.workspaceName(workspace)),
+            {
+              title: 'Workspace moved to trash',
+              dedupeKey: `workspace-delete-${id}`,
+            },
+          );
 
-          if (this.workspaces().length === 0 && this.page() > 1) this.page.update(p => p - 1);
+          if (this.workspaces().length === 0 && this.page() > 1) this.page.update((p) => p - 1);
           this.loadWorkspaces('', true);
         },
         error: (error: any) => {
@@ -1029,16 +1089,22 @@ export class Workspace implements OnInit {
   }
 
   workspaceVisibility(workspace: any): string {
-    const value = String(workspace?.visibility ?? 'PRIVATE').toLowerCase().replaceAll('_', ' ');
+    const value = String(workspace?.visibility ?? 'PRIVATE')
+      .toLowerCase()
+      .replaceAll('_', ' ');
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   isPersonalWorkspace(workspace: any): boolean {
-    return workspace?.workspaceType ? workspace.workspaceType === 'PERSONAL' : workspace?.isPersonal === true;
+    return workspace?.workspaceType
+      ? workspace.workspaceType === 'PERSONAL'
+      : workspace?.isPersonal === true;
   }
 
   workspaceTypeLabel(workspace: any): string {
-    return workspace?.workspaceTypeLabel || (this.isPersonalWorkspace(workspace) ? 'Personal' : 'Team');
+    return (
+      workspace?.workspaceTypeLabel || (this.isPersonalWorkspace(workspace) ? 'Personal' : 'Team')
+    );
   }
 
   workspaceRoleLabel(workspace: any): string {
@@ -1087,7 +1153,7 @@ export class Workspace implements OnInit {
 
     return source
       .map((folder: any, index: number) => {
-        const name = String(typeof folder === 'string' ? folder : folder?.name ?? '').trim();
+        const name = String(typeof folder === 'string' ? folder : (folder?.name ?? '')).trim();
         const id = String(typeof folder === 'object' ? idOf(folder) : '').trim();
         return { id: id || `${idOf(workspace)}-folder-${index}`, name };
       })
@@ -1099,7 +1165,7 @@ export class Workspace implements OnInit {
 
     const count = this.workspaceFolderCount(workspace);
     const label = `${count} ${count === 1 ? 'folder' : 'folders'}`;
-    const names = this.workspaceFolders(workspace).map(folder => folder.name);
+    const names = this.workspaceFolders(workspace).map((folder) => folder.name);
 
     if (count === 0) return 'No folders in this workspace';
     if (names.length === 0) return label;
@@ -1232,11 +1298,7 @@ export class Workspace implements OnInit {
 
   private initSearchPipeline(): void {
     this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.requestedQuery === JSON.stringify({ ...this.buildListQuery(), page: 1 })) return;
         this.page.set(1);
@@ -1272,10 +1334,12 @@ export class Workspace implements OnInit {
 
     const metadata: any = meta;
     this.counts.set(metadata?.counts ?? {});
-    this.accessFilters.set(WORKSPACE_ACCESS_FILTERS.map(fallback => {
-      const option = metadata?.accessFilters?.find((item: any) => item.value === fallback.value);
-      return { ...fallback, ...option };
-    }));
+    this.accessFilters.set(
+      WORKSPACE_ACCESS_FILTERS.map((fallback) => {
+        const option = metadata?.accessFilters?.find((item: any) => item.value === fallback.value);
+        return { ...fallback, ...option };
+      }),
+    );
   }
 
   private updateWorkspaceStatus(workspace: any, status: 'ACTIVE' | 'ARCHIVED'): void {
@@ -1289,7 +1353,7 @@ export class Workspace implements OnInit {
       .updateStatus(id, status)
       .pipe(
         finalize(() => this.setBusy(id, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -1307,7 +1371,7 @@ export class Workspace implements OnInit {
             {
               title: isArchived ? 'Workspace archived' : 'Workspace restored',
               dedupeKey: `workspace-status-${id}`,
-            }
+            },
           );
         },
         error: (error: any) => {
@@ -1327,7 +1391,11 @@ export class Workspace implements OnInit {
   private syncCountsAfterStatusChange(nextStatus: 'ACTIVE' | 'ARCHIVED'): void {
     this.counts.update((c: any) => {
       if (nextStatus === 'ARCHIVED') {
-        return { ...c, active: Math.max(0, (c?.active ?? 0) - 1), archived: (c?.archived ?? 0) + 1 };
+        return {
+          ...c,
+          active: Math.max(0, (c?.active ?? 0) - 1),
+          archived: (c?.archived ?? 0) + 1,
+        };
       }
       return { ...c, active: (c?.active ?? 0) + 1, archived: Math.max(0, (c?.archived ?? 0) - 1) };
     });
@@ -1349,7 +1417,9 @@ export class Workspace implements OnInit {
 
   private updateLocalWorkspace(id: string, changes: Record<string, unknown>): void {
     this.workspaces.update((items) =>
-      items.map((item) => (idOf(item) === id ? this.prepareWorkspace({ ...item, ...changes }) : item))
+      items.map((item) =>
+        idOf(item) === id ? this.prepareWorkspace({ ...item, ...changes }) : item,
+      ),
     );
   }
 
@@ -1365,14 +1435,14 @@ export class Workspace implements OnInit {
   }
 
   private workspaceTimestamp(workspace: any, created = false): number {
-    const value = created ? workspace?.createdAt : workspace?.updatedAt ?? workspace?.createdAt;
+    const value = created ? workspace?.createdAt : (workspace?.updatedAt ?? workspace?.createdAt);
     return toTimestamp(value);
   }
 
   private resolveAccessFilter(value: unknown): WorkspaceAccessFilter {
     const access = String(value ?? '').toUpperCase();
     return Object.values(WorkspaceAccessFilter).includes(access as WorkspaceAccessFilter)
-      ? access as WorkspaceAccessFilter
+      ? (access as WorkspaceAccessFilter)
       : WorkspaceAccessFilter.ALL;
   }
 }

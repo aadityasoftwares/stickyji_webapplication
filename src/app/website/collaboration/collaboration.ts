@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   LucideActivity,
   LucideArrowRight,
@@ -27,9 +21,9 @@ import { AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
-
 export type WorkspaceRole = 'Owner' | 'Editor' | 'Viewer';
-export type CollaborationNoteVariant = 'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple';
+export type CollaborationNoteVariant =
+  'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple';
 
 export interface CollaborationMember {
   id: string;
@@ -110,16 +104,7 @@ export const DEMO_WORKSPACE_MEMBERS: readonly CollaborationMember[] = [
 
 @Component({
   standalone: true,
-  imports: [
-    AppIcon,
-    Avatar,
-    Badge,
-    Button,
-    Checkbox,
-    Divider,
-    Label,
-    StickyCard,
-  ],
+  imports: [AppIcon, Avatar, Badge, Button, Checkbox, Divider, Label, StickyCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
 
   selector: 'app-collaboration',
@@ -127,7 +112,6 @@ export const DEMO_WORKSPACE_MEMBERS: readonly CollaborationMember[] = [
   templateUrl: './collaboration.html',
 })
 export class Collaboration {
-
   readonly LucideActivity = LucideActivity;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheck = LucideCheck;
@@ -172,11 +156,16 @@ export class Collaboration {
   taskChecks = this.sharedTasks.map((task) => task.done);
 
   get activeMember(): CollaborationMember {
-    return this.memberItems.find((member) => member.id === this.selectedMemberId) ?? this.memberItems[0];
+    return (
+      this.memberItems.find((member) => member.id === this.selectedMemberId) ?? this.memberItems[0]
+    );
   }
 
   get owner(): CollaborationMember {
-    return this.memberItems.find((member) => member.isOwner || member.role === 'Owner') ?? this.memberItems[0];
+    return (
+      this.memberItems.find((member) => member.isOwner || member.role === 'Owner') ??
+      this.memberItems[0]
+    );
   }
 
   get completedTaskCount(): number {
@@ -216,10 +205,11 @@ export class Collaboration {
 
     event.preventDefault();
 
-    const nextIndex = (currentIndex + direction + this.memberItems.length) % this.memberItems.length;
-    const tabs = (event.currentTarget as HTMLElement)
-      .parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    const nextIndex =
+      (currentIndex + direction + this.memberItems.length) % this.memberItems.length;
+    const tabs = (
+      event.currentTarget as HTMLElement
+    ).parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
 
     this.selectMember(this.memberItems[nextIndex]);
     tabs?.[nextIndex]?.focus();

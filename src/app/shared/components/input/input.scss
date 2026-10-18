@@ -12,236 +12,239 @@ $input-note-brown: #d7bd9a;
 $input-note-black: #252525;
 
 :host {
-    display: inline-block;
-    max-width: 100%;
-    vertical-align: top;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
 }
 
 :host.app-input-host-full {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 @mixin input-palette($background, $border-color, $text-color) {
-    --app-input-background: #{$background};
-    --app-input-border: #{$border-color};
-    --app-input-color: #{$text-color};
-    --app-input-muted: #{rgba($text-color, 0.64)};
-    --app-input-placeholder: #{rgba($text-color, 0.46)};
-    --app-input-affix-background: #{rgba($text-color, 0.06)};
-    --app-input-depth: #{color.adjust($border-color, $lightness: -8%)};
+  --app-input-background: #{$background};
+  --app-input-border: #{$border-color};
+  --app-input-color: #{$text-color};
+  --app-input-muted: #{rgba($text-color, 0.64)};
+  --app-input-placeholder: #{rgba($text-color, 0.46)};
+  --app-input-affix-background: #{rgba($text-color, 0.06)};
+  --app-input-depth: #{color.adjust($border-color, $lightness: -8%)};
 }
 
 .app-input-wrapper {
-    --app-input-height: 42px;
-    --app-input-padding-x: 12px;
-    --app-input-radius: 12px;
-    --app-input-resize: vertical;
-    --app-input-background: #{$paper};
-    --app-input-border: #{$border};
-    --app-input-color: #{$text-primary};
-    --app-input-muted: #{$text-secondary};
-    --app-input-placeholder: #{$text-light};
-    --app-input-affix-background: #{rgba($text-primary, 0.05)};
-    --app-input-depth: #{color.adjust($border, $lightness: -8%)};
+  --app-input-height: 42px;
+  --app-input-padding-x: 12px;
+  --app-input-radius: 12px;
+  --app-input-resize: vertical;
+  --app-input-background: #{$paper};
+  --app-input-border: #{$border};
+  --app-input-color: #{$text-primary};
+  --app-input-muted: #{$text-secondary};
+  --app-input-placeholder: #{$text-light};
+  --app-input-affix-background: #{rgba($text-primary, 0.05)};
+  --app-input-depth: #{color.adjust($border, $lightness: -8%)};
 
-    /*
+  /*
      * Inline editing tokens. They intentionally derive from the active
      * variant palette so note colours, paper, dark, glass, etc. all work.
      */
-    --app-input-inline-hover-background:
-        color-mix(in srgb,
-            var(--app-input-background) 58%,
-            transparent);
+  --app-input-inline-hover-background: color-mix(
+    in srgb,
+    var(--app-input-background) 58%,
+    transparent
+  );
 
-    --app-input-inline-hover-border:
-        color-mix(in srgb,
-            var(--app-input-border) 72%,
-            transparent);
+  --app-input-inline-hover-border: color-mix(in srgb, var(--app-input-border) 72%, transparent);
 
-    --app-input-inline-focus-border: color-mix(in srgb,
-        #{$accent} 72%,
-        var(--app-input-border));
+  --app-input-inline-focus-border: color-mix(in srgb, #{$accent} 72%, var(--app-input-border));
 
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    color: var(--app-input-color);
-    font-family: $font-body;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--app-input-color);
+  font-family: $font-body;
 }
 
 /* Label */
 .app-input-label-row {
-    display: flex;
-    gap: 12px;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 7px;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
 }
 
 .app-input-label {
-    min-width: 0;
-    color: $text-primary;
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.25;
-    letter-spacing: 0.01em;
-    cursor: pointer;
+  min-width: 0;
+  color: $text-primary;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  cursor: pointer;
 }
 
 .app-input-required {
-    margin-left: 2px;
-    color: $danger;
+  margin-left: 2px;
+  color: $danger;
 }
 
 .app-input-optional {
-    margin-left: 5px;
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 650;
+  margin-left: 5px;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .app-input-label-hint,
 .app-input-label-description {
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.35;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .app-input-label-hint {
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
 .app-input-label-description {
-    margin: -2px 0 7px;
+  margin: -2px 0 7px;
 }
 
 .app-input-visually-hidden {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Field shell: same lifted paper depth as app-button */
 .app-input-control-shell {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-    min-height: var(--app-input-height);
-    overflow: hidden;
-    box-sizing: border-box;
-    color: var(--app-input-color);
-    background-color: var(--app-input-background);
-    background-image: linear-gradient(145deg,
-            rgba(255, 255, 255, 0.34) 0%,
-            rgba(255, 255, 255, 0.07) 52%,
-            rgba(17, 17, 17, 0.025) 100%);
-    border: 1px solid var(--app-input-border);
-    border-radius: var(--app-input-radius);
-    box-shadow:
-        0 2px 0 var(--app-input-depth),
-        0 5px 11px rgba(46, 38, 25, 0.09);
-    transition:
-        transform 150ms ease,
-        border-color 160ms ease,
-        box-shadow 160ms ease,
-        background-color 160ms ease,
-        opacity 160ms ease;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--app-input-height);
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--app-input-color);
+  background-color: var(--app-input-background);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.07) 52%,
+    rgba(17, 17, 17, 0.025) 100%
+  );
+  border: 1px solid var(--app-input-border);
+  border-radius: var(--app-input-radius);
+  box-shadow:
+    0 2px 0 var(--app-input-depth),
+    0 5px 11px rgba(46, 38, 25, 0.09);
+  transition:
+    transform 150ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    opacity 160ms ease;
 }
 
 .app-input-control-shell::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.13;
-    background-image:
-        radial-gradient(circle at 18% 25%, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 0.9px),
-        radial-gradient(circle at 70% 72%, rgba(17, 17, 17, 0.13) 0 0.65px, transparent 0.9px);
-    background-size: 13px 13px, 17px 17px;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.13;
+  background-image:
+    radial-gradient(circle at 18% 25%, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 0.9px),
+    radial-gradient(circle at 70% 72%, rgba(17, 17, 17, 0.13) 0 0.65px, transparent 0.9px);
+  background-size:
+    13px 13px,
+    17px 17px;
 }
 
 .app-input-focused .app-input-control-shell {
-    z-index: 3;
-    border-color: $accent;
-    transform: translateY(-1px);
-    box-shadow:
-        0 0 0 3px rgba($accent, 0.16),
-        0 3px 0 color.adjust($accent, $lightness: -13%),
-        0 9px 18px rgba(46, 38, 25, 0.13);
+  z-index: 3;
+  border-color: $accent;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 3px rgba($accent, 0.16),
+    0 3px 0 color.adjust($accent, $lightness: -13%),
+    0 9px 18px rgba(46, 38, 25, 0.13);
 }
 
 .app-input-control {
-    position: relative;
-    z-index: 1;
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    height: calc(var(--app-input-height) - 2px);
-    box-sizing: border-box;
-    padding: 0 var(--app-input-padding-x);
-    color: inherit;
-    background: transparent;
-    border: 0;
-    border-radius: inherit;
-    outline: none;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 650;
-    line-height: 1.35;
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: calc(var(--app-input-height) - 2px);
+  box-sizing: border-box;
+  padding: 0 var(--app-input-padding-x);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .app-input-control::placeholder {
-    color: var(--app-input-placeholder);
-    opacity: 1;
+  color: var(--app-input-placeholder);
+  opacity: 1;
 }
 
 .app-input-control::-ms-reveal,
 .app-input-control::-ms-clear,
 .app-input-control::-webkit-search-cancel-button {
-    display: none;
+  display: none;
 }
 
 .app-input-control[type='number'] {
-    appearance: textfield;
+  appearance: textfield;
 }
 
 .app-input-control[type='number']::-webkit-inner-spin-button,
 .app-input-control[type='number']::-webkit-outer-spin-button {
-    margin: 0;
-    appearance: none;
+  margin: 0;
+  appearance: none;
 }
 
 /* Textarea */
 .app-input-textarea {
-    min-height: calc(var(--app-input-height) * 2.5);
-    padding-top: 12px;
-    padding-bottom: 12px;
-    resize: var(--app-input-resize);
+  min-height: calc(var(--app-input-height) * 2.5);
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: var(--app-input-resize);
 }
 
 .app-input-multiline .app-input-control-shell {
-    align-items: flex-start;
+  align-items: flex-start;
 }
 
-.app-input-multiline :is(.app-input-leading-icon,
+.app-input-multiline
+  :is(
+    .app-input-leading-icon,
     .app-input-trailing-icon,
     .app-input-status-icon,
     .app-input-action,
-    .app-input-spinner) {
-    margin-top: 9px;
+    .app-input-spinner
+  ) {
+  margin-top: 9px;
 }
 
 /* Icons */
@@ -249,278 +252,318 @@ $input-note-black: #252525;
 .app-input-trailing-icon,
 .app-input-status-icon,
 .app-input-spinner {
-    position: relative;
-    z-index: 2;
-    display: inline-flex;
-    flex: 0 0 20px;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: var(--app-input-muted);
-    line-height: 0;
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--app-input-muted);
+  line-height: 0;
 }
 
 .app-input-leading-icon {
-    margin-left: var(--app-input-padding-x);
+  margin-left: var(--app-input-padding-x);
 }
 
 .app-input-trailing-icon {
-    margin-right: var(--app-input-padding-x);
+  margin-right: var(--app-input-padding-x);
 }
 
 .app-input-status-icon {
-    margin-right: 7px;
+  margin-right: 7px;
 }
 
 .app-input-projected-icon:empty,
 .app-input-prefix:empty,
 .app-input-suffix:empty {
-    display: none;
+  display: none;
 }
 
 :host ::ng-deep .app-input-projected-icon :is(svg, img) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 :host ::ng-deep .app-input-projected-icon :is(i, mat-icon) {
-    font-size: 18px;
-    line-height: 1;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .app-input-focused .app-input-leading-icon {
-    color: $accent;
+  color: $accent;
 }
 
 /* Prefix and suffix */
 .app-input-affix {
-    position: relative;
-    z-index: 2;
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-self: stretch;
-    align-items: center;
-    padding: 0 10px;
-    color: var(--app-input-muted);
-    background: var(--app-input-affix-background);
-    font-size: 12px;
-    font-weight: 850;
-    white-space: nowrap;
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-self: stretch;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--app-input-muted);
+  background: var(--app-input-affix-background);
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
 .app-input-prefix {
-    border-right: 1px dashed color-mix(in srgb, var(--app-input-border) 80%, transparent);
+  border-right: 1px dashed color-mix(in srgb, var(--app-input-border) 80%, transparent);
 }
 
 .app-input-suffix {
-    border-left: 1px dashed color-mix(in srgb, var(--app-input-border) 80%, transparent);
+  border-left: 1px dashed color-mix(in srgb, var(--app-input-border) 80%, transparent);
 }
 
 /* Clear and password buttons */
 .app-input-action {
-    position: relative;
-    z-index: 3;
-    display: inline-grid;
-    flex: 0 0 30px;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    color: var(--app-input-muted);
-    background: transparent;
-    border: 0;
-    border-radius: 9px;
-    outline: 0;
-    cursor: pointer;
-    transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  position: relative;
+  z-index: 3;
+  display: inline-grid;
+  flex: 0 0 30px;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--app-input-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  outline: 0;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
 }
 
 .app-input-action:hover {
-    color: var(--app-input-color);
-    background: var(--app-input-affix-background);
-    transform: translateY(-1px);
+  color: var(--app-input-color);
+  background: var(--app-input-affix-background);
+  transform: translateY(-1px);
 }
 
 .app-input-action:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .app-input-action:focus-visible {
-    outline: 2px solid rgba($accent, 0.55);
-    outline-offset: -2px;
+  outline: 2px solid rgba($accent, 0.55);
+  outline-offset: -2px;
 }
 
 .app-input-spinner {
-    margin-right: 8px;
-    animation: app-input-spin 0.75s linear infinite;
+  margin-right: 8px;
+  animation: app-input-spin 0.75s linear infinite;
 }
 
 @keyframes app-input-spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Floating label */
 .app-input-floating-label {
-    position: absolute;
-    top: 50%;
-    left: var(--app-input-padding-x);
-    z-index: 2;
-    display: block;
-    max-width: calc(100% - (var(--app-input-padding-x) * 2));
-    padding: 0 5px;
-    color: var(--app-input-muted);
-    background: var(--app-input-background);
-    font-size: 14px;
-    font-weight: 650;
-    line-height: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    pointer-events: none;
-    transform: translate(-5px, -50%);
-    transform-origin: left center;
-    transition: transform 150ms ease, color 150ms ease, font-size 150ms ease;
+  position: absolute;
+  top: 50%;
+  left: var(--app-input-padding-x);
+  z-index: 2;
+  display: block;
+  max-width: calc(100% - (var(--app-input-padding-x) * 2));
+  padding: 0 5px;
+  color: var(--app-input-muted);
+  background: var(--app-input-background);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-5px, -50%);
+  transform-origin: left center;
+  transition:
+    transform 150ms ease,
+    color 150ms ease,
+    font-size 150ms ease;
 }
 
 .app-input-label-floating .app-input-control::placeholder {
-    color: transparent;
+  color: transparent;
 }
 
-.app-input-label-floating .app-input-control-shell:has(.app-input-leading-icon:not(:empty)) .app-input-floating-label {
-    left: calc(var(--app-input-padding-x) + 28px);
+.app-input-label-floating
+  .app-input-control-shell:has(.app-input-leading-icon:not(:empty))
+  .app-input-floating-label {
+  left: calc(var(--app-input-padding-x) + 28px);
 }
 
-.app-input-label-floating:is(.app-input-focused, .app-input-has-value) .app-input-control::placeholder {
-    color: var(--app-input-placeholder);
+.app-input-label-floating:is(.app-input-focused, .app-input-has-value)
+  .app-input-control::placeholder {
+  color: var(--app-input-placeholder);
 }
 
 .app-input-label-floating:is(.app-input-focused, .app-input-has-value) .app-input-floating-label {
-    color: $accent;
-    font-size: 11px;
-    transform: translate(-5px, calc(-1 * (var(--app-input-height) / 2))) scale(0.96);
+  color: $accent;
+  font-size: 11px;
+  transform: translate(-5px, calc(-1 * (var(--app-input-height) / 2))) scale(0.96);
 }
 
 .app-input-label-floating.app-input-multiline .app-input-floating-label {
-    top: 20px;
+  top: 20px;
 }
 
-.app-input-label-floating.app-input-multiline:is(.app-input-focused, .app-input-has-value) .app-input-floating-label {
-    transform: translate(-5px, -20px) scale(0.96);
+.app-input-label-floating.app-input-multiline:is(.app-input-focused, .app-input-has-value)
+  .app-input-floating-label {
+  transform: translate(-5px, -20px) scale(0.96);
 }
 
 /* Help and validation text */
 .app-input-support-row {
-    display: flex;
-    gap: 12px;
-    justify-content: space-between;
-    min-height: 17px;
-    margin-top: 7px;
-    padding: 0 3px;
-    color: var(--app-input-muted);
-    font-size: 11px;
-    font-weight: 650;
-    line-height: 1.35;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  min-height: 17px;
+  margin-top: 7px;
+  padding: 0 3px;
+  color: var(--app-input-muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .app-input-message {
-    min-width: 0;
-    overflow-wrap: anywhere;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .app-input-counter {
-    flex: 0 0 auto;
-    font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Palettes */
 .app-input-default {
-    @include input-palette($paper, $border, $text-primary);
+  @include input-palette($paper, $border, $text-primary);
 }
 
 .app-input-paper {
-    @include input-palette($page-bg, $border-light, $text-primary);
+  @include input-palette($page-bg, $border-light, $text-primary);
 }
 
 .app-input-glass {
-    @include input-palette(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.68), $text-primary);
+  @include input-palette(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.68), $text-primary);
 }
 
 .app-input-dark {
-    @include input-palette(#191919, #3a3a3a, #fff);
+  @include input-palette(#191919, #3a3a3a, #fff);
 }
 
 .app-input-noteYellow {
-    @include input-palette($input-note-yellow, color.adjust($input-note-yellow, $lightness: -15%), #302b14);
+  @include input-palette(
+    $input-note-yellow,
+    color.adjust($input-note-yellow, $lightness: -15%),
+    #302b14
+  );
 }
 
 .app-input-noteOrange {
-    @include input-palette($input-note-orange, color.adjust($input-note-orange, $lightness: -15%), #352719);
+  @include input-palette(
+    $input-note-orange,
+    color.adjust($input-note-orange, $lightness: -15%),
+    #352719
+  );
 }
 
 .app-input-notePink {
-    @include input-palette($input-note-pink, color.adjust($input-note-pink, $lightness: -15%), #37242b);
+  @include input-palette(
+    $input-note-pink,
+    color.adjust($input-note-pink, $lightness: -15%),
+    #37242b
+  );
 }
 
 .app-input-noteRed {
-    @include input-palette($input-note-red, color.adjust($input-note-red, $lightness: -15%), #3d2423);
+  @include input-palette($input-note-red, color.adjust($input-note-red, $lightness: -15%), #3d2423);
 }
 
 .app-input-noteGreen {
-    @include input-palette($input-note-green, color.adjust($input-note-green, $lightness: -15%), #21311d);
+  @include input-palette(
+    $input-note-green,
+    color.adjust($input-note-green, $lightness: -15%),
+    #21311d
+  );
 }
 
 .app-input-noteBlue {
-    @include input-palette($input-note-blue, color.adjust($input-note-blue, $lightness: -15%), #1c2d38);
+  @include input-palette(
+    $input-note-blue,
+    color.adjust($input-note-blue, $lightness: -15%),
+    #1c2d38
+  );
 }
 
 .app-input-notePurple {
-    @include input-palette($input-note-purple, color.adjust($input-note-purple, $lightness: -15%), #30243e);
+  @include input-palette(
+    $input-note-purple,
+    color.adjust($input-note-purple, $lightness: -15%),
+    #30243e
+  );
 }
 
 .app-input-noteBrown {
-    @include input-palette($input-note-brown, color.adjust($input-note-brown, $lightness: -15%), #34291f);
+  @include input-palette(
+    $input-note-brown,
+    color.adjust($input-note-brown, $lightness: -15%),
+    #34291f
+  );
 }
 
 .app-input-noteBlack {
-    @include input-palette($input-note-black, #090909, #fff);
+  @include input-palette($input-note-black, #090909, #fff);
 }
 
 .app-input-glass .app-input-control-shell {
-    backdrop-filter: blur(15px) saturate(125%);
+  backdrop-filter: blur(15px) saturate(125%);
 }
 
 /* Appearance */
 .app-input-appearance-filled .app-input-control-shell {
-    border-color: transparent;
-    box-shadow: inset 0 -2px 0 var(--app-input-depth);
+  border-color: transparent;
+  box-shadow: inset 0 -2px 0 var(--app-input-depth);
 }
 
 .app-input-appearance-filled.app-input-focused .app-input-control-shell {
-    border-color: $accent;
-    box-shadow: inset 0 -3px 0 $accent, 0 7px 14px rgba(46, 38, 25, 0.1);
+  border-color: $accent;
+  box-shadow:
+    inset 0 -3px 0 $accent,
+    0 7px 14px rgba(46, 38, 25, 0.1);
 }
 
 .app-input-appearance-underlined .app-input-control-shell {
-    overflow: visible;
-    background: transparent;
-    border-width: 0 0 2px;
-    border-radius: 0;
-    box-shadow: none;
+  overflow: visible;
+  background: transparent;
+  border-width: 0 0 2px;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .app-input-appearance-underlined .app-input-control-shell::after {
-    display: none;
+  display: none;
 }
 
 .app-input-appearance-underlined.app-input-focused .app-input-control-shell {
-    border-color: $accent;
-    transform: none;
-    box-shadow: 0 2px 0 rgba($accent, 0.16);
+  border-color: $accent;
+  transform: none;
+  box-shadow: 0 2px 0 rgba($accent, 0.16);
 }
 
 /* =========================================================
@@ -531,81 +574,86 @@ $input-note-black: #252525;
    ========================================================= */
 
 .app-input-appearance-simple {
-    --app-input-background: #ffffff;
+  --app-input-background: #ffffff;
 }
 
 .app-input-appearance-simple .app-input-control-shell {
-    background-color: var(--app-input-background, #ffffff);
-    background-image: none;
-    border: 1px solid var(--app-input-border);
-    border-radius: var(--app-input-radius);
-    box-shadow: none;
-    transform: none;
-    transition: border-color 160ms ease, background-color 160ms ease;
+  background-color: var(--app-input-background, #ffffff);
+  background-image: none;
+  border: 1px solid var(--app-input-border);
+  border-radius: var(--app-input-radius);
+  box-shadow: none;
+  transform: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
 }
 
 .app-input-appearance-simple .app-input-control-shell::after {
-    display: none;
+  display: none;
 }
 
 .app-input-appearance-simple .app-input-control {
-    background: transparent;
+  background: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .app-input-appearance-simple:not(.app-input-disabled,
-        .app-input-readonly,
-        .app-input-loading,
-        .app-input-focused):hover .app-input-control-shell {
-        border-color: color.adjust($border, $lightness: -10%);
-        box-shadow: none;
-        transform: none;
-    }
+  .app-input-appearance-simple:not(
+      .app-input-disabled,
+      .app-input-readonly,
+      .app-input-loading,
+      .app-input-focused
+    ):hover
+    .app-input-control-shell {
+    border-color: color.adjust($border, $lightness: -10%);
+    box-shadow: none;
+    transform: none;
+  }
 }
 
 .app-input-appearance-simple.app-input-focused .app-input-control-shell {
-    z-index: 2;
-    border-color: $accent;
-    box-shadow: none;
-    transform: none;
+  z-index: 2;
+  border-color: $accent;
+  box-shadow: none;
+  transform: none;
 }
 
 .app-input-appearance-simple.app-input-status-danger .app-input-control-shell {
-    border-color: $danger;
-    box-shadow: none;
+  border-color: $danger;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-status-warning .app-input-control-shell {
-    border-color: $warning;
-    box-shadow: none;
+  border-color: $warning;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-status-success .app-input-control-shell {
-    border-color: $success;
-    box-shadow: none;
+  border-color: $success;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-status-danger.app-input-focused .app-input-control-shell {
-    border-color: $danger;
-    box-shadow: none;
+  border-color: $danger;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-status-warning.app-input-focused .app-input-control-shell {
-    border-color: $warning;
-    box-shadow: none;
+  border-color: $warning;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-status-success.app-input-focused .app-input-control-shell {
-    border-color: $success;
-    box-shadow: none;
+  border-color: $success;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-decoration-tape .app-input-control-shell {
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .app-input-appearance-simple.app-input-multiline .app-input-control-shell {
-    align-items: flex-start;
+  align-items: flex-start;
 }
 
 /* =========================================================
@@ -621,60 +669,60 @@ $input-note-black: #252525;
  * - works for both input and textarea
  */
 .app-input-appearance-inline .app-input-control-shell {
-    overflow: visible;
+  overflow: visible;
 
-    background: transparent;
-    background-image: none;
+  background: transparent;
+  background-image: none;
 
-    border-color: transparent;
+  border-color: transparent;
 
-    box-shadow: none;
+  box-shadow: none;
 
-    transform: none;
+  transform: none;
 }
-
 
 .app-input-appearance-inline .app-input-control-shell::after {
-    display: none;
+  display: none;
 }
-
 
 .app-input-appearance-inline .app-input-control {
-    background: transparent;
+  background: transparent;
 }
-
 
 /*
  * Hover is intentionally disabled for readonly / disabled / loading fields.
  * Each visual aspect can be disabled independently through component inputs.
  */
 @media (hover: hover) and (pointer: fine) {
+  .app-input-appearance-inline:not(
+      .app-input-disabled,
+      .app-input-readonly,
+      .app-input-loading
+    ):hover
+    .app-input-control-shell {
+    transform: none;
+  }
 
-    .app-input-appearance-inline:not(.app-input-disabled,
-        .app-input-readonly,
-        .app-input-loading):hover .app-input-control-shell {
-        transform: none;
-    }
+  .app-input-appearance-inline.app-input-inline-hover-border:not(
+      .app-input-disabled,
+      .app-input-readonly,
+      .app-input-loading,
+      .app-input-focused
+    ):hover
+    .app-input-control-shell {
+    border-color: var(--app-input-inline-hover-border);
+  }
 
-
-    .app-input-appearance-inline.app-input-inline-hover-border:not(.app-input-disabled,
-        .app-input-readonly,
-        .app-input-loading,
-        .app-input-focused):hover .app-input-control-shell {
-        border-color:
-            var(--app-input-inline-hover-border);
-    }
-
-
-    .app-input-appearance-inline.app-input-inline-hover-background:not(.app-input-disabled,
-        .app-input-readonly,
-        .app-input-loading,
-        .app-input-focused):hover .app-input-control-shell {
-        background:
-            var(--app-input-inline-hover-background);
-    }
+  .app-input-appearance-inline.app-input-inline-hover-background:not(
+      .app-input-disabled,
+      .app-input-readonly,
+      .app-input-loading,
+      .app-input-focused
+    ):hover
+    .app-input-control-shell {
+    background: var(--app-input-inline-hover-background);
+  }
 }
-
 
 /*
  * Focus is stronger than hover but intentionally flatter than the normal
@@ -682,346 +730,302 @@ $input-note-black: #252525;
  * a form field card.
  */
 .app-input-appearance-inline.app-input-focused .app-input-control-shell {
-    z-index: 3;
+  z-index: 3;
 
-    background:
-        color-mix(in srgb,
-            var(--app-input-background) 72%,
-            transparent);
+  background: color-mix(in srgb, var(--app-input-background) 72%, transparent);
 
-    border-color:
-        var(--app-input-inline-focus-border);
+  border-color: var(--app-input-inline-focus-border);
 
-    transform: none;
+  transform: none;
 
-    box-shadow: none;
+  box-shadow: none;
 }
 
-
-.app-input-appearance-inline.app-input-inline-focus-ring.app-input-focused .app-input-control-shell {
-    box-shadow:
-        0 0 0 3px rgba($accent,
-            0.10);
+.app-input-appearance-inline.app-input-inline-focus-ring.app-input-focused
+  .app-input-control-shell {
+  box-shadow: 0 0 0 3px rgba($accent, 0.1);
 }
-
 
 /*
  * Status colours still win in inline mode.
  */
 .app-input-appearance-inline.app-input-status-success .app-input-control-shell {
-    --app-input-inline-focus-border: #{$success};
+  --app-input-inline-focus-border: #{$success};
 }
-
 
 .app-input-appearance-inline.app-input-status-warning .app-input-control-shell {
-    --app-input-inline-focus-border: #{$warning};
+  --app-input-inline-focus-border: #{$warning};
 }
-
 
 .app-input-appearance-inline.app-input-status-danger .app-input-control-shell {
-    --app-input-inline-focus-border: #{$danger};
+  --app-input-inline-focus-border: #{$danger};
 }
-
 
 .app-input-appearance-inline.app-input-status-success.app-input-focused .app-input-control-shell {
-    border-color: $success;
+  border-color: $success;
 }
-
 
 .app-input-appearance-inline.app-input-status-warning.app-input-focused .app-input-control-shell {
-    border-color: $warning;
+  border-color: $warning;
 }
-
 
 .app-input-appearance-inline.app-input-status-danger.app-input-focused .app-input-control-shell {
-    border-color: $danger;
+  border-color: $danger;
 }
-
 
 /*
  * Remove the heavy status shadow that belongs to regular fields.
  */
 .app-input-appearance-inline.app-input-status-success.app-input-focused .app-input-control-shell,
-
 .app-input-appearance-inline.app-input-status-warning.app-input-focused .app-input-control-shell,
-
 .app-input-appearance-inline.app-input-status-danger.app-input-focused .app-input-control-shell {
-    box-shadow:
-        0 0 0 3px color-mix(in srgb,
-            currentColor 10%,
-            transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 10%, transparent);
 }
-
 
 /*
  * Inline textarea should stay compact at rest while respecting rows.
  * It still uses the same multiline API and resize configuration.
  */
 .app-input-appearance-inline.app-input-multiline .app-input-control-shell {
-    align-items: flex-start;
+  align-items: flex-start;
 }
-
 
 .app-input-appearance-inline .app-input-textarea {
-    min-height:
-        max(calc(var(--app-input-height) * 1.65),
-            3.25rem);
+  min-height: max(calc(var(--app-input-height) * 1.65), 3.25rem);
 
-    padding-top: 8px;
-    padding-bottom: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
-
 
 /*
  * Prefix/suffix and icons should remain quiet in inline mode.
  */
 .app-input-appearance-inline .app-input-affix {
-    background:
-        color-mix(in srgb,
-            var(--app-input-affix-background) 58%,
-            transparent);
+  background: color-mix(in srgb, var(--app-input-affix-background) 58%, transparent);
 }
-
 
 .app-input-appearance-inline .app-input-prefix {
-    border-right-color:
-        transparent;
+  border-right-color: transparent;
 }
-
 
 .app-input-appearance-inline .app-input-suffix {
-    border-left-color:
-        transparent;
+  border-left-color: transparent;
 }
-
 
 .app-input-appearance-inline:hover .app-input-prefix {
-    border-right-color:
-        color-mix(in srgb,
-            var(--app-input-border) 42%,
-            transparent);
+  border-right-color: color-mix(in srgb, var(--app-input-border) 42%, transparent);
 }
-
 
 .app-input-appearance-inline:hover .app-input-suffix {
-    border-left-color:
-        color-mix(in srgb,
-            var(--app-input-border) 42%,
-            transparent);
+  border-left-color: color-mix(in srgb, var(--app-input-border) 42%, transparent);
 }
-
 
 /*
  * Floating labels need a tiny surface when the field itself is transparent.
  */
 .app-input-appearance-inline.app-input-label-floating .app-input-floating-label {
-    background:
-        color-mix(in srgb,
-            var(--app-input-background) 88%,
-            transparent);
+  background: color-mix(in srgb, var(--app-input-background) 88%, transparent);
 }
-
 
 /*
  * Tape and inline are allowed together. Tape stays decorative while the
  * field itself remains flat.
  */
 .app-input-appearance-inline.app-input-decoration-tape .app-input-control-shell {
-    box-shadow: none;
+  box-shadow: none;
 }
-
 
 /*
  * Readonly inline fields should look like plain text instead of a disabled
  * form control. Disabled still uses the global reduced-opacity state.
  */
 .app-input-appearance-inline.app-input-readonly .app-input-control-shell {
-    background: transparent;
-    background-image: none;
+  background: transparent;
+  background-image: none;
 
-    border-color: transparent;
+  border-color: transparent;
 
-    box-shadow: none;
+  box-shadow: none;
 }
-
 
 /*
  * Touch devices do not have hover, so keep rest state transparent and let
  * focus reveal the editable control.
  */
-@media (hover: none),
-(pointer: coarse) {
+@media (hover: none), (pointer: coarse) {
+  .app-input-appearance-inline .app-input-control-shell {
+    background: transparent;
+    border-color: transparent;
+  }
 
-    .app-input-appearance-inline .app-input-control-shell {
-        background: transparent;
-        border-color: transparent;
-    }
+  .app-input-appearance-inline.app-input-focused .app-input-control-shell {
+    background: color-mix(in srgb, var(--app-input-background) 72%, transparent);
 
-
-    .app-input-appearance-inline.app-input-focused .app-input-control-shell {
-        background:
-            color-mix(in srgb,
-                var(--app-input-background) 72%,
-                transparent);
-
-        border-color:
-            var(--app-input-inline-focus-border);
-    }
+    border-color: var(--app-input-inline-focus-border);
+  }
 }
-
 
 /* Sticky tape decoration - visual only; does not change field behavior */
 .app-input-decoration-tape {
-    padding-top: 8px;
+  padding-top: 8px;
 }
 
 .app-input-tape {
-    position: absolute;
-    top: 1px;
-    z-index: 5;
-    width: 38px;
-    height: 13px;
-    pointer-events: none;
-    background: rgba(255, 249, 221, 0.78);
-    border: 1px solid rgba(122, 110, 91, 0.13);
-    box-shadow: 0 1px 2px rgba(46, 38, 25, 0.09);
-    backdrop-filter: blur(1px);
+  position: absolute;
+  top: 1px;
+  z-index: 5;
+  width: 38px;
+  height: 13px;
+  pointer-events: none;
+  background: rgba(255, 249, 221, 0.78);
+  border: 1px solid rgba(122, 110, 91, 0.13);
+  box-shadow: 0 1px 2px rgba(46, 38, 25, 0.09);
+  backdrop-filter: blur(1px);
 }
 
 .app-input-tape::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.34;
-    background: repeating-linear-gradient(90deg, transparent 0 4px, rgba(122, 110, 91, 0.08) 4px 5px);
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.34;
+  background: repeating-linear-gradient(90deg, transparent 0 4px, rgba(122, 110, 91, 0.08) 4px 5px);
 }
 
 .app-input-tape-left {
-    left: 14px;
-    transform: rotate(-3deg);
+  left: 14px;
+  transform: rotate(-3deg);
 }
 
 .app-input-tape-right {
-    right: 14px;
-    transform: rotate(3deg);
+  right: 14px;
+  transform: rotate(3deg);
 }
 
 .app-input-decoration-tape .app-input-label-row {
-    padding-inline: 3px;
+  padding-inline: 3px;
 }
 
 .app-input-decoration-tape .app-input-control-shell {
-    box-shadow:
-        0 3px 0 var(--app-input-depth),
-        0 8px 17px rgba(46, 38, 25, 0.13);
+  box-shadow:
+    0 3px 0 var(--app-input-depth),
+    0 8px 17px rgba(46, 38, 25, 0.13);
 }
 
 /* Shapes and sizes */
 .app-input-shape-square .app-input-control-shell {
-    border-radius: 0;
+  border-radius: 0;
 }
 
 .app-input-shape-pill:not(.app-input-multiline) .app-input-control-shell {
-    border-radius: 9999px;
+  border-radius: 9999px;
 }
 
 .app-input-size-xs .app-input-control {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .app-input-size-sm .app-input-control {
-    font-size: 13px;
+  font-size: 13px;
 }
 
 .app-input-size-lg .app-input-control {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 .app-input-size-xl .app-input-control {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 /* Status */
 .app-input-status-success .app-input-control-shell {
-    border-color: $success;
+  border-color: $success;
 }
 
 .app-input-status-success .app-input-message {
-    color: $success;
+  color: $success;
 }
 
 .app-input-status-warning .app-input-control-shell {
-    border-color: $warning;
+  border-color: $warning;
 }
 
 .app-input-status-warning .app-input-message {
-    color: $warning;
+  color: $warning;
 }
 
 .app-input-status-danger .app-input-control-shell {
-    border-color: $danger;
+  border-color: $danger;
 }
 
 .app-input-status-danger .app-input-message {
-    color: $danger;
+  color: $danger;
 }
 
 .app-input-status-success.app-input-focused .app-input-control-shell {
-    box-shadow: 0 0 0 3px rgba($success, 0.16), 0 3px 0 color.adjust($success, $lightness: -12%);
+  box-shadow:
+    0 0 0 3px rgba($success, 0.16),
+    0 3px 0 color.adjust($success, $lightness: -12%);
 }
 
 .app-input-status-warning.app-input-focused .app-input-control-shell {
-    box-shadow: 0 0 0 3px rgba($warning, 0.16), 0 3px 0 color.adjust($warning, $lightness: -12%);
+  box-shadow:
+    0 0 0 3px rgba($warning, 0.16),
+    0 3px 0 color.adjust($warning, $lightness: -12%);
 }
 
 .app-input-status-danger.app-input-focused .app-input-control-shell {
-    box-shadow: 0 0 0 3px rgba($danger, 0.16), 0 3px 0 color.adjust($danger, $lightness: -12%);
+  box-shadow:
+    0 0 0 3px rgba($danger, 0.16),
+    0 3px 0 color.adjust($danger, $lightness: -12%);
 }
 
 /* States */
 .app-input-disabled {
-    opacity: 0.56;
-    cursor: not-allowed;
+  opacity: 0.56;
+  cursor: not-allowed;
 }
 
 .app-input-disabled :is(.app-input-control-shell, .app-input-control) {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 .app-input-readonly .app-input-control-shell {
-    background-image: repeating-linear-gradient(-45deg, transparent 0 8px, rgba(17, 17, 17, 0.025) 8px 10px);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 8px,
+    rgba(17, 17, 17, 0.025) 8px 10px
+  );
 }
 
 .app-input-loading .app-input-control {
-    cursor: wait;
+  cursor: wait;
 }
 
 @media (max-width: 575.98px) {
-    .app-input-size-xl .app-input-control {
-        font-size: 15px;
-    }
+  .app-input-size-xl .app-input-control {
+    font-size: 15px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .app-input-control-shell,
+  .app-input-floating-label,
+  .app-input-action {
+    transition: none;
+  }
 
-    .app-input-control-shell,
-    .app-input-floating-label,
-    .app-input-action {
-        transition: none;
-    }
-
-    .app-input-spinner {
-        animation-duration: 1.5s;
-    }
+  .app-input-spinner {
+    animation-duration: 1.5s;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-input-control-shell {
-        border: 1px solid CanvasText;
-        box-shadow: none;
-    }
+  .app-input-control-shell {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
 
-    .app-input-focused .app-input-control-shell {
-        outline: 2px solid Highlight;
-    }
+  .app-input-focused .app-input-control-shell {
+    outline: 2px solid Highlight;
+  }
 }

@@ -1,206 +1,218 @@
-<span class="sticky-note-pin" [ngClass]="pinClasses" [style.width.px]="width" [style.height.px]="height"
-    [style.--sticky-pin-rotation]="rotation + 'deg'" [attr.role]="resolvedRole" [attr.aria-hidden]="resolvedAriaHidden"
-    [attr.aria-label]="resolvedAriaLabel">
-
-    @if (isIconVariant) {
-
+<span
+  class="sticky-note-pin"
+  [ngClass]="pinClasses"
+  [style.width.px]="width"
+  [style.height.px]="height"
+  [style.--sticky-pin-rotation]="rotation + 'deg'"
+  [attr.role]="resolvedRole"
+  [attr.aria-hidden]="resolvedAriaHidden"
+  [attr.aria-label]="resolvedAriaLabel"
+>
+  @if (isIconVariant) {
     <span class="sticky-note-pin-icon-shell" aria-hidden="true">
-
-        <app-icon [icon]="resolvedIcon" [size]="resolvedIconSize" />
-
+      <app-icon [icon]="resolvedIcon" [size]="resolvedIconSize" />
     </span>
-
-    } @else {
-
+  } @else {
     <!--
       Self-contained SVG.
       No external SVG package, URL or licence is required.
     -->
     <svg class="sticky-note-pin-svg" viewBox="0 0 72 72" focusable="false" aria-hidden="true">
-
-        @switch (variant) {
-
+      @switch (variant) {
         @case ('thumbTack') {
+          <!-- Metal needle -->
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M33 38 L20.5 57.5" />
 
-        <!-- Metal needle -->
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M33 38 L20.5 57.5" />
+            <path class="pin-svg-needle" d="M32 37 L19.5 56.5" />
 
-        <path class="pin-svg-needle" d="M32 37 L19.5 56.5" />
+            <circle class="pin-svg-needle-tip" cx="19.5" cy="56.5" r="1.25" />
+          }
 
-        <circle class="pin-svg-needle-tip" cx="19.5" cy="56.5" r="1.25" />
-        }
+          <!-- Flat thumb-tack disk -->
+          <ellipse class="pin-svg-head-dark" cx="39" cy="22" rx="18" ry="7.6" />
 
-        <!-- Flat thumb-tack disk -->
-        <ellipse class="pin-svg-head-dark" cx="39" cy="22" rx="18" ry="7.6" />
+          <ellipse class="pin-svg-head-main" cx="38" cy="20.4" rx="17" ry="7" />
 
-        <ellipse class="pin-svg-head-main" cx="38" cy="20.4" rx="17" ry="7" />
+          <ellipse class="pin-svg-head-light" cx="34.5" cy="18.2" rx="9.5" ry="2.5" />
 
-        <ellipse class="pin-svg-head-light" cx="34.5" cy="18.2" rx="9.5" ry="2.5" />
-
-        <path class="pin-svg-body-dark" d="M28.5 24.5
+          <path
+            class="pin-svg-body-dark"
+            d="M28.5 24.5
                C29 31.5 31.5 36 34.5 39
                C36.5 40.8 40 39.2 41 36.3
-               L44.2 26.2 Z" />
+               L44.2 26.2 Z"
+          />
 
-        <path class="pin-svg-body-main" d="M30 24
+          <path
+            class="pin-svg-body-main"
+            d="M30 24
                C30.2 30 32.2 34.6 35 37.3
                C36.6 38.8 38.8 37.8 39.8 35.5
-               L42.2 25.4 Z" />
-
+               L42.2 25.4 Z"
+          />
         }
 
         @case ('roundPin') {
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M36 34 L23 56" />
 
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M36 34 L23 56" />
+            <path class="pin-svg-needle" d="M35 33 L22 55" />
 
-        <path class="pin-svg-needle" d="M35 33 L22 55" />
+            <circle class="pin-svg-needle-tip" cx="22" cy="55" r="1.2" />
+          }
 
-        <circle class="pin-svg-needle-tip" cx="22" cy="55" r="1.2" />
-        }
+          <circle class="pin-svg-head-dark" cx="40" cy="19" r="13" />
 
-        <circle class="pin-svg-head-dark" cx="40" cy="19" r="13" />
+          <circle class="pin-svg-head-main" cx="39" cy="18" r="12" />
 
-        <circle class="pin-svg-head-main" cx="39" cy="18" r="12" />
+          <ellipse class="pin-svg-round-shine" cx="34.5" cy="13" rx="4.5" ry="3.2" />
 
-        <ellipse class="pin-svg-round-shine" cx="34.5" cy="13" rx="4.5" ry="3.2" />
-
-        <path class="pin-svg-body-dark" d="M31 25
+          <path
+            class="pin-svg-body-dark"
+            d="M31 25
                C29 29 29.8 34 33.5 37
                C35 38.3 38 38.3 39.5 36.2
-               L43 29 Z" />
+               L43 29 Z"
+          />
 
-        <path class="pin-svg-body-main" d="M32.5 25
+          <path
+            class="pin-svg-body-main"
+            d="M32.5 25
                C31 29 32 32.8 34.5 35
                C36 36.2 37.5 35.8 38.5 34
-               L41.5 27.5 Z" />
-
+               L41.5 27.5 Z"
+          />
         }
 
         @case ('pearlPin') {
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M35 32 L21.5 56" />
 
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M35 32 L21.5 56" />
+            <path class="pin-svg-needle" d="M34 31 L20.5 55" />
 
-        <path class="pin-svg-needle" d="M34 31 L20.5 55" />
+            <circle class="pin-svg-needle-tip" cx="20.5" cy="55" r="1.2" />
+          }
 
-        <circle class="pin-svg-needle-tip" cx="20.5" cy="55" r="1.2" />
-        }
+          <circle class="pin-svg-pearl-dark" cx="40" cy="18" r="12.5" />
 
-        <circle class="pin-svg-pearl-dark" cx="40" cy="18" r="12.5" />
+          <circle class="pin-svg-pearl-main" cx="39" cy="17" r="11.5" />
 
-        <circle class="pin-svg-pearl-main" cx="39" cy="17" r="11.5" />
+          <ellipse class="pin-svg-pearl-shine" cx="34.7" cy="12.5" rx="4.2" ry="3" />
 
-        <ellipse class="pin-svg-pearl-shine" cx="34.7" cy="12.5" rx="4.2" ry="3" />
-
-        <path class="pin-svg-metal-neck" d="M34.8 27
+          <path
+            class="pin-svg-metal-neck"
+            d="M34.8 27
                L39.2 27
                L38 34
-               L33 34 Z" />
-
+               L33 34 Z"
+          />
         }
 
         @case ('metalPin') {
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M34.5 34 L20 57" />
 
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M34.5 34 L20 57" />
+            <path class="pin-svg-needle" d="M33.5 33 L19 56" />
 
-        <path class="pin-svg-needle" d="M33.5 33 L19 56" />
+            <circle class="pin-svg-needle-tip" cx="19" cy="56" r="1.15" />
+          }
 
-        <circle class="pin-svg-needle-tip" cx="19" cy="56" r="1.15" />
-        }
+          <ellipse class="pin-svg-metal-dark" cx="39" cy="21" rx="15" ry="6.5" />
 
-        <ellipse class="pin-svg-metal-dark" cx="39" cy="21" rx="15" ry="6.5" />
+          <ellipse class="pin-svg-metal-main" cx="38" cy="19.8" rx="14" ry="5.8" />
 
-        <ellipse class="pin-svg-metal-main" cx="38" cy="19.8" rx="14" ry="5.8" />
+          <ellipse class="pin-svg-metal-shine" cx="34" cy="18" rx="7" ry="1.7" />
 
-        <ellipse class="pin-svg-metal-shine" cx="34" cy="18" rx="7" ry="1.7" />
-
-        <path class="pin-svg-metal-neck" d="M31 23.5
+          <path
+            class="pin-svg-metal-neck"
+            d="M31 23.5
                L43 23.5
                L39 35
-               L33 35 Z" />
-
+               L33 35 Z"
+          />
         }
 
         @case ('needle') {
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M36 27 L19 58" />
 
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M36 27 L19 58" />
+            <path class="pin-svg-needle" d="M35 26 L18 57" />
 
-        <path class="pin-svg-needle" d="M35 26 L18 57" />
+            <circle class="pin-svg-needle-tip" cx="18" cy="57" r="1.15" />
+          }
 
-        <circle class="pin-svg-needle-tip" cx="18" cy="57" r="1.15" />
-        }
+          <circle class="pin-svg-head-dark" cx="40" cy="17" r="9" />
 
-        <circle class="pin-svg-head-dark" cx="40" cy="17" r="9" />
+          <circle class="pin-svg-head-main" cx="39" cy="16" r="8" />
 
-        <circle class="pin-svg-head-main" cx="39" cy="16" r="8" />
-
-        <ellipse class="pin-svg-round-shine" cx="36" cy="12.7" rx="2.8" ry="2" />
-
+          <ellipse class="pin-svg-round-shine" cx="36" cy="12.7" rx="2.8" ry="2" />
         }
 
         @default {
-
-        <!-- =================================================
+          <!-- =================================================
              CLASSIC PUSH PIN
              Designed to match the reference: round glossy
              head + lower plastic body + angled metal needle.
              ================================================= -->
 
-        @if (showNeedle) {
-        <path class="pin-svg-needle-shadow" d="M32.8 38.5 L18.5 58.5" />
+          @if (showNeedle) {
+            <path class="pin-svg-needle-shadow" d="M32.8 38.5 L18.5 58.5" />
 
-        <path class="pin-svg-needle" d="M31.8 37.5 L17.5 57.5" />
+            <path class="pin-svg-needle" d="M31.8 37.5 L17.5 57.5" />
 
-        <circle class="pin-svg-needle-tip" cx="17.5" cy="57.5" r="1.25" />
-        }
+            <circle class="pin-svg-needle-tip" cx="17.5" cy="57.5" r="1.25" />
+          }
 
-        <!-- Lower plastic body -->
-        <path class="pin-svg-body-dark" d="M25.8 23.2
+          <!-- Lower plastic body -->
+          <path
+            class="pin-svg-body-dark"
+            d="M25.8 23.2
                C22.4 27.3 22 33.4 25.4 37.7
                C28.5 41.6 34.5 42.2 38.2 38.2
                L45.8 29.2
-               C48 26.5 46.6 22.4 43.4 21 Z" />
+               C48 26.5 46.6 22.4 43.4 21 Z"
+          />
 
-        <path class="pin-svg-body-main" d="M27.5 23.1
+          <path
+            class="pin-svg-body-main"
+            d="M27.5 23.1
                C24.6 27 24.6 32 27.3 35.3
                C29.8 38.2 34.2 38.8 37 35.7
                L43.3 28.2
-               C45 26.1 44 23.1 41.5 22 Z" />
+               C45 26.1 44 23.1 41.5 22 Z"
+          />
 
-        <path class="pin-svg-body-light" d="M27.8 25
+          <path
+            class="pin-svg-body-light"
+            d="M27.8 25
                C26.1 28 26.5 31 28.2 32.8
                C29.7 34.3 31.2 34.8 32.5 34
-               C29.9 30.8 30.7 27.5 32.5 24.7 Z" />
+               C29.9 30.8 30.7 27.5 32.5 24.7 Z"
+          />
 
-        <!-- Large round glossy top -->
-        <circle class="pin-svg-head-dark" cx="43.5" cy="17.5" r="13.2" />
+          <!-- Large round glossy top -->
+          <circle class="pin-svg-head-dark" cx="43.5" cy="17.5" r="13.2" />
 
-        <circle class="pin-svg-head-main" cx="42.2" cy="16.4" r="12.2" />
+          <circle class="pin-svg-head-main" cx="42.2" cy="16.4" r="12.2" />
 
-        @if (shine) {
-        <ellipse class="pin-svg-round-shine" cx="37.6" cy="11.7" rx="4.6" ry="3.2" />
-        }
+          @if (shine) {
+            <ellipse class="pin-svg-round-shine" cx="37.6" cy="11.7" rx="4.6" ry="3.2" />
+          }
 
-        <!-- Soft lower head reflection -->
-        <path class="pin-svg-head-reflection" d="M35 20.5
+          <!-- Soft lower head reflection -->
+          <path
+            class="pin-svg-head-reflection"
+            d="M35 20.5
                C37 24.5 42 26.2 46.2 24
-               C42 24.4 38.3 23.3 35 20.5 Z" />
-
+               C42 24.4 38.3 23.3 35 20.5 Z"
+          />
         }
-
-        }
-
+      }
     </svg>
+  }
 
-    }
-
-    @if (shadow) {
-    <span class="sticky-note-pin-paper-shadow" aria-hidden="true">
-    </span>
-    }
-
+  @if (shadow) {
+    <span class="sticky-note-pin-paper-shadow" aria-hidden="true"> </span>
+  }
 </span>

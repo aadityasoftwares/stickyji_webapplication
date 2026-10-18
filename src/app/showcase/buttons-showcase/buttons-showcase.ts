@@ -37,17 +37,12 @@ import { AppIcon } from '../../shared/components/icon/icon';
 @Component({
   selector: 'app-buttons-showcase',
   standalone: true,
-  imports: [
-    Button,
-    AppIcon,
-  ],
+  imports: [Button, AppIcon],
   templateUrl: './buttons-showcase.html',
   styleUrl: './buttons-showcase.scss',
 })
 export class ButtonsShowcase {
-  protected readonly title = signal(
-    'mystickynotes_webapp'
-  );
+  protected readonly title = signal('mystickynotes_webapp');
 
   protected readonly icons = {
     archive: LucideArchive,
@@ -127,7 +122,6 @@ export class ButtonsShowcase {
   }
 
   protected toggleTapeSplitMenu(): void {
-    this.tapeSplitMenuOpen =
-      !this.tapeSplitMenuOpen;
+    this.tapeSplitMenuOpen = !this.tapeSplitMenuOpen;
   }
 }

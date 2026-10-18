@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,7 +20,7 @@ import {
   LucideRefreshCw,
   LucideSearch,
   LucideTrash2,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
@@ -21,7 +29,11 @@ import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-mo
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
@@ -52,11 +64,11 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
     Select,
     StickyNote,
     Tabs,
-    UserDatePipe
+    UserDatePipe,
   ],
   templateUrl: './sticky-note-trash.html',
   styleUrl: './sticky-note-trash.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNoteTrash implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -89,12 +101,22 @@ export class StickyNoteTrash implements OnInit {
   readonly sortOptions: readonly SelectOption[] = [
     { label: 'Recently deleted', value: 'deletedAt' },
     { label: 'Deletes soonest', value: 'purgeAfter' },
-    { label: 'Title A–Z', value: 'title' }
+    { label: 'Title A–Z', value: 'title' },
   ];
 
   readonly viewTabs: readonly TabItem[] = [
-    { value: 'grid', label: 'Grid', icon: LucideGrid2X2, ariaLabel: 'Show deleted notes in grid view' },
-    { value: 'list', label: 'List', icon: LucideList, ariaLabel: 'Show deleted notes in list view' }
+    {
+      value: 'grid',
+      label: 'Grid',
+      icon: LucideGrid2X2,
+      ariaLabel: 'Show deleted notes in grid view',
+    },
+    {
+      value: 'list',
+      label: 'List',
+      icon: LucideList,
+      ariaLabel: 'Show deleted notes in list view',
+    },
   ];
 
   readonly totalCount = computed(() => this.notes().length);
@@ -104,18 +126,20 @@ export class StickyNoteTrash implements OnInit {
     const sort = this.sortBy();
 
     return this.notes()
-      .filter(note => {
+      .filter((note) => {
         if (!search) return true;
         return [
           this.noteTitle(note),
           this.noteContent(note),
           this.folderLabel(note),
-          this.columnLabel(note)
-        ].some(value => value.toLowerCase().includes(search));
+          this.columnLabel(note),
+        ].some((value) => value.toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'title') {
-          return this.noteTitle(first).localeCompare(this.noteTitle(second), undefined, { sensitivity: 'base' });
+          return this.noteTitle(first).localeCompare(this.noteTitle(second), undefined, {
+            sensitivity: 'base',
+          });
         }
 
         const firstTime = this.timestamp(first?.[sort]);
@@ -130,16 +154,14 @@ export class StickyNoteTrash implements OnInit {
   });
 
   ngOnInit(): void {
-    this.route.queryParamMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const routeWorkspaceId = String(params.get('workspaceId') ?? '').trim();
-        const selectedWorkspaceId = String(this.workspaceStore.selectedId() ?? '').trim();
-        const workspaceId = routeWorkspaceId || selectedWorkspaceId || null;
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const routeWorkspaceId = String(params.get('workspaceId') ?? '').trim();
+      const selectedWorkspaceId = String(this.workspaceStore.selectedId() ?? '').trim();
+      const workspaceId = routeWorkspaceId || selectedWorkspaceId || null;
 
-        this.workspaceId.set(workspaceId);
-        this.loadTrash();
-      });
+      this.workspaceId.set(workspaceId);
+      this.loadTrash();
+    });
   }
 
   loadTrash(): void {
@@ -158,15 +180,15 @@ export class StickyNoteTrash implements OnInit {
       .getTrash(workspaceId, 1, 100)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.notes.set(response?.data ?? []);
           this.loading.set(false);
         },
-        error: error => {
+        error: (error) => {
           this.notes.set([]);
           this.loading.set(false);
           this.error.set(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.TRASH_LOAD_FAILED));
-        }
+        },
       });
   }
 
@@ -174,7 +196,7 @@ export class StickyNoteTrash implements OnInit {
     const workspaceId = this.workspaceId();
 
     this.router.navigate(routeCommands(APP_ROUTES.TODAY), {
-      queryParams: workspaceId ? { workspaceId } : undefined
+      queryParams: workspaceId ? { workspaceId } : undefined,
     });
   }
 
@@ -211,22 +233,25 @@ export class StickyNoteTrash implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notes.update(notes => notes.filter(item => this.noteId(item) !== id));
+          this.notes.update((notes) => notes.filter((item) => this.noteId(item) !== id));
           this.actionId.set(null);
 
           this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.RESTORED_FROM_TRASH, {
             title: 'Back in your notes',
-            dedupeKey: `restore-note-${id}`
+            dedupeKey: `restore-note-${id}`,
           });
         },
-        error: error => {
+        error: (error) => {
           this.actionId.set(null);
 
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED), {
-            title: 'Restore failed',
-            dedupeKey: `restore-note-${id}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RESTORE_FAILED),
+            {
+              title: 'Restore failed',
+              dedupeKey: `restore-note-${id}`,
+            },
+          );
+        },
       });
   }
 
@@ -255,23 +280,26 @@ export class StickyNoteTrash implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.notes.update(notes => notes.filter(item => this.noteId(item) !== id));
+          this.notes.update((notes) => notes.filter((item) => this.noteId(item) !== id));
           this.actionId.set(null);
           this.permanentTarget.set(null);
 
           this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.PERMANENTLY_DELETED, {
             title: 'Deleted permanently',
-            dedupeKey: `permanent-note-${id}`
+            dedupeKey: `permanent-note-${id}`,
           });
         },
-        error: error => {
+        error: (error) => {
           this.actionId.set(null);
 
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
-            title: 'Delete failed',
-            dedupeKey: `permanent-note-${id}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED),
+            {
+              title: 'Delete failed',
+              dedupeKey: `permanent-note-${id}`,
+            },
+          );
+        },
       });
   }
 
@@ -281,7 +309,11 @@ export class StickyNoteTrash implements OnInit {
     return {
       ...note,
       id: this.noteId(note),
-      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : undefined),
+      noteKey:
+        note?.noteKey ??
+        (typeof note?.stickyNoteNumber === 'number'
+          ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
+          : undefined),
       title: this.noteTitle(note),
       content,
       description: content || undefined,
@@ -293,16 +325,16 @@ export class StickyNoteTrash implements OnInit {
       dueLabel: note?.noteDate ?? note?.dueLabel,
       checklists: Array.isArray(note?.checklists)
         ? note.checklists.map((checklist: any) => ({
-          ...checklist,
-          id: checklist?.id ?? checklist?._id,
-          items: Array.isArray(checklist?.items)
-            ? checklist.items.map((item: any) => ({
-              ...item,
-              id: item?.id ?? item?._id,
-              isCompleted: item?.isCompleted === true
-            }))
-            : []
-        }))
+            ...checklist,
+            id: checklist?.id ?? checklist?._id,
+            items: Array.isArray(checklist?.items)
+              ? checklist.items.map((item: any) => ({
+                  ...item,
+                  id: item?.id ?? item?._id,
+                  isCompleted: item?.isCompleted === true,
+                }))
+              : [],
+          }))
         : [],
       showDragHandle: false,
       showEditAction: false,
@@ -310,7 +342,7 @@ export class StickyNoteTrash implements OnInit {
       actionsDisabled: true,
       layout: 'detail',
       font: this.readStoredStickyNoteFont(),
-      fontSize: this.readStoredStickyNoteFontSize()
+      fontSize: this.readStoredStickyNoteFontSize(),
     };
   }
 
@@ -351,10 +383,7 @@ export class StickyNoteTrash implements OnInit {
 
     if (!purgeAfter) return 60;
 
-    return Math.max(
-      0,
-      Math.ceil((purgeAfter - Date.now()) / 86_400_000)
-    );
+    return Math.max(0, Math.ceil((purgeAfter - Date.now()) / 86_400_000));
   }
 
   purgeLabel(note: any): string {
@@ -388,11 +417,10 @@ export class StickyNoteTrash implements OnInit {
 
   private readStoredStickyNoteFontSize(): number {
     try {
-    const value = Number(getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
+      const value = Number(getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
       return [13, 14, 15, 16].includes(value) ? value : 14;
     } catch {
       return 14;
     }
   }
-
 }

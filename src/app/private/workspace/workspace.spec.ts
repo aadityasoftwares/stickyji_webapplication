@@ -11,7 +11,13 @@ import { UserPreferenceService } from '../user-preferences/services/user-prefere
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
 
-const ownerActions = { canView: true, canEdit: true, canManageSettings: true, canArchive: true, canTrash: true };
+const ownerActions = {
+  canView: true,
+  canEdit: true,
+  canManageSettings: true,
+  canArchive: true,
+  canTrash: true,
+};
 
 describe('Workspace', () => {
   let component: Workspace;
@@ -76,21 +82,35 @@ describe('Workspace', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(preferenceApi.getMyPreferences).toHaveBeenCalledOnce();
-    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual([
+      'ALL',
+      'recent',
+      'grid',
+    ]);
     expect(workspaceApi.getAllWorkspaces).not.toHaveBeenCalled();
   });
 
   it('restores preferences that arrive after initialization', () => {
-    loadedPreferences.next({ data: [
-      { key: 'workspaceAccessFilter', value: 'SHARED' },
-      { key: 'workspaceSortOrder', value: 'NAME_DESC' },
-      { key: 'workspaceView', value: 'LIST' },
-    ] });
+    loadedPreferences.next({
+      data: [
+        { key: 'workspaceAccessFilter', value: 'SHARED' },
+        { key: 'workspaceSortOrder', value: 'NAME_DESC' },
+        { key: 'workspaceView', value: 'LIST' },
+      ],
+    });
     fixture.detectChanges();
-    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['SHARED', 'name-desc', 'list']);
-    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-      access: 'SHARED', status: 'ALL', sortBy: 'NAME_DESC',
-    }));
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual([
+      'SHARED',
+      'name-desc',
+      'list',
+    ]);
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        access: 'SHARED',
+        status: 'ALL',
+        sortBy: 'NAME_DESC',
+      }),
+    );
     expect(preferenceApi.createPreference).not.toHaveBeenCalled();
     expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
   });
@@ -129,25 +149,30 @@ describe('Workspace', () => {
   });
 
   it('provides icons for workspace filter tabs and sort options', () => {
-    expect(component.filterTabs().map(tab => tab.value)).toEqual(['ALL', 'OWNED', 'SHARED']);
-    expect(component.statusTabs().map(tab => tab.value)).toEqual(['ALL', 'ACTIVE', 'ARCHIVED']);
-    expect(component.filterTabs().every(tab => !!tab.icon)).toBe(true);
-    expect(component.statusTabs().every(tab => !!tab.icon)).toBe(true);
-    expect(component.sortOptions.every(option => !!option.icon)).toBe(true);
+    expect(component.filterTabs().map((tab) => tab.value)).toEqual(['ALL', 'OWNED', 'SHARED']);
+    expect(component.statusTabs().map((tab) => tab.value)).toEqual(['ALL', 'ACTIVE', 'ARCHIVED']);
+    expect(component.filterTabs().every((tab) => !!tab.icon)).toBe(true);
+    expect(component.statusTabs().every((tab) => !!tab.icon)).toBe(true);
+    expect(component.sortOptions.every((option) => !!option.icon)).toBe(true);
     expect(component.isGroupCollapsed('active')).toBe(false);
     expect(component.isGroupCollapsed('archived')).toBe(true);
   });
 
   it('restores the saved status filter independently from workspace access', () => {
-    loadedPreferences.next({ data: [
-      { key: 'workspaceStatusFilter', value: 'ARCHIVED' },
-      { key: 'workspaceAccessFilter', value: 'OWNED' },
-    ] });
+    loadedPreferences.next({
+      data: [
+        { key: 'workspaceStatusFilter', value: 'ARCHIVED' },
+        { key: 'workspaceAccessFilter', value: 'OWNED' },
+      ],
+    });
     fixture.detectChanges();
 
-    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-      access: 'OWNED', status: 'ARCHIVED',
-    }));
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        access: 'OWNED',
+        status: 'ARCHIVED',
+      }),
+    );
     expect(preferences.workspaceStatusFilter()).toBe('ARCHIVED');
     expect(preferenceApi.createPreference).not.toHaveBeenCalled();
     expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
@@ -155,24 +180,36 @@ describe('Workspace', () => {
 
   it('rolls back the displayed settings when saves fail', () => {
     loadedPreferences.next({ data: [] });
-    preferenceApi.createPreference.mockImplementation(() => throwError(() => new Error('Save failed')));
+    preferenceApi.createPreference.mockImplementation(() =>
+      throwError(() => new Error('Save failed')),
+    );
     component.onAccessChange('OWNED');
     component.onSortChange('oldest');
     component.onViewChange('list');
-    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual([
+      'ALL',
+      'recent',
+      'grid',
+    ]);
     expect(preferences.error()).toBeTruthy();
   });
 
   it('ignores invalid control values and falls back for invalid saved preferences', () => {
-    loadedPreferences.next({ data: [
-      { key: 'workspaceAccessFilter', value: 'INVALID' },
-      { key: 'workspaceSortOrder', value: 'INVALID' },
-      { key: 'workspaceView', value: 'INVALID' },
-    ] });
+    loadedPreferences.next({
+      data: [
+        { key: 'workspaceAccessFilter', value: 'INVALID' },
+        { key: 'workspaceSortOrder', value: 'INVALID' },
+        { key: 'workspaceView', value: 'INVALID' },
+      ],
+    });
     component.onAccessChange('invalid');
     component.onSortChange('invalid');
     component.onViewChange('invalid');
-    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual(['ALL', 'recent', 'grid']);
+    expect([component.accessFilter(), component.sortBy(), component.view()]).toEqual([
+      'ALL',
+      'recent',
+      'grid',
+    ]);
     expect(preferenceApi.createPreference).not.toHaveBeenCalled();
     expect(preferenceApi.updatePreference).not.toHaveBeenCalled();
   });
@@ -185,23 +222,46 @@ describe('Workspace', () => {
     ['OLDEST_FIRST', ['c', 'b', 'a']],
   ])('applies the saved %s sort order', (value, expected) => {
     component.workspaces.set([
-      { allowedActions: ownerActions, id: 'a', name: 'Beta', status: 'ACTIVE', createdAt: '2026-01-01', updatedAt: '2026-03-03' },
-      { allowedActions: ownerActions, id: 'b', name: 'Alpha', status: 'ARCHIVED', createdAt: '2026-01-02', updatedAt: '2026-03-02' },
-      { allowedActions: ownerActions, id: 'c', name: 'Gamma', status: 'ACTIVE', createdAt: '2026-01-03', updatedAt: '2026-03-01' },
+      {
+        allowedActions: ownerActions,
+        id: 'a',
+        name: 'Beta',
+        status: 'ACTIVE',
+        createdAt: '2026-01-01',
+        updatedAt: '2026-03-03',
+      },
+      {
+        allowedActions: ownerActions,
+        id: 'b',
+        name: 'Alpha',
+        status: 'ARCHIVED',
+        createdAt: '2026-01-02',
+        updatedAt: '2026-03-02',
+      },
+      {
+        allowedActions: ownerActions,
+        id: 'c',
+        name: 'Gamma',
+        status: 'ACTIVE',
+        createdAt: '2026-01-03',
+        updatedAt: '2026-03-01',
+      },
     ]);
     preferences.updatePreference('workspaceSortOrder', value);
-    expect(component.visibleWorkspaces().map(item => item.id)).toEqual(expected);
-    expect(component.workspaces().map(item => item.id)).toEqual(['a', 'b', 'c']);
+    expect(component.visibleWorkspaces().map((item) => item.id)).toEqual(expected);
+    expect(component.workspaces().map((item) => item.id)).toEqual(['a', 'b', 'c']);
     preferences.updatePreference('workspaceAccessFilter', 'SHARED');
-    component.workspaces.update(items => items.map(item => ({ ...item, isOwner: item.id !== 'b' })));
-    expect(component.visibleWorkspaces().map(item => item.id)).toEqual(['b']);
+    component.workspaces.update((items) =>
+      items.map((item) => ({ ...item, isOwner: item.id !== 'b' })),
+    );
+    expect(component.visibleWorkspaces().map((item) => item.id)).toEqual(['b']);
   });
 
   it('finishes bulk archive after successes, failures and skipped selections', () => {
     workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
     const first = new Subject();
     const second = new Subject();
-    workspaceApi.updateStatus.mockImplementation(id => id === 'a' ? first : second);
+    workspaceApi.updateStatus.mockImplementation((id) => (id === 'a' ? first : second));
     component.workspaces.set([
       { allowedActions: ownerActions, id: 'a', status: 'ACTIVE' },
       { allowedActions: ownerActions, id: 'b', status: 'ACTIVE' },
@@ -210,14 +270,21 @@ describe('Workspace', () => {
     component.selectedWorkspaceIds.set(new Set(['a', 'b']));
 
     component.bulkArchiveSelected();
-    expect(workspaceApi.updateStatus.mock.calls).toEqual([['a', 'ARCHIVED'], ['b', 'ARCHIVED']]);
+    expect(workspaceApi.updateStatus.mock.calls).toEqual([
+      ['a', 'ARCHIVED'],
+      ['b', 'ARCHIVED'],
+    ]);
     second.error(new Error('Archive failed'));
     expect(component.selectedCount()).toBe(2);
     expect(toast.success).not.toHaveBeenCalled();
     first.next({});
     first.complete();
 
-    expect(component.workspaces().map(item => item.status)).toEqual(['ARCHIVED', 'ACTIVE', 'ARCHIVED']);
+    expect(component.workspaces().map((item) => item.status)).toEqual([
+      'ARCHIVED',
+      'ACTIVE',
+      'ARCHIVED',
+    ]);
     expect(component.selectedCount()).toBe(0);
     expect(toast.success).toHaveBeenCalledExactlyOnceWith('Archived 1 workspace');
   });
@@ -226,8 +293,11 @@ describe('Workspace', () => {
     workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
     const first = new Subject();
     const second = new Subject();
-    workspaceApi.delete.mockImplementation(id => id === 'a' ? first : second);
-    const workspaces: any[] = [{ allowedActions: ownerActions, id: 'a' }, { allowedActions: ownerActions, id: 'b' }];
+    workspaceApi.delete.mockImplementation((id) => (id === 'a' ? first : second));
+    const workspaces: any[] = [
+      { allowedActions: ownerActions, id: 'a' },
+      { allowedActions: ownerActions, id: 'b' },
+    ];
     component.workspaces.set(workspaces);
     workspaceStore.setWorkspaces(workspaces);
     component.selectedWorkspaceIds.set(new Set(['a', 'b']));
@@ -239,8 +309,8 @@ describe('Workspace', () => {
     expect(toast.success).not.toHaveBeenCalled();
     second.error(new Error('Delete failed'));
 
-    expect(component.workspaces().map(item => item.id)).toEqual(['b']);
-    expect(workspaceStore.workspaces().map(item => item.id)).toEqual(['b']);
+    expect(component.workspaces().map((item) => item.id)).toEqual(['b']);
+    expect(workspaceStore.workspaces().map((item) => item.id)).toEqual(['b']);
     expect(workspaceStore.selectedId()).toBe('b');
     expect(component.selectedCount()).toBe(0);
     expect(toast.success).toHaveBeenCalledExactlyOnceWith('Moved 1 workspace to trash');
@@ -286,7 +356,9 @@ describe('Workspace', () => {
     expect(component.loading()).toBe(false);
     expect(component.error()).toBeTruthy();
 
-    workspaceApi.getAllWorkspaces.mockReturnValue(of({ data: { workspaces: [{ id: 'saved', name: 'Saved' }] } }));
+    workspaceApi.getAllWorkspaces.mockReturnValue(
+      of({ data: { workspaces: [{ id: 'saved', name: 'Saved' }] } }),
+    );
     component.loadWorkspaces('saved');
     expect(component.loading()).toBe(false);
     expect(component.error()).toBeNull();
@@ -315,12 +387,14 @@ describe('Workspace', () => {
           totalPages: 3,
           counts: { all: 42, active: 30, archived: 12 },
         },
-      })
+      }),
     );
     component.loadWorkspaces('', true);
     expect(component.totalCount()).toBe(42);
     expect(component.counts()).toEqual({ all: 42, active: 30, archived: 12 });
-    expect(component.workspaceGroups().map((group) => ({ id: group.id, count: group.count }))).toEqual([
+    expect(
+      component.workspaceGroups().map((group) => ({ id: group.id, count: group.count })),
+    ).toEqual([
       { id: 'active', count: 30 },
       { id: 'archived', count: 12 },
     ]);
@@ -354,10 +428,14 @@ describe('Workspace', () => {
     expect(component.searchTerm()).toBe('');
   });
 
-
   it('validates inline rename and keeps a failed rename available for retry', () => {
     vi.useFakeTimers();
-    const workspace: any = { allowedActions: ownerActions, id: 'a', name: 'Original', status: 'ACTIVE' };
+    const workspace: any = {
+      allowedActions: ownerActions,
+      id: 'a',
+      name: 'Original',
+      status: 'ACTIVE',
+    };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     component.beginInlineRename(workspace);
@@ -382,14 +460,22 @@ describe('Workspace', () => {
     component.saveInlineRename(workspace);
     expect(component.inlineRenameId()).toBeNull();
     expect(component.inlineRenameSubmitting()).toBe(false);
-    expect(component.workspaces()[0]).toMatchObject({ name: 'Renamed', description: 'Server description' });
+    expect(component.workspaces()[0]).toMatchObject({
+      name: 'Renamed',
+      description: 'Server description',
+    });
     expect(workspaceStore.workspaces()[0].name).toBe('Renamed');
     vi.runAllTimers();
   });
 
   it('preserves status request payloads, store updates and busy guards', () => {
     workspaceApi.getAllWorkspaces.mockReturnValue(new Subject());
-    const workspace: any = { allowedActions: ownerActions, id: 'a', name: 'Space', status: 'ACTIVE' };
+    const workspace: any = {
+      allowedActions: ownerActions,
+      id: 'a',
+      name: 'Space',
+      status: 'ACTIVE',
+    };
     component.workspaces.set([workspace]);
     workspaceStore.setWorkspaces([workspace as any]);
     const response = new Subject();
@@ -401,7 +487,10 @@ describe('Workspace', () => {
     response.next({ data: { description: 'Server description' } });
     response.complete();
     expect(component.isBusy(workspace)).toBe(false);
-    expect(component.workspaces()[0]).toMatchObject({ status: 'ARCHIVED', description: 'Server description' });
+    expect(component.workspaces()[0]).toMatchObject({
+      status: 'ARCHIVED',
+      description: 'Server description',
+    });
     expect(workspaceStore.workspaces()[0].status).toBe('ARCHIVED');
 
     workspaceApi.updateStatus.mockReturnValue(throwError(() => new Error('Restore failed')));
@@ -516,7 +605,12 @@ describe('Workspace', () => {
     component.page.set(3);
     component.onAccessChange('SHARED');
     expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith({
-      access: 'SHARED', status: 'ARCHIVED', sortBy: 'NAME_DESC', search: 'Roadmap', page: 1, limit: 20,
+      access: 'SHARED',
+      status: 'ARCHIVED',
+      sortBy: 'NAME_DESC',
+      search: 'Roadmap',
+      page: 1,
+      limit: 20,
     });
     const requests = workspaceApi.getAllWorkspaces.mock.calls.length;
     component.onViewChange('list');
@@ -531,11 +625,17 @@ describe('Workspace', () => {
     workspaceApi.getAllWorkspaces.mockReturnValueOnce(oldResponse).mockReturnValueOnce(newResponse);
     component.onAccessChange('OWNED');
     component.onAccessChange('SHARED');
-    newResponse.next({ data: [], meta: { total: 0, accessFilters: [
-      { value: 'ALL', label: 'Every space', count: 80 },
-      { value: 'OWNED', label: 'Created by me', count: 80 },
-      { value: 'SHARED', label: 'Invited spaces', count: 0 },
-    ] } });
+    newResponse.next({
+      data: [],
+      meta: {
+        total: 0,
+        accessFilters: [
+          { value: 'ALL', label: 'Every space', count: 80 },
+          { value: 'OWNED', label: 'Created by me', count: 80 },
+          { value: 'SHARED', label: 'Invited spaces', count: 0 },
+        ],
+      },
+    });
     newResponse.complete();
     oldResponse.next({ data: [{ id: 'stale' }] });
     expect(component.workspaces()).toEqual([]);
@@ -545,19 +645,30 @@ describe('Workspace', () => {
   });
 
   it('keeps legacy responses readable without inventing ownership counts or privileges', () => {
-    workspaceApi.getAllWorkspaces.mockReturnValue(of({ data: { items: [{ id: 'legacy', name: 'Legacy' }] } }));
+    workspaceApi.getAllWorkspaces.mockReturnValue(
+      of({ data: { items: [{ id: 'legacy', name: 'Legacy' }] } }),
+    );
     component.loadWorkspaces();
     expect(component.workspaces()[0].name).toBe('Legacy');
-    expect(component.accessFilters().every(item => item.count === undefined)).toBe(true);
+    expect(component.accessFilters().every((item) => item.count === undefined)).toBe(true);
     expect(component.can(component.workspaces()[0], 'canEdit')).toBe(false);
   });
 
   it('uses actual type and role labels and excludes non-active memberships and trash', () => {
-    const shared = { id: 'shared', status: 'ACTIVE', workspaceType: 'PERSONAL' as const, isPersonal: false,
-      workspaceTypeLabel: 'Personal space', access: { type: 'MEMBER', label: 'Editor', membership: { status: 'ACTIVE' } } };
-    component.workspaces.set([shared, { ...shared, id: 'pending', access: { membership: { status: 'PENDING' } } },
-      { id: 'trash', status: 'DELETED' }]);
-    expect(component.visibleWorkspaces().map(item => item.id)).toEqual(['shared']);
+    const shared = {
+      id: 'shared',
+      status: 'ACTIVE',
+      workspaceType: 'PERSONAL' as const,
+      isPersonal: false,
+      workspaceTypeLabel: 'Personal space',
+      access: { type: 'MEMBER', label: 'Editor', membership: { status: 'ACTIVE' } },
+    };
+    component.workspaces.set([
+      shared,
+      { ...shared, id: 'pending', access: { membership: { status: 'PENDING' } } },
+      { id: 'trash', status: 'DELETED' },
+    ]);
+    expect(component.visibleWorkspaces().map((item) => item.id)).toEqual(['shared']);
     expect(component.isPersonalWorkspace(shared)).toBe(true);
     expect(component.workspaceTypeLabel(shared)).toBe('Personal space');
     expect(component.workspaceRoleLabel(shared)).toBe('Editor');
@@ -577,8 +688,11 @@ describe('Workspace', () => {
       },
     };
 
-    expect(component.workspaceFolders(workspace).map(folder => folder.name)).toEqual([
-      'My Notes', 'Testing', 'Product additions', 'Research',
+    expect(component.workspaceFolders(workspace).map((folder) => folder.name)).toEqual([
+      'My Notes',
+      'Testing',
+      'Product additions',
+      'Research',
     ]);
     expect(component.workspaceFolderTooltip(workspace)).toBe(
       '6 folders: My Notes, Testing, Product additions, Research, and 2 more',
@@ -620,7 +734,9 @@ describe('Workspace', () => {
   it('refreshes owned spaces and counts after creation without inventing ownership', () => {
     component.onAccessChange('SHARED');
     component.onWorkspaceSaved('new-owned');
-    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith(expect.objectContaining({ access: 'OWNED', page: 1 }));
+    expect(workspaceApi.getAllWorkspaces).toHaveBeenLastCalledWith(
+      expect.objectContaining({ access: 'OWNED', page: 1 }),
+    );
     expect(component.accessFilter()).toBe('OWNED');
   });
 
@@ -632,5 +748,4 @@ describe('Workspace', () => {
     vi.advanceTimersByTime(300);
     expect(workspaceApi.getAllWorkspaces).toHaveBeenCalledTimes(1);
   });
-
 });

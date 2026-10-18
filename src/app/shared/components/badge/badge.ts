@@ -1,17 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { LucideX } from '@lucide/angular';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
 export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -42,10 +33,7 @@ export type BadgeRole = 'status' | 'note' | null;
 @Component({
   selector: 'app-badge',
   standalone: true,
-  imports: [
-    NgClass,
-    AppIcon,
-  ],
+  imports: [NgClass, AppIcon],
   templateUrl: './badge.html',
   styleUrl: './badge.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -86,9 +74,7 @@ export class Badge {
     const safeCount = Math.max(0, this.count);
     const safeMax = Math.max(1, this.maxCount);
 
-    return safeCount > safeMax
-      ? `${safeMax}+`
-      : `${safeCount}`;
+    return safeCount > safeMax ? `${safeMax}+` : `${safeCount}`;
   }
 
   get accessibleLabel(): string | null {

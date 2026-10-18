@@ -2,56 +2,51 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    min-width: 0;
-    display: inline-block;
-    max-width: 100%;
-    vertical-align: top;
+  min-width: 0;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
 }
 
 :host.app-select-host-full {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 .app-select-wrapper {
-    --app-select-height: 42px;
-    --app-select-radius: 12px;
-    --app-select-padding-x: 12px;
-    --app-select-background: #{$paper};
-    --app-select-border: #{$border};
-    --app-select-color: #{$text-primary};
-    --app-select-muted: #{$text-secondary};
-    --app-select-placeholder: #{$text-light};
-    --app-select-depth: #{color.adjust(
- $border,
-    $lightness: -8%)
-}
-
-;
-/*
+  --app-select-height: 42px;
+  --app-select-radius: 12px;
+  --app-select-padding-x: 12px;
+  --app-select-background: #{$paper};
+  --app-select-border: #{$border};
+  --app-select-color: #{$text-primary};
+  --app-select-muted: #{$text-secondary};
+  --app-select-placeholder: #{$text-light};
+  --app-select-depth: #{color.adjust($border, $lightness: -8%)};
+  /*
      * Inline appearance tokens.
      * They derive from the active variant variables so inline works
      * with default / paper / filled / workspace without duplicating
      * palette logic.
      */
---app-select-inline-hover-background: color-mix(in srgb,
+  --app-select-inline-hover-background: color-mix(
+    in srgb,
     var(--app-select-background) 56%,
-    transparent);
---app-select-inline-hover-border: color-mix(in srgb,
-    var(--app-select-border) 68%,
-    transparent);
---app-select-inline-active-background: color-mix(in srgb,
+    transparent
+  );
+  --app-select-inline-hover-border: color-mix(in srgb, var(--app-select-border) 68%, transparent);
+  --app-select-inline-active-background: color-mix(
+    in srgb,
     var(--app-select-background) 76%,
-    transparent);
---app-select-inline-active-border: color-mix(in srgb,
-    #{$accent} 68%,
-    var(--app-select-border));
-position: relative;
-display: flex;
-flex-direction: column;
-min-width: 0;
-color: var(--app-select-color);
-font-family: $font-body;
+    transparent
+  );
+  --app-select-inline-active-border: color-mix(in srgb, #{$accent} 68%, var(--app-select-border));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--app-select-color);
+  font-family: $font-body;
 }
 
 /* Include borders and padding in the available control width. */
@@ -59,216 +54,190 @@ font-family: $font-body;
 .app-select-wrapper *,
 .app-select-dropdown,
 .app-select-dropdown * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .app-select-has-secondary-action .app-select-trigger {
-    padding-right: 70px;
+  padding-right: 70px;
 }
 
 /* Label */
 .app-select-label-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 7px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
 }
 
 .app-select-label {
-    min-width: 0;
-    color: $text-primary;
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.25;
-    letter-spacing: 0.01em;
-    cursor: pointer;
+  min-width: 0;
+  color: $text-primary;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  cursor: pointer;
 }
 
 .app-select-required {
-    margin-left: 2px;
-    color: $danger;
+  margin-left: 2px;
+  color: $danger;
 }
 
 .app-select-optional {
-    margin-left: 5px;
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 650;
+  margin-left: 5px;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .app-select-label-hint,
 .app-select-label-description {
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.35;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .app-select-label-hint {
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
 .app-select-label-description {
-    margin: -2px 0 7px;
+  margin: -2px 0 7px;
 }
 
 .app-select-visually-hidden {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Trigger */
 .app-select-control-shell {
-    position: relative;
-    width: 100%;
-    min-width: 0;
+  position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
 .app-select-trigger {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-    min-height: var(--app-select-height);
-    padding:
-        0 40px 0 var(--app-select-padding-x);
-    overflow: hidden;
-    color: var(--app-select-color);
-    font: inherit;
-    font-size: 14px;
-    font-weight: 650;
-    line-height: 1.35;
-    text-align: left;
-    cursor: pointer;
-    background-color:
-        var(--app-select-background);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--app-select-height);
+  padding: 0 40px 0 var(--app-select-padding-x);
+  overflow: hidden;
+  color: var(--app-select-color);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  background-color: var(--app-select-background);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.07) 52%,
+    rgba(17, 17, 17, 0.025) 100%
+  );
+  border: 1px solid var(--app-select-border);
+  border-radius: var(--app-select-radius);
+  outline: none;
+  box-shadow:
+    0 2px 0 var(--app-select-depth),
+    0 5px 11px rgba(46, 38, 25, 0.09);
+  transition:
+    transform 150ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    opacity 160ms ease;
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: '';
+    pointer-events: none;
+    opacity: 0.13;
     background-image:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.34) 0%,
-            rgba(255, 255, 255, 0.07) 52%,
-            rgba(17, 17, 17, 0.025) 100%);
-    border:
-        1px solid var(--app-select-border);
-    border-radius:
-        var(--app-select-radius);
-    outline: none;
+      radial-gradient(circle at 18% 25%, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 0.9px),
+      radial-gradient(circle at 70% 72%, rgba(17, 17, 17, 0.13) 0 0.65px, transparent 0.9px);
+    background-size:
+      13px 13px,
+      17px 17px;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color.adjust($border, $lightness: -10%);
+    transform: translateY(-1px);
     box-shadow:
-        0 2px 0 var(--app-select-depth),
-        0 5px 11px rgba(46, 38, 25, 0.09);
-    transition:
-        transform 150ms ease,
-        border-color 160ms ease,
-        box-shadow 160ms ease,
-        background-color 160ms ease,
-        opacity 160ms ease;
+      0 2px 0 var(--app-select-depth),
+      0 7px 14px rgba(46, 38, 25, 0.11);
+  }
 
-    &::after {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        content: '';
-        pointer-events: none;
-        opacity: 0.13;
-        background-image:
-            radial-gradient(circle at 18% 25%,
-                rgba(255, 255, 255, 0.7) 0 0.7px,
-                transparent 0.9px),
-            radial-gradient(circle at 70% 72%,
-                rgba(17, 17, 17, 0.13) 0 0.65px,
-                transparent 0.9px);
-        background-size:
-            13px 13px,
-            17px 17px;
-    }
+  &:focus-visible {
+    border-color: $accent;
+    box-shadow:
+      0 0 0 3px rgba($accent, 0.16),
+      0 3px 0 color.adjust($accent, $lightness: -13%),
+      0 9px 18px rgba(46, 38, 25, 0.13);
+  }
 
-    &:hover:not(:disabled) {
-        border-color:
-            color.adjust($border,
-                $lightness: -10%);
-        transform: translateY(-1px);
-        box-shadow:
-            0 2px 0 var(--app-select-depth),
-            0 7px 14px rgba(46, 38, 25, 0.11);
-    }
-
-    &:focus-visible {
-        border-color: $accent;
-        box-shadow:
-            0 0 0 3px rgba($accent, 0.16),
-            0 3px 0 color.adjust($accent,
-                $lightness: -13%),
-            0 9px 18px rgba(46, 38, 25, 0.13);
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-    }
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .app-select-open {
-    .app-select-trigger {
-        z-index: 3;
-        border-color: $accent;
-        transform: translateY(-1px);
-        box-shadow:
-            0 0 0 3px rgba($accent, 0.16),
-            0 3px 0 color.adjust($accent,
-                $lightness: -13%),
-            0 9px 18px rgba(46, 38, 25, 0.13);
-    }
+  .app-select-trigger {
+    z-index: 3;
+    border-color: $accent;
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 3px rgba($accent, 0.16),
+      0 3px 0 color.adjust($accent, $lightness: -13%),
+      0 9px 18px rgba(46, 38, 25, 0.13);
+  }
 }
 
 .app-select-paper {
-    --app-select-background: #{$page-bg};
+  --app-select-background: #{$page-bg};
 }
 
 .app-select-filled {
-    --app-select-background: #{$paper-dark};
-    --app-select-border: #{$border-light};
+  --app-select-background: #{$paper-dark};
+  --app-select-border: #{$border-light};
 }
 
 .app-select-status-danger {
-    --app-select-border: #{$danger};
-    --app-select-depth: #{color.adjust(
- $danger,
-    $lightness: -8%)
-}
-
-;
+  --app-select-border: #{$danger};
+  --app-select-depth: #{color.adjust($danger, $lightness: -8%)};
 }
 
 .app-select-status-success {
-    --app-select-border: #{$success};
-    --app-select-depth: #{color.adjust(
- $success,
-    $lightness: -8%)
-}
-
-;
+  --app-select-border: #{$success};
+  --app-select-depth: #{color.adjust($success, $lightness: -8%)};
 }
 
 .app-select-status-warning {
-    --app-select-border: #{$warning};
-    --app-select-depth: #{color.adjust(
- $warning,
-    $lightness: -8%)
-}
-
-;
+  --app-select-border: #{$warning};
+  --app-select-depth: #{color.adjust($warning, $lightness: -8%)};
 }
 
 .app-select-disabled {
-    opacity: 0.62;
+  opacity: 0.62;
 }
 
 /* =========================================================
@@ -277,36 +246,39 @@ font-family: $font-body;
    Highlights border on focus / open.
    ========================================================= */
 .app-select-appearance-simple {
-    --app-select-background: #ffffff;
+  --app-select-background: #ffffff;
 }
 
 .app-select-appearance-simple .app-select-trigger {
-    background-color: var(--app-select-background, #ffffff);
-    background-image: none;
-    border: 1px solid var(--app-select-border);
-    border-radius: var(--app-select-radius);
-    box-shadow: none;
-    transform: none;
-    transition: border-color 160ms ease, background-color 160ms ease;
+  background-color: var(--app-select-background, #ffffff);
+  background-image: none;
+  border: 1px solid var(--app-select-border);
+  border-radius: var(--app-select-radius);
+  box-shadow: none;
+  transform: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
 }
 
 .app-select-appearance-simple .app-select-trigger::after {
-    display: none;
+  display: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .app-select-appearance-simple:not(.app-select-disabled, .app-select-open) .app-select-trigger:hover {
-        border-color: color.adjust($border, $lightness: -10%);
-        box-shadow: none;
-        transform: none;
-    }
+  .app-select-appearance-simple:not(.app-select-disabled, .app-select-open)
+    .app-select-trigger:hover {
+    border-color: color.adjust($border, $lightness: -10%);
+    box-shadow: none;
+    transform: none;
+  }
 }
 
 .app-select-appearance-simple.app-select-open .app-select-trigger,
 .app-select-appearance-simple .app-select-trigger:focus-visible {
-    border-color: $accent;
-    box-shadow: none;
-    transform: none;
+  border-color: $accent;
+  box-shadow: none;
+  transform: none;
 }
 
 /* =========================================================
@@ -319,99 +291,97 @@ font-family: $font-body;
  * presented like lightweight inline text until the user interacts.
  */
 .app-select-appearance-inline .app-select-trigger {
-    background: transparent;
-    background-image: none;
-    border-color: transparent;
-    box-shadow: none;
-    transform: none;
+  background: transparent;
+  background-image: none;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 .app-select-appearance-inline .app-select-trigger::after {
-    display: none;
+  display: none;
 }
 
 /*
  * Keep the chevron visible but quiet while the control is idle.
  */
 .app-select-appearance-inline .app-select-chevron {
-    opacity: 0.62;
-    transition:
-        color 140ms ease,
-        opacity 140ms ease,
-        transform 160ms ease,
-        background-color 140ms ease,
-        border-color 140ms ease;
+  opacity: 0.62;
+  transition:
+    color 140ms ease,
+    opacity 140ms ease,
+    transform 160ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
 }
 
 /*
  * Hover reveals that the value is editable.
  */
 @media (hover: hover) and (pointer: fine) {
+  .app-select-appearance-inline.app-select-inline-hover-border:not(
+      .app-select-disabled,
+      .app-select-open
+    )
+    .app-select-trigger:hover {
+    border-color: var(--app-select-inline-hover-border);
+  }
 
-    .app-select-appearance-inline.app-select-inline-hover-border:not(.app-select-disabled,
-        .app-select-open) .app-select-trigger:hover {
-        border-color:
-            var(--app-select-inline-hover-border);
-    }
+  .app-select-appearance-inline.app-select-inline-hover-background:not(
+      .app-select-disabled,
+      .app-select-open
+    )
+    .app-select-trigger:hover {
+    background: var(--app-select-inline-hover-background);
+  }
 
-    .app-select-appearance-inline.app-select-inline-hover-background:not(.app-select-disabled,
-        .app-select-open) .app-select-trigger:hover {
-        background:
-            var(--app-select-inline-hover-background);
-    }
-
-    /*
+  /*
      * Remove the default lifted Select hover treatment.
      */
-    .app-select-appearance-inline:not(.app-select-disabled) .app-select-trigger:hover {
-        transform: none;
-        box-shadow: none;
-    }
+  .app-select-appearance-inline:not(.app-select-disabled) .app-select-trigger:hover {
+    transform: none;
+    box-shadow: none;
+  }
 
-    .app-select-appearance-inline:not(.app-select-disabled) .app-select-trigger:hover~.app-select-actions .app-select-chevron {
-        opacity: 0.94;
-    }
+  .app-select-appearance-inline:not(.app-select-disabled)
+    .app-select-trigger:hover
+    ~ .app-select-actions
+    .app-select-chevron {
+    opacity: 0.94;
+  }
 }
 
 /*
  * Keyboard focus before the dropdown opens.
  */
 .app-select-appearance-inline .app-select-trigger:focus-visible {
-    background:
-        var(--app-select-inline-active-background);
-    border-color:
-        var(--app-select-inline-active-border);
-    transform: none;
-    box-shadow: none;
+  background: var(--app-select-inline-active-background);
+  border-color: var(--app-select-inline-active-border);
+  transform: none;
+  box-shadow: none;
 }
 
 .app-select-appearance-inline.app-select-inline-focus-ring .app-select-trigger:focus-visible {
-    box-shadow:
-        0 0 0 3px rgba($accent,
-            0.09);
+  box-shadow: 0 0 0 3px rgba($accent, 0.09);
 }
 
 /*
  * Open state is equivalent to the focused state of app-input.
  */
 .app-select-appearance-inline.app-select-open .app-select-trigger {
-    z-index: 3;
-    background:
-        var(--app-select-inline-active-background);
-    border-color:
-        var(--app-select-inline-active-border);
-    transform: none;
-    box-shadow: none;
+  z-index: 3;
+  background: var(--app-select-inline-active-background);
+  border-color: var(--app-select-inline-active-border);
+  transform: none;
+  box-shadow: none;
 }
 
 .app-select-appearance-inline.app-select-inline-focus-ring.app-select-open .app-select-trigger {
-    box-shadow:
-        0 0 0 3px rgba($accent,
-            0.09);
+  box-shadow: 0 0 0 3px rgba($accent, 0.09);
 }
 
 .app-select-appearance-inline.app-select-open .app-select-chevron {
-    opacity: 1;
+  opacity: 1;
 }
 
 /*
@@ -419,36 +389,30 @@ font-family: $font-body;
  * We do not hide status feedback just because the Select is inline.
  */
 .app-select-appearance-inline.app-select-status-success .app-select-trigger {
-    border-color: color-mix(in srgb,
-        #{$success} 58%,
-        transparent);
+  border-color: color-mix(in srgb, #{$success} 58%, transparent);
 }
 
 .app-select-appearance-inline.app-select-status-warning .app-select-trigger {
-    border-color: color-mix(in srgb,
-        #{$warning} 62%,
-        transparent);
+  border-color: color-mix(in srgb, #{$warning} 62%, transparent);
 }
 
 .app-select-appearance-inline.app-select-status-danger .app-select-trigger {
-    border-color: color-mix(in srgb,
-        #{$danger} 64%,
-        transparent);
+  border-color: color-mix(in srgb, #{$danger} 64%, transparent);
 }
 
 .app-select-appearance-inline.app-select-status-success.app-select-open .app-select-trigger,
 .app-select-appearance-inline.app-select-status-success .app-select-trigger:focus-visible {
-    border-color: $success;
+  border-color: $success;
 }
 
 .app-select-appearance-inline.app-select-status-warning.app-select-open .app-select-trigger,
 .app-select-appearance-inline.app-select-status-warning .app-select-trigger:focus-visible {
-    border-color: $warning;
+  border-color: $warning;
 }
 
 .app-select-appearance-inline.app-select-status-danger.app-select-open .app-select-trigger,
 .app-select-appearance-inline.app-select-status-danger .app-select-trigger:focus-visible {
-    border-color: $danger;
+  border-color: $danger;
 }
 
 /*
@@ -457,311 +421,293 @@ font-family: $font-body;
  * the permanent chevron box until hover/open.
  */
 .app-select-appearance-inline.app-select-workspace .app-select-chevron {
-    background: transparent;
-    border-color: transparent;
+  background: transparent;
+  border-color: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .app-select-appearance-inline.app-select-workspace:not(.app-select-disabled):hover .app-select-chevron {
-        background:
-            color-mix(in srgb,
-                var(--app-select-background) 68%,
-                transparent);
-        border-color:
-            color-mix(in srgb,
-                var(--app-select-border) 56%,
-                transparent);
-    }
+  .app-select-appearance-inline.app-select-workspace:not(.app-select-disabled):hover
+    .app-select-chevron {
+    background: color-mix(in srgb, var(--app-select-background) 68%, transparent);
+    border-color: color-mix(in srgb, var(--app-select-border) 56%, transparent);
+  }
 }
 
 .app-select-appearance-inline.app-select-workspace.app-select-open .app-select-chevron {
-    background:
-        color-mix(in srgb,
-            var(--app-select-background) 68%,
-            transparent);
-    border-color:
-        color-mix(in srgb,
-            var(--app-select-border) 56%,
-            transparent);
+  background: color-mix(in srgb, var(--app-select-background) 68%, transparent);
+  border-color: color-mix(in srgb, var(--app-select-border) 56%, transparent);
 }
 
 /*
  * Clear stays functional but visually secondary.
  */
 .app-select-appearance-inline .app-select-clear {
-    opacity: 0.68;
+  opacity: 0.68;
 }
 
 .app-select-appearance-inline .app-select-clear:hover,
 .app-select-appearance-inline.app-select-open .app-select-clear {
-    opacity: 1;
+  opacity: 1;
 }
 
 /*
  * On touch there is no hover. Rest stays transparent and the
  * visual field appears when it is opened/focused.
  */
-@media (hover: none),
-(pointer: coarse) {
-    .app-select-appearance-inline:not(.app-select-open) .app-select-trigger {
-        background: transparent;
-        border-color: transparent;
-        box-shadow: none;
-    }
+@media (hover: none), (pointer: coarse) {
+  .app-select-appearance-inline:not(.app-select-open) .app-select-trigger {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
 
-    .app-select-appearance-inline.app-select-status-success:not(.app-select-open) .app-select-trigger {
-        border-color: color-mix(in srgb,
-            #{$success} 58%,
-            transparent);
-    }
+  .app-select-appearance-inline.app-select-status-success:not(.app-select-open)
+    .app-select-trigger {
+    border-color: color-mix(in srgb, #{$success} 58%, transparent);
+  }
 
-    .app-select-appearance-inline.app-select-status-warning:not(.app-select-open) .app-select-trigger {
-        border-color: color-mix(in srgb,
-            #{$warning} 62%,
-            transparent);
-    }
+  .app-select-appearance-inline.app-select-status-warning:not(.app-select-open)
+    .app-select-trigger {
+    border-color: color-mix(in srgb, #{$warning} 62%, transparent);
+  }
 
-    .app-select-appearance-inline.app-select-status-danger:not(.app-select-open) .app-select-trigger {
-        border-color: color-mix(in srgb,
-            #{$danger} 64%,
-            transparent);
-    }
+  .app-select-appearance-inline.app-select-status-danger:not(.app-select-open) .app-select-trigger {
+    border-color: color-mix(in srgb, #{$danger} 64%, transparent);
+  }
 }
 
 /* Value */
 .app-select-value {
-    display: flex;
-    flex: 1 1 auto;
-    align-items: center;
-    min-width: 0;
-    gap: 9px;
-    overflow: hidden;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  overflow: hidden;
 }
 
 .app-select-value.is-placeholder {
-    color: var(--app-select-placeholder);
-    font-weight: 600;
+  color: var(--app-select-placeholder);
+  font-weight: 600;
 }
 
 .app-select-placeholder,
 .app-select-single-value {
-    display: block;
-    flex: 1 1 0;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-select-leading-icon {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
 .app-select-leading-icon,
 .app-select-selected-icon {
-    display: grid;
-    flex: 0 0 20px;
-    width: 20px;
-    height: 20px;
-    place-items: center;
-    color: var(--app-select-muted);
+  display: grid;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: var(--app-select-muted);
 }
 
 .app-select-open,
 .app-select-wrapper:has(.app-select-trigger:hover) {
-    .app-select-leading-icon {
-        color: $accent;
-    }
+  .app-select-leading-icon {
+    color: $accent;
+  }
 }
 
 .app-select-value-avatar {
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
 /* Actions */
 .app-select-actions {
-    position: absolute;
-    top: 0;
-    right: 7px;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    gap: 1px;
-    pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 7px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 1px;
+  pointer-events: none;
 }
 
 .app-select-clear {
-    display: grid;
-    flex: 0 0 29px;
-    width: 29px;
-    height: 29px;
-    padding: 0;
-    place-items: center;
-    color: var(--app-select-muted);
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    border-radius: 8px;
-    pointer-events: auto;
+  display: grid;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  place-items: center;
+  color: var(--app-select-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  pointer-events: auto;
 
-    &:hover {
-        color: $danger;
-        background: rgba($danger, 0.08);
-    }
+  &:hover {
+    color: $danger;
+    background: rgba($danger, 0.08);
+  }
 
-    &:focus-visible {
-        outline: 2px solid rgba($danger, 0.25);
-        outline-offset: 1px;
-    }
+  &:focus-visible {
+    outline: 2px solid rgba($danger, 0.25);
+    outline-offset: 1px;
+  }
 }
 
 .app-select-chevron {
-    display: grid;
-    flex: 0 0 29px;
-    width: 29px;
-    height: 29px;
-    place-items: center;
-    color: var(--app-select-muted);
-    pointer-events: none;
-    transition:
-        color 160ms ease,
-        transform 160ms ease;
+  display: grid;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  color: var(--app-select-muted);
+  pointer-events: none;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .app-select-open {
-    .app-select-chevron {
-        color: $accent;
-        transform: rotate(180deg);
-    }
+  .app-select-chevron {
+    color: $accent;
+    transform: rotate(180deg);
+  }
 }
 
 /* Multiple selection */
 .app-select-chips {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    gap: 5px;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 5px;
+  overflow: hidden;
 }
 
 .app-select-chip {
-    display: inline-flex;
-    align-items: center;
-    flex: 0 1 auto;
-    min-width: 0;
-    height: 25px;
-    gap: 5px;
-    padding: 0 8px;
-    color: $text-primary;
-    font-size: 0.72rem;
-    font-weight: 750;
-    background: $note-yellow;
-    border: 1px solid color.adjust($note-yellow,
-            $lightness: -12%);
-    border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 25px;
+  gap: 5px;
+  padding: 0 8px;
+  color: $text-primary;
+  font-size: 0.72rem;
+  font-weight: 750;
+  background: $note-yellow;
+  border: 1px solid color.adjust($note-yellow, $lightness: -12%);
+  border-radius: 7px;
 }
 
 .app-select-chip-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-select-chip-remove {
-    flex: 0 0 auto;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0.55;
+  flex: 0 0 auto;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
 
-    &:hover {
-        opacity: 1;
-    }
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .app-select-count {
-    display: inline-flex;
-    flex: 0 0 auto;
+  display: inline-flex;
+  flex: 0 0 auto;
 }
 
 /* Workspace variant */
 .app-select-workspace {
-    --app-select-height: 58px;
-    --app-select-radius: 14px;
-    --app-select-background: #{$page-bg};
-    --app-select-border: #{$border-light};
+  --app-select-height: 58px;
+  --app-select-radius: 14px;
+  --app-select-background: #{$page-bg};
+  --app-select-border: #{$border-light};
 
-    .app-select-trigger {
-        padding:
-            7px 44px 7px 8px;
-    }
+  .app-select-trigger {
+    padding: 7px 44px 7px 8px;
+  }
 
-    .app-select-actions {
-        right: 8px;
-    }
+  .app-select-actions {
+    right: 8px;
+  }
 
-    .app-select-chevron {
-        width: 31px;
-        height: 31px;
-        color: $text-secondary;
-        background: rgba($paper-dark, 0.78);
-        border: 1px solid $border-light;
-        border-radius: 9px;
-    }
+  .app-select-chevron {
+    width: 31px;
+    height: 31px;
+    color: $text-secondary;
+    background: rgba($paper-dark, 0.78);
+    border: 1px solid $border-light;
+    border-radius: 9px;
+  }
 }
 
 .app-select-identity-avatar {
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
 .app-select-identity-copy {
-    display: grid;
-    min-width: 0;
-    gap: 1px;
+  display: grid;
+  min-width: 0;
+  gap: 1px;
 
-    small {
-        color: $text-light;
-        font-size: 0.54rem;
-        font-weight: 850;
-        letter-spacing: 0.075em;
-        line-height: 1.15;
-        text-transform: uppercase;
-    }
+  small {
+    color: $text-light;
+    font-size: 0.54rem;
+    font-weight: 850;
+    letter-spacing: 0.075em;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
 
-    strong {
-        overflow: hidden;
-        color: $heading;
-        font-size: 0.81rem;
-        font-weight: 800;
-        line-height: 1.25;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+  strong {
+    overflow: hidden;
+    color: $heading;
+    font-size: 0.81rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    >span {
-        overflow: hidden;
-        color: $text-light;
-        font-size: 0.61rem;
-        font-weight: 600;
-        line-height: 1.2;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+  > span {
+    overflow: hidden;
+    color: $text-light;
+    font-size: 0.61rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 /* Message */
 .app-select-message {
-    min-height: 17px;
-    margin: 6px 2px 0;
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.35;
+  min-height: 17px;
+  margin: 6px 2px 0;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
 
-    &.is-error {
-        color: $danger;
-    }
+  &.is-error {
+    color: $danger;
+  }
 }
 
 /*
@@ -770,449 +716,432 @@ font-family: $font-body;
  * measured with getBoundingClientRect().
  */
 .app-select-dropdown {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10000;
-    display: none;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-    color: $text-primary;
-    font-family: $font-body;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: $radius-sm;
-    box-shadow:
-        0 18px 45px rgba(46, 38, 25, 0.18),
-        0 4px 12px rgba(46, 38, 25, 0.08);
-    visibility: hidden;
-    opacity: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  color: $text-primary;
+  font-family: $font-body;
+  background: $paper;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  box-shadow:
+    0 18px 45px rgba(46, 38, 25, 0.18),
+    0 4px 12px rgba(46, 38, 25, 0.08);
+  visibility: hidden;
+  opacity: 0;
 
-    &.is-visible {
-        display: flex;
-    }
+  &.is-visible {
+    display: flex;
+  }
 
-    &.is-visible.is-positioned {
-        visibility: visible;
-        opacity: 1;
-    }
+  &.is-visible.is-positioned {
+    visibility: visible;
+    opacity: 1;
+  }
 
-    &.open-bottom {
-        transform-origin: top center;
-    }
+  &.open-bottom {
+    transform-origin: top center;
+  }
 
-    &.open-top {
-        transform-origin: bottom center;
-    }
+  &.open-top {
+    transform-origin: bottom center;
+  }
 
-    &.is-visible.is-positioned.open-bottom {
-        animation:
-            select-enter-bottom 140ms ease-out;
-    }
+  &.is-visible.is-positioned.open-bottom {
+    animation: select-enter-bottom 140ms ease-out;
+  }
 
-    &.is-visible.is-positioned.open-top {
-        animation:
-            select-enter-top 140ms ease-out;
-    }
+  &.is-visible.is-positioned.open-top {
+    animation: select-enter-top 140ms ease-out;
+  }
 }
 
 .app-select-dropdown-workspace {
-    border-radius: 15px;
-    box-shadow:
-        0 22px 54px rgba(46, 38, 25, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 22px 54px rgba(46, 38, 25, 0.2);
 }
 
 .app-select-dropdown-header {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 14px 11px;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 11px;
 }
 
 .app-select-dropdown-heading-copy {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
+  display: grid;
+  min-width: 0;
+  gap: 3px;
 
-    strong {
-        color: $heading;
-        font-size: 0.84rem;
-        font-weight: 850;
-    }
+  strong {
+    color: $heading;
+    font-size: 0.84rem;
+    font-weight: 850;
+  }
 
-    small {
-        color: $text-light;
-        font-size: 0.65rem;
-        line-height: 1.35;
-    }
+  small {
+    color: $text-light;
+    font-size: 0.65rem;
+    line-height: 1.35;
+  }
 }
 
 /* Search */
 .app-select-search {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin: 8px;
+  padding: 0 10px;
+  color: $text-light;
+  background: $page-bg;
+  border: 1px solid $border-light;
+  border-radius: 10px;
+
+  &:focus-within {
+    color: $accent;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.1);
+  }
+
+  input {
+    width: 100%;
+    height: 36px;
+    padding: 0;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.8rem;
+    background: transparent;
+    border: 0;
+    outline: 0;
+
+    &::placeholder {
+      color: $text-light;
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+
+  button {
     display: grid;
-    flex: 0 0 auto;
-    grid-template-columns:
-        auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 8px;
-    margin: 8px;
-    padding: 0 10px;
+    width: 27px;
+    height: 27px;
+    padding: 0;
+    place-items: center;
     color: $text-light;
-    background: $page-bg;
-    border: 1px solid $border-light;
-    border-radius: 10px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
 
-    &:focus-within {
-        color: $accent;
-        border-color: $accent;
-        box-shadow:
-            0 0 0 3px rgba($accent, 0.1);
+    &:hover {
+      color: $text-primary;
+      background: $paper-dark;
     }
-
-    input {
-        width: 100%;
-        height: 36px;
-        padding: 0;
-        color: $text-primary;
-        font: inherit;
-        font-size: 0.8rem;
-        background: transparent;
-        border: 0;
-        outline: 0;
-
-        &::placeholder {
-            color: $text-light;
-        }
-
-        &::-webkit-search-cancel-button {
-            display: none;
-        }
-    }
-
-    button {
-        display: grid;
-        width: 27px;
-        height: 27px;
-        padding: 0;
-        place-items: center;
-        color: $text-light;
-        cursor: pointer;
-        background: transparent;
-        border: 0;
-        border-radius: 6px;
-
-        &:hover {
-            color: $text-primary;
-            background: $paper-dark;
-        }
-    }
+  }
 }
 
 /* Options */
 .app-select-options {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 6px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($text-primary, 0.2) transparent;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($text-primary, 0.2) transparent;
 }
 
 .app-select-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 9px 9px 5px;
-    color: $text-light;
-    font-size: 0.63rem;
-    font-weight: 850;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 9px 5px;
+  color: $text-light;
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .app-select-option {
-    display: grid;
-    grid-template-columns:
-        auto minmax(0, 1fr) auto;
-    align-items: center;
-    width: 100%;
-    min-height: 43px;
-    gap: 10px;
-    padding: 7px 9px;
-    color: $text-primary;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    outline: none;
-    transition:
-        background-color 130ms ease,
-        border-color 130ms ease;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-height: 43px;
+  gap: 10px;
+  padding: 7px 9px;
+  color: $text-primary;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  outline: none;
+  transition:
+    background-color 130ms ease,
+    border-color 130ms ease;
 
-    &:hover:not(:disabled),
-    &.is-active {
-        background: $paper-dark;
-        border-color: $border-light;
-    }
+  &:hover:not(:disabled),
+  &.is-active {
+    background: $paper-dark;
+    border-color: $border-light;
+  }
 
-    &.is-selected {
-        background: rgba($note-yellow, 0.4);
-        border-color:
-            color.adjust($note-yellow,
-                $lightness: -11%);
-    }
+  &.is-selected {
+    background: rgba($note-yellow, 0.4);
+    border-color: color.adjust($note-yellow, $lightness: -11%);
+  }
 
-    &:focus-visible {
-        border-color: $accent;
-        box-shadow:
-            0 0 0 2px rgba($accent, 0.13);
-    }
+  &:focus-visible {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.13);
+  }
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.45;
-    }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
 }
 
 .app-select-dropdown-workspace {
-    .app-select-option {
-        min-height: 58px;
-        padding: 8px;
-        border-radius: 11px;
-    }
+  .app-select-option {
+    min-height: 58px;
+    padding: 8px;
+    border-radius: 11px;
+  }
 }
 
 .app-select-option-icon {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    color: $text-secondary;
-    background: $page-bg;
-    border: 1px solid $border-light;
-    border-radius: 8px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: $text-secondary;
+  background: $page-bg;
+  border: 1px solid $border-light;
+  border-radius: 8px;
 }
 
 .app-select-option-avatar {
-    align-self: center;
+  align-self: center;
 }
 
 .app-select-option-copy {
-    grid-column: 2;
-    display: grid;
-    min-width: 0;
-    gap: 2px;
+  grid-column: 2;
+  display: grid;
+  min-width: 0;
+  gap: 2px;
 
-    strong {
-        overflow: hidden;
-        color: $text-primary;
-        font-size: 0.79rem;
-        font-weight: 750;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+  strong {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.79rem;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    small {
-        overflow: hidden;
-        color: $text-light;
-        font-size: 0.67rem;
-        line-height: 1.35;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+  small {
+    overflow: hidden;
+    color: $text-light;
+    font-size: 0.67rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .app-select-option-end {
-    grid-column: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    min-width: 25px;
-    gap: 5px;
+  grid-column: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 25px;
+  gap: 5px;
 }
 
 .app-select-check {
-    display: grid;
-    width: 25px;
-    height: 25px;
-    place-items: center;
-    color: $success;
-    opacity: 0;
-    transform: scale(0.75);
-    transition:
-        opacity 130ms ease,
-        transform 130ms ease;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  color: $success;
+  opacity: 0;
+  transform: scale(0.75);
+  transition:
+    opacity 130ms ease,
+    transform 130ms ease;
 
-    &.is-visible {
-        opacity: 1;
-        transform: scale(1);
-    }
+  &.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .app-select-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 92px;
-    gap: 9px;
-    padding: 18px;
-    color: $text-light;
-    font-size: 0.76rem;
-    text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 92px;
+  gap: 9px;
+  padding: 18px;
+  color: $text-light;
+  font-size: 0.76rem;
+  text-align: center;
 }
 
 /* Spinner */
 .app-select-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border:
-        2px solid rgba($text-primary, 0.16);
-    border-top-color: $accent;
-    border-radius: 50%;
-    animation:
-        select-spin 700ms linear infinite;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba($text-primary, 0.16);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: select-spin 700ms linear infinite;
 }
 
 /* Animations */
 @keyframes select-enter-bottom {
-    from {
-        opacity: 0;
-        transform:
-            translateY(-5px) scale(0.985);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.985);
+  }
 
-    to {
-        opacity: 1;
-        transform:
-            translateY(0) scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes select-enter-top {
-    from {
-        opacity: 0;
-        transform:
-            translateY(5px) scale(0.985);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.985);
+  }
 
-    to {
-        opacity: 1;
-        transform:
-            translateY(0) scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes select-spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 480px) {
-    .app-select-dropdown {
-        border-radius: 12px;
-    }
+  .app-select-dropdown {
+    border-radius: 12px;
+  }
 
-    .app-select-dropdown-header {
-        padding-inline: 12px;
-    }
+  .app-select-dropdown-header {
+    padding-inline: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .app-select-trigger,
-    .app-select-chevron,
-    .app-select-option,
-    .app-select-check,
-    .app-select-dropdown,
-    .app-select-spinner {
-        animation: none;
-        transition: none;
-    }
+  .app-select-trigger,
+  .app-select-chevron,
+  .app-select-option,
+  .app-select-check,
+  .app-select-dropdown,
+  .app-select-spinner {
+    animation: none;
+    transition: none;
+  }
 }
 
 /* Additional flat appearances. Existing standard/inline styles stay available. */
 .app-select-appearance-outlined .app-select-trigger,
 .app-select-appearance-transparent .app-select-trigger {
-    background: transparent;
-    box-shadow: none;
-    transform: none;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 .app-select-appearance-outlined .app-select-trigger::after,
 .app-select-appearance-transparent .app-select-trigger::after {
-    display: none;
+  display: none;
 }
 
 .app-select-appearance-transparent:not(.app-select-open) .app-select-trigger {
-    border-color: transparent;
+  border-color: transparent;
 }
 
 .app-select-appearance-outlined .app-select-trigger:hover:not(:disabled),
 .app-select-appearance-transparent .app-select-trigger:hover:not(:disabled) {
-    background: var(--app-select-inline-hover-background);
-    border-color: var(--app-select-border);
-    box-shadow: none;
-    transform: none;
+  background: var(--app-select-inline-hover-background);
+  border-color: var(--app-select-border);
+  box-shadow: none;
+  transform: none;
 }
 
 .app-select-appearance-outlined.app-select-open .app-select-trigger,
 .app-select-appearance-transparent.app-select-open .app-select-trigger,
 .app-select-appearance-outlined .app-select-trigger:focus-visible,
 .app-select-appearance-transparent .app-select-trigger:focus-visible {
-    border-color: var(--app-select-inline-active-border);
-    box-shadow: 0 0 0 2px rgba($accent, 0.12);
-    transform: none;
+  border-color: var(--app-select-inline-active-border);
+  box-shadow: 0 0 0 2px rgba($accent, 0.12);
+  transform: none;
 }
 
 .app-select-appearance-transparent.app-select-status-danger .app-select-trigger,
 .app-select-appearance-transparent.app-select-status-warning .app-select-trigger,
 .app-select-appearance-transparent.app-select-status-success .app-select-trigger {
-    border-color: var(--app-select-border);
+  border-color: var(--app-select-border);
 }
 
 .app-select-workspace.app-select-has-secondary-action .app-select-trigger {
-    padding-right: 74px;
+  padding-right: 74px;
 }
 
 /* Defined on the swatch itself so body-mounted menus retain the palette. */
 .app-select-color-swatch {
-    --app-select-swatch-white: #{$paper};
-    --app-select-swatch-yellow: #{color.mix($note-yellow, $paper, 30%)};
-    --app-select-swatch-orange: #{color.mix($note-orange, $paper, 20%)};
-    --app-select-swatch-pink: #{color.mix($note-pink, $paper, 34%)};
-    --app-select-swatch-red: #{color.mix($note-red, $paper, 20%)};
-    --app-select-swatch-green: #{color.mix($note-green, $paper, 18%)};
-    --app-select-swatch-blue: #{color.mix($note-blue, $paper, 16%)};
-    --app-select-swatch-purple: #{color.mix($note-purple, $paper, 14%)};
-    --app-select-swatch-brown: #{color.mix($note-brown, $paper, 18%)};
-    --app-select-swatch-black: #{$note-jet-black};
-    display: inline-block;
-    flex: 0 0 18px;
-    width: 18px;
-    height: 18px;
-    border: 1px solid rgb(127 127 127 / 0.45);
-    border-radius: 50%;
+  --app-select-swatch-white: #{$paper};
+  --app-select-swatch-yellow: #{color.mix($note-yellow, $paper, 30%)};
+  --app-select-swatch-orange: #{color.mix($note-orange, $paper, 20%)};
+  --app-select-swatch-pink: #{color.mix($note-pink, $paper, 34%)};
+  --app-select-swatch-red: #{color.mix($note-red, $paper, 20%)};
+  --app-select-swatch-green: #{color.mix($note-green, $paper, 18%)};
+  --app-select-swatch-blue: #{color.mix($note-blue, $paper, 16%)};
+  --app-select-swatch-purple: #{color.mix($note-purple, $paper, 14%)};
+  --app-select-swatch-brown: #{color.mix($note-brown, $paper, 18%)};
+  --app-select-swatch-black: #{$note-jet-black};
+  display: inline-block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgb(127 127 127 / 0.45);
+  border-radius: 50%;
 }
 
-.app-select-option>.app-select-color-swatch {
-    width: 22px;
-    height: 22px;
-    margin-inline: 4px;
+.app-select-option > .app-select-color-swatch {
+  width: 22px;
+  height: 22px;
+  margin-inline: 4px;
 }
 
 .app-select-chip .app-select-color-swatch {
-    flex-basis: 12px;
-    width: 12px;
-    height: 12px;
+  flex-basis: 12px;
+  width: 12px;
+  height: 12px;
 }

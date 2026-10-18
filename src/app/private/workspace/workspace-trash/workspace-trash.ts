@@ -1,6 +1,14 @@
 import { canWorkspaceAction } from '../../../shared/functions/workspace-access.function';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,7 +22,7 @@ import {
   LucideRefreshCw,
   LucideSearch,
   LucideTrash2,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
@@ -23,7 +31,11 @@ import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-mo
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
@@ -50,11 +62,11 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'name';
     Loader,
     Select,
     Tabs,
-    UserDatePipe
+    UserDatePipe,
   ],
   templateUrl: './workspace-trash.html',
   styleUrl: './workspace-trash.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceTrash implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -86,12 +98,22 @@ export class WorkspaceTrash implements OnInit {
   readonly sortOptions: readonly SelectOption[] = [
     { label: 'Recently deleted', value: 'deletedAt' },
     { label: 'Deletes soonest', value: 'purgeAfter' },
-    { label: 'Name A–Z', value: 'name' }
+    { label: 'Name A–Z', value: 'name' },
   ];
 
   readonly viewTabs: readonly TabItem[] = [
-    { value: 'grid', label: 'Grid', icon: LucideGrid2X2, ariaLabel: 'Show deleted workspaces in grid view' },
-    { value: 'list', label: 'List', icon: LucideList, ariaLabel: 'Show deleted workspaces in list view' }
+    {
+      value: 'grid',
+      label: 'Grid',
+      icon: LucideGrid2X2,
+      ariaLabel: 'Show deleted workspaces in grid view',
+    },
+    {
+      value: 'list',
+      label: 'List',
+      icon: LucideList,
+      ariaLabel: 'Show deleted workspaces in list view',
+    },
   ];
 
   readonly totalCount = computed(() => this.workspaces().length);
@@ -112,11 +134,19 @@ export class WorkspaceTrash implements OnInit {
 
     return [...list].sort((a: any, b: any) => {
       if (sort === 'name') {
-        return this.workspaceName(a).localeCompare(this.workspaceName(b), undefined, { sensitivity: 'base' });
+        return this.workspaceName(a).localeCompare(this.workspaceName(b), undefined, {
+          sensitivity: 'base',
+        });
       }
 
-      const timeA = this.timestamp(a?.[sort] ?? (sort === 'deletedAt' ? (a?.deletedAt || a?.updatedAt || a?.createdAt) : a?.purgeAfter));
-      const timeB = this.timestamp(b?.[sort] ?? (sort === 'deletedAt' ? (b?.deletedAt || b?.updatedAt || b?.createdAt) : b?.purgeAfter));
+      const timeA = this.timestamp(
+        a?.[sort] ??
+          (sort === 'deletedAt' ? a?.deletedAt || a?.updatedAt || a?.createdAt : a?.purgeAfter),
+      );
+      const timeB = this.timestamp(
+        b?.[sort] ??
+          (sort === 'deletedAt' ? b?.deletedAt || b?.updatedAt || b?.createdAt : b?.purgeAfter),
+      );
 
       if (sort === 'purgeAfter') {
         return timeA - timeB;
@@ -131,7 +161,7 @@ export class WorkspaceTrash implements OnInit {
   }
 
   can(workspace: any, action: any): boolean {
-    const current = this.workspaces().find(item => idOf(item) === idOf(workspace)) ?? workspace;
+    const current = this.workspaces().find((item) => idOf(item) === idOf(workspace)) ?? workspace;
     return canWorkspaceAction(current, action);
   }
 
@@ -153,7 +183,7 @@ export class WorkspaceTrash implements OnInit {
           this.workspaces.set([]);
           this.loading.set(false);
           this.error.set(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.TRASH_LOAD_FAILED));
-        }
+        },
       });
   }
 
@@ -193,14 +223,16 @@ export class WorkspaceTrash implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.workspaces.update((items: any[]) => items.filter((item: any) => this.workspaceId(item) !== id));
+          this.workspaces.update((items: any[]) =>
+            items.filter((item: any) => this.workspaceId(item) !== id),
+          );
           this.actionId.set(null);
           this.workspaceStore.load(true);
 
           const name = this.workspaceName(workspace);
           this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.RESTORED(name), {
             title: 'Workspace restored',
-            dedupeKey: `restore-workspace-${id}`
+            dedupeKey: `restore-workspace-${id}`,
           });
         },
         error: (error: any) => {
@@ -209,11 +241,14 @@ export class WorkspaceTrash implements OnInit {
             this.permanentTarget.set(null);
             this.loadTrash();
           }
-          this.toastService.error(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.RESTORE_FAILED), {
-            title: 'Restore failed',
-            dedupeKey: `restore-workspace-${id}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.RESTORE_FAILED),
+            {
+              title: 'Restore failed',
+              dedupeKey: `restore-workspace-${id}`,
+            },
+          );
+        },
       });
   }
 
@@ -242,13 +277,15 @@ export class WorkspaceTrash implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.workspaces.update((items: any[]) => items.filter((item: any) => this.workspaceId(item) !== id));
+          this.workspaces.update((items: any[]) =>
+            items.filter((item: any) => this.workspaceId(item) !== id),
+          );
           this.actionId.set(null);
           this.permanentTarget.set(null);
 
           this.toastService.success(WORKSPACE_MESSAGES.SUCCESS.PERMANENTLY_DELETED, {
             title: 'Deleted permanently',
-            dedupeKey: `permanent-workspace-${id}`
+            dedupeKey: `permanent-workspace-${id}`,
           });
         },
         error: (error: any) => {
@@ -257,11 +294,14 @@ export class WorkspaceTrash implements OnInit {
             this.permanentTarget.set(null);
             this.loadTrash();
           }
-          this.toastService.error(extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED), {
-            title: 'Delete failed',
-            dedupeKey: `permanent-workspace-${id}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, WORKSPACE_MESSAGES.ERROR.PERMANENT_DELETE_FAILED),
+            {
+              title: 'Delete failed',
+              dedupeKey: `permanent-workspace-${id}`,
+            },
+          );
+        },
       });
   }
 
@@ -285,10 +325,7 @@ export class WorkspaceTrash implements OnInit {
     const purgeAfter = this.timestamp(workspace?.purgeAfter);
     if (!purgeAfter) return 60;
 
-    return Math.max(
-      0,
-      Math.ceil((purgeAfter - Date.now()) / 86_400_000)
-    );
+    return Math.max(0, Math.ceil((purgeAfter - Date.now()) / 86_400_000));
   }
 
   purgeLabel(workspace: any): string {
@@ -310,4 +347,3 @@ export class WorkspaceTrash implements OnInit {
     return Number.isFinite(time) ? time : 0;
   }
 }
-

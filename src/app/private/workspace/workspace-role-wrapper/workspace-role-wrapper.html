@@ -1,57 +1,69 @@
-<div class="role-wrapper"
-     [class.role-wrapper--system]="isSystem"
-     [class.role-wrapper--default]="isDefault"
-     [class.role-wrapper--inactive]="!isActive"
-     [class.role-wrapper--interactive]="interactive"
-     [attr.aria-busy]="busy">
-    <div class="role-wrapper__content">
-        <div class="role-wrapper__header">
-            <app-badge [label]="typeLabel" [variant]="typeBadgeVariant" size="xs" shape="pill" [icon]="typeIcon" />
-            <div class="role-wrapper__actions" (click)="$event.stopPropagation()">
-                <ng-content select="[role-actions]" />
-            </div>
-        </div>
-        <div class="role-wrapper__body"
-             [attr.role]="interactive ? 'button' : null"
-             [attr.tabindex]="interactive && !busy ? 0 : null"
-             [attr.aria-disabled]="interactive ? busy : null"
-             [attr.aria-label]="interactive ? ('Open ' + displayName) : null"
-             (click)="interactive && !busy && opened.emit($event)"
-             (keydown)="onKeydown($event)">
-            <div class="role-wrapper__hero" aria-hidden="true">
-                <span class="role-wrapper__avatar" [class.is-system]="isSystem" [class.is-default]="isDefault">
-                    <app-icon [icon]="shieldIcon" size="md" />
-                </span>
-                @if (isDefault) {
-                <span class="role-wrapper__star-badge" title="Default role">
-                    <app-icon [icon]="Star" size="xs" />
-                </span>
-                }
-            </div>
-            <h3 class="role-wrapper__title" [title]="displayName">
-                <ng-content select="[role-title]">{{ displayName }}</ng-content>
-            </h3>
-            @if (description) {
-            <p class="role-wrapper__desc" [title]="description">{{ description }}</p>
-            }
-            <div class="role-wrapper__facts">
-                @if (permissionCount) {
-                <span class="role-wrapper__fact">
-                    <app-icon [icon]="Key" size="xs" />
-                    <span>{{ permissionCount }}</span>
-                </span>
-                }
-                @if (priorityLabel) {
-                <span class="role-wrapper__fact">
-                    <app-icon [icon]="Zap" size="xs" />
-                    <span>{{ priorityLabel }}</span>
-                </span>
-                }
-            </div>
-
-            <ng-content select="[role-status]" />
-        </div>
-
+<div
+  class="role-wrapper"
+  [class.role-wrapper--system]="isSystem"
+  [class.role-wrapper--default]="isDefault"
+  [class.role-wrapper--inactive]="!isActive"
+  [class.role-wrapper--interactive]="interactive"
+  [attr.aria-busy]="busy"
+>
+  <div class="role-wrapper__content">
+    <div class="role-wrapper__header">
+      <app-badge
+        [label]="typeLabel"
+        [variant]="typeBadgeVariant"
+        size="xs"
+        shape="pill"
+        [icon]="typeIcon"
+      />
+      <div class="role-wrapper__actions" (click)="$event.stopPropagation()">
+        <ng-content select="[role-actions]" />
+      </div>
     </div>
+    <div
+      class="role-wrapper__body"
+      [attr.role]="interactive ? 'button' : null"
+      [attr.tabindex]="interactive && !busy ? 0 : null"
+      [attr.aria-disabled]="interactive ? busy : null"
+      [attr.aria-label]="interactive ? 'Open ' + displayName : null"
+      (click)="interactive && !busy && opened.emit($event)"
+      (keydown)="onKeydown($event)"
+    >
+      <div class="role-wrapper__hero" aria-hidden="true">
+        <span
+          class="role-wrapper__avatar"
+          [class.is-system]="isSystem"
+          [class.is-default]="isDefault"
+        >
+          <app-icon [icon]="shieldIcon" size="md" />
+        </span>
+        @if (isDefault) {
+          <span class="role-wrapper__star-badge" title="Default role">
+            <app-icon [icon]="Star" size="xs" />
+          </span>
+        }
+      </div>
+      <h3 class="role-wrapper__title" [title]="displayName">
+        <ng-content select="[role-title]">{{ displayName }}</ng-content>
+      </h3>
+      @if (description) {
+        <p class="role-wrapper__desc" [title]="description">{{ description }}</p>
+      }
+      <div class="role-wrapper__facts">
+        @if (permissionCount) {
+          <span class="role-wrapper__fact">
+            <app-icon [icon]="Key" size="xs" />
+            <span>{{ permissionCount }}</span>
+          </span>
+        }
+        @if (priorityLabel) {
+          <span class="role-wrapper__fact">
+            <app-icon [icon]="Zap" size="xs" />
+            <span>{{ priorityLabel }}</span>
+          </span>
+        }
+      </div>
 
+      <ng-content select="[role-status]" />
+    </div>
+  </div>
 </div>

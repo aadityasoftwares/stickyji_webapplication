@@ -5,283 +5,283 @@
  * Keep these styles global. Do NOT scope them under :host.
  */
 .app-tooltip-panel {
-    --app-tooltip-bg: #1c1c20;
-    --app-tooltip-color: #f4f4f6;
-    --app-tooltip-border: rgba(255, 255, 255, 0.14);
+  --app-tooltip-bg: #1c1c20;
+  --app-tooltip-color: #f4f4f6;
+  --app-tooltip-border: rgba(255, 255, 255, 0.14);
 
-    position: fixed;
-    z-index: 2147483000;
+  position: fixed;
+  z-index: 2147483000;
 
-    box-sizing: border-box;
-    width: max-content;
-    min-width: 36px;
-    max-width: 280px;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 36px;
+  max-width: 280px;
 
-    margin: 0;
-    padding: 6px 10px;
+  margin: 0;
+  padding: 6px 10px;
 
-    border: 1px solid var(--app-tooltip-border);
-    border-radius: 7px;
+  border: 1px solid var(--app-tooltip-border);
+  border-radius: 7px;
 
-    color: var(--app-tooltip-color);
-    background: var(--app-tooltip-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  color: var(--app-tooltip-color);
+  background: var(--app-tooltip-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
-    box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.08),
-        0 6px 16px rgba(0, 0, 0, 0.12),
-        0 12px 28px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 6px 16px rgba(0, 0, 0, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.08);
 
-    font-family: $font-body;
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: 0.01em;
-    text-align: center;
+  font-family: $font-body;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-align: center;
 
-    white-space: normal;
-    overflow-wrap: anywhere;
+  white-space: normal;
+  overflow-wrap: anywhere;
 
-    pointer-events: none;
+  pointer-events: none;
 
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(2px) scale(0.97);
-    transform-origin: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px) scale(0.97);
+  transform-origin: center;
 
-    transition:
-        opacity 130ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
-        visibility 130ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 130ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 130ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-tooltip-ready {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
 }
 
 .app-tooltip-text {
-    position: relative;
-    z-index: 2;
-    display: block;
+  position: relative;
+  z-index: 2;
+  display: block;
 }
 
 .app-tooltip-arrow {
-    position: absolute;
-    z-index: 1;
-    width: 8px;
-    height: 8px;
-    border: 1px solid var(--app-tooltip-border);
-    background: var(--app-tooltip-bg);
-    transform: rotate(45deg);
-    pointer-events: none;
+  position: absolute;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--app-tooltip-border);
+  background: var(--app-tooltip-bg);
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 /* Sizes */
 .app-tooltip-sm {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
 }
 
 .app-tooltip-md {
-    padding: 6px 10px;
-    border-radius: 7px;
-    font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 12px;
 }
 
 .app-tooltip-lg {
-    padding: 8px 13px;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.45;
+  padding: 8px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 /* Tones */
 .app-tooltip-dark,
 .app-tooltip-primary {
-    --app-tooltip-bg: #1c1c20;
-    --app-tooltip-color: #f4f4f6;
-    --app-tooltip-border: rgba(255, 255, 255, 0.14);
+  --app-tooltip-bg: #1c1c20;
+  --app-tooltip-color: #f4f4f6;
+  --app-tooltip-border: rgba(255, 255, 255, 0.14);
 }
 
 .app-tooltip-paper {
-    --app-tooltip-bg: #ffffff;
-    --app-tooltip-color: #1f2937;
-    --app-tooltip-border: #e2e8f0;
+  --app-tooltip-bg: #ffffff;
+  --app-tooltip-color: #1f2937;
+  --app-tooltip-border: #e2e8f0;
 }
 
 .app-tooltip-accent {
-    --app-tooltip-bg: #fffbeb;
-    --app-tooltip-color: #92400e;
-    --app-tooltip-border: #fcd34d;
+  --app-tooltip-bg: #fffbeb;
+  --app-tooltip-color: #92400e;
+  --app-tooltip-border: #fcd34d;
 }
 
 .app-tooltip-success {
-    --app-tooltip-bg: #f0fdf4;
-    --app-tooltip-color: #15803d;
-    --app-tooltip-border: #86efac;
+  --app-tooltip-bg: #f0fdf4;
+  --app-tooltip-color: #15803d;
+  --app-tooltip-border: #86efac;
 }
 
 .app-tooltip-warning {
-    --app-tooltip-bg: #fffbeb;
-    --app-tooltip-color: #92400e;
-    --app-tooltip-border: #fcd34d;
+  --app-tooltip-bg: #fffbeb;
+  --app-tooltip-color: #92400e;
+  --app-tooltip-border: #fcd34d;
 }
 
 .app-tooltip-danger {
-    --app-tooltip-bg: #fef2f2;
-    --app-tooltip-color: #991b1b;
-    --app-tooltip-border: #fca5a5;
+  --app-tooltip-bg: #fef2f2;
+  --app-tooltip-color: #991b1b;
+  --app-tooltip-border: #fca5a5;
 }
 
 .app-tooltip-info {
-    --app-tooltip-bg: #eff6ff;
-    --app-tooltip-color: #1d4ed8;
-    --app-tooltip-border: #93c5fd;
+  --app-tooltip-bg: #eff6ff;
+  --app-tooltip-color: #1d4ed8;
+  --app-tooltip-border: #93c5fd;
 }
 
 .app-tooltip-noteYellow {
-    --app-tooltip-bg: #fffbeb;
-    --app-tooltip-color: #78350f;
-    --app-tooltip-border: #fde047;
+  --app-tooltip-bg: #fffbeb;
+  --app-tooltip-color: #78350f;
+  --app-tooltip-border: #fde047;
 }
 
 .app-tooltip-noteOrange {
-    --app-tooltip-bg: #fff7ed;
-    --app-tooltip-color: #9a3412;
-    --app-tooltip-border: #fdba74;
+  --app-tooltip-bg: #fff7ed;
+  --app-tooltip-color: #9a3412;
+  --app-tooltip-border: #fdba74;
 }
 
 .app-tooltip-notePink {
-    --app-tooltip-bg: #fdf2f8;
-    --app-tooltip-color: #9d174d;
-    --app-tooltip-border: #f9a8d4;
+  --app-tooltip-bg: #fdf2f8;
+  --app-tooltip-color: #9d174d;
+  --app-tooltip-border: #f9a8d4;
 }
 
 .app-tooltip-noteRed {
-    --app-tooltip-bg: #fef2f2;
-    --app-tooltip-color: #991b1b;
-    --app-tooltip-border: #fca5a5;
+  --app-tooltip-bg: #fef2f2;
+  --app-tooltip-color: #991b1b;
+  --app-tooltip-border: #fca5a5;
 }
 
 .app-tooltip-noteGreen {
-    --app-tooltip-bg: #f0fdf4;
-    --app-tooltip-color: #166534;
-    --app-tooltip-border: #86efac;
+  --app-tooltip-bg: #f0fdf4;
+  --app-tooltip-color: #166534;
+  --app-tooltip-border: #86efac;
 }
 
 .app-tooltip-noteBlue {
-    --app-tooltip-bg: #eff6ff;
-    --app-tooltip-color: #1e40af;
-    --app-tooltip-border: #93c5fd;
+  --app-tooltip-bg: #eff6ff;
+  --app-tooltip-color: #1e40af;
+  --app-tooltip-border: #93c5fd;
 }
 
 .app-tooltip-notePurple {
-    --app-tooltip-bg: #faf5ff;
-    --app-tooltip-color: #6b21a8;
-    --app-tooltip-border: #d8b4fe;
+  --app-tooltip-bg: #faf5ff;
+  --app-tooltip-color: #6b21a8;
+  --app-tooltip-border: #d8b4fe;
 }
 
 .app-tooltip-noteBrown {
-    --app-tooltip-bg: #fdf8f4;
-    --app-tooltip-color: #684129;
-    --app-tooltip-border: #d4b89e;
+  --app-tooltip-bg: #fdf8f4;
+  --app-tooltip-color: #684129;
+  --app-tooltip-border: #d4b89e;
 }
 
 .app-tooltip-noteBlack {
-    --app-tooltip-bg: #111113;
-    --app-tooltip-color: #ffffff;
-    --app-tooltip-border: rgba(255, 255, 255, 0.16);
+  --app-tooltip-bg: #111113;
+  --app-tooltip-color: #ffffff;
+  --app-tooltip-border: rgba(255, 255, 255, 0.16);
 }
 
 /* Arrow: top */
 .app-tooltip-placement-top .app-tooltip-arrow,
 .app-tooltip-placement-top-start .app-tooltip-arrow,
 .app-tooltip-placement-top-end .app-tooltip-arrow {
-    bottom: -4px;
-    border-top: 0;
-    border-left: 0;
+  bottom: -4px;
+  border-top: 0;
+  border-left: 0;
 }
 
 /* Arrow: bottom */
 .app-tooltip-placement-bottom .app-tooltip-arrow,
 .app-tooltip-placement-bottom-start .app-tooltip-arrow,
 .app-tooltip-placement-bottom-end .app-tooltip-arrow {
-    top: -4px;
-    border-right: 0;
-    border-bottom: 0;
+  top: -4px;
+  border-right: 0;
+  border-bottom: 0;
 }
 
 /* Horizontal alignment */
 .app-tooltip-placement-top .app-tooltip-arrow,
 .app-tooltip-placement-bottom .app-tooltip-arrow {
-    left: 50%;
-    margin-left: -4px;
+  left: 50%;
+  margin-left: -4px;
 }
 
 .app-tooltip-placement-top-start .app-tooltip-arrow,
 .app-tooltip-placement-bottom-start .app-tooltip-arrow {
-    left: 14px;
+  left: 14px;
 }
 
 .app-tooltip-placement-top-end .app-tooltip-arrow,
 .app-tooltip-placement-bottom-end .app-tooltip-arrow {
-    right: 14px;
+  right: 14px;
 }
 
 /* Arrow: left */
 .app-tooltip-placement-left .app-tooltip-arrow,
 .app-tooltip-placement-left-start .app-tooltip-arrow,
 .app-tooltip-placement-left-end .app-tooltip-arrow {
-    right: -4px;
-    border-left: 0;
-    border-bottom: 0;
+  right: -4px;
+  border-left: 0;
+  border-bottom: 0;
 }
 
 /* Arrow: right */
 .app-tooltip-placement-right .app-tooltip-arrow,
 .app-tooltip-placement-right-start .app-tooltip-arrow,
 .app-tooltip-placement-right-end .app-tooltip-arrow {
-    left: -4px;
-    border-top: 0;
-    border-right: 0;
+  left: -4px;
+  border-top: 0;
+  border-right: 0;
 }
 
 /* Vertical alignment */
 .app-tooltip-placement-left .app-tooltip-arrow,
 .app-tooltip-placement-right .app-tooltip-arrow {
-    top: 50%;
-    margin-top: -4px;
+  top: 50%;
+  margin-top: -4px;
 }
 
 .app-tooltip-placement-left-start .app-tooltip-arrow,
 .app-tooltip-placement-right-start .app-tooltip-arrow {
-    top: 10px;
+  top: 10px;
 }
 
 .app-tooltip-placement-left-end .app-tooltip-arrow,
 .app-tooltip-placement-right-end .app-tooltip-arrow {
-    bottom: 10px;
+  bottom: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .app-tooltip-panel {
-        transition: none;
-    }
+  .app-tooltip-panel {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-tooltip-panel {
-        border-color: ButtonText;
-        color: CanvasText;
-        background: Canvas;
-    }
+  .app-tooltip-panel {
+    border-color: ButtonText;
+    color: CanvasText;
+    background: Canvas;
+  }
 
-    .app-tooltip-arrow {
-        border-color: ButtonText;
-        background: Canvas;
-    }
+  .app-tooltip-arrow {
+    border-color: ButtonText;
+    background: Canvas;
+  }
 }

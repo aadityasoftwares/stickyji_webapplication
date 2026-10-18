@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
-import {
-  FormControl,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import {
   LucideBell,
@@ -31,11 +24,7 @@ import {
   LucideVolumeX,
 } from '@lucide/angular';
 
-import {
-  Switch,
-  type SwitchSize,
-  type SwitchVariant,
-} from '../../shared/components/switch/switch';
+import { Switch, type SwitchSize, type SwitchVariant } from '../../shared/components/switch/switch';
 import type { AppIconDefinition } from '../../shared/components/icon/icon';
 
 interface VariantExample {
@@ -101,10 +90,10 @@ export class SwitchShowcase {
     readonly label: string;
     readonly value: SwitchSize;
   }> = [
-      { label: 'Small', value: 'sm' },
-      { label: 'Medium', value: 'md' },
-      { label: 'Large', value: 'lg' },
-    ];
+    { label: 'Small', value: 'sm' },
+    { label: 'Medium', value: 'md' },
+    { label: 'Large', value: 'lg' },
+  ];
 
   protected readonly autoSaveControl = new FormControl(true, {
     nonNullable: true,

@@ -15,17 +15,43 @@ import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 describe('Workspace detail navigation authorization', () => {
   let fixture: ComponentFixture<Workspacefolders>;
   const workspaces = { getById: vi.fn() };
-  const folders = { getAllWorkspaceFolders: vi.fn(), update: vi.fn(), updateStatus: vi.fn(), delete: vi.fn() };
-  const folder = (id = 'f') => ({ id, workspaceId: 'a', name: id, status: 'ACTIVE', isDefault: false }) as WorkspaceFolder;
+  const folders = {
+    getAllWorkspaceFolders: vi.fn(),
+    update: vi.fn(),
+    updateStatus: vi.fn(),
+    delete: vi.fn(),
+  };
+  const folder = (id = 'f') =>
+    ({ id, workspaceId: 'a', name: id, status: 'ACTIVE', isDefault: false }) as WorkspaceFolder;
   afterEach(() => vi.useRealTimers());
   beforeEach(async () => {
-    folders.update.mockReset(); folders.updateStatus.mockReset(); folders.delete.mockReset();
-    workspaces.getById.mockReset().mockReturnValue(of({ data: { id: 'a', name: 'Workspace', status: 'ACTIVE', isOwner: true, allowedActions: { canView: true } } }));
+    folders.update.mockReset();
+    folders.updateStatus.mockReset();
+    folders.delete.mockReset();
+    workspaces.getById.mockReset().mockReturnValue(
+      of({
+        data: {
+          id: 'a',
+          name: 'Workspace',
+          status: 'ACTIVE',
+          isOwner: true,
+          allowedActions: { canView: true },
+        },
+      }),
+    );
     folders.getAllWorkspaceFolders.mockReset().mockReturnValue(of({ data: [] }));
-    await TestBed.configureTestingModule({ imports: [Workspacefolders], providers: [provideRouter([]), provideHttpClient(),
-      { provide: WorkspaceService, useValue: workspaces }, { provide: WorkspaceFolderService, useValue: folders },
-      { provide: ToastService, useValue: { error: vi.fn(), success: vi.fn() } },
-    ] }).overrideComponent(Workspacefolders, { set: { template: '', imports: [] } }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [Workspacefolders],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        { provide: WorkspaceService, useValue: workspaces },
+        { provide: WorkspaceFolderService, useValue: folders },
+        { provide: ToastService, useValue: { error: vi.fn(), success: vi.fn() } },
+      ],
+    })
+      .overrideComponent(Workspacefolders, { set: { template: '', imports: [] } })
+      .compileComponents();
     TestBed.inject(WorkspaceStore).setWorkspaces([{ id: 'a', name: 'Workspace' }]);
     vi.spyOn(TestBed.inject(UserPreferenceStore), 'setAndSave').mockImplementation(() => {});
     fixture = TestBed.createComponent(Workspacefolders);
@@ -34,11 +60,20 @@ describe('Workspace detail navigation authorization', () => {
   it('checks fresh READ metadata and limits the folder request to that workspace', () => {
     fixture.detectChanges();
     expect(workspaces.getById).toHaveBeenCalledWith('a');
-    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledWith({ workspaceId: 'a', page: 1, limit: 20, status: 'ALL', sortBy: 'position', sortOrder: 'asc' });
+    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledWith({
+      workspaceId: 'a',
+      page: 1,
+      limit: 20,
+      status: 'ALL',
+      sortBy: 'position',
+      sortOrder: 'asc',
+    });
   });
 
   it('blocks direct navigation when READ has been revoked', () => {
-    workspaces.getById.mockReturnValue(of({ data: { id: 'a', allowedActions: { canView: false } } }));
+    workspaces.getById.mockReturnValue(
+      of({ data: { id: 'a', allowedActions: { canView: false } } }),
+    );
     fixture.detectChanges();
     expect(folders.getAllWorkspaceFolders).not.toHaveBeenCalled();
     expect(fixture.componentInstance.error()).toContain('permission');
@@ -54,28 +89,50 @@ describe('Workspace detail navigation authorization', () => {
     store.select('b');
     fixture.detectChanges();
     response.next({ data: { id: 'a', allowedActions: { canView: true } } });
-    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledExactlyOnceWith({ workspaceId: 'b', page: 1, limit: 20, status: 'ALL', sortBy: 'position', sortOrder: 'asc' });
+    expect(folders.getAllWorkspaceFolders).toHaveBeenCalledExactlyOnceWith({
+      workspaceId: 'b',
+      page: 1,
+      limit: 20,
+      status: 'ALL',
+      sortBy: 'position',
+      sortOrder: 'asc',
+    });
   });
   it('keeps backend ordering and reads full counts rather than counting the current page', () => {
-    folders.getAllWorkspaceFolders.mockReturnValue(of({ data: [folder('z'), folder('a')], meta: { page: 1, limit: 20, total: 65, totalPages: 4, counts: { all: 80, active: 65, archived: 15 } } }));
+    folders.getAllWorkspaceFolders.mockReturnValue(
+      of({
+        data: [folder('z'), folder('a')],
+        meta: {
+          page: 1,
+          limit: 20,
+          total: 65,
+          totalPages: 4,
+          counts: { all: 80, active: 65, archived: 15 },
+        },
+      }),
+    );
     fixture.detectChanges();
-    expect(fixture.componentInstance.visibleFolders().map(item => item.id)).toEqual(['z', 'a']);
+    expect(fixture.componentInstance.visibleFolders().map((item) => item.id)).toEqual(['z', 'a']);
     expect(fixture.componentInstance.totalCount()).toBe(80);
     expect(fixture.componentInstance.pagination().totalPages).toBe(4);
     fixture.componentInstance.setFolderTab('archived');
-    expect(folders.getAllWorkspaceFolders).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'ARCHIVED', page: 1 }));
+    expect(folders.getAllWorkspaceFolders).toHaveBeenLastCalledWith(
+      expect.objectContaining({ status: 'ARCHIVED', page: 1 }),
+    );
   });
 
   it('includes active and archived folders in All and keeps trash separate', () => {
     const archived = { ...folder('archived'), status: 'ARCHIVED' as const };
-    folders.getAllWorkspaceFolders.mockReturnValue(of({ data: [folder('active'), archived, { ...folder('trash'), status: 'DELETED' }] }));
+    folders.getAllWorkspaceFolders.mockReturnValue(
+      of({ data: [folder('active'), archived, { ...folder('trash'), status: 'DELETED' }] }),
+    );
     fixture.detectChanges();
     const page = fixture.componentInstance;
     expect(page.isGroupCollapsed('archived')).toBe(true);
-    expect(page.visibleFolders().map(item => item.id)).toEqual(['active', 'archived']);
-    expect(page.folderGroups().map(group => group.id)).toEqual(['active', 'archived']);
+    expect(page.visibleFolders().map((item) => item.id)).toEqual(['active', 'archived']);
+    expect(page.folderGroups().map((group) => group.id)).toEqual(['active', 'archived']);
     page.setFolderTab('archived');
-    expect(page.visibleFolders().map(item => item.id)).toEqual(['archived']);
+    expect(page.visibleFolders().map((item) => item.id)).toEqual(['archived']);
     expect(page.isGroupCollapsed('archived')).toBe(false);
   });
 
@@ -83,7 +140,7 @@ describe('Workspace detail navigation authorization', () => {
     folders.getAllWorkspaceFolders.mockReturnValue(of({ data: [folder('active')] }));
     fixture.detectChanges();
     const page = fixture.componentInstance;
-    expect(page.folderGroups().map(group => group.id)).toEqual(['active', 'archived']);
+    expect(page.folderGroups().map((group) => group.id)).toEqual(['active', 'archived']);
     expect(page.isGroupCollapsed('archived')).toBe(true);
   });
 
@@ -118,13 +175,18 @@ describe('Workspace detail navigation authorization', () => {
     vi.advanceTimersByTime(299);
     expect(folders.getAllWorkspaceFolders).toHaveBeenCalledTimes(before);
     vi.advanceTimersByTime(1);
-    expect(folders.getAllWorkspaceFolders).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'new', page: 1 }));
+    expect(folders.getAllWorkspaceFolders).toHaveBeenLastCalledWith(
+      expect.objectContaining({ search: 'new', page: 1 }),
+    );
   });
 
   it('returns to the previous page after deleting its last result', () => {
     fixture.detectChanges();
-    folders.getAllWorkspaceFolders.mockReturnValueOnce(of({ data: [], meta: { page: 2, limit: 20, total: 20, totalPages: 1 } }))
-      .mockReturnValueOnce(of({ data: [folder()], meta: { page: 1, limit: 20, total: 20, totalPages: 1 } }));
+    folders.getAllWorkspaceFolders
+      .mockReturnValueOnce(of({ data: [], meta: { page: 2, limit: 20, total: 20, totalPages: 1 } }))
+      .mockReturnValueOnce(
+        of({ data: [folder()], meta: { page: 1, limit: 20, total: 20, totalPages: 1 } }),
+      );
     fixture.componentInstance.page.set(2);
     fixture.componentInstance.loadFolders();
     expect(fixture.componentInstance.page()).toBe(1);
@@ -193,11 +255,17 @@ describe('Workspace detail navigation authorization', () => {
     const pending = new Subject();
     folders.update.mockReturnValue(pending);
     page.folders.set([folder()]);
-    page.beginInlineRename(folder()); page.inlineRenameName.set('renamed');
-    page.saveInlineRename(folder()); page.saveInlineRename(folder());
+    page.beginInlineRename(folder());
+    page.inlineRenameName.set('renamed');
+    page.saveInlineRename(folder());
+    page.saveInlineRename(folder());
     expect(folders.update).toHaveBeenCalledTimes(1);
-    pending.next({ data: { ...folder(), name: 'renamed' } }); pending.complete();
-    page.beginInlineRename(folder()); page.inlineRenameName.set('cancelled'); page.cancelInlineRename(); page.saveInlineRename(folder());
+    pending.next({ data: { ...folder(), name: 'renamed' } });
+    pending.complete();
+    page.beginInlineRename(folder());
+    page.inlineRenameName.set('cancelled');
+    page.cancelInlineRename();
+    page.saveInlineRename(folder());
     expect(folders.update).toHaveBeenCalledTimes(1);
   });
 
@@ -206,11 +274,14 @@ describe('Workspace detail navigation authorization', () => {
     const page = fixture.componentInstance;
     page.folders.set([folder('one'), folder('two')]);
     page.toggleSelectAll(true);
-    folders.updateStatus.mockReturnValueOnce(of({ data: { ...folder('one'), status: 'ARCHIVED' } }))
+    folders.updateStatus
+      .mockReturnValueOnce(of({ data: { ...folder('one'), status: 'ARCHIVED' } }))
       .mockReturnValueOnce(throwError(() => ({ status: 500 })));
     page.bulkArchiveSelected();
     expect(TestBed.inject(ToastService).success).toHaveBeenCalledWith('1 folder(s) archived.');
-    expect(TestBed.inject(ToastService).error).toHaveBeenCalledWith('1 folder(s) could not be updated.');
+    expect(TestBed.inject(ToastService).error).toHaveBeenCalledWith(
+      '1 folder(s) could not be updated.',
+    );
     expect(page.bulkBusy()).toBe(false);
     expect(page.selectedCount()).toBe(0);
   });
@@ -220,13 +291,16 @@ describe('Workspace detail navigation authorization', () => {
     const page = fixture.componentInstance;
     const pending = new Subject();
     folders.delete.mockReturnValue(pending);
-    page.folders.set([folder()]); page.toggleSelectAll(true);
+    page.folders.set([folder()]);
+    page.toggleSelectAll(true);
     page.bulkDeleteSelected();
     expect(folders.delete).not.toHaveBeenCalled();
     expect(page.bulkDeleteOpen()).toBe(true);
-    page.confirmBulkDelete(); page.confirmBulkDelete();
+    page.confirmBulkDelete();
+    page.confirmBulkDelete();
     expect(folders.delete).toHaveBeenCalledTimes(1);
-    pending.next({ data: { ...folder(), status: 'DELETED' } }); pending.complete();
+    pending.next({ data: { ...folder(), status: 'DELETED' } });
+    pending.complete();
     expect(page.bulkBusy()).toBe(false);
   });
 
@@ -249,7 +323,7 @@ describe('Workspace detail navigation authorization', () => {
         stickyNotesCount: 22,
         total: 22,
         active: 22,
-        archived: 0
+        archived: 0,
       },
       createdBy: '6a96edf4d1b8847c20316871',
       updatedBy: '6a96edf4d1b8847c20316871',
@@ -257,7 +331,7 @@ describe('Workspace detail navigation authorization', () => {
       deletedBy: null,
       purgeAfter: null,
       createdAt: '2026-09-01T15:23:33.170Z',
-      updatedAt: '2026-09-06T05:37:58.843Z'
+      updatedAt: '2026-09-06T05:37:58.843Z',
     };
 
     expect(page.folderNotesCount(folderWithSummary)).toBe(22);
@@ -275,7 +349,7 @@ describe('Workspace detail navigation authorization', () => {
 
     const folderWithArchived: WorkspaceFolder = {
       ...folder('archived-notes'),
-      summary: { total: 5, active: 3, archived: 2 }
+      summary: { total: 5, active: 3, archived: 2 },
     };
     expect(page.folderNotesCount(folderWithArchived)).toBe(5);
     expect(page.folderNotesCountLabel(folderWithArchived)).toBe('5 notes');
@@ -301,10 +375,16 @@ describe('Workspace detail navigation authorization', () => {
     expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_VIEW, 'LIST');
 
     page.setFolderTab('archived');
-    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_STATUS_FILTER, 'ARCHIVED');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_STATUS_FILTER,
+      'ARCHIVED',
+    );
 
     page.setSort('updatedAt');
-    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER, 'RECENTLY_UPDATED');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.WORKSPACE_FOLDER_SORT_ORDER,
+      'RECENTLY_UPDATED',
+    );
   });
 
   it('does not re-fetch workspace details when switching status tab or sort order', () => {

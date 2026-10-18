@@ -1,325 +1,673 @@
 @if (open && !loadingData()) {
-<aside class="note-external-preview" aria-label="Live note preview">
+  <aside class="note-external-preview" aria-label="Live note preview">
     <app-badge label="Live preview" variant="neutral" size="sm" />
     <app-sticky-note [data]="livePreviewData" [preview]="true" />
-</aside>
+  </aside>
 }
-<app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
-    [headerNote]="saveIndicatorLabel()" [icon]="headerIcon" [tone]="panelTone" [width]="580" [busy]="isBusy"
-    ariaLabel="Note editor" (closed)="close()" [attr.data-color]="previewColor">
-    <form panel-body class="note-editor" [attr.data-color]="previewColor" [formGroup]="form"
-        (ngSubmit)="$event.preventDefault()" novalidate>
-        @if (loadingData()) {
-        <app-loader mode="section" size="md" tone="colorful"
-            [label]="mode === 'create' ? 'Preparing note...' : 'Loading note...'"
-            description="Getting the editor ready." [minHeight]="280" />
-        } @else {
-        <section class="note-context" aria-label="Workspace, folder and column selection">
-            <div class="note-context-field">
-                <app-select selectId="note-workspace" dropdownTitle="Workspace"
-                    dropdownDescription="Choose the workspace for this note." name="note-workspace"
-                    [options]="workspaceOptions()" [ngModel]="controlString('workspaceId')"
-                    [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateWorkspace($event)"
-                    [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
-                    ariaLabel="Choose workspace for this note" variant="paper" appearance="simple" shape="rounded"
-                    size="sm" [dropdownMatchTriggerWidth]="false" [iconLeft]="LucidePanelsTopLeft" [disabled]="isBusy"
-                    [clearable]="false" [searchable]="true" [fullWidth]="true" />
-            </div>
-            <span class="note-context-slash" aria-hidden="true">/</span>
-            <div class="note-context-field">
-                <app-select selectId="note-folder" dropdownTitle="Folder"
-                    dropdownDescription="Choose a folder in the selected workspace." name="note-folder"
-                    [options]="folderOptions()" [ngModel]="controlString('workspaceFolderId')"
-                    [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateFolder($event)"
-                    [placeholder]="loadingFolders() ? 'Loading folders...' : folderOptions().length ? 'Select folder' : 'No folders available'"
-                    ariaLabel="Choose folder for this note" variant="paper" appearance="simple" shape="rounded" size="sm"
-                    [dropdownMatchTriggerWidth]="false" [iconLeft]="LucideFolderOpen"
-                    [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
-                    [clearable]="false" [searchable]="true" [fullWidth]="true" />
-            </div>
-            <span class="note-context-slash" aria-hidden="true">/</span>
-            <div class="note-context-field">
-                <app-select selectId="note-column" dropdownTitle="Column / status"
-                    dropdownDescription="Choose the status column for this note." name="note-column"
-                    [options]="columnOptions()" [ngModel]="controlString('columnId')"
-                    [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('columnId', $event)"
-                    [placeholder]="loadingColumns() ? 'Loading columns...' : columnOptions().length ? 'Select column' : 'No columns available'"
-                    ariaLabel="Select a column" variant="paper" appearance="simple" shape="rounded" size="sm"
-                    [dropdownMatchTriggerWidth]="false"
-                    [disabled]="isBusy || !controlString('workspaceFolderId') || columnOptions().length === 0"
-                    [clearable]="false" [searchable]="false" [fullWidth]="true" />
-            </div>
-        </section>
-        <section class="note-fields" appFocusNavigation aria-label="Note details">
-            <div class="note-field note-title-field">
-                <app-label forId="note-title" text="Title" />
-                <div class="note-field-control">
-                    <app-input #noteTitleInput inputId="note-title" label="Title" labelMode="hidden"
-                        placeholder="Give your note a title" variant="paper" appearance="simple" shape="rounded" size="md"
-                        [maxLength]="titleMaxLength" [value]="controlString('title')" [disabled]="isBusy"
-                        [fullWidth]="true" [clearable]="false" autocomplete="off"
-                        (valueChange)="updateText('title', $event)" (enterKey)="onTitleEnter($event)" />
-                </div>
-            </div>
-            <div class="note-field note-details-field">
-                <app-label forId="note-content" text="Details" [required]="true" />
-                <div class="note-field-control">
-                    <app-input inputId="note-content" label="Details" labelMode="hidden" [required]="true"
-                        placeholder="Write something worth remembering…" variant="paper" appearance="simple" shape="rounded" size="md"
-                        [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
-                        [maxLength]="contentMaxLength" [value]="controlString('content')" [disabled]="isBusy"
-                        [fullWidth]="true" (valueChange)="updateText('content', $event)" />
-                    <span class="note-field-counter">{{ controlString('content').length }}/{{ contentMaxLength }}</span>
-                </div>
-            </div>
-        </section>
-        <section class="note-date-row" aria-label="Note date and favourite status">
-            <app-label forId="note-date" text="Date" />
-            <div class="note-date-favorite-group">
-                <div class="note-date-control">
-                    <app-datepicker-input inputId="note-date" label="Note date" labelMode="hidden" placeholder="dd-mm-yyyy"
-                        variant="paper" appearance="simple" shape="rounded" size="sm" formControlName="noteDate"
-                        [showLeadingIcon]="false" [loading]="isBusy" [clearable]="true" [fullWidth]="true" [height]="36" />
-                </div>
-                <app-button class="note-favorite-toggle-btn" [class.is-favorited]="isFavorite()"
-                    [iconLeft]="LucideStar"
-                    [label]="isFavorite() ? 'Favourited' : 'Favourite'"
-                    variant="secondary" appearance="standard" size="sm" [height]="36"
-                    [disabled]="isBusy || togglingFavorite()"
-                    [attr.aria-label]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
-                    [title]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
-                    (buttonClick)="toggleFavorite()" />
-            </div>
-        </section>
-        <section class="note-assignees-row" aria-label="Note assignees">
-            <app-label forId="note-assignees-select" text="Assignees" />
-            <div class="note-assignees-control">
-                <app-sticky-note-assignee-select
-                    [workspaceId]="controlString('workspaceId')"
-                    [selectedAssigneeIds]="selectedAssigneeIds()"
-                    [disabled]="isBusy"
-                    (selectedAssigneeIdsChange)="onAssigneeIdsChange($event)"
-                    (selectedAssigneesChange)="onAssigneeObjectsChange($event)" />
-            </div>
-        </section>
-        <section class="note-appearance" aria-label="Color, shape, variant and paper pattern">
-            <app-select class="note-color-select" selectId="note-color" name="note-color" [options]="colorOptions"
-                [ngModel]="controlString('color')" [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="updateSelect('color', $event)" ariaLabel="Note color" dropdownTitle="Note color"
-                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
-                [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
-            <app-select selectId="note-shape" name="note-shape" [options]="shapeOptions"
-                [ngModel]="controlString('shape')" [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="updateSelect('shape', $event)" ariaLabel="Note shape" dropdownTitle="Note shape"
-                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
-                [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
-            <app-select selectId="note-variant" name="note-variant" [options]="variantOptions"
-                [ngModel]="controlString('variant')" [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="updateSelect('variant', $event)" ariaLabel="Note variant" dropdownTitle="Paper variant"
-                variant="paper" appearance="simple" shape="rounded" size="sm" [disabled]="isBusy" [clearable]="false"
-                [searchable]="false" [fullWidth]="true" [dropdownMatchTriggerWidth]="false" />
-            <app-select class="note-pattern-inline" selectId="note-pattern" name="note-pattern"
-                [options]="backgroundPatternOptions" [ngModel]="controlString('backgroundPattern')"
-                [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('backgroundPattern', $event)"
-                ariaLabel="Paper pattern" dropdownTitle="Paper pattern" variant="paper" appearance="simple" shape="rounded"
-                size="sm" [disabled]="isBusy" [clearable]="false" [searchable]="false" [fullWidth]="true"
-                [dropdownMatchTriggerWidth]="false" />
-        </section>
-        <!-- Note Blocks System: Add to Note trigger + Dynamic Modular Blocks -->
-        <div class="note-add-block-section">
-            <button type="button" class="note-add-block-trigger" [matMenuTriggerFor]="addBlockMenu" [disabled]="isBusy">
-                <span class="note-add-block-trigger-icon" aria-hidden="true">
-                    <app-icon [icon]="LucidePlus" size="xs" />
-                </span>
-                <span class="note-add-block-trigger-text">
-                    <strong>Add to note</strong>
-                    <small>Checklist, reminder, attachment or link</small>
-                </span>
-            </button>
-
-            <mat-menu #addBlockMenu="matMenu" xPosition="after" yPosition="below" [overlapTrigger]="false" class="today-note-actions-menu note-blocks-menu">
-                @for (option of noteBlockOptions; track option.type) {
-                <button mat-menu-item type="button" class="today-note-action-item note-block-menu-item"
-                    [disabled]="isBusy || isBlockSelected(option.type)" (click)="addBlock(option.type)">
-                    <span class="today-note-menu-item-icon note-block-menu-icon" aria-hidden="true">
-                        <app-icon [icon]="option.icon" size="xs" />
-                    </span>
-                    <span class="today-note-menu-item-copy note-block-menu-copy">
-                        <span class="note-block-menu-header-line">
-                            <strong>{{ option.label }}</strong>
-                            @if (isBlockSelected(option.type)) {
-                            <span class="note-block-menu-badge">Added</span>
-                            }
-                        </span>
-                        <small>{{ option.description }}</small>
-                    </span>
-                </button>
-                }
-            </mat-menu>
+<app-side-panel
+  [open]="open"
+  [title]="panelTitle"
+  [eyebrow]="eyebrow"
+  [description]="description"
+  [headerNote]="saveIndicatorLabel()"
+  [icon]="headerIcon"
+  [tone]="panelTone"
+  [width]="580"
+  [busy]="isBusy"
+  ariaLabel="Note editor"
+  (closed)="close()"
+  [attr.data-color]="previewColor"
+>
+  <form
+    panel-body
+    class="note-editor"
+    [attr.data-color]="previewColor"
+    [formGroup]="form"
+    (ngSubmit)="$event.preventDefault()"
+    novalidate
+  >
+    @if (loadingData()) {
+      <app-loader
+        mode="section"
+        size="md"
+        tone="colorful"
+        [label]="mode === 'create' ? 'Preparing note...' : 'Loading note...'"
+        description="Getting the editor ready."
+        [minHeight]="280"
+      />
+    } @else {
+      <section class="note-context" aria-label="Workspace, folder and column selection">
+        <div class="note-context-field">
+          <app-select
+            selectId="note-workspace"
+            dropdownTitle="Workspace"
+            dropdownDescription="Choose the workspace for this note."
+            name="note-workspace"
+            [options]="workspaceOptions()"
+            [ngModel]="controlString('workspaceId')"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="updateWorkspace($event)"
+            [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+            ariaLabel="Choose workspace for this note"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [dropdownMatchTriggerWidth]="false"
+            [iconLeft]="LucidePanelsTopLeft"
+            [disabled]="isBusy"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
         </div>
+        <span class="note-context-slash" aria-hidden="true">/</span>
+        <div class="note-context-field">
+          <app-select
+            selectId="note-folder"
+            dropdownTitle="Folder"
+            dropdownDescription="Choose a folder in the selected workspace."
+            name="note-folder"
+            [options]="folderOptions()"
+            [ngModel]="controlString('workspaceFolderId')"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="updateFolder($event)"
+            [placeholder]="
+              loadingFolders()
+                ? 'Loading folders...'
+                : folderOptions().length
+                  ? 'Select folder'
+                  : 'No folders available'
+            "
+            ariaLabel="Choose folder for this note"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [dropdownMatchTriggerWidth]="false"
+            [iconLeft]="LucideFolderOpen"
+            [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
+        </div>
+        <span class="note-context-slash" aria-hidden="true">/</span>
+        <div class="note-context-field">
+          <app-select
+            selectId="note-column"
+            dropdownTitle="Column / status"
+            dropdownDescription="Choose the status column for this note."
+            name="note-column"
+            [options]="columnOptions()"
+            [ngModel]="controlString('columnId')"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="updateSelect('columnId', $event)"
+            [placeholder]="
+              loadingColumns()
+                ? 'Loading columns...'
+                : columnOptions().length
+                  ? 'Select column'
+                  : 'No columns available'
+            "
+            ariaLabel="Select a column"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [dropdownMatchTriggerWidth]="false"
+            [disabled]="
+              isBusy || !controlString('workspaceFolderId') || columnOptions().length === 0
+            "
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="true"
+          />
+        </div>
+      </section>
+      <section class="note-fields" appFocusNavigation aria-label="Note details">
+        <div class="note-field note-title-field">
+          <app-label forId="note-title" text="Title" />
+          <div class="note-field-control">
+            <app-input
+              #noteTitleInput
+              inputId="note-title"
+              label="Title"
+              labelMode="hidden"
+              placeholder="Give your note a title"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="md"
+              [maxLength]="titleMaxLength"
+              [value]="controlString('title')"
+              [disabled]="isBusy"
+              [fullWidth]="true"
+              [clearable]="false"
+              autocomplete="off"
+              (valueChange)="updateText('title', $event)"
+              (enterKey)="onTitleEnter($event)"
+            />
+          </div>
+        </div>
+        <div class="note-field note-details-field">
+          <app-label forId="note-content" text="Details" [required]="true" />
+          <div class="note-field-control">
+            <app-input
+              inputId="note-content"
+              label="Details"
+              labelMode="hidden"
+              [required]="true"
+              placeholder="Write something worth remembering…"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="md"
+              [multiline]="true"
+              [rows]="4"
+              resize="vertical"
+              [clearable]="false"
+              [maxLength]="contentMaxLength"
+              [value]="controlString('content')"
+              [disabled]="isBusy"
+              [fullWidth]="true"
+              (valueChange)="updateText('content', $event)"
+            />
+            <span class="note-field-counter"
+              >{{ controlString('content').length }}/{{ contentMaxLength }}</span
+            >
+          </div>
+        </div>
+      </section>
+      <section class="note-date-row" aria-label="Note date and favourite status">
+        <app-label forId="note-date" text="Date" />
+        <div class="note-date-favorite-group">
+          <div class="note-date-control">
+            <app-datepicker-input
+              inputId="note-date"
+              label="Note date"
+              labelMode="hidden"
+              placeholder="dd-mm-yyyy"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="sm"
+              formControlName="noteDate"
+              [showLeadingIcon]="false"
+              [loading]="isBusy"
+              [clearable]="true"
+              [fullWidth]="true"
+              [height]="36"
+            />
+          </div>
+          <app-button
+            class="note-favorite-toggle-btn"
+            [class.is-favorited]="isFavorite()"
+            [iconLeft]="LucideStar"
+            [label]="isFavorite() ? 'Favourited' : 'Favourite'"
+            variant="secondary"
+            appearance="standard"
+            size="sm"
+            [height]="36"
+            [disabled]="isBusy || togglingFavorite()"
+            [attr.aria-label]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
+            [title]="isFavorite() ? 'Remove from favourites' : 'Mark as favourite'"
+            (buttonClick)="toggleFavorite()"
+          />
+        </div>
+      </section>
+      <section class="note-assignees-row" aria-label="Note assignees">
+        <app-label forId="note-assignees-select" text="Assignees" />
+        <div class="note-assignees-control">
+          <app-sticky-note-assignee-select
+            [workspaceId]="controlString('workspaceId')"
+            [selectedAssigneeIds]="selectedAssigneeIds()"
+            [disabled]="isBusy"
+            (selectedAssigneeIdsChange)="onAssigneeIdsChange($event)"
+            (selectedAssigneesChange)="onAssigneeObjectsChange($event)"
+          />
+        </div>
+      </section>
+      <section class="note-appearance" aria-label="Color, shape, variant and paper pattern">
+        <app-select
+          class="note-color-select"
+          selectId="note-color"
+          name="note-color"
+          [options]="colorOptions"
+          [ngModel]="controlString('color')"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateSelect('color', $event)"
+          ariaLabel="Note color"
+          dropdownTitle="Note color"
+          variant="paper"
+          appearance="simple"
+          shape="rounded"
+          size="sm"
+          [disabled]="isBusy"
+          [clearable]="false"
+          [searchable]="false"
+          [fullWidth]="true"
+          [dropdownMatchTriggerWidth]="false"
+        />
+        <app-select
+          selectId="note-shape"
+          name="note-shape"
+          [options]="shapeOptions"
+          [ngModel]="controlString('shape')"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateSelect('shape', $event)"
+          ariaLabel="Note shape"
+          dropdownTitle="Note shape"
+          variant="paper"
+          appearance="simple"
+          shape="rounded"
+          size="sm"
+          [disabled]="isBusy"
+          [clearable]="false"
+          [searchable]="false"
+          [fullWidth]="true"
+          [dropdownMatchTriggerWidth]="false"
+        />
+        <app-select
+          selectId="note-variant"
+          name="note-variant"
+          [options]="variantOptions"
+          [ngModel]="controlString('variant')"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateSelect('variant', $event)"
+          ariaLabel="Note variant"
+          dropdownTitle="Paper variant"
+          variant="paper"
+          appearance="simple"
+          shape="rounded"
+          size="sm"
+          [disabled]="isBusy"
+          [clearable]="false"
+          [searchable]="false"
+          [fullWidth]="true"
+          [dropdownMatchTriggerWidth]="false"
+        />
+        <app-select
+          class="note-pattern-inline"
+          selectId="note-pattern"
+          name="note-pattern"
+          [options]="backgroundPatternOptions"
+          [ngModel]="controlString('backgroundPattern')"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateSelect('backgroundPattern', $event)"
+          ariaLabel="Paper pattern"
+          dropdownTitle="Paper pattern"
+          variant="paper"
+          appearance="simple"
+          shape="rounded"
+          size="sm"
+          [disabled]="isBusy"
+          [clearable]="false"
+          [searchable]="false"
+          [fullWidth]="true"
+          [dropdownMatchTriggerWidth]="false"
+        />
+      </section>
+      <!-- Note Blocks System: Add to Note trigger + Dynamic Modular Blocks -->
+      <div class="note-add-block-section">
+        <button
+          type="button"
+          class="note-add-block-trigger"
+          [matMenuTriggerFor]="addBlockMenu"
+          [disabled]="isBusy"
+        >
+          <span class="note-add-block-trigger-icon" aria-hidden="true">
+            <app-icon [icon]="LucidePlus" size="xs" />
+          </span>
+          <span class="note-add-block-trigger-text">
+            <strong>Add to note</strong>
+            <small>Checklist, reminder, attachment or link</small>
+          </span>
+        </button>
 
-        @if (selectedBlocks().length > 0) {
+        <mat-menu
+          #addBlockMenu="matMenu"
+          xPosition="after"
+          yPosition="below"
+          [overlapTrigger]="false"
+          class="today-note-actions-menu note-blocks-menu"
+        >
+          @for (option of noteBlockOptions; track option.type) {
+            <button
+              mat-menu-item
+              type="button"
+              class="today-note-action-item note-block-menu-item"
+              [disabled]="isBusy || isBlockSelected(option.type)"
+              (click)="addBlock(option.type)"
+            >
+              <span class="today-note-menu-item-icon note-block-menu-icon" aria-hidden="true">
+                <app-icon [icon]="option.icon" size="xs" />
+              </span>
+              <span class="today-note-menu-item-copy note-block-menu-copy">
+                <span class="note-block-menu-header-line">
+                  <strong>{{ option.label }}</strong>
+                  @if (isBlockSelected(option.type)) {
+                    <span class="note-block-menu-badge">Added</span>
+                  }
+                </span>
+                <small>{{ option.description }}</small>
+              </span>
+            </button>
+          }
+        </mat-menu>
+      </div>
+
+      @if (selectedBlocks().length > 0) {
         <div class="note-blocks-container">
-            @for (blockType of selectedBlocks(); track blockType) {
+          @for (blockType of selectedBlocks(); track blockType) {
             <section class="note-block-card" [attr.data-block-type]="blockType">
-                @switch (blockType) {
+              @switch (blockType) {
                 @case ('CHECKLIST') {
-                <header class="note-block-header">
+                  <header class="note-block-header">
                     <div class="note-block-title-group">
-                        <app-icon [icon]="LucideListChecks" size="xs" class="note-block-icon" />
-                        <h3 class="note-block-title">Checklist</h3>
-                        @if (checklists.length > 0) {
+                      <app-icon [icon]="LucideListChecks" size="xs" class="note-block-icon" />
+                      <h3 class="note-block-title">Checklist</h3>
+                      @if (checklists.length > 0) {
                         <app-badge [count]="checklists.length" variant="neutral" size="xs" />
-                        }
+                      }
                     </div>
                     <div class="note-block-header-actions">
-                        @if (checklists.length > 0) {
-                        <app-button label="Add another" [iconLeft]="LucidePlus" variant="ghost" appearance="standard"
-                            size="xs" [disabled]="isBusy" (buttonClick)="addChecklist()" />
-                        }
-                        <app-button [icon]="LucideX" [iconOnly]="true" variant="ghost" appearance="standard" size="xs"
-                            ariaLabel="Remove checklist block" title="Remove checklist" [disabled]="isBusy"
-                            (buttonClick)="removeBlock('CHECKLIST')" />
+                      @if (checklists.length > 0) {
+                        <app-button
+                          label="Add another"
+                          [iconLeft]="LucidePlus"
+                          variant="ghost"
+                          appearance="standard"
+                          size="xs"
+                          [disabled]="isBusy"
+                          (buttonClick)="addChecklist()"
+                        />
+                      }
+                      <app-button
+                        [icon]="LucideX"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        appearance="standard"
+                        size="xs"
+                        ariaLabel="Remove checklist block"
+                        title="Remove checklist"
+                        [disabled]="isBusy"
+                        (buttonClick)="removeBlock('CHECKLIST')"
+                      />
                     </div>
-                </header>
-                <div class="note-block-content">
+                  </header>
+                  <div class="note-block-content">
                     @if (loadingChecklist()) {
-                    <div class="checklist-loading" role="status">Loading checklist…</div>
+                      <div class="checklist-loading" role="status">Loading checklist…</div>
                     } @else if (checklists.length === 0) {
-                    <button type="button" class="checklist-empty" [disabled]="isBusy" (click)="addChecklist()">
-                        <span class="checklist-empty-icon" aria-hidden="true"><app-icon [icon]="LucidePlus" size="xs" /></span>
-                        <span><strong>Add tasks</strong><small>Turn this note into a simple checklist.</small></span>
-                    </button>
+                      <button
+                        type="button"
+                        class="checklist-empty"
+                        [disabled]="isBusy"
+                        (click)="addChecklist()"
+                      >
+                        <span class="checklist-empty-icon" aria-hidden="true"
+                          ><app-icon [icon]="LucidePlus" size="xs"
+                        /></span>
+                        <span
+                          ><strong>Add tasks</strong
+                          ><small>Turn this note into a simple checklist.</small></span
+                        >
+                      </button>
                     } @else {
-                    <div class="checklist-groups">
-                        @for (checklistControl of checklists.controls; track checklistControl; let checklistIndex = $index) {
-                        <div class="checklist-group" appFocusNavigation (noNextFocus)="onChecklistNoNextFocus($event, checklistIndex)">
+                      <div class="checklist-groups">
+                        @for (
+                          checklistControl of checklists.controls;
+                          track checklistControl;
+                          let checklistIndex = $index
+                        ) {
+                          <div
+                            class="checklist-group"
+                            appFocusNavigation
+                            (noNextFocus)="onChecklistNoNextFocus($event, checklistIndex)"
+                          >
                             <div class="checklist-title-row">
-                                <app-badge class="checklist-number" [count]="checklistIndex + 1" variant="neutral" size="xs" />
-                                <app-input type="text" label="Checklist title" labelMode="hidden" placeholder="Checklist title"
-                                    variant="paper" appearance="underlined" size="sm" [clearable]="false"
-                                    [maxLength]="checklistTitleMaxLength" [value]="checklistTitle(checklistIndex)"
-                                    [disabled]="isBusy" [fullWidth]="true"
-                                    (valueChange)="updateChecklistTitle(checklistIndex, $event)"
-                                    (enterKey)="onChecklistTitleEnter($event, checklistIndex)" />
-                                <app-button [icon]="LucideTrash2" [iconOnly]="true" variant="ghost" appearance="standard"
-                                    size="xs" ariaLabel="Remove checklist" title="Remove checklist" [disabled]="isBusy"
-                                    (buttonClick)="removeChecklist(checklistIndex)" />
+                              <app-badge
+                                class="checklist-number"
+                                [count]="checklistIndex + 1"
+                                variant="neutral"
+                                size="xs"
+                              />
+                              <app-input
+                                type="text"
+                                label="Checklist title"
+                                labelMode="hidden"
+                                placeholder="Checklist title"
+                                variant="paper"
+                                appearance="underlined"
+                                size="sm"
+                                [clearable]="false"
+                                [maxLength]="checklistTitleMaxLength"
+                                [value]="checklistTitle(checklistIndex)"
+                                [disabled]="isBusy"
+                                [fullWidth]="true"
+                                (valueChange)="updateChecklistTitle(checklistIndex, $event)"
+                                (enterKey)="onChecklistTitleEnter($event, checklistIndex)"
+                              />
+                              <app-button
+                                [icon]="LucideTrash2"
+                                [iconOnly]="true"
+                                variant="ghost"
+                                appearance="standard"
+                                size="xs"
+                                ariaLabel="Remove checklist"
+                                title="Remove checklist"
+                                [disabled]="isBusy"
+                                (buttonClick)="removeChecklist(checklistIndex)"
+                              />
                             </div>
                             <div class="checklist-items">
-                                @for (itemControl of checklistItems(checklistIndex)?.controls ?? []; track itemControl; let
-                                itemIndex = $index) {
-                                <div class="checklist-item"
-                                    [class.is-completed]="checklistItemCompleted(checklistIndex, itemIndex)">
-                                    <app-checkbox size="sm" variant="primary"
-                                        class="checklist-toggle" [checked]="checklistItemCompleted(checklistIndex, itemIndex)"
-                                        [disabled]="isBusy"
-                                        [ariaLabel]="checklistItemCompleted(checklistIndex, itemIndex) ? 'Mark incomplete' : 'Mark complete'"
-                                        [title]="checklistItemCompleted(checklistIndex, itemIndex) ? 'Mark incomplete' : 'Mark complete'"
-                                        (checkedChange)="setChecklistItemCompleted(checklistIndex, itemIndex, $event)" />
-                                    <app-input type="text" label="Checklist item" labelMode="hidden" placeholder="Add a task"
-                                        variant="paper" appearance="underlined" size="sm" [clearable]="false"
-                                        [maxLength]="checklistItemTitleMaxLength"
-                                        [value]="checklistItemTitle(checklistIndex, itemIndex)" [disabled]="isBusy"
-                                        [fullWidth]="true"
-                                        (valueChange)="updateChecklistItemTitle(checklistIndex, itemIndex, $event)"
-                                        (enterKey)="onChecklistItemEnter($event, checklistIndex)" />
-                                    <app-button class="remove-item" [icon]="LucideTrash2" [iconOnly]="true" variant="ghost"
-                                        appearance="standard" size="xs" ariaLabel="Remove checklist item" title="Remove item"
-                                        [disabled]="isBusy" (buttonClick)="removeChecklistItem(checklistIndex, itemIndex)" />
+                              @for (
+                                itemControl of checklistItems(checklistIndex)?.controls ?? [];
+                                track itemControl;
+                                let itemIndex = $index
+                              ) {
+                                <div
+                                  class="checklist-item"
+                                  [class.is-completed]="
+                                    checklistItemCompleted(checklistIndex, itemIndex)
+                                  "
+                                >
+                                  <app-checkbox
+                                    size="sm"
+                                    variant="primary"
+                                    class="checklist-toggle"
+                                    [checked]="checklistItemCompleted(checklistIndex, itemIndex)"
+                                    [disabled]="isBusy"
+                                    [ariaLabel]="
+                                      checklistItemCompleted(checklistIndex, itemIndex)
+                                        ? 'Mark incomplete'
+                                        : 'Mark complete'
+                                    "
+                                    [title]="
+                                      checklistItemCompleted(checklistIndex, itemIndex)
+                                        ? 'Mark incomplete'
+                                        : 'Mark complete'
+                                    "
+                                    (checkedChange)="
+                                      setChecklistItemCompleted(checklistIndex, itemIndex, $event)
+                                    "
+                                  />
+                                  <app-input
+                                    type="text"
+                                    label="Checklist item"
+                                    labelMode="hidden"
+                                    placeholder="Add a task"
+                                    variant="paper"
+                                    appearance="underlined"
+                                    size="sm"
+                                    [clearable]="false"
+                                    [maxLength]="checklistItemTitleMaxLength"
+                                    [value]="checklistItemTitle(checklistIndex, itemIndex)"
+                                    [disabled]="isBusy"
+                                    [fullWidth]="true"
+                                    (valueChange)="
+                                      updateChecklistItemTitle(checklistIndex, itemIndex, $event)
+                                    "
+                                    (enterKey)="onChecklistItemEnter($event, checklistIndex)"
+                                  />
+                                  <app-button
+                                    class="remove-item"
+                                    [icon]="LucideTrash2"
+                                    [iconOnly]="true"
+                                    variant="ghost"
+                                    appearance="standard"
+                                    size="xs"
+                                    ariaLabel="Remove checklist item"
+                                    title="Remove item"
+                                    [disabled]="isBusy"
+                                    (buttonClick)="removeChecklistItem(checklistIndex, itemIndex)"
+                                  />
                                 </div>
-                                }
+                              }
                             </div>
-                            <app-button class="add-item" label="Add task" [iconLeft]="LucidePlus" variant="ghost"
-                                appearance="standard" size="xs" [disabled]="isBusy"
-                                (buttonClick)="addChecklistItem(checklistIndex)" />
-                        </div>
+                            <app-button
+                              class="add-item"
+                              label="Add task"
+                              [iconLeft]="LucidePlus"
+                              variant="ghost"
+                              appearance="standard"
+                              size="xs"
+                              [disabled]="isBusy"
+                              (buttonClick)="addChecklistItem(checklistIndex)"
+                            />
+                          </div>
                         }
-                    </div>
+                      </div>
                     }
-                </div>
+                  </div>
                 }
 
                 @case ('REMINDER') {
-                <header class="note-block-header">
+                  <header class="note-block-header">
                     <div class="note-block-title-group">
-                        <app-icon [icon]="LucideBell" size="xs" class="note-block-icon" />
-                        <h3 class="note-block-title">Reminder</h3>
+                      <app-icon [icon]="LucideBell" size="xs" class="note-block-icon" />
+                      <h3 class="note-block-title">Reminder</h3>
                     </div>
                     <div class="note-block-header-actions">
-                        <app-button [icon]="LucideX" [iconOnly]="true" variant="ghost" appearance="standard" size="xs"
-                            ariaLabel="Remove reminder block" title="Remove reminder" [disabled]="isBusy"
-                            (buttonClick)="removeBlock('REMINDER')" />
+                      <app-button
+                        [icon]="LucideX"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        appearance="standard"
+                        size="xs"
+                        ariaLabel="Remove reminder block"
+                        title="Remove reminder"
+                        [disabled]="isBusy"
+                        (buttonClick)="removeBlock('REMINDER')"
+                      />
                     </div>
-                </header>
-                <div class="note-block-content note-block-placeholder-body">
+                  </header>
+                  <div class="note-block-content note-block-placeholder-body">
                     <div class="note-block-placeholder-row">
-                        <span class="note-block-placeholder-hint">Get reminded about this note at a scheduled date and time.</span>
-                        <app-badge label="Coming soon" variant="neutral" size="xs" />
+                      <span class="note-block-placeholder-hint"
+                        >Get reminded about this note at a scheduled date and time.</span
+                      >
+                      <app-badge label="Coming soon" variant="neutral" size="xs" />
                     </div>
-                </div>
+                  </div>
                 }
 
                 @case ('ATTACHMENT') {
-                <header class="note-block-header">
+                  <header class="note-block-header">
                     <div class="note-block-title-group">
-                        <app-icon [icon]="LucidePaperclip" size="xs" class="note-block-icon" />
-                        <h3 class="note-block-title">Attachments</h3>
+                      <app-icon [icon]="LucidePaperclip" size="xs" class="note-block-icon" />
+                      <h3 class="note-block-title">Attachments</h3>
                     </div>
                     <div class="note-block-header-actions">
-                        <app-button [icon]="LucideX" [iconOnly]="true" variant="ghost" appearance="standard" size="xs"
-                            ariaLabel="Remove attachment block" title="Remove attachments" [disabled]="isBusy"
-                            (buttonClick)="removeBlock('ATTACHMENT')" />
+                      <app-button
+                        [icon]="LucideX"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        appearance="standard"
+                        size="xs"
+                        ariaLabel="Remove attachment block"
+                        title="Remove attachments"
+                        [disabled]="isBusy"
+                        (buttonClick)="removeBlock('ATTACHMENT')"
+                      />
                     </div>
-                </header>
-                <div class="note-block-content note-block-placeholder-body">
+                  </header>
+                  <div class="note-block-content note-block-placeholder-body">
                     <div class="note-block-placeholder-row">
-                        <span class="note-block-placeholder-hint">Add files, receipts or images directly to this sticky note.</span>
-                        <app-badge label="Coming soon" variant="neutral" size="xs" />
+                      <span class="note-block-placeholder-hint"
+                        >Add files, receipts or images directly to this sticky note.</span
+                      >
+                      <app-badge label="Coming soon" variant="neutral" size="xs" />
                     </div>
-                </div>
+                  </div>
                 }
 
                 @case ('LINK') {
-                <header class="note-block-header">
+                  <header class="note-block-header">
                     <div class="note-block-title-group">
-                        <app-icon [icon]="LucideLink" size="xs" class="note-block-icon" />
-                        <h3 class="note-block-title">Link</h3>
+                      <app-icon [icon]="LucideLink" size="xs" class="note-block-icon" />
+                      <h3 class="note-block-title">Link</h3>
                     </div>
                     <div class="note-block-header-actions">
-                        <app-button [icon]="LucideX" [iconOnly]="true" variant="ghost" appearance="standard" size="xs"
-                            ariaLabel="Remove link block" title="Remove link" [disabled]="isBusy"
-                            (buttonClick)="removeBlock('LINK')" />
+                      <app-button
+                        [icon]="LucideX"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        appearance="standard"
+                        size="xs"
+                        ariaLabel="Remove link block"
+                        title="Remove link"
+                        [disabled]="isBusy"
+                        (buttonClick)="removeBlock('LINK')"
+                      />
                     </div>
-                </header>
-                <div class="note-block-content note-block-placeholder-body">
+                  </header>
+                  <div class="note-block-content note-block-placeholder-body">
                     <div class="note-block-placeholder-row">
-                        <span class="note-block-placeholder-hint">Save a reference URL or web bookmark with this note.</span>
-                        <app-badge label="Coming soon" variant="neutral" size="xs" />
+                      <span class="note-block-placeholder-hint"
+                        >Save a reference URL or web bookmark with this note.</span
+                      >
+                      <app-badge label="Coming soon" variant="neutral" size="xs" />
                     </div>
-                </div>
+                  </div>
                 }
-                }
+              }
             </section>
-            }
+          }
         </div>
-        }
-        <section class="note-mobile-preview" aria-label="Live note preview">
-            <app-badge label="Live preview" variant="neutral" size="sm" />
-            <app-sticky-note [data]="livePreviewData" [preview]="true" />
-        </section>
-        @if (error()) {
+      }
+      <section class="note-mobile-preview" aria-label="Live note preview">
+        <app-badge label="Live preview" variant="neutral" size="sm" />
+        <app-sticky-note [data]="livePreviewData" [preview]="true" />
+      </section>
+      @if (error()) {
         <div class="note-editor-error" role="alert">{{ error() }}</div>
-        }
-        }
-    </form>
-    <div panel-footer class="note-editor-footer">
-        <app-badge [label]="saveIndicatorLabel()" variant="neutral" size="sm" role="status" />
-        <div class="note-editor-footer-actions">
-            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
-                (buttonClick)="close()" />
-            <app-button label="Save note" [iconLeft]="LucideCheck" variant="noteYellow" appearance="standard" size="sm"
-                [loading]="loading()" loadingText="Saving…" [disabled]="isBusy" (buttonClick)="submit()" />
-        </div>
+      }
+    }
+  </form>
+  <div panel-footer class="note-editor-footer">
+    <app-badge [label]="saveIndicatorLabel()" variant="neutral" size="sm" role="status" />
+    <div class="note-editor-footer-actions">
+      <app-button
+        label="Cancel"
+        variant="secondary"
+        appearance="standard"
+        size="sm"
+        [disabled]="isBusy"
+        (buttonClick)="close()"
+      />
+      <app-button
+        label="Save note"
+        [iconLeft]="LucideCheck"
+        variant="noteYellow"
+        appearance="standard"
+        size="sm"
+        [loading]="loading()"
+        loadingText="Saving…"
+        [disabled]="isBusy"
+        (buttonClick)="submit()"
+      />
     </div>
+  </div>
 </app-side-panel>

@@ -8,7 +8,7 @@ import {
   Output,
   SimpleChanges,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,7 +21,7 @@ import {
   LucideSend,
   LucideShield,
   LucideUserPlus,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { Badge } from '../../../shared/components/badge/badge';
@@ -29,7 +29,11 @@ import { Button } from '../../../shared/components/button/button';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
@@ -40,7 +44,7 @@ import type { WorkspaceMember } from '../models/workspace-member.models';
 import type {
   WorkspaceInvitationBatchCreateRequest,
   WorkspaceInvitationBatchCreateResult,
-  WorkspaceInvitationCreateItem
+  WorkspaceInvitationCreateItem,
 } from '../models/workspace-invitation.models';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 import { WorkspaceMemberApiService } from '../services/workspace-member.service';
@@ -53,7 +57,7 @@ type InvitationRoleMode = 'same' | 'individual';
   imports: [FormsModule, AppIcon, AppInput, Badge, Button, Label, Select, SidePanel, Tabs],
   templateUrl: './send-workspace-member-request-side-panel.html',
   styleUrl: './send-workspace-member-request-side-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
@@ -87,14 +91,14 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       value: 'same',
       label: 'Same role',
       icon: LucideShield,
-      ariaLabel: 'Assign the same role to all recipients'
+      ariaLabel: 'Assign the same role to all recipients',
     },
     {
       value: 'individual',
       label: 'Individual roles',
       icon: LucideUserPlus,
-      ariaLabel: 'Choose a different role for each recipient'
-    }
+      ariaLabel: 'Choose a different role for each recipient',
+    },
   ];
 
   readonly emailDraft = signal('');
@@ -182,7 +186,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       return this.isObjectId(this.roleId());
     }
 
-    return emails.every(email => this.isObjectId(this.individualRoleId(email)));
+    return emails.every((email) => this.isObjectId(this.individualRoleId(email)));
   }
 
   private readonly contextChanged = new Subject<void>();
@@ -194,11 +198,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     }
     if (!this.open) return;
 
-    if (
-      changes['open']?.currentValue === true ||
-      changes['workspaceId'] ||
-      changes['member']
-    ) {
+    if (changes['open']?.currentValue === true || changes['workspaceId'] || changes['member']) {
       this.resetForm();
       this.loadRoles();
     }
@@ -248,7 +248,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       return false;
     }
 
-    this.emails.update(current => [...current, email]);
+    this.emails.update((current) => [...current, email]);
     this.emailDraft.set('');
     this.emailInputError.set(null);
     this.error.set(null);
@@ -260,8 +260,8 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     if (this.saving()) return;
 
     const normalizedEmail = email.trim().toLowerCase();
-    this.emails.update(current =>
-      current.filter(item => item.trim().toLowerCase() !== normalizedEmail)
+    this.emails.update((current) =>
+      current.filter((item) => item.trim().toLowerCase() !== normalizedEmail),
     );
 
     this.syncIndividualRoles();
@@ -288,18 +288,15 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.error.set(null);
   }
 
-  updateIndividualRole(
-    email: string,
-    value: SelectValue | SelectValue[] | null
-  ): void {
+  updateIndividualRole(email: string, value: SelectValue | SelectValue[] | null): void {
     if (this.saving()) return;
 
     const key = email.trim().toLowerCase();
     const roleId = Array.isArray(value) || value === null ? '' : String(value);
 
-    this.individualRoleIds.update(current => ({
+    this.individualRoleIds.update((current) => ({
       ...current,
-      [key]: roleId
+      [key]: roleId,
     }));
 
     this.error.set(null);
@@ -336,12 +333,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       return;
     }
 
-    const invalidRole = invitations.find(item => !this.isObjectId(item.roleId));
+    const invalidRole = invitations.find((item) => !this.isObjectId(item.roleId));
     if (invalidRole) {
       this.error.set(
         this.invitationMode() === 'individual'
           ? `Choose a workspace role for ${invalidRole.email}.`
-          : 'Choose a workspace role.'
+          : 'Choose a workspace role.',
       );
       return;
     }
@@ -349,10 +346,10 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     const message = this.message().trim();
     const payload: WorkspaceInvitationBatchCreateRequest = {
       workspaceId,
-      invitations: invitations.map(item => ({
+      invitations: invitations.map((item) => ({
         ...item,
-        ...(message ? { message } : {})
-      }))
+        ...(message ? { message } : {}),
+      })),
     };
 
     this.saving.set(true);
@@ -361,27 +358,29 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.invitationApi
       .createBatch(payload)
       .pipe(
-        map(response => {
-          if (response?.success === false) throw new Error(response.message || 'Workspace access update failed.');
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
           return response;
         }),
         finalize(() => this.saving.set(false)),
         takeUntil(this.contextChanged),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (!response?.data) {
-            this.handleError(response, 'Unable to send workspace invitations.', 'Invitation failed');
+            this.handleError(
+              response,
+              'Unable to send workspace invitations.',
+              'Invitation failed',
+            );
             return;
           }
           this.handleInvitationResult(response.data);
         },
-        error: error => this.handleError(
-          error,
-          'Unable to send workspace invitations.',
-          'Invitation failed'
-        )
+        error: (error) =>
+          this.handleError(error, 'Unable to send workspace invitations.', 'Invitation failed'),
       });
   }
 
@@ -409,41 +408,39 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.memberApi
       .assignRole(memberId, roleId)
       .pipe(
-        map(response => {
-          if (response?.success === false) throw new Error(response.message || 'Workspace access update failed.');
+        map((response) => {
+          if (response?.success === false)
+            throw new Error(response.message || 'Workspace access update failed.');
           return response;
         }),
         finalize(() => this.saving.set(false)),
         takeUntil(this.contextChanged),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.toastService.success('Member role was updated.', {
             title: 'Role updated',
-            dedupeKey: 'workspace-member-role-success'
+            dedupeKey: 'workspace-member-role-success',
           });
 
           this.saved.emit(response?.data ?? null);
           this.closed.emit();
         },
-        error: error => this.handleError(
-          error,
-          'Unable to update member role.',
-          'Role update failed'
-        )
+        error: (error) =>
+          this.handleError(error, 'Unable to update member role.', 'Role update failed'),
       });
   }
 
   private buildInvitations(): WorkspaceInvitationCreateItem[] {
     if (this.invitationMode() === 'same') {
       const roleId = this.roleId().trim();
-      return this.emails().map(email => ({ email, roleId }));
+      return this.emails().map((email) => ({ email, roleId }));
     }
 
-    return this.emails().map(email => ({
+    return this.emails().map((email) => ({
       email,
-      roleId: this.individualRoleId(email).trim()
+      roleId: this.individualRoleId(email).trim(),
     }));
   }
 
@@ -453,7 +450,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       return;
     }
     const { created, emailSent, emailFailed } = result.summary;
-    const skippedItems = Array.isArray(result.skipped) ? result.skipped.filter(item => item) : [];
+    const skippedItems = Array.isArray(result.skipped) ? result.skipped.filter((item) => item) : [];
 
     if (created > 0) {
       this.toastService.success(
@@ -462,8 +459,8 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
           : `${created} workspace invitations created.`,
         {
           title: created === 1 ? 'Invitation created' : 'Invitations created',
-          dedupeKey: 'workspace-invitations-success'
-        }
+          dedupeKey: 'workspace-invitations-success',
+        },
       );
       this.saved.emit(null);
     }
@@ -473,20 +470,21 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
         `${emailSent} email${emailSent === 1 ? '' : 's'} sent. ${emailFailed} could not be delivered, but the invitation was created.`,
         {
           title: 'Email delivery issue',
-          dedupeKey: 'workspace-invitations-email-warning'
-        }
+          dedupeKey: 'workspace-invitations-email-warning',
+        },
       );
     }
 
     if (skippedItems.length > 0) {
       const firstSkipped = skippedItems[0];
-      const message = skippedItems.length === 1
-        ? firstSkipped.message
-        : `${skippedItems.length} recipients were skipped. ${firstSkipped.message}`;
+      const message =
+        skippedItems.length === 1
+          ? firstSkipped.message
+          : `${skippedItems.length} recipients were skipped. ${firstSkipped.message}`;
 
       this.toastService.warning(message, {
         title: created > 0 ? 'Some recipients were skipped' : 'Invitations not created',
-        dedupeKey: 'workspace-invitations-skipped'
+        dedupeKey: 'workspace-invitations-skipped',
       });
 
       if (created === 0) {
@@ -513,37 +511,37 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       .pipe(
         finalize(() => this.loadingRoles.set(false)),
         takeUntil(this.contextChanged),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: roles => {
-          const assignableRoles = (Array.isArray(roles) ? roles : []).filter(role => role && this.canAssignRole(role, workspaceId));
-          const options = assignableRoles.map<SelectOption>(role => ({
+        next: (roles) => {
+          const assignableRoles = (Array.isArray(roles) ? roles : []).filter(
+            (role) => role && this.canAssignRole(role, workspaceId),
+          );
+          const options = assignableRoles.map<SelectOption>((role) => ({
             label: role.displayName || role.name,
             value: this.roleRecordId(role),
-            icon: LucideShield
+            icon: LucideShield,
           }));
 
-          this.availableRoleOptions.set(
-            options.length ? options : this.fallbackRoleOptions()
-          );
+          this.availableRoleOptions.set(options.length ? options : this.fallbackRoleOptions());
 
           if (!this.isEdit && !this.roleId()) {
-            const defaultRole = assignableRoles.find(role => role.isDefault);
+            const defaultRole = assignableRoles.find((role) => role.isDefault);
             if (defaultRole) {
               this.roleId.set(this.roleRecordId(defaultRole));
               this.syncIndividualRoles();
             }
           }
         },
-        error: error => {
+        error: (error) => {
           const fallback = this.fallbackRoleOptions();
           this.availableRoleOptions.set(fallback);
 
           if (!fallback.length) {
-        this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
+            this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
           }
-        }
+        },
       });
   }
 
@@ -577,8 +575,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   }
 
   private canAssignRole(role: WorkspaceRole, workspaceId: string): boolean {
-    const code = String(role.code ?? '').trim().toUpperCase();
-    const scope = String(role.scope ?? '').trim().toUpperCase();
+    const code = String(role.code ?? '')
+      .trim()
+      .toUpperCase();
+    const scope = String(role.scope ?? '')
+      .trim()
+      .toUpperCase();
     const roleWorkspaceId = this.refId(role.workspaceId);
 
     if (!role.isActive || scope !== 'WORKSPACE' || code === 'WORKSPACE_OWNER') {
@@ -589,8 +591,11 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   }
 
   private fallbackRoleOptions(): readonly SelectOption[] {
-    return this.roleOptions.filter(option =>
-      !String(option.label ?? '').toUpperCase().includes('OWNER')
+    return this.roleOptions.filter(
+      (option) =>
+        !String(option.label ?? '')
+          .toUpperCase()
+          .includes('OWNER'),
     );
   }
 
@@ -624,10 +629,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
 
     this.toastService.error(message, {
       title,
-      dedupeKey: this.isEdit
-        ? 'workspace-member-role-error'
-        : 'workspace-invitation-error'
+      dedupeKey: this.isEdit ? 'workspace-member-role-error' : 'workspace-invitation-error',
     });
   }
-
 }

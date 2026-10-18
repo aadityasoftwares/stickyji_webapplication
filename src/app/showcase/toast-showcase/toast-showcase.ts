@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   LucideBellRing,
   LucideCheck,
@@ -27,11 +23,7 @@ import { ToastService } from '../../shared/components/toast/services/toast.servi
 
 @Component({
   standalone: true,
-  imports: [
-    Button,
-    AppIcon,
-    Toast,
-  ],
+  imports: [Button, AppIcon, Toast],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-toast-showcase',
   styleUrl: './toast-showcase.scss',
@@ -166,10 +158,13 @@ export class ToastShowcase {
   protected showDedupeUpdate(): void {
     this.syncUpdateCount += 1;
 
-    this.toast.info(`${this.syncUpdateCount} workspace update${this.syncUpdateCount === 1 ? '' : 's'} received.`, {
-      title: 'Sync activity',
-      dedupeKey: 'showcase-sync-activity',
-    });
+    this.toast.info(
+      `${this.syncUpdateCount} workspace update${this.syncUpdateCount === 1 ? '' : 's'} received.`,
+      {
+        title: 'Sync activity',
+        dedupeKey: 'showcase-sync-activity',
+      },
+    );
   }
 
   protected showAt(position: ToastPosition): void {
@@ -192,4 +187,3 @@ export class ToastShowcase {
     return position.replace('-', ' ');
   }
 }
-

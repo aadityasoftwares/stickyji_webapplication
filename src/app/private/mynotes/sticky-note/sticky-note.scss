@@ -42,7 +42,10 @@
   font-family: var(--note-font-family, #{$font-body});
   font-size: var(--note-font-size);
   transform: translateZ(0);
-  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
 .sticky-note:hover {
@@ -283,7 +286,10 @@
   line-height: 1.2;
 }
 
-::ng-deep .sticky-note-actions-menu .mat-mdc-menu-item.sticky-note-action-item+.sticky-note-action-item {
+::ng-deep
+  .sticky-note-actions-menu
+  .mat-mdc-menu-item.sticky-note-action-item
+  + .sticky-note-action-item {
   margin-top: 0.125rem;
 }
 
@@ -339,7 +345,10 @@
   line-height: 1.3;
 }
 
-::ng-deep .sticky-note-actions-menu .sticky-note-menu-favorite .sticky-note-menu-item-icon.is-fav-icon {
+::ng-deep
+  .sticky-note-actions-menu
+  .sticky-note-menu-favorite
+  .sticky-note-menu-item-icon.is-fav-icon {
   color: #f59e0b;
   background: rgba(#f59e0b, 0.12);
   border-color: rgba(#f59e0b, 0.28);
@@ -511,7 +520,7 @@
   border-radius: 999px;
 }
 
-.sticky-note__progress-track>span {
+.sticky-note__progress-track > span {
   display: block;
   height: 100%;
   background: var(--note-check);
@@ -685,11 +694,13 @@
 
 .is-variant-folded .sticky-note__surface {
   background: var(--note-paper);
-  clip-path: polygon(0 0,
-      100% 0,
-      100% calc(100% - var(--cut-size)),
-      calc(100% - var(--cut-size)) 100%,
-      0 100%);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
 }
 
 .is-variant-folded .sticky-note__fold {
@@ -753,19 +764,19 @@
 
 .is-pattern-horizontal-lines {
   --note-pattern-ink: var(--note-ink);
-  --note-pattern-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M0%2023.5H24%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E");
+  --note-pattern-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M0%2023.5H24%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E');
   --note-pattern-size: 24px 24px;
 }
 
 .is-pattern-vertical-lines {
   --note-pattern-ink: var(--note-ink);
-  --note-pattern-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M23.5%200V24%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E");
+  --note-pattern-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M23.5%200V24%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E');
   --note-pattern-size: 24px 24px;
 }
 
 .is-pattern-grid {
   --note-pattern-ink: var(--note-ink);
-  --note-pattern-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M19.5%200V20M0%2019.5H20%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E");
+  --note-pattern-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M19.5%200V20M0%2019.5H20%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E');
   --note-pattern-size: 20px 20px;
 }
 
@@ -897,9 +908,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .sticky-note,
-  .sticky-note__progress-track>span,
+  .sticky-note__progress-track > span,
   .sticky-note__saving-dot {
     animation: none;
     transition: none;
@@ -939,7 +949,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-
 
 @media (max-width: 30rem) {
   .sticky-note__header-actions {

@@ -9,7 +9,7 @@ import {
   Output,
   SimpleChanges,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,7 +21,7 @@ import {
   LucideSend,
   LucideShield,
   LucideUserPlus,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { Button } from '../../../../shared/components/button/button';
@@ -29,7 +29,11 @@ import { Divider } from '../../../../shared/components/divider/divider';
 import { AppIcon } from '../../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../../shared/components/input/input';
 import { Label } from '../../../../shared/components/label/label';
-import { Select, type SelectOption, type SelectValue } from '../../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../../shared/functions/api.functions';
 import type { WorkspaceMember } from '../../models/workspace-member.models';
@@ -46,7 +50,7 @@ type UnknownRecord = Record<string, unknown>;
   imports: [FormsModule, AppIcon, AppInput, Button, Divider, Label, Select],
   templateUrl: './send-workspace-member-request-modal.html',
   styleUrl: './send-workspace-member-request-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendWorkspaceMemberRequestModal implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
@@ -128,11 +132,7 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.open) return;
 
-    if (
-      changes['open']?.currentValue === true ||
-      changes['member'] ||
-      changes['workspaceId']
-    ) {
+    if (changes['open']?.currentValue === true || changes['member'] || changes['workspaceId']) {
       this.initialize();
       this.loadRoles();
     }
@@ -192,18 +192,19 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
         .assignRole(memberId, roleId)
         .pipe(
           finalize(() => this.saving.set(false)),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.toastService.success('Member role was updated.', {
               title: 'Role updated',
-              dedupeKey: 'workspace-member-role-success'
+              dedupeKey: 'workspace-member-role-success',
             });
             this.saved.emit(response.data);
             this.closed.emit();
           },
-          error: error => this.handleSubmitError(error, 'Unable to update member role.', 'Role update failed')
+          error: (error) =>
+            this.handleSubmitError(error, 'Unable to update member role.', 'Role update failed'),
         });
 
       return;
@@ -214,22 +215,27 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
         workspaceId,
         email,
         roleId,
-        ...(message ? { message } : {})
+        ...(message ? { message } : {}),
       })
       .pipe(
         finalize(() => this.saving.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.toastService.success(`Invitation sent to ${email}.`, {
             title: 'Invitation sent',
-            dedupeKey: `workspace-invitation-success-${email}`
+            dedupeKey: `workspace-invitation-success-${email}`,
           });
           this.saved.emit(null);
           this.closed.emit();
         },
-        error: error => this.handleSubmitError(error, 'Unable to send workspace invitation.', 'Invitation failed')
+        error: (error) =>
+          this.handleSubmitError(
+            error,
+            'Unable to send workspace invitation.',
+            'Invitation failed',
+          ),
       });
   }
 
@@ -273,45 +279,49 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
         finalize(() => {
           if (requestVersion === this.roleRequestVersion) this.loadingRoles.set(false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: roles => {
+        next: (roles) => {
           if (requestVersion !== this.roleRequestVersion) return;
 
           const options = roles
-            .filter(role => this.canAssignRole(role, workspaceId))
-            .map(role => ({
+            .filter((role) => this.canAssignRole(role, workspaceId))
+            .map((role) => ({
               label: role.displayName || role.name,
               value: this.roleRecordId(role),
-              icon: LucideShield
+              icon: LucideShield,
             }));
 
           this.availableRoleOptions.set(options.length ? options : this.safeFallbackOptions());
 
           if (!this.isEdit && !this.roleId() && options.length) {
-            const defaultRole = roles.find(role =>
-              role.isDefault && this.canAssignRole(role, workspaceId)
+            const defaultRole = roles.find(
+              (role) => role.isDefault && this.canAssignRole(role, workspaceId),
             );
             this.roleId.set(defaultRole ? this.roleRecordId(defaultRole) : '');
           }
         },
-        error: error => {
+        error: (error) => {
           if (requestVersion !== this.roleRequestVersion) return;
 
           const fallback = this.safeFallbackOptions();
           this.availableRoleOptions.set(fallback);
 
           if (!fallback.length) {
-        this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
+            this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
           }
-        }
+        },
       });
   }
 
   private canAssignRole(role: WorkspaceRole, workspaceId: string): boolean {
-    const code = String(role.code ?? '').trim().toUpperCase();
-    const scope = String(role.scope ?? '').trim().toUpperCase();
+    const code = String(role.code ?? '')
+      .trim()
+      .toUpperCase();
+    const scope = String(role.scope ?? '')
+      .trim()
+      .toUpperCase();
     const roleWorkspaceId = this.refId(role.workspaceId);
 
     if (!role.isActive || scope !== 'WORKSPACE' || code === 'WORKSPACE_OWNER') return false;
@@ -319,8 +329,11 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
   }
 
   private safeFallbackOptions(): readonly SelectOption[] {
-    return this.roleOptions.filter(option =>
-      !String(option.label ?? '').toUpperCase().includes('OWNER')
+    return this.roleOptions.filter(
+      (option) =>
+        !String(option.label ?? '')
+          .toUpperCase()
+          .includes('OWNER'),
     );
   }
 
@@ -329,7 +342,7 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
     this.error.set(message);
     this.toastService.error(message, {
       title,
-      dedupeKey: this.isEdit ? 'workspace-member-role-error' : 'workspace-invitation-error'
+      dedupeKey: this.isEdit ? 'workspace-member-role-error' : 'workspace-invitation-error',
     });
   }
 
@@ -355,5 +368,4 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
   private isEmail(value: unknown): boolean {
     return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
-
 }

@@ -52,7 +52,11 @@ describe('SeoService', () => {
   });
 
   it('should set and remove JSON-LD schema', () => {
-    const schema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Sticky Ji' };
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Sticky Ji',
+    };
     service.setJsonLd(schema);
     let script = document.getElementById('stickyji-jsonld-schema');
     expect(script).toBeTruthy();

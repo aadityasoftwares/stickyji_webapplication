@@ -6,7 +6,7 @@ import {
   effect,
   inject,
   signal,
-  untracked
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -44,7 +44,7 @@ import {
   LucideStarOff,
   LucideTrash2,
   LucideType,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 
 import { AppIcon } from '../../shared/components/icon/icon';
@@ -71,7 +71,7 @@ import {
   BulkActionPanel,
   BulkActionPanelOrientation,
   BulkActionPanelPosition,
-  BulkActionPanelVariant
+  BulkActionPanelVariant,
 } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 
 import {
@@ -81,13 +81,13 @@ import {
   STICKY_NOTE_VIEW_OPTIONS,
   USER_PREFERENCE_KEYS,
   VIEW,
-  View
+  View,
 } from '../../shared/constants/common.constants';
 import {
   entityNameOf,
   extractErrorMessage,
   extractList,
-  idOf
+  idOf,
 } from '../../shared/functions/common.function';
 import {
   compareNotesByRank,
@@ -99,13 +99,13 @@ import {
   isNoteDragItem,
   mapStickyNoteChecklists,
   mapStickyNoteColumn,
-  sortNotesByRank
+  sortNotesByRank,
 } from '../../shared/functions/sticky-note.function';
 import {
   getWorkspaceMemberAvatar,
   getWorkspaceMemberId,
   getWorkspaceMemberName,
-  getWorkspaceMemberRole
+  getWorkspaceMemberRole,
 } from '../../shared/functions/workspace-member.function';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
@@ -122,7 +122,10 @@ import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
-import { WorkspaceFolder, WorkspaceFolderQuery } from '../workspacefolders/models/workspace-folder.models';
+import {
+  WorkspaceFolder,
+  WorkspaceFolderQuery,
+} from '../workspacefolders/models/workspace-folder.models';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
 import { WorkspaceMemberQuery } from '../workspace-members/models/workspace-member.models';
 import { TODAY_MESSAGES } from './messages/today.messages';
@@ -166,8 +169,8 @@ type OverdueView = 'bar' | 'button';
     AddEditNoteSidePanel,
     OverdueTopbar,
     OverdueNotesPanel,
-    AddEditStickyNoteColumnSidePanel
-  ]
+    AddEditStickyNoteColumnSidePanel,
+  ],
 })
 export class Today {
   readonly overdue = inject(OverdueNotesStore);
@@ -229,20 +232,24 @@ export class Today {
     return new Intl.DateTimeFormat(locale, {
       timeZone: timezone,
       calendar: 'gregory',
-      day: 'numeric'
+      day: 'numeric',
     }).format(this.today());
   });
   readonly VIEW = VIEW;
   readonly todayMonth = computed(() => {
     const { locale, timezone } = this.dateTimeFormatter.preferences();
     return new Intl.DateTimeFormat(locale, {
-      timeZone: timezone, calendar: 'gregory', month: 'short'
+      timeZone: timezone,
+      calendar: 'gregory',
+      month: 'short',
     }).format(this.today());
   });
   readonly todayWeekday = computed(() => {
     const { locale, timezone } = this.dateTimeFormatter.preferences();
     return new Intl.DateTimeFormat(locale, {
-      timeZone: timezone, calendar: 'gregory', weekday: 'long'
+      timeZone: timezone,
+      calendar: 'gregory',
+      weekday: 'long',
     }).format(this.today());
   });
   readonly TODAY_MESSAGES: any = TODAY_MESSAGES;
@@ -250,30 +257,33 @@ export class Today {
   readonly view = computed<View>(() =>
     String(this.userPreferenceStore.todayView() ?? '').toUpperCase() === 'TABLE'
       ? VIEW.TABLE
-      : VIEW.KANBAN
+      : VIEW.KANBAN,
   );
   readonly overdueView = computed<OverdueView>(() =>
     String(this.userPreferenceStore.overdueView() ?? '').toUpperCase() === 'BUTTON'
       ? 'button'
-      : 'bar'
+      : 'bar',
   );
-  readonly overdueBarVisible = computed(() =>
-    this.overdueView() === 'bar' && this.overdue.bannerVisible()
+  readonly overdueBarVisible = computed(
+    () => this.overdueView() === 'bar' && this.overdue.bannerVisible(),
   );
-  readonly overdueButtonVisible = computed(() =>
-    this.overdueView() === 'button' && !this.overdue.error() && (this.overdue.data()?.total ?? 0) > 0
+  readonly overdueButtonVisible = computed(
+    () =>
+      this.overdueView() === 'button' &&
+      !this.overdue.error() &&
+      (this.overdue.data()?.total ?? 0) > 0,
   );
   readonly searchTerm = signal('');
   readonly movingColumn = signal(false);
 
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
-  readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map(option => ({
+  readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map((option) => ({
     ...option,
-    icon: LucideType
+    icon: LucideType,
   }));
-  readonly stickyNoteFontSizeOptions: any[] = STICKY_NOTE_FONT_SIZE_OPTIONS.map(option => ({
+  readonly stickyNoteFontSizeOptions: any[] = STICKY_NOTE_FONT_SIZE_OPTIONS.map((option) => ({
     ...option,
-    icon: LucideAArrowUp
+    icon: LucideAArrowUp,
   }));
 
   readonly stickyNoteLayout = this.userPreferenceStore.stickyNoteLayout;
@@ -281,11 +291,11 @@ export class Today {
   readonly stickyNoteFontSize = this.userPreferenceStore.stickyNoteFontSize;
 
   readonly workspaceOptions = computed<any[]>(() =>
-    this.workspaceStore.workspaces().map(workspace => ({
+    this.workspaceStore.workspaces().map((workspace) => ({
       label: entityNameOf(workspace, 'Untitled workspace'),
       value: idOf(workspace),
-      icon: LucidePanelsTopLeft
-    }))
+      icon: LucidePanelsTopLeft,
+    })),
   );
 
   readonly activeWorkspaceId = this.workspaceStore.selectedId;
@@ -302,11 +312,11 @@ export class Today {
   readonly foldersErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly folderOptions = computed<any[]>(() =>
-    this.folders().map(folder => ({
+    this.folders().map((folder) => ({
       label: entityNameOf(folder, 'Untitled folder'),
       value: idOf(folder),
-      icon: LucideFolderOpen
-    }))
+      icon: LucideFolderOpen,
+    })),
   );
 
   readonly stickyNotes = signal<any[]>([]);
@@ -315,7 +325,7 @@ export class Today {
   readonly loadingWorkspaceMembers = signal(false);
 
   readonly stickyNoteColumns = computed(() =>
-    this.stickyNoteColumnStore.orderedColumns().map(column => mapStickyNoteColumn(column))
+    this.stickyNoteColumnStore.orderedColumns().map((column) => mapStickyNoteColumn(column)),
   );
   readonly stickyNoteColumnById = computed(() => {
     const columns = new Map<string, any>();
@@ -349,7 +359,7 @@ export class Today {
     const grouped = this.visibleNotesByColumn();
 
     return columns
-      .map(column => {
+      .map((column) => {
         const colId = idOf(column) || '';
         const columnNotes = grouped.get(colId) ?? [];
         return {
@@ -359,10 +369,10 @@ export class Today {
           accent: column.accent,
           column,
           notes: columnNotes,
-          count: columnNotes.length
+          count: columnNotes.length,
         };
       })
-      .filter(group => group.count > 0 || !this.hasSearch());
+      .filter((group) => group.count > 0 || !this.hasSearch());
   });
 
   readonly notePanelOpen = signal(false);
@@ -375,20 +385,24 @@ export class Today {
   readonly columnPanelColumn = signal<any>(null);
 
   readonly workspaceMemberStack = computed<readonly any[]>(() =>
-    this.workspaceMembers().map(member => {
+    this.workspaceMembers().map((member) => {
       const name = getWorkspaceMemberName(member);
       const role = getWorkspaceMemberRole(member);
       return {
         id: getWorkspaceMemberId(member),
         name,
         src: getWorkspaceMemberAvatar(member),
-        tooltip: `${name} · ${role}`
+        tooltip: `${name} · ${role}`,
       };
-    })
+    }),
   );
 
-  readonly boardLoading = computed(() =>
-    this.loadingWorkspaces() || this.loadingFolders() || this.loadingColumns() || this.loadingNotes()
+  readonly boardLoading = computed(
+    () =>
+      this.loadingWorkspaces() ||
+      this.loadingFolders() ||
+      this.loadingColumns() ||
+      this.loadingNotes(),
   );
 
   readonly noteCount = computed(() => this.stickyNotes().length);
@@ -402,13 +416,13 @@ export class Today {
    *  notes can be dragged across columns even when the drop lists are nested
    *  inside cdkDrag column elements (cdkDropListGroup cannot reach them). */
   readonly columnDropListIds = computed<string[]>(() =>
-    this.stickyNoteColumns().flatMap(col => [col.id + '-drop-list', col.id + '-table-drop-list'])
+    this.stickyNoteColumns().flatMap((col) => [col.id + '-drop-list', col.id + '-table-drop-list']),
   );
 
   readonly visibleListNotes = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();
     return search
-      ? this.stickyNotes().filter(note => this.noteMatchesSearch(note, search))
+      ? this.stickyNotes().filter((note) => this.noteMatchesSearch(note, search))
       : this.stickyNotes();
   });
 
@@ -440,7 +454,7 @@ export class Today {
     for (const [columnId, notes] of this.notesByColumn()) {
       filtered.set(
         columnId,
-        notes.filter(note => this.noteMatchesSearch(note, search))
+        notes.filter((note) => this.noteMatchesSearch(note, search)),
       );
     }
     return filtered;
@@ -454,9 +468,9 @@ export class Today {
     const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
     if (!preferredWorkspaceId) return;
 
-    const exists = this.workspaceStore.workspaces().some(
-      workspace => workspace.id === preferredWorkspaceId
-    );
+    const exists = this.workspaceStore
+      .workspaces()
+      .some((workspace) => workspace.id === preferredWorkspaceId);
     if (!exists) return;
 
     const currentWorkspaceId = this.activeWorkspaceId();
@@ -482,9 +496,7 @@ export class Today {
 
   setView(view: any): void {
     const raw = String(view ?? '').toLowerCase();
-    const nextView = raw === VIEW.TABLE || raw === 'list' || raw === 'table'
-      ? 'TABLE'
-      : 'KANBAN';
+    const nextView = raw === VIEW.TABLE || raw === 'list' || raw === 'table' ? 'TABLE' : 'KANBAN';
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.TODAY_VIEW, nextView);
     this.searchTerm.set('');
   }
@@ -507,17 +519,20 @@ export class Today {
     const deltaX = this.wheelPixels(event.deltaX, event.deltaMode, board.clientWidth);
     const deltaY = this.wheelPixels(event.deltaY, event.deltaMode, board.clientHeight);
     const verticalIntent = !event.shiftKey && Math.abs(deltaY) >= Math.abs(deltaX);
-    const noteColumn = event.target instanceof Element
-      ? event.target.closest<HTMLElement>('.today-column-notes')
-      : null;
+    const noteColumn =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('.today-column-notes')
+        : null;
 
     if (verticalIntent && noteColumn && this.canScrollVertically(noteColumn, deltaY)) {
       return;
     }
 
     const delta = event.shiftKey
-      ? (deltaY || deltaX)
-      : (Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY);
+      ? deltaY || deltaX
+      : Math.abs(deltaX) > Math.abs(deltaY)
+        ? deltaX
+        : deltaY;
     const maxScrollLeft = Math.max(0, board.scrollWidth - board.clientWidth);
     if (!delta || !maxScrollLeft) return;
 
@@ -529,7 +544,9 @@ export class Today {
   }
 
   isCompactLayout(): boolean {
-    const layout = String(this.stickyNoteLayout() ?? 'DETAIL').trim().toUpperCase();
+    const layout = String(this.stickyNoteLayout() ?? 'DETAIL')
+      .trim()
+      .toUpperCase();
     return layout === 'COMPACT' || layout === 'PLAIN';
   }
 
@@ -538,9 +555,11 @@ export class Today {
   }
 
   fontFamilyFor(value: string): string {
-    return this.stickyNoteFontOptions.find(option => option.value === value)?.family ??
+    return (
+      this.stickyNoteFontOptions.find((option) => option.value === value)?.family ??
       this.stickyNoteFontOptions[0]?.family ??
-      '"DM Sans", sans-serif';
+      '"DM Sans", sans-serif'
+    );
   }
 
   chooseFont(value: any): void {
@@ -583,24 +602,22 @@ export class Today {
     this.workspaceStore.clearError();
     this.workspaceErrorKind.set('server');
 
-    this.workspaceApiService.getAll({
-      page: DEFAULT_PAGE,
-      limit: 100,
-      status: ACTIVE_STATUS
-    })
+    this.workspaceApiService
+      .getAll({
+        page: DEFAULT_PAGE,
+        limit: 100,
+        status: ACTIVE_STATUS,
+      })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.workspaceStore.setLoading(false))
+        finalize(() => this.workspaceStore.setLoading(false)),
       )
       .subscribe({
         next: (response: any) => {
           const workspaces = extractList(response);
           const pagination = response?.data?.meta ?? response?.meta ?? null;
 
-          this.workspaceStore.setWorkspaces(
-            workspaces,
-            pagination
-          );
+          this.workspaceStore.setWorkspaces(workspaces, pagination);
 
           const workspaceId = this.resolveWorkspaceSelection();
 
@@ -617,13 +634,13 @@ export class Today {
         error: (error: any) => {
           this.workspaceErrorKind.set(this.errorKind(error));
           this.workspaceStore.setError(
-            extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED)
+            extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED),
           );
           this.workspaceFolderStore.clear();
           this.stickyNoteColumnStore.clear();
           this.clearWorkspaceMembers();
           this.clearBoard();
-        }
+        },
       });
   }
 
@@ -632,10 +649,7 @@ export class Today {
     if (!workspaceId || workspaceId === this.activeWorkspaceId()) return;
 
     this.workspaceStore.select(workspaceId);
-    this.userPreferenceStore.setAndSave(
-      USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID,
-      workspaceId
-    );
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, workspaceId);
 
     this.workspaceFolderStore.clear();
     this.stickyNoteColumnStore.clear();
@@ -662,33 +676,38 @@ export class Today {
       page: DEFAULT_PAGE,
       limit: DEFAULT_LIMIT,
       sortBy: 'updatedAt',
-      sortOrder: SORT_DESC
+      sortOrder: SORT_DESC,
     };
 
-    this.workspaceMemberApiService.getAllWorkspaceMembers(query)
+    this.workspaceMemberApiService
+      .getAllWorkspaceMembers(query)
       .pipe(
         finalize(() => {
           if (requestVersion === this.workspaceMemberRequestVersion) {
             this.loadingWorkspaceMembers.set(false);
           }
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
-          if (requestVersion !== this.workspaceMemberRequestVersion ||
-            this.activeWorkspaceId() !== id) {
+          if (
+            requestVersion !== this.workspaceMemberRequestVersion ||
+            this.activeWorkspaceId() !== id
+          ) {
             return;
           }
           this.workspaceMembers.set(extractList(response));
         },
         error: () => {
-          if (requestVersion !== this.workspaceMemberRequestVersion ||
-            this.activeWorkspaceId() !== id) {
+          if (
+            requestVersion !== this.workspaceMemberRequestVersion ||
+            this.activeWorkspaceId() !== id
+          ) {
             return;
           }
           this.workspaceMembers.set([]);
-        }
+        },
       });
   }
 
@@ -701,10 +720,12 @@ export class Today {
       return;
     }
 
-    if (!force &&
+    if (
+      !force &&
       this.workspaceFolderStore.initialized() &&
       !this.workspaceFolderStore.error() &&
-      this.workspaceFolderStore.workspaceId() === id) {
+      this.workspaceFolderStore.workspaceId() === id
+    ) {
       this.selectFolderAndLoad();
       return;
     }
@@ -720,10 +741,11 @@ export class Today {
       limit: DEFAULT_LIMIT,
       status: ACTIVE_STATUS,
       sortBy: 'position',
-      sortOrder: SORT_ASC
+      sortOrder: SORT_ASC,
     };
 
-    this.workspaceFolderApiService.getAllWorkspaceFolders(query)
+    this.workspaceFolderApiService
+      .getAllWorkspaceFolders(query)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
@@ -751,7 +773,7 @@ export class Today {
           this.foldersErrorKind.set(this.errorKind(error));
           this.workspaceFolderStore.setError(message);
           this.clearBoard();
-        }
+        },
       });
   }
 
@@ -761,10 +783,7 @@ export class Today {
 
     this.workspaceFolderStore.select(folderId);
     if (folderId) {
-      this.userPreferenceStore.setAndSave(
-        USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID,
-        folderId
-      );
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, folderId);
     }
 
     this.stickyNoteColumnStore.clear();
@@ -783,10 +802,12 @@ export class Today {
       return;
     }
 
-    if (!force &&
+    if (
+      !force &&
       this.stickyNoteColumnStore.initialized() &&
       !this.stickyNoteColumnStore.error() &&
-      this.stickyNoteColumnStore.contextMatches(workspaceId, folderId)) {
+      this.stickyNoteColumnStore.contextMatches(workspaceId, folderId)
+    ) {
       return;
     }
 
@@ -801,17 +822,15 @@ export class Today {
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
-          if (this.activeWorkspaceId() !== workspaceId ||
-            this.activeFolder() !== folderId) {
+        next: (response) => {
+          if (this.activeWorkspaceId() !== workspaceId || this.activeFolder() !== folderId) {
             return;
           }
           this.boardError.set(null);
           this.stickyNoteColumnStore.setColumns(workspaceId, folderId, extractList(response));
         },
-        error: error => {
-          if (this.activeWorkspaceId() !== workspaceId ||
-            this.activeFolder() !== folderId) {
+        error: (error) => {
+          if (this.activeWorkspaceId() !== workspaceId || this.activeFolder() !== folderId) {
             return;
           }
           const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_LOAD_FAILED);
@@ -820,12 +839,12 @@ export class Today {
           if (this.hasNotes() || this.hasColumns()) {
             this.toastService.error(message, {
               title: this.errorTitle(this.boardErrorKind()),
-              dedupeKey: 'today-columns-load-error'
+              dedupeKey: 'today-columns-load-error',
             });
             return;
           }
           this.boardError.set(message);
-        }
+        },
       });
   }
 
@@ -843,40 +862,44 @@ export class Today {
     const hadNotes = this.hasNotes();
     this.loadingNotes.set(true);
 
-    this.stickyNoteApiService.getAll({
-      workspaceId,
-      workspaceFolderId: folderId,
-      page: DEFAULT_PAGE,
-      limit: DEFAULT_LIMIT,
-      status: ACTIVE_STATUS,
-      datePreset: TODAY_DATE_PRESET,
-      sortBy: 'position',
-      sortOrder: SORT_ASC,
-    })
+    this.stickyNoteApiService
+      .getAll({
+        workspaceId,
+        workspaceFolderId: folderId,
+        page: DEFAULT_PAGE,
+        limit: DEFAULT_LIMIT,
+        status: ACTIVE_STATUS,
+        datePreset: TODAY_DATE_PRESET,
+        sortBy: 'position',
+        sortOrder: SORT_ASC,
+      })
       .pipe(
         finalize(() => {
           if (requestVersion === this.notesRequestVersion) {
             this.loadingNotes.set(false);
           }
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
-          if (requestVersion !== this.notesRequestVersion ||
+        next: (response) => {
+          if (
+            requestVersion !== this.notesRequestVersion ||
             this.activeWorkspaceId() !== workspaceId ||
-            this.activeFolder() !== folderId) {
+            this.activeFolder() !== folderId
+          ) {
             return;
           }
-          const notes = sortNotesByRank(extractList(response))
-            .map(note => this.mapNote(note));
+          const notes = sortNotesByRank(extractList(response)).map((note) => this.mapNote(note));
           this.boardError.set(null);
           this.stickyNotes.set(notes);
         },
-        error: error => {
-          if (requestVersion !== this.notesRequestVersion ||
+        error: (error) => {
+          if (
+            requestVersion !== this.notesRequestVersion ||
             this.activeWorkspaceId() !== workspaceId ||
-            this.activeFolder() !== folderId) {
+            this.activeFolder() !== folderId
+          ) {
             return;
           }
           this.stickyNotes.set([]);
@@ -885,12 +908,12 @@ export class Today {
           if (hadNotes) {
             this.toastService.error(message, {
               title: this.errorTitle(this.boardErrorKind()),
-              dedupeKey: 'today-notes-refresh-error'
+              dedupeKey: 'today-notes-refresh-error',
             });
             return;
           }
           this.boardError.set(message);
-        }
+        },
       });
   }
 
@@ -911,9 +934,7 @@ export class Today {
   openStickyNoteTrash(): void {
     const workspaceId = this.activeWorkspaceId();
     this.router.navigate(routeCommands(APP_ROUTES.TRASH), {
-      queryParams: workspaceId
-        ? { workspaceId }
-        : undefined
+      queryParams: workspaceId ? { workspaceId } : undefined,
     });
   }
 
@@ -926,7 +947,7 @@ export class Today {
   }
 
   toggleGroup(groupId: string): void {
-    this.collapsedGroups.update(set => {
+    this.collapsedGroups.update((set) => {
       const next = new Set(set);
       if (next.has(groupId)) {
         next.delete(groupId);
@@ -999,30 +1020,34 @@ export class Today {
 
     if (!nextTitle || nextTitle === currentTitle) return;
 
-    this.stickyNotes.update(notes =>
-      notes.map(item => item.id === noteId ? { ...item, title: nextTitle } : item)
+    this.stickyNotes.update((notes) =>
+      notes.map((item) => (item.id === noteId ? { ...item, title: nextTitle } : item)),
     );
 
-    this.stickyNoteApiService.update(noteId, { title: nextTitle })
+    this.stickyNoteApiService
+      .update(noteId, { title: nextTitle })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
           const serverTitle = String(response?.data?.title ?? nextTitle).trim();
           if (serverTitle && serverTitle !== nextTitle) {
-            this.stickyNotes.update(notes =>
-              notes.map(item => item.id === noteId ? { ...item, title: serverTitle } : item)
+            this.stickyNotes.update((notes) =>
+              notes.map((item) => (item.id === noteId ? { ...item, title: serverTitle } : item)),
             );
           }
         },
         error: (error: any) => {
-          this.stickyNotes.update(notes =>
-            notes.map(item => item.id === noteId ? { ...item, title: currentTitle } : item)
+          this.stickyNotes.update((notes) =>
+            notes.map((item) => (item.id === noteId ? { ...item, title: currentTitle } : item)),
           );
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
-            title: 'Title not updated',
-            dedupeKey: `note-title-${noteId}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED),
+            {
+              title: 'Title not updated',
+              dedupeKey: `note-title-${noteId}`,
+            },
+          );
+        },
       });
   }
 
@@ -1071,15 +1096,16 @@ export class Today {
     this.stickyNoteColumnStore.setColumns(workspaceId, folderId, updatedColumns as any);
     this.movingColumn.set(true);
 
-    const columnIds = updatedColumns.map(col => col.id);
-    this.stickyNoteColumnApiService.reorder({
-      workspaceId,
-      workspaceFolderId: folderId,
-      columnIds
-    })
+    const columnIds = updatedColumns.map((col) => col.id);
+    this.stickyNoteColumnApiService
+      .reorder({
+        workspaceId,
+        workspaceFolderId: folderId,
+        columnIds,
+      })
       .pipe(
         finalize(() => this.movingColumn.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -1087,18 +1113,24 @@ export class Today {
           if (items.length > 0) {
             this.stickyNoteColumnStore.setColumns(workspaceId, folderId, items);
           }
-          this.toastService.success(this.responseMessage(response, TODAY_MESSAGES.SUCCESS.COLUMNS_REORDERED), {
-            title: 'Column order updated',
-            dedupeKey: 'columns-reordered'
-          });
+          this.toastService.success(
+            this.responseMessage(response, TODAY_MESSAGES.SUCCESS.COLUMNS_REORDERED),
+            {
+              title: 'Column order updated',
+              dedupeKey: 'columns-reordered',
+            },
+          );
         },
         error: (error: any) => {
           this.stickyNoteColumnStore.setColumns(workspaceId, folderId, previousColumns as any);
-          this.toastService.error(extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_REORDER_FAILED), {
-            title: 'Rearrange failed',
-            dedupeKey: 'columns-reorder-error'
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, TODAY_MESSAGES.ERROR.COLUMNS_REORDER_FAILED),
+            {
+              title: 'Rearrange failed',
+              dedupeKey: 'columns-reorder-error',
+            },
+          );
+        },
       });
   }
 
@@ -1110,10 +1142,7 @@ export class Today {
     const colId = idOf(targetColumnId);
     if (!noteId || !colId) return;
 
-    if (
-      event.previousContainer === event.container &&
-      event.previousIndex === event.currentIndex
-    ) {
+    if (event.previousContainer === event.container && event.previousIndex === event.currentIndex) {
       return;
     }
 
@@ -1151,9 +1180,7 @@ export class Today {
   }
 
   noteColumnLabel(note: any): string {
-    return this.columnForNote(note)?.label
-      ?? note?.columnName
-      ?? 'Note';
+    return this.columnForNote(note)?.label ?? note?.columnName ?? 'Note';
   }
 
   noteFolderName(note: any): string {
@@ -1163,7 +1190,9 @@ export class Today {
       return rawName;
     }
 
-    const targetFolderId = idOf(note?.workspaceFolderId || note?.folderId || note?.folder || rawName);
+    const targetFolderId = idOf(
+      note?.workspaceFolderId || note?.folderId || note?.folder || rawName,
+    );
     if (targetFolderId && this.folders().length > 0) {
       const matchedFolder = this.folders().find((f: any) => idOf(f) === targetFolderId);
       if (matchedFolder) {
@@ -1176,7 +1205,9 @@ export class Today {
 
   noteColumnBadgeVariant(note: any): any {
     const column = this.columnForNote(note);
-    return column?.checkboxVariant || getNoteColorBadgeVariant(column?.color || note?.color) || 'neutral';
+    return (
+      column?.checkboxVariant || getNoteColorBadgeVariant(column?.color || note?.color) || 'neutral'
+    );
   }
 
   noteDateLabel(value: unknown): string {
@@ -1229,15 +1260,20 @@ export class Today {
 
     const currentFavId = note?.favoriteId || this.stickyNotesFavouriteService.getFavoriteId(noteId);
     const title = note?.title || 'note';
-    this.stickyNotesFavouriteService.toggleFavorite(noteId, currentFavId, title)
+    this.stickyNotesFavouriteService
+      .toggleFavorite(noteId, currentFavId, title)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.stickyNotes.update(notes =>
-            notes.map(n => (idOf(n) === noteId || n?.id === noteId) ? { ...n, isFavorite: res.isFavorite, favoriteId: res.favoriteId } : n)
+          this.stickyNotes.update((notes) =>
+            notes.map((n) =>
+              idOf(n) === noteId || n?.id === noteId
+                ? { ...n, isFavorite: res.isFavorite, favoriteId: res.favoriteId }
+                : n,
+            ),
           );
           this.stickyNoteDataCache.delete(noteId);
-        }
+        },
       });
   }
 
@@ -1281,7 +1317,7 @@ export class Today {
       movingNoteId,
       canMoveBackward,
       canMoveForward,
-      this.isNoteCompleted(note)
+      this.isNoteCompleted(note),
     ]);
     const cached = this.stickyNoteDataCache.get(noteId);
     if (cached?.key === key) {
@@ -1302,7 +1338,7 @@ export class Today {
       showMoveActions: true,
       canMoveBackward,
       canMoveForward,
-      actionsDisabled: movingNoteId === (note?.id ?? note?._id)
+      actionsDisabled: movingNoteId === (note?.id ?? note?._id),
     };
 
     if (noteId) {
@@ -1315,22 +1351,32 @@ export class Today {
     const noteId = idOf(note);
     if (!noteId) return;
 
-    this.stickyNoteApiService.moveToTrash(noteId)
+    this.stickyNoteApiService
+      .moveToTrash(noteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
           this.onNoteDeleted(noteId);
-          this.toastService.success(this.responseMessage(response, STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH_WITH_RETENTION), {
-            title: 'Note safely moved',
-            dedupeKey: `trash-note-${noteId}`
-          });
+          this.toastService.success(
+            this.responseMessage(
+              response,
+              STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH_WITH_RETENTION,
+            ),
+            {
+              title: 'Note safely moved',
+              dedupeKey: `trash-note-${noteId}`,
+            },
+          );
         },
         error: (error: any) => {
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
-            title: 'Note not moved',
-            dedupeKey: `trash-note-${noteId}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED),
+            {
+              title: 'Note not moved',
+              dedupeKey: `trash-note-${noteId}`,
+            },
+          );
+        },
       });
   }
 
@@ -1338,14 +1384,16 @@ export class Today {
     if (!noteId) return;
     if (refreshOverdue) this.overdue.refresh();
     this.stickyNoteDataCache.delete(noteId);
-    this.stickyNotes.update(notes => notes.filter(item => idOf(item) !== noteId));
+    this.stickyNotes.update((notes) => notes.filter((item) => idOf(item) !== noteId));
   }
 
   onNoteUpdated(updated: any): void {
     const id = idOf(updated);
     if (!id) return;
     this.stickyNoteDataCache.delete(id);
-    this.stickyNotes.update(notes => notes.map(item => idOf(item) === id ? { ...item, ...updated } : item));
+    this.stickyNotes.update((notes) =>
+      notes.map((item) => (idOf(item) === id ? { ...item, ...updated } : item)),
+    );
   }
 
   retryFolders(): void {
@@ -1357,7 +1405,7 @@ export class Today {
   openFolderCreateModal(): void {
     const workspaceId = this.activeWorkspaceId();
     this.router.navigate(routeCommands(APP_ROUTES.WORKSPACE_FOLDERS), {
-      queryParams: workspaceId ? { workspaceId } : undefined
+      queryParams: workspaceId ? { workspaceId } : undefined,
     });
   }
 
@@ -1416,7 +1464,11 @@ export class Today {
   }
 
   openOverdueNote(note: any): void {
-    if (note.workspaceId !== this.activeWorkspaceId() || note.workspaceFolderId !== this.activeFolder()) return;
+    if (
+      note.workspaceId !== this.activeWorkspaceId() ||
+      note.workspaceFolderId !== this.activeFolder()
+    )
+      return;
     this.openNoteEditPanel(note);
   }
 
@@ -1436,7 +1488,9 @@ export class Today {
 
     const previousNotes = [...this.stickyNotes()];
 
-    const targetColumnNotes = this.notesInColumn(targetColId).filter(item => idOf(item) !== noteId);
+    const targetColumnNotes = this.notesInColumn(targetColId).filter(
+      (item) => idOf(item) !== noteId,
+    );
     const boundedIndex = Math.max(0, Math.min(targetIndex, targetColumnNotes.length));
 
     const { beforeId, afterId } = getNeighborNoteIds(targetColumnNotes, boundedIndex, noteId);
@@ -1445,7 +1499,7 @@ export class Today {
     optimisticTargetNotes.splice(boundedIndex, 0, { ...note, columnId: targetColId });
 
     const otherNotes = previousNotes.filter(
-      item => idOf(item) !== noteId && idOf(item.columnId ?? item?.columnId) !== targetColId
+      (item) => idOf(item) !== noteId && idOf(item.columnId ?? item?.columnId) !== targetColId,
     );
     const nextNotes = [...otherNotes, ...optimisticTargetNotes];
 
@@ -1453,14 +1507,15 @@ export class Today {
     this.movingNoteId.set(noteId);
     this.boardError.set(null);
 
-    this.stickyNoteApiService.reorder(noteId, {
-      columnId: targetColId,
-      beforeId,
-      afterId
-    })
+    this.stickyNoteApiService
+      .reorder(noteId, {
+        columnId: targetColId,
+        beforeId,
+        afterId,
+      })
       .pipe(
         finalize(() => this.movingNoteId.set(null)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -1468,8 +1523,10 @@ export class Today {
           if (idOf(note.columnId) !== targetColId) this.overdue.refresh();
           if (updated && idOf(updated) === noteId) {
             const mapped = this.mapNote(updated);
-            this.stickyNotes.update(notes =>
-              this.sortNotes(notes.map(item => idOf(item) === noteId ? { ...item, ...mapped } : item))
+            this.stickyNotes.update((notes) =>
+              this.sortNotes(
+                notes.map((item) => (idOf(item) === noteId ? { ...item, ...mapped } : item)),
+              ),
             );
           }
         },
@@ -1477,7 +1534,7 @@ export class Today {
           this.stickyNotes.set(previousNotes);
           this.boardError.set(extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTE_MOVE_FAILED));
           this.getNotesForToday();
-        }
+        },
       });
   }
 
@@ -1512,17 +1569,14 @@ export class Today {
 
     if (
       preferredWorkspaceId &&
-      workspaces.some(workspace => workspace.id === preferredWorkspaceId)
+      workspaces.some((workspace) => workspace.id === preferredWorkspaceId)
     ) {
       return preferredWorkspaceId;
     }
 
     const currentWorkspaceId = this.workspaceStore.selectedId();
 
-    if (
-      currentWorkspaceId &&
-      workspaces.some(workspace => workspace.id === currentWorkspaceId)
-    ) {
+    if (currentWorkspaceId && workspaces.some((workspace) => workspace.id === currentWorkspaceId)) {
       return currentWorkspaceId;
     }
 
@@ -1541,19 +1595,13 @@ export class Today {
 
     const preferredFolderId = this.userPreferenceStore.selectedFolderId();
 
-    if (
-      preferredFolderId &&
-      folders.some(folder => idOf(folder) === preferredFolderId)
-    ) {
+    if (preferredFolderId && folders.some((folder) => idOf(folder) === preferredFolderId)) {
       return preferredFolderId;
     }
 
     const currentFolderId = this.activeFolder();
 
-    if (
-      currentFolderId &&
-      folders.some(folder => idOf(folder) === currentFolderId)
-    ) {
+    if (currentFolderId && folders.some((folder) => idOf(folder) === currentFolderId)) {
       return currentFolderId;
     }
 
@@ -1575,10 +1623,7 @@ export class Today {
 
     const preferredFolderId = this.userPreferenceStore.selectedFolderId();
     if (folderId && folderId !== preferredFolderId) {
-      this.userPreferenceStore.setAndSave(
-        USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID,
-        folderId
-      );
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, folderId);
     }
 
     this.loadBoard();
@@ -1613,7 +1658,7 @@ export class Today {
 
   private columnIndex(columnId: string): number {
     const colId = idOf(columnId);
-    return this.stickyNoteColumns().findIndex(column => idOf(column.id) === colId);
+    return this.stickyNoteColumns().findIndex((column) => idOf(column.id) === colId);
   }
 
   private columnForNote(note: any): any {
@@ -1639,17 +1684,16 @@ export class Today {
     if (status === 0) return true;
 
     const message = String(
-      error?.message ??
-      error?.error?.message ??
-      error?.statusText ??
-      ''
+      error?.message ?? error?.error?.message ?? error?.statusText ?? '',
     ).toLowerCase();
 
-    return message.includes('network') ||
+    return (
+      message.includes('network') ||
       message.includes('internet') ||
       message.includes('offline') ||
       message.includes('timeout') ||
-      message.includes('connection');
+      message.includes('connection')
+    );
   }
 
   private mapNote(note: any): any {
@@ -1663,17 +1707,21 @@ export class Today {
     const checklists = mapStickyNoteChecklists(rawChecklists);
     const totalCount = checklists.reduce(
       (total: number, checklist: any) => total + checklist.totalCount,
-      0
+      0,
     );
     const completedCount = checklists.reduce(
       (total: number, checklist: any) => total + checklist.completedCount,
-      0
+      0,
     );
 
     return {
       ...note,
       id: idOf(note),
-      noteKey: note?.noteKey ?? (typeof note?.stickyNoteNumber === 'number' ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}` : undefined),
+      noteKey:
+        note?.noteKey ??
+        (typeof note?.stickyNoteNumber === 'number'
+          ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
+          : undefined),
       columnId: idOf(note?.columnId),
       folderId: idOf(note?.workspaceFolderId),
       columnName: entityNameOf(note?.columnId, 'Note'),
@@ -1692,10 +1740,8 @@ export class Today {
       checklistCount: checklists.length,
       checklistItemCount: totalCount,
       completedChecklistItemCount: completedCount,
-      progress: totalCount
-        ? Math.round((completedCount / totalCount) * 100)
-        : undefined,
-      compact: !content || content === title
+      progress: totalCount ? Math.round((completedCount / totalCount) * 100) : undefined,
+      compact: !content || content === title,
     };
   }
 
@@ -1707,19 +1753,22 @@ export class Today {
     event?.stopPropagation();
     event?.preventDefault();
     if (!key) return;
-    navigator.clipboard.writeText(key).then(() => {
-      this.copiedKeyMap.update(map => ({ ...map, [key]: true }));
-      this.toastService.info(`Copied ${key} to clipboard`);
-      setTimeout(() => {
-        this.copiedKeyMap.update(map => {
-          const next = { ...map };
-          delete next[key];
-          return next;
-        });
-      }, 2000);
-    }).catch(() => {
-      // Fallback if clipboard API is not available
-    });
+    navigator.clipboard
+      .writeText(key)
+      .then(() => {
+        this.copiedKeyMap.update((map) => ({ ...map, [key]: true }));
+        this.toastService.info(`Copied ${key} to clipboard`);
+        setTimeout(() => {
+          this.copiedKeyMap.update((map) => {
+            const next = { ...map };
+            delete next[key];
+            return next;
+          });
+        }, 2000);
+      })
+      .catch(() => {
+        // Fallback if clipboard API is not available
+      });
   }
 
   isNoteSelected(note: any): boolean {
@@ -1731,7 +1780,7 @@ export class Today {
     const id = idOf(note);
     if (!id) return;
 
-    this.selectedNoteIds.update(set => {
+    this.selectedNoteIds.update((set) => {
       const next = new Set(set);
       if (checked) {
         next.add(id);
@@ -1746,14 +1795,14 @@ export class Today {
     const targetNotes = notes ?? this.visibleListNotes();
     if (!targetNotes.length) return false;
     const set = this.selectedNoteIds();
-    return targetNotes.every(note => set.has(idOf(note)));
+    return targetNotes.every((note) => set.has(idOf(note)));
   }
 
   isSomeSelected(notes?: any[]): boolean {
     const targetNotes = notes ?? this.visibleListNotes();
     if (!targetNotes.length) return false;
     const set = this.selectedNoteIds();
-    const selectedInList = targetNotes.filter(note => set.has(idOf(note)));
+    const selectedInList = targetNotes.filter((note) => set.has(idOf(note)));
     return selectedInList.length > 0 && selectedInList.length < targetNotes.length;
   }
 
@@ -1761,9 +1810,9 @@ export class Today {
     const targetNotes = notes ?? this.visibleListNotes();
     if (!targetNotes.length) return;
 
-    this.selectedNoteIds.update(set => {
+    this.selectedNoteIds.update((set) => {
       const next = new Set(set);
-      targetNotes.forEach(note => {
+      targetNotes.forEach((note) => {
         const id = idOf(note);
         if (id) {
           if (checked) {
@@ -1787,8 +1836,9 @@ export class Today {
 
     let completed = 0;
     let deletedCount = 0;
-    ids.forEach(id => {
-      this.stickyNoteApiService.moveToTrash(id)
+    ids.forEach((id) => {
+      this.stickyNoteApiService
+        .moveToTrash(id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
@@ -1797,7 +1847,9 @@ export class Today {
             deletedCount++;
             if (completed === ids.length) {
               this.overdue.refresh();
-              this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
+              this.toastService.info(
+                `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`,
+              );
               this.clearSelection();
             }
           },
@@ -1806,27 +1858,29 @@ export class Today {
             if (completed === ids.length) {
               if (deletedCount > 0) {
                 this.overdue.refresh();
-                this.toastService.info(`Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`);
+                this.toastService.info(
+                  `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`,
+                );
               }
               this.clearSelection();
             }
-          }
+          },
         });
     });
   }
 
   private isStickyNoteFont(value: any): boolean {
     const font = String(value ?? '').trim();
-    return this.stickyNoteFontOptions.some(option => option.value === font);
+    return this.stickyNoteFontOptions.some((option) => option.value === font);
   }
 
   private isStickyNoteFontSize(value: any): boolean {
     const size = Number(value);
-    return this.stickyNoteFontSizeOptions.some(option => Number(option.value) === size);
+    return this.stickyNoteFontSizeOptions.some((option) => Number(option.value) === size);
   }
 
   private isStickyNoteLayout(value: any): boolean {
     const layout = String(value ?? '').trim();
-    return this.stickyNoteLayoutOptions.some(option => option.value === layout);
+    return this.stickyNoteLayoutOptions.some((option) => option.value === layout);
   }
 }

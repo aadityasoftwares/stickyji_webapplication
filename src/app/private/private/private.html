@@ -1,16 +1,33 @@
-<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()" [class.mobile-sidebar-open]="mobileSidebarOpen()">
-    <app-sidebar class="shell-sidebar" [collapsed]="sidebarCollapsed()" [mobileOpen]="mobileSidebarOpen()"
-        [workspaceId]="activeWorkspaceId()" [workspaces]="sidebarWorkspaces()" [loadingWorkspaces]="loadingWorkspaces()"
-        (collapsedChange)="setSidebarCollapsed($event)" (mobileClosed)="closeMobileSidebar()"
-        (workspaceChange)="onWorkspaceChange($event)" (logout)="logout()" />
+<div
+  class="app-shell"
+  [class.sidebar-collapsed]="sidebarCollapsed()"
+  [class.mobile-sidebar-open]="mobileSidebarOpen()"
+>
+  <app-sidebar
+    class="shell-sidebar"
+    [collapsed]="sidebarCollapsed()"
+    [mobileOpen]="mobileSidebarOpen()"
+    [workspaceId]="activeWorkspaceId()"
+    [workspaces]="sidebarWorkspaces()"
+    [loadingWorkspaces]="loadingWorkspaces()"
+    (collapsedChange)="setSidebarCollapsed($event)"
+    (mobileClosed)="closeMobileSidebar()"
+    (workspaceChange)="onWorkspaceChange($event)"
+    (logout)="logout()"
+  />
 
+  <button
+    class="sidebar-scrim"
+    type="button"
+    tabindex="-1"
+    aria-label="Close navigation"
+    [attr.aria-hidden]="!mobileSidebarOpen()"
+    (click)="closeMobileSidebar()"
+  ></button>
 
-    <button class="sidebar-scrim" type="button" tabindex="-1" aria-label="Close navigation"
-        [attr.aria-hidden]="!mobileSidebarOpen()" (click)="closeMobileSidebar()"></button>
-
-    <section class="shell-main">
-        <main id="main-content" class="app-content" tabindex="-1">
-            <router-outlet />
-        </main>
-    </section>
+  <section class="shell-main">
+    <main id="main-content" class="app-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </section>
 </div>

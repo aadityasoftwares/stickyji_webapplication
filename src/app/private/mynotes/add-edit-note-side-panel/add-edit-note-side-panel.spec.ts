@@ -16,7 +16,13 @@ import { WorkspaceMemberApiService } from '../../workspace-members/services/work
 describe('AddEditNoteSidePanel', () => {
   let component: AddEditNoteSidePanel;
   let fixture: ComponentFixture<AddEditNoteSidePanel>;
-  const column = { id: 'column-1', name: 'To do', color: 'YELLOW', workspaceId: 'workspace-1', workspaceFolderId: 'folder-1' };
+  const column = {
+    id: 'column-1',
+    name: 'To do',
+    color: 'YELLOW',
+    workspaceId: 'workspace-1',
+    workspaceFolderId: 'folder-1',
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -24,30 +30,56 @@ describe('AddEditNoteSidePanel', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: WorkspaceStore, useValue: { workspaces: () => [{ id: 'workspace-1', name: 'Workspace' }] } },
-        { provide: WorkspaceFolderStore, useValue: {
-          initialized: () => true,
-          workspaceId: () => 'workspace-1',
-          activeFolders: () => [{ id: 'folder-1', name: 'Notes', status: 'ACTIVE' }]
-        } },
-        { provide: StickyNoteColumnStore, useValue: {
-          initialized: () => true,
-          workspaceId: () => 'workspace-1',
-          workspaceFolderId: () => 'folder-1',
-          contextMatches: () => true,
-          findById: () => column,
-          orderedColumns: () => [column]
-        } },
+        {
+          provide: WorkspaceStore,
+          useValue: { workspaces: () => [{ id: 'workspace-1', name: 'Workspace' }] },
+        },
+        {
+          provide: WorkspaceFolderStore,
+          useValue: {
+            initialized: () => true,
+            workspaceId: () => 'workspace-1',
+            activeFolders: () => [{ id: 'folder-1', name: 'Notes', status: 'ACTIVE' }],
+          },
+        },
+        {
+          provide: StickyNoteColumnStore,
+          useValue: {
+            initialized: () => true,
+            workspaceId: () => 'workspace-1',
+            workspaceFolderId: () => 'folder-1',
+            contextMatches: () => true,
+            findById: () => column,
+            orderedColumns: () => [column],
+          },
+        },
         { provide: WorkspaceMemberApiService, useValue: { getAll: () => of({ data: [] }) } },
-        { provide: StickyNoteChecklistApiService, useValue: { getByStickyNote: () => of({ data: [] }) } },
-        { provide: StickyNoteAssigneeApiService, useValue: { getByStickyNote: () => of({ data: [] }) } }
-      ]
+        {
+          provide: StickyNoteChecklistApiService,
+          useValue: { getByStickyNote: () => of({ data: [] }) },
+        },
+        {
+          provide: StickyNoteAssigneeApiService,
+          useValue: { getByStickyNote: () => of({ data: [] }) },
+        },
+      ],
     }).compileComponents();
 
-    vi.spyOn(TestBed.inject(StickyNotesFavouriteService), 'getAll').mockReturnValue(of({ data: [] }));
-    vi.spyOn(TestBed.inject(StickyNoteApiService), 'getById').mockImplementation(id => of({
-      data: { id, title: `Note ${id}`, content: 'Details', workspaceId: 'workspace-1', workspaceFolderId: 'folder-1', columnId: 'column-1' }
-    }));
+    vi.spyOn(TestBed.inject(StickyNotesFavouriteService), 'getAll').mockReturnValue(
+      of({ data: [] }),
+    );
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'getById').mockImplementation((id) =>
+      of({
+        data: {
+          id,
+          title: `Note ${id}`,
+          content: 'Details',
+          workspaceId: 'workspace-1',
+          workspaceFolderId: 'folder-1',
+          columnId: 'column-1',
+        },
+      }),
+    );
 
     fixture = TestBed.createComponent(AddEditNoteSidePanel);
     component = fixture.componentInstance;
@@ -63,24 +95,31 @@ describe('AddEditNoteSidePanel', () => {
     expect(component).toBeTruthy();
   });
 
-  it.each(['create', 'edit'] as const)('settles after repeated %s open and close cycles', async mode => {
-    fixture.componentRef.setInput('mode', mode);
-    const closed = component.closed.subscribe(() => fixture.componentRef.setInput('open', false));
+  it.each(['create', 'edit'] as const)(
+    'settles after repeated %s open and close cycles',
+    async (mode) => {
+      fixture.componentRef.setInput('mode', mode);
+      const closed = component.closed.subscribe(() => fixture.componentRef.setInput('open', false));
 
-    for (let index = 0; index < 3; index += 1) {
-      fixture.componentRef.setInput('id', mode === 'create' ? 'column-1' : `note-${index}`);
-      fixture.componentRef.setInput('open', true);
-      await fixture.whenStable();
+      for (let index = 0; index < 3; index += 1) {
+        fixture.componentRef.setInput('id', mode === 'create' ? 'column-1' : `note-${index}`);
+        fixture.componentRef.setInput('open', true);
+        await fixture.whenStable();
 
-      expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
-      expect(component.form.controls.title.value).toBe(mode === 'create' ? '' : `Note note-${index}`);
+        expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+        expect(component.form.controls.title.value).toBe(
+          mode === 'create' ? '' : `Note note-${index}`,
+        );
 
-      fixture.nativeElement.querySelector('button[aria-label="Close side panel"]').click();
-      await fixture.whenStable();
-      await vi.waitFor(() => expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull());
-      expect(fixture.isStable()).toBe(true);
-    }
+        fixture.nativeElement.querySelector('button[aria-label="Close side panel"]').click();
+        await fixture.whenStable();
+        await vi.waitFor(() =>
+          expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull(),
+        );
+        expect(fixture.isStable()).toBe(true);
+      }
 
-    closed.unsubscribe();
-  });
+      closed.unsubscribe();
+    },
+  );
 });

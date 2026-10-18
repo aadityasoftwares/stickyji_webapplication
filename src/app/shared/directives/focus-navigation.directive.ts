@@ -6,7 +6,7 @@ import {
   Input,
   Output,
   booleanAttribute,
-  inject
+  inject,
 } from '@angular/core';
 
 /**
@@ -24,7 +24,7 @@ export function focusAtEnd(element: HTMLElement | null | undefined): boolean {
     target = element;
   } else {
     target = element.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([disabled]), textarea:not([disabled])'
+      'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([disabled]), textarea:not([disabled])',
     );
   }
 
@@ -54,7 +54,7 @@ export function focusAtEnd(element: HTMLElement | null | undefined): boolean {
 const FOCUSABLE_SELECTOR = [
   'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([disabled]):not([readonly])',
   'textarea:not([disabled]):not([readonly])',
-  '[contenteditable="true"]:not([disabled])'
+  '[contenteditable="true"]:not([disabled])',
 ].join(', ');
 
 /**
@@ -70,7 +70,7 @@ const FOCUSABLE_SELECTOR = [
  */
 @Directive({
   selector: '[appFocusNavigation], [appFocusNext]',
-  standalone: true
+  standalone: true,
 })
 export class FocusNavigationDirective {
   private readonly el = inject(ElementRef);
@@ -124,9 +124,10 @@ export class FocusNavigationDirective {
 
     // Explicit next target specified via [appFocusNext]
     if (this.nextTargetSelector && (isEnter || isArrowDown)) {
-      const nextEl = typeof this.nextTargetSelector === 'string'
-        ? (document.querySelector(this.nextTargetSelector) as HTMLElement | null)
-        : this.nextTargetSelector;
+      const nextEl =
+        typeof this.nextTargetSelector === 'string'
+          ? (document.querySelector(this.nextTargetSelector) as HTMLElement | null)
+          : this.nextTargetSelector;
 
       if (nextEl) {
         event.preventDefault();
@@ -215,7 +216,7 @@ export class FocusNavigationDirective {
 
   private getFocusableElements(container: HTMLElement): HTMLElement[] {
     const rawList = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-    return rawList.filter(el => {
+    return rawList.filter((el) => {
       // Must be visible
       return el.offsetParent !== null || el.getClientRects().length > 0;
     });
@@ -226,7 +227,7 @@ export class FocusNavigationDirective {
     if (exact !== -1) return exact;
 
     // Check if target is inside one of the focusable elements
-    return list.findIndex(el => el.contains(target) || target.contains(el));
+    return list.findIndex((el) => el.contains(target) || target.contains(el));
   }
 }
 
@@ -235,7 +236,7 @@ export class FocusNavigationDirective {
  */
 @Directive({
   selector: '[appFocusToEnd]',
-  standalone: true
+  standalone: true,
 })
 export class FocusToEndDirective {
   @HostListener('focus', ['$event'])

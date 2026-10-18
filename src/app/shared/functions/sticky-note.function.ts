@@ -4,7 +4,7 @@ import type { SidePanelTone } from '../components/side-panel/side-panel';
 import {
   COLUMN_LIMITS,
   NOTE_LIMITS,
-  STICKY_NOTE_COLUMN_COLOR_OPTIONS
+  STICKY_NOTE_COLUMN_COLOR_OPTIONS,
 } from '../constants/common.constants';
 import { idOf } from './common.function';
 import { LucideClock3, LucideType } from '@lucide/angular';
@@ -22,7 +22,7 @@ export const NOTE_COLOR_BADGE_VARIANT_MAP: Readonly<Record<string, BadgeVariant>
   BLUE: 'noteBlue',
   PURPLE: 'notePurple',
   BROWN: 'noteBrown',
-  BLACK: 'noteBlack'
+  BLACK: 'noteBlack',
 };
 
 /**
@@ -52,7 +52,9 @@ export function getNoteColorBadgeVariant(color?: any): BadgeVariant {
  */
 export function getNotePanelTone(color?: any): SidePanelTone {
   try {
-    const normalized = String(color ?? '').trim().toLowerCase();
+    const normalized = String(color ?? '')
+      .trim()
+      .toLowerCase();
     if (['yellow', 'blue', 'pink', 'green', 'purple'].includes(normalized)) {
       return normalized as SidePanelTone;
     }
@@ -71,10 +73,7 @@ export function getNotePanelTone(color?: any): SidePanelTone {
  * @param preferredFolderId Optional preferred folder ID.
  * @returns Resolved folder ID or empty string.
  */
-export function resolveDefaultFolderId(
-  folders: any,
-  preferredFolderId?: any
-): string {
+export function resolveDefaultFolderId(folders: any, preferredFolderId?: any): string {
   try {
     if (!folders || !Array.isArray(folders) || folders.length === 0) {
       return '';
@@ -106,10 +105,7 @@ export function resolveDefaultFolderId(
  * @param preferredColumnId Optional preferred column ID.
  * @returns Resolved column ID or empty string.
  */
-export function resolveDefaultColumnId(
-  columns: any,
-  preferredColumnId?: any
-): string {
+export function resolveDefaultColumnId(columns: any, preferredColumnId?: any): string {
   try {
     if (!columns || !Array.isArray(columns) || columns.length === 0) {
       return '';
@@ -125,7 +121,8 @@ export function resolveDefaultColumnId(
       return preferred;
     }
 
-    const defaultColumn = validColumns.find((column: any) => column?.type !== 'COMPLETED') ?? validColumns[0];
+    const defaultColumn =
+      validColumns.find((column: any) => column?.type !== 'COMPLETED') ?? validColumns[0];
     return idOf(defaultColumn);
   } catch (error) {
     console.error('Error in resolveDefaultColumnId:', error);
@@ -154,17 +151,16 @@ export interface NoteChecklistValidationItem {
  * @param limits Optional max length overrides.
  * @returns Error message string if invalid, or null if valid.
  */
-export function validateNoteChecklists(
-  checklists?: any,
-  limits: any = {}
-): string | null {
+export function validateNoteChecklists(checklists?: any, limits: any = {}): string | null {
   try {
     if (!checklists || !Array.isArray(checklists) || checklists.length === 0) {
       return 'Add at least one checklist.';
     }
 
-    const maxTitleLength = Number(limits?.checklistTitleMaxLength) || NOTE_LIMITS.CHECKLIST_TITLE_MAX_LENGTH;
-    const maxItemLength = Number(limits?.checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
+    const maxTitleLength =
+      Number(limits?.checklistTitleMaxLength) || NOTE_LIMITS.CHECKLIST_TITLE_MAX_LENGTH;
+    const maxItemLength =
+      Number(limits?.checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
     const listTitles = new Set<string>();
 
     for (let i = 0; i < checklists.length; i++) {
@@ -248,9 +244,7 @@ export interface NoteFormValidationInput {
  * @param input Note form values and configuration.
  * @returns Error message string or null if validation passes.
  */
-export function validateNoteForm(
-  input: any
-): string | null {
+export function validateNoteForm(input: any): string | null {
   try {
     if (!input || typeof input !== 'object') {
       return null;
@@ -288,29 +282,68 @@ export function validateNoteForm(
     }
 
     if (Array.isArray(input.colorOptions) && input.colorOptions.length > 0) {
-      const inputColor = String(input.color ?? '').trim().toUpperCase();
-      if (!input.colorOptions.some((o: any) => String(o?.value ?? '').trim().toUpperCase() === inputColor)) {
+      const inputColor = String(input.color ?? '')
+        .trim()
+        .toUpperCase();
+      if (
+        !input.colorOptions.some(
+          (o: any) =>
+            String(o?.value ?? '')
+              .trim()
+              .toUpperCase() === inputColor,
+        )
+      ) {
         return 'Choose a valid note color.';
       }
     }
 
     if (Array.isArray(input.shapeOptions) && input.shapeOptions.length > 0) {
-      const inputShape = String(input.shape ?? '').trim().toUpperCase();
-      if (!input.shapeOptions.some((o: any) => String(o?.value ?? '').trim().toUpperCase() === inputShape)) {
+      const inputShape = String(input.shape ?? '')
+        .trim()
+        .toUpperCase();
+      if (
+        !input.shapeOptions.some(
+          (o: any) =>
+            String(o?.value ?? '')
+              .trim()
+              .toUpperCase() === inputShape,
+        )
+      ) {
         return 'Choose a valid note shape.';
       }
     }
 
     if (Array.isArray(input.variantOptions) && input.variantOptions.length > 0) {
-      const inputVariant = String(input.variant ?? '').trim().toUpperCase();
-      if (!input.variantOptions.some((o: any) => String(o?.value ?? '').trim().toUpperCase() === inputVariant)) {
+      const inputVariant = String(input.variant ?? '')
+        .trim()
+        .toUpperCase();
+      if (
+        !input.variantOptions.some(
+          (o: any) =>
+            String(o?.value ?? '')
+              .trim()
+              .toUpperCase() === inputVariant,
+        )
+      ) {
         return 'Choose a valid paper style.';
       }
     }
 
-    if (Array.isArray(input.backgroundPatternOptions) && input.backgroundPatternOptions.length > 0) {
-      const inputPattern = String(input.backgroundPattern ?? '').trim().toUpperCase();
-      if (!input.backgroundPatternOptions.some((o: any) => String(o?.value ?? '').trim().toUpperCase() === inputPattern)) {
+    if (
+      Array.isArray(input.backgroundPatternOptions) &&
+      input.backgroundPatternOptions.length > 0
+    ) {
+      const inputPattern = String(input.backgroundPattern ?? '')
+        .trim()
+        .toUpperCase();
+      if (
+        !input.backgroundPatternOptions.some(
+          (o: any) =>
+            String(o?.value ?? '')
+              .trim()
+              .toUpperCase() === inputPattern,
+        )
+      ) {
         return 'Choose a valid background pattern.';
       }
     }
@@ -318,7 +351,7 @@ export function validateNoteForm(
     if (input.withChecklist) {
       return validateNoteChecklists(input.checklists ?? [], {
         checklistTitleMaxLength: input.checklistTitleMaxLength,
-        checklistItemTitleMaxLength: input.checklistItemTitleMaxLength
+        checklistItemTitleMaxLength: input.checklistItemTitleMaxLength,
       });
     }
 
@@ -338,31 +371,38 @@ export function validateNoteForm(
  * @param limits Optional maxLength configuration.
  * @returns FormGroup
  */
-export function createChecklistFormGroup(
-  fb: any,
-  value: any = {},
-  limits: any = {}
-): FormGroup {
+export function createChecklistFormGroup(fb: any, value: any = {}, limits: any = {}): FormGroup {
   try {
-    const titleMaxLength = Number(limits?.checklistTitleMaxLength) || NOTE_LIMITS.CHECKLIST_TITLE_MAX_LENGTH;
-    const itemMaxLength = Number(limits?.checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
+    const titleMaxLength =
+      Number(limits?.checklistTitleMaxLength) || NOTE_LIMITS.CHECKLIST_TITLE_MAX_LENGTH;
+    const itemMaxLength =
+      Number(limits?.checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
 
     const rawItems = value?.get
-      ? (value.get('items') as any)?.controls ?? []
-      : Array.isArray(value?.items) ? value.items : [];
+      ? ((value.get('items') as any)?.controls ?? [])
+      : Array.isArray(value?.items)
+        ? value.items
+        : [];
 
-    const items = Array.isArray(rawItems) && rawItems.length > 0
-      ? rawItems.map((item: any) =>
-        createChecklistItemFormGroup(fb, {
-          id: item?.get ? item.get('id')?.value : idOf(item),
-          title: item?.get ? item.get('title')?.value : (item?.title ?? ''),
-          isCompleted: (item?.get ? item.get('isCompleted')?.value : item?.isCompleted) === true,
-          initialCompleted: (item?.get
-            ? item.get('initialCompleted')?.value
-            : (item?.initialCompleted ?? item?.isCompleted)) === true
-        }, itemMaxLength)
-      )
-      : [createChecklistItemFormGroup(fb, {}, itemMaxLength)];
+    const items =
+      Array.isArray(rawItems) && rawItems.length > 0
+        ? rawItems.map((item: any) =>
+            createChecklistItemFormGroup(
+              fb,
+              {
+                id: item?.get ? item.get('id')?.value : idOf(item),
+                title: item?.get ? item.get('title')?.value : (item?.title ?? ''),
+                isCompleted:
+                  (item?.get ? item.get('isCompleted')?.value : item?.isCompleted) === true,
+                initialCompleted:
+                  (item?.get
+                    ? item.get('initialCompleted')?.value
+                    : (item?.initialCompleted ?? item?.isCompleted)) === true,
+              },
+              itemMaxLength,
+            ),
+          )
+        : [createChecklistItemFormGroup(fb, {}, itemMaxLength)];
 
     const id = value?.get ? value.get('id')?.value : (value?.id ?? '');
     const title = value?.get ? value.get('title')?.value : (value?.title ?? '');
@@ -370,14 +410,14 @@ export function createChecklistFormGroup(
     return fb.group({
       id: [id],
       title: [title, Validators.maxLength(titleMaxLength)],
-      items: fb.array(items)
+      items: fb.array(items),
     });
   } catch (error) {
     console.error('Error in createChecklistFormGroup:', error);
     return fb.group({
       id: [''],
       title: [''],
-      items: fb.array([])
+      items: fb.array([]),
     });
   }
 }
@@ -394,22 +434,25 @@ export function createChecklistFormGroup(
 export function createChecklistItemFormGroup(
   fb: any,
   value: any = {},
-  checklistItemTitleMaxLength: any = NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH
+  checklistItemTitleMaxLength: any = NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH,
 ): FormGroup {
   try {
-    const maxLength = Number(checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
+    const maxLength =
+      Number(checklistItemTitleMaxLength) || NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
     const id = value?.get ? value.get('id')?.value : (value?.id ?? '');
     const title = value?.get ? value.get('title')?.value : (value?.title ?? '');
-    const isCompleted = (value?.get ? value.get('isCompleted')?.value : value?.isCompleted) === true;
-    const initialCompleted = (value?.get
-      ? value.get('initialCompleted')?.value
-      : (value?.initialCompleted ?? isCompleted)) === true;
+    const isCompleted =
+      (value?.get ? value.get('isCompleted')?.value : value?.isCompleted) === true;
+    const initialCompleted =
+      (value?.get
+        ? value.get('initialCompleted')?.value
+        : (value?.initialCompleted ?? isCompleted)) === true;
 
     return fb.group({
       id: [id],
       title: [title, Validators.maxLength(maxLength)],
       isCompleted: [isCompleted],
-      initialCompleted: [initialCompleted]
+      initialCompleted: [initialCompleted],
     });
   } catch (error) {
     console.error('Error in createChecklistItemFormGroup:', error);
@@ -417,7 +460,7 @@ export function createChecklistItemFormGroup(
       id: [''],
       title: [''],
       isCompleted: [false],
-      initialCompleted: [false]
+      initialCompleted: [false],
     });
   }
 }
@@ -428,44 +471,50 @@ export function createChecklistItemFormGroup(
  * @param checklistGroups Array of checklist FormGroups or objects.
  * @returns Array of formatted preview checklists.
  */
-export function formatLivePreviewChecklists(
-  checklistGroups?: any
-): any[] {
+export function formatLivePreviewChecklists(checklistGroups?: any): any[] {
   try {
     if (!checklistGroups || !Array.isArray(checklistGroups)) {
       return [];
     }
 
-    return checklistGroups.map((group: any, index: number) => {
-      if (!group) {
-        return null;
-      }
+    return checklistGroups
+      .map((group: any, index: number) => {
+        if (!group) {
+          return null;
+        }
 
-      const rawItems = group?.get
-        ? (group.get('items') as any)?.controls ?? []
-        : Array.isArray(group?.items) ? group.items : [];
+        const rawItems = group?.get
+          ? ((group.get('items') as any)?.controls ?? [])
+          : Array.isArray(group?.items)
+            ? group.items
+            : [];
 
-      const items = (Array.isArray(rawItems) ? rawItems : []).map((control: any, itemIndex: number) => {
-        const itemTitle = control?.get ? control.get('title')?.value : control?.title;
-        const isCompleted = control?.get ? control.get('isCompleted')?.value : control?.isCompleted;
+        const items = (Array.isArray(rawItems) ? rawItems : []).map(
+          (control: any, itemIndex: number) => {
+            const itemTitle = control?.get ? control.get('title')?.value : control?.title;
+            const isCompleted = control?.get
+              ? control.get('isCompleted')?.value
+              : control?.isCompleted;
+
+            return {
+              id: `preview-item-${index}-${itemIndex}`,
+              title: String(itemTitle ?? ''),
+              isCompleted: isCompleted === true,
+            };
+          },
+        );
+
+        const groupTitle = String((group?.get ? group.get('title')?.value : group?.title) ?? '');
 
         return {
-          id: `preview-item-${index}-${itemIndex}`,
-          title: String(itemTitle ?? ''),
-          isCompleted: isCompleted === true
+          id: `preview-list-${index}`,
+          title: groupTitle,
+          items,
+          totalCount: items.length,
+          completedCount: items.filter((item: any) => item?.isCompleted === true).length,
         };
-      });
-
-      const groupTitle = String((group?.get ? group.get('title')?.value : group?.title) ?? '');
-
-      return {
-        id: `preview-list-${index}`,
-        title: groupTitle,
-        items,
-        totalCount: items.length,
-        completedCount: items.filter((item: any) => item?.isCompleted === true).length
-      };
-    }).filter(Boolean) as any[];
+      })
+      .filter(Boolean) as any[];
   } catch (error) {
     console.error('Error in formatLivePreviewChecklists:', error);
     return [];
@@ -485,7 +534,7 @@ export const STICKY_NOTE_COLOR_ACCENTS: Readonly<Record<string, string>> = {
   RED: 'var(--note-red, #ef4444)',
   BROWN: 'var(--note-brown, #92400e)',
   BLACK: 'var(--note-black, #171717)',
-  WHITE: 'var(--note-white, #f8fafc)'
+  WHITE: 'var(--note-white, #f8fafc)',
 };
 
 /**
@@ -496,7 +545,9 @@ export const STICKY_NOTE_COLOR_ACCENTS: Readonly<Record<string, string>> = {
  */
 export function getNoteColorAccent(color?: any): string {
   try {
-    const key = String(color || 'YELLOW').trim().toUpperCase();
+    const key = String(color || 'YELLOW')
+      .trim()
+      .toUpperCase();
     return STICKY_NOTE_COLOR_ACCENTS[key] ?? STICKY_NOTE_COLOR_ACCENTS['YELLOW'];
   } catch (error) {
     console.error('Error in getNoteColorAccent:', error);
@@ -554,7 +605,7 @@ export function mapStickyNoteChecklists(checklists: any): any[] {
             ...item,
             id: idOf(item),
             title: String(item?.title || '').trim(),
-            isCompleted: item?.isCompleted === true
+            isCompleted: item?.isCompleted === true,
           }));
 
         return {
@@ -563,7 +614,7 @@ export function mapStickyNoteChecklists(checklists: any): any[] {
           title: String(checklist?.title || '').trim() || 'Checklist',
           items,
           totalCount: items.length,
-          completedCount: items.filter((item: any) => item?.isCompleted === true).length
+          completedCount: items.filter((item: any) => item?.isCompleted === true).length,
         };
       });
   } catch (error) {
@@ -591,7 +642,7 @@ export function mapStickyNoteColumn(column: any): any {
       color,
       position: Number(column?.position) || 0,
       accent: getNoteColorAccent(color),
-      checkboxVariant: getNoteColorBadgeVariant(color)
+      checkboxVariant: getNoteColorBadgeVariant(color),
     };
   } catch (error) {
     console.error('Error in mapStickyNoteColumn:', error);
@@ -628,12 +679,14 @@ export function validateColumnForm(input: any, limits?: any): string | null {
       return 'Give your column a name.';
     }
 
-    const nameMin = Number(limits?.NAME_MIN_LENGTH || input.nameMinLength) || COLUMN_LIMITS.NAME_MIN_LENGTH;
+    const nameMin =
+      Number(limits?.NAME_MIN_LENGTH || input.nameMinLength) || COLUMN_LIMITS.NAME_MIN_LENGTH;
     if (name.length < nameMin) {
       return `Column name must be at least ${nameMin} character.`;
     }
 
-    const nameMax = Number(limits?.NAME_MAX_LENGTH || input.nameMaxLength) || COLUMN_LIMITS.NAME_MAX_LENGTH;
+    const nameMax =
+      Number(limits?.NAME_MAX_LENGTH || input.nameMaxLength) || COLUMN_LIMITS.NAME_MAX_LENGTH;
     if (name.length > nameMax) {
       return `Column name cannot exceed ${nameMax} characters.`;
     }
@@ -673,7 +726,7 @@ export function getColumnTypeLabel(type?: any): string {
  */
 export function getColumnColorLabel(
   color?: any,
-  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS
+  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS,
 ): string {
   try {
     const key = String(color ?? '').toUpperCase();
@@ -694,7 +747,7 @@ export function getColumnColorLabel(
  */
 export function isValidColumnColor(
   color?: any,
-  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS
+  options: readonly any[] = STICKY_NOTE_COLUMN_COLOR_OPTIONS,
 ): boolean {
   try {
     const key = String(color ?? '').toUpperCase();
@@ -711,7 +764,9 @@ export function isValidColumnColor(
  * @returns Lowercase string (e.g. 'yellow', 'blue').
  */
 export function toColorCssClass(color?: any): string {
-  return String(color ?? '').trim().toLowerCase();
+  return String(color ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 /**
@@ -740,22 +795,25 @@ export function isNoteDragItem(dragData: any): boolean {
  * Returns true when a sticky-note is in ACTIVE status.
  */
 export function isNoteActive(note: any): boolean {
-  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
+  const status = String(note?.status?.value ?? note?.status ?? '')
+    .trim()
+    .toUpperCase();
   if (status) return status === 'ACTIVE';
 
   // Older/list API projections do not always include `status`. A note returned
   // from the active collection is active unless archive/delete metadata says otherwise.
-  return note?.isArchived !== true
-    && note?.isDeleted !== true
-    && !note?.archivedAt
-    && !note?.deletedAt;
+  return (
+    note?.isArchived !== true && note?.isDeleted !== true && !note?.archivedAt && !note?.deletedAt
+  );
 }
 
 /**
  * Returns true when a sticky-note is in ARCHIVED status.
  */
 export function isNoteArchived(note: any): boolean {
-  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
+  const status = String(note?.status?.value ?? note?.status ?? '')
+    .trim()
+    .toUpperCase();
   return status === 'ARCHIVED' || (!status && (note?.isArchived === true || !!note?.archivedAt));
 }
 
@@ -763,10 +821,14 @@ export function isNoteArchived(note: any): boolean {
  * Returns true when a sticky-note is trashed or permanently deleted.
  */
 export function isNoteDeleted(note: any): boolean {
-  const status = String(note?.status?.value ?? note?.status ?? '').trim().toUpperCase();
-  return status === 'TRASHED'
-    || status === 'DELETED'
-    || (!status && (note?.isDeleted === true || !!note?.deletedAt));
+  const status = String(note?.status?.value ?? note?.status ?? '')
+    .trim()
+    .toUpperCase();
+  return (
+    status === 'TRASHED' ||
+    status === 'DELETED' ||
+    (!status && (note?.isDeleted === true || !!note?.deletedAt))
+  );
 }
 
 // ─── Shared note field accessors ─────────────────────────────────────────────
@@ -841,7 +903,7 @@ export function getNoteUpdatedLabel(note: any): string {
 export const NOTE_SORT_OPTIONS: readonly any[] = [
   { label: 'Recently updated', value: 'updatedAt', icon: LucideClock3 },
   { label: 'Recently created', value: 'createdAt', icon: LucideClock3 },
-  { label: 'Title A–Z',        value: 'title',     icon: LucideType   }
+  { label: 'Title A–Z', value: 'title', icon: LucideType },
 ] as const;
 
 // ─── Rank-based ordering & sequence helpers ───────────────────────────────────
@@ -892,7 +954,7 @@ export function sortNotesByRank<T = any>(items: any): T[] {
 export function getNeighborNoteIds(
   items: any[],
   targetIndex: number,
-  movedNoteId?: string
+  movedNoteId?: string,
 ): { beforeId: string | null; afterId: string | null } {
   const filtered = Array.isArray(items)
     ? items.filter((item: any) => !movedNoteId || idOf(item) !== movedNoteId)
@@ -907,14 +969,14 @@ export function getNeighborNoteIds(
   if (boundedIndex <= 0) {
     return {
       beforeId: null,
-      afterId: idOf(filtered[0]) || null
+      afterId: idOf(filtered[0]) || null,
     };
   }
 
   if (boundedIndex >= filtered.length) {
     return {
       beforeId: idOf(filtered[filtered.length - 1]) || null,
-      afterId: null
+      afterId: null,
     };
   }
 
@@ -923,7 +985,6 @@ export function getNeighborNoteIds(
 
   return {
     beforeId,
-    afterId: beforeId === afterId ? null : afterId
+    afterId: beforeId === afterId ? null : afterId,
   };
 }
-

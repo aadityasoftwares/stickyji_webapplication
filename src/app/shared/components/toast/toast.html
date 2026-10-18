@@ -1,48 +1,69 @@
 <section class="app-toast-region" [ngClass]="regionClasses" aria-label="Notifications">
-    @for (toast of visibleToasts; track toast.id + '-' + toast.revision) {
-    <article class="app-toast" [ngClass]="toastClasses(toast)" [attr.role]="toastRole(toast)"
-        [attr.aria-label]="toast.ariaLabel || null" aria-atomic="true" tabindex="0" (mouseenter)="pause(toast)"
-        (mouseleave)="resume(toast)" (focusin)="pause(toast)" (focusout)="resume(toast)">
-        <span class="app-toast-paper-back" aria-hidden="true"></span>
-        <span class="app-toast-tape" aria-hidden="true"></span>
-        <span class="app-toast-pin" aria-hidden="true"></span>
+  @for (toast of visibleToasts; track toast.id + '-' + toast.revision) {
+    <article
+      class="app-toast"
+      [ngClass]="toastClasses(toast)"
+      [attr.role]="toastRole(toast)"
+      [attr.aria-label]="toast.ariaLabel || null"
+      aria-atomic="true"
+      tabindex="0"
+      (mouseenter)="pause(toast)"
+      (mouseleave)="resume(toast)"
+      (focusin)="pause(toast)"
+      (focusout)="resume(toast)"
+    >
+      <span class="app-toast-paper-back" aria-hidden="true"></span>
+      <span class="app-toast-tape" aria-hidden="true"></span>
+      <span class="app-toast-pin" aria-hidden="true"></span>
 
-        <div class="app-toast-main">
-            @if (resolvedIcon(toast); as icon) {
-            <span class="app-toast-icon" aria-hidden="true">
-                <app-icon [icon]="icon" size="sm" />
-            </span>
-            }
+      <div class="app-toast-main">
+        @if (resolvedIcon(toast); as icon) {
+          <span class="app-toast-icon" aria-hidden="true">
+            <app-icon [icon]="icon" size="sm" />
+          </span>
+        }
 
-            <div class="app-toast-content">
-                @if (toast.title) {
-                <strong class="app-toast-title">{{ toast.title }}</strong>
-                }
-                @if (toast.message) {
-                <p class="app-toast-message">{{ toast.message }}</p>
-                }
-                @if (toast.action) {
-                <button class="app-toast-action" type="button"
-                    [attr.aria-label]="toast.action.ariaLabel || toast.action.label" (click)="runAction($event, toast)">
-                    <span>{{ toast.action.label }}</span>
-                    <span class="app-toast-action-arrow" aria-hidden="true">→</span>
-                </button>
-                }
-            </div>
-
-            @if (toast.dismissible) {
-            <button class="app-toast-close" type="button" aria-label="Dismiss notification" title="Dismiss"
-                (click)="dismiss(toast.id)">
-                <app-icon [icon]="LucideX" size="xs" />
+        <div class="app-toast-content">
+          @if (toast.title) {
+            <strong class="app-toast-title">{{ toast.title }}</strong>
+          }
+          @if (toast.message) {
+            <p class="app-toast-message">{{ toast.message }}</p>
+          }
+          @if (toast.action) {
+            <button
+              class="app-toast-action"
+              type="button"
+              [attr.aria-label]="toast.action.ariaLabel || toast.action.label"
+              (click)="runAction($event, toast)"
+            >
+              <span>{{ toast.action.label }}</span>
+              <span class="app-toast-action-arrow" aria-hidden="true">→</span>
             </button>
-            }
+          }
         </div>
 
-        @if (toast.duration > 0) {
-        <span class="app-toast-progress" aria-hidden="true">
-            <span class="app-toast-progress-bar" [style.animation-duration.ms]="toast.duration"></span>
-        </span>
+        @if (toast.dismissible) {
+          <button
+            class="app-toast-close"
+            type="button"
+            aria-label="Dismiss notification"
+            title="Dismiss"
+            (click)="dismiss(toast.id)"
+          >
+            <app-icon [icon]="LucideX" size="xs" />
+          </button>
         }
+      </div>
+
+      @if (toast.duration > 0) {
+        <span class="app-toast-progress" aria-hidden="true">
+          <span
+            class="app-toast-progress-bar"
+            [style.animation-duration.ms]="toast.duration"
+          ></span>
+        </span>
+      }
     </article>
-    }
+  }
 </section>

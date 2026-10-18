@@ -10,8 +10,14 @@ import { UserPreferenceService } from '../private/user-preferences/services/user
 import { UserDatePipe } from '../shared/pipes/user-date.pipe';
 import { authGuard } from './auth.guard';
 
-@Component({ standalone: true, imports: [UserDatePipe], template: `{{ timestamp | userDate:'datetime' }}` })
-class DateScreen { readonly timestamp = '2026-10-09T03:32:55.742Z'; }
+@Component({
+  standalone: true,
+  imports: [UserDatePipe],
+  template: `{{ timestamp | userDate: 'datetime' }}`,
+})
+class DateScreen {
+  readonly timestamp = '2026-10-09T03:32:55.742Z';
+}
 @Component({ standalone: true, template: 'Login' })
 class LoginScreen {}
 
@@ -22,16 +28,26 @@ describe('Authenticated preference initialization', () => {
   beforeEach(() => {
     response = new Subject();
     api = { getMyPreferences: vi.fn(() => response) };
-    TestBed.configureTestingModule({ providers: [
-      { provide: UserPreferenceService, useValue: api },
-      provideRouter([
-        { path: 'private', canActivate: [authGuard], component: DateScreen },
-        { path: 'auth/login', component: LoginScreen },
-      ]),
-    ] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: UserPreferenceService, useValue: api },
+        provideRouter([
+          { path: 'private', canActivate: [authGuard], component: DateScreen },
+          { path: 'auth/login', component: LoginScreen },
+        ]),
+      ],
+    });
     TestBed.inject(AuthStore).setSession({
-      user: { id: 'user', email: 'user@example.test', globalRoleId: '', status: 'ACTIVE', isEmailVerified: true, isMfaEnabled: false },
-      sessionId: 'session', tokens: { accessToken: 'token' },
+      user: {
+        id: 'user',
+        email: 'user@example.test',
+        globalRoleId: '',
+        status: 'ACTIVE',
+        isEmailVerified: true,
+        isMfaEnabled: false,
+      },
+      sessionId: 'session',
+      tokens: { accessToken: 'token' },
     });
   });
 

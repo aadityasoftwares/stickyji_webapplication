@@ -1,171 +1,174 @@
 @use '../../styles/variables' as *;
 
 :host {
-    display: block;
-    min-height: 100%;
-    color: $text-primary;
-    background: $app-bg;
-    font-family: $font-body;
+  display: block;
+  min-height: 100%;
+  color: $text-primary;
+  background: $app-bg;
+  font-family: $font-body;
 }
 
 .tooltip-showcase {
-    width: min(1180px, calc(100% - 32px));
-    margin: 0 auto;
-    padding: 40px 0 72px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 72px;
 }
 
 .showcase-hero,
 .showcase-section {
-    border: 1px solid $border;
-    background: rgba($paper, 0.95);
-    box-shadow: $shadow-sm;
+  border: 1px solid $border;
+  background: rgba($paper, 0.95);
+  box-shadow: $shadow-sm;
 }
 
 .showcase-hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
-    align-items: center;
-    gap: 42px;
-    padding: clamp(24px, 5vw, 48px);
-    border-radius: $radius-lg;
-    overflow: hidden;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+  align-items: center;
+  gap: 42px;
+  padding: clamp(24px, 5vw, 48px);
+  border-radius: $radius-lg;
+  overflow: hidden;
 }
 
 .showcase-hero::after {
-    content: '';
-    position: absolute;
-    right: -70px;
-    bottom: -95px;
-    width: 270px;
-    height: 220px;
-    background: $note-button-yellow;
-    opacity: 0.4;
-    transform: rotate(-7deg);
+  content: '';
+  position: absolute;
+  right: -70px;
+  bottom: -95px;
+  width: 270px;
+  height: 220px;
+  background: $note-button-yellow;
+  opacity: 0.4;
+  transform: rotate(-7deg);
 }
 
 .showcase-eyebrow,
 .section-number {
-    display: inline-flex;
-    color: $secondary;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+  display: inline-flex;
+  color: $secondary;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .showcase-hero h1,
 .section-heading h2,
 .note-card h3 {
-    margin: 0;
-    color: $heading;
-    font-family: $font-heading;
-    font-weight: 700;
+  margin: 0;
+  color: $heading;
+  font-family: $font-heading;
+  font-weight: 700;
 }
 
 .showcase-hero h1 {
-    margin-top: 8px;
-    font-size: clamp(38px, 6vw, 60px);
-    line-height: 0.98;
+  margin-top: 8px;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: 0.98;
 }
 
 .showcase-hero p {
-    max-width: 650px;
-    margin: 16px 0 0;
-    color: $text-secondary;
-    font-size: 16px;
-    line-height: 1.65;
+  max-width: 650px;
+  margin: 16px 0 0;
+  color: $text-secondary;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 .hero-note {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 120px;
-    padding: 22px;
-    border: 1px solid rgba(94, 79, 57, 0.12);
-    background: $note-button-yellow;
-    box-shadow: 0 8px 20px rgba(46, 38, 25, 0.13);
-    transform: rotate(1.5deg);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 22px;
+  border: 1px solid rgba(94, 79, 57, 0.12);
+  background: $note-button-yellow;
+  box-shadow: 0 8px 20px rgba(46, 38, 25, 0.13);
+  transform: rotate(1.5deg);
 }
 
 .showcase-section {
-    margin-top: 20px;
-    padding: clamp(22px, 4vw, 36px);
-    border-radius: $radius-md;
+  margin-top: 20px;
+  padding: clamp(22px, 4vw, 36px);
+  border-radius: $radius-md;
 }
 
 .section-heading {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 26px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 26px;
 }
 
 .section-number {
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 34px;
-    height: 25px;
-    border-radius: 999px;
-    color: #5b4600;
-    background: $note-button-yellow;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 25px;
+  border-radius: 999px;
+  color: #5b4600;
+  background: $note-button-yellow;
 }
 
 .section-heading h2 {
-    font-size: 30px;
-    line-height: 1.1;
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .section-heading p {
-    margin: 6px 0 0;
-    color: $text-secondary;
-    line-height: 1.55;
+  margin: 6px 0 0;
+  color: $text-secondary;
+  line-height: 1.55;
 }
 
 .placement-grid,
 .tone-grid,
 .trigger-grid {
-    display: grid;
-    gap: 12px;
+  display: grid;
+  gap: 12px;
 }
 
 .placement-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .tone-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .trigger-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .demo-trigger,
 .tone-trigger,
 .manual-control {
-    min-height: 42px;
-    padding: 9px 13px;
-    border: 1px solid $border;
-    border-radius: $radius-xs;
-    color: $text-primary;
-    background: $paper-light;
-    box-shadow: $shadow-sm;
-    font: 700 13px/1.2 $font-body;
-    cursor: pointer;
-    transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid $border;
+  border-radius: $radius-xs;
+  color: $text-primary;
+  background: $paper-light;
+  box-shadow: $shadow-sm;
+  font: 700 13px/1.2 $font-body;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
 }
 
 .demo-trigger:hover,
 .tone-trigger:hover,
 .manual-control:hover {
-    background: $paper-dark;
-    box-shadow: $shadow;
-    transform: translateY(-1px);
+  background: $paper-dark;
+  box-shadow: $shadow;
+  transform: translateY(-1px);
 }
 
 .demo-trigger:focus-visible,
@@ -173,208 +176,206 @@
 .manual-control:focus-visible,
 .note-icon-button:focus-visible,
 .note-action:focus-visible {
-    outline: 3px solid rgba($accent, 0.28);
-    outline-offset: 2px;
+  outline: 3px solid rgba($accent, 0.28);
+  outline-offset: 2px;
 }
 
 .tone-trigger {
-    background: $note-button-yellow;
+  background: $note-button-yellow;
 }
 
 .tone-trigger:nth-child(3n + 2) {
-    background: $note-button-blue;
+  background: $note-button-blue;
 }
 
 .tone-trigger:nth-child(3n) {
-    background: $note-button-pink;
+  background: $note-button-pink;
 }
 
 .manual-control {
-    border-color: $primary;
-    color: #ffffff;
-    background: $primary;
+  border-color: $primary;
+  color: #ffffff;
+  background: $primary;
 }
 
 .manual-control:hover {
-    color: #ffffff;
-    background: $primary-hover;
+  color: #ffffff;
+  background: $primary-hover;
 }
 
 .muted-trigger {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .inline-copy {
-    display: inline-flex;
-    align-items: center;
-    color: $primary;
-    font-size: 14px;
-    font-weight: 800;
-    text-decoration: underline;
-    text-decoration-style: wavy;
-    text-underline-offset: 4px;
-    cursor: help;
+  display: inline-flex;
+  align-items: center;
+  color: $primary;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 4px;
+  cursor: help;
 }
 
 .split-section {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 42px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 42px;
 }
 
 .example-stack {
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .note-section {
-    background:
-        linear-gradient(rgba(255, 255, 255, 0.83), rgba(255, 255, 255, 0.86)),
-        $note-button-yellow;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.83), rgba(255, 255, 255, 0.86)), $note-button-yellow;
 }
 
 .action-toolbar {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 5px;
-    padding: 7px;
-    border: 1px solid $border;
-    border-radius: $radius-sm;
-    background: $paper-light;
-    box-shadow: $shadow-sm;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  background: $paper-light;
+  box-shadow: $shadow-sm;
 }
 
 .note-card {
-    position: relative;
-    width: min(100%, 480px);
-    margin: 10px auto 0;
-    padding: 28px;
-    border: 1px solid rgba(94, 79, 57, 0.13);
-    background: $note-button-yellow;
-    box-shadow:
-        0 3px 0 rgba(94, 79, 57, 0.12),
-        0 12px 28px rgba(46, 38, 25, 0.14);
-    transform: rotate(-0.7deg);
+  position: relative;
+  width: min(100%, 480px);
+  margin: 10px auto 0;
+  padding: 28px;
+  border: 1px solid rgba(94, 79, 57, 0.13);
+  background: $note-button-yellow;
+  box-shadow:
+    0 3px 0 rgba(94, 79, 57, 0.12),
+    0 12px 28px rgba(46, 38, 25, 0.14);
+  transform: rotate(-0.7deg);
 }
 
 .note-tape {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    width: 90px;
-    height: 21px;
-    background: rgba(255, 255, 255, 0.48);
-    box-shadow: 0 1px 3px rgba(46, 38, 25, 0.08);
-    transform: translateX(-50%) rotate(-2deg);
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 90px;
+  height: 21px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 1px 3px rgba(46, 38, 25, 0.08);
+  transform: translateX(-50%) rotate(-2deg);
 }
 
 .note-card header,
 .note-card footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.note-card header>span {
-    color: rgba($text-primary, 0.65);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+.note-card header > span {
+  color: rgba($text-primary, 0.65);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .note-card h3 {
-    margin-top: 24px;
-    font-size: 30px;
-    line-height: 1.05;
+  margin-top: 24px;
+  font-size: 30px;
+  line-height: 1.05;
 }
 
-.note-card>p {
-    margin: 12px 0 26px;
-    color: rgba($text-primary, 0.74);
-    font-size: 14px;
-    line-height: 1.6;
+.note-card > p {
+  margin: 12px 0 26px;
+  color: rgba($text-primary, 0.74);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .note-card footer {
-    justify-content: flex-start;
+  justify-content: flex-start;
 }
 
 .note-icon-button,
 .note-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    color: $text-primary;
-    background: transparent;
-    cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: $text-primary;
+  background: transparent;
+  cursor: pointer;
 }
 
 .note-icon-button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
 }
 
 .note-icon-button:hover,
 .note-action:hover {
-    background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .note-action {
-    gap: 6px;
-    min-height: 34px;
-    padding: 6px 9px;
-    border-radius: $radius-xs;
-    font: 800 12px/1 $font-body;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 9px;
+  border-radius: $radius-xs;
+  font: 800 12px/1 $font-body;
 }
 
 @media (max-width: 980px) {
-    .showcase-hero {
-        grid-template-columns: 1fr;
-    }
+  .showcase-hero {
+    grid-template-columns: 1fr;
+  }
 
-    .hero-note {
-        max-width: 430px;
-    }
+  .hero-note {
+    max-width: 430px;
+  }
 
-    .placement-grid,
-    .tone-grid,
-    .trigger-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .placement-grid,
+  .tone-grid,
+  .trigger-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
-    .tooltip-showcase {
-        width: min(100% - 20px, 1180px);
-        padding: 20px 0 48px;
-    }
+  .tooltip-showcase {
+    width: min(100% - 20px, 1180px);
+    padding: 20px 0 48px;
+  }
 
-    .split-section,
-    .placement-grid,
-    .tone-grid,
-    .trigger-grid {
-        grid-template-columns: 1fr;
-    }
+  .split-section,
+  .placement-grid,
+  .tone-grid,
+  .trigger-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .note-card {
-        box-sizing: border-box;
-        padding: 22px;
-    }
+  .note-card {
+    box-sizing: border-box;
+    padding: 22px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .demo-trigger,
-    .tone-trigger,
-    .manual-control {
-        transition: none;
-    }
+  .demo-trigger,
+  .tone-trigger,
+  .manual-control {
+    transition: none;
+  }
 }

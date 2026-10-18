@@ -12,10 +12,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export type RadioSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -39,12 +36,7 @@ export type RadioVariant =
 
 export type RadioLabelPosition = 'left' | 'right';
 
-export type RadioValue =
-  | string
-  | number
-  | boolean
-  | object
-  | null;
+export type RadioValue = string | number | boolean | object | null;
 
 export interface RadioChange {
   readonly source: Radio;
@@ -70,11 +62,7 @@ export interface RadioChange {
     '[class.app-radio-host-full]': 'fullWidth',
   },
 })
-export class Radio implements
-  ControlValueAccessor,
-  OnChanges,
-  OnInit,
-  OnDestroy {
+export class Radio implements ControlValueAccessor, OnChanges, OnInit, OnDestroy {
   private static nextId = 0;
   private static readonly groups = new Map<string, Set<Radio>>();
 
@@ -108,10 +96,7 @@ export class Radio implements
   @Input() ariaDescribedBy?: string;
   @Input() title?: string;
 
-  @Input() compareWith: (
-    left: RadioValue,
-    right: RadioValue,
-  ) => boolean = Object.is;
+  @Input() compareWith: (left: RadioValue, right: RadioValue) => boolean = Object.is;
 
   @Output() checkedChange = new EventEmitter<boolean>();
   @Output() selected = new EventEmitter<RadioValue>();
@@ -120,7 +105,7 @@ export class Radio implements
   private onChange: (value: RadioValue) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  constructor(private readonly cdr: ChangeDetectorRef) { }
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 
   @Input()
   get checked(): boolean {
@@ -136,9 +121,7 @@ export class Radio implements
   }
 
   get resolvedDescriptionId(): string | null {
-    return this.description
-      ? `${this.inputId}-description`
-      : null;
+    return this.description ? `${this.inputId}-description` : null;
   }
 
   get resolvedAriaDescribedBy(): string | null {
@@ -177,10 +160,7 @@ export class Radio implements
       this.registerWithGroup(this.name);
     }
 
-    if (
-      this.hasFormValue &&
-      (changes['value'] || changes['compareWith'])
-    ) {
+    if (this.hasFormValue && (changes['value'] || changes['compareWith'])) {
       this.syncCheckedFromFormValue();
     }
   }
@@ -242,10 +222,7 @@ export class Radio implements
   }
 
   private syncCheckedFromFormValue(): void {
-    this.internalChecked = this.compareWith(
-      this.formValue,
-      this.value,
-    );
+    this.internalChecked = this.compareWith(this.formValue, this.value);
 
     this.cdr.markForCheck();
   }

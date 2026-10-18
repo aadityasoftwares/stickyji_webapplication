@@ -15,8 +15,8 @@ describe('StickyNoteAssigneeSelect', () => {
       imports: [StickyNoteAssigneeSelect],
       providers: [
         { provide: ComponentFixtureAutoDetect, useValue: false },
-        { provide: WorkspaceMemberApiService, useValue: { getAll: () => of({ data: [] }) } }
-      ]
+        { provide: WorkspaceMemberApiService, useValue: { getAll: () => of({ data: [] }) } },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(StickyNoteAssigneeSelect);
   });

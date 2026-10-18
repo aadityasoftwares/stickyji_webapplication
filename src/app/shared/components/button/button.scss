@@ -6,14 +6,14 @@
    ========================================================== */
 
 :host {
-    display: inline-flex;
-    max-width: 100%;
-    vertical-align: middle;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
 }
 
 :host.app-button-host-full {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 /* ==========================================================
@@ -21,64 +21,65 @@
    ========================================================== */
 
 @mixin solid-button($background, $text: #ffffff) {
-    color: $text;
-    background-color: $background;
-    border-color: color.adjust($background, $lightness: -7%);
+  color: $text;
+  background-color: $background;
+  border-color: color.adjust($background, $lightness: -7%);
+
+  box-shadow:
+    0 2px 0 color.adjust($background, $lightness: -14%),
+    0 5px 12px rgba(17, 17, 17, 0.12);
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($background, $lightness: -4%);
+    border-color: color.adjust($background, $lightness: -10%);
 
     box-shadow:
-        0 2px 0 color.adjust($background, $lightness: -14%),
-        0 5px 12px rgba(17, 17, 17, 0.12);
+      0 3px 0 color.adjust($background, $lightness: -16%),
+      0 8px 16px rgba(17, 17, 17, 0.15);
+  }
 
-    &:hover:not(:disabled) {
-        background-color: color.adjust($background, $lightness: -4%);
-        border-color: color.adjust($background, $lightness: -10%);
+  &:active:not(:disabled) {
+    background-color: color.adjust($background, $lightness: -7%);
 
-        box-shadow:
-            0 3px 0 color.adjust($background, $lightness: -16%),
-            0 8px 16px rgba(17, 17, 17, 0.15);
-    }
-
-    &:active:not(:disabled) {
-        background-color: color.adjust($background, $lightness: -7%);
-
-        box-shadow:
-            0 1px 0 color.adjust($background, $lightness: -16%),
-            0 2px 5px rgba(17, 17, 17, 0.1);
-    }
+    box-shadow:
+      0 1px 0 color.adjust($background, $lightness: -16%),
+      0 2px 5px rgba(17, 17, 17, 0.1);
+  }
 }
 
 @mixin sticky-note-button($background, $text) {
-    color: $text;
+  color: $text;
 
-    background-color: $background;
-    background-image:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.34) 0%,
-            rgba(255, 255, 255, 0.08) 48%,
-            rgba(17, 17, 17, 0.035) 100%);
+  background-color: $background;
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.08) 48%,
+    rgba(17, 17, 17, 0.035) 100%
+  );
 
-    border-color: color.adjust($background, $lightness: -13%);
+  border-color: color.adjust($background, $lightness: -13%);
+
+  box-shadow:
+    0 2px 0 color.adjust($background, $lightness: -18%),
+    0 5px 11px rgba(46, 38, 25, 0.12);
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($background, $lightness: 2%);
+    border-color: color.adjust($background, $lightness: -17%);
 
     box-shadow:
-        0 2px 0 color.adjust($background, $lightness: -18%),
-        0 5px 11px rgba(46, 38, 25, 0.12);
+      0 3px 0 color.adjust($background, $lightness: -19%),
+      0 8px 16px rgba(46, 38, 25, 0.15);
+  }
 
-    &:hover:not(:disabled) {
-        background-color: color.adjust($background, $lightness: 2%);
-        border-color: color.adjust($background, $lightness: -17%);
+  &:active:not(:disabled) {
+    background-color: color.adjust($background, $lightness: -3%);
 
-        box-shadow:
-            0 3px 0 color.adjust($background, $lightness: -19%),
-            0 8px 16px rgba(46, 38, 25, 0.15);
-    }
-
-    &:active:not(:disabled) {
-        background-color: color.adjust($background, $lightness: -3%);
-
-        box-shadow:
-            0 1px 0 color.adjust($background, $lightness: -18%),
-            0 2px 4px rgba(46, 38, 25, 0.1);
-    }
+    box-shadow:
+      0 1px 0 color.adjust($background, $lightness: -18%),
+      0 2px 4px rgba(46, 38, 25, 0.1);
+  }
 }
 
 /* ==========================================================
@@ -86,24 +87,24 @@
    ========================================================== */
 
 .app-button-wrapper {
-    --app-button-height: 38px;
-    --app-button-min-width: 92px;
-    --app-button-padding-x: 16px;
-    --app-button-padding-y: 8px;
-    --app-button-icon-size: 18px;
-    --app-button-split-width: 38px;
+  --app-button-height: 38px;
+  --app-button-min-width: 92px;
+  --app-button-padding-x: 16px;
+  --app-button-padding-y: 8px;
+  --app-button-icon-size: 18px;
+  --app-button-split-width: 38px;
 
-    display: inline-flex;
-    align-items: stretch;
+  display: inline-flex;
+  align-items: stretch;
 
-    max-width: 100%;
+  max-width: 100%;
 
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .app-button-wrapper.app-button-full {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 /* ==========================================================
@@ -111,122 +112,120 @@
    ========================================================== */
 
 .app-button {
-    position: relative;
-    isolation: isolate;
+  position: relative;
+  isolation: isolate;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    gap: $button-gap;
+  gap: $button-gap;
 
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    height: var(--app-button-height);
-    min-width: var(--app-button-min-width);
+  height: var(--app-button-height);
+  min-width: var(--app-button-min-width);
 
-    padding:
-        var(--app-button-padding-y) var(--app-button-padding-x);
+  padding: var(--app-button-padding-y) var(--app-button-padding-x);
 
-    border: 1px solid transparent;
-    border-radius: $button-radius;
-    outline: none;
+  border: 1px solid transparent;
+  border-radius: $button-radius;
+  outline: none;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    font-family: $font-body;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.012em;
+  font-family: $font-body;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.012em;
 
-    text-align: center;
-    text-decoration: none;
+  text-align: center;
+  text-decoration: none;
 
-    cursor: pointer;
-    user-select: none;
-    vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
 
-    transition:
-        background-color $button-transition,
-        border-color $button-transition,
-        color $button-transition,
-        box-shadow $button-transition,
-        transform $button-transition,
-        filter $button-transition;
+  transition:
+    background-color $button-transition,
+    border-color $button-transition,
+    color $button-transition,
+    box-shadow $button-transition,
+    transform $button-transition,
+    filter $button-transition;
 
-    -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Paper lighting */
 
 .app-button::before {
-    content: '';
+  content: '';
 
-    position: absolute;
-    inset: 0;
-    z-index: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 
-    pointer-events: none;
+  pointer-events: none;
 
-    background:
-        linear-gradient(180deg,
-            rgba(255, 255, 255, 0.19) 0%,
-            rgba(255, 255, 255, 0.05) 44%,
-            rgba(255, 255, 255, 0) 68%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.19) 0%,
+    rgba(255, 255, 255, 0.05) 44%,
+    rgba(255, 255, 255, 0) 68%
+  );
 }
 
 /* Very subtle paper grain */
 
 .app-button::after {
-    content: '';
+  content: '';
 
-    position: absolute;
-    inset: 0;
-    z-index: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 
-    pointer-events: none;
-    opacity: 0.22;
+  pointer-events: none;
+  opacity: 0.22;
 
-    background-image:
-        radial-gradient(circle at 20% 25%,
-            rgba(255, 255, 255, 0.4) 0,
-            transparent 1px),
-        radial-gradient(circle at 70% 70%,
-            rgba(17, 17, 17, 0.1) 0,
-            transparent 1px);
+  background-image:
+    radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.4) 0, transparent 1px),
+    radial-gradient(circle at 70% 70%, rgba(17, 17, 17, 0.1) 0, transparent 1px);
 
-    background-size: 11px 11px, 13px 13px;
+  background-size:
+    11px 11px,
+    13px 13px;
 }
 
 .app-button:hover:not(:disabled) {
-    transform: translateY(-1px);
+  transform: translateY(-1px);
 }
 
 .app-button:active:not(:disabled) {
-    transform: translateY(1px);
+  transform: translateY(1px);
 }
 
 .app-button:focus-visible {
-    outline: 3px solid rgba($accent, 0.3);
-    outline-offset: 3px;
+  outline: 3px solid rgba($accent, 0.3);
+  outline-offset: 3px;
 }
 
 .app-button:disabled {
-    opacity: 0.52;
-    cursor: not-allowed;
+  opacity: 0.52;
+  cursor: not-allowed;
 
-    filter: grayscale(0.15);
+  filter: grayscale(0.15);
 
-    transform: none !important;
-    box-shadow: none !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .app-button[aria-pressed='true'] {
-    transform: translateY(1px);
+  transform: translateY(1px);
 
-    box-shadow:
-        inset 0 2px 4px rgba(17, 17, 17, 0.18),
-        0 1px 0 rgba(17, 17, 17, 0.1);
+  box-shadow:
+    inset 0 2px 4px rgba(17, 17, 17, 0.18),
+    0 1px 0 rgba(17, 17, 17, 0.1);
 }
 
 /* ==========================================================
@@ -234,32 +233,32 @@
    ========================================================== */
 
 .app-button-xs {
-    gap: 5px;
-    font-size: 11px;
-    border-radius: 7px;
+  gap: 5px;
+  font-size: 11px;
+  border-radius: 7px;
 }
 
 .app-button-sm {
-    gap: 6px;
-    font-size: 13px;
-    border-radius: 8px;
+  gap: 6px;
+  font-size: 13px;
+  border-radius: 8px;
 }
 
 .app-button-md {
-    font-size: 14px;
-    border-radius: $button-radius;
+  font-size: 14px;
+  border-radius: $button-radius;
 }
 
 .app-button-lg {
-    gap: 9px;
-    font-size: 15px;
-    border-radius: 11px;
+  gap: 9px;
+  font-size: 15px;
+  border-radius: 11px;
 }
 
 .app-button-xl {
-    gap: 10px;
-    font-size: 16px;
-    border-radius: $radius-sm;
+  gap: 10px;
+  font-size: 16px;
+  border-radius: $radius-sm;
 }
 
 /* ==========================================================
@@ -267,120 +266,120 @@
    ========================================================== */
 
 .app-button-primary {
-    color: $btn-primary-text;
-    background-color: $btn-primary-bg;
-    border-color: $btn-primary-bg;
+  color: $btn-primary-text;
+  background-color: $btn-primary-bg;
+  border-color: $btn-primary-bg;
 
-    box-shadow:
-        0 2px 0 #000000,
-        0 6px 14px rgba(17, 17, 17, 0.18);
+  box-shadow:
+    0 2px 0 #000000,
+    0 6px 14px rgba(17, 17, 17, 0.18);
 }
 
 .app-button-primary:hover:not(:disabled) {
-    background-color: $btn-primary-hover;
-    border-color: $btn-primary-hover;
+  background-color: $btn-primary-hover;
+  border-color: $btn-primary-hover;
 
-    box-shadow:
-        0 3px 0 #000000,
-        0 9px 18px rgba(17, 17, 17, 0.22);
+  box-shadow:
+    0 3px 0 #000000,
+    0 9px 18px rgba(17, 17, 17, 0.22);
 }
 
 .app-button-secondary {
-    color: $btn-secondary-text;
-    background-color: $btn-secondary-bg;
-    border-color: $btn-secondary-border;
+  color: $btn-secondary-text;
+  background-color: $btn-secondary-bg;
+  border-color: $btn-secondary-border;
 
-    box-shadow:
-        0 2px 0 rgba(94, 79, 57, 0.13),
-        0 5px 10px rgba(46, 38, 25, 0.07);
+  box-shadow:
+    0 2px 0 rgba(94, 79, 57, 0.13),
+    0 5px 10px rgba(46, 38, 25, 0.07);
 }
 
 .app-button-secondary:hover:not(:disabled) {
-    background-color: $paper-dark;
-    border-color: color.adjust($btn-secondary-border, $lightness: -8%);
+  background-color: $paper-dark;
+  border-color: color.adjust($btn-secondary-border, $lightness: -8%);
 
-    box-shadow:
-        0 3px 0 rgba(94, 79, 57, 0.16),
-        0 7px 14px rgba(46, 38, 25, 0.1);
+  box-shadow:
+    0 3px 0 rgba(94, 79, 57, 0.16),
+    0 7px 14px rgba(46, 38, 25, 0.1);
 }
 
 .app-button-accent {
-    @include solid-button($button-accent-bg);
+  @include solid-button($button-accent-bg);
 }
 
 .app-button-success {
-    @include solid-button($button-success-bg);
+  @include solid-button($button-success-bg);
 }
 
 .app-button-warning {
-    @include solid-button($button-warning-bg);
+  @include solid-button($button-warning-bg);
 }
 
 .app-button-danger {
-    @include solid-button($button-danger-bg);
+  @include solid-button($button-danger-bg);
 }
 
 .app-button-info {
-    @include solid-button($button-info-bg);
+  @include solid-button($button-info-bg);
 }
 
 .app-button-outline {
-    color: $text-primary;
-    background-color: rgba($paper, 0.72);
-    border-color: $border;
+  color: $text-primary;
+  background-color: rgba($paper, 0.72);
+  border-color: $border;
 
-    box-shadow: 0 2px 5px rgba(46, 38, 25, 0.05);
+  box-shadow: 0 2px 5px rgba(46, 38, 25, 0.05);
 }
 
 .app-button-outline:hover:not(:disabled) {
-    color: $primary;
-    background-color: $paper-dark;
-    border-color: $primary;
+  color: $primary;
+  background-color: $paper-dark;
+  border-color: $primary;
 
-    box-shadow: 0 4px 10px rgba(46, 38, 25, 0.09);
+  box-shadow: 0 4px 10px rgba(46, 38, 25, 0.09);
 }
 
 .app-button-ghost {
-    color: $text-primary;
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+  color: $text-primary;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .app-button-ghost::after {
-    display: none;
+  display: none;
 }
 
 .app-button-ghost:hover:not(:disabled) {
-    background-color: $sidebar-hover;
-    border-color: rgba($border, 0.65);
-    box-shadow: none;
+  background-color: $sidebar-hover;
+  border-color: rgba($border, 0.65);
+  box-shadow: none;
 }
 
 .app-button-link {
-    min-width: auto;
+  min-width: auto;
 
-    color: $primary;
-    background: transparent;
-    border-color: transparent;
+  color: $primary;
+  background: transparent;
+  border-color: transparent;
 
-    padding-right: 4px;
-    padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 4px;
 
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .app-button-link::before,
 .app-button-link::after {
-    display: none;
+  display: none;
 }
 
 .app-button-link:hover:not(:disabled) {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 
-    transform: none;
-    box-shadow: none;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ==========================================================
@@ -388,86 +387,75 @@
    ========================================================== */
 
 .app-button-noteYellow {
-    @include sticky-note-button($note-button-yellow,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-yellow, $note-button-dark-text);
 }
 
 .app-button-noteOrange {
-    @include sticky-note-button($note-button-orange,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-orange, $note-button-dark-text);
 }
 
 .app-button-notePink {
-    @include sticky-note-button($note-button-pink,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-pink, $note-button-dark-text);
 }
 
 .app-button-noteRed {
-    @include sticky-note-button($note-button-red,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-red, $note-button-dark-text);
 }
 
 .app-button-noteGreen {
-    @include sticky-note-button($note-button-green,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-green, $note-button-dark-text);
 }
 
 .app-button-noteBlue {
-    @include sticky-note-button($note-button-blue,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-blue, $note-button-dark-text);
 }
 
 .app-button-notePurple {
-    @include sticky-note-button($note-button-purple,
-        $note-button-dark-text );
+  @include sticky-note-button($note-button-purple, $note-button-dark-text);
 }
 
 .app-button-noteBrown {
-    @include sticky-note-button($note-button-brown,
-        #ffffff);
+  @include sticky-note-button($note-button-brown, #ffffff);
 }
 
 .app-button-noteBlack {
-    @include sticky-note-button($note-button-black,
-        #ffffff);
+  @include sticky-note-button($note-button-black, #ffffff);
 }
 
 /* ==========================================================
    Tape Appearance
    ========================================================== */
 
-@mixin tape-palette($background,
-    $hover,
-    $active,
-    $text,
-    $divider) {
-    --app-tape-bg: #{$background};
-    --app-tape-hover: #{$hover};
-    --app-tape-active: #{$active};
-    --app-tape-text: #{$text};
-    --app-tape-divider: #{$divider};
+@mixin tape-palette($background, $hover, $active, $text, $divider) {
+  --app-tape-bg: #{$background};
+  --app-tape-hover: #{$hover};
+  --app-tape-active: #{$active};
+  --app-tape-text: #{$text};
+  --app-tape-divider: #{$divider};
 }
 
 /* Default palette */
 
 .app-button-wrapper-tape {
-    @include tape-palette($primary,
-        $primary-hover,
-        $primary-light,
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $primary,
+    $primary-hover,
+    $primary-light,
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 
-    position: relative;
-    isolation: isolate;
+  position: relative;
+  isolation: isolate;
 
-    transform-origin: center;
+  transform-origin: center;
 
-    filter: $button-tape-shadow;
+  filter: $button-tape-shadow;
 
-    transition:
-        filter $button-transition,
-        opacity $button-transition,
-        transform $button-transition;
+  transition:
+    filter $button-transition,
+    opacity $button-transition,
+    transform $button-transition;
 }
 
 /* ==========================================================
@@ -475,93 +463,91 @@
    ========================================================== */
 
 .app-button-wrapper-tape.app-button-wrapper-primary {
-    @include tape-palette($btn-primary-bg,
-        $btn-primary-hover,
-        $primary-light,
-        $btn-primary-text,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $btn-primary-bg,
+    $btn-primary-hover,
+    $primary-light,
+    $btn-primary-text,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-secondary {
-    @include tape-palette($btn-secondary-bg,
-        $paper-dark,
-        $border-light,
-        $btn-secondary-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $btn-secondary-bg,
+    $paper-dark,
+    $border-light,
+    $btn-secondary-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-accent {
-    @include tape-palette($button-accent-bg,
-        color.adjust($button-accent-bg,
-            $lightness: -5%),
-        color.adjust($button-accent-bg,
-            $lightness: -10%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $button-accent-bg,
+    color.adjust($button-accent-bg, $lightness: -5%),
+    color.adjust($button-accent-bg, $lightness: -10%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-success {
-    @include tape-palette($button-success-bg,
-        color.adjust($button-success-bg,
-            $lightness: -5%),
-        color.adjust($button-success-bg,
-            $lightness: -10%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $button-success-bg,
+    color.adjust($button-success-bg, $lightness: -5%),
+    color.adjust($button-success-bg, $lightness: -10%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-warning {
-    @include tape-palette($button-warning-bg,
-        color.adjust($button-warning-bg,
-            $lightness: -5%),
-        color.adjust($button-warning-bg,
-            $lightness: -10%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $button-warning-bg,
+    color.adjust($button-warning-bg, $lightness: -5%),
+    color.adjust($button-warning-bg, $lightness: -10%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-danger {
-    @include tape-palette($button-danger-bg,
-        color.adjust($button-danger-bg,
-            $lightness: -5%),
-        color.adjust($button-danger-bg,
-            $lightness: -10%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $button-danger-bg,
+    color.adjust($button-danger-bg, $lightness: -5%),
+    color.adjust($button-danger-bg, $lightness: -10%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-info {
-    @include tape-palette($button-info-bg,
-        color.adjust($button-info-bg,
-            $lightness: -5%),
-        color.adjust($button-info-bg,
-            $lightness: -10%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $button-info-bg,
+    color.adjust($button-info-bg, $lightness: -5%),
+    color.adjust($button-info-bg, $lightness: -10%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-outline {
-    @include tape-palette($paper,
-        $paper-dark,
-        $border-light,
-        $text-primary,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette($paper, $paper-dark, $border-light, $text-primary, rgba(17, 17, 17, 0.14));
 }
 
 .app-button-wrapper-tape.app-button-wrapper-ghost {
-    @include tape-palette($sidebar-hover,
-        $paper-dark,
-        $border-light,
-        $text-primary,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $sidebar-hover,
+    $paper-dark,
+    $border-light,
+    $text-primary,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-link {
-    @include tape-palette($paper-light,
-        $paper-dark,
-        $border-light,
-        $primary,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette($paper-light, $paper-dark, $border-light, $primary, rgba(17, 17, 17, 0.14));
 }
 
 /* ==========================================================
@@ -569,91 +555,87 @@
    ========================================================== */
 
 .app-button-wrapper-tape.app-button-wrapper-noteYellow {
-    @include tape-palette($note-button-yellow,
-        color.adjust($note-button-yellow,
-            $lightness: 2%),
-        color.adjust($note-button-yellow,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-yellow,
+    color.adjust($note-button-yellow, $lightness: 2%),
+    color.adjust($note-button-yellow, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteOrange {
-    @include tape-palette($note-button-orange,
-        color.adjust($note-button-orange,
-            $lightness: 2%),
-        color.adjust($note-button-orange,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-orange,
+    color.adjust($note-button-orange, $lightness: 2%),
+    color.adjust($note-button-orange, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-notePink {
-    @include tape-palette($note-button-pink,
-        color.adjust($note-button-pink,
-            $lightness: 2%),
-        color.adjust($note-button-pink,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-pink,
+    color.adjust($note-button-pink, $lightness: 2%),
+    color.adjust($note-button-pink, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteRed {
-    @include tape-palette($note-button-red,
-        color.adjust($note-button-red,
-            $lightness: 2%),
-        color.adjust($note-button-red,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-red,
+    color.adjust($note-button-red, $lightness: 2%),
+    color.adjust($note-button-red, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteGreen {
-    @include tape-palette($note-button-green,
-        color.adjust($note-button-green,
-            $lightness: 2%),
-        color.adjust($note-button-green,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-green,
+    color.adjust($note-button-green, $lightness: 2%),
+    color.adjust($note-button-green, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteBlue {
-    @include tape-palette($note-button-blue,
-        color.adjust($note-button-blue,
-            $lightness: 2%),
-        color.adjust($note-button-blue,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-blue,
+    color.adjust($note-button-blue, $lightness: 2%),
+    color.adjust($note-button-blue, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-notePurple {
-    @include tape-palette($note-button-purple,
-        color.adjust($note-button-purple,
-            $lightness: 2%),
-        color.adjust($note-button-purple,
-            $lightness: -6%),
-        $note-button-dark-text,
-        rgba(17, 17, 17, 0.14));
+  @include tape-palette(
+    $note-button-purple,
+    color.adjust($note-button-purple, $lightness: 2%),
+    color.adjust($note-button-purple, $lightness: -6%),
+    $note-button-dark-text,
+    rgba(17, 17, 17, 0.14)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteBrown {
-    @include tape-palette($note-button-brown,
-        color.adjust($note-button-brown,
-            $lightness: 4%),
-        color.adjust($note-button-brown,
-            $lightness: -6%),
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette(
+    $note-button-brown,
+    color.adjust($note-button-brown, $lightness: 4%),
+    color.adjust($note-button-brown, $lightness: -6%),
+    #ffffff,
+    rgba(255, 255, 255, 0.28)
+  );
 }
 
 .app-button-wrapper-tape.app-button-wrapper-noteBlack {
-    @include tape-palette($note-button-black,
-        #333333,
-        #111111,
-        #ffffff,
-        rgba(255, 255, 255, 0.28));
+  @include tape-palette($note-button-black, #333333, #111111, #ffffff, rgba(255, 255, 255, 0.28));
 }
 
 /* ==========================================================
@@ -662,47 +644,32 @@
 
 .app-button-wrapper-tape::before,
 .app-button-wrapper-tape::after {
-    content: '';
+  content: '';
 
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
 
-    width: 11px;
+  width: 11px;
 
-    background-color: var(--app-tape-bg);
+  background-color: var(--app-tape-bg);
 
-    pointer-events: none;
+  pointer-events: none;
 
-    transition:
-        background-color $button-transition;
+  transition: background-color $button-transition;
 }
 
 .app-button-wrapper-tape::before {
-    left: -5px;
+  left: -5px;
 
-    clip-path: polygon(0% 0%,
-            100% 0%,
-            100% 100%,
-            0% 100%,
-            22% 82%,
-            0% 64%,
-            22% 45%,
-            0% 25%);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 22% 82%, 0% 64%, 22% 45%, 0% 25%);
 }
 
 .app-button-wrapper-tape::after {
-    right: -5px;
+  right: -5px;
 
-    clip-path: polygon(100% 0%,
-            0% 0%,
-            0% 100%,
-            100% 100%,
-            78% 82%,
-            100% 64%,
-            78% 45%,
-            100% 25%);
+  clip-path: polygon(100% 0%, 0% 0%, 0% 100%, 100% 100%, 78% 82%, 100% 64%, 78% 45%, 100% 25%);
 }
 
 /* ==========================================================
@@ -710,41 +677,40 @@
    ========================================================== */
 
 .app-button-appearance-tape {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 
-    color: var(--app-tape-text);
-    background-color: var(--app-tape-bg);
+  color: var(--app-tape-text);
+  background-color: var(--app-tape-bg);
 
-    border-color: transparent;
-    border-radius: 2px;
+  border-color: transparent;
+  border-radius: 2px;
 
-    box-shadow: none;
+  box-shadow: none;
 
-    font-family: $font-heading;
-    font-weight: 700;
-    letter-spacing: 0.025em;
+  font-family: $font-heading;
+  font-weight: 700;
+  letter-spacing: 0.025em;
 
-    text-shadow:
-        0 1px 1px rgba(17, 24, 39, 0.12);
+  text-shadow: 0 1px 1px rgba(17, 24, 39, 0.12);
 }
 
 .app-button-appearance-tape:hover:not(:disabled) {
-    color: var(--app-tape-text);
-    background-color: var(--app-tape-hover);
+  color: var(--app-tape-text);
+  background-color: var(--app-tape-hover);
 
-    border-color: transparent;
+  border-color: transparent;
 
-    transform: none;
-    box-shadow: none;
+  transform: none;
+  box-shadow: none;
 }
 
 .app-button-appearance-tape:active:not(:disabled) {
-    color: var(--app-tape-text);
-    background-color: var(--app-tape-active);
+  color: var(--app-tape-text);
+  background-color: var(--app-tape-active);
 
-    transform: none;
-    box-shadow: none;
+  transform: none;
+  box-shadow: none;
 }
 
 /*
@@ -753,50 +719,50 @@
 */
 
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover {
-    transform:
-        translateY(-1px) rotate(-1deg) scale(1.015);
+  transform: translateY(-1px) rotate(-1deg) scale(1.015);
 
-    filter: $button-tape-shadow-hover;
+  filter: $button-tape-shadow-hover;
 }
 
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover::before,
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover::after {
-    background-color: var(--app-tape-hover);
+  background-color: var(--app-tape-hover);
 }
 
-.app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover .app-button-appearance-tape:not(:disabled) {
-    background-color: var(--app-tape-hover);
+.app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover
+  .app-button-appearance-tape:not(:disabled) {
+  background-color: var(--app-tape-hover);
 }
 
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):has(.app-button-main:active) {
-    transform:
-        translateY(1px) rotate(0deg) scale(0.985);
+  transform: translateY(1px) rotate(0deg) scale(0.985);
 
-    filter:
-        drop-shadow(0 1px 1px rgba(17, 24, 39, 0.14));
+  filter: drop-shadow(0 1px 1px rgba(17, 24, 39, 0.14));
 }
 
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):has(.app-button-main:active)::before,
 .app-button-wrapper-tape:not(.app-button-wrapper-disabled):has(.app-button-main:active)::after {
-    background-color: var(--app-tape-active);
+  background-color: var(--app-tape-active);
 }
 
-.app-button-wrapper-tape:not(.app-button-wrapper-disabled):has(.app-button-main:active) .app-button-appearance-tape {
-    background-color: var(--app-tape-active);
+.app-button-wrapper-tape:not(.app-button-wrapper-disabled):has(.app-button-main:active)
+  .app-button-appearance-tape {
+  background-color: var(--app-tape-active);
 }
 
 /* Subtle tape lighting */
 
 .app-button-appearance-tape::before {
-    background:
-        linear-gradient(180deg,
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0.04) 48%,
-            rgba(17, 24, 39, 0.045) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.04) 48%,
+    rgba(17, 24, 39, 0.045) 100%
+  );
 }
 
 .app-button-appearance-tape::after {
-    opacity: 0.08;
+  opacity: 0.08;
 }
 
 /* ==========================================================
@@ -804,28 +770,28 @@
    ========================================================== */
 
 .app-button-appearance-tape.app-button-xs {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 .app-button-appearance-tape.app-button-sm {
-    font-size: 17px;
+  font-size: 17px;
 }
 
 .app-button-appearance-tape.app-button-md {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .app-button-appearance-tape.app-button-lg {
-    font-size: 23px;
+  font-size: 23px;
 }
 
 .app-button-appearance-tape.app-button-xl {
-    font-size: 26px;
+  font-size: 26px;
 }
 
 .app-button-appearance-tape .app-button-label {
-    line-height: 1;
-    transform: translateY(-1px);
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================
@@ -834,12 +800,12 @@
 
 .app-button-appearance-tape .app-button-icon,
 .app-button-appearance-tape .app-button-split-icon {
-    color: inherit;
+  color: inherit;
 }
 
 .app-button-appearance-tape .app-button-spinner {
-    border-color: currentColor;
-    border-right-color: transparent;
+  border-color: currentColor;
+  border-right-color: transparent;
 }
 
 /* ==========================================================
@@ -847,40 +813,39 @@
    ========================================================== */
 
 .app-button-wrapper-tape.app-button-split-wrapper {
-    border-radius: 2px;
+  border-radius: 2px;
 }
 
 .app-button-wrapper-tape .app-button-main {
-    border-top-left-radius: 2px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 2px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 2px;
 }
 
 .app-button-wrapper-tape .app-button-split-action {
-    color: var(--app-tape-text);
+  color: var(--app-tape-text);
 
-    border-left:
-        1px solid var(--app-tape-divider);
+  border-left: 1px solid var(--app-tape-divider);
 
-    border-top-left-radius: 0;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 0;
 
-    filter: none;
+  filter: none;
 }
 
 .app-button-wrapper-tape .app-button-split-action:hover:not(:disabled),
 .app-button-wrapper-tape .app-button-split-action:active:not(:disabled) {
-    filter: none;
+  filter: none;
 }
 
 /* Rounded does not convert tape into a pill */
 
 .app-button-wrapper-tape .app-button-rounded,
 .app-button-wrapper-tape.app-button-wrapper-rounded {
-    border-radius: 2px;
+  border-radius: 2px;
 }
 
 /* ==========================================================
@@ -888,16 +853,16 @@
    ========================================================== */
 
 .app-button-wrapper-tape.app-button-wrapper-disabled {
-    opacity: 0.52;
+  opacity: 0.52;
 
-    filter: grayscale(0.18);
+  filter: grayscale(0.18);
 
-    transform: none;
+  transform: none;
 }
 
 .app-button-wrapper-tape.app-button-wrapper-disabled .app-button:disabled {
-    opacity: 1;
-    filter: none;
+  opacity: 1;
+  filter: none;
 }
 
 /* ==========================================================
@@ -905,10 +870,9 @@
    ========================================================== */
 
 .app-button-wrapper-tape .app-button:focus-visible {
-    outline:
-        3px solid rgba($accent, 0.34);
+  outline: 3px solid rgba($accent, 0.34);
 
-    outline-offset: 4px;
+  outline-offset: 4px;
 }
 
 /* ==========================================================
@@ -916,31 +880,30 @@
    ========================================================== */
 
 @media (hover: none) {
-    .app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover {
-        transform: none;
-        filter: $button-tape-shadow;
-    }
+  .app-button-wrapper-tape:not(.app-button-wrapper-disabled):hover {
+    transform: none;
+    filter: $button-tape-shadow;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .app-button-wrapper-tape {
-        transition: none;
-    }
+  .app-button-wrapper-tape {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
+  .app-button-wrapper-tape::before,
+  .app-button-wrapper-tape::after {
+    background: ButtonFace;
+    border: 1px solid ButtonText;
+  }
 
-    .app-button-wrapper-tape::before,
-    .app-button-wrapper-tape::after {
-        background: ButtonFace;
-        border: 1px solid ButtonText;
-    }
-
-    .app-button-appearance-tape {
-        color: ButtonText;
-        background: ButtonFace;
-        border-color: ButtonText;
-    }
+  .app-button-appearance-tape {
+    color: ButtonText;
+    background: ButtonFace;
+    border-color: ButtonText;
+  }
 }
 
 /* ==========================================================
@@ -951,57 +914,57 @@
 .app-button-icon,
 .app-button-spinner,
 .app-button-visually-hidden {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .app-button-label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    min-width: 0;
-    max-width: 100%;
+  min-width: 0;
+  max-width: 100%;
 
-    line-height: 1.2;
+  line-height: 1.2;
 
-    overflow: hidden;
-    text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-button-nowrap,
 .app-button-nowrap .app-button-label {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .app-button-icon,
 .app-button-split-icon {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    width: var(--app-button-icon-size);
-    height: var(--app-button-icon-size);
+  width: var(--app-button-icon-size);
+  height: var(--app-button-icon-size);
 
-    color: inherit;
-    line-height: 0;
+  color: inherit;
+  line-height: 0;
 }
 
 /* SVG icons */
 
 :host ::ng-deep .app-button-icon svg,
 :host ::ng-deep .app-button-split-icon svg {
-    display: block;
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    fill: currentColor;
+  fill: currentColor;
 }
 
 /*
@@ -1011,61 +974,61 @@
 
 :host ::ng-deep .app-button-icon svg[fill='none'],
 :host ::ng-deep .app-button-split-icon svg[fill='none'] {
-    fill: none;
-    stroke: currentColor;
+  fill: none;
+  stroke: currentColor;
 }
 
 /* Images */
 
 :host ::ng-deep .app-button-icon img,
 :host ::ng-deep .app-button-split-icon img {
-    display: block;
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    object-fit: contain;
+  object-fit: contain;
 }
 
 /* Angular Material icons */
 
 :host ::ng-deep .app-button-icon mat-icon,
 :host ::ng-deep .app-button-split-icon mat-icon {
-    width: var(--app-button-icon-size);
-    height: var(--app-button-icon-size);
+  width: var(--app-button-icon-size);
+  height: var(--app-button-icon-size);
 
-    font-size: var(--app-button-icon-size);
-    line-height: var(--app-button-icon-size);
+  font-size: var(--app-button-icon-size);
+  line-height: var(--app-button-icon-size);
 }
 
 /* Font Awesome */
 
 :host ::ng-deep .app-button-icon i,
 :host ::ng-deep .app-button-split-icon i {
-    font-size: var(--app-button-icon-size);
-    line-height: 1;
+  font-size: var(--app-button-icon-size);
+  line-height: 1;
 }
 
 /* Icon-only */
 
 .app-button-icon-only {
-    width: var(--app-button-height);
-    min-width: var(--app-button-height);
-    aspect-ratio: 1;
+  width: var(--app-button-height);
+  min-width: var(--app-button-height);
+  aspect-ratio: 1;
 
-    padding: 0;
+  padding: 0;
 }
 
 .app-button-icon-only-content {
-    margin: 0;
+  margin: 0;
 }
 
 .app-button-rounded {
-    border-radius: 9999px;
+  border-radius: 9999px;
 }
 
 .app-button-full {
-    width: 100%;
+  width: 100%;
 }
 
 /* ==========================================================
@@ -1073,72 +1036,72 @@
    ========================================================== */
 
 .app-button-split-wrapper {
-    display: inline-flex;
-    align-items: stretch;
+  display: inline-flex;
+  align-items: stretch;
 
-    border-radius: $button-radius;
+  border-radius: $button-radius;
 }
 
 .app-button-split-wrapper .app-button-main {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 
-    min-width: var(--app-button-min-width);
+  min-width: var(--app-button-min-width);
 
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-width: 0;
 }
 
 .app-button-split-action {
-    flex: 0 0 var(--app-button-split-width);
+  flex: 0 0 var(--app-button-split-width);
 
-    width: var(--app-button-split-width);
-    min-width: var(--app-button-split-width);
+  width: var(--app-button-split-width);
+  min-width: var(--app-button-split-width);
 
-    padding: 0;
+  padding: 0;
 
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .app-button-split-action:hover:not(:disabled) {
-    transform: none;
-    filter: brightness(0.94);
+  transform: none;
+  filter: brightness(0.94);
 }
 
 .app-button-split-action:active:not(:disabled) {
-    transform: none;
-    filter: brightness(0.88);
+  transform: none;
+  filter: brightness(0.88);
 }
 
 .app-button-split-wrapper.app-button-full {
-    display: flex;
+  display: flex;
 }
 
 .app-button-wrapper-rounded .app-button-main {
-    border-top-left-radius: 9999px;
-    border-bottom-left-radius: 9999px;
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
 }
 
 .app-button-wrapper-rounded .app-button-split-action {
-    border-top-right-radius: 9999px;
-    border-bottom-right-radius: 9999px;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
 }
 
 /* Default split chevron when no icon is projected */
 
 .app-button-split-icon:empty::before {
-    content: '';
+  content: '';
 
-    width: 7px;
-    height: 7px;
+  width: 7px;
+  height: 7px;
 
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
 
-    transform: translateY(-2px) rotate(45deg);
+  transform: translateY(-2px) rotate(45deg);
 }
 
 /* ==========================================================
@@ -1146,47 +1109,47 @@
    ========================================================== */
 
 .app-button-loading {
-    cursor: wait;
+  cursor: wait;
 }
 
 .app-button-spinner {
-    display: inline-block;
-    flex: 0 0 auto;
+  display: inline-block;
+  flex: 0 0 auto;
 
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    border: 2px solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
 
-    animation: app-button-spin 0.7s linear infinite;
+  animation: app-button-spin 0.7s linear infinite;
 }
 
 @keyframes app-button-spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Screen-reader-only text */
 
 .app-button-visually-hidden {
-    position: absolute !important;
+  position: absolute !important;
 
-    width: 1px !important;
-    height: 1px !important;
+  width: 1px !important;
+  height: 1px !important;
 
-    padding: 0 !important;
-    margin: -1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
 
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
 
-    white-space: nowrap !important;
-    border: 0 !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* ==========================================================
@@ -1194,33 +1157,33 @@
    ========================================================== */
 
 @media (max-width: 576px) {
-    .app-button-xl {
-        font-size: 15px;
-    }
+  .app-button-xl {
+    font-size: 15px;
+  }
 }
 
 @media (hover: none) {
-    .app-button:hover:not(:disabled) {
-        transform: none;
-    }
+  .app-button:hover:not(:disabled) {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .app-button {
-        transition: none;
-    }
+  .app-button {
+    transition: none;
+  }
 
-    .app-button-spinner {
-        animation-duration: 1.2s;
-    }
+  .app-button-spinner {
+    animation-duration: 1.2s;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-button {
-        border: 1px solid ButtonText;
-    }
+  .app-button {
+    border: 1px solid ButtonText;
+  }
 
-    .app-button:focus-visible {
-        outline-color: Highlight;
-    }
+  .app-button:focus-visible {
+    outline-color: Highlight;
+  }
 }

@@ -8,17 +8,43 @@ import { UserPreferenceService } from './user-preference.service';
 import { UserPreferenceStore } from './user-preference.store';
 
 const records = [
-  { userId: 'first', key: 'timezone', value: 'Asia/Kolkata', valueType: 'STRING', category: 'REGIONAL' },
-  { userId: 'first', key: 'dateFormat', value: 'YYYY-MM-DD', valueType: 'STRING', category: 'REGIONAL' },
+  {
+    userId: 'first',
+    key: 'timezone',
+    value: 'Asia/Kolkata',
+    valueType: 'STRING',
+    category: 'REGIONAL',
+  },
+  {
+    userId: 'first',
+    key: 'dateFormat',
+    value: 'YYYY-MM-DD',
+    valueType: 'STRING',
+    category: 'REGIONAL',
+  },
   { userId: 'first', key: 'timeFormat', value: '24h', valueType: 'STRING', category: 'REGIONAL' },
   { userId: 'first', key: 'locale', value: 'en-US', valueType: 'STRING', category: 'REGIONAL' },
-  { userId: 'first', key: 'weekStartsOn', value: 'sunday', valueType: 'STRING', category: 'REGIONAL' },
+  {
+    userId: 'first',
+    key: 'weekStartsOn',
+    value: 'sunday',
+    valueType: 'STRING',
+    category: 'REGIONAL',
+  },
 ];
 
 function session(id: string): AuthSession {
   return {
-    user: { id, email: `${id}@example.test`, globalRoleId: '', status: 'ACTIVE', isEmailVerified: true, isMfaEnabled: false },
-    sessionId: `${id}-session`, tokens: { accessToken: `${id}-token` },
+    user: {
+      id,
+      email: `${id}@example.test`,
+      globalRoleId: '',
+      status: 'ACTIVE',
+      isEmailVerified: true,
+      isMfaEnabled: false,
+    },
+    sessionId: `${id}-session`,
+    tokens: { accessToken: `${id}-token` },
   };
 }
 
@@ -42,17 +68,23 @@ describe('UserPreferenceStore session lifecycle', () => {
       resetPreference: vi.fn(() => of({ data: { key: 'timezone', value: 'UTC' } })),
       resetAllPreferences: vi.fn(() => of({ data: [] })),
     };
-    TestBed.configureTestingModule({ providers: [{ provide: UserPreferenceService, useValue: api }] });
+    TestBed.configureTestingModule({
+      providers: [{ provide: UserPreferenceService, useValue: api }],
+    });
     store = TestBed.inject(UserPreferenceStore);
     auth = TestBed.inject(AuthStore);
     formatter = TestBed.inject(UserDateTimeFormatterService);
   });
 
   it.each([
-    records, { data: records }, { data: { preferences: records } }, { data: { items: records } },
-    { data: { rows: records } }, { data: { records } },
-    { data: Object.fromEntries(records.map(record => [record.key, record.value])) },
-  ])('reads existing preference response shapes', response => {
+    records,
+    { data: records },
+    { data: { preferences: records } },
+    { data: { items: records } },
+    { data: { rows: records } },
+    { data: { records } },
+    { data: Object.fromEntries(records.map((record) => [record.key, record.value])) },
+  ])('reads existing preference response shapes', (response) => {
     api.getMyPreferences.mockReturnValue(of(response));
     store.load();
     expect(formatter.formatDateTime('2026-10-09T03:32:55.742Z')).toBe('2026-10-09 09:02');
@@ -123,7 +155,9 @@ describe('UserPreferenceStore session lifecycle', () => {
     expect(store.timezone()).toBe('UTC');
     expect(store.ready()).toBe(false);
     auth.setSession(session('second'));
-    api.getMyPreferences.mockReturnValue(of({ data: [{ key: 'timezone', value: 'America/New_York' }] }));
+    api.getMyPreferences.mockReturnValue(
+      of({ data: [{ key: 'timezone', value: 'America/New_York' }] }),
+    );
     store.load();
     first.next({ data: records });
     expect(store.timezone()).toBe('America/New_York');
@@ -142,7 +176,7 @@ describe('UserPreferenceStore session lifecycle', () => {
     expect(store.ready()).toBe(false);
   });
 
-  it.each(['save', 'reset', 'resetAll'])('cancels pending %s operations on logout', action => {
+  it.each(['save', 'reset', 'resetAll'])('cancels pending %s operations on logout', (action) => {
     auth.setSession(session('first'));
     store.load();
     const pending = new Subject();

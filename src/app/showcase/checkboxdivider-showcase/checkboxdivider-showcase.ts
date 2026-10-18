@@ -1,15 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  signal,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
   Checkbox,
@@ -34,17 +24,12 @@ interface DividerVariantExample {
 
 @Component({
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    Checkbox,
-    Divider,
-  ],
+  imports: [ReactiveFormsModule, Checkbox, Divider],
   selector: 'app-checkboxdivider-showcase',
   styleUrl: './checkboxdivider-showcase.scss',
   templateUrl: './checkboxdivider-showcase.html',
 })
 export class CheckboxdividerShowcase {
-
   protected readonly semanticCheckboxes: ReadonlyArray<CheckboxVariantExample> = [
     { label: 'Primary', variant: 'primary' },
     { label: 'Secondary', variant: 'secondary' },
@@ -71,11 +56,11 @@ export class CheckboxdividerShowcase {
     readonly label: string;
     readonly size: CheckboxSize;
   }> = [
-      { label: 'Extra small', size: 'xs' },
-      { label: 'Small', size: 'sm' },
-      { label: 'Medium', size: 'md' },
-      { label: 'Large', size: 'lg' },
-    ];
+    { label: 'Extra small', size: 'xs' },
+    { label: 'Small', size: 'sm' },
+    { label: 'Medium', size: 'md' },
+    { label: 'Large', size: 'lg' },
+  ];
 
   protected readonly dividerVariants: ReadonlyArray<DividerVariantExample> = [
     { label: 'Neutral', variant: 'neutral' },
@@ -97,22 +82,11 @@ export class CheckboxdividerShowcase {
     { label: 'Black', variant: 'noteBlack' },
   ];
 
-  protected readonly labelAlignments: ReadonlyArray<DividerLabelAlign> = [
-    'start',
-    'center',
-    'end',
-  ];
+  protected readonly labelAlignments: ReadonlyArray<DividerLabelAlign> = ['start', 'center', 'end'];
 
-  protected readonly selectedNotes = signal<ReadonlyArray<boolean>>([
-    true,
-    false,
-    true,
-    false,
-  ]);
+  protected readonly selectedNotes = signal<ReadonlyArray<boolean>>([true, false, true, false]);
 
-  protected readonly allNotesSelected = computed(() =>
-    this.selectedNotes().every(Boolean),
-  );
+  protected readonly allNotesSelected = computed(() => this.selectedNotes().every(Boolean));
 
   protected readonly someNotesSelected = computed(() => {
     const selected = this.selectedNotes().filter(Boolean).length;
@@ -140,9 +114,7 @@ export class CheckboxdividerShowcase {
 
   protected toggleNote(index: number, checked: boolean): void {
     this.selectedNotes.update((items) =>
-      items.map((value, itemIndex) =>
-        itemIndex === index ? checked : value,
-      ),
+      items.map((value, itemIndex) => (itemIndex === index ? checked : value)),
     );
   }
 
@@ -154,9 +126,7 @@ export class CheckboxdividerShowcase {
       return;
     }
 
-    const enabledCount = Object.values(this.settingsForm.getRawValue())
-      .filter(Boolean)
-      .length;
+    const enabledCount = Object.values(this.settingsForm.getRawValue()).filter(Boolean).length;
 
     this.formMessage.set(`Settings saved with ${enabledCount} enabled options.`);
   }

@@ -11,23 +11,22 @@ import {
   ViewChild,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import {
-  LucideCheck,
-  LucideLock,
-  LucidePencil,
-  LucidePlus
-} from '@lucide/angular';
+import { LucideCheck, LucideLock, LucidePencil, LucidePlus } from '@lucide/angular';
 
 import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
-import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
@@ -38,7 +37,7 @@ import {
   PermissionAccess,
   PermissionAction,
   PermissionCreateRequest,
-  PermissionUpdateRequest
+  PermissionUpdateRequest,
 } from '../models/permission.models';
 import { PermissionApiService } from '../services/permission.service';
 
@@ -80,16 +79,7 @@ const ACCESS_OPTIONS: readonly SelectOption[] = [
 @Component({
   selector: 'app-add-edit-permission-side-panel',
   standalone: true,
-  imports: [
-    FormsModule,
-    AppInput,
-    Badge,
-    Button,
-    Label,
-    Select,
-    SidePanel,
-    Switch,
-  ],
+  imports: [FormsModule, AppInput, Badge, Button, Label, Select, SidePanel, Switch],
   templateUrl: './add-edit-permission-side-panel.html',
   styleUrl: './add-edit-permission-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -215,7 +205,12 @@ export class AddEditPermissionSidePanel implements OnChanges {
   }
 
   updateName(value: InputValue): void {
-    this.name.set(String(value ?? '').trim().toLowerCase().slice(0, 100));
+    this.name.set(
+      String(value ?? '')
+        .trim()
+        .toLowerCase()
+        .slice(0, 100),
+    );
     this.error.set(null);
   }
 
@@ -261,7 +256,7 @@ export class AddEditPermissionSidePanel implements OnChanges {
 
   toggleActive(): void {
     if (this.isReadOnly || this.saving()) return;
-    this.active.update(val => !val);
+    this.active.update((val) => !val);
   }
 
   submit(): void {
@@ -295,32 +290,32 @@ export class AddEditPermissionSidePanel implements OnChanges {
         access,
         description,
         sortOrder,
-        isActive
+        isActive,
       };
 
       this.permissionApi
         .create(payload)
         .pipe(
           finalize(() => this.saving.set(false)),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.toastService.success(`“${response.data.displayName}” permission created.`, {
               title: 'Permission created',
-              dedupeKey: 'permission-create-success'
+              dedupeKey: 'permission-create-success',
             });
             this.saved.emit(response.data);
             this.closed.emit();
           },
-          error: error => {
+          error: (error) => {
             const message = extractErrorMessage(error, 'Unable to create permission.');
             this.error.set(message);
             this.toastService.error(message, {
               title: 'Permission creation failed',
-              dedupeKey: 'permission-create-error'
+              dedupeKey: 'permission-create-error',
             });
-          }
+          },
         });
       return;
     }
@@ -341,32 +336,32 @@ export class AddEditPermissionSidePanel implements OnChanges {
       access,
       description,
       sortOrder,
-      isActive
+      isActive,
     };
 
     this.permissionApi
       .update(permissionId, payload)
       .pipe(
         finalize(() => this.saving.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.toastService.success(`“${response.data.displayName}” permission updated.`, {
             title: 'Permission updated',
-            dedupeKey: 'permission-update-success'
+            dedupeKey: 'permission-update-success',
           });
           this.saved.emit(response.data);
           this.closed.emit();
         },
-        error: error => {
+        error: (error) => {
           const message = extractErrorMessage(error, 'Unable to update permission.');
           this.error.set(message);
           this.toastService.error(message, {
             title: 'Permission update failed',
-            dedupeKey: 'permission-update-error'
+            dedupeKey: 'permission-update-error',
           });
-        }
+        },
       });
   }
 
@@ -395,10 +390,26 @@ export class AddEditPermissionSidePanel implements OnChanges {
 
     this.displayName.set(String(this.permission.displayName ?? '').trim());
     this.name.set(String(this.permission.name ?? '').trim());
-    this.code.set(String(this.permission.code ?? '').trim().toUpperCase());
-    this.module.set(String(this.permission.module ?? 'NOTES').trim().toUpperCase());
-    this.action.set(String(this.permission.action ?? 'READ').trim().toUpperCase() as PermissionAction);
-    this.access.set(String(this.permission.access ?? 'GENERAL').trim().toUpperCase() as PermissionAccess);
+    this.code.set(
+      String(this.permission.code ?? '')
+        .trim()
+        .toUpperCase(),
+    );
+    this.module.set(
+      String(this.permission.module ?? 'NOTES')
+        .trim()
+        .toUpperCase(),
+    );
+    this.action.set(
+      String(this.permission.action ?? 'READ')
+        .trim()
+        .toUpperCase() as PermissionAction,
+    );
+    this.access.set(
+      String(this.permission.access ?? 'GENERAL')
+        .trim()
+        .toUpperCase() as PermissionAccess,
+    );
     this.description.set(String(this.permission.description ?? '').trim());
     this.sortOrder.set(this.permission.sortOrder ?? 0);
     this.active.set(this.permission.isActive !== false);
@@ -407,12 +418,19 @@ export class AddEditPermissionSidePanel implements OnChanges {
   private focusInput(): void {
     if (this.isReadOnly) return;
     setTimeout(() => {
-      const inputEl = this.displayNameInput?.nativeElement?.querySelector('input') as HTMLInputElement | null;
+      const inputEl = this.displayNameInput?.nativeElement?.querySelector(
+        'input',
+      ) as HTMLInputElement | null;
       inputEl?.focus();
     }, 100);
   }
 
-  private generateCode(module: string, action: string, access: string, displayName: string): string {
+  private generateCode(
+    module: string,
+    action: string,
+    access: string,
+    displayName: string,
+  ): string {
     const mod = this.normalizeCode(module);
     const act = this.normalizeCode(action);
     const acc = access === 'GENERAL' ? '' : `_${this.normalizeCode(access)}`;

@@ -38,10 +38,10 @@ export class UserDateTimeFormatterService {
       timeFormat: this.validTimeFormat(this.userPreferenceStore.timeFormat()),
       timezone: this.validTimezone(this.userPreferenceStore.timezone()),
       locale: this.validLocale(this.userPreferenceStore.locale()),
-      weekStartsOn: String(
-        this.userPreferenceStore.weekStartsOn() ??
-        defaultWeekStartsOn
-      ).trim().toLowerCase() || defaultWeekStartsOn,
+      weekStartsOn:
+        String(this.userPreferenceStore.weekStartsOn() ?? defaultWeekStartsOn)
+          .trim()
+          .toLowerCase() || defaultWeekStartsOn,
     };
   });
 
@@ -75,9 +75,12 @@ export class UserDateTimeFormatterService {
     const parts = this.timeParts(date, prefs.locale, prefs.timezone, prefs.timeFormat);
     if (!parts) return fallback;
 
-    return this.cacheResult(cacheKey, prefs.timeFormat === '24h'
-      ? `${parts['hour']}:${parts['minute']}`
-      : `${parts['hour']}:${parts['minute']} ${parts['dayPeriod']}`.trim());
+    return this.cacheResult(
+      cacheKey,
+      prefs.timeFormat === '24h'
+        ? `${parts['hour']}:${parts['minute']}`
+        : `${parts['hour']}:${parts['minute']} ${parts['dayPeriod']}`.trim(),
+    );
   }
 
   formatDateTime(value: unknown, fallback = ''): string {
@@ -134,7 +137,8 @@ export class UserDateTimeFormatterService {
     const text = value.trim();
     // toDateKey also accepts ISO timestamps, so only pass actual calendar dates.
     return /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})$/.test(text)
-      ? toDateKey(text) : null;
+      ? toDateKey(text)
+      : null;
   }
 
   private parseDate(value: unknown): Date | null {
@@ -176,11 +180,13 @@ export class UserDateTimeFormatterService {
       });
 
       const parts = this.partsToMap(formatter.formatToParts(date));
-      const numericMonth = this.partsToMap(this.getFormatter(locale, {
-        timeZone,
-        calendar: 'gregory',
-        month: '2-digit',
-      }).formatToParts(date))['month'];
+      const numericMonth = this.partsToMap(
+        this.getFormatter(locale, {
+          timeZone,
+          calendar: 'gregory',
+          month: '2-digit',
+        }).formatToParts(date),
+      )['month'];
 
       return {
         DD: parts['day'],
@@ -197,7 +203,7 @@ export class UserDateTimeFormatterService {
     date: Date,
     locale: string,
     timeZone: string,
-    timeFormat: '12h' | '24h'
+    timeFormat: '12h' | '24h',
   ): DatePartMap | null {
     try {
       const formatter = this.getFormatter(locale, {
@@ -250,16 +256,22 @@ export class UserDateTimeFormatterService {
     return Math.floor((secondUtc - firstUtc) / 86_400_000);
   }
 
-  private calendarParts(date: Date, locale: string, timeZone: string): { year: number; month: number; day: number } | null {
+  private calendarParts(
+    date: Date,
+    locale: string,
+    timeZone: string,
+  ): { year: number; month: number; day: number } | null {
     try {
-      const parts = this.partsToMap(this.getFormatter(locale, {
-        timeZone,
-        calendar: 'gregory',
-        numberingSystem: 'latn',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).formatToParts(date));
+      const parts = this.partsToMap(
+        this.getFormatter(locale, {
+          timeZone,
+          calendar: 'gregory',
+          numberingSystem: 'latn',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).formatToParts(date),
+      );
 
       return {
         year: Number(parts['year']),
@@ -274,11 +286,14 @@ export class UserDateTimeFormatterService {
   private validDateFormat(value: unknown): string {
     const format = String(value ?? '').trim();
     return Object.hasOwn(SUPPORTED_DATE_FORMATS, format)
-      ? SUPPORTED_DATE_FORMATS[format] : String(DEFAULT_USER_PREFERENCES['dateFormat']);
+      ? SUPPORTED_DATE_FORMATS[format]
+      : String(DEFAULT_USER_PREFERENCES['dateFormat']);
   }
 
   private validTimeFormat(value: unknown): '12h' | '24h' {
-    const format = String(value ?? '').trim().toLowerCase();
+    const format = String(value ?? '')
+      .trim()
+      .toLowerCase();
     return format === '12h' || format === '24h' ? format : DEFAULT_USER_PREFERENCES['timeFormat'];
   }
 
@@ -323,7 +338,7 @@ export class UserDateTimeFormatterService {
     value: unknown,
     fallback: string,
     prefs: UserDateTimePreferences,
-    timeZone: string
+    timeZone: string,
   ): string {
     return JSON.stringify([
       type,

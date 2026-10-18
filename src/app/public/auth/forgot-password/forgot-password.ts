@@ -10,16 +10,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-} from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -43,23 +35,13 @@ import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
-import {
-  AuthService,
-} from '../services/auth-service';
+import { AuthService } from '../services/auth-service';
 import { ForgotPasswordResponse } from '../models/auth.models';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    AppIcon,
-    Badge,
-    Button,
-    AppInput,
-    StickyCard,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, AppIcon, Badge, Button, AppInput, StickyCard],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,14 +76,7 @@ export class ForgotPassword implements OnInit {
   readonly LucideSparkles = LucideSparkles;
 
   readonly forgotPasswordForm = this.fb.nonNullable.group({
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(254),
-      ],
-    ],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
   });
 
   constructor() {
@@ -113,15 +88,9 @@ export class ForgotPassword implements OnInit {
   ngOnInit(): void {
     this.initSeo();
 
-    const inputEmail = this.initialEmail
-      .trim()
-      .toLowerCase();
+    const inputEmail = this.initialEmail.trim().toLowerCase();
 
-    const queryEmail = (
-      this.route.snapshot.queryParamMap.get('email') ?? ''
-    )
-      .trim()
-      .toLowerCase();
+    const queryEmail = (this.route.snapshot.queryParamMap.get('email') ?? '').trim().toLowerCase();
 
     const email = inputEmail || queryEmail;
 
@@ -135,9 +104,7 @@ export class ForgotPassword implements OnInit {
   }
 
   get submittedEmail(): string {
-    return this.emailControl.value
-      .trim()
-      .toLowerCase();
+    return this.emailControl.value.trim().toLowerCase();
   }
 
   get emailError(): string {
@@ -180,10 +147,7 @@ export class ForgotPassword implements OnInit {
   }
 
   resend(): void {
-    if (
-      this.loading() ||
-      !this.submittedEmail
-    ) {
+    if (this.loading() || !this.submittedEmail) {
       return;
     }
 
@@ -197,19 +161,12 @@ export class ForgotPassword implements OnInit {
 
     const email = this.submittedEmail;
 
-    void this.router.navigate(
-      ['/auth/login'],
-      {
-        queryParams: email
-          ? { email }
-          : undefined,
-      },
-    );
+    void this.router.navigate(['/auth/login'], {
+      queryParams: email ? { email } : undefined,
+    });
   }
 
-  private sendResetRequest(
-    resend: boolean,
-  ): void {
+  private sendResetRequest(resend: boolean): void {
     const email = this.submittedEmail;
 
     if (!email) {
@@ -237,10 +194,7 @@ export class ForgotPassword implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          this.handleSuccess(
-            response,
-            resend,
-          );
+          this.handleSuccess(response, resend);
         },
         error: (error: HttpErrorResponse) => {
           this.handleFailure(error);
@@ -248,15 +202,9 @@ export class ForgotPassword implements OnInit {
       });
   }
 
-  private handleSuccess(
-    response: ForgotPasswordResponse,
-    resend: boolean,
-  ): void {
+  private handleSuccess(response: ForgotPasswordResponse, resend: boolean): void {
     if (!response?.success) {
-      this.serverError.set(
-        response?.message ||
-        AUTH_MESSAGES.ERROR.RESET_EMAIL_FAILED,
-      );
+      this.serverError.set(response?.message || AUTH_MESSAGES.ERROR.RESET_EMAIL_FAILED);
 
       return;
     }
@@ -266,79 +214,47 @@ export class ForgotPassword implements OnInit {
     this.toastService.success(
       resend
         ? AUTH_MESSAGES.SUCCESS.RESET_LINK_REQUESTED_AGAIN
-        : response.message ||
-        AUTH_MESSAGES.SUCCESS.RESET_INSTRUCTIONS_SENT,
+        : response.message || AUTH_MESSAGES.SUCCESS.RESET_INSTRUCTIONS_SENT,
       {
-        title: resend
-          ? 'Reset link requested'
-          : 'Check your inbox',
+        title: resend ? 'Reset link requested' : 'Check your inbox',
       },
     );
   }
 
-  private handleFailure(
-    error: HttpErrorResponse,
-  ): void {
-    const message =
-      this.resolveErrorMessage(error);
+  private handleFailure(error: HttpErrorResponse): void {
+    const message = this.resolveErrorMessage(error);
 
     this.serverError.set(message);
 
-    this.toastService.error(
-      message,
-      {
-        title:
-          error.status === 429
-            ? 'Too many requests'
-            : 'Unable to send reset link',
-        duration:
-          error.status === 429
-            ? 8_000
-            : 6_000,
-        dedupeKey:
-          'forgot-password-error',
-      },
-    );
+    this.toastService.error(message, {
+      title: error.status === 429 ? 'Too many requests' : 'Unable to send reset link',
+      duration: error.status === 429 ? 8_000 : 6_000,
+      dedupeKey: 'forgot-password-error',
+    });
   }
 
-  private resolveErrorMessage(
-    error: HttpErrorResponse,
-  ): string {
-    const backendMessage =
-      extractErrorMessage(error, '');
+  private resolveErrorMessage(error: HttpErrorResponse): string {
+    const backendMessage = extractErrorMessage(error, '');
 
     if (error.status === 0) {
-      return (
-        'Unable to reach the server. ' +
-        'Check your connection and try again.'
-      );
+      return 'Unable to reach the server. ' + 'Check your connection and try again.';
     }
 
     if (error.status === 400) {
-      return (
-        backendMessage ||
-        'Please check your email address.'
-      );
+      return backendMessage || 'Please check your email address.';
     }
 
     if (error.status === 429) {
-      return (
-        backendMessage ||
-        'Too many password reset requests. Please wait before trying again.'
-      );
+      return backendMessage || 'Too many password reset requests. Please wait before trying again.';
     }
 
     if (error.status >= 500) {
       return (
-        backendMessage ||
-        'Password recovery is temporarily unavailable. Please try again shortly.'
+        backendMessage || 'Password recovery is temporarily unavailable. Please try again shortly.'
       );
     }
 
-    return (
-      backendMessage ||
-      'We could not send the reset link. Please try again.'
-    );
+    return backendMessage || 'We could not send the reset link. Please try again.';
   }
 
   private focusEmail(): void {

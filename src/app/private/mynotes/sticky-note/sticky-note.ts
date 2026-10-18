@@ -6,7 +6,7 @@ import {
   EventEmitter,
   Input,
   Output,
-  inject
+  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
@@ -31,7 +31,7 @@ import {
   LucideStar,
   LucideStarOff,
   LucideTrash2,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
@@ -45,11 +45,7 @@ import { StickyNoteChecklistItemApiService } from '../services/sticky-note-check
 import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { getNoteColorBadgeVariant } from '../../../shared/functions/sticky-note.function';
-import {
-  STICKY_NOTE_FONT_OPTIONS,
-  VIEW,
-  View
-} from '../../../shared/constants/common.constants';
+import { STICKY_NOTE_FONT_OPTIONS, VIEW, View } from '../../../shared/constants/common.constants';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 /* -------------------------------------------------------------------------- */
@@ -68,7 +64,7 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
   COMIC_NEUE: 'comicNeue',
   SRIRACHA: 'sriracha',
   SHORT_STACK: 'shortStack',
-  GOCHI_HAND: 'gochiHand'
+  GOCHI_HAND: 'gochiHand',
 };
 
 /* -------------------------------------------------------------------------- */
@@ -89,11 +85,11 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
     Button,
     Checkbox,
     Divider,
-    DeleteConfirmModal
+    DeleteConfirmModal,
   ],
   templateUrl: './sticky-note.html',
   styleUrl: './sticky-note.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNote {
   private readonly stickyNoteApi = inject(StickyNoteApiService);
@@ -116,7 +112,12 @@ export class StickyNote {
   @Output() readonly checklistChange = new EventEmitter<any>();
   @Output() readonly titleChangeRequested = new EventEmitter<any>();
   @Output() readonly descriptionChangeRequested = new EventEmitter<any>();
-  @Output() readonly favoriteToggled = new EventEmitter<{ noteId: string; isFavorite: boolean; favoriteId?: string; note: any }>();
+  @Output() readonly favoriteToggled = new EventEmitter<{
+    noteId: string;
+    isFavorite: boolean;
+    favoriteId?: string;
+    note: any;
+  }>();
   @Output() readonly deleteRequested = new EventEmitter<any>();
   @Output() readonly deleted = new EventEmitter<string>();
   @Output() readonly noteUpdated = new EventEmitter<any>();
@@ -205,7 +206,9 @@ export class StickyNote {
   }
 
   get layout(): string {
-    return String(this.data?.layout ?? 'DETAIL').trim().toUpperCase();
+    return String(this.data?.layout ?? 'DETAIL')
+      .trim()
+      .toUpperCase();
   }
 
   get isCompact(): boolean {
@@ -223,7 +226,11 @@ export class StickyNote {
   /* --- Typography --- */
 
   get font(): string {
-    return String(this.data?.font ?? 'DM_SANS').trim().toUpperCase() || 'DM_SANS';
+    return (
+      String(this.data?.font ?? 'DM_SANS')
+        .trim()
+        .toUpperCase() || 'DM_SANS'
+    );
   }
 
   get fontClass(): string {
@@ -232,7 +239,8 @@ export class StickyNote {
 
   get fontFamily(): string {
     const option = STICKY_NOTE_FONT_OPTIONS.find(
-      opt => opt.value === this.font || opt.family.toLowerCase().includes(this.font.toLowerCase())
+      (opt) =>
+        opt.value === this.font || opt.family.toLowerCase().includes(this.font.toLowerCase()),
     );
     return option?.family ?? '"DM Sans", sans-serif';
   }
@@ -256,7 +264,9 @@ export class StickyNote {
   }
 
   get favoriteId(): string {
-    return String(this.data?.favoriteId || this.favoriteApi.getFavoriteId(this.noteId) || '').trim();
+    return String(
+      this.data?.favoriteId || this.favoriteApi.getFavoriteId(this.noteId) || '',
+    ).trim();
   }
 
   get isFavoriteBusy(): boolean {
@@ -268,8 +278,14 @@ export class StickyNote {
   }
 
   get isSaving(): boolean {
-    return this.titleUpdating || this.descriptionUpdating || this.isDeleting || this.updatingItemIds.size > 0 ||
-      this.data?.titleUpdating === true || this.data?.descriptionUpdating === true;
+    return (
+      this.titleUpdating ||
+      this.descriptionUpdating ||
+      this.isDeleting ||
+      this.updatingItemIds.size > 0 ||
+      this.data?.titleUpdating === true ||
+      this.data?.descriptionUpdating === true
+    );
   }
 
   get noteKey(): string {
@@ -326,7 +342,9 @@ export class StickyNote {
   }
 
   get hasFooterContent(): boolean {
-    return Boolean(this.isCompleted || this.dueLabel || this.timeEstimate || this.tag || this.assignees.length);
+    return Boolean(
+      this.isCompleted || this.dueLabel || this.timeEstimate || this.tag || this.assignees.length,
+    );
   }
 
   get checklists(): any[] {
@@ -336,7 +354,7 @@ export class StickyNote {
   get totalChecklistItems(): number {
     return this.checklists.reduce(
       (total: number, checklist: any) => total + this.itemsFor(checklist).length,
-      0
+      0,
     );
   }
 
@@ -344,7 +362,7 @@ export class StickyNote {
     return this.checklists.reduce(
       (total: number, checklist: any) =>
         total + this.itemsFor(checklist).filter((item: any) => item?.isCompleted === true).length,
-      0
+      0,
     );
   }
 
@@ -389,7 +407,7 @@ export class StickyNote {
       'is-disabled': this.disabled,
       'is-saving': this.isSaving,
       'is-compact': this.isCompact,
-      [`is-view-${this.view}`]: true
+      [`is-view-${this.view}`]: true,
     };
   }
 
@@ -425,10 +443,10 @@ export class StickyNote {
             noteId: id,
             isFavorite: nextIsFavorite,
             favoriteId: nextFavId,
-            note: this.data
+            note: this.data,
           });
           this.noteUpdated.emit(this.data);
-        }
+        },
       });
   }
 
@@ -458,23 +476,26 @@ export class StickyNote {
           this.isDeleting = false;
           this.showDeleteConfirm = false;
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.toastService.success(STICKY_NOTE_MESSAGES.SUCCESS.MOVED_TO_TRASH_WITH_RETENTION, {
             title: 'Note safely moved',
-            dedupeKey: `trash-note-${id}`
+            dedupeKey: `trash-note-${id}`,
           });
           this.deleted.emit(id);
           this.deleteRequested.emit(this.data);
         },
         error: (error: any) => {
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED), {
-            title: 'Note not moved',
-            dedupeKey: `trash-note-${id}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.MOVE_TO_TRASH_FAILED),
+            {
+              title: 'Note not moved',
+              dedupeKey: `trash-note-${id}`,
+            },
+          );
+        },
       });
   }
 
@@ -493,7 +514,13 @@ export class StickyNote {
   startTitleEdit(event: Event): void {
     if (this.preview) return;
     this.stop(event);
-    if (this.disabled || this.titleUpdating || this.data?.titleUpdating || this.data?.inlineEditing === false) return;
+    if (
+      this.disabled ||
+      this.titleUpdating ||
+      this.data?.titleUpdating ||
+      this.data?.inlineEditing === false
+    )
+      return;
     this.titleDraft = this.title === 'Untitled note' ? '' : this.title;
     this.editingTitle = true;
   }
@@ -513,8 +540,10 @@ export class StickyNote {
     this.stickyNoteApi
       .update(this.noteId, { title: nextTitle })
       .pipe(
-        finalize(() => { this.titleUpdating = false; }),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => {
+          this.titleUpdating = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -527,11 +556,14 @@ export class StickyNote {
         },
         error: (error: any) => {
           this.data.title = previousTitle;
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED), {
-            title: 'Title not updated',
-            dedupeKey: `note-title-${this.noteId}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.RENAME_FAILED),
+            {
+              title: 'Title not updated',
+              dedupeKey: `note-title-${this.noteId}`,
+            },
+          );
+        },
       });
   }
 
@@ -555,7 +587,13 @@ export class StickyNote {
   startDescriptionEdit(event: Event): void {
     if (this.preview) return;
     this.stop(event);
-    if (this.disabled || this.descriptionUpdating || this.data?.descriptionUpdating || this.data?.inlineEditing === false) return;
+    if (
+      this.disabled ||
+      this.descriptionUpdating ||
+      this.data?.descriptionUpdating ||
+      this.data?.inlineEditing === false
+    )
+      return;
     this.descriptionDraft = this.description;
     this.editingDescription = true;
   }
@@ -577,8 +615,10 @@ export class StickyNote {
     this.stickyNoteApi
       .update(this.noteId, { content: nextDescription })
       .pipe(
-        finalize(() => { this.descriptionUpdating = false; }),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => {
+          this.descriptionUpdating = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -589,18 +629,21 @@ export class StickyNote {
           this.noteUpdated.emit(this.data);
           this.descriptionChangeRequested.emit({
             noteId: this.noteId,
-            description: serverContent
+            description: serverContent,
           });
         },
         error: (error: any) => {
           this.data.content = previousDescription;
           this.data.description = previousDescription;
           this.data.compact = !previousDescription;
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED), {
-            title: 'Description not updated',
-            dedupeKey: `note-description-${this.noteId}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.DESCRIPTION_UPDATE_FAILED),
+            {
+              title: 'Description not updated',
+              dedupeKey: `note-description-${this.noteId}`,
+            },
+          );
+        },
       });
   }
 
@@ -646,9 +689,7 @@ export class StickyNote {
   }
 
   checklistMoreIcon(checklist: any): any {
-    return this.isChecklistExpanded(checklist)
-      ? this.LucideChevronUp
-      : this.LucideChevronDown;
+    return this.isChecklistExpanded(checklist) ? this.LucideChevronUp : this.LucideChevronDown;
   }
 
   isChecklistExpanded(checklist: any): boolean {
@@ -672,8 +713,10 @@ export class StickyNote {
     this.checklistItemApi
       .updateCompletion(itemId, checked)
       .pipe(
-        finalize(() => { this.updatingItemIds.delete(itemId); }),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => {
+          this.updatingItemIds.delete(itemId);
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
@@ -686,17 +729,20 @@ export class StickyNote {
           this.checklistChange.emit({
             noteId: this.noteId,
             itemId,
-            checked: item.isCompleted
+            checked: item.isCompleted,
           });
         },
         error: (error: any) => {
           item.isCompleted = !checked;
           this.recalculateChecklists();
-          this.toastService.error(extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED), {
-            title: 'Checklist not updated',
-            dedupeKey: `checklist-item-${itemId}`
-          });
-        }
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.CHECKLIST_UPDATE_FAILED),
+            {
+              title: 'Checklist not updated',
+              dedupeKey: `checklist-item-${itemId}`,
+            },
+          );
+        },
       });
   }
 
@@ -711,15 +757,12 @@ export class StickyNote {
     const user = this.resolveAssigneeUser(assignee);
     const profile = user?.profile;
     const displayName =
-      profile?.displayName ??
-      user?.displayName ??
-      assignee?.name ??
-      assignee?.displayName;
+      profile?.displayName ?? user?.displayName ?? assignee?.name ?? assignee?.displayName;
     if (displayName) return String(displayName).trim();
 
     const firstName = profile?.firstName ?? user?.firstName ?? assignee?.firstName ?? '';
-    const lastName  = profile?.lastName  ?? user?.lastName  ?? assignee?.lastName  ?? '';
-    const fullName  = `${firstName} ${lastName}`.trim();
+    const lastName = profile?.lastName ?? user?.lastName ?? assignee?.lastName ?? '';
+    const fullName = `${firstName} ${lastName}`.trim();
     if (fullName) return fullName;
 
     const email = user?.email ?? assignee?.email ?? '';
@@ -733,11 +776,11 @@ export class StickyNote {
     const profile = user?.profile;
     return String(
       profile?.avatarUrl ??
-      user?.avatarUrl ??
-      assignee?.src ??
-      assignee?.avatarUrl ??
-      assignee?.imageUrl ??
-      ''
+        user?.avatarUrl ??
+        assignee?.src ??
+        assignee?.avatarUrl ??
+        assignee?.imageUrl ??
+        '',
     );
   }
 
@@ -748,7 +791,12 @@ export class StickyNote {
   onCardClick(event: Event): void {
     if (this.preview) return;
     const target = event.target as HTMLElement;
-    if (target.closest('button, input, textarea, a, app-button, app-input, app-checkbox, [role="menu"]')) return;
+    if (
+      target.closest(
+        'button, input, textarea, a, app-button, app-input, app-checkbox, [role="menu"]',
+      )
+    )
+      return;
     this.noteClick.emit(this.data);
   }
 
@@ -787,7 +835,9 @@ export class StickyNote {
   }
 
   private enumValue(value: any, fallback: string): string {
-    const result = String(value ?? fallback).trim().toUpperCase();
+    const result = String(value ?? fallback)
+      .trim()
+      .toUpperCase();
     return result || fallback;
   }
 
@@ -799,5 +849,4 @@ export class StickyNote {
     event.preventDefault();
     event.stopPropagation();
   }
-
 }

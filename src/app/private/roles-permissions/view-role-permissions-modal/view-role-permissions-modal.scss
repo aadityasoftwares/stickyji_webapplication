@@ -1,22 +1,21 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 
-    --permission-font-13: 0.8125rem;
-    --permission-font-14: 0.875rem;
-    --permission-font-15: 0.9375rem;
+  --permission-font-13: 0.8125rem;
+  --permission-font-14: 0.875rem;
+  --permission-font-15: 0.9375rem;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-
 :host ::ng-deep app-modal .app-modal-body {
-    padding: 0 !important;
+  padding: 0 !important;
 }
 
 /* =========================================================
@@ -24,454 +23,402 @@
    ========================================================= */
 
 .role-permissions-viewer {
-    display: block;
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    /*
+  /*
      * Prevent grid children / scrollbar from widening the right pane.
      */
-    max-width: 100%;
+  max-width: 100%;
 
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    color: $text-primary;
+  color: $text-primary;
 
-    font-family: $font-body;
+  font-family: $font-body;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 /* =========================================================
    TWO COLUMN LAYOUT
    ========================================================= */
 
 .role-permissions-layout {
-    display: grid;
+  display: grid;
 
-    grid-template-columns:
-        clamp(13.5rem, 16vw, 16rem) minmax(0, 1fr);
+  grid-template-columns: clamp(13.5rem, 16vw, 16rem) minmax(0, 1fr);
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    background: $paper;
+  background: $paper;
 
-    isolation: isolate;
+  isolation: isolate;
 }
-
 
 /* =========================================================
    LEFT SIDEBAR
    ========================================================= */
 
 .permission-sidebar {
-    display: grid;
+  display: grid;
 
-    grid-template-rows:
-        auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    border-right:
-        1px solid $border-light;
+  border-right: 1px solid $border-light;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 .permission-sidebar-header {
-    display: flex;
+  display: flex;
 
-    align-items: center;
-    justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
 
-    height: 4.125rem;
-    min-height: 4.125rem;
+  height: 4.125rem;
+  min-height: 4.125rem;
 
-    gap: 0.75rem;
+  gap: 0.75rem;
 
-    padding:
-        0.625rem 0.875rem;
+  padding: 0.625rem 0.875rem;
 
-    border-bottom:
-        1px solid $border-light;
+  border-bottom: 1px solid $border-light;
 
-    background: $page-bg;
+  background: $page-bg;
 }
-
 
 .permission-sidebar-heading {
-    display: grid;
+  display: grid;
 
-    min-width: 0;
+  min-width: 0;
 
-    gap: 0.125rem;
+  gap: 0.125rem;
 }
-
 
 .permission-sidebar-heading strong {
-    color: $heading;
+  color: $heading;
 
-    font-size:
-        var(--permission-font-14);
+  font-size: var(--permission-font-14);
 
-    font-weight: 700;
+  font-weight: 700;
 
-    line-height: 1.35;
+  line-height: 1.35;
 }
-
 
 .permission-sidebar-heading span {
-    color: $text-light;
+  color: $text-light;
 
-    font-size:
-        var(--permission-font-13);
+  font-size: var(--permission-font-13);
 
-    font-weight: 500;
+  font-weight: 500;
 
-    line-height: 1.3;
+  line-height: 1.3;
 }
-
 
 .permission-sidebar-total {
-    display: inline-flex;
+  display: inline-flex;
 
-    align-items: center;
-    justify-content: center;
+  align-items: center;
+  justify-content: center;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    min-width: 1.625rem;
-    height: 1.625rem;
+  min-width: 1.625rem;
+  height: 1.625rem;
 
-    padding:
-        0 0.375rem;
+  padding: 0 0.375rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font-size:
-        var(--permission-font-13);
+  font-size: var(--permission-font-13);
 
-    font-weight: 700;
+  font-weight: 700;
 
-    border:
-        1px solid $border-light;
+  border: 1px solid $border-light;
 
-    border-radius: 999px;
+  border-radius: 999px;
 
-    background: $paper;
+  background: $paper;
 }
 
-
 .permission-sidebar-list {
-    display: grid;
+  display: grid;
 
-    align-content: start;
+  align-content: start;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    margin: 0;
+  margin: 0;
 
-    padding: 0;
+  padding: 0;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.24) transparent;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.24) transparent;
 
-    /*
+  /*
      * Keep the navigation body on the same paper surface
      * as the permission content. This removes the different
      * color block visible below the final sidebar item.
      */
-    background: $paper;
+  background: $paper;
 }
-
 
 /* Same compact scrollbar treatment for the left navigation. */
 .permission-sidebar-list::-webkit-scrollbar {
-    width: 0.5rem;
-    height: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 .permission-sidebar-list::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .permission-sidebar-list::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.22);
+  background: rgba($heading, 0.22);
 
-    border: 0.125rem solid $paper;
-    border-radius: 999px;
+  border: 0.125rem solid $paper;
+  border-radius: 999px;
 }
 
 .permission-sidebar-list::-webkit-scrollbar-button {
-    display: none;
+  display: none;
 
-    width: 0;
-    height: 0;
+  width: 0;
+  height: 0;
 }
 
-
-.permission-sidebar-list>.permission-sidebar-item:first-of-type {
-    margin-top: 0;
+.permission-sidebar-list > .permission-sidebar-item:first-of-type {
+  margin-top: 0;
 }
 
-
-.permission-sidebar-list>.permission-sidebar-item:last-of-type {
-    margin-bottom: 0;
+.permission-sidebar-list > .permission-sidebar-item:last-of-type {
+  margin-bottom: 0;
 }
-
 
 .permission-sidebar-item {
-    position: relative;
+  position: relative;
 
-    display: grid;
+  display: grid;
 
-    grid-template-columns:
-        1.75rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
 
-    align-items: center;
+  align-items: center;
 
-    width: 100%;
+  width: 100%;
 
-    min-height: 3.5rem;
+  min-height: 3.5rem;
 
-    gap: 0.5rem;
+  gap: 0.5rem;
 
-    margin: 0;
+  margin: 0;
 
-    padding:
-        0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font: inherit;
+  font: inherit;
 
-    text-align: left;
+  text-align: left;
 
-    border: 0;
+  border: 0;
 
-    border-radius: 0;
+  border-radius: 0;
 
-    background: transparent;
+  background: transparent;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    transition:
-        color 120ms ease,
-        background-color 120ms ease;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
 }
-
 
 .permission-sidebar-item::before {
-    content: '';
+  content: '';
 
-    position: absolute;
+  position: absolute;
 
-    top: 0;
-    bottom: 0;
-    left: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
 
-    width: 0.1875rem;
+  width: 0.1875rem;
 
-    background: transparent;
+  background: transparent;
 }
-
 
 .permission-sidebar-item:hover {
-    color: $heading;
+  color: $heading;
 
-    background: $paper-light;
+  background: $paper-light;
 }
-
 
 .permission-sidebar-item.is-active {
-    color: $heading;
+  color: $heading;
 
-    background:
-        rgba($accent, 0.085);
+  background: rgba($accent, 0.085);
 }
-
 
 .permission-sidebar-item.is-active::before {
-    background: $accent;
+  background: $accent;
 }
-
 
 .permission-sidebar-icon {
-    display: inline-grid;
+  display: inline-grid;
 
-    place-items: center;
+  place-items: center;
 
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    width: 1.75rem;
-    height: 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    border:
-        1px solid $border-light;
+  border: 1px solid $border-light;
 
-    border-radius:
-        0.4375rem;
+  border-radius: 0.4375rem;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 .permission-sidebar-item.is-active .permission-sidebar-icon {
-    color: $accent;
+  color: $accent;
 
-    border-color:
-        rgba($accent,
-            0.28);
+  border-color: rgba($accent, 0.28);
 }
-
 
 .permission-sidebar-copy {
-    display: grid;
+  display: grid;
 
-    min-width: 0;
+  min-width: 0;
 
-    gap: 0.0625rem;
+  gap: 0.0625rem;
 }
-
 
 .permission-sidebar-copy strong {
-    overflow: hidden;
+  overflow: hidden;
 
-    color: inherit;
+  color: inherit;
 
-    font-size:
-        var(--permission-font-14);
+  font-size: var(--permission-font-14);
 
-    font-weight: 700;
+  font-weight: 700;
 
-    line-height: 1.35;
+  line-height: 1.35;
 
-    text-overflow: ellipsis;
+  text-overflow: ellipsis;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
-
 
 .permission-sidebar-copy small {
-    overflow: hidden;
+  overflow: hidden;
 
-    color: $text-light;
+  color: $text-light;
 
-    font-size:
-        var(--permission-font-13);
+  font-size: var(--permission-font-13);
 
-    font-weight: 500;
+  font-weight: 500;
 
-    line-height: 1.3;
+  line-height: 1.3;
 
-    text-overflow: ellipsis;
+  text-overflow: ellipsis;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
-
 
 .permission-sidebar-count {
-    display: inline-flex;
+  display: inline-flex;
 
-    align-items: center;
-    justify-content: center;
+  align-items: center;
+  justify-content: center;
 
-    min-width: 1.625rem;
-    height: 1.625rem;
+  min-width: 1.625rem;
+  height: 1.625rem;
 
-    padding:
-        0 0.3125rem;
+  padding: 0 0.3125rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font-size:
-        var(--permission-font-13);
+  font-size: var(--permission-font-13);
 
-    font-weight: 700;
+  font-weight: 700;
 
-    border-radius: 999px;
+  border-radius: 999px;
 
-    background: $paper-dark;
+  background: $paper-dark;
 }
-
 
 .permission-sidebar-item.is-active .permission-sidebar-count {
-    color: $accent;
+  color: $accent;
 
-    background:
-        rgba($accent,
-            0.1);
+  background: rgba($accent, 0.1);
 }
-
 
 .permission-sidebar-message {
-    padding: 0.875rem;
+  padding: 0.875rem;
 
-    color: $text-light;
+  color: $text-light;
 
-    font-size:
-        var(--permission-font-13);
+  font-size: var(--permission-font-13);
 
-    line-height: 1.45;
+  line-height: 1.45;
 }
-
 
 /* =========================================================
    RIGHT CONTENT
    ========================================================= */
 
 .permission-main {
-    display: grid;
+  display: grid;
 
-    grid-template-rows:
-        auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 /* =========================================================
    PERMISSION SEARCH BAR
@@ -486,385 +433,339 @@
    ========================================================= */
 
 .permission-toolbar {
-    display: flex;
+  display: flex;
 
-    align-items: center;
-    justify-content: flex-end;
+  align-items: center;
+  justify-content: flex-end;
 
-    height: 4.125rem;
-    min-height: 4.125rem;
+  height: 4.125rem;
+  min-height: 4.125rem;
 
-    margin: 0;
+  margin: 0;
 
-    padding:
-        0.625rem 0.875rem;
+  padding: 0.625rem 0.875rem;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    border-bottom:
-        1px solid $border-light;
+  border-bottom: 1px solid $border-light;
 
-    background: $page-bg;
+  background: $page-bg;
 }
-
 
 .permission-search {
-    width: min(23rem, 100%);
+  width: min(23rem, 100%);
 
-    min-width: 0;
+  min-width: 0;
 }
-
 
 /* =========================================================
    ONLY SCROLL AREA
    ========================================================= */
 
 .permission-scroll {
-    position: relative;
+  position: relative;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 
-    /*
+  /*
      * Permission headings and checkbox lists shrink within the modal,
      * so only vertical scrolling is needed.
      */
-    overflow-x: hidden;
-    overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 
-    scrollbar-gutter: auto;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.26) transparent;
+  scrollbar-gutter: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.26) transparent;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 /*
  * Custom scrollbar removes the native Windows arrow buttons /
  * thick track that looked like it was sitting outside the content.
  */
 .permission-scroll::-webkit-scrollbar {
-    width: 0.5rem;
-    height: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 .permission-scroll::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .permission-scroll::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.24);
+  background: rgba($heading, 0.24);
 
-    border: 0.125rem solid $paper;
-    border-radius: 999px;
+  border: 0.125rem solid $paper;
+  border-radius: 999px;
 }
 
 .permission-scroll::-webkit-scrollbar-button {
-    display: none;
+  display: none;
 
-    width: 0;
-    height: 0;
+  width: 0;
+  height: 0;
 }
-
-
 
 /* =========================================================
    GROUP
    ========================================================= */
 
 .permission-groups {
-    width: 100%;
-    padding: 0.5rem 1.5rem;
+  width: 100%;
+  padding: 0.5rem 1.5rem;
 }
 
 .permission-group {
-    display: grid;
-    grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
-    align-items: start;
-    gap: 1.5rem;
-    min-width: 0;
-    padding: 1.25rem 0;
-    border-bottom: 1px solid $border-light;
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+  min-width: 0;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid $border-light;
 }
 
 .permission-group:last-child {
-    border-bottom: 0;
+  border-bottom: 0;
 }
 
 .permission-group-header {
-    min-width: 0;
-    padding-top: 0.125rem;
-    text-align: right;
+  min-width: 0;
+  padding-top: 0.125rem;
+  text-align: right;
 }
 
 .permission-group-header h4 {
-    margin: 0;
-    color: $heading;
-    font-size: var(--permission-font-14);
-    font-weight: 700;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
+  margin: 0;
+  color: $heading;
+  font-size: var(--permission-font-14);
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .permission-list {
-    display: grid;
-    min-width: 0;
-    gap: 0.625rem;
+  display: grid;
+  min-width: 0;
+  gap: 0.625rem;
 }
 
 .permission-row,
 .permission-checkbox {
-    display: block;
-    min-width: 0;
+  display: block;
+  min-width: 0;
 }
 
 :host ::ng-deep .permission-checkbox .app-checkbox {
-    align-items: flex-start;
-    gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 :host ::ng-deep .permission-checkbox .app-checkbox-label {
-    font-size: var(--permission-font-14);
-    font-weight: 400;
-    line-height: 1.5;
-    white-space: normal;
-    overflow-wrap: anywhere;
+  font-size: var(--permission-font-14);
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Empty and error states */
 .permission-state {
-    display: grid;
+  display: grid;
 
-    place-items: center;
+  place-items: center;
 
-    align-content: center;
+  align-content: center;
 
-    min-height: 20rem;
+  min-height: 20rem;
 
-    padding: 2rem;
+  padding: 2rem;
 
-    text-align: center;
+  text-align: center;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 .permission-state-icon {
-    display: inline-grid;
+  display: inline-grid;
 
-    place-items: center;
+  place-items: center;
 
-    width: 2.75rem;
-    height: 2.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
 
-    margin-bottom:
-        0.625rem;
+  margin-bottom: 0.625rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    border:
-        1px solid $border;
+  border: 1px solid $border;
 
-    border-radius:
-        0.625rem;
+  border-radius: 0.625rem;
 
-    background: $paper;
+  background: $paper;
 }
-
 
 .permission-state-icon.is-error {
-    color: $danger;
+  color: $danger;
 
-    border-color:
-        rgba($danger,
-            0.3);
+  border-color: rgba($danger, 0.3);
 }
 
+.permission-state > strong {
+  color: $heading;
 
-.permission-state>strong {
-    color: $heading;
+  font-size: var(--permission-font-15);
 
-    font-size:
-        var(--permission-font-15);
+  font-weight: 750;
 
-    font-weight: 750;
-
-    line-height: 1.35;
+  line-height: 1.35;
 }
-
 
 .permission-state p {
-    max-width: 30rem;
+  max-width: 30rem;
 
-    margin:
-        0.375rem 0 0.875rem;
+  margin: 0.375rem 0 0.875rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font-size:
-        var(--permission-font-14);
+  font-size: var(--permission-font-14);
 
-    line-height: 1.5;
+  line-height: 1.5;
 }
-
 
 /* =========================================================
    FOOTER
    ========================================================= */
 
 .permission-modal-footer {
-    display: flex;
+  display: flex;
 
-    align-items: center;
-    justify-content: space-between;
+  align-items: center;
+  justify-content: space-between;
 
-    width: 100%;
+  width: 100%;
 
-    gap: 1rem;
+  gap: 1rem;
 }
 
+.permission-modal-footer > span {
+  color: $text-secondary;
 
-.permission-modal-footer>span {
-    color: $text-secondary;
+  font-size: var(--permission-font-13);
 
-    font-size:
-        var(--permission-font-13);
+  font-weight: 500;
 
-    font-weight: 500;
-
-    line-height: 1.4;
+  line-height: 1.4;
 }
-
 
 /* =========================================================
    TABLET
    ========================================================= */
 
 @media (max-width: 62rem) {
-
-    .role-permissions-layout {
-        grid-template-columns:
-            12.5rem minmax(0, 1fr);
-    }
+  .role-permissions-layout {
+    grid-template-columns: 12.5rem minmax(0, 1fr);
+  }
 }
-
 
 /* =========================================================
    SMALL TABLET
    ========================================================= */
 
 @media (max-width: 52rem) {
-    .permission-groups {
-        padding-inline: 1rem;
-    }
+  .permission-groups {
+    padding-inline: 1rem;
+  }
 
-    .permission-group {
-        grid-template-columns: minmax(5rem, 8rem) minmax(0, 1fr);
-        gap: 1rem;
-    }
+  .permission-group {
+    grid-template-columns: minmax(5rem, 8rem) minmax(0, 1fr);
+    gap: 1rem;
+  }
 }
 @media (max-width: 44rem) {
+  .role-permissions-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-    .role-permissions-layout {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
+  .permission-sidebar {
+    grid-template-rows: auto auto;
 
+    height: auto;
 
-    .permission-sidebar {
-        grid-template-rows:
-            auto auto;
+    border-right: 0;
 
-        height: auto;
+    border-bottom: 1px solid $border;
+  }
 
-        border-right: 0;
+  .permission-sidebar-header {
+    min-height: auto;
 
-        border-bottom:
-            1px solid $border;
-    }
+    padding: 0.5rem 0.75rem;
+  }
 
+  .permission-sidebar-heading span {
+    display: none;
+  }
 
-    .permission-sidebar-header {
-        min-height: auto;
+  .permission-sidebar-list {
+    display: flex;
 
-        padding:
-            0.5rem 0.75rem;
-    }
+    padding: 0;
 
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 
-    .permission-sidebar-heading span {
-        display: none;
-    }
+  .permission-sidebar-item {
+    flex: 0 0 10.5rem;
 
+    min-height: 3rem;
 
-    .permission-sidebar-list {
-        display: flex;
+    border-right: 1px solid $border-light;
+  }
 
-        padding: 0;
+  .permission-sidebar-item::before {
+    top: auto;
+    right: 0;
+    bottom: 0;
 
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
+    width: auto;
+    height: 0.1875rem;
+  }
 
+  .permission-sidebar-count {
+    display: none;
+  }
 
-    .permission-sidebar-item {
-        flex:
-            0 0 10.5rem;
+  .permission-toolbar {
+    min-height: 3.75rem;
 
-        min-height: 3rem;
+    padding: 0.5rem 0.75rem;
+  }
 
-        border-right:
-            1px solid $border-light;
-    }
-
-
-    .permission-sidebar-item::before {
-        top: auto;
-        right: 0;
-        bottom: 0;
-
-        width: auto;
-        height: 0.1875rem;
-    }
-
-
-    .permission-sidebar-count {
-        display: none;
-    }
-
-
-    .permission-toolbar {
-        min-height: 3.75rem;
-
-        padding:
-            0.5rem 0.75rem;
-    }
-
-
-    .permission-search {
-        width: 100%;
-    }
+  .permission-search {
+    width: 100%;
+  }
 }
-
 
 /* =========================================================
    REDUCED MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
-    .permission-sidebar-item,
-    .permission-row {
-        transition: none;
-    }
+  .permission-sidebar-item,
+  .permission-row {
+    transition: none;
+  }
 }

@@ -1,19 +1,37 @@
-<div class="app-tabs" [ngClass]="rootClasses" role="tablist" [attr.aria-label]="ariaLabel"
-    [attr.aria-orientation]="orientation" [style.--app-tab-min-width.px]="minTabWidth">
-    @for (item of items; track trackItem($index, item); let index = $index) {
-    <button #tabButton class="app-tab" type="button" role="tab" [ngClass]="itemClasses(item)" [id]="item.id || null"
-        [disabled]="disabled || item.disabled" [attr.data-tone]="item.tone ?? 'default'"
-        [attr.data-variant]="itemVariant(item)" [attr.aria-controls]="item.ariaControls || null"
-        [attr.aria-disabled]="disabled || item.disabled" [attr.aria-label]="itemAriaLabel(item)"
-        [attr.aria-selected]="isSelected(item)" [attr.tabindex]="tabIndex(item)" (click)="select(item)"
-        (keydown)="onKeydown($event, index)">
-        @if (item.icon) {
+<div
+  class="app-tabs"
+  [ngClass]="rootClasses"
+  role="tablist"
+  [attr.aria-label]="ariaLabel"
+  [attr.aria-orientation]="orientation"
+  [style.--app-tab-min-width.px]="minTabWidth"
+>
+  @for (item of items; track trackItem($index, item); let index = $index) {
+    <button
+      #tabButton
+      class="app-tab"
+      type="button"
+      role="tab"
+      [ngClass]="itemClasses(item)"
+      [id]="item.id || null"
+      [disabled]="disabled || item.disabled"
+      [attr.data-tone]="item.tone ?? 'default'"
+      [attr.data-variant]="itemVariant(item)"
+      [attr.aria-controls]="item.ariaControls || null"
+      [attr.aria-disabled]="disabled || item.disabled"
+      [attr.aria-label]="itemAriaLabel(item)"
+      [attr.aria-selected]="isSelected(item)"
+      [attr.tabindex]="tabIndex(item)"
+      (click)="select(item)"
+      (keydown)="onKeydown($event, index)"
+    >
+      @if (item.icon) {
         <app-icon class="app-tab-icon" [icon]="item.icon" size="xs" aria-hidden="true" />
-        }
-        <span class="app-tab-label">{{ item.label }}</span>
-        @if (item.count !== null && item.count !== undefined) {
+      }
+      <span class="app-tab-label">{{ item.label }}</span>
+      @if (item.count !== null && item.count !== undefined) {
         <span class="app-tab-count" aria-hidden="true">{{ item.count }}</span>
-        }
+      }
     </button>
-    }
+  }
 </div>

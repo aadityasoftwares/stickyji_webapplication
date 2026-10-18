@@ -10,7 +10,7 @@ import {
   SimpleChanges,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -39,16 +39,10 @@ export interface AssigneePreviewItem {
 @Component({
   selector: 'app-sticky-note-assignee-select',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    AppIcon,
-    Button,
-    Select
-  ],
+  imports: [CommonModule, FormsModule, AppIcon, Button, Select],
   templateUrl: './sticky-note-assignee-select.html',
   styleUrl: './sticky-note-assignee-select.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNoteAssigneeSelect implements OnChanges {
   private readonly workspaceMemberApi = inject(WorkspaceMemberApiService);
@@ -79,10 +73,11 @@ export class StickyNoteAssigneeSelect implements OnChanges {
    * Transformed options for app-select
    */
   readonly memberOptions = computed<SelectOption[]>(() => {
-    return this.members().map(member => {
+    return this.members().map((member) => {
       const user = member.user;
       const userId = user?.id || idOf(member);
-      const displayName = user?.displayName ||
+      const displayName =
+        user?.displayName ||
         [(user as any)?.firstName, (user as any)?.lastName].filter(Boolean).join(' ') ||
         (member as any)?.profile?.displayName ||
         (member as any)?.displayName ||
@@ -99,15 +94,17 @@ export class StickyNoteAssigneeSelect implements OnChanges {
           name: displayName,
           initials,
           tone: 'neutral',
-          shape: 'circle'
-        }
+          shape: 'circle',
+        },
       };
     });
   });
 
   get currentValues(): readonly string[] {
     // NgModel schedules a form update whenever this array's identity changes.
-    return Array.isArray(this.selectedAssigneeIds) ? this.selectedAssigneeIds : this.emptyAssigneeIds;
+    return Array.isArray(this.selectedAssigneeIds)
+      ? this.selectedAssigneeIds
+      : this.emptyAssigneeIds;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -133,45 +130,48 @@ export class StickyNoteAssigneeSelect implements OnChanges {
     this.loading.set(true);
     this.loadError.set(null);
 
-    this.workspaceMemberApi.getAll({
-      workspaceId: trimmedId,
-      status: 'ACTIVE',
-      page: 1,
-      limit: 100
-    }).pipe(
-      finalize(() => {
-        this.loading.set(false);
-        this.cdr.markForCheck();
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: response => {
-        this.loadedWorkspaceId = trimmedId;
-        const list = (extractList(response) as WorkspaceMemberListItem[]) || [];
-        this.members.set(list);
-        this.loadError.set(null);
+    this.workspaceMemberApi
+      .getAll({
+        workspaceId: trimmedId,
+        status: 'ACTIVE',
+        page: 1,
+        limit: 100,
+      })
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+          this.cdr.markForCheck();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.loadedWorkspaceId = trimmedId;
+          const list = (extractList(response) as WorkspaceMemberListItem[]) || [];
+          this.members.set(list);
+          this.loadError.set(null);
 
-        // Filter out any selectedAssigneeIds that don't exist in the new workspace
-        const availableUserIds = new Set(list.map(m => m.user?.id || idOf(m)));
-        const validSelectedIds = this.currentValues.filter(id => availableUserIds.has(id));
+          // Filter out any selectedAssigneeIds that don't exist in the new workspace
+          const availableUserIds = new Set(list.map((m) => m.user?.id || idOf(m)));
+          const validSelectedIds = this.currentValues.filter((id) => availableUserIds.has(id));
 
-        if (validSelectedIds.length !== this.currentValues.length) {
-          const previewItems = this.buildPreviewItems(validSelectedIds, list);
-          this.emitChanges(validSelectedIds, previewItems);
-        } else {
-          const previewItems = this.buildPreviewItems(this.currentValues, list);
-          this.selectedAssigneesChange.emit(previewItems);
-        }
-      },
-      error: error => {
-        this.loadError.set(extractErrorMessage(error, 'Unable to load workspace members.'));
-      }
-    });
+          if (validSelectedIds.length !== this.currentValues.length) {
+            const previewItems = this.buildPreviewItems(validSelectedIds, list);
+            this.emitChanges(validSelectedIds, previewItems);
+          } else {
+            const previewItems = this.buildPreviewItems(this.currentValues, list);
+            this.selectedAssigneesChange.emit(previewItems);
+          }
+        },
+        error: (error) => {
+          this.loadError.set(extractErrorMessage(error, 'Unable to load workspace members.'));
+        },
+      });
   }
 
   onSelectionChange(values: SelectValue | SelectValue[] | null): void {
     const ids: string[] = Array.isArray(values)
-      ? values.map(v => String(v))
+      ? values.map((v) => String(v))
       : values != null
         ? [String(values)]
         : [];
@@ -185,17 +185,23 @@ export class StickyNoteAssigneeSelect implements OnChanges {
     this.selectedAssigneesChange.emit(previewItems);
   }
 
-  private buildPreviewItems(ids: readonly string[], membersList: WorkspaceMemberListItem[]): AssigneePreviewItem[] {
+  private buildPreviewItems(
+    ids: readonly string[],
+    membersList: WorkspaceMemberListItem[],
+  ): AssigneePreviewItem[] {
     const membersMap = new Map<string, WorkspaceMemberListItem>();
     for (const m of membersList) {
       const uId = m.user?.id || idOf(m);
       if (uId) membersMap.set(uId, m);
     }
 
-    return ids.map(id => {
+    return ids.map((id) => {
       const member = membersMap.get(id);
-      const name = member?.user?.displayName ||
-        [(member?.user as any)?.firstName, (member?.user as any)?.lastName].filter(Boolean).join(' ') ||
+      const name =
+        member?.user?.displayName ||
+        [(member?.user as any)?.firstName, (member?.user as any)?.lastName]
+          .filter(Boolean)
+          .join(' ') ||
         (member as any)?.profile?.displayName ||
         (member as any)?.displayName ||
         (member as any)?.name ||
@@ -206,9 +212,8 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         displayName: name,
         email: member?.user?.email || (member as any)?.email || '',
         initials: getInitials(name, 'M'),
-        roleName: member?.role?.name
+        roleName: member?.role?.name,
       };
     });
   }
-
 }

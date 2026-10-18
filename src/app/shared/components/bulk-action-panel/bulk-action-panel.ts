@@ -1,17 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  LucideArrowRight,
-  LucideCheckSquare,
-  LucideTrash2,
-  LucideX
-} from '@lucide/angular';
+import { LucideArrowRight, LucideCheckSquare, LucideTrash2, LucideX } from '@lucide/angular';
 import { AppIcon } from '../icon/icon';
 import { Button } from '../button/button';
 
@@ -39,8 +28,8 @@ export type BulkActionPanelVariant = 'floating' | 'paper' | 'dark';
     '[class.is-visible]': 'isVisible',
     '[class.is-horizontal]': 'orientation === "horizontal"',
     '[class.is-vertical]': 'orientation === "vertical"',
-    '[class]': 'hostClasses'
-  }
+    '[class]': 'hostClasses',
+  },
 })
 export class BulkActionPanel {
   @Input() selectedCount = 0;

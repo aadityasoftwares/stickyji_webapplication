@@ -43,7 +43,9 @@ describe('MyNotes', () => {
     await fixture.whenStable();
     const element: HTMLElement = fixture.nativeElement;
     expect(element.textContent).toContain('3 overdue notes');
-    element.querySelector<HTMLButtonElement>('button[aria-label="Dismiss overdue banner"]')?.click();
+    element
+      .querySelector<HTMLButtonElement>('button[aria-label="Dismiss overdue banner"]')
+      ?.click();
     await fixture.whenStable();
     expect(element.querySelector('app-overdue-topbar')).toBeNull();
     expect(TestBed.inject(UserPreferenceStore).overdueView()).toBe('BUTTON');
@@ -54,8 +56,9 @@ describe('MyNotes', () => {
     component.overdue.data.set({ today: '2026-10-05', total: 3, byColumn: [], notes: [] });
     await fixture.whenStable();
     const element: HTMLElement = fixture.nativeElement;
-    const review = [...element.querySelectorAll<HTMLButtonElement>('app-overdue-topbar button')]
-      .find(button => button.textContent?.includes('Review overdue'));
+    const review = [
+      ...element.querySelectorAll<HTMLButtonElement>('app-overdue-topbar button'),
+    ].find((button) => button.textContent?.includes('Review overdue'));
     review?.click();
     await fixture.whenStable();
     expect(element.querySelector('app-overdue-notes-panel [role="dialog"]')).toBeTruthy();
@@ -66,7 +69,9 @@ describe('MyNotes', () => {
   });
 
   it('delegates successful bulk refresh to the existing folder loader', () => {
-    const bring = vi.spyOn(component.overdue, 'bringToToday').mockImplementation((_ids, refresh) => refresh());
+    const bring = vi
+      .spyOn(component.overdue, 'bringToToday')
+      .mockImplementation((_ids, refresh) => refresh());
     const load = vi.spyOn(component, 'loadSelectedFolder').mockImplementation(() => {});
     component.bringOverdueToToday(['note']);
     expect(bring).toHaveBeenCalledOnce();
@@ -91,7 +96,9 @@ describe('MyNotes', () => {
 
   it('bulk archives selected notes and clears selection', () => {
     const api = TestBed.inject(StickyNoteApiService);
-    const archiveSpy = vi.spyOn(api, 'archive').mockReturnValue(of({ success: true, data: { id: 'n1', status: 'ARCHIVED' } } as any));
+    const archiveSpy = vi
+      .spyOn(api, 'archive')
+      .mockReturnValue(of({ success: true, data: { id: 'n1', status: 'ARCHIVED' } } as any));
     component.notes.set([
       { id: 'n1', title: 'Note 1', status: 'ACTIVE' },
       { id: 'n2', title: 'Note 2', status: 'ACTIVE' },
@@ -143,19 +150,23 @@ describe('MyNotes', () => {
       title: `Note ${index + 21}`,
       status: 'ACTIVE',
     }));
-    const getNotes = vi.spyOn(api, 'getByWorkspaceFolder').mockImplementation((_workspaceId, _folderId, query) =>
-      of({
-        data: query.page === 1 ? firstPage : secondPage,
-        pagination: { page: query.page, limit: 20, total: 23, totalPages: 2 },
-      } as any)
-    );
+    const getNotes = vi
+      .spyOn(api, 'getByWorkspaceFolder')
+      .mockImplementation((_workspaceId, _folderId, query) =>
+        of({
+          data: query.page === 1 ? firstPage : secondPage,
+          pagination: { page: query.page, limit: 20, total: 23, totalPages: 2 },
+        } as any),
+      );
 
-    const notes = await lastValueFrom<any[]>((component as any).loadAllNotes('workspace-1', 'folder-1'));
+    const notes = await lastValueFrom<any[]>(
+      (component as any).loadAllNotes('workspace-1', 'folder-1'),
+    );
 
     expect(notes).toHaveLength(23);
     expect(notes.at(-1)?.id).toBe('n23');
     expect(getNotes).toHaveBeenCalledTimes(2);
-    expect(getNotes.mock.calls.map(call => call[2].page)).toEqual([1, 2]);
+    expect(getNotes.mock.calls.map((call) => call[2].page)).toEqual([1, 2]);
   });
 
   it('configures note tabs with status icons and counts', () => {
@@ -167,9 +178,24 @@ describe('MyNotes', () => {
 
     const tabs = component.noteTabs();
     expect(tabs.length).toBe(3);
-    expect(tabs[0]).toMatchObject({ value: 'all', label: 'All', count: 3, icon: component.LucideStickyNote });
-    expect(tabs[1]).toMatchObject({ value: 'active', label: 'Active', count: 2, icon: component.LucideCheck });
-    expect(tabs[2]).toMatchObject({ value: 'archived', label: 'Archived', count: 1, icon: component.LucideArchive });
+    expect(tabs[0]).toMatchObject({
+      value: 'all',
+      label: 'All',
+      count: 3,
+      icon: component.LucideStickyNote,
+    });
+    expect(tabs[1]).toMatchObject({
+      value: 'active',
+      label: 'Active',
+      count: 2,
+      icon: component.LucideCheck,
+    });
+    expect(tabs[2]).toMatchObject({
+      value: 'archived',
+      label: 'Archived',
+      count: 1,
+      icon: component.LucideArchive,
+    });
   });
 
   it('shows status-less API notes in the active list group', () => {
@@ -182,7 +208,7 @@ describe('MyNotes', () => {
     expect(component.totalCount()).toBe(2);
     expect(component.activeCount()).toBe(1);
     expect(component.archivedCount()).toBe(1);
-    expect(component.noteGroups().map(group => [group.id, group.count])).toEqual([
+    expect(component.noteGroups().map((group) => [group.id, group.count])).toEqual([
       ['active', 1],
       ['archived', 1],
     ]);
@@ -190,12 +216,16 @@ describe('MyNotes', () => {
 
   it('changes table status through the shared switch contract', () => {
     const api = TestBed.inject(StickyNoteApiService);
-    const archive = vi.spyOn(api, 'archive').mockReturnValue(of({
-      data: { id: 'n1', title: 'Active note', status: 'ARCHIVED' },
-    } as any));
-    const activate = vi.spyOn(api, 'updateStatus').mockReturnValue(of({
-      data: { id: 'n2', title: 'Archived note', status: 'ACTIVE' },
-    } as any));
+    const archive = vi.spyOn(api, 'archive').mockReturnValue(
+      of({
+        data: { id: 'n1', title: 'Active note', status: 'ARCHIVED' },
+      } as any),
+    );
+    const activate = vi.spyOn(api, 'updateStatus').mockReturnValue(
+      of({
+        data: { id: 'n2', title: 'Archived note', status: 'ACTIVE' },
+      } as any),
+    );
     const activeNote = { id: 'n1', title: 'Active note', status: 'ACTIVE' };
     const archivedNote = { id: 'n2', title: 'Archived note', status: 'ARCHIVED' };
     component.notes.set([activeNote, archivedNote]);
@@ -205,7 +235,7 @@ describe('MyNotes', () => {
 
     expect(archive).toHaveBeenCalledWith('n1');
     expect(activate).toHaveBeenCalledWith('n2', 'ACTIVE');
-    expect(component.notes().map(note => note.status)).toEqual(['ARCHIVED', 'ACTIVE']);
+    expect(component.notes().map((note) => note.status)).toEqual(['ARCHIVED', 'ACTIVE']);
   });
 
   it('filters visible notes by from and to date range', () => {
@@ -218,13 +248,13 @@ describe('MyNotes', () => {
     expect(component.visibleNotes().length).toBe(3);
 
     component.setFromDate('2026-10-12');
-    expect(component.visibleNotes().map(n => n.id)).toEqual(['n2', 'n3']);
+    expect(component.visibleNotes().map((n) => n.id)).toEqual(['n2', 'n3']);
 
     component.setToDate('2026-10-18');
-    expect(component.visibleNotes().map(n => n.id)).toEqual(['n2']);
+    expect(component.visibleNotes().map((n) => n.id)).toEqual(['n2']);
 
     component.setFromDate(null);
-    expect(component.visibleNotes().map(n => n.id)).toEqual(['n1', 'n2']);
+    expect(component.visibleNotes().map((n) => n.id)).toEqual(['n1', 'n2']);
 
     component.setToDate(null);
     expect(component.visibleNotes().length).toBe(3);

@@ -1,262 +1,259 @@
 @use '../../styles/variables.scss' as *;
 
 :host {
-    display: block;
-    min-height: 100%;
-    color: $text-primary;
-    background: $app-bg;
+  display: block;
+  min-height: 100%;
+  color: $text-primary;
+  background: $app-bg;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .card-showcase {
-    width: min(1180px, 100%);
-    margin: 0 auto;
-    padding: 40px 24px 64px;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 40px 24px 64px;
 }
 
 .showcase-intro {
-    max-width: 720px;
-    margin-bottom: 42px;
+  max-width: 720px;
+  margin-bottom: 42px;
 }
 
 .showcase-kicker,
 .section-kicker {
-    margin: 0 0 6px;
-    color: $accent;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  margin: 0 0 6px;
+  color: $accent;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 h1,
 h2,
 p {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 h1,
 h2 {
-    color: $heading;
-    font-family: $font-heading;
+  color: $heading;
+  font-family: $font-heading;
 }
 
 h1 {
-    margin-bottom: 10px;
-    font-size: clamp(36px, 6vw, 58px);
-    line-height: 0.98;
+  margin-bottom: 10px;
+  font-size: clamp(36px, 6vw, 58px);
+  line-height: 0.98;
 }
 
 h2 {
-    margin-bottom: 16px;
-    font-size: 28px;
+  margin-bottom: 16px;
+  font-size: 28px;
 }
 
-.showcase-intro>p:last-child {
-    color: $text-secondary;
-    font-size: 16px;
-    line-height: 1.6;
+.showcase-intro > p:last-child {
+  color: $text-secondary;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.showcase-section+.showcase-section {
-    margin-top: 42px;
+.showcase-section + .showcase-section {
+  margin-top: 42px;
 }
 
 .showcase-grid {
-    display: grid;
-    gap: 20px;
+  display: grid;
+  gap: 20px;
 }
 
 .showcase-grid-featured {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .showcase-grid-selectable,
 .showcase-grid-folded {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .showcase-grid-patterns,
 .showcase-grid-compact {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .card-copy,
 .mini-copy {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .mini-copy {
-    color: inherit;
-    opacity: 0.78;
-    font-size: 13px;
+  color: inherit;
+  opacity: 0.78;
+  font-size: 13px;
 }
 
 .long-copy {
-    min-height: 160px;
+  min-height: 160px;
 }
 
 .tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 18px;
 }
 
 .tag {
-    padding: 4px 9px;
-    color: $text-secondary;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid $border-light;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
+  padding: 4px 9px;
+  color: $text-secondary;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid $border-light;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .sample-media {
-    display: grid !important;
-    place-items: center;
-    min-height: 230px;
-    color: #302b14;
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent),
-        #ffe976;
-    font-family: $font-heading;
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    transform: rotate(-1deg);
+  display: grid !important;
+  place-items: center;
+  min-height: 230px;
+  color: #302b14;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent), #ffe976;
+  font-family: $font-heading;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  transform: rotate(-1deg);
 }
 
 code {
-    padding: 2px 5px;
-    background: rgba(17, 17, 17, 0.07);
-    border-radius: 5px;
-    font-family: $font-mono;
-    font-size: 0.86em;
+  padding: 2px 5px;
+  background: rgba(17, 17, 17, 0.07);
+  border-radius: 5px;
+  font-family: $font-mono;
+  font-size: 0.86em;
 }
 
 .pattern-showcase-section,
 .folded-showcase-section {
-    position: relative;
-    padding: 24px;
-    overflow: hidden;
-    background:
-        radial-gradient(circle at 100% 0, rgba($note-yellow, 0.3), transparent 260px),
-        rgba($paper, 0.58);
-    border: 1px solid rgba($heading, 0.08);
-    border-radius: 18px;
+  position: relative;
+  padding: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 100% 0, rgba($note-yellow, 0.3), transparent 260px),
+    rgba($paper, 0.58);
+  border: 1px solid rgba($heading, 0.08);
+  border-radius: 18px;
 }
 
 .section-heading-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .section-heading-row h2 {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .shape-code {
-    flex: 0 0 auto;
-    padding: 7px 10px;
-    color: $heading;
-    background: rgba($paper, 0.82);
-    border: 1px solid rgba($heading, 0.09);
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba($heading, 0.035);
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  color: $heading;
+  background: rgba($paper, 0.82);
+  border: 1px solid rgba($heading, 0.09);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba($heading, 0.035);
 }
 
 .section-description {
-    max-width: 760px;
-    margin: 10px 0 20px;
-    color: $text-secondary;
-    font-size: 14px;
-    line-height: 1.55;
+  max-width: 760px;
+  margin: 10px 0 20px;
+  color: $text-secondary;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .pattern-card-copy,
 .folded-card-copy {
-    color: inherit;
-    opacity: 0.78;
-    font-size: 13px;
-    line-height: 1.5;
+  color: inherit;
+  opacity: 0.78;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .folded-demo-card {
-    display: block;
-    min-width: 0;
+  display: block;
+  min-width: 0;
 }
 
 .folded-note-meta {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 16px;
-    color: inherit;
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: 0.025em;
-    opacity: 0.68;
-    text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.025em;
+  opacity: 0.68;
+  text-transform: uppercase;
 }
 
 .folded-note-dot {
-    width: 6px;
-    height: 6px;
-    background: currentColor;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
 }
 
 @media (max-width: 980px) {
+  .showcase-grid-patterns,
+  .showcase-grid-compact,
+  .showcase-grid-folded {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-    .showcase-grid-patterns,
-    .showcase-grid-compact,
-    .showcase-grid-folded {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .folded-demo-card:last-child {
-        grid-column: 1 / -1;
-        width: min(50%, 360px);
-    }
+  .folded-demo-card:last-child {
+    grid-column: 1 / -1;
+    width: min(50%, 360px);
+  }
 }
 
 @media (max-width: 720px) {
-    .card-showcase {
-        padding: 28px 16px 48px;
-    }
+  .card-showcase {
+    padding: 28px 16px 48px;
+  }
 
-    .showcase-grid-featured,
-    .showcase-grid-selectable,
-    .showcase-grid-folded,
-    .showcase-grid-patterns,
-    .showcase-grid-compact {
-        grid-template-columns: 1fr;
-    }
+  .showcase-grid-featured,
+  .showcase-grid-selectable,
+  .showcase-grid-folded,
+  .showcase-grid-patterns,
+  .showcase-grid-compact {
+    grid-template-columns: 1fr;
+  }
 
-    .pattern-showcase-section,
-    .folded-showcase-section {
-        padding: 18px;
-        border-radius: 14px;
-    }
+  .pattern-showcase-section,
+  .folded-showcase-section {
+    padding: 18px;
+    border-radius: 14px;
+  }
 
-    .section-heading-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
+  .section-heading-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-    .folded-demo-card:last-child {
-        grid-column: auto;
-        width: 100%;
-    }
+  .folded-demo-card:last-child {
+    grid-column: auto;
+    width: 100%;
+  }
 }

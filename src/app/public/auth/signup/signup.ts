@@ -12,16 +12,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  Router,
-  RouterLink,
-} from '@angular/router';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -51,17 +43,9 @@ import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
-import {
-  RegisterCredentials,
-  RegisterResponse,
-} from '../models/auth.models';
+import { RegisterCredentials, RegisterResponse } from '../models/auth.models';
 
-type SignUpControl =
-  | 'firstName'
-  | 'lastName'
-  | 'email'
-  | 'password'
-  | 'acceptTerms';
+type SignUpControl = 'firstName' | 'lastName' | 'email' | 'password' | 'acceptTerms';
 
 interface BrowserRegistrationContext {
   timezoneCode: string;
@@ -122,51 +106,16 @@ export class Signup implements OnInit {
   readonly submitted = signal(false);
 
   readonly signUpForm = this.formBuilder.nonNullable.group({
-    firstName: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(50),
-      ],
-    ],
-    lastName: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(50),
-      ],
-    ],
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(254),
-      ],
-    ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(128),
-      ],
-    ],
-    acceptTerms: [
-      false,
-      [
-        Validators.requiredTrue,
-      ],
-    ],
+    firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    acceptTerms: [false, [Validators.requiredTrue]],
   });
 
   constructor() {
     afterNextRender(() => {
-      const email = this.initialEmail
-        .trim()
-        .toLowerCase();
+      const email = this.initialEmail.trim().toLowerCase();
 
       if (email) {
         this.emailControl.setValue(email);
@@ -201,17 +150,11 @@ export class Signup implements OnInit {
   }
 
   get firstNameError(): string {
-    return this.nameError(
-      this.firstNameControl,
-      'First name',
-    );
+    return this.nameError(this.firstNameControl, 'First name');
   }
 
   get lastNameError(): string {
-    return this.nameError(
-      this.lastNameControl,
-      'Last name',
-    );
+    return this.nameError(this.lastNameControl, 'Last name');
   }
 
   get emailError(): string {
@@ -255,9 +198,7 @@ export class Signup implements OnInit {
   }
 
   get termsError(): string {
-    return this.shouldShowError(
-      this.acceptTermsControl,
-    )
+    return this.shouldShowError(this.acceptTermsControl)
       ? 'Please accept the Terms of Service and Privacy Policy.'
       : '';
   }
@@ -276,15 +217,12 @@ export class Signup implements OnInit {
     }
 
     const value = this.signUpForm.getRawValue();
-    const browserContext =
-      this.getBrowserRegistrationContext();
+    const browserContext = this.getBrowserRegistrationContext();
 
     const credentials: RegisterCredentials = {
       firstName: this.normalizeName(value.firstName),
       lastName: this.normalizeName(value.lastName),
-      email: value.email
-        .trim()
-        .toLowerCase(),
+      email: value.email.trim().toLowerCase(),
       password: value.password,
 
       termsAccepted: value.acceptTerms,
@@ -297,8 +235,7 @@ export class Signup implements OnInit {
       // This is only a hint. The backend should validate
       // it or use the configured India default.
       ...(browserContext.countryCodeHint && {
-        countryCodeHint:
-          browserContext.countryCodeHint,
+        countryCodeHint: browserContext.countryCodeHint,
       }),
     };
 
@@ -346,8 +283,7 @@ export class Signup implements OnInit {
     this.googleSignUp.emit();
   }
 
-  private getBrowserRegistrationContext():
-    BrowserRegistrationContext {
+  private getBrowserRegistrationContext(): BrowserRegistrationContext {
     return {
       locale: this.resolveBrowserLocale(),
       timezoneCode: this.resolveBrowserTimezone(),
@@ -362,40 +298,25 @@ export class Signup implements OnInit {
       return 'en-IN';
     }
 
-    return (
-      navigator.languages?.find(Boolean) ||
-      navigator.language ||
-      'en-IN'
-    );
+    return navigator.languages?.find(Boolean) || navigator.language || 'en-IN';
   }
 
   private resolveBrowserTimezone(): string {
     try {
-      const timezone =
-        Intl.DateTimeFormat()
-          .resolvedOptions()
-          .timeZone ||
-        'Asia/Kolkata';
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
 
       // Normalize the older IANA alias used by some browsers/systems.
-      return timezone === 'Asia/Calcutta'
-        ? 'Asia/Kolkata'
-        : timezone;
+      return timezone === 'Asia/Calcutta' ? 'Asia/Kolkata' : timezone;
     } catch {
       return 'Asia/Kolkata';
     }
   }
 
   private normalizeName(value: string): string {
-    return value
-      .trim()
-      .replace(/\s+/g, ' ');
+    return value.trim().replace(/\s+/g, ' ');
   }
 
-  private nameError(
-    control: AbstractControl,
-    label: string,
-  ): string {
+  private nameError(control: AbstractControl, label: string): string {
     if (!this.shouldShowError(control)) {
       return '';
     }
@@ -415,65 +336,41 @@ export class Signup implements OnInit {
     return '';
   }
 
-  private handleSuccess(
-    response: RegisterResponse,
-  ): void {
+  private handleSuccess(response: RegisterResponse): void {
     if (!response?.success) {
-      this.toastService.error(
-        response?.message ||
-        AUTH_MESSAGES.ERROR.SIGN_UP_FAILED,
-        {
-          title: 'Sign-up failed',
-        },
-      );
+      this.toastService.error(response?.message || AUTH_MESSAGES.ERROR.SIGN_UP_FAILED, {
+        title: 'Sign-up failed',
+      });
 
       return;
     }
 
-    const email = this.emailControl.value
-      .trim()
-      .toLowerCase();
+    const email = this.emailControl.value.trim().toLowerCase();
 
-    this.toastService.success(
-      response.message ||
-      AUTH_MESSAGES.SUCCESS.ACCOUNT_CREATED,
-      {
-        title: 'Welcome to Sticky Ji!',
-      },
-    );
+    this.toastService.success(response.message || AUTH_MESSAGES.SUCCESS.ACCOUNT_CREATED, {
+      title: 'Welcome to Sticky Ji!',
+    });
 
-    void this.router.navigate(
-      [this.safeRedirectUrl()],
-      {
-        queryParams: {
-          email,
-        },
+    void this.router.navigate([this.safeRedirectUrl()], {
+      queryParams: {
+        email,
       },
-    );
+    });
   }
 
-  private handleFailure(
-    error: HttpErrorResponse,
-  ): void {
-    const message =
-      this.resolveErrorMessage(error);
+  private handleFailure(error: HttpErrorResponse): void {
+    const message = this.resolveErrorMessage(error);
 
-    this.toastService.error(
-      message,
-      {
-        title:
-          error.status === 409
-            ? 'Account already exists'
-            : error.status === 429
-              ? 'Too many attempts'
-              : 'Sign-up failed',
-        duration:
-          error.status === 429
-            ? 8_000
-            : 6_000,
-        dedupeKey: 'signup-error',
-      },
-    );
+    this.toastService.error(message, {
+      title:
+        error.status === 409
+          ? 'Account already exists'
+          : error.status === 429
+            ? 'Too many attempts'
+            : 'Sign-up failed',
+      duration: error.status === 429 ? 8_000 : 6_000,
+      dedupeKey: 'signup-error',
+    });
 
     if (error.status === 409) {
       this.emailControl.markAsTouched();
@@ -481,46 +378,26 @@ export class Signup implements OnInit {
     }
   }
 
-  private resolveErrorMessage(
-    error: HttpErrorResponse,
-  ): string {
+  private resolveErrorMessage(error: HttpErrorResponse): string {
     const message = extractErrorMessage(error, '');
 
     if (error.status === 0) {
-      return (
-        'Unable to reach the server. ' +
-        'Check your connection and try again.'
-      );
+      return 'Unable to reach the server. ' + 'Check your connection and try again.';
     }
 
-    if (
-      error.status === 400 ||
-      error.status === 409
-    ) {
-      return (
-        message ||
-        'Please check your account details.'
-      );
+    if (error.status === 400 || error.status === 409) {
+      return message || 'Please check your account details.';
     }
 
     if (error.status === 429) {
-      return (
-        message ||
-        'Too many attempts. Please wait and try again.'
-      );
+      return message || 'Too many attempts. Please wait and try again.';
     }
 
     if (error.status >= 500) {
-      return (
-        'The registration service is temporarily unavailable. ' +
-        'Please try again shortly.'
-      );
+      return 'The registration service is temporarily unavailable. ' + 'Please try again shortly.';
     }
 
-    return (
-      message ||
-      AUTH_MESSAGES.ERROR.SIGN_UP_FAILED
-    );
+    return message || AUTH_MESSAGES.ERROR.SIGN_UP_FAILED;
   }
 
   private firstInvalidControl(): SignUpControl {
@@ -543,9 +420,7 @@ export class Signup implements OnInit {
     return 'acceptTerms';
   }
 
-  private focusControl(
-    control: SignUpControl,
-  ): void {
+  private focusControl(control: SignUpControl): void {
     const ids: Record<SignUpControl, string> = {
       firstName: 'sign-up-first-name',
       lastName: 'sign-up-last-name',
@@ -573,20 +448,13 @@ export class Signup implements OnInit {
   }
 
   private safeRedirectUrl(): string {
-    return (
-      this.redirectUrl.startsWith('/') &&
-      !this.redirectUrl.startsWith('//')
-    )
+    return this.redirectUrl.startsWith('/') && !this.redirectUrl.startsWith('//')
       ? this.redirectUrl
       : '/auth/verify-email';
   }
 
-  private shouldShowError(
-    control: AbstractControl,
-  ): boolean {
-    return Boolean(
-      control.invalid && this.submitted(),
-    );
+  private shouldShowError(control: AbstractControl): boolean {
+    return Boolean(control.invalid && this.submitted());
   }
 
   private initSeo(): void {

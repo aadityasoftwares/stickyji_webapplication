@@ -32,7 +32,8 @@ export class SeoService {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly document = inject(DOCUMENT);
 
-  readonly defaultTitle = 'Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace';
+  readonly defaultTitle =
+    'Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace';
   readonly defaultDescription =
     'Sticky Ji brings your notes, tasks, and everyday plans together on a calm, visual canvas with colorful sticky notes, smart folders, and a focused daily workflow.';
   readonly defaultKeywords =
@@ -92,7 +93,8 @@ export class SeoService {
     const robots = config.robots || this.defaultRobots;
     this.setRobots(robots);
 
-    const canonical = config.canonicalUrl || (this.document.location ? this.document.location.pathname : '/');
+    const canonical =
+      config.canonicalUrl || (this.document.location ? this.document.location.pathname : '/');
     this.setCanonicalUrl(canonical);
 
     // Open Graph
@@ -170,12 +172,7 @@ export class SeoService {
     this.metaService.updateTag({ property: 'og:site_name', content: 'Sticky Ji' });
   }
 
-  setTwitter(data: {
-    card?: string;
-    title?: string;
-    description?: string;
-    image?: string;
-  }): void {
+  setTwitter(data: { card?: string; title?: string; description?: string; image?: string }): void {
     if (data.card) this.metaService.updateTag({ name: 'twitter:card', content: data.card });
     if (data.title) this.metaService.updateTag({ name: 'twitter:title', content: data.title });
     if (data.description)

@@ -15,13 +15,13 @@ import { UserTimePipe } from './user-time.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span id="date">{{ value() | userDate }}</span>
-    <span id="explicit-date">{{ value() | userDate:'date' }}</span>
-    <span id="datetime">{{ value() | userDate:'datetime' }}</span>
-    <span id="time">{{ value() | userDate:'time' }}</span>
-    <span id="legacy-date">{{ value() | userDate:'Unavailable' }}</span>
+    <span id="explicit-date">{{ value() | userDate: 'date' }}</span>
+    <span id="datetime">{{ value() | userDate: 'datetime' }}</span>
+    <span id="time">{{ value() | userDate: 'time' }}</span>
+    <span id="legacy-date">{{ value() | userDate: 'Unavailable' }}</span>
     <span id="legacy-datetime">{{ value() | userDateTime }}</span>
     <span id="legacy-time">{{ value() | userTime }}</span>
-    <span id="fallback">{{ missing | userDate:'datetime':'Unavailable' }}</span>
+    <span id="fallback">{{ missing | userDate: 'datetime' : 'Unavailable' }}</span>
   `,
 })
 class DateHost {
@@ -33,7 +33,9 @@ class DateHost {
   standalone: true,
   imports: [UserDatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `@for (value of values; track $index) { <span>{{ value | userDate:'datetime' }}</span> }`,
+  template: `@for (value of values; track $index) {
+    <span>{{ value | userDate: 'datetime' }}</span>
+  }`,
 })
 class LargeDateTable {
   readonly values = Array.from({ length: 1000 }, (_, index) => Date.UTC(2026, 9, 9, 0, index));
@@ -101,11 +103,13 @@ describe('UserDatePipe', () => {
     expect(text('fallback')).toBe('Unavailable');
 
     preferences.load();
-    loaded.next({ data: [
-      { key: 'dateFormat', value: 'MM/DD/YYYY' },
-      { key: 'timezone', value: 'America/Los_Angeles' },
-      { key: 'timeFormat', value: '24h' },
-    ] });
+    loaded.next({
+      data: [
+        { key: 'dateFormat', value: 'MM/DD/YYYY' },
+        { key: 'timezone', value: 'America/Los_Angeles' },
+        { key: 'timeFormat', value: '24h' },
+      ],
+    });
     loaded.complete();
     await fixture.whenStable();
     expect(text('date')).toBe('10/08/2026');
@@ -148,7 +152,9 @@ describe('UserDatePipe', () => {
     fixture.componentInstance.value.set('bad date');
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('#date').textContent.trim()).toBe('');
-    expect(fixture.nativeElement.querySelector('#legacy-date').textContent.trim()).toBe('Unavailable');
+    expect(fixture.nativeElement.querySelector('#legacy-date').textContent.trim()).toBe(
+      'Unavailable',
+    );
   });
 
   it('formats a large list only when values or date preferences change', async () => {
@@ -163,7 +169,9 @@ describe('UserDatePipe', () => {
     preferences.updatePreference('timezone', 'Asia/Kolkata');
     await fixture.whenStable();
     expect(format).toHaveBeenCalledTimes(2000);
-    expect(fixture.nativeElement.querySelector('span').textContent.trim()).toBe('09/10/2026 05:30 AM');
+    expect(fixture.nativeElement.querySelector('span').textContent.trim()).toBe(
+      '09/10/2026 05:30 AM',
+    );
     expect(api.getMyPreferences).not.toHaveBeenCalled();
   });
 });

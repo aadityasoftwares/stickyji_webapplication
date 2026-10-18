@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
   Radio,
@@ -33,11 +24,7 @@ interface Workspace {
 @Component({
   selector: 'app-radio-showcase',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    Radio,
-    Divider,
-  ],
+  imports: [ReactiveFormsModule, Radio, Divider],
   templateUrl: './radio-showcase.html',
   styleUrl: './radio-showcase.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,11 +56,11 @@ export class RadioShowcase {
     readonly label: string;
     readonly size: RadioSize;
   }> = [
-      { label: 'Extra small', size: 'xs' },
-      { label: 'Small', size: 'sm' },
-      { label: 'Medium', size: 'md' },
-      { label: 'Large', size: 'lg' },
-    ];
+    { label: 'Extra small', size: 'xs' },
+    { label: 'Small', size: 'sm' },
+    { label: 'Medium', size: 'md' },
+    { label: 'Large', size: 'lg' },
+  ];
 
   protected readonly workspaces: ReadonlyArray<Workspace> = [
     {
@@ -126,10 +113,7 @@ export class RadioShowcase {
     }
   }
 
-  protected compareWorkspace(
-    left: RadioValue,
-    right: RadioValue,
-  ): boolean {
+  protected compareWorkspace(left: RadioValue, right: RadioValue): boolean {
     const leftWorkspace = left as Workspace | null;
     const rightWorkspace = right as Workspace | null;
     return leftWorkspace?.id === rightWorkspace?.id;

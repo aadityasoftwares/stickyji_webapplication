@@ -7,7 +7,7 @@ import {
   computed,
   effect,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LucideUserRound, LucideUsersRound } from '@lucide/angular';
@@ -20,7 +20,7 @@ import { STORAGE_KEYS } from '../../shared/constants/app.constants';
 import {
   getLocalStorageItem,
   removeLocalStorageItem,
-  setLocalStorageItem
+  setLocalStorageItem,
 } from '../../shared/functions/storage.functions';
 
 @Component({
@@ -29,10 +29,9 @@ import {
   imports: [RouterOutlet, Sidebar],
   templateUrl: './private.html',
   styleUrl: './private.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Private {
-
   private readonly platformId = inject(PLATFORM_ID);
   private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
@@ -46,38 +45,30 @@ export class Private {
   readonly initializing = this.appSessionStore.initializing;
   readonly initializationError = this.appSessionStore.error;
 
-  readonly activeWorkspaceId = computed(
-    () => this.workspaceStore.selectedId() ?? ''
-  );
+  readonly activeWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
   readonly selectedWorkspaceId = this.activeWorkspaceId;
-  readonly selectedFolderId = computed(
-    () => this.workspaceFolderStore.selectedId() ?? ''
-  );
+  readonly selectedFolderId = computed(() => this.workspaceFolderStore.selectedId() ?? '');
 
   readonly loadingWorkspaces = this.workspaceStore.loading;
 
   readonly sidebarWorkspaces = computed<readonly any[]>(() =>
-    this.workspaceStore.workspaces().map(workspace => ({
+    this.workspaceStore.workspaces().map((workspace) => ({
       label: workspace.name,
       value: workspace.id,
       description:
         workspace.description?.trim() ||
         (workspace.isPersonal ? 'Private workspace' : 'Shared workspace'),
       group: workspace.isPersonal ? 'Personal' : 'Shared workspaces',
-      icon: workspace.isPersonal ? LucideUserRound : LucideUsersRound
-    }))
+      icon: workspace.isPersonal ? LucideUserRound : LucideUsersRound,
+    })),
   );
 
   constructor() {
-
     if (this.isBrowser) {
-      this.sidebarCollapsed.set(
-        getLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true'
-      );
+      this.sidebarCollapsed.set(getLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true');
     }
 
     effect(() => {
-
       const loaded = this.workspaceStore.loaded();
       const workspaces = this.workspaceStore.workspaces();
 
@@ -93,7 +84,6 @@ export class Private {
 
   @HostListener('document:keydown.escape')
   closeOnEscape(): void {
-
     if (this.mobileSidebarOpen()) {
       this.closeMobileSidebar();
     }
@@ -101,7 +91,6 @@ export class Private {
 
   @HostListener('window:resize', ['$event'])
   closeOnDesktop(event: Event): void {
-
     const width = (event.target as Window | null)?.innerWidth ?? 0;
 
     if (width >= 1024 && this.mobileSidebarOpen()) {
@@ -110,14 +99,10 @@ export class Private {
   }
 
   setSidebarCollapsed(collapsed: boolean): void {
-
     this.sidebarCollapsed.set(collapsed);
 
     if (this.isBrowser) {
-      setLocalStorageItem(
-        STORAGE_KEYS.SIDEBAR_COLLAPSED,
-        String(collapsed)
-      );
+      setLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, String(collapsed));
     }
   }
 
@@ -126,17 +111,13 @@ export class Private {
   }
 
   onWorkspaceChange(workspaceId: string): void {
-
-    if (
-      !workspaceId ||
-      workspaceId === this.workspaceStore.selectedId()
-    ) {
+    if (!workspaceId || workspaceId === this.workspaceStore.selectedId()) {
       return;
     }
 
     const exists = this.workspaceStore
       .workspaces()
-      .some(workspace => workspace.id === workspaceId);
+      .some((workspace) => workspace.id === workspaceId);
 
     if (!exists) {
       return;
@@ -146,10 +127,7 @@ export class Private {
     this.workspaceFolderStore.resetForWorkspace(workspaceId);
 
     if (this.isBrowser) {
-      setLocalStorageItem(
-        STORAGE_KEYS.WORKSPACE_ID,
-        workspaceId
-      );
+      setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, workspaceId);
     }
 
     this.closeMobileSidebar();
@@ -160,62 +138,38 @@ export class Private {
     this.workspaceFolderStore.clear();
 
     if (this.isBrowser) {
-        removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
+      removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
     }
   }
 
-  private ensureWorkspaceSelected(
-    workspaces: readonly any[]
-  ): void {
-
+  private ensureWorkspaceSelected(workspaces: readonly any[]): void {
     if (!workspaces.length) {
-
       this.workspaceStore.select(null);
 
       if (this.isBrowser) {
-        removeLocalStorageItem(
-          STORAGE_KEYS.WORKSPACE_ID
-        );
+        removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
       }
 
       return;
     }
 
-    const currentId =
-      this.workspaceStore.selectedId();
+    const currentId = this.workspaceStore.selectedId();
 
-    if (
-      currentId &&
-      workspaces.some(
-        workspace => workspace.id === currentId
-      )
-    ) {
+    if (currentId && workspaces.some((workspace) => workspace.id === currentId)) {
       return;
     }
 
-    const storedId = this.isBrowser
-      ? getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID)
-      : null;
+    const storedId = this.isBrowser ? getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID) : null;
 
     const selectedWorkspace =
-      workspaces.find(
-        workspace => workspace.id === storedId
-      ) ??
-      workspaces.find(
-        workspace => workspace.isPersonal
-      ) ??
+      workspaces.find((workspace) => workspace.id === storedId) ??
+      workspaces.find((workspace) => workspace.isPersonal) ??
       workspaces[0];
 
-    this.workspaceStore.select(
-      selectedWorkspace.id
-    );
+    this.workspaceStore.select(selectedWorkspace.id);
 
     if (this.isBrowser) {
-      setLocalStorageItem(
-        STORAGE_KEYS.WORKSPACE_ID,
-        selectedWorkspace.id
-      );
+      setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, selectedWorkspace.id);
     }
   }
-
 }

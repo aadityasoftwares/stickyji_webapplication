@@ -12,14 +12,9 @@ import {
   ViewChild,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import {
@@ -29,7 +24,7 @@ import {
   LucidePanelsTopLeft,
   LucidePencil,
   LucidePlus,
-  LucideTrash2
+  LucideTrash2,
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
@@ -43,14 +38,10 @@ import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { COMMON_MESSAGES } from '../../../shared/constants/common.messages';
 
-import {
-  extractErrorMessage,
-  extractList,
-  idOf
-} from '../../../shared/functions/common.function';
+import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import {
   COLUMN_LIMITS,
-  STICKY_NOTE_COLUMN_COLOR_OPTIONS
+  STICKY_NOTE_COLUMN_COLOR_OPTIONS,
 } from '../../../shared/constants/common.constants';
 import {
   getColumnColorLabel,
@@ -59,7 +50,7 @@ import {
   isValidColumnColor,
   resolveDefaultFolderId,
   toColorCssClass,
-  validateColumnForm
+  validateColumnForm,
 } from '../../../shared/functions/sticky-note.function';
 
 import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-column.service';
@@ -82,11 +73,11 @@ import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-
     Label,
     Loader,
     Select,
-    SidePanel
+    SidePanel,
   ],
   templateUrl: './add-edit-sticky-note-column-side-panel.html',
   styleUrl: './add-edit-sticky-note-column-side-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   private readonly fb = inject(FormBuilder);
@@ -151,16 +142,16 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
     this.panelWorkspaces()
-      .filter(item => item?.status !== 'DELETED')
-      .map(item => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
-      .filter(item => Boolean(item.value))
+      .filter((item) => item?.status !== 'DELETED')
+      .map((item) => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
+      .filter((item) => Boolean(item.value)),
   );
 
   readonly folderOptions = computed<SelectOption[]>(() =>
     this.panelFolders()
-      .filter(item => item?.status === 'ACTIVE')
-      .map(item => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
-      .filter(item => Boolean(item.value))
+      .filter((item) => item?.status === 'ACTIVE')
+      .map((item) => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
+      .filter((item) => Boolean(item.value)),
   );
 
   readonly positionOptions = computed<SelectOption[]>(() => {
@@ -169,9 +160,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const currentId = this.editorId;
     const currentPos = this.controlNumber('position');
 
-    const total = isEdit
-      ? Math.max(1, columns.length)
-      : columns.length + 1;
+    const total = isEdit ? Math.max(1, columns.length) : columns.length + 1;
 
     const options: SelectOption[] = [];
 
@@ -179,7 +168,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       let suffix = '';
       if (isEdit) {
         const colAtIdx = columns[i];
-        if (idOf(colAtIdx) === currentId || (i === currentPos && (!colAtIdx || idOf(colAtIdx) === currentId))) {
+        if (
+          idOf(colAtIdx) === currentId ||
+          (i === currentPos && (!colAtIdx || idOf(colAtIdx) === currentId))
+        ) {
           suffix = ' (Current)';
         } else if (colAtIdx) {
           const colName = colAtIdx.name || colAtIdx.label;
@@ -196,7 +188,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
       options.push({
         label: `Position ${i + 1}${suffix}`,
-        value: i
+        value: i,
       });
     }
 
@@ -208,15 +200,12 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     workspaceFolderId: ['', Validators.required],
     name: ['', [Validators.required, Validators.maxLength(this.nameMaxLength)]],
     color: ['YELLOW', Validators.required],
-    position: [0]
+    position: [0],
   });
 
   get isBusy(): boolean {
     return (
-      this.loading() ||
-      this.loadingData() ||
-      this.loadingWorkspaces() ||
-      this.loadingFolders()
+      this.loading() || this.loadingData() || this.loadingWorkspaces() || this.loadingFolders()
     );
   }
 
@@ -282,14 +271,17 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   get canSubmit(): boolean {
-    const validationError = validateColumnForm({
-      name: this.controlString('name'),
-      workspaceId: this.controlString('workspaceId'),
-      workspaceFolderId: this.controlString('workspaceFolderId')
-    }, {
-      NAME_MIN_LENGTH: this.nameMinLength,
-      NAME_MAX_LENGTH: this.nameMaxLength
-    });
+    const validationError = validateColumnForm(
+      {
+        name: this.controlString('name'),
+        workspaceId: this.controlString('workspaceId'),
+        workspaceFolderId: this.controlString('workspaceFolderId'),
+      },
+      {
+        NAME_MIN_LENGTH: this.nameMinLength,
+        NAME_MAX_LENGTH: this.nameMaxLength,
+      },
+    );
 
     return !this.isBusy && !validationError;
   }
@@ -419,7 +411,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     this.error.set('');
 
     let currentColumns = [...this.folderColumns()];
-    if (currentColumns.length === 0 && this.columnStore.contextMatches(workspaceId, workspaceFolderId)) {
+    if (
+      currentColumns.length === 0 &&
+      this.columnStore.contextMatches(workspaceId, workspaceFolderId)
+    ) {
       currentColumns = [...this.columnStore.orderedColumns()];
     }
 
@@ -430,18 +425,25 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     let updatedColumnsForStore: any[] = [];
 
     if (isEdit && positionChanged && currentColumns.length > 1) {
-      const prevIdx = currentColumns.findIndex(c => idOf(c) === id);
+      const prevIdx = currentColumns.findIndex((c) => idOf(c) === id);
       if (prevIdx >= 0) {
         const item = currentColumns.splice(prevIdx, 1)[0];
         currentColumns.splice(newPosition, 0, item);
         updatedColumnsForStore = currentColumns.map((col, idx) => ({ ...col, position: idx }));
-        reorderedColumnIds = updatedColumnsForStore.map(col => idOf(col)).filter(Boolean);
+        reorderedColumnIds = updatedColumnsForStore.map((col) => idOf(col)).filter(Boolean);
       }
     }
 
-    const baseRequest$ = (isEdit && id)
-      ? this.columnApi.update(id, { name, color, position: newPosition })
-      : this.columnApi.create({ workspaceId, workspaceFolderId, name, color, position: newPosition });
+    const baseRequest$ =
+      isEdit && id
+        ? this.columnApi.update(id, { name, color, position: newPosition })
+        : this.columnApi.create({
+            workspaceId,
+            workspaceFolderId,
+            name,
+            color,
+            position: newPosition,
+          });
 
     const request$ = baseRequest$.pipe(
       switchMap((response: any) => {
@@ -450,34 +452,38 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         if (!isEdit && savedId && newPosition < currentColumns.length) {
           const newCols = [...currentColumns];
           newCols.splice(newPosition, 0, { id: savedId, ...response?.data });
-          const createReorderIds = newCols.map(c => idOf(c)).filter(Boolean);
+          const createReorderIds = newCols.map((c) => idOf(c)).filter(Boolean);
           if (createReorderIds.length > 1) {
-            return this.columnApi.reorder({
-              workspaceId,
-              workspaceFolderId,
-              columnIds: createReorderIds
-            }).pipe(
-              map(() => response),
-              catchError(() => of(response))
-            );
+            return this.columnApi
+              .reorder({
+                workspaceId,
+                workspaceFolderId,
+                columnIds: createReorderIds,
+              })
+              .pipe(
+                map(() => response),
+                catchError(() => of(response)),
+              );
           }
         }
 
         if (isEdit && positionChanged && reorderedColumnIds.length > 1) {
-          return this.columnApi.reorder({
-            workspaceId,
-            workspaceFolderId,
-            columnIds: reorderedColumnIds
-          }).pipe(
-            map(() => response),
-            catchError(() => of(response))
-          );
+          return this.columnApi
+            .reorder({
+              workspaceId,
+              workspaceFolderId,
+              columnIds: reorderedColumnIds,
+            })
+            .pipe(
+              map(() => response),
+              catchError(() => of(response)),
+            );
         }
 
         return of(response);
       }),
       finalize(() => this.loading.set(false)),
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed(this.destroyRef),
     );
 
     request$.subscribe({
@@ -491,13 +497,11 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         }
 
         this.toastService.success(
-          isEdit
-            ? 'Column updated successfully.'
-            : 'Column created successfully.',
+          isEdit ? 'Column updated successfully.' : 'Column created successfully.',
           {
             title: isEdit ? 'Column updated' : 'Column created',
-            dedupeKey: `column-${savedId || 'new'}`
-          }
+            dedupeKey: `column-${savedId || 'new'}`,
+          },
         );
 
         this.saved.emit(savedId);
@@ -506,14 +510,14 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         this.saveState.set('error');
         const message = extractErrorMessage(
           error,
-          isEdit ? 'Unable to update column.' : 'Unable to create column.'
+          isEdit ? 'Unable to update column.' : 'Unable to create column.',
         );
         this.error.set(message);
         this.toastService.error(message, {
           title: isEdit ? 'Column update failed' : 'Column creation failed',
-          dedupeKey: `column-error-${id || 'new'}`
+          dedupeKey: `column-error-${id || 'new'}`,
         });
-      }
+      },
     });
   }
 
@@ -535,9 +539,9 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         workspaceFolderId: '',
         name: '',
         color: 'YELLOW',
-        position: 0
+        position: 0,
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
   }
 
@@ -548,7 +552,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const effectiveWorkspaceId =
       this.workspaceId || idOf(this.column?.workspaceId) || this.columnStore.workspaceId() || '';
     const effectiveFolderId =
-      this.workspaceFolderId || idOf(this.column?.workspaceFolderId) || this.columnStore.workspaceFolderId() || '';
+      this.workspaceFolderId ||
+      idOf(this.column?.workspaceFolderId) ||
+      this.columnStore.workspaceFolderId() ||
+      '';
 
     this.loadWorkspaces();
 
@@ -573,7 +580,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     this.columnMeta.set({
       type: 'CUSTOM',
       position: this.folderColumns().length,
-      isSystem: false
+      isSystem: false,
     });
     this.form.reset(
       {
@@ -581,9 +588,9 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         workspaceFolderId: folderId,
         name: '',
         color: 'YELLOW',
-        position: this.folderColumns().length
+        position: this.folderColumns().length,
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
 
     if (workspaceId) {
@@ -609,9 +616,9 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         workspaceFolderId: folderId,
         name,
         color,
-        position
+        position,
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
 
     if (workspaceId) {
@@ -629,28 +636,28 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       .getById(columnId)
       .pipe(
         finalize(() => this.loadingData.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.setColumnData(response.data, fallbackWorkspaceId, fallbackFolderId);
           this.focusName();
         },
-        error: error => {
+        error: (error) => {
           const message = extractErrorMessage(error, 'Unable to load column details.');
           this.error.set(message);
           this.toastService.error(message, {
             title: 'Column not loaded',
-            dedupeKey: `column-load-${columnId}`
+            dedupeKey: `column-load-${columnId}`,
           });
-        }
+        },
       });
   }
 
   private loadWorkspaces(): void {
     const stored = this.workspaceStore.workspaces();
     if (stored.length > 0) {
-      this.panelWorkspaces.set(stored.filter(item => item?.status !== 'DELETED'));
+      this.panelWorkspaces.set(stored.filter((item) => item?.status !== 'DELETED'));
       return;
     }
 
@@ -659,16 +666,16 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       .getAll({ page: 1, limit: 100, status: 'ACTIVE' })
       .pipe(
         finalize(() => this.loadingWorkspaces.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           const list = extractList(response);
           this.panelWorkspaces.set(list.filter((item: any) => item?.status !== 'DELETED'));
         },
-        error: error => {
+        error: (error) => {
           this.error.set(extractErrorMessage(error, 'Unable to load workspaces.'));
-        }
+        },
       });
   }
 
@@ -678,8 +685,15 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       return;
     }
 
-    if (this.workspaceFolderStore.initialized() && this.workspaceFolderStore.workspaceId() === workspaceId) {
-      this.setFoldersAndSelect(workspaceId, this.workspaceFolderStore.activeFolders(), preferredFolderId);
+    if (
+      this.workspaceFolderStore.initialized() &&
+      this.workspaceFolderStore.workspaceId() === workspaceId
+    ) {
+      this.setFoldersAndSelect(
+        workspaceId,
+        this.workspaceFolderStore.activeFolders(),
+        preferredFolderId,
+      );
       return;
     }
 
@@ -691,32 +705,39 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         limit: 100,
         status: 'ACTIVE',
         sortBy: 'position',
-        sortOrder: 'asc'
+        sortOrder: 'asc',
       })
       .pipe(
         finalize(() => this.loadingFolders.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           const list = extractList(response);
           const active = list.filter((folder: any) => folder?.status === 'ACTIVE');
           this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
         },
-        error: error => {
-        this.error.set(
-          extractErrorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders'))
-        );
-        }
+        error: (error) => {
+          this.error.set(
+            extractErrorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders')),
+          );
+        },
       });
   }
 
-  private setFoldersAndSelect(workspaceId: string, folders: readonly any[], preferredFolderId?: string): void {
+  private setFoldersAndSelect(
+    workspaceId: string,
+    folders: readonly any[],
+    preferredFolderId?: string,
+  ): void {
     const folderList = [...folders];
     this.panelFolders.set(folderList);
 
     const currentFolderId = this.form.controls.workspaceFolderId.value;
-    const resolvedFolderId = resolveDefaultFolderId(folderList, preferredFolderId || currentFolderId);
+    const resolvedFolderId = resolveDefaultFolderId(
+      folderList,
+      preferredFolderId || currentFolderId,
+    );
     this.form.controls.workspaceFolderId.setValue(resolvedFolderId);
 
     if (workspaceId && resolvedFolderId) {
@@ -757,7 +778,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         },
         error: () => {
           this.folderColumns.set([]);
-        }
+        },
       });
   }
 
@@ -797,7 +818,8 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
   private applyInputFocus(retries: number): void {
     if (!this.open || this.loadingData()) return;
-    const input = this.columnNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
+    const input =
+      this.columnNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
     if (!input) {
       if (retries > 0) {
         this.focusTimer = setTimeout(() => {

@@ -1,207 +1,411 @@
 @if (open) {
-<div class="modal fade show d-block add-edit-my-notes-modal" tabindex="-1" role="dialog" aria-modal="true"
-    aria-labelledby="my-notes-modal-title" aria-describedby="my-notes-modal-description"
-    (mousedown)="onBackdropMouseDown($event)">
+  <div
+    class="modal fade show d-block add-edit-my-notes-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="my-notes-modal-title"
+    aria-describedby="my-notes-modal-description"
+    (mousedown)="onBackdropMouseDown($event)"
+  >
+    <div
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <section class="modal-content my-notes-modal-content">
+        <header class="modal-header my-notes-modal-header">
+          <div class="my-notes-modal-heading">
+            <span class="my-notes-modal-icon" aria-hidden="true">
+              <app-icon [icon]="headerIcon" size="sm" />
+            </span>
 
-    <div class="modal-dialog modal-dialog-centered" role="document" (mousedown)="$event.stopPropagation()">
-        <section class="modal-content my-notes-modal-content">
-            <header class="modal-header my-notes-modal-header">
-                <div class="my-notes-modal-heading">
-                    <span class="my-notes-modal-icon" aria-hidden="true">
-                        <app-icon [icon]="headerIcon" size="sm" />
-                    </span>
-
-                    <div class="my-notes-modal-heading-copy">
-                        <span class="my-notes-modal-kicker">{{ eyebrow }}</span>
-                        <h2 id="my-notes-modal-title" class="modal-title my-notes-modal-title">{{ modalTitle }}</h2>
-                        <p id="my-notes-modal-description" class="my-notes-modal-description">{{ description }}</p>
-                    </div>
-                </div>
-
-                <app-button class="my-notes-modal-close" [icon]="LucideX" [iconOnly]="true" variant="danger"
-                    appearance="standard" size="sm" ariaLabel="Close note editor" title="Close" [disabled]="isBusy"
-                    (buttonClick)="close()" />
-            </header>
-
-            <app-divider class="my-notes-modal-divider" variant="neutral" lineStyle="dashed" spacing="none"
-                [thickness]="1" />
-
-            <div class="modal-body my-notes-modal-body">
-                @if (loadingData()) {
-                <app-loader mode="section" size="md" tone="colorful"
-                    [label]="mode === 'create' ? 'Preparing note...' : 'Loading note...'"
-                    description="Getting the note editor ready." [minHeight]="320" />
-                } @else {
-                <div class="my-notes-modal-form" [formGroup]="form">
-                    <app-input #noteTitleInput type="text" label="Note title"
-                        labelDescription="Give the note a short, clear title."
-                        placeholder="Example: Homepage launch ideas" variant="paper" appearance="outlined"
-                        shape="rounded" size="md" [leadingIcon]="LucideStickyNote" [required]="true" [clearable]="true"
-                        [showCounter]="true" [maxLength]="titleMaxLength" [value]="controlString('title')"
-                        [disabled]="isBusy" [fullWidth]="true" autocomplete="off"
-                        (valueChange)="updateText('title', $event)" (enterKey)="submit()" />
-
-                    <app-input label="Note content" labelDescription="Add the details you want to remember."
-                        placeholder="Write the thought you want to keep..." variant="paper" appearance="outlined"
-                        shape="rounded" size="md" [multiline]="true" [rows]="5" [clearable]="true" [showCounter]="true"
-                        [maxLength]="contentMaxLength" [value]="controlString('content')" [disabled]="isBusy"
-                        [fullWidth]="true" (valueChange)="updateText('content', $event)" />
-
-                    <!-- Column stays separate so the metadata row remains clean and readable. -->
-                    <div class="my-notes-modal-column-row">
-                        <div class="my-notes-modal-select-field">
-                            <app-label for="my-notes-column" text="Column" />
-                            <app-select id="my-notes-column" [options]="columnOptions()"
-                                [ngModel]="controlString('columnId')" [ngModelOptions]="{ standalone: true }"
-                                (ngModelChange)="updateSelect('columnId', $event)" name="my-notes-column"
-                                placeholder="Choose column" ariaLabel="Choose note column" variant="paper"
-                                shape="rounded" size="md" [disabled]="isBusy" [clearable]="false" [searchable]="false"
-                                [fullWidth]="true" />
-                        </div>
-                    </div>
-
-                    <!-- Sticky color + note date + workspace member in one row on desktop. -->
-                    <div class="my-notes-modal-meta-row">
-                        <div class="my-notes-modal-select-field">
-                            <app-label for="my-notes-color" text="Sticky color" />
-                            <app-select id="my-notes-color" [options]="colorOptions" [ngModel]="controlString('color')"
-                                [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('color', $event)"
-                                name="my-notes-color" placeholder="Choose color" ariaLabel="Choose sticky note color"
-                                variant="paper" shape="rounded" size="md" [disabled]="isBusy" [clearable]="false"
-                                [searchable]="false" [fullWidth]="true" />
-                        </div>
-
-                        <div class="my-notes-modal-select-field my-notes-modal-date-field">
-                            <app-datepicker-input formControlName="noteDate" label="Note date"
-                                labelDescription="Optional" placeholder="dd-mm-yyyy" variant="paper"
-                                appearance="outlined" shape="rounded" size="md" [optional]="true" [loading]="isBusy"
-                                [fullWidth]="true" />
-                        </div>
-
-                        <div class="my-notes-modal-select-field">
-                            <app-label for="my-notes-workspace-member" text="Workspace member" />
-                            <app-select id="my-notes-workspace-member" [options]="workspaceMemberOptions()"
-                                [ngModel]="controlString('workspaceMemberId')" [ngModelOptions]="{ standalone: true }"
-                                (ngModelChange)="updateSelect('workspaceMemberId', $event)"
-                                name="my-notes-workspace-member"
-                                [placeholder]="loadingWorkspaceMembers() ? 'Loading members...' : workspaceMemberOptions().length ? 'Select member' : 'No active members'"
-                                searchPlaceholder="Search workspace members..." emptyText="No workspace members found"
-                                loadingText="Loading workspace members..." ariaLabel="Select workspace member"
-                                variant="paper" shape="rounded" size="md" [iconLeft]="LucideUserRound"
-                                [loading]="loadingWorkspaceMembers()" [disabled]="isBusy" [clearable]="true"
-                                [searchable]="true" [fullWidth]="true" />
-                        </div>
-                    </div>
-
-                    <section class="checklist-choice">
-                        <app-switch label="Add checklists"
-                            description="Create separate lists such as Stationery, Grocery, Work and more."
-                            labelPosition="left" variant="noteYellow" size="md" [checked]="withChecklist"
-                            [loading]="loadingChecklist()" [disabled]="isBusy" [fullWidth]="true" [onIcon]="LucideCheck"
-                            ariaLabel="Add checklists to this note" (checkedChange)="setChecklistEnabled($event)" />
-                    </section>
-
-                    @if (loadingChecklist()) {
-                    <div class="checklist-loading" role="status">Loading checklists…</div>
-                    }
-
-                    @if (withChecklist && !loadingChecklist()) {
-                    <section class="checklists-editor">
-                        <div class="checklists-editor-header">
-                            <div>
-                                <span class="checklist-editor-kicker">Checklists</span>
-                                <h3>Organise this note into separate lists</h3>
-                            </div>
-
-                            <app-button label="Add checklist" [iconLeft]="LucidePlus" variant="secondary"
-                                appearance="standard" size="xs" [disabled]="isBusy" (buttonClick)="addChecklist()" />
-                        </div>
-
-                        @for (checklistControl of checklists.controls; track checklistControl; let checklistIndex =
-                        $index) {
-                        <section class="checklist-editor">
-                            <div class="checklist-editor-header">
-                                <div>
-                                    <span class="checklist-editor-kicker">Checklist {{ checklistIndex + 1 }}</span>
-                                    <h3>{{ checklistTitle(checklistIndex) || 'Untitled checklist' }}</h3>
-                                </div>
-
-                                <div class="checklist-editor-actions">
-                                    <app-button label="Add item" [iconLeft]="LucidePlus" variant="secondary"
-                                        appearance="standard" size="xs" [disabled]="isBusy"
-                                        (buttonClick)="addChecklistItem(checklistIndex)" />
-                                    <app-button [icon]="LucideTrash2" [iconOnly]="true" variant="ghost"
-                                        appearance="standard" size="xs" ariaLabel="Remove checklist"
-                                        title="Remove checklist" [disabled]="isBusy"
-                                        (buttonClick)="removeChecklist(checklistIndex)" />
-                                </div>
-                            </div>
-
-                            <app-input label="Checklist title" placeholder="Example: Stationery or Grocery"
-                                variant="paper" appearance="outlined" shape="rounded" size="sm" [clearable]="true"
-                                [showCounter]="true" [maxLength]="checklistTitleMaxLength"
-                                [value]="checklistTitle(checklistIndex)" [disabled]="isBusy" [fullWidth]="true"
-                                (valueChange)="updateChecklistTitle(checklistIndex, $event)" />
-
-                            <div class="checklist-items">
-                                @for (itemControl of checklistItems(checklistIndex)?.controls ?? []; track itemControl;
-                                let itemIndex = $index) {
-                                <div class="checklist-item-row"
-                                    [class.is-completed]="checklistItemCompleted(checklistIndex, itemIndex)">
-                                    <button type="button" class="checklist-complete-button"
-                                        [class.is-completed]="checklistItemCompleted(checklistIndex, itemIndex)"
-                                        [attr.aria-label]="checklistItemCompleted(checklistIndex, itemIndex)
-                                            ? 'Mark checklist item incomplete'
-                                            : 'Mark checklist item complete'" [disabled]="isBusy"
-                                        (click)="toggleChecklistItem(checklistIndex, itemIndex)">
-                                        @if (checklistItemCompleted(checklistIndex, itemIndex)) {
-                                        <app-icon [icon]="LucideCheck" size="xs" />
-                                        }
-                                    </button>
-
-                                    <div class="checklist-item-input">
-                                        <app-input type="text" placeholder="Write a checklist item..." variant="paper"
-                                            appearance="outlined" shape="rounded" size="sm" [clearable]="false"
-                                            [maxLength]="checklistItemTitleMaxLength"
-                                            [value]="checklistItemTitle(checklistIndex, itemIndex)" [disabled]="isBusy"
-                                            [fullWidth]="true"
-                                            (valueChange)="updateChecklistItemTitle(checklistIndex, itemIndex, $event)"
-                                            (enterKey)="addChecklistItem(checklistIndex)" />
-                                    </div>
-
-                                    <app-button class="checklist-remove-button" [icon]="LucideTrash2" [iconOnly]="true"
-                                        variant="ghost" appearance="standard" size="xs"
-                                        ariaLabel="Remove checklist item" title="Remove item" [disabled]="isBusy"
-                                        (buttonClick)="removeChecklistItem(checklistIndex, itemIndex)" />
-                                </div>
-                                }
-                            </div>
-                        </section>
-                        }
-                    </section>
-                    }
-
-                    <div class="my-notes-modal-hint">
-                        <span class="my-notes-modal-hint-pin" aria-hidden="true"></span>
-                        <span>Double-click any sticky note to edit it quickly.</span>
-                    </div>
-                </div>
-                }
+            <div class="my-notes-modal-heading-copy">
+              <span class="my-notes-modal-kicker">{{ eyebrow }}</span>
+              <h2 id="my-notes-modal-title" class="modal-title my-notes-modal-title">
+                {{ modalTitle }}
+              </h2>
+              <p id="my-notes-modal-description" class="my-notes-modal-description">
+                {{ description }}
+              </p>
             </div>
+          </div>
 
-            <app-divider class="my-notes-modal-divider" variant="neutral" lineStyle="solid" spacing="none"
-                [thickness]="1" />
+          <app-button
+            class="my-notes-modal-close"
+            [icon]="LucideX"
+            [iconOnly]="true"
+            variant="danger"
+            appearance="standard"
+            size="sm"
+            ariaLabel="Close note editor"
+            title="Close"
+            [disabled]="isBusy"
+            (buttonClick)="close()"
+          />
+        </header>
 
-            <footer class="modal-footer my-notes-modal-footer">
-                <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
-                    (buttonClick)="close()" />
-                <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                    size="sm" [loading]="loading()" [loadingText]="mode === 'create' ? 'Creating...' : 'Saving...'"
-                    [disabled]="!canSubmit" (buttonClick)="submit()" />
-            </footer>
-        </section>
+        <app-divider
+          class="my-notes-modal-divider"
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="none"
+          [thickness]="1"
+        />
+
+        <div class="modal-body my-notes-modal-body">
+          @if (loadingData()) {
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              [label]="mode === 'create' ? 'Preparing note...' : 'Loading note...'"
+              description="Getting the note editor ready."
+              [minHeight]="320"
+            />
+          } @else {
+            <div class="my-notes-modal-form" [formGroup]="form">
+              <app-input
+                #noteTitleInput
+                type="text"
+                label="Note title"
+                labelDescription="Give the note a short, clear title."
+                placeholder="Example: Homepage launch ideas"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideStickyNote"
+                [required]="true"
+                [clearable]="true"
+                [showCounter]="true"
+                [maxLength]="titleMaxLength"
+                [value]="controlString('title')"
+                [disabled]="isBusy"
+                [fullWidth]="true"
+                autocomplete="off"
+                (valueChange)="updateText('title', $event)"
+                (enterKey)="submit()"
+              />
+
+              <app-input
+                label="Note content"
+                labelDescription="Add the details you want to remember."
+                placeholder="Write the thought you want to keep..."
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [multiline]="true"
+                [rows]="5"
+                [clearable]="true"
+                [showCounter]="true"
+                [maxLength]="contentMaxLength"
+                [value]="controlString('content')"
+                [disabled]="isBusy"
+                [fullWidth]="true"
+                (valueChange)="updateText('content', $event)"
+              />
+
+              <!-- Column stays separate so the metadata row remains clean and readable. -->
+              <div class="my-notes-modal-column-row">
+                <div class="my-notes-modal-select-field">
+                  <app-label for="my-notes-column" text="Column" />
+                  <app-select
+                    id="my-notes-column"
+                    [options]="columnOptions()"
+                    [ngModel]="controlString('columnId')"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateSelect('columnId', $event)"
+                    name="my-notes-column"
+                    placeholder="Choose column"
+                    ariaLabel="Choose note column"
+                    variant="paper"
+                    shape="rounded"
+                    size="md"
+                    [disabled]="isBusy"
+                    [clearable]="false"
+                    [searchable]="false"
+                    [fullWidth]="true"
+                  />
+                </div>
+              </div>
+
+              <!-- Sticky color + note date + workspace member in one row on desktop. -->
+              <div class="my-notes-modal-meta-row">
+                <div class="my-notes-modal-select-field">
+                  <app-label for="my-notes-color" text="Sticky color" />
+                  <app-select
+                    id="my-notes-color"
+                    [options]="colorOptions"
+                    [ngModel]="controlString('color')"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateSelect('color', $event)"
+                    name="my-notes-color"
+                    placeholder="Choose color"
+                    ariaLabel="Choose sticky note color"
+                    variant="paper"
+                    shape="rounded"
+                    size="md"
+                    [disabled]="isBusy"
+                    [clearable]="false"
+                    [searchable]="false"
+                    [fullWidth]="true"
+                  />
+                </div>
+
+                <div class="my-notes-modal-select-field my-notes-modal-date-field">
+                  <app-datepicker-input
+                    formControlName="noteDate"
+                    label="Note date"
+                    labelDescription="Optional"
+                    placeholder="dd-mm-yyyy"
+                    variant="paper"
+                    appearance="outlined"
+                    shape="rounded"
+                    size="md"
+                    [optional]="true"
+                    [loading]="isBusy"
+                    [fullWidth]="true"
+                  />
+                </div>
+
+                <div class="my-notes-modal-select-field">
+                  <app-label for="my-notes-workspace-member" text="Workspace member" />
+                  <app-select
+                    id="my-notes-workspace-member"
+                    [options]="workspaceMemberOptions()"
+                    [ngModel]="controlString('workspaceMemberId')"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateSelect('workspaceMemberId', $event)"
+                    name="my-notes-workspace-member"
+                    [placeholder]="
+                      loadingWorkspaceMembers()
+                        ? 'Loading members...'
+                        : workspaceMemberOptions().length
+                          ? 'Select member'
+                          : 'No active members'
+                    "
+                    searchPlaceholder="Search workspace members..."
+                    emptyText="No workspace members found"
+                    loadingText="Loading workspace members..."
+                    ariaLabel="Select workspace member"
+                    variant="paper"
+                    shape="rounded"
+                    size="md"
+                    [iconLeft]="LucideUserRound"
+                    [loading]="loadingWorkspaceMembers()"
+                    [disabled]="isBusy"
+                    [clearable]="true"
+                    [searchable]="true"
+                    [fullWidth]="true"
+                  />
+                </div>
+              </div>
+
+              <section class="checklist-choice">
+                <app-switch
+                  label="Add checklists"
+                  description="Create separate lists such as Stationery, Grocery, Work and more."
+                  labelPosition="left"
+                  variant="noteYellow"
+                  size="md"
+                  [checked]="withChecklist"
+                  [loading]="loadingChecklist()"
+                  [disabled]="isBusy"
+                  [fullWidth]="true"
+                  [onIcon]="LucideCheck"
+                  ariaLabel="Add checklists to this note"
+                  (checkedChange)="setChecklistEnabled($event)"
+                />
+              </section>
+
+              @if (loadingChecklist()) {
+                <div class="checklist-loading" role="status">Loading checklists…</div>
+              }
+
+              @if (withChecklist && !loadingChecklist()) {
+                <section class="checklists-editor">
+                  <div class="checklists-editor-header">
+                    <div>
+                      <span class="checklist-editor-kicker">Checklists</span>
+                      <h3>Organise this note into separate lists</h3>
+                    </div>
+
+                    <app-button
+                      label="Add checklist"
+                      [iconLeft]="LucidePlus"
+                      variant="secondary"
+                      appearance="standard"
+                      size="xs"
+                      [disabled]="isBusy"
+                      (buttonClick)="addChecklist()"
+                    />
+                  </div>
+
+                  @for (
+                    checklistControl of checklists.controls;
+                    track checklistControl;
+                    let checklistIndex = $index
+                  ) {
+                    <section class="checklist-editor">
+                      <div class="checklist-editor-header">
+                        <div>
+                          <span class="checklist-editor-kicker"
+                            >Checklist {{ checklistIndex + 1 }}</span
+                          >
+                          <h3>{{ checklistTitle(checklistIndex) || 'Untitled checklist' }}</h3>
+                        </div>
+
+                        <div class="checklist-editor-actions">
+                          <app-button
+                            label="Add item"
+                            [iconLeft]="LucidePlus"
+                            variant="secondary"
+                            appearance="standard"
+                            size="xs"
+                            [disabled]="isBusy"
+                            (buttonClick)="addChecklistItem(checklistIndex)"
+                          />
+                          <app-button
+                            [icon]="LucideTrash2"
+                            [iconOnly]="true"
+                            variant="ghost"
+                            appearance="standard"
+                            size="xs"
+                            ariaLabel="Remove checklist"
+                            title="Remove checklist"
+                            [disabled]="isBusy"
+                            (buttonClick)="removeChecklist(checklistIndex)"
+                          />
+                        </div>
+                      </div>
+
+                      <app-input
+                        label="Checklist title"
+                        placeholder="Example: Stationery or Grocery"
+                        variant="paper"
+                        appearance="outlined"
+                        shape="rounded"
+                        size="sm"
+                        [clearable]="true"
+                        [showCounter]="true"
+                        [maxLength]="checklistTitleMaxLength"
+                        [value]="checklistTitle(checklistIndex)"
+                        [disabled]="isBusy"
+                        [fullWidth]="true"
+                        (valueChange)="updateChecklistTitle(checklistIndex, $event)"
+                      />
+
+                      <div class="checklist-items">
+                        @for (
+                          itemControl of checklistItems(checklistIndex)?.controls ?? [];
+                          track itemControl;
+                          let itemIndex = $index
+                        ) {
+                          <div
+                            class="checklist-item-row"
+                            [class.is-completed]="checklistItemCompleted(checklistIndex, itemIndex)"
+                          >
+                            <button
+                              type="button"
+                              class="checklist-complete-button"
+                              [class.is-completed]="
+                                checklistItemCompleted(checklistIndex, itemIndex)
+                              "
+                              [attr.aria-label]="
+                                checklistItemCompleted(checklistIndex, itemIndex)
+                                  ? 'Mark checklist item incomplete'
+                                  : 'Mark checklist item complete'
+                              "
+                              [disabled]="isBusy"
+                              (click)="toggleChecklistItem(checklistIndex, itemIndex)"
+                            >
+                              @if (checklistItemCompleted(checklistIndex, itemIndex)) {
+                                <app-icon [icon]="LucideCheck" size="xs" />
+                              }
+                            </button>
+
+                            <div class="checklist-item-input">
+                              <app-input
+                                type="text"
+                                placeholder="Write a checklist item..."
+                                variant="paper"
+                                appearance="outlined"
+                                shape="rounded"
+                                size="sm"
+                                [clearable]="false"
+                                [maxLength]="checklistItemTitleMaxLength"
+                                [value]="checklistItemTitle(checklistIndex, itemIndex)"
+                                [disabled]="isBusy"
+                                [fullWidth]="true"
+                                (valueChange)="
+                                  updateChecklistItemTitle(checklistIndex, itemIndex, $event)
+                                "
+                                (enterKey)="addChecklistItem(checklistIndex)"
+                              />
+                            </div>
+
+                            <app-button
+                              class="checklist-remove-button"
+                              [icon]="LucideTrash2"
+                              [iconOnly]="true"
+                              variant="ghost"
+                              appearance="standard"
+                              size="xs"
+                              ariaLabel="Remove checklist item"
+                              title="Remove item"
+                              [disabled]="isBusy"
+                              (buttonClick)="removeChecklistItem(checklistIndex, itemIndex)"
+                            />
+                          </div>
+                        }
+                      </div>
+                    </section>
+                  }
+                </section>
+              }
+
+              <div class="my-notes-modal-hint">
+                <span class="my-notes-modal-hint-pin" aria-hidden="true"></span>
+                <span>Double-click any sticky note to edit it quickly.</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <app-divider
+          class="my-notes-modal-divider"
+          variant="neutral"
+          lineStyle="solid"
+          spacing="none"
+          [thickness]="1"
+        />
+
+        <footer class="modal-footer my-notes-modal-footer">
+          <app-button
+            label="Cancel"
+            variant="secondary"
+            appearance="standard"
+            size="sm"
+            [disabled]="isBusy"
+            (buttonClick)="close()"
+          />
+          <app-button
+            [label]="submitLabel"
+            [iconLeft]="submitIcon"
+            variant="noteYellow"
+            appearance="standard"
+            size="sm"
+            [loading]="loading()"
+            [loadingText]="mode === 'create' ? 'Creating...' : 'Saving...'"
+            [disabled]="!canSubmit"
+            (buttonClick)="submit()"
+          />
+        </footer>
+      </section>
     </div>
-</div>
+  </div>
 
-<div class="modal-backdrop fade show my-notes-modal-backdrop" aria-hidden="true"></div>
+  <div class="modal-backdrop fade show my-notes-modal-backdrop" aria-hidden="true"></div>
 }

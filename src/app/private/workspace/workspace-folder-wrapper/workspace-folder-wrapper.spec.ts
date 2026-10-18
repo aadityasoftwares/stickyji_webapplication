@@ -27,7 +27,10 @@ describe('WorkspaceFolderWrapper', () => {
       { id: 'three', name: 'Product additions' },
     ];
 
-    expect(component.visibleFolderPreviews.map(folder => folder.name)).toEqual(['My Notes', 'Testing']);
+    expect(component.visibleFolderPreviews.map((folder) => folder.name)).toEqual([
+      'My Notes',
+      'Testing',
+    ]);
     expect(component.remainingFolderCount).toBe(1);
     expect(component.resolvedCountTooltip).toBe('3 folders: My Notes, Testing, Product additions');
   });

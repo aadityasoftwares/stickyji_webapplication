@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
 import {
   LucideArchive,
@@ -90,20 +86,20 @@ export class BadgeShowcase {
     readonly label: string;
     readonly value: BadgeSize;
   }> = [
-      { label: 'Extra small', value: 'xs' },
-      { label: 'Small', value: 'sm' },
-      { label: 'Medium', value: 'md' },
-      { label: 'Large', value: 'lg' },
-    ];
+    { label: 'Extra small', value: 'xs' },
+    { label: 'Small', value: 'sm' },
+    { label: 'Medium', value: 'md' },
+    { label: 'Large', value: 'lg' },
+  ];
 
   protected readonly shapes: ReadonlyArray<{
     readonly label: string;
     readonly value: BadgeShape;
   }> = [
-      { label: 'Square', value: 'square' },
-      { label: 'Rounded', value: 'rounded' },
-      { label: 'Pill', value: 'pill' },
-    ];
+    { label: 'Square', value: 'square' },
+    { label: 'Rounded', value: 'rounded' },
+    { label: 'Pill', value: 'pill' },
+  ];
 
   protected readonly filters = signal<ReadonlyArray<FilterBadge>>([
     { id: 1, label: 'Important', variant: 'noteYellow' },
@@ -115,9 +111,7 @@ export class BadgeShowcase {
   protected readonly lastAction = signal('Remove a filter to test the output event.');
 
   protected removeFilter(filter: FilterBadge): void {
-    this.filters.update((items) =>
-      items.filter((item) => item.id !== filter.id),
-    );
+    this.filters.update((items) => items.filter((item) => item.id !== filter.id));
 
     this.lastAction.set(`Removed “${filter.label}” filter.`);
   }

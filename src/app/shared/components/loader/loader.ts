@@ -1,23 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
-import {
-  Label,
-  type LabelAppearance,
-  type LabelSize,
-  type LabelVariant,
-} from '../label/label';
+import { Label, type LabelAppearance, type LabelSize, type LabelVariant } from '../label/label';
 
-export type LoaderMode =
-  | 'inline'
-  | 'section'
-  | 'card'
-  | 'overlay'
-  | 'fullscreen';
+export type LoaderMode = 'inline' | 'section' | 'card' | 'overlay' | 'fullscreen';
 
 export type LoaderSize = 'sm' | 'md' | 'lg';
 
@@ -46,10 +32,7 @@ export type LoaderAriaLive = 'off' | 'polite' | 'assertive';
 @Component({
   selector: 'app-loader',
   standalone: true,
-  imports: [
-    NgClass,
-    Label,
-  ],
+  imports: [NgClass, Label],
   templateUrl: './loader.html',
   styleUrl: './loader.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -124,9 +107,7 @@ export class Loader {
   }
 
   get resolvedMinHeight(): string {
-    return typeof this.minHeight === 'number'
-      ? `${Math.max(0, this.minHeight)}px`
-      : this.minHeight;
+    return typeof this.minHeight === 'number' ? `${Math.max(0, this.minHeight)}px` : this.minHeight;
   }
 
   get hasProgress(): boolean {
@@ -146,10 +127,7 @@ export class Loader {
   }
 
   get accessibleLabel(): string {
-    const message = [
-      this.label.trim(),
-      this.description.trim(),
-    ].filter(Boolean).join('. ');
+    const message = [this.label.trim(), this.description.trim()].filter(Boolean).join('. ');
 
     return message || this.ariaLabel;
   }

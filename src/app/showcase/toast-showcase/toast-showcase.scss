@@ -1,431 +1,436 @@
 @use '../../styles/variables' as *;
 
 :host {
-    display: block;
-    min-height: 100vh;
-    background: $app-bg;
+  display: block;
+  min-height: 100vh;
+  background: $app-bg;
 }
 
 .toast-demo {
-    width: min(1180px, calc(100% - 32px));
-    margin: 0 auto;
-    padding: 40px 0 64px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 64px;
 }
 
 .demo-header {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    padding: 26px 28px;
-    background: $paper;
-    border: 1px solid $border;
-    border-radius: $radius-lg;
-    box-shadow: $shadow;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding: 26px 28px;
+  background: $paper;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow;
 }
 
 .demo-eyebrow {
-    display: block;
-    margin-bottom: 6px;
-    color: $accent;
-    font: 800 12px/1.2 $font-body;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+  color: $accent;
+  font: 800 12px/1.2 $font-body;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .demo-header h1 {
-    margin: 0;
-    color: $heading;
-    font: 700 clamp(30px, 4vw, 44px)/1 $font-heading;
+  margin: 0;
+  color: $heading;
+  font: 700 clamp(30px, 4vw, 44px)/1 $font-heading;
 }
 
 .demo-header p {
-    max-width: 730px;
-    margin: 10px 0 0;
-    color: $text-secondary;
-    font: 500 15px/1.5 $font-body;
+  max-width: 730px;
+  margin: 10px 0 0;
+  color: $text-secondary;
+  font: 500 15px/1.5 $font-body;
 }
 
 .demo-section {
-    position: relative;
-    margin-top: 18px;
-    padding: 24px;
-    background: $paper;
-    border: 1px solid $border-light;
-    border-radius: $radius-md;
-    box-shadow: $shadow-sm;
+  position: relative;
+  margin-top: 18px;
+  padding: 24px;
+  background: $paper;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
 }
 
 .section-heading {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .section-heading h2 {
-    margin: 0;
-    color: $heading;
-    font: 700 25px/1.1 $font-heading;
+  margin: 0;
+  color: $heading;
+  font: 700 25px/1.1 $font-heading;
 }
 
 .section-heading p {
-    margin: 6px 0 0;
-    color: $text-secondary;
-    font: 500 13px/1.45 $font-body;
+  margin: 6px 0 0;
+  color: $text-secondary;
+  font: 500 13px/1.45 $font-body;
 }
 
 .section-heading p strong {
-    color: $text-primary;
-    text-transform: capitalize;
+  color: $text-primary;
+  text-transform: capitalize;
 }
 
 .demo-section-badge {
-    display: inline-flex;
-    margin-bottom: 8px;
-    padding: 5px 9px;
-    color: #205576;
-    background: $note-button-blue;
-    border: 1px solid rgba(32, 85, 118, 0.18);
-    border-radius: 999px;
-    font: 800 10px/1 $font-body;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 5px 9px;
+  color: #205576;
+  background: $note-button-blue;
+  border: 1px solid rgba(32, 85, 118, 0.18);
+  border-radius: 999px;
+  font: 800 10px/1 $font-body;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .demo-section-badge-pink {
-    color: #7e2247;
-    background: $note-button-pink;
+  color: #7e2247;
+  background: $note-button-pink;
 }
 
 .demo-section-badge-green {
-    color: #245f31;
-    background: $note-button-green;
+  color: #245f31;
+  background: $note-button-green;
 }
 
 .demo-section-badge-purple {
-    color: #5c367d;
-    background: $note-button-purple;
+  color: #5c367d;
+  background: $note-button-purple;
 }
 
 .demo-action-grid {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .note-palette-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .palette-note {
-    position: relative;
-    display: flex;
-    min-width: 0;
-    min-height: 132px;
-    box-sizing: border-box;
-    gap: 5px;
-    align-items: flex-start;
-    padding: 19px 17px;
-    flex-direction: column;
-    color: $text-primary;
-    background: $paper-dark;
-    border: 1px solid rgba($text-primary, 0.12);
-    border-radius: 10px 10px 10px 3px;
-    box-shadow: 2px 3px 0 rgba($text-primary, 0.07);
-    font-family: $font-body;
-    text-align: left;
-    cursor: pointer;
-    transition: box-shadow 160ms ease, transform 160ms ease;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 132px;
+  box-sizing: border-box;
+  gap: 5px;
+  align-items: flex-start;
+  padding: 19px 17px;
+  flex-direction: column;
+  color: $text-primary;
+  background: $paper-dark;
+  border: 1px solid rgba($text-primary, 0.12);
+  border-radius: 10px 10px 10px 3px;
+  box-shadow: 2px 3px 0 rgba($text-primary, 0.07);
+  font-family: $font-body;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .palette-note::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    width: 56px;
-    height: 12px;
-    background: rgba($paper, 0.66);
-    border-inline: 1px solid rgba($text-primary, 0.06);
-    transform: translateX(-50%) rotate(-1deg);
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 56px;
+  height: 12px;
+  background: rgba($paper, 0.66);
+  border-inline: 1px solid rgba($text-primary, 0.06);
+  transform: translateX(-50%) rotate(-1deg);
 }
 
 .palette-note:hover {
-    box-shadow: 3px 5px 0 rgba($text-primary, 0.09), $shadow-sm;
-    transform: translateY(-2px) rotate(-0.4deg);
+  box-shadow:
+    3px 5px 0 rgba($text-primary, 0.09),
+    $shadow-sm;
+  transform: translateY(-2px) rotate(-0.4deg);
 }
 
 .palette-note:focus-visible,
 .position-board button:focus-visible {
-    outline: 3px solid rgba($accent, 0.3);
-    outline-offset: 3px;
+  outline: 3px solid rgba($accent, 0.3);
+  outline-offset: 3px;
 }
 
 .palette-note app-icon {
-    margin-bottom: auto;
+  margin-bottom: auto;
 }
 
 .palette-note strong {
-    font-size: 15px;
-    font-weight: 800;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .palette-note span {
-    color: $text-secondary;
-    font-size: 11px;
-    font-weight: 600;
+  color: $text-secondary;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .palette-note-yellow {
-    background: $note-yellow;
+  background: $note-yellow;
 }
 
 .palette-note-pink {
-    background: $note-pink;
+  background: $note-pink;
 }
 
 .palette-note-blue {
-    background: $note-blue;
+  background: $note-blue;
 }
 
 .palette-note-green {
-    background: $note-green;
+  background: $note-green;
 }
 
 .palette-note-purple {
-    background: $note-purple;
+  background: $note-purple;
 }
 
 .behavior-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .behavior-card {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
-    padding: 17px;
-    background: $paper-light;
-    border: 1px solid $border-light;
-    border-radius: $radius-sm;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 17px;
+  background: $paper-light;
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
 }
 
-.behavior-card>app-button {
-    grid-column: 2;
-    justify-self: start;
+.behavior-card > app-button {
+  grid-column: 2;
+  justify-self: start;
 }
 
 .behavior-card h3 {
-    margin: 1px 0 4px;
-    color: $heading;
-    font: 750 14px/1.25 $font-heading;
+  margin: 1px 0 4px;
+  color: $heading;
+  font: 750 14px/1.25 $font-heading;
 }
 
 .behavior-card p {
-    margin: 0;
-    color: $text-secondary;
-    font: 500 11px/1.45 $font-body;
+  margin: 0;
+  color: $text-secondary;
+  font: 500 11px/1.45 $font-body;
 }
 
 .behavior-icon {
-    display: grid;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    color: $text-primary;
-    background: $paper-dark;
-    border: 1px solid rgba($text-primary, 0.1);
-    border-radius: 9px 9px 9px 3px;
-    transform: rotate(-2deg);
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: $text-primary;
+  background: $paper-dark;
+  border: 1px solid rgba($text-primary, 0.1);
+  border-radius: 9px 9px 9px 3px;
+  transform: rotate(-2deg);
 }
 
 .behavior-icon-blue {
-    color: #245f8a;
-    background: $note-blue;
+  color: #245f8a;
+  background: $note-blue;
 }
 
 .behavior-icon-red {
-    color: #9f2424;
-    background: $note-red;
+  color: #9f2424;
+  background: $note-red;
 }
 
 .behavior-icon-yellow {
-    color: #725400;
-    background: $note-yellow;
+  color: #725400;
+  background: $note-yellow;
 }
 
 .position-section {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .position-board {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(2, 92px);
-    gap: 10px;
-    padding: 14px;
-    background: $paper-dark;
-    border: 1px dashed $border;
-    border-radius: $radius-sm;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 92px);
+  gap: 10px;
+  padding: 14px;
+  background: $paper-dark;
+  border: 1px dashed $border;
+  border-radius: $radius-sm;
 }
 
 .position-board button {
-    display: flex;
-    gap: 7px;
-    align-items: center;
-    justify-content: center;
-    color: $text-secondary;
-    background: rgba($paper, 0.72);
-    border: 1px solid transparent;
-    border-radius: $radius-xs;
-    font: 750 12px/1.2 $font-body;
-    cursor: pointer;
-    transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+  background: rgba($paper, 0.72);
+  border: 1px solid transparent;
+  border-radius: $radius-xs;
+  font: 750 12px/1.2 $font-body;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .position-board button span {
-    width: 8px;
-    height: 8px;
-    background: $border;
-    border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  background: $border;
+  border-radius: 50%;
 }
 
 .position-board button:hover {
-    color: $text-primary;
-    background: $paper;
-    border-color: $border;
+  color: $text-primary;
+  background: $paper;
+  border-color: $border;
 }
 
 .position-board button.is-active {
-    color: $text-primary;
-    background: $note-yellow;
-    border-color: rgba(114, 84, 0, 0.18);
+  color: $text-primary;
+  background: $note-yellow;
+  border-color: rgba(114, 84, 0, 0.18);
 }
 
 .position-board button.is-active span {
-    background: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  background: $primary;
+  box-shadow: 0 0 0 3px rgba($primary, 0.12);
 }
 
 .implementation-note {
-    display: flex;
-    gap: 11px;
-    align-items: flex-start;
-    margin-top: 18px;
-    padding: 15px 17px;
-    color: $text-secondary;
-    background: $note-blue;
-    border: 1px solid rgba(36, 95, 138, 0.16);
-    border-radius: $radius-sm;
-    font: 600 12px/1.5 $font-body;
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  margin-top: 18px;
+  padding: 15px 17px;
+  color: $text-secondary;
+  background: $note-blue;
+  border: 1px solid rgba(36, 95, 138, 0.16);
+  border-radius: $radius-sm;
+  font: 600 12px/1.5 $font-body;
 }
 
-.implementation-note>span {
-    display: grid;
-    flex: 0 0 30px;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    color: #245f8a;
-    background: rgba($paper, 0.58);
-    border-radius: 7px;
+.implementation-note > span {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: #245f8a;
+  background: rgba($paper, 0.58);
+  border-radius: 7px;
 }
 
 .implementation-note p {
-    margin: 4px 0 0;
+  margin: 4px 0 0;
 }
 
 .implementation-note code {
-    padding: 2px 5px;
-    color: $text-primary;
-    background: rgba($paper, 0.58);
-    border-radius: 4px;
-    font-family: $font-mono;
-    font-size: 0.92em;
+  padding: 2px 5px;
+  color: $text-primary;
+  background: rgba($paper, 0.58);
+  border-radius: 4px;
+  font-family: $font-mono;
+  font-size: 0.92em;
 }
 
 @media (max-width: 900px) {
-    .note-palette-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .note-palette-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 
-    .behavior-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .behavior-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
-    .toast-demo {
-        width: min(100% - 20px, 1180px);
-        padding: 20px 0 40px;
-    }
+  .toast-demo {
+    width: min(100% - 20px, 1180px);
+    padding: 20px 0 40px;
+  }
 
-    .demo-header {
-        padding: 20px;
-    }
+  .demo-header {
+    padding: 20px;
+  }
 
-    .demo-header>app-icon {
-        display: none;
-    }
+  .demo-header > app-icon {
+    display: none;
+  }
 
-    .demo-section {
-        padding: 18px;
-    }
+  .demo-section {
+    padding: 18px;
+  }
 
-    .note-palette-grid,
-    .behavior-grid {
-        grid-template-columns: 1fr;
-    }
+  .note-palette-grid,
+  .behavior-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .palette-note {
-        min-height: 112px;
-    }
+  .palette-note {
+    min-height: 112px;
+  }
 
-    .position-board {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: repeat(3, 72px);
-    }
+  .position-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, 72px);
+  }
 }
 
 @media (max-width: 400px) {
-    .demo-action-grid app-button {
-        width: 100%;
-    }
+  .demo-action-grid app-button {
+    width: 100%;
+  }
 
-    .behavior-card {
-        grid-template-columns: 1fr;
-    }
+  .behavior-card {
+    grid-template-columns: 1fr;
+  }
 
-    .behavior-card>app-button {
-        grid-column: 1;
-    }
+  .behavior-card > app-button {
+    grid-column: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .palette-note,
-    .position-board button {
-        transition: none;
-    }
+  .palette-note,
+  .position-board button {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
-
-    .demo-header,
-    .demo-section,
-    .palette-note,
-    .behavior-card,
-    .position-board,
-    .position-board button,
-    .implementation-note {
-        color: CanvasText;
-        background: Canvas;
-        border: 1px solid CanvasText;
-        box-shadow: none;
-    }
+  .demo-header,
+  .demo-section,
+  .palette-note,
+  .behavior-card,
+  .position-board,
+  .position-board button,
+  .implementation-note {
+    color: CanvasText;
+    background: Canvas;
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
 }

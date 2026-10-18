@@ -1,68 +1,94 @@
-<div class="app-card-shell" [ngClass]="shellClasses" [style.width]="fullWidth ? '100%' : width ? width + 'px' : null"
-    [style.max-width.px]="maxWidth" [style.--app-card-fold-size]="resolvedFoldSize + 'px'">
-    <article class="app-card" [ngClass]="cardClasses" [id]="cardId || null" [attr.data-card-shape]="resolvedShape"
-        [attr.data-card-shape-source]="shape ?? null" [style.width]="'100%'" [style.height.px]="height"
-        [style.--app-card-padding]="cardPadding + 'px'" [style.--app-card-radius]="cardRadius + 'px'"
-        [style.--app-card-min-height]="resolvedMinHeight + 'px'" [style.--app-card-fold-size]="resolvedFoldSize + 'px'"
-        [style.--app-card-media-width]="mediaWidth + 'px'"
-        [style.--app-card-body-max-height]="bodyMaxHeight ? bodyMaxHeight + 'px' : 'none'"
-        [attr.role]="clickable ? 'button' : null" [attr.tabindex]="tabIndex" [attr.aria-label]="accessibleLabel"
-        [attr.aria-labelledby]="ariaLabelledBy" [attr.aria-describedby]="ariaDescribedBy"
-        [attr.aria-disabled]="isDisabled ? 'true' : null" [attr.aria-pressed]="clickable && selected ? 'true' : null"
-        [attr.aria-busy]="loading ? 'true' : null" (click)="onCardClick($event)" (keydown)="onCardKeydown($event)">
-        <div class="app-card-media">
-            <ng-content select="[card-media]"></ng-content>
+<div
+  class="app-card-shell"
+  [ngClass]="shellClasses"
+  [style.width]="fullWidth ? '100%' : width ? width + 'px' : null"
+  [style.max-width.px]="maxWidth"
+  [style.--app-card-fold-size]="resolvedFoldSize + 'px'"
+>
+  <article
+    class="app-card"
+    [ngClass]="cardClasses"
+    [id]="cardId || null"
+    [attr.data-card-shape]="resolvedShape"
+    [attr.data-card-shape-source]="shape ?? null"
+    [style.width]="'100%'"
+    [style.height.px]="height"
+    [style.--app-card-padding]="cardPadding + 'px'"
+    [style.--app-card-radius]="cardRadius + 'px'"
+    [style.--app-card-min-height]="resolvedMinHeight + 'px'"
+    [style.--app-card-fold-size]="resolvedFoldSize + 'px'"
+    [style.--app-card-media-width]="mediaWidth + 'px'"
+    [style.--app-card-body-max-height]="bodyMaxHeight ? bodyMaxHeight + 'px' : 'none'"
+    [attr.role]="clickable ? 'button' : null"
+    [attr.tabindex]="tabIndex"
+    [attr.aria-label]="accessibleLabel"
+    [attr.aria-labelledby]="ariaLabelledBy"
+    [attr.aria-describedby]="ariaDescribedBy"
+    [attr.aria-disabled]="isDisabled ? 'true' : null"
+    [attr.aria-pressed]="clickable && selected ? 'true' : null"
+    [attr.aria-busy]="loading ? 'true' : null"
+    (click)="onCardClick($event)"
+    (keydown)="onCardKeydown($event)"
+  >
+    <div class="app-card-media">
+      <ng-content select="[card-media]"></ng-content>
+    </div>
+
+    <div class="app-card-content">
+      <header class="app-card-header">
+        <div class="app-card-header-icon">
+          <ng-content select="[card-icon]"></ng-content>
         </div>
 
-        <div class="app-card-content">
-            <header class="app-card-header">
-                <div class="app-card-header-icon">
-                    <ng-content select="[card-icon]"></ng-content>
-                </div>
+        <div class="app-card-heading">
+          <div class="app-card-eyebrow">
+            @if (eyebrow) {
+              {{ eyebrow }}
+            } @else {
+              <ng-content select="[card-eyebrow]"></ng-content>
+            }
+          </div>
 
-                <div class="app-card-heading">
-                    <div class="app-card-eyebrow">
-                        @if (eyebrow) { {{ eyebrow }} } @else {
-                        <ng-content select="[card-eyebrow]"></ng-content>
-                        }
-                    </div>
+          <div class="app-card-title">
+            @if (cardTitle) {
+              {{ cardTitle }}
+            } @else {
+              <ng-content select="[card-title]"></ng-content>
+            }
+          </div>
 
-                    <div class="app-card-title">
-                        @if (cardTitle) { {{ cardTitle }} } @else {
-                        <ng-content select="[card-title]"></ng-content>
-                        }
-                    </div>
-
-                    <div class="app-card-subtitle">
-                        @if (subtitle) { {{ subtitle }} } @else {
-                        <ng-content select="[card-subtitle]"></ng-content>
-                        }
-                    </div>
-                </div>
-
-                <div class="app-card-header-action" data-card-interactive>
-                    <ng-content select="[card-header-action]"></ng-content>
-                </div>
-            </header>
-
-            <div class="app-card-body">
-                <ng-content></ng-content>
-            </div>
-
-            <footer class="app-card-footer" data-card-interactive>
-                <ng-content select="[card-footer]"></ng-content>
-            </footer>
+          <div class="app-card-subtitle">
+            @if (subtitle) {
+              {{ subtitle }}
+            } @else {
+              <ng-content select="[card-subtitle]"></ng-content>
+            }
+          </div>
         </div>
 
-        @if (loading) {
-        <div class="app-card-loading-overlay" aria-hidden="true">
-            <span class="app-card-spinner"></span>
+        <div class="app-card-header-action" data-card-interactive>
+          <ng-content select="[card-header-action]"></ng-content>
         </div>
-        }
-    </article>
+      </header>
 
-    <!-- Must remain outside the clipped article. -->
-    @if (resolvedShape === 'stickyFold') {
-    <span class="sticky-corner" aria-hidden="true"></span>
+      <div class="app-card-body">
+        <ng-content></ng-content>
+      </div>
+
+      <footer class="app-card-footer" data-card-interactive>
+        <ng-content select="[card-footer]"></ng-content>
+      </footer>
+    </div>
+
+    @if (loading) {
+      <div class="app-card-loading-overlay" aria-hidden="true">
+        <span class="app-card-spinner"></span>
+      </div>
     }
+  </article>
+
+  <!-- Must remain outside the clipped article. -->
+  @if (resolvedShape === 'stickyFold') {
+    <span class="sticky-corner" aria-hidden="true"></span>
+  }
 </div>

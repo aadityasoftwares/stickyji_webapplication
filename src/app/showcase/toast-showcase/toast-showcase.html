@@ -1,192 +1,256 @@
 <div class="toast-demo">
-    <header class="demo-header">
+  <header class="demo-header">
+    <div>
+      <span class="demo-eyebrow">Sticky Ji design system</span>
+      <h1>Reusable Toasts</h1>
+      <p>
+        Trigger real application notifications and test their color, timing, placement, actions, and
+        accessible behavior.
+      </p>
+    </div>
+
+    <app-icon
+      [icon]="icons.bell"
+      size="2xl"
+      surface="noteBlue"
+      shape="rounded"
+      ariaLabel="Sticky-note notifications"
+    />
+  </header>
+
+  <section class="demo-section">
+    <div class="section-heading">
+      <span class="demo-section-badge">Application feedback</span>
+      <h2>Semantic variants</h2>
+      <p>Use these for outcomes that need a consistent meaning across the product.</p>
+    </div>
+
+    <div class="demo-action-grid">
+      <app-button label="Success" variant="success" [hasIcon]="true" (buttonClick)="showSuccess()">
+        <app-icon button-icon-left [icon]="icons.check" size="inherit" />
+      </app-button>
+
+      <app-button label="Warning" variant="warning" [hasIcon]="true" (buttonClick)="showWarning()">
+        <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
+      </app-button>
+
+      <app-button label="Error" variant="danger" [hasIcon]="true" (buttonClick)="showError()">
+        <app-icon button-icon-left [icon]="icons.danger" size="inherit" />
+      </app-button>
+
+      <app-button label="Information" variant="info" [hasIcon]="true" (buttonClick)="showInfo()">
+        <app-icon button-icon-left [icon]="icons.info" size="inherit" />
+      </app-button>
+
+      <app-button label="Neutral" variant="outline" [hasIcon]="true" (buttonClick)="showNeutral()">
+        <app-icon button-icon-left [icon]="icons.bell" size="inherit" />
+      </app-button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <div class="section-heading">
+      <span class="demo-section-badge demo-section-badge-pink">Brand palette</span>
+      <h2>Sticky-note variants</h2>
+      <p>Friendly product moments can use the note palette without changing toast behavior.</p>
+    </div>
+
+    <div class="note-palette-grid">
+      <button
+        class="palette-note palette-note-yellow"
+        type="button"
+        (click)="showNote('noteYellow')"
+      >
+        <app-icon [icon]="icons.stickyNote" size="sm" />
+        <strong>Yellow</strong>
+        <span>Ideas and reminders</span>
+      </button>
+
+      <button class="palette-note palette-note-pink" type="button" (click)="showNote('notePink')">
+        <app-icon [icon]="icons.sparkles" size="sm" />
+        <strong>Pink</strong>
+        <span>Nudges and moments</span>
+      </button>
+
+      <button class="palette-note palette-note-blue" type="button" (click)="showNote('noteBlue')">
+        <app-icon [icon]="icons.info" size="sm" />
+        <strong>Blue</strong>
+        <span>Sharing and updates</span>
+      </button>
+
+      <button class="palette-note palette-note-green" type="button" (click)="showNote('noteGreen')">
+        <app-icon [icon]="icons.check" size="sm" />
+        <strong>Green</strong>
+        <span>Progress and done</span>
+      </button>
+
+      <button
+        class="palette-note palette-note-purple"
+        type="button"
+        (click)="showNote('notePurple')"
+      >
+        <app-icon [icon]="icons.palette" size="sm" />
+        <strong>Purple</strong>
+        <span>Personalization</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <div class="section-heading">
+      <span class="demo-section-badge demo-section-badge-green">Real interactions</span>
+      <h2>Actions and behavior</h2>
+      <p>These examples cover the states normally needed in production workflows.</p>
+    </div>
+
+    <div class="behavior-grid">
+      <article class="behavior-card">
+        <span class="behavior-icon behavior-icon-blue"
+          ><app-icon [icon]="icons.undo" size="md"
+        /></span>
         <div>
-            <span class="demo-eyebrow">Sticky Ji design system</span>
-            <h1>Reusable Toasts</h1>
-            <p>
-                Trigger real application notifications and test their color, timing,
-                placement, actions, and accessible behavior.
-            </p>
+          <h3>Undo action</h3>
+          <p>Gives the user time to reverse a completed operation.</p>
         </div>
+        <app-button label="Move task" variant="info" size="sm" (buttonClick)="showUndoAction()" />
+      </article>
 
-        <app-icon [icon]="icons.bell" size="2xl" surface="noteBlue" shape="rounded"
-            ariaLabel="Sticky-note notifications" />
-    </header>
-
-    <section class="demo-section">
-        <div class="section-heading">
-            <span class="demo-section-badge">Application feedback</span>
-            <h2>Semantic variants</h2>
-            <p>Use these for outcomes that need a consistent meaning across the product.</p>
+      <article class="behavior-card">
+        <span class="behavior-icon behavior-icon-red"
+          ><app-icon [icon]="icons.pin" size="md"
+        /></span>
+        <div>
+          <h3>Persistent error</h3>
+          <p>Stays visible until the user dismisses it manually.</p>
         </div>
+        <app-button
+          label="Go offline"
+          variant="danger"
+          size="sm"
+          (buttonClick)="showPersistent()"
+        />
+      </article>
 
-        <div class="demo-action-grid">
-            <app-button label="Success" variant="success" [hasIcon]="true" (buttonClick)="showSuccess()">
-                <app-icon button-icon-left [icon]="icons.check" size="inherit" />
-            </app-button>
-
-            <app-button label="Warning" variant="warning" [hasIcon]="true" (buttonClick)="showWarning()">
-                <app-icon button-icon-left [icon]="icons.warning" size="inherit" />
-            </app-button>
-
-            <app-button label="Error" variant="danger" [hasIcon]="true" (buttonClick)="showError()">
-                <app-icon button-icon-left [icon]="icons.danger" size="inherit" />
-            </app-button>
-
-            <app-button label="Information" variant="info" [hasIcon]="true" (buttonClick)="showInfo()">
-                <app-icon button-icon-left [icon]="icons.info" size="inherit" />
-            </app-button>
-
-            <app-button label="Neutral" variant="outline" [hasIcon]="true" (buttonClick)="showNeutral()">
-                <app-icon button-icon-left [icon]="icons.bell" size="inherit" />
-            </app-button>
+      <article class="behavior-card">
+        <span class="behavior-icon behavior-icon-yellow"
+          ><app-icon [icon]="icons.pin" size="md"
+        /></span>
+        <div>
+          <h3>Custom icon</h3>
+          <p>Pass any icon definition supported by the common icon component.</p>
         </div>
-    </section>
+        <app-button
+          label="Pin note"
+          variant="noteYellow"
+          size="sm"
+          (buttonClick)="showCustomIcon()"
+        />
+      </article>
 
-    <section class="demo-section">
-        <div class="section-heading">
-            <span class="demo-section-badge demo-section-badge-pink">Brand palette</span>
-            <h2>Sticky-note variants</h2>
-            <p>Friendly product moments can use the note palette without changing toast behavior.</p>
+      <article class="behavior-card">
+        <span class="behavior-icon"><app-icon [icon]="icons.bell" size="md" /></span>
+        <div>
+          <h3>No icon</h3>
+          <p>Use a quieter layout for low-priority notifications.</p>
         </div>
+        <app-button
+          label="Show quiet toast"
+          variant="outline"
+          size="sm"
+          (buttonClick)="showWithoutIcon()"
+        />
+      </article>
 
-        <div class="note-palette-grid">
-            <button class="palette-note palette-note-yellow" type="button" (click)="showNote('noteYellow')">
-                <app-icon [icon]="icons.stickyNote" size="sm" />
-                <strong>Yellow</strong>
-                <span>Ideas and reminders</span>
-            </button>
-
-            <button class="palette-note palette-note-pink" type="button" (click)="showNote('notePink')">
-                <app-icon [icon]="icons.sparkles" size="sm" />
-                <strong>Pink</strong>
-                <span>Nudges and moments</span>
-            </button>
-
-            <button class="palette-note palette-note-blue" type="button" (click)="showNote('noteBlue')">
-                <app-icon [icon]="icons.info" size="sm" />
-                <strong>Blue</strong>
-                <span>Sharing and updates</span>
-            </button>
-
-            <button class="palette-note palette-note-green" type="button" (click)="showNote('noteGreen')">
-                <app-icon [icon]="icons.check" size="sm" />
-                <strong>Green</strong>
-                <span>Progress and done</span>
-            </button>
-
-            <button class="palette-note palette-note-purple" type="button" (click)="showNote('notePurple')">
-                <app-icon [icon]="icons.palette" size="sm" />
-                <strong>Purple</strong>
-                <span>Personalization</span>
-            </button>
+      <article class="behavior-card">
+        <span class="behavior-icon behavior-icon-blue"
+          ><app-icon [icon]="icons.refresh" size="md"
+        /></span>
+        <div>
+          <h3>Deduplicated update</h3>
+          <p>Repeated events update one toast instead of filling the queue.</p>
         </div>
-    </section>
+        <app-button
+          [label]="'Send update (' + syncUpdateCount + ')'"
+          variant="info"
+          size="sm"
+          (buttonClick)="showDedupeUpdate()"
+        />
+      </article>
 
-    <section class="demo-section">
-        <div class="section-heading">
-            <span class="demo-section-badge demo-section-badge-green">Real interactions</span>
-            <h2>Actions and behavior</h2>
-            <p>These examples cover the states normally needed in production workflows.</p>
+      <article class="behavior-card">
+        <span class="behavior-icon"><app-icon [icon]="icons.eraser" size="md" /></span>
+        <div>
+          <h3>Clear the queue</h3>
+          <p>Dismiss every active and waiting notification together.</p>
         </div>
+        <app-button label="Clear all" variant="ghost" size="sm" (buttonClick)="clearAll()" />
+      </article>
+    </div>
+  </section>
 
-        <div class="behavior-grid">
-            <article class="behavior-card">
-                <span class="behavior-icon behavior-icon-blue"><app-icon [icon]="icons.undo" size="md" /></span>
-                <div>
-                    <h3>Undo action</h3>
-                    <p>Gives the user time to reverse a completed operation.</p>
-                </div>
-                <app-button label="Move task" variant="info" size="sm" (buttonClick)="showUndoAction()" />
-            </article>
+  <section class="demo-section position-section">
+    <div class="section-heading">
+      <span class="demo-section-badge demo-section-badge-purple">Responsive placement</span>
+      <h2>Screen positions</h2>
+      <p>
+        Current position: <strong>{{ positionLabel(position) }}</strong
+        >. Mobile automatically uses the full available width.
+      </p>
+    </div>
 
-            <article class="behavior-card">
-                <span class="behavior-icon behavior-icon-red"><app-icon [icon]="icons.pin" size="md" /></span>
-                <div>
-                    <h3>Persistent error</h3>
-                    <p>Stays visible until the user dismisses it manually.</p>
-                </div>
-                <app-button label="Go offline" variant="danger" size="sm" (buttonClick)="showPersistent()" />
-            </article>
+    <div class="position-board" aria-label="Choose toast position">
+      <button
+        type="button"
+        [class.is-active]="position === 'top-left'"
+        (click)="showAt('top-left')"
+      >
+        <span></span>Top left
+      </button>
+      <button
+        type="button"
+        [class.is-active]="position === 'top-center'"
+        (click)="showAt('top-center')"
+      >
+        <span></span>Top center
+      </button>
+      <button
+        type="button"
+        [class.is-active]="position === 'top-right'"
+        (click)="showAt('top-right')"
+      >
+        <span></span>Top right
+      </button>
+      <button
+        type="button"
+        [class.is-active]="position === 'bottom-left'"
+        (click)="showAt('bottom-left')"
+      >
+        <span></span>Bottom left
+      </button>
+      <button
+        type="button"
+        [class.is-active]="position === 'bottom-center'"
+        (click)="showAt('bottom-center')"
+      >
+        <span></span>Bottom center
+      </button>
+      <button
+        type="button"
+        [class.is-active]="position === 'bottom-right'"
+        (click)="showAt('bottom-right')"
+      >
+        <span></span>Bottom right
+      </button>
+    </div>
+  </section>
 
-            <article class="behavior-card">
-                <span class="behavior-icon behavior-icon-yellow"><app-icon [icon]="icons.pin" size="md" /></span>
-                <div>
-                    <h3>Custom icon</h3>
-                    <p>Pass any icon definition supported by the common icon component.</p>
-                </div>
-                <app-button label="Pin note" variant="noteYellow" size="sm" (buttonClick)="showCustomIcon()" />
-            </article>
+  <section class="implementation-note">
+    <span><app-icon [icon]="icons.mapPin" size="sm" /></span>
+    <p>
+      Add exactly one <code>&lt;app-toast /&gt;</code> to the application shell. Every feature can
+      then inject <code>ToastService</code> and trigger notifications.
+    </p>
+  </section>
 
-            <article class="behavior-card">
-                <span class="behavior-icon"><app-icon [icon]="icons.bell" size="md" /></span>
-                <div>
-                    <h3>No icon</h3>
-                    <p>Use a quieter layout for low-priority notifications.</p>
-                </div>
-                <app-button label="Show quiet toast" variant="outline" size="sm" (buttonClick)="showWithoutIcon()" />
-            </article>
-
-            <article class="behavior-card">
-                <span class="behavior-icon behavior-icon-blue"><app-icon [icon]="icons.refresh" size="md" /></span>
-                <div>
-                    <h3>Deduplicated update</h3>
-                    <p>Repeated events update one toast instead of filling the queue.</p>
-                </div>
-                <app-button [label]="'Send update (' + syncUpdateCount + ')'" variant="info" size="sm"
-                    (buttonClick)="showDedupeUpdate()" />
-            </article>
-
-            <article class="behavior-card">
-                <span class="behavior-icon"><app-icon [icon]="icons.eraser" size="md" /></span>
-                <div>
-                    <h3>Clear the queue</h3>
-                    <p>Dismiss every active and waiting notification together.</p>
-                </div>
-                <app-button label="Clear all" variant="ghost" size="sm" (buttonClick)="clearAll()" />
-            </article>
-        </div>
-    </section>
-
-    <section class="demo-section position-section">
-        <div class="section-heading">
-            <span class="demo-section-badge demo-section-badge-purple">Responsive placement</span>
-            <h2>Screen positions</h2>
-            <p>
-                Current position: <strong>{{ positionLabel(position) }}</strong>.
-                Mobile automatically uses the full available width.
-            </p>
-        </div>
-
-        <div class="position-board" aria-label="Choose toast position">
-            <button type="button" [class.is-active]="position === 'top-left'" (click)="showAt('top-left')">
-                <span></span>Top left
-            </button>
-            <button type="button" [class.is-active]="position === 'top-center'" (click)="showAt('top-center')">
-                <span></span>Top center
-            </button>
-            <button type="button" [class.is-active]="position === 'top-right'" (click)="showAt('top-right')">
-                <span></span>Top right
-            </button>
-            <button type="button" [class.is-active]="position === 'bottom-left'" (click)="showAt('bottom-left')">
-                <span></span>Bottom left
-            </button>
-            <button type="button" [class.is-active]="position === 'bottom-center'" (click)="showAt('bottom-center')">
-                <span></span>Bottom center
-            </button>
-            <button type="button" [class.is-active]="position === 'bottom-right'" (click)="showAt('bottom-right')">
-                <span></span>Bottom right
-            </button>
-        </div>
-    </section>
-
-    <section class="implementation-note">
-        <span><app-icon [icon]="icons.mapPin" size="sm" /></span>
-        <p>
-            Add exactly one <code>&lt;app-toast /&gt;</code> to the application shell.
-            Every feature can then inject <code>ToastService</code> and trigger notifications.
-        </p>
-    </section>
-
-    <app-toast [position]="position" [maxVisible]="4" />
+  <app-toast [position]="position" [maxVisible]="4" />
 </div>

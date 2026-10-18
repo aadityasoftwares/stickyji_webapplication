@@ -1,45 +1,40 @@
-<aside class="sidebar" [class.is-collapsed]="collapsed" [class.is-mobile-open]="mobileOpen"
-    aria-label="Primary navigation">
-
-
-    <!-- =====================================================
+<aside
+  class="sidebar"
+  [class.is-collapsed]="collapsed"
+  [class.is-mobile-open]="mobileOpen"
+  aria-label="Primary navigation"
+>
+  <!-- =====================================================
          BRAND
     ====================================================== -->
 
-    <header class="brand-row">
+  <header class="brand-row">
+    <a
+      class="brand-link"
+      routerLink="/app/today"
+      aria-label="Sticky Ji home"
+      (click)="closeMobileNavigation()"
+    >
+      <img src="StickyJiHorizontalLogo.png" alt="Sticky Ji" class="brand-logo-expanded" />
 
-        <a class="brand-link" routerLink="/app/today" aria-label="Sticky Ji home" (click)="closeMobileNavigation()">
+      <img src="StickyJiLogo.png" alt="Sticky Ji" class="brand-logo-collapsed" />
+    </a>
 
-            <img
-                src="StickyJiHorizontalLogo.png"
-                alt="Sticky Ji"
-                class="brand-logo-expanded"
-            />
+    <button
+      class="mobile-close"
+      type="button"
+      aria-label="Close navigation"
+      (click)="mobileClosed.emit()"
+    >
+      <app-icon [icon]="LucideX" size="sm" />
+    </button>
+  </header>
 
-            <img
-                src="StickyJiLogo.png"
-                alt="Sticky Ji"
-                class="brand-logo-collapsed"
-            />
-
-        </a>
-
-
-        <button class="mobile-close" type="button" aria-label="Close navigation" (click)="mobileClosed.emit()">
-
-            <app-icon [icon]="LucideX" size="sm" />
-
-        </button>
-
-    </header>
-
-
-
-    <!-- =====================================================
+  <!-- =====================================================
          WORKSPACE SELECTOR
     ====================================================== -->
 
-    <!-- <section class="workspace-section" aria-label="Current workspace">
+  <!-- <section class="workspace-section" aria-label="Current workspace">
 
         <div class="workspace-select-shell" [attr.title]="
                 collapsed
@@ -60,182 +55,137 @@
 
     </section> -->
 
-
-    <!-- =====================================================
+  <!-- =====================================================
          COMMON DASHED DIVIDER
     ====================================================== -->
 
-    <app-divider class="workspace-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
-        [decorative]="true" />
+  <app-divider
+    class="workspace-divider"
+    variant="neutral"
+    lineStyle="dashed"
+    spacing="sm"
+    inset="sm"
+    [decorative]="true"
+  />
 
-
-
-    <!-- =====================================================
+  <!-- =====================================================
          NAVIGATION
     ====================================================== -->
 
-    <nav class="sidebar-navigation" aria-label="Application navigation">
-
-
-        @for (
-        group of navigationGroups;
-        track group.label;
-        let groupIndex = $index;
-        let lastGroup = $last
-        ) {
-
-        <section class="navigation-group" [attr.aria-labelledby]="
-                    'sidebar-group-' + groupIndex
-                ">
-
-
-            <!-- =================================================
+  <nav class="sidebar-navigation" aria-label="Application navigation">
+    @for (
+      group of navigationGroups;
+      track group.label;
+      let groupIndex = $index;
+      let lastGroup = $last
+    ) {
+      <section class="navigation-group" [attr.aria-labelledby]="'sidebar-group-' + groupIndex">
+        <!-- =================================================
                      GROUP TITLE
                 ================================================== -->
 
-            <p class="section-label" [id]="
-                        'sidebar-group-' + groupIndex
-                    ">
+        <p class="section-label" [id]="'sidebar-group-' + groupIndex">
+          {{ group.label }}
+        </p>
 
-                {{ group.label }}
-
-            </p>
-
-
-
-            <!-- =================================================
+        <!-- =================================================
                      ITEMS
                 ================================================== -->
 
-            <div class="nav-list">
+        <div class="nav-list">
+          @for (item of group.items; track item.route) {
+            <a
+              class="nav-item"
+              [routerLink]="item.route"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{
+                exact: true,
+              }"
+              ariaCurrentWhenActive="page"
+              [attr.title]="collapsed ? item.label : null"
+              (click)="closeMobileNavigation()"
+            >
+              <!-- Active marker -->
 
-                @for (
-                item of group.items;
-                track item.route
-                ) {
+              <span class="nav-active-marker" aria-hidden="true"> </span>
 
-                <a class="nav-item" [routerLink]="item.route" routerLinkActive="is-active" [routerLinkActiveOptions]="{
-                                exact: true
-                            }" ariaCurrentWhenActive="page" [attr.title]="
-                                collapsed
-                                    ? item.label
-                                    : null
-                            " (click)="
-                                closeMobileNavigation()
-                            ">
+              <!-- Icon -->
 
+              <span class="nav-icon" aria-hidden="true">
+                <app-icon [icon]="item.icon" size="sm" />
+              </span>
 
-                    <!-- Active marker -->
+              <!-- Label -->
 
-                    <span class="nav-active-marker" aria-hidden="true">
-                    </span>
+              <span class="nav-label">
+                {{ item.label }}
+              </span>
+            </a>
+          }
+        </div>
+      </section>
 
-
-
-                    <!-- Icon -->
-
-                    <span class="nav-icon" aria-hidden="true">
-
-                        <app-icon [icon]="item.icon" size="sm" />
-
-                    </span>
-
-
-
-                    <!-- Label -->
-
-                    <span class="nav-label">
-
-                        {{ item.label }}
-
-                    </span>
-
-                </a>
-
-                }
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
+      <!-- =================================================
                  DASHED DIVIDER BETWEEN GROUPS
             ================================================== -->
 
-        @if (!lastGroup) {
+      @if (!lastGroup) {
+        <app-divider
+          class="navigation-divider"
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="sm"
+          inset="sm"
+          [decorative]="true"
+        />
+      }
+    }
+  </nav>
 
-        <app-divider class="navigation-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
-            [decorative]="true" />
-
-        }
-
-        }
-
-    </nav>
-
-
-
-    <!-- =====================================================
+  <!-- =====================================================
          FOOTER
     ====================================================== -->
 
-    <footer class="sidebar-footer">
+  <footer class="sidebar-footer">
+    <!-- Common dashed divider -->
 
+    <app-divider
+      class="logout-divider"
+      variant="neutral"
+      lineStyle="dashed"
+      spacing="sm"
+      inset="sm"
+      [decorative]="true"
+    />
 
-        <!-- Common dashed divider -->
+    <!-- Logout -->
 
-        <app-divider class="logout-divider" variant="neutral" lineStyle="dashed" spacing="sm" inset="sm"
-            [decorative]="true" />
+    <button
+      class="nav-item logout-item"
+      type="button"
+      [attr.title]="collapsed ? 'Logout' : null"
+      aria-label="Logout"
+      (click)="requestLogout()"
+    >
+      <span class="nav-icon" aria-hidden="true">
+        <app-icon [icon]="LucideLogOut" size="sm" />
+      </span>
 
+      <span class="nav-label"> Logout </span>
+    </button>
+  </footer>
 
-
-        <!-- Logout -->
-
-        <button class="nav-item logout-item" type="button" [attr.title]="
-                collapsed
-                    ? 'Logout'
-                    : null
-            " aria-label="Logout" (click)="requestLogout()">
-
-
-            <span class="nav-icon" aria-hidden="true">
-
-                <app-icon [icon]="LucideLogOut" size="sm" />
-
-            </span>
-
-
-            <span class="nav-label">
-
-                Logout
-
-            </span>
-
-        </button>
-
-    </footer>
-
-
-
-    <!-- =====================================================
+  <!-- =====================================================
          COLLAPSE BUTTON
     ====================================================== -->
 
-    <button class="sidebar-toggle" type="button" [attr.aria-label]="
-            collapsed
-                ? 'Expand sidebar'
-                : 'Collapse sidebar'
-        " [attr.aria-expanded]="!collapsed" (click)="toggleCollapsed()">
-
-
-        <app-icon [icon]="
-                collapsed
-                    ? LucidePanelLeftOpen
-                    : LucidePanelLeftClose
-            " size="xs" />
-
-    </button>
-
+  <button
+    class="sidebar-toggle"
+    type="button"
+    [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+    [attr.aria-expanded]="!collapsed"
+    (click)="toggleCollapsed()"
+  >
+    <app-icon [icon]="collapsed ? LucidePanelLeftOpen : LucidePanelLeftClose" size="xs" />
+  </button>
 </aside>

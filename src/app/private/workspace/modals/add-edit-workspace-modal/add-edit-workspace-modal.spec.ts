@@ -11,14 +11,31 @@ describe('Legacy workspace modal authorization', () => {
   let fixture: ComponentFixture<AddEditWorkspaceModal>;
   const api = { getById: vi.fn(), update: vi.fn(), create: vi.fn() };
   beforeEach(async () => {
-    api.getById.mockReset().mockReturnValue(of({ data: { id: 'a', name: 'Space', status: 'ACTIVE',
-      visibility: 'PRIVATE', allowedActions: { canEdit: true } } }));
+    api.getById.mockReset().mockReturnValue(
+      of({
+        data: {
+          id: 'a',
+          name: 'Space',
+          status: 'ACTIVE',
+          visibility: 'PRIVATE',
+          allowedActions: { canEdit: true },
+        },
+      }),
+    );
     api.update.mockReset().mockReturnValue(of({ data: { id: 'a' } }));
-    await TestBed.configureTestingModule({ imports: [AddEditWorkspaceModal], providers: [
-      { provide: WorkspaceService, useValue: api },
-      { provide: AuthStore, useValue: { canCreateWorkspace: signal(true), loadGlobalPermissions: vi.fn() } },
-      { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-    ] }).overrideComponent(AddEditWorkspaceModal, { set: { template: '', imports: [] } }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [AddEditWorkspaceModal],
+      providers: [
+        { provide: WorkspaceService, useValue: api },
+        {
+          provide: AuthStore,
+          useValue: { canCreateWorkspace: signal(true), loadGlobalPermissions: vi.fn() },
+        },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      ],
+    })
+      .overrideComponent(AddEditWorkspaceModal, { set: { template: '', imports: [] } })
+      .compileComponents();
     fixture = TestBed.createComponent(AddEditWorkspaceModal);
     fixture.componentRef.setInput('id', 'a');
     fixture.componentRef.setInput('open', true);

@@ -24,7 +24,18 @@ describe('WorkspaceTrash', () => {
 
   beforeEach(async () => {
     workspaceApi = {
-      getMyWorkspaces: vi.fn(() => of({ data: [{ allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' }] })),
+      getMyWorkspaces: vi.fn(() =>
+        of({
+          data: [
+            {
+              allowedActions: { canRestore: true, canPermanentlyDelete: true },
+              status: 'DELETED',
+              id: 'w1',
+              name: 'Trashed Space',
+            },
+          ],
+        }),
+      ),
       restore: vi.fn(() => of({ success: true })),
       permanentlyDelete: vi.fn(() => of({ success: true })),
     };
@@ -62,7 +73,12 @@ describe('WorkspaceTrash', () => {
   });
 
   it('restores a trashed workspace and updates local list', () => {
-    const workspace = { allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' };
+    const workspace = {
+      allowedActions: { canRestore: true, canPermanentlyDelete: true },
+      status: 'DELETED',
+      id: 'w1',
+      name: 'Trashed Space',
+    };
     component.restore(workspace);
     expect(workspaceApi.restore).toHaveBeenCalledWith('w1');
     expect(component.workspaces().length).toBe(0);
@@ -71,14 +87,24 @@ describe('WorkspaceTrash', () => {
 
   it('handles restore failure gracefully', () => {
     workspaceApi.restore.mockReturnValue(throwError(() => new Error('Restore failed')));
-    const workspace = { allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' };
+    const workspace = {
+      allowedActions: { canRestore: true, canPermanentlyDelete: true },
+      status: 'DELETED',
+      id: 'w1',
+      name: 'Trashed Space',
+    };
     component.restore(workspace);
     expect(component.actionId()).toBeNull();
     expect(toast.error).toHaveBeenCalled();
   });
 
   it('requests and closes permanent delete dialog', () => {
-    const workspace = { allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' };
+    const workspace = {
+      allowedActions: { canRestore: true, canPermanentlyDelete: true },
+      status: 'DELETED',
+      id: 'w1',
+      name: 'Trashed Space',
+    };
     component.requestPermanentDelete(workspace);
     expect(component.permanentTarget()).toEqual(workspace);
 
@@ -87,7 +113,12 @@ describe('WorkspaceTrash', () => {
   });
 
   it('confirms permanent delete and removes workspace from list', () => {
-    const workspace = { allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' };
+    const workspace = {
+      allowedActions: { canRestore: true, canPermanentlyDelete: true },
+      status: 'DELETED',
+      id: 'w1',
+      name: 'Trashed Space',
+    };
     component.requestPermanentDelete(workspace);
     component.confirmPermanentDelete();
 
@@ -99,7 +130,12 @@ describe('WorkspaceTrash', () => {
 
   it('handles permanent delete failure gracefully', () => {
     workspaceApi.permanentlyDelete.mockReturnValue(throwError(() => new Error('Delete failed')));
-    const workspace = { allowedActions: { canRestore: true, canPermanentlyDelete: true }, status: 'DELETED', id: 'w1', name: 'Trashed Space' };
+    const workspace = {
+      allowedActions: { canRestore: true, canPermanentlyDelete: true },
+      status: 'DELETED',
+      id: 'w1',
+      name: 'Trashed Space',
+    };
     component.requestPermanentDelete(workspace);
     component.confirmPermanentDelete();
 
@@ -121,4 +157,3 @@ describe('WorkspaceTrash', () => {
     expect(component.daysRemaining({})).toBe(60);
   });
 });
-

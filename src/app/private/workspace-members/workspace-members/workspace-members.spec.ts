@@ -521,10 +521,19 @@ describe('WorkspaceMembers', () => {
   });
 
   it('preserves restoration eligibility separately from role-edit and removal restrictions', () => {
-    const restore = vi.spyOn(TestBed.inject(WorkspaceMemberApiService), 'restore')
-      .mockReturnValue(of({ success: true, message: '', data: {
-        id: 'member-1', workspaceId: 'workspace-1', userId: 'user-1', roleId: 'editor', status: 'ACTIVE',
-      } }));
+    const restore = vi.spyOn(TestBed.inject(WorkspaceMemberApiService), 'restore').mockReturnValue(
+      of({
+        success: true,
+        message: '',
+        data: {
+          id: 'member-1',
+          workspaceId: 'workspace-1',
+          userId: 'user-1',
+          roleId: 'editor',
+          status: 'ACTIVE',
+        },
+      }),
+    );
     vi.spyOn(component, 'loadMembers').mockImplementation(() => {});
     const removed = { ...member, status: 'REMOVED' as const, isCurrentUser: true };
     component.members.set([removed]);

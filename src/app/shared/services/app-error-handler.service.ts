@@ -44,12 +44,12 @@ export class AppErrorHandler implements ErrorHandler {
       value?.cause?.featureId,
       value?.cause?.body?.featureId,
       value?.cause?.body?.message,
-      error
+      error,
     ];
 
     return pieces
-      .filter(item => item !== undefined && item !== null)
-      .map(item => {
+      .filter((item) => item !== undefined && item !== null)
+      .map((item) => {
         try {
           return typeof item === 'string' ? item : JSON.stringify(item);
         } catch {

@@ -4,7 +4,7 @@ import {
   EventEmitter,
   inject,
   Input,
-  Output
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -21,7 +21,7 @@ import {
   LucideShield,
   LucideStar,
   LucideUser,
-  LucideUserCheck
+  LucideUserCheck,
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
@@ -31,7 +31,7 @@ import {
   getWorkspaceMemberAvatar,
   getWorkspaceMemberId,
   getWorkspaceMemberName,
-  getWorkspaceMemberRole
+  getWorkspaceMemberRole,
 } from '../../../shared/functions/workspace-member.function';
 import { idOf } from '../../../shared/functions/common.function';
 import type { WorkspaceMemberStatus } from '../models/workspace-member.models';
@@ -40,15 +40,10 @@ import { UserDateTimeFormatterService } from '../../../shared/services/user-date
 @Component({
   selector: 'app-member-card-wrapper',
   standalone: true,
-  imports: [
-    CommonModule,
-    AppIcon,
-    Avatar,
-    Badge
-  ],
+  imports: [CommonModule, AppIcon, Avatar, Badge],
   templateUrl: './member-card-wrapper.html',
   styleUrl: './member-card-wrapper.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MemberCardWrapper {
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
@@ -97,14 +92,17 @@ export class MemberCardWrapper {
     event.stopPropagation();
     const email = this.resolvedEmail;
     if (!email || this.emailCopied) return;
-    navigator.clipboard.writeText(email).then(() => {
-      this.emailCopied = true;
-      if (this._copyTimer) clearTimeout(this._copyTimer);
-      this._copyTimer = setTimeout(() => {
-        this.emailCopied = false;
-        this._copyTimer = null;
-      }, 1800);
-    }).catch(() => {});
+    navigator.clipboard
+      .writeText(email)
+      .then(() => {
+        this.emailCopied = true;
+        if (this._copyTimer) clearTimeout(this._copyTimer);
+        this._copyTimer = setTimeout(() => {
+          this.emailCopied = false;
+          this._copyTimer = null;
+        }, 1800);
+      })
+      .catch(() => {});
   }
 
   get resolvedName(): string {
@@ -142,10 +140,7 @@ export class MemberCardWrapper {
   }
 
   get resolvedIsOwner(): boolean {
-    return (
-      this._isOwnerRaw ||
-      this.resolvedRole.toLowerCase() === 'owner'
-    );
+    return this._isOwnerRaw || this.resolvedRole.toLowerCase() === 'owner';
   }
 
   get resolvedIsCurrentUser(): boolean {
@@ -228,9 +223,9 @@ export class MemberCardWrapper {
 
   get themeClasses(): Record<string, boolean> {
     return {
-      'member-card--owner':   this.resolvedIsOwner,
+      'member-card--owner': this.resolvedIsOwner,
       'member-card--removed': this.resolvedIsRemoved,
-      'member-card--member':  !this.resolvedIsOwner && !this.resolvedIsRemoved
+      'member-card--member': !this.resolvedIsOwner && !this.resolvedIsRemoved,
     };
   }
 

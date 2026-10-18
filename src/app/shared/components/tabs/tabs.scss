@@ -1,381 +1,358 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: inline-flex;
-    min-width: 0;
-    font-family: $font-body;
+  display: inline-flex;
+  min-width: 0;
+  font-family: $font-body;
 }
 
 :host(.is-full-width) {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .app-tabs {
-    display: inline-flex;
-    align-items: center;
-    min-width: 0;
-    gap: 3px;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 3px;
 
-    &.is-full-width {
-        width: 100%;
+  &.is-full-width {
+    width: 100%;
 
-        .app-tab {
-            flex: 1 1 0;
-        }
+    .app-tab {
+      flex: 1 1 0;
     }
+  }
 
-    &.is-vertical {
-        align-items: stretch;
-        flex-direction: column;
+  &.is-vertical {
+    align-items: stretch;
+    flex-direction: column;
 
-        .app-tab {
-            justify-content: flex-start;
-        }
+    .app-tab {
+      justify-content: flex-start;
     }
+  }
 
-    &.is-scrollable:not(.is-vertical) {
-        max-width: 100%;
-        overflow-x: auto;
-        overscroll-behavior-inline: contain;
-        scrollbar-width: none;
+  &.is-scrollable:not(.is-vertical) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
 
-        &::-webkit-scrollbar {
-            display: none;
-        }
+    &::-webkit-scrollbar {
+      display: none;
     }
+  }
 
-    &.is-disabled {
-        opacity: 0.58;
-    }
+  &.is-disabled {
+    opacity: 0.58;
+  }
 }
 
 .app-tab {
-    position: relative;
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--app-tab-min-width, auto);
-    gap: 6px;
-    padding-inline: 12px;
-    color: $text-secondary;
-    cursor: pointer;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    font: inherit;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--app-tab-min-width, auto);
+  gap: 6px;
+  padding-inline: 12px;
+  color: $text-secondary;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 
-    transition:
-        color 150ms ease,
-        background-color 150ms ease,
-        border-color 150ms ease,
-        box-shadow 150ms ease,
-        transform 150ms ease;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 
-    &:hover:not(:disabled) {
-        color: $heading;
-        background: rgba($paper, 0.52);
-    }
+  &:hover:not(:disabled) {
+    color: $heading;
+    background: rgba($paper, 0.52);
+  }
 
-    &:active:not(:disabled) {
-        transform: translateY(1px);
-    }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
 
-    &:focus-visible {
-        z-index: 2;
-        outline: none;
-        box-shadow: var(--app-focus-ring);
-    }
+  &:focus-visible {
+    z-index: 2;
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.44;
-    }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.44;
+  }
 }
 
 .app-tab-icon {
-    display: inline-flex;
-    flex: 0 0 auto;
-    color: currentColor;
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: currentColor;
 }
 
 .app-tab-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-tab-count {
-    display: inline-grid;
-    flex: 0 0 auto;
-    min-width: 19px;
-    height: 18px;
-    padding-inline: 5px;
+  display: inline-grid;
+  flex: 0 0 auto;
+  min-width: 19px;
+  height: 18px;
+  padding-inline: 5px;
 
-    color: $text-light;
-    background: rgba($heading, 0.055);
+  color: $text-light;
+  background: rgba($heading, 0.055);
 
-    border: 1px solid rgba($heading, 0.035);
-    border-radius: 999px;
+  border: 1px solid rgba($heading, 0.035);
+  border-radius: 999px;
 
-    font-family: $font-mono;
-    font-size: 0.54rem;
-    font-weight: 700;
-    line-height: 1;
+  font-family: $font-mono;
+  font-size: 0.54rem;
+  font-weight: 700;
+  line-height: 1;
 
-    place-items: center;
+  place-items: center;
 }
-
 
 /* ==========================================================
    Sizes
    ========================================================== */
 
 .app-tabs-sm .app-tab {
-    height: 34px;
-    padding-inline: 10px;
-    font-size: 0.68rem;
+  height: 34px;
+  padding-inline: 10px;
+  font-size: 0.68rem;
 }
 
 .app-tabs-md .app-tab {
-    height: 39px;
-    font-size: 0.73rem;
+  height: 39px;
+  font-size: 0.73rem;
 }
 
 .app-tabs-lg .app-tab {
-    height: 44px;
-    padding-inline: 15px;
-    font-size: 0.79rem;
+  height: 44px;
+  padding-inline: 15px;
+  font-size: 0.79rem;
 }
-
 
 /* ==========================================================
    Density
    ========================================================== */
 
 .app-tabs-density-compact {
-    gap: 2px;
+  gap: 2px;
 
-    .app-tab {
-        gap: 5px;
-    }
+  .app-tab {
+    gap: 5px;
+  }
 
-    .app-tab-count {
-        min-width: 17px;
-        height: 16px;
-        padding-inline: 4px;
-        font-size: 0.51rem;
-    }
+  .app-tab-count {
+    min-width: 17px;
+    height: 16px;
+    padding-inline: 4px;
+    font-size: 0.51rem;
+  }
 
-    &.app-tabs-sm .app-tab {
-        height: 30px;
-        padding-inline: 8px;
-        font-size: 0.66rem;
-    }
+  &.app-tabs-sm .app-tab {
+    height: 30px;
+    padding-inline: 8px;
+    font-size: 0.66rem;
+  }
 
-    &.app-tabs-md .app-tab {
-        height: 34px;
-        padding-inline: 10px;
-        font-size: 0.7rem;
-    }
+  &.app-tabs-md .app-tab {
+    height: 34px;
+    padding-inline: 10px;
+    font-size: 0.7rem;
+  }
 
-    &.app-tabs-lg .app-tab {
-        height: 39px;
-        padding-inline: 12px;
-        font-size: 0.75rem;
-    }
+  &.app-tabs-lg .app-tab {
+    height: 39px;
+    padding-inline: 12px;
+    font-size: 0.75rem;
+  }
 }
 
 .app-tabs-pill .app-tab {
-    border-radius: 999px;
+  border-radius: 999px;
 }
-
 
 /* ==========================================================
    Segmented
    ========================================================== */
 
 .app-tabs-segmented {
-    padding: 3px;
+  padding: 3px;
 
-    background:
-        rgba($heading, 0.045);
+  background: rgba($heading, 0.045);
 
-    border:
-        1px solid rgba($border, 0.66);
+  border: 1px solid rgba($border, 0.66);
 
-    border-radius: 11px;
+  border-radius: 11px;
+
+  box-shadow: inset 0 1px 2px rgba($heading, 0.025);
+
+  &.app-tabs-density-compact {
+    padding: 2px;
+    border-radius: 9px;
+  }
+
+  &.app-tabs-pill {
+    border-radius: 999px;
+  }
+
+  .app-tab.is-active {
+    color: $heading;
+    background: $paper;
+
+    border-color: rgba($border, 0.76);
 
     box-shadow:
-        inset 0 1px 2px rgba($heading, 0.025);
+      0 1px 2px rgba($heading, 0.06),
+      0 4px 10px rgba($heading, 0.055);
 
-    &.app-tabs-density-compact {
-        padding: 2px;
-        border-radius: 9px;
+    .app-tab-count {
+      color: #654e00;
+
+      background: rgba($note-button-yellow, 0.44);
+
+      border-color: rgba(#8b6800, 0.07);
     }
-
-    &.app-tabs-pill {
-        border-radius: 999px;
-    }
-
-    .app-tab.is-active {
-        color: $heading;
-        background: $paper;
-
-        border-color:
-            rgba($border, 0.76);
-
-        box-shadow:
-            0 1px 2px rgba($heading, 0.06),
-            0 4px 10px rgba($heading, 0.055);
-
-        .app-tab-count {
-            color: #654e00;
-
-            background:
-                rgba($note-button-yellow, 0.44);
-
-            border-color:
-                rgba(#8b6800, 0.07);
-        }
-    }
+  }
 }
-
 
 /* ==========================================================
    Paper
    ========================================================== */
 
 .app-tabs-paper {
-    padding: 3px;
+  padding: 3px;
 
-    background:
-        linear-gradient(rgba($paper, 0.28),
-            rgba($paper, 0.28)),
-        rgba($paper-dark, 0.62);
+  background: linear-gradient(rgba($paper, 0.28), rgba($paper, 0.28)), rgba($paper-dark, 0.62);
 
-    border:
-        1px solid rgba($border, 0.58);
+  border: 1px solid rgba($border, 0.58);
 
-    border-radius: 11px;
+  border-radius: 11px;
 
-    &.app-tabs-density-compact {
-        padding: 2px;
-        border-radius: 9px;
+  &.app-tabs-density-compact {
+    padding: 2px;
+    border-radius: 9px;
+  }
+
+  &.app-tabs-pill {
+    border-radius: 999px;
+  }
+
+  .app-tab.is-active {
+    color: $heading;
+    background: $paper;
+
+    border-color: rgba($border, 0.82);
+
+    box-shadow:
+      0 1px 1px rgba($heading, 0.05),
+      0 4px 10px rgba($heading, 0.065);
+
+    .app-tab-count {
+      color: #654e00;
+
+      background: rgba($note-button-yellow, 0.48);
     }
-
-    &.app-tabs-pill {
-        border-radius: 999px;
-    }
-
-    .app-tab.is-active {
-        color: $heading;
-        background: $paper;
-
-        border-color:
-            rgba($border, 0.82);
-
-        box-shadow:
-            0 1px 1px rgba($heading, 0.05),
-            0 4px 10px rgba($heading, 0.065);
-
-        .app-tab-count {
-            color: #654e00;
-
-            background:
-                rgba($note-button-yellow, 0.48);
-        }
-    }
+  }
 }
-
 
 /* ==========================================================
    Underline
    ========================================================== */
 
 .app-tabs-underline {
-    gap: 13px;
+  gap: 13px;
 
-    border-bottom:
-        1px solid $border-light;
+  border-bottom: 1px solid $border-light;
 
-    &.app-tabs-density-compact {
-        gap: 10px;
+  &.app-tabs-density-compact {
+    gap: 10px;
+  }
+
+  .app-tab {
+    padding-inline: 2px;
+    border-radius: 0;
+
+    &:hover:not(:disabled) {
+      background: transparent;
     }
 
-    .app-tab {
-        padding-inline: 2px;
-        border-radius: 0;
+    &::after {
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      left: 0;
 
-        &:hover:not(:disabled) {
-            background: transparent;
-        }
+      height: 2px;
 
-        &::after {
-            position: absolute;
-            right: 0;
-            bottom: -1px;
-            left: 0;
+      content: '';
 
-            height: 2px;
+      background: transparent;
 
-            content: '';
-
-            background: transparent;
-
-            border-radius:
-                999px 999px 0 0;
-        }
-
-        &.is-active {
-            color: $heading;
-
-            &::after {
-                background: $accent;
-            }
-
-            .app-tab-count {
-                color: #654e00;
-
-                background:
-                    rgba($note-button-yellow, 0.42);
-            }
-        }
+      border-radius: 999px 999px 0 0;
     }
 
-    &.is-vertical {
-        gap: 4px;
+    &.is-active {
+      color: $heading;
 
-        border-right:
-            1px solid $border-light;
+      &::after {
+        background: $accent;
+      }
 
-        border-bottom: 0;
+      .app-tab-count {
+        color: #654e00;
 
-        .app-tab::after {
-            top: 3px;
-            right: -1px;
-            bottom: 3px;
-            left: auto;
-
-            width: 2px;
-            height: auto;
-
-            border-radius:
-                999px 0 0 999px;
-        }
+        background: rgba($note-button-yellow, 0.42);
+      }
     }
+  }
+
+  &.is-vertical {
+    gap: 4px;
+
+    border-right: 1px solid $border-light;
+
+    border-bottom: 0;
+
+    .app-tab::after {
+      top: 3px;
+      right: -1px;
+      bottom: 3px;
+      left: auto;
+
+      width: 2px;
+      height: auto;
+
+      border-radius: 999px 0 0 999px;
+    }
+  }
 }
-
 
 /* ==========================================================
    Danger / Trash tab
@@ -388,142 +365,122 @@
    ========================================================== */
 
 .app-tab.is-danger {
-    color: rgba($danger, 0.88);
+  color: rgba($danger, 0.88);
 
-    .app-tab-icon {
-        color: currentColor;
-    }
+  .app-tab-icon {
+    color: currentColor;
+  }
 
-    .app-tab-count {
-        color: $danger;
+  .app-tab-count {
+    color: $danger;
 
-        background:
-            rgba($danger, 0.075);
+    background: rgba($danger, 0.075);
 
-        border-color:
-            rgba($danger, 0.10);
-    }
+    border-color: rgba($danger, 0.1);
+  }
 
-    &:hover:not(:disabled) {
-        color: $danger;
+  &:hover:not(:disabled) {
+    color: $danger;
 
-        background:
-            rgba($danger, 0.065);
+    background: rgba($danger, 0.065);
 
-        border-color:
-            rgba($danger, 0.10);
-    }
+    border-color: rgba($danger, 0.1);
+  }
 
-    &:focus-visible {
-        box-shadow:
-            0 0 0 3px rgba($danger, 0.14);
-    }
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba($danger, 0.14);
+  }
 }
-
 
 /* Danger + segmented */
 
 .app-tabs-segmented {
-    .app-tab.is-danger.is-active {
-        color: $danger;
+  .app-tab.is-danger.is-active {
+    color: $danger;
 
-        background:
-            rgba($danger, 0.085);
+    background: rgba($danger, 0.085);
 
-        border-color:
-            rgba($danger, 0.18);
+    border-color: rgba($danger, 0.18);
 
-        box-shadow:
-            0 1px 2px rgba($danger, 0.055),
-            0 4px 10px rgba($danger, 0.06);
+    box-shadow:
+      0 1px 2px rgba($danger, 0.055),
+      0 4px 10px rgba($danger, 0.06);
 
-        .app-tab-count {
-            color: $danger;
+    .app-tab-count {
+      color: $danger;
 
-            background:
-                rgba($danger, 0.11);
+      background: rgba($danger, 0.11);
 
-            border-color:
-                rgba($danger, 0.13);
-        }
+      border-color: rgba($danger, 0.13);
     }
+  }
 }
-
 
 /* Danger + paper */
 
 .app-tabs-paper {
-    .app-tab.is-danger.is-active {
-        color: $danger;
+  .app-tab.is-danger.is-active {
+    color: $danger;
 
-        background:
-            rgba($danger, 0.07);
+    background: rgba($danger, 0.07);
 
-        border-color:
-            rgba($danger, 0.18);
+    border-color: rgba($danger, 0.18);
 
-        box-shadow:
-            0 1px 1px rgba($danger, 0.04),
-            0 4px 10px rgba($danger, 0.055);
+    box-shadow:
+      0 1px 1px rgba($danger, 0.04),
+      0 4px 10px rgba($danger, 0.055);
 
-        .app-tab-count {
-            color: $danger;
+    .app-tab-count {
+      color: $danger;
 
-            background:
-                rgba($danger, 0.105);
+      background: rgba($danger, 0.105);
 
-            border-color:
-                rgba($danger, 0.12);
-        }
+      border-color: rgba($danger, 0.12);
     }
+  }
 }
-
 
 /* Danger + underline */
 
 .app-tabs-underline {
-    .app-tab.is-danger {
-        &:hover:not(:disabled) {
-            color: $danger;
-            background: transparent;
-        }
-
-        &.is-active {
-            color: $danger;
-
-            &::after {
-                background: $danger;
-            }
-
-            .app-tab-count {
-                color: $danger;
-
-                background:
-                    rgba($danger, 0.09);
-
-                border-color:
-                    rgba($danger, 0.10);
-            }
-        }
+  .app-tab.is-danger {
+    &:hover:not(:disabled) {
+      color: $danger;
+      background: transparent;
     }
-}
 
+    &.is-active {
+      color: $danger;
+
+      &::after {
+        background: $danger;
+      }
+
+      .app-tab-count {
+        color: $danger;
+
+        background: rgba($danger, 0.09);
+
+        border-color: rgba($danger, 0.1);
+      }
+    }
+  }
+}
 
 /* Disabled danger tabs remain visibly disabled */
 
 .app-tab.is-danger:disabled {
-    color: rgba($danger, 0.56);
+  color: rgba($danger, 0.56);
 }
-
 
 /* ==========================================================
    Reduced motion
    ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-    .app-tab {
-        transition: none;
-    }
+  .app-tab {
+    transition: none;
+  }
 }
 
 /* ==========================================================
@@ -533,144 +490,144 @@
    ========================================================== */
 
 .app-tab.is-active[data-variant='primary'] {
-    color: $paper;
-    background: $heading;
-    border-color: $heading;
+  color: $paper;
+  background: $heading;
+  border-color: $heading;
 }
 
 .app-tab.is-active[data-variant='secondary'] {
-    color: $heading;
-    background: $paper;
-    border-color: rgba($border, 0.9);
+  color: $heading;
+  background: $paper;
+  border-color: rgba($border, 0.9);
 }
 
 .app-tab.is-active[data-variant='accent'] {
-    color: $paper;
-    background: $accent;
-    border-color: color-mix(in srgb, $accent 86%, $heading);
+  color: $paper;
+  background: $accent;
+  border-color: color-mix(in srgb, $accent 86%, $heading);
 }
 
 .app-tab.is-active[data-variant='success'] {
-    color: $heading;
-    background: color-mix(in srgb, $note-green 72%, $paper);
-    border-color: color-mix(in srgb, $note-green 72%, $border);
+  color: $heading;
+  background: color-mix(in srgb, $note-green 72%, $paper);
+  border-color: color-mix(in srgb, $note-green 72%, $border);
 }
 
 .app-tab.is-active[data-variant='warning'] {
-    color: $heading;
-    background: color-mix(in srgb, $note-orange 72%, $paper);
-    border-color: color-mix(in srgb, $note-orange 72%, $border);
+  color: $heading;
+  background: color-mix(in srgb, $note-orange 72%, $paper);
+  border-color: color-mix(in srgb, $note-orange 72%, $border);
 }
 
 .app-tab.is-active[data-variant='danger'] {
-    color: $danger;
-    background: color-mix(in srgb, $danger 9%, $paper);
-    border-color: color-mix(in srgb, $danger 22%, $border);
+  color: $danger;
+  background: color-mix(in srgb, $danger 9%, $paper);
+  border-color: color-mix(in srgb, $danger 22%, $border);
 }
 
 .app-tab.is-active[data-variant='info'] {
-    color: $heading;
-    background: color-mix(in srgb, $note-blue 66%, $paper);
-    border-color: color-mix(in srgb, $note-blue 70%, $border);
+  color: $heading;
+  background: color-mix(in srgb, $note-blue 66%, $paper);
+  border-color: color-mix(in srgb, $note-blue 70%, $border);
 }
 
 .app-tab.is-active[data-variant='outline'] {
-    color: $heading;
-    background: transparent;
-    border-color: $heading;
-    box-shadow: none;
+  color: $heading;
+  background: transparent;
+  border-color: $heading;
+  box-shadow: none;
 }
 
 .app-tab.is-active[data-variant='ghost'] {
-    color: $heading;
-    background: rgba($heading, 0.07);
-    border-color: transparent;
-    box-shadow: none;
+  color: $heading;
+  background: rgba($heading, 0.07);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .app-tab.is-active[data-variant='noteYellow'] {
-    color: $note-button-yellow-text;
-    background: $note-button-yellow;
-    border-color: color-mix(in srgb, $note-button-yellow 78%, $border);
+  color: $note-button-yellow-text;
+  background: $note-button-yellow;
+  border-color: color-mix(in srgb, $note-button-yellow 78%, $border);
 }
 
 .app-tab.is-active[data-variant='noteOrange'] {
-    color: $heading;
-    background: $note-orange;
-    border-color: color-mix(in srgb, $note-orange 76%, $border);
+  color: $heading;
+  background: $note-orange;
+  border-color: color-mix(in srgb, $note-orange 76%, $border);
 }
 
 .app-tab.is-active[data-variant='notePink'] {
-    color: $heading;
-    background: $note-pink;
-    border-color: color-mix(in srgb, $note-pink 76%, $border);
+  color: $heading;
+  background: $note-pink;
+  border-color: color-mix(in srgb, $note-pink 76%, $border);
 }
 
 .app-tab.is-active[data-variant='noteRed'] {
-    color: $heading;
-    background: $note-red;
-    border-color: color-mix(in srgb, $note-red 76%, $border);
+  color: $heading;
+  background: $note-red;
+  border-color: color-mix(in srgb, $note-red 76%, $border);
 }
 
 .app-tab.is-active[data-variant='noteGreen'] {
-    color: $heading;
-    background: $note-green;
-    border-color: color-mix(in srgb, $note-green 76%, $border);
+  color: $heading;
+  background: $note-green;
+  border-color: color-mix(in srgb, $note-green 76%, $border);
 }
 
 .app-tab.is-active[data-variant='noteBlue'] {
-    color: $heading;
-    background: $note-blue;
-    border-color: color-mix(in srgb, $note-blue 76%, $border);
+  color: $heading;
+  background: $note-blue;
+  border-color: color-mix(in srgb, $note-blue 76%, $border);
 }
 
 .app-tab.is-active[data-variant='notePurple'] {
-    color: $heading;
-    background: $note-purple;
-    border-color: color-mix(in srgb, $note-purple 76%, $border);
+  color: $heading;
+  background: $note-purple;
+  border-color: color-mix(in srgb, $note-purple 76%, $border);
 }
 
 .app-tab.is-active[data-variant='noteBrown'] {
-    color: $heading;
-    background: $note-brown;
-    border-color: color-mix(in srgb, $note-brown 76%, $border);
+  color: $heading;
+  background: $note-brown;
+  border-color: color-mix(in srgb, $note-brown 76%, $border);
 }
 
 .app-tab.is-active[data-variant='noteBlack'] {
-    color: $paper;
-    background: $note-black;
-    border-color: $note-black;
+  color: $paper;
+  background: $note-black;
+  border-color: $note-black;
 }
 
 /* Selected count follows the active tab instead of staying yellow. */
 .app-tab.is-active[data-variant='primary'] .app-tab-count,
 .app-tab.is-active[data-variant='accent'] .app-tab-count,
 .app-tab.is-active[data-variant='noteBlack'] .app-tab-count {
-    color: currentColor;
-    background: rgba($paper, 0.14);
-    border-color: rgba($paper, 0.12);
+  color: currentColor;
+  background: rgba($paper, 0.14);
+  border-color: rgba($paper, 0.12);
 }
 
 .app-tab.is-active[data-variant='noteYellow'] .app-tab-count {
-    color: $note-button-yellow-text;
-    background: color-mix(in srgb, $paper 38%, transparent);
-    border-color: color-mix(in srgb, $note-button-yellow-text 10%, transparent);
+  color: $note-button-yellow-text;
+  background: color-mix(in srgb, $paper 38%, transparent);
+  border-color: color-mix(in srgb, $note-button-yellow-text 10%, transparent);
 }
 
 /* Segmented treatment matching the compact reference. */
 .app-tabs-segmented .app-tab.is-active[data-variant='noteYellow'] {
-    box-shadow:
-        0 1px 2px rgba($heading, 0.08),
-        0 4px 9px rgba($heading, 0.07);
+  box-shadow:
+    0 1px 2px rgba($heading, 0.08),
+    0 4px 9px rgba($heading, 0.07);
 }
 
 /* Underline keeps its layout language while using the selected variant color. */
 .app-tabs-underline .app-tab.is-active[data-variant='noteYellow'] {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .app-tabs-underline .app-tab.is-active[data-variant='noteYellow']::after {
-    background: $note-button-yellow-text;
+  background: $note-button-yellow-text;
 }

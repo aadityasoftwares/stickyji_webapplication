@@ -13,7 +13,7 @@ import {
   SimpleChanges,
   ViewChild,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -26,7 +26,11 @@ import { AppIcon, type AppIconDefinition } from '../../../../shared/components/i
 import { Input as AppInput, type InputValue } from '../../../../shared/components/input/input';
 import { Label } from '../../../../shared/components/label/label';
 import { Loader } from '../../../../shared/components/loader/loader';
-import { Select, type SelectOption, type SelectValue } from '../../../../shared/components/select/select';
+import {
+  Select,
+  type SelectOption,
+  type SelectValue,
+} from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../../shared/functions/api.functions';
 
@@ -38,15 +42,21 @@ import { WorkspaceService } from '../../services/workspace.service';
   imports: [FormsModule, AppIcon, AppInput, Button, Divider, Label, Loader, Select],
   templateUrl: './add-edit-workspace-modal.html',
   styleUrl: './add-edit-workspace-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditWorkspaceModal implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionEnd$ = new Subject<void>();
   private readonly authStore = inject(AuthStore);
   readonly authorization = signal<any | null>(null);
-  get canEdit(): boolean { return this.isEdit ? canWorkspaceAction(this.authorization(), 'canEdit') : this.authStore.canCreateWorkspace(); }
-  get canManageSettings(): boolean { return !this.isEdit || canWorkspaceAction(this.authorization(), 'canManageSettings'); }
+  get canEdit(): boolean {
+    return this.isEdit
+      ? canWorkspaceAction(this.authorization(), 'canEdit')
+      : this.authStore.canCreateWorkspace();
+  }
+  get canManageSettings(): boolean {
+    return !this.isEdit || canWorkspaceAction(this.authorization(), 'canManageSettings');
+  }
   private readonly workspaceApi = inject(WorkspaceService);
   private readonly toastService = inject(ToastService);
 
@@ -78,7 +88,7 @@ export class AddEditWorkspaceModal implements OnChanges {
   readonly visibilityOptions: readonly SelectOption[] = [
     { label: 'Private', value: 'PRIVATE' },
     { label: 'Invite only', value: 'INVITE_ONLY' },
-    { label: 'Public', value: 'PUBLIC' }
+    { label: 'Public', value: 'PUBLIC' },
   ];
 
   get isEdit(): boolean {
@@ -118,9 +128,9 @@ export class AddEditWorkspaceModal implements OnChanges {
   get canSubmit(): boolean {
     const length = this.name().trim().length;
 
-    return this.canEdit && !this.isBusy &&
-      length >= this.nameMinLength &&
-      length <= this.nameMaxLength;
+    return (
+      this.canEdit && !this.isBusy && length >= this.nameMinLength && length <= this.nameMaxLength
+    );
   }
 
   private get workspaceId(): string {
@@ -156,7 +166,10 @@ export class AddEditWorkspaceModal implements OnChanges {
 
   submit(): void {
     if (this.isBusy) return;
-    if (!this.canEdit) { this.showError('You do not have permission to save this workspace.'); return; }
+    if (!this.canEdit) {
+      this.showError('You do not have permission to save this workspace.');
+      return;
+    }
 
     const name = this.name().trim();
     const description = this.workspaceDescription().trim();
@@ -173,21 +186,19 @@ export class AddEditWorkspaceModal implements OnChanges {
       return;
     }
 
-    const visibility = this.isPersonal()
-      ? 'PRIVATE'
-      : this.visibility();
+    const visibility = this.isPersonal() ? 'PRIVATE' : this.visibility();
 
     const updatePayload: any = {
       name,
       description: description || null,
-      ...(this.canManageSettings ? { visibility } : {})
+      ...(this.canManageSettings ? { visibility } : {}),
     };
 
     const createPayload: any = {
       name,
       description: description || null,
       visibility,
-      isPersonal: false
+      isPersonal: false,
     };
 
     this.loading.set(true);
@@ -200,35 +211,31 @@ export class AddEditWorkspaceModal implements OnChanges {
       .pipe(
         takeUntil(this.sessionEnd$),
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           const workspace = response.data;
 
           this.toastService.success(
-            this.isEdit
-              ? 'Workspace changes were saved.'
-              : 'Workspace created successfully.',
+            this.isEdit ? 'Workspace changes were saved.' : 'Workspace created successfully.',
             {
               title: this.isEdit ? 'Workspace updated' : 'Workspace created',
-              dedupeKey: `workspace-saved-${workspace.id}`
-            }
+              dedupeKey: `workspace-saved-${workspace.id}`,
+            },
           );
 
           this.saved.emit(workspace.id);
         },
-        error: error => {
+        error: (error) => {
           if (error?.status === 401 || error?.status === 403) this.authorization.set(null);
           this.showError(
             extractErrorMessage(
               error,
-              this.isEdit
-                ? 'Unable to update workspace.'
-                : 'Unable to create workspace.'
-            )
+              this.isEdit ? 'Unable to update workspace.' : 'Unable to create workspace.',
+            ),
           );
-        }
+        },
       });
   }
 
@@ -275,10 +282,10 @@ export class AddEditWorkspaceModal implements OnChanges {
       .pipe(
         takeUntil(this.sessionEnd$),
         finalize(() => this.loadingData.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           const workspace = response.data;
           this.authorization.set(workspace);
           if (!this.canEdit) this.showError('You do not have permission to edit this workspace.');
@@ -290,15 +297,10 @@ export class AddEditWorkspaceModal implements OnChanges {
 
           this.focusName();
         },
-        error: error => {
+        error: (error) => {
           if (error?.status === 401 || error?.status === 403) this.authorization.set(null);
-          this.showError(
-            extractErrorMessage(
-              error,
-              'Unable to load this workspace.'
-            )
-          );
-        }
+          this.showError(extractErrorMessage(error, 'Unable to load this workspace.'));
+        },
       });
   }
 
@@ -312,11 +314,7 @@ export class AddEditWorkspaceModal implements OnChanges {
   }
 
   private asWorkspaceVisibility(value: SelectValue): string | null {
-    if (
-      value === 'PRIVATE' ||
-      value === 'INVITE_ONLY' ||
-      value === 'PUBLIC'
-    ) {
+    if (value === 'PRIVATE' || value === 'INVITE_ONLY' || value === 'PUBLIC') {
       return value;
     }
 
@@ -330,7 +328,7 @@ export class AddEditWorkspaceModal implements OnChanges {
       }
 
       const input = this.workspaceNameInput?.nativeElement.querySelector(
-        'input:not([disabled])'
+        'input:not([disabled])',
       ) as HTMLInputElement | null;
 
       if (!input) {
@@ -347,11 +345,8 @@ export class AddEditWorkspaceModal implements OnChanges {
 
   private showError(message: string): void {
     this.toastService.error(message, {
-      title: this.isEdit
-        ? 'Could not update workspace'
-        : 'Could not create workspace',
-      dedupeKey: `workspace-error-${this.workspaceId || 'new'}-${message}`
+      title: this.isEdit ? 'Could not update workspace' : 'Could not create workspace',
+      dedupeKey: `workspace-error-${this.workspaceId || 'new'}-${message}`,
     });
   }
-
 }

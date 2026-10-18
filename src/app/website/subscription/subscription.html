@@ -92,11 +92,7 @@
           <app-icon [icon]="LucideInfo" size="lg" class="state-card-icon" />
           <h3>New plans are on the way.</h3>
           <p>There are no public subscription plans available right now. Please check back soon.</p>
-          <app-button
-            label="Refresh catalog"
-            variant="outline"
-            (buttonClick)="loadPlans()"
-          />
+          <app-button label="Refresh catalog" variant="outline" (buttonClick)="loadPlans()" />
         </div>
       } @else {
         <!-- Dynamic Pricing Cards Grid (Folded Sticky Notes) -->
@@ -143,12 +139,7 @@
                       />
                     }
                     @if (plan.badge) {
-                      <app-badge
-                        [label]="plan.badge"
-                        variant="neutral"
-                        size="xs"
-                        shape="pill"
-                      />
+                      <app-badge [label]="plan.badge" variant="neutral" size="xs" shape="pill" />
                     }
                   </div>
                 </div>
@@ -178,7 +169,8 @@
                       }
                       @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
                         <span class="price-per-month">
-                          Billed annually ({{ yrPrice.currencySymbol || '₹' }}{{ yrPrice.monthlyEquivalent }}/mo)
+                          Billed annually ({{ yrPrice.currencySymbol || '₹'
+                          }}{{ yrPrice.monthlyEquivalent }}/mo)
                         </span>
                       } @else if (yrPrice.pricePerMonthFormatted) {
                         <span class="price-per-month">
@@ -251,7 +243,12 @@
               <p>Everything included in each plan to help you pick the best fit.</p>
             </header>
 
-            <div class="comparison-table-scroll" tabindex="0" role="region" aria-label="Features comparison table">
+            <div
+              class="comparison-table-scroll"
+              tabindex="0"
+              role="region"
+              aria-label="Features comparison table"
+            >
               <table class="comparison-table">
                 <thead>
                   <tr>
@@ -300,8 +297,15 @@
                                 </span>
                               }
                             } @else {
-                              <span class="indicator-numeric" [class.is-unlimited]="val.isUnlimited">
-                                {{ val.formattedValue || val.displayValue || (val.isUnlimited ? 'Unlimited' : '—') }}
+                              <span
+                                class="indicator-numeric"
+                                [class.is-unlimited]="val.isUnlimited"
+                              >
+                                {{
+                                  val.formattedValue ||
+                                    val.displayValue ||
+                                    (val.isUnlimited ? 'Unlimited' : '—')
+                                }}
                               </span>
                             }
                           } @else {

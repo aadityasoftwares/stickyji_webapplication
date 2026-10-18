@@ -5,7 +5,7 @@ import type { Observable } from 'rxjs';
 import { environment } from '../../../../Environments/environments';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StickyNoteAssigneeApiService {
   private readonly http = inject(HttpClient);
@@ -19,7 +19,7 @@ export class StickyNoteAssigneeApiService {
   getByStickyNote(stickyNoteId: string): Observable<any> {
     return this.http.get<any>(
       `${this.assigneeBaseUrl}/sticky-note/${encodeURIComponent(stickyNoteId)}`,
-      { withCredentials: true }
+      { withCredentials: true },
     );
   }
 
@@ -27,14 +27,11 @@ export class StickyNoteAssigneeApiService {
    * Synchronize all assignees for a sticky note in one atomic request.
    * Backend route: PUT /stickynotesassignees/sync/:id (where :id is the stickyNoteId)
    */
-  sync(
-    stickyNoteId: string,
-    payload: any
-  ): Observable<any> {
+  sync(stickyNoteId: string, payload: any): Observable<any> {
     return this.http.put<any>(
       `${this.assigneeBaseUrl}/sync/${encodeURIComponent(stickyNoteId)}`,
       payload,
-      { withCredentials: true }
+      { withCredentials: true },
     );
   }
 
@@ -43,11 +40,9 @@ export class StickyNoteAssigneeApiService {
    * Backend route: POST /stickynotesassignees/create
    */
   create(payload: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.assigneeBaseUrl}/create`,
-      payload,
-      { withCredentials: true }
-    );
+    return this.http.post<any>(`${this.assigneeBaseUrl}/create`, payload, {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -55,10 +50,9 @@ export class StickyNoteAssigneeApiService {
    * Backend route: DELETE /stickynotesassignees/delete/:id
    */
   delete(id: string): Observable<any> {
-    return this.http.delete<any>(
-      `${this.assigneeBaseUrl}/delete/${encodeURIComponent(id)}`,
-      { withCredentials: true }
-    );
+    return this.http.delete<any>(`${this.assigneeBaseUrl}/delete/${encodeURIComponent(id)}`, {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -66,9 +60,9 @@ export class StickyNoteAssigneeApiService {
    * Backend route: GET /stickynotesassignees/getall
    */
   getAll(query: any = {}): Observable<any> {
-    return this.http.get<any>(
-      `${this.assigneeBaseUrl}/getall`,
-      { params: buildHttpParams(query), withCredentials: true }
-    );
+    return this.http.get<any>(`${this.assigneeBaseUrl}/getall`, {
+      params: buildHttpParams(query),
+      withCredentials: true,
+    });
   }
 }

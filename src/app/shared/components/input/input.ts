@@ -23,12 +23,7 @@ import {
 } from '@lucide/angular';
 
 import { UI } from '../../constants/ui.constants';
-import {
-  AppIcon,
-  type AppIconDefinition,
-  type AppIconSize,
-  type AppIconTone,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition, type AppIconSize, type AppIconTone } from '../icon/icon';
 
 export type InputValue = string | number | null;
 
@@ -191,7 +186,7 @@ export class Input implements ControlValueAccessor, AfterViewInit {
   private onChange: (value: InputValue) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  constructor(private readonly cdr: ChangeDetectorRef) { }
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit(): void {
     if (this.autofocus) {
@@ -300,9 +295,7 @@ export class Input implements ControlValueAccessor, AfterViewInit {
   }
 
   get describedBy(): string | null {
-    return [this.ariaDescribedBy, this.messageId, this.counterId]
-      .filter(Boolean)
-      .join(' ') || null;
+    return [this.ariaDescribedBy, this.messageId, this.counterId].filter(Boolean).join(' ') || null;
   }
 
   get valueLength(): number {
@@ -360,15 +353,10 @@ export class Input implements ControlValueAccessor, AfterViewInit {
       'app-input-readonly': this.readonly,
       'app-input-loading': this.loading,
       'app-input-multiline': this.multiline,
-      'app-input-inline-hover-border':
-        this.appearance === 'inline' &&
-        this.inlineHoverBorder,
-      'app-input-inline-focus-ring':
-        this.appearance === 'inline' &&
-        this.inlineFocusRing,
+      'app-input-inline-hover-border': this.appearance === 'inline' && this.inlineHoverBorder,
+      'app-input-inline-focus-ring': this.appearance === 'inline' && this.inlineFocusRing,
       'app-input-inline-hover-background':
-        this.appearance === 'inline' &&
-        this.inlineBackgroundOnHover,
+        this.appearance === 'inline' && this.inlineBackgroundOnHover,
     };
 
     for (const className of this.customClass.split(/\s+/).filter(Boolean)) {

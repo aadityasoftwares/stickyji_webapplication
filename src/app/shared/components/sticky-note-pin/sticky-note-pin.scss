@@ -6,13 +6,13 @@
    ========================================================================== */
 
 :host {
-    --sticky-pin-edge-inset: 8px;
-    --sticky-pin-offset-x: 0px;
-    --sticky-pin-offset-y: 0px;
+  --sticky-pin-edge-inset: 8px;
+  --sticky-pin-offset-x: 0px;
+  --sticky-pin-offset-y: 0px;
 
-    display: inline-flex;
+  display: inline-flex;
 
-    line-height: 0;
+  line-height: 0;
 }
 
 /* ==========================================================================
@@ -20,91 +20,69 @@
    ========================================================================== */
 
 :host(.app-sticky-note-pin-host-overlay) {
-    position: absolute;
+  position: absolute;
 }
 
 :host(.app-sticky-note-pin-host-inline) {
-    position: relative;
+  position: relative;
 
-    transform:
-        translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-top-left) {
-    top:
-        var(--sticky-pin-edge-inset);
+  top: var(--sticky-pin-edge-inset);
 
-    left:
-        var(--sticky-pin-edge-inset);
+  left: var(--sticky-pin-edge-inset);
 }
 
 :host(.app-sticky-note-pin-host-top-center) {
-    top:
-        var(--sticky-pin-edge-inset);
+  top: var(--sticky-pin-edge-inset);
 
-    left: 50%;
+  left: 50%;
 
-    transform:
-        translateX(-50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translateX(-50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-top-right) {
-    top:
-        var(--sticky-pin-edge-inset);
+  top: var(--sticky-pin-edge-inset);
 
-    right:
-        var(--sticky-pin-edge-inset);
+  right: var(--sticky-pin-edge-inset);
 }
 
 :host(.app-sticky-note-pin-host-bottom-left) {
-    bottom:
-        var(--sticky-pin-edge-inset);
+  bottom: var(--sticky-pin-edge-inset);
 
-    left:
-        var(--sticky-pin-edge-inset);
+  left: var(--sticky-pin-edge-inset);
 }
 
 :host(.app-sticky-note-pin-host-bottom-center) {
-    bottom:
-        var(--sticky-pin-edge-inset);
+  bottom: var(--sticky-pin-edge-inset);
 
-    left: 50%;
+  left: 50%;
 
-    transform:
-        translateX(-50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translateX(-50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-bottom-right) {
-    right:
-        var(--sticky-pin-edge-inset);
+  right: var(--sticky-pin-edge-inset);
 
-    bottom:
-        var(--sticky-pin-edge-inset);
+  bottom: var(--sticky-pin-edge-inset);
 }
 
 :host(.app-sticky-note-pin-host-left-center) {
-    top: 50%;
+  top: 50%;
 
-    left:
-        var(--sticky-pin-edge-inset);
+  left: var(--sticky-pin-edge-inset);
 
-    transform:
-        translateY(-50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translateY(-50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-right-center) {
-    top: 50%;
+  top: 50%;
 
-    right:
-        var(--sticky-pin-edge-inset);
+  right: var(--sticky-pin-edge-inset);
 
-    transform:
-        translateY(-50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translateY(-50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 /* ==========================================================================
@@ -115,25 +93,19 @@
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-left),
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-center),
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-right) {
-    top: 0;
+  top: 0;
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-left) {
-    transform:
-        translate(-8%, -52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(-8%, -52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-center) {
-    transform:
-        translate(-50%, -52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(-50%, -52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-top-right) {
-    transform:
-        translate(8%, -52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(8%, -52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 /* Bottom / side support retained for general common-component use. */
@@ -141,41 +113,31 @@
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-left),
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-center),
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-right) {
-    bottom: 0;
+  bottom: 0;
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-left) {
-    transform:
-        translate(-8%, 52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(-8%, 52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-center) {
-    transform:
-        translate(-50%, 52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(-50%, 52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-bottom-right) {
-    transform:
-        translate(8%, 52%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(8%, 52%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-left-center) {
-    left: 0;
+  left: 0;
 
-    transform:
-        translate(-52%, -50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(-52%, -50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 :host(.app-sticky-note-pin-host-overlap.app-sticky-note-pin-host-right-center) {
-    right: 0;
+  right: 0;
 
-    transform:
-        translate(52%, -50%) translate(var(--sticky-pin-offset-x),
-            var(--sticky-pin-offset-y));
+  transform: translate(52%, -50%) translate(var(--sticky-pin-offset-x), var(--sticky-pin-offset-y));
 }
 
 /* ==========================================================================
@@ -183,48 +145,42 @@
    ========================================================================== */
 
 .sticky-note-pin {
-    --pin-width: 52px;
-    --pin-height: 52px;
+  --pin-width: 52px;
+  --pin-height: 52px;
 
-    --pin-main: #e3262e;
-    --pin-mid: #bd151d;
-    --pin-dark: #7e0f15;
-    --pin-deep: #4f090d;
-    --pin-light: #ff7479;
+  --pin-main: #e3262e;
+  --pin-mid: #bd151d;
+  --pin-dark: #7e0f15;
+  --pin-deep: #4f090d;
+  --pin-light: #ff7479;
 
-    position: relative;
+  position: relative;
 
-    display: inline-block;
+  display: inline-block;
 
-    width:
-        var(--pin-width);
+  width: var(--pin-width);
 
-    height:
-        var(--pin-height);
+  height: var(--pin-height);
 
-    transform:
-        rotate(var(--sticky-pin-rotation,
-                -6deg));
+  transform: rotate(var(--sticky-pin-rotation, -6deg));
 
-    transform-origin:
-        50% 42%;
+  transform-origin: 50% 42%;
 
-    isolation: isolate;
+  isolation: isolate;
 }
 
 .sticky-note-pin-svg {
-    position: relative;
-    z-index: 2;
+  position: relative;
+  z-index: 2;
 
-    display: block;
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    overflow: visible;
+  overflow: visible;
 
-    filter:
-        drop-shadow(0 2px 1px rgba($heading, 0.14));
+  filter: drop-shadow(0 2px 1px rgba($heading, 0.14));
 }
 
 /* ==========================================================================
@@ -233,106 +189,89 @@
 
 .pin-svg-head-dark,
 .pin-svg-body-dark {
-    fill:
-        var(--pin-dark);
+  fill: var(--pin-dark);
 }
 
 .pin-svg-head-main,
 .pin-svg-body-main {
-    fill:
-        var(--pin-main);
+  fill: var(--pin-main);
 }
 
 .pin-svg-body-light {
-    fill:
-        var(--pin-light);
+  fill: var(--pin-light);
 
-    opacity: 0.48;
+  opacity: 0.48;
 }
 
 .pin-svg-head-light {
-    fill:
-        rgba(255, 255, 255, 0.34);
+  fill: rgba(255, 255, 255, 0.34);
 }
 
 .pin-svg-round-shine {
-    fill:
-        rgba(255, 255, 255, 0.72);
+  fill: rgba(255, 255, 255, 0.72);
 
-    opacity: 0.92;
+  opacity: 0.92;
 }
 
 .pin-svg-head-reflection {
-    fill:
-        var(--pin-deep);
+  fill: var(--pin-deep);
 
-    opacity: 0.22;
+  opacity: 0.22;
 }
 
 /* Metal needle */
 .pin-svg-needle-shadow {
-    fill: none;
+  fill: none;
 
-    stroke:
-        rgba($heading, 0.26);
+  stroke: rgba($heading, 0.26);
 
-    stroke-width: 3.4;
+  stroke-width: 3.4;
 
-    stroke-linecap: round;
+  stroke-linecap: round;
 }
 
 .pin-svg-needle {
-    fill: none;
+  fill: none;
 
-    stroke:
-        #a8aaac;
+  stroke: #a8aaac;
 
-    stroke-width: 2;
+  stroke-width: 2;
 
-    stroke-linecap: round;
+  stroke-linecap: round;
 }
 
 .pin-svg-needle-tip {
-    fill:
-        #64676a;
+  fill: #64676a;
 }
 
 /* Pearl */
 .pin-svg-pearl-dark {
-    fill:
-        color-mix(in srgb,
-            var(--pin-mid) 34%,
-            #b9b7b2 66%);
+  fill: color-mix(in srgb, var(--pin-mid) 34%, #b9b7b2 66%);
 }
 
 .pin-svg-pearl-main {
-    fill:
-        color-mix(in srgb,
-            var(--pin-light) 38%,
-            #f4f1e9 62%);
+  fill: color-mix(in srgb, var(--pin-light) 38%, #f4f1e9 62%);
 }
 
 .pin-svg-pearl-shine {
-    fill:
-        rgba(255, 255, 255, 0.88);
+  fill: rgba(255, 255, 255, 0.88);
 }
 
 /* Metal tack */
 .pin-svg-metal-dark {
-    fill: #666a6d;
+  fill: #666a6d;
 }
 
 .pin-svg-metal-main {
-    fill: #bfc3c6;
+  fill: #bfc3c6;
 }
 
 .pin-svg-metal-shine {
-    fill:
-        rgba(255, 255, 255, 0.72);
+  fill: rgba(255, 255, 255, 0.72);
 }
 
 .pin-svg-metal-neck {
-    fill: #8b8f92;
+  fill: #8b8f92;
 }
 
 /* ==========================================================================
@@ -340,34 +279,30 @@
    ========================================================================== */
 
 .sticky-note-pin-paper-shadow {
-    position: absolute;
-    z-index: 0;
+  position: absolute;
+  z-index: 0;
 
-    bottom: 5px;
-    left: 27%;
+  bottom: 5px;
+  left: 27%;
 
-    width: 28px;
-    height: 6px;
+  width: 28px;
+  height: 6px;
 
-    background:
-        rgba($heading, 0.16);
+  background: rgba($heading, 0.16);
 
-    border-radius: 50%;
+  border-radius: 50%;
 
-    filter:
-        blur(4px);
+  filter: blur(4px);
 
-    opacity: 0.52;
+  opacity: 0.52;
 
-    transform:
-        rotate(-17deg);
+  transform: rotate(-17deg);
 
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .sticky-note-pin-shadow .sticky-note-pin-svg {
-    filter:
-        drop-shadow(0 2px 1px rgba($heading, 0.18)) drop-shadow(0 6px 5px rgba($heading, 0.10));
+  filter: drop-shadow(0 2px 1px rgba($heading, 0.18)) drop-shadow(0 6px 5px rgba($heading, 0.1));
 }
 
 /* ==========================================================================
@@ -375,32 +310,26 @@
    ========================================================================== */
 
 .sticky-note-pin-icon-shell {
-    position: absolute;
-    inset: 0;
+  position: absolute;
+  inset: 0;
 
-    z-index: 2;
+  z-index: 2;
 
-    display: grid;
+  display: grid;
 
-    color:
-        var(--pin-dark);
+  color: var(--pin-dark);
 
-    place-items: center;
+  place-items: center;
 
-    filter:
-        drop-shadow(0 3px 2px rgba($heading, 0.14));
+  filter: drop-shadow(0 3px 2px rgba($heading, 0.14));
 }
 
 .sticky-note-pin-mapPin .sticky-note-pin-icon-shell {
-    color:
-        var(--pin-main);
+  color: var(--pin-main);
 }
 
 .sticky-note-pin-paperclip .sticky-note-pin-icon-shell {
-    color:
-        color-mix(in srgb,
-            var(--pin-dark) 35%,
-            #777 65%);
+  color: color-mix(in srgb, var(--pin-dark) 35%, #777 65%);
 }
 
 /* ==========================================================================
@@ -408,28 +337,28 @@
    ========================================================================== */
 
 .sticky-note-pin-xs {
-    --pin-width: 28px;
-    --pin-height: 28px;
+  --pin-width: 28px;
+  --pin-height: 28px;
 }
 
 .sticky-note-pin-sm {
-    --pin-width: 38px;
-    --pin-height: 38px;
+  --pin-width: 38px;
+  --pin-height: 38px;
 }
 
 .sticky-note-pin-md {
-    --pin-width: 52px;
-    --pin-height: 52px;
+  --pin-width: 52px;
+  --pin-height: 52px;
 }
 
 .sticky-note-pin-lg {
-    --pin-width: 62px;
-    --pin-height: 62px;
+  --pin-width: 62px;
+  --pin-height: 62px;
 }
 
 .sticky-note-pin-xl {
-    --pin-width: 74px;
-    --pin-height: 74px;
+  --pin-width: 74px;
+  --pin-height: 74px;
 }
 
 /* ==========================================================================
@@ -437,91 +366,91 @@
    ========================================================================== */
 
 .sticky-note-pin-red {
-    --pin-main: #e3262e;
-    --pin-mid: #bd151d;
-    --pin-dark: #7e0f15;
-    --pin-deep: #4f090d;
-    --pin-light: #ff7479;
+  --pin-main: #e3262e;
+  --pin-mid: #bd151d;
+  --pin-dark: #7e0f15;
+  --pin-deep: #4f090d;
+  --pin-light: #ff7479;
 }
 
 .sticky-note-pin-yellow {
-    --pin-main: #e0a900;
-    --pin-mid: #bc8400;
-    --pin-dark: #785300;
-    --pin-deep: #4c3400;
-    --pin-light: #ffe46e;
+  --pin-main: #e0a900;
+  --pin-mid: #bc8400;
+  --pin-dark: #785300;
+  --pin-deep: #4c3400;
+  --pin-light: #ffe46e;
 }
 
 .sticky-note-pin-orange {
-    --pin-main: #ea741d;
-    --pin-mid: #bf5410;
-    --pin-dark: #7e3307;
-    --pin-deep: #4e1e03;
-    --pin-light: #ffad68;
+  --pin-main: #ea741d;
+  --pin-mid: #bf5410;
+  --pin-dark: #7e3307;
+  --pin-deep: #4e1e03;
+  --pin-light: #ffad68;
 }
 
 .sticky-note-pin-pink {
-    --pin-main: #dc4b87;
-    --pin-mid: #b62d69;
-    --pin-dark: #771b44;
-    --pin-deep: #4e102c;
-    --pin-light: #ff9fc6;
+  --pin-main: #dc4b87;
+  --pin-mid: #b62d69;
+  --pin-dark: #771b44;
+  --pin-deep: #4e102c;
+  --pin-light: #ff9fc6;
 }
 
 .sticky-note-pin-green {
-    --pin-main: #3f9954;
-    --pin-mid: #2e773e;
-    --pin-dark: #1e502a;
-    --pin-deep: #12341a;
-    --pin-light: #8bd89a;
+  --pin-main: #3f9954;
+  --pin-mid: #2e773e;
+  --pin-dark: #1e502a;
+  --pin-deep: #12341a;
+  --pin-light: #8bd89a;
 }
 
 .sticky-note-pin-blue {
-    --pin-main: #3687c8;
-    --pin-mid: #2467a0;
-    --pin-dark: #18466f;
-    --pin-deep: #0e2d48;
-    --pin-light: #8bc6f5;
+  --pin-main: #3687c8;
+  --pin-mid: #2467a0;
+  --pin-dark: #18466f;
+  --pin-deep: #0e2d48;
+  --pin-light: #8bc6f5;
 }
 
 .sticky-note-pin-purple {
-    --pin-main: #8057be;
-    --pin-mid: #633c9d;
-    --pin-dark: #402769;
-    --pin-deep: #291744;
-    --pin-light: #bea0ea;
+  --pin-main: #8057be;
+  --pin-mid: #633c9d;
+  --pin-dark: #402769;
+  --pin-deep: #291744;
+  --pin-light: #bea0ea;
 }
 
 .sticky-note-pin-brown {
-    --pin-main: #85563a;
-    --pin-mid: #68402a;
-    --pin-dark: #44291b;
-    --pin-deep: #2d1a11;
-    --pin-light: #c39372;
+  --pin-main: #85563a;
+  --pin-mid: #68402a;
+  --pin-dark: #44291b;
+  --pin-deep: #2d1a11;
+  --pin-light: #c39372;
 }
 
 .sticky-note-pin-black {
-    --pin-main: #333;
-    --pin-mid: #242424;
-    --pin-dark: #111;
-    --pin-deep: #050505;
-    --pin-light: #777;
+  --pin-main: #333;
+  --pin-mid: #242424;
+  --pin-dark: #111;
+  --pin-deep: #050505;
+  --pin-light: #777;
 }
 
 .sticky-note-pin-neutral {
-    --pin-main: #868686;
-    --pin-mid: #676767;
-    --pin-dark: #444;
-    --pin-deep: #292929;
-    --pin-light: #c2c2c2;
+  --pin-main: #868686;
+  --pin-mid: #676767;
+  --pin-dark: #444;
+  --pin-deep: #292929;
+  --pin-light: #c2c2c2;
 }
 
 .sticky-note-pin-paper {
-    --pin-main: #d4c5b1;
-    --pin-mid: #a99478;
-    --pin-dark: #74624e;
-    --pin-deep: #4a3d30;
-    --pin-light: #fff2dc;
+  --pin-main: #d4c5b1;
+  --pin-mid: #a99478;
+  --pin-dark: #74624e;
+  --pin-deep: #4a3d30;
+  --pin-light: #fff2dc;
 }
 
 /* ==========================================================================
@@ -529,23 +458,19 @@
    ========================================================================== */
 
 .sticky-note-pin-interactive {
-    cursor: pointer;
+  cursor: pointer;
 
-    transition:
-        transform 140ms ease,
-        filter 140ms ease;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
 
-    &:hover {
-        transform:
-            rotate(var(--sticky-pin-rotation,
-                    -6deg)) translateY(-1px);
-    }
+  &:hover {
+    transform: rotate(var(--sticky-pin-rotation, -6deg)) translateY(-1px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .sticky-note-pin {
-        transition:
-            none !important;
-    }
+  .sticky-note-pin {
+    transition: none !important;
+  }
 }

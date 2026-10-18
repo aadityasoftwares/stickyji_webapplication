@@ -9,7 +9,9 @@ describe('Folder API contract', () => {
   let http: HttpTestingController;
   const base = API_ENDPOINTS.workspaceFolders.base;
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     api = TestBed.inject(WorkspaceFolderService);
     http = TestBed.inject(HttpTestingController);
   });
@@ -17,14 +19,29 @@ describe('Folder API contract', () => {
 
   it('fetches every active folder page for navigation', () => {
     const result: string[] = [];
-    api.getFolderOptions('w').subscribe(folders => result.push(...folders.map(folder => folder.id)));
+    api
+      .getFolderOptions('w')
+      .subscribe((folders) => result.push(...folders.map((folder) => folder.id)));
     const first = http.expectOne(`${base}/getall`);
-    expect(first.request.body).toEqual({ workspaceId: 'w', page: 1, limit: 100, status: 'ACTIVE', sortBy: 'position', sortOrder: 'asc' });
-    first.flush({ data: [{ id: 'first' }], meta: { page: 1, limit: 100, total: 101, totalPages: 2 } });
+    expect(first.request.body).toEqual({
+      workspaceId: 'w',
+      page: 1,
+      limit: 100,
+      status: 'ACTIVE',
+      sortBy: 'position',
+      sortOrder: 'asc',
+    });
+    first.flush({
+      data: [{ id: 'first' }],
+      meta: { page: 1, limit: 100, total: 101, totalPages: 2 },
+    });
     expect(result).toEqual([]);
     const second = http.expectOne(`${base}/getall`);
     expect(second.request.body.page).toBe(2);
-    second.flush({ data: [{ id: 'last' }], meta: { page: 2, limit: 100, total: 101, totalPages: 2 } });
+    second.flush({
+      data: [{ id: 'last' }],
+      meta: { page: 2, limit: 100, total: 101, totalPages: 2 },
+    });
     expect(result).toEqual(['first', 'last']);
   });
 

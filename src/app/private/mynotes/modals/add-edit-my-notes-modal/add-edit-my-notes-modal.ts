@@ -12,12 +12,38 @@ import {
   ViewChild,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LucideCheck, LucidePencil, LucidePlus, LucideStickyNote, LucideTrash2, LucideUserRound, LucideX } from '@lucide/angular';
-import { concatMap, finalize, forkJoin, from, map, Observable, of, switchMap, tap, toArray } from 'rxjs';
+import {
+  LucideCheck,
+  LucidePencil,
+  LucidePlus,
+  LucideStickyNote,
+  LucideTrash2,
+  LucideUserRound,
+  LucideX,
+} from '@lucide/angular';
+import {
+  concatMap,
+  finalize,
+  forkJoin,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  toArray,
+} from 'rxjs';
 import { extractErrorMessage } from '../../../../shared/functions/common.function';
 import { getInitials } from '../../../../shared/functions/string.functions';
 
@@ -55,11 +81,11 @@ import { extractList, idOf } from '../../../../shared/functions/common.function'
     Label,
     Loader,
     Select,
-    Switch
+    Switch,
   ],
   templateUrl: './add-edit-my-notes-modal.html',
   styleUrl: './add-edit-my-notes-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditMyNotesModal implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
@@ -112,10 +138,10 @@ export class AddEditMyNotesModal implements OnChanges {
   readonly folderLabel = signal('');
 
   readonly columnOptions = computed(() =>
-    this.columns().map(column => ({
+    this.columns().map((column) => ({
       label: column.name || 'Untitled column',
-      value: this.idOf(column)
-    }))
+      value: this.idOf(column),
+    })),
   );
 
   readonly workspaceMemberOptions = computed<readonly SelectOption[]>(() =>
@@ -128,10 +154,10 @@ export class AddEditMyNotesModal implements OnChanges {
         return this.workspaceMemberName(first).localeCompare(
           this.workspaceMemberName(second),
           undefined,
-          { sensitivity: 'base' }
+          { sensitivity: 'base' },
         );
       })
-      .map(member => {
+      .map((member) => {
         const name = this.workspaceMemberName(member);
         const role = this.workspaceMemberRole(member);
         const email = String(member.user?.email ?? '').trim();
@@ -139,22 +165,18 @@ export class AddEditMyNotesModal implements OnChanges {
         return {
           label: name,
           value: member.id,
-          description: member.isCurrentUser
-            ? `You · ${role}`
-            : email
-              ? `${role} · ${email}`
-              : role,
+          description: member.isCurrentUser ? `You · ${role}` : email ? `${role} · ${email}` : role,
           avatar: {
             src: this.workspaceMemberAvatar(member),
             name,
             initials: getInitials(name, '?'),
             shape: 'circle',
             bordered: true,
-            elevated: false
-          }
+            elevated: false,
+          },
         } satisfies SelectOption;
       })
-      .filter(option => Boolean(String(option.value ?? '').trim()))
+      .filter((option) => Boolean(String(option.value ?? '').trim())),
   );
 
   readonly colorOptions = [
@@ -166,7 +188,7 @@ export class AddEditMyNotesModal implements OnChanges {
     { label: 'Purple', value: 'PURPLE' },
     { label: 'Red', value: 'RED' },
     { label: 'Brown', value: 'BROWN' },
-    { label: 'Black', value: 'BLACK' }
+    { label: 'Black', value: 'BLACK' },
   ];
 
   readonly form = this.fb.group({
@@ -177,7 +199,7 @@ export class AddEditMyNotesModal implements OnChanges {
     noteDate: [''],
     workspaceMemberId: [''],
     withChecklist: [false],
-    checklists: this.fb.array([])
+    checklists: this.fb.array([]),
   });
 
   get checklists(): FormArray {
@@ -218,17 +240,15 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   get canSubmit(): boolean {
-    return !this.isBusy && this.form.valid && (!this.withChecklist || this.hasValidChecklistStructure());
+    return (
+      !this.isBusy && this.form.valid && (!this.withChecklist || this.hasValidChecklistStructure())
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.open) return;
 
-    if (
-      changes['open']?.currentValue === true ||
-      changes['id'] ||
-      changes['mode']
-    ) {
+    if (changes['open']?.currentValue === true || changes['id'] || changes['mode']) {
       this.initialize();
     }
   }
@@ -238,16 +258,11 @@ export class AddEditMyNotesModal implements OnChanges {
     this.form.get(controlName)?.setValue(String(value ?? ''));
   }
 
-  updateSelect(
-    controlName: 'columnId' | 'color' | 'workspaceMemberId',
-    value: unknown
-  ): void {
+  updateSelect(controlName: 'columnId' | 'color' | 'workspaceMemberId', value: unknown): void {
     this.error.set('');
 
     if (controlName === 'workspaceMemberId') {
-      this.form.get(controlName)?.setValue(
-        typeof value === 'string' ? value : ''
-      );
+      this.form.get(controlName)?.setValue(typeof value === 'string' ? value : '');
       return;
     }
 
@@ -346,13 +361,7 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   controlString(
-    controlName:
-      | 'title'
-      | 'content'
-      | 'columnId'
-      | 'color'
-      | 'noteDate'
-      | 'workspaceMemberId'
+    controlName: 'title' | 'content' | 'columnId' | 'color' | 'noteDate' | 'workspaceMemberId',
   ): string {
     return String(this.form.get(controlName)?.value ?? '');
   }
@@ -397,7 +406,7 @@ export class AddEditMyNotesModal implements OnChanges {
       title,
       content: content || title,
       color,
-      noteDate
+      noteDate,
     };
 
     const updatePayload = {
@@ -405,42 +414,40 @@ export class AddEditMyNotesModal implements OnChanges {
       title,
       content: content || title,
       color,
-      noteDate
+      noteDate,
     };
 
     this.loading.set(true);
 
     this.saveNote(createPayload, updatePayload)
       .pipe(
-        tap(response => {
+        tap((response) => {
           this.savedNoteId = this.idOf(response.data);
         }),
-        switchMap(response =>
-          this.syncChecklists(this.idOf(response.data)).pipe(
-            map(() => response.data)
-          )
+        switchMap((response) =>
+          this.syncChecklists(this.idOf(response.data)).pipe(map(() => response.data)),
         ),
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: note => {
+        next: (note) => {
           const noteId = this.idOf(note);
 
           this.toastService.success(
             this.mode === 'create' ? 'Your sticky note is ready.' : 'Your note changes were saved.',
             {
               title: this.mode === 'create' ? 'Note created' : 'Note updated',
-              dedupeKey: `note-editor-saved-${noteId}`
-            }
+              dedupeKey: `note-editor-saved-${noteId}`,
+            },
           );
 
           this.saved.emit(noteId);
         },
-        error: error => {
+        error: (error) => {
           const message = extractErrorMessage(error, 'Unable to save the note and its checklists.');
           this.notifyError(message, 'Could not save note');
-        }
+        },
       });
   }
 
@@ -471,7 +478,7 @@ export class AddEditMyNotesModal implements OnChanges {
         this.mode === 'create'
           ? 'A column id is required to create a note.'
           : 'A note id is required to edit a note.',
-        'Could not open note editor'
+        'Could not open note editor',
       );
       return;
     }
@@ -491,7 +498,7 @@ export class AddEditMyNotesModal implements OnChanges {
       .getById(noteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
+        next: (response) => {
           const note = response.data;
 
           this.workspaceId = this.referenceId(note?.workspaceId);
@@ -507,12 +514,15 @@ export class AddEditMyNotesModal implements OnChanges {
             color: this.normalizeColor(note?.color),
             noteDate: this.toDateKey(note?.noteDate) ?? '',
             workspaceMemberId: '',
-            withChecklist: false
+            withChecklist: false,
           });
 
           if (!this.workspaceId || !this.workspaceFolderId) {
             this.loadingData.set(false);
-            this.notifyError('Unable to resolve this note workspace and folder.', 'Could not open note editor');
+            this.notifyError(
+              'Unable to resolve this note workspace and folder.',
+              'Could not open note editor',
+            );
             return;
           }
 
@@ -520,10 +530,10 @@ export class AddEditMyNotesModal implements OnChanges {
           this.loadColumns(this.referenceId(note?.columnId));
           this.loadChecklists(note, noteId);
         },
-        error: error => {
+        error: (error) => {
           this.loadingData.set(false);
           this.handleLoadError(error, 'Unable to load this note.');
-        }
+        },
       });
   }
 
@@ -532,7 +542,7 @@ export class AddEditMyNotesModal implements OnChanges {
       .getById(columnId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
+        next: (response) => {
           const column = response.data;
 
           this.workspaceId = this.referenceId(column?.workspaceId);
@@ -542,22 +552,25 @@ export class AddEditMyNotesModal implements OnChanges {
 
           this.form.patchValue({
             columnId: this.idOf(column) || columnId,
-            color: this.normalizeColor(column?.color)
+            color: this.normalizeColor(column?.color),
           });
 
           if (!this.workspaceId || !this.workspaceFolderId) {
             this.loadingData.set(false);
-            this.notifyError('Unable to resolve this column workspace and folder.', 'Could not open note editor');
+            this.notifyError(
+              'Unable to resolve this column workspace and folder.',
+              'Could not open note editor',
+            );
             return;
           }
 
           this.loadWorkspaceMembers(this.workspaceId);
           this.loadColumns(this.idOf(column) || columnId);
         },
-        error: error => {
+        error: (error) => {
           this.loadingData.set(false);
           this.handleLoadError(error, 'Unable to load the selected column.');
-        }
+        },
       });
   }
 
@@ -581,33 +594,27 @@ export class AddEditMyNotesModal implements OnChanges {
         page: 1,
         limit: 100,
         sortBy: 'updatedAt',
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
-          if (
-            requestVersion !== this.workspaceMemberRequestVersion ||
-            this.workspaceId !== id
-          ) {
+        next: (response) => {
+          if (requestVersion !== this.workspaceMemberRequestVersion || this.workspaceId !== id) {
             return;
           }
 
           this.workspaceMembers.set(response.data ?? []);
           this.loadingWorkspaceMembers.set(false);
         },
-        error: error => {
-          if (
-            requestVersion !== this.workspaceMemberRequestVersion ||
-            this.workspaceId !== id
-          ) {
+        error: (error) => {
+          if (requestVersion !== this.workspaceMemberRequestVersion || this.workspaceId !== id) {
             return;
           }
 
           console.error(error);
           this.workspaceMembers.set([]);
           this.loadingWorkspaceMembers.set(false);
-        }
+        },
       });
   }
 
@@ -616,34 +623,36 @@ export class AddEditMyNotesModal implements OnChanges {
       .getByWorkspaceFolder(this.workspaceId, this.workspaceFolderId)
       .pipe(
         finalize(() => this.loadingData.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
-          const columns = [...(response.data ?? [])]
-            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+        next: (response) => {
+          const columns = [...(response.data ?? [])].sort(
+            (a, b) => (a.position ?? 0) - (b.position ?? 0),
+          );
 
           this.columns.set(columns);
 
-          const selectedExists = columns.some(column => this.idOf(column) === selectedColumnId);
+          const selectedExists = columns.some((column) => this.idOf(column) === selectedColumnId);
 
           if (!selectedExists && columns.length) {
-            const fallback = columns.find(column => column.type !== 'COMPLETED') ?? columns[0];
+            const fallback = columns.find((column) => column.type !== 'COMPLETED') ?? columns[0];
 
             this.form.patchValue({
               columnId: this.idOf(fallback),
-              color: this.mode === 'create'
-                ? this.normalizeColor(fallback.color)
-                : this.controlString('color')
+              color:
+                this.mode === 'create'
+                  ? this.normalizeColor(fallback.color)
+                  : this.controlString('color'),
             });
           }
 
           this.focusTitle();
         },
-        error: error => {
+        error: (error) => {
           this.columns.set([]);
           this.handleLoadError(error, 'Unable to load note columns.');
-        }
+        },
       });
   }
 
@@ -662,42 +671,42 @@ export class AddEditMyNotesModal implements OnChanges {
         page: 1,
         limit: 100,
         sortBy: 'position',
-        sortOrder: 'asc'
+        sortOrder: 'asc',
       })
       .pipe(
-        switchMap(response => {
+        switchMap((response) => {
           const checklists = this.extractList(response)
-            .filter(item => item.status !== 'DELETED')
+            .filter((item) => item.status !== 'DELETED')
             .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
           if (!checklists.length) return of([]);
 
           return forkJoin(
-            checklists.map(checklist =>
+            checklists.map((checklist) =>
               this.checklistItemApi
                 .getByChecklist(this.idOf(checklist), {
                   page: 1,
                   limit: 250,
                   sortBy: 'position',
-                  sortOrder: 'asc'
+                  sortOrder: 'asc',
                 })
                 .pipe(
-                  map(response => ({
+                  map((response) => ({
                     ...checklist,
                     items: this.extractList(response)
-                      .filter(item => item.status !== 'DELETED')
-                      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-                  }))
-                )
-            )
+                      .filter((item) => item.status !== 'DELETED')
+                      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
+                  })),
+                ),
+            ),
           );
         }),
         finalize(() => this.loadingChecklist.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: checklists => this.applyChecklists(checklists),
-        error: error => this.handleLoadError(error, 'Unable to load this note checklists.')
+        next: (checklists) => this.applyChecklists(checklists),
+        error: (error) => this.handleLoadError(error, 'Unable to load this note checklists.'),
       });
   }
 
@@ -707,21 +716,21 @@ export class AddEditMyNotesModal implements OnChanges {
     this.originalItemIdsByChecklist.clear();
 
     [...checklists]
-      .filter(checklist => checklist?.status !== 'DELETED')
+      .filter((checklist) => checklist?.status !== 'DELETED')
       .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-      .forEach(checklist => {
+      .forEach((checklist) => {
         const checklistId = this.idOf(checklist);
         const items = Array.isArray(checklist.items)
           ? [...checklist.items]
-            .filter(item => item?.status !== 'DELETED')
-            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+              .filter((item) => item?.status !== 'DELETED')
+              .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
           : [];
 
         if (checklistId) {
           this.originalChecklistIds.add(checklistId);
           this.originalItemIdsByChecklist.set(
             checklistId,
-            new Set(items.map(item => this.idOf(item)).filter(Boolean))
+            new Set(items.map((item) => this.idOf(item)).filter(Boolean)),
           );
         }
 
@@ -729,8 +738,8 @@ export class AddEditMyNotesModal implements OnChanges {
           this.createChecklistGroup({
             id: checklistId,
             title: checklist.title ?? '',
-            items
-          })
+            items,
+          }),
         );
       });
 
@@ -753,34 +762,31 @@ export class AddEditMyNotesModal implements OnChanges {
 
   private syncChecklists(noteId: string): Observable<void> {
     const groups = this.withChecklist
-      ? this.checklists.controls.map(control => control as FormGroup)
+      ? this.checklists.controls.map((control) => control as FormGroup)
       : [];
 
     const currentIds = new Set(
-      groups.map(group => String(group.get('id')?.value ?? '')).filter(Boolean)
+      groups.map((group) => String(group.get('id')?.value ?? '')).filter(Boolean),
     );
 
-    const removedChecklistIds = [...this.originalChecklistIds]
-      .filter(id => !currentIds.has(id));
+    const removedChecklistIds = [...this.originalChecklistIds].filter((id) => !currentIds.has(id));
 
     const saveCurrent$ = groups.length
       ? from(groups).pipe(
-        concatMap((group, position) =>
-          this.saveChecklist(noteId, group, position)
-        ),
-        toArray(),
-        map(() => void 0)
-      )
+          concatMap((group, position) => this.saveChecklist(noteId, group, position)),
+          toArray(),
+          map(() => void 0),
+        )
       : of(void 0);
 
     return saveCurrent$.pipe(
       switchMap(() => this.deleteChecklistTrees(removedChecklistIds)),
       tap(() => {
-        removedChecklistIds.forEach(id => {
+        removedChecklistIds.forEach((id) => {
           this.originalChecklistIds.delete(id);
           this.originalItemIdsByChecklist.delete(id);
         });
-      })
+      }),
     );
   }
 
@@ -793,8 +799,8 @@ export class AddEditMyNotesModal implements OnChanges {
       : this.checklistApi.create({ stickyNoteId: noteId, title, position });
 
     return request.pipe(
-      map(response => this.idOf(response.data)),
-      tap(checklistId => {
+      map((response) => this.idOf(response.data)),
+      tap((checklistId) => {
         if (!checklistId) {
           throw new Error('Checklist id was not returned by the server.');
         }
@@ -806,7 +812,7 @@ export class AddEditMyNotesModal implements OnChanges {
           this.originalItemIdsByChecklist.set(checklistId, new Set());
         }
       }),
-      switchMap(checklistId => this.syncChecklistItems(group, checklistId))
+      switchMap((checklistId) => this.syncChecklistItems(group, checklistId)),
     );
   }
 
@@ -821,28 +827,28 @@ export class AddEditMyNotesModal implements OnChanges {
         id: String(item.get('id')?.value ?? ''),
         title: String(item.get('title')?.value ?? '').trim(),
         isCompleted: item.get('isCompleted')?.value === true,
-        initialCompleted: item.get('initialCompleted')?.value === true
+        initialCompleted: item.get('initialCompleted')?.value === true,
       };
     });
 
     const originalIds = this.originalItemIdsByChecklist.get(checklistId) ?? new Set<string>();
-    const currentIds = new Set(rows.map(row => row.id).filter(Boolean));
-    const removedIds = [...originalIds].filter(id => !currentIds.has(id));
+    const currentIds = new Set(rows.map((row) => row.id).filter(Boolean));
+    const removedIds = [...originalIds].filter((id) => !currentIds.has(id));
 
     const saveRows$ = rows.length
       ? from(rows).pipe(
-        concatMap(row => this.saveChecklistItem(checklistId, row)),
-        toArray(),
-        map(() => void 0)
-      )
+          concatMap((row) => this.saveChecklistItem(checklistId, row)),
+          toArray(),
+          map(() => void 0),
+        )
       : of(void 0);
 
     return saveRows$.pipe(
       switchMap(() => this.deleteChecklistItems(removedIds)),
       tap(() => {
-        removedIds.forEach(id => originalIds.delete(id));
+        removedIds.forEach((id) => originalIds.delete(id));
         this.originalItemIdsByChecklist.set(checklistId, originalIds);
-      })
+      }),
     );
   }
 
@@ -850,19 +856,17 @@ export class AddEditMyNotesModal implements OnChanges {
     if (row.id) {
       let request: Observable<unknown> = this.checklistItemApi.update(row.id, {
         title: row.title,
-        position: row.position
+        position: row.position,
       });
 
       if (row.isCompleted !== row.initialCompleted) {
         request = request.pipe(
-          switchMap(() =>
-            this.checklistItemApi.updateCompletion(row.id, row.isCompleted)
-          ),
+          switchMap(() => this.checklistItemApi.updateCompletion(row.id, row.isCompleted)),
           tap(() => {
             row.group.get('initialCompleted')?.setValue(row.isCompleted, {
-              emitEvent: false
+              emitEvent: false,
             });
-          })
+          }),
         );
       }
 
@@ -873,10 +877,10 @@ export class AddEditMyNotesModal implements OnChanges {
       .create({
         checklistId,
         title: row.title,
-        position: row.position
+        position: row.position,
       })
       .pipe(
-        tap(response => {
+        tap((response) => {
           const itemId = this.idOf(response.data);
 
           if (!itemId) {
@@ -889,21 +893,19 @@ export class AddEditMyNotesModal implements OnChanges {
           ids.add(itemId);
           this.originalItemIdsByChecklist.set(checklistId, ids);
         }),
-        switchMap(response => {
+        switchMap((response) => {
           const itemId = this.idOf(response.data);
 
           if (!row.isCompleted) return of(response);
 
-          return this.checklistItemApi
-            .updateCompletion(itemId, true)
-            .pipe(
-              tap(() => {
-                row.group.get('initialCompleted')?.setValue(true, {
-                  emitEvent: false
-                });
-              })
-            );
-        })
+          return this.checklistItemApi.updateCompletion(itemId, true).pipe(
+            tap(() => {
+              row.group.get('initialCompleted')?.setValue(true, {
+                emitEvent: false,
+              });
+            }),
+          );
+        }),
       );
   }
 
@@ -911,15 +913,13 @@ export class AddEditMyNotesModal implements OnChanges {
     if (!checklistIds.length) return of(void 0);
 
     return from(checklistIds).pipe(
-      concatMap(checklistId =>
+      concatMap((checklistId) =>
         this.deleteChecklistItems([
-          ...(this.originalItemIdsByChecklist.get(checklistId) ?? [])
-        ]).pipe(
-          switchMap(() => this.checklistApi.delete(checklistId))
-        )
+          ...(this.originalItemIdsByChecklist.get(checklistId) ?? []),
+        ]).pipe(switchMap(() => this.checklistApi.delete(checklistId))),
       ),
       toArray(),
-      map(() => void 0)
+      map(() => void 0),
     );
   }
 
@@ -927,43 +927,38 @@ export class AddEditMyNotesModal implements OnChanges {
     if (!itemIds.length) return of(void 0);
 
     return from(itemIds).pipe(
-      concatMap(itemId => this.checklistItemApi.delete(itemId)),
+      concatMap((itemId) => this.checklistItemApi.delete(itemId)),
       toArray(),
-      map(() => void 0)
+      map(() => void 0),
     );
   }
 
   private createChecklistGroup(value: any = {}): FormGroup {
-    const items = Array.isArray(value.items) && value.items.length
-      ? value.items.map((item: any) =>
-        this.createChecklistItemGroup({
-          id: this.idOf(item),
-          title: item.title ?? '',
-          isCompleted: item.isCompleted === true,
-          initialCompleted: item.isCompleted === true
-        })
-      )
-      : [this.createChecklistItemGroup()];
+    const items =
+      Array.isArray(value.items) && value.items.length
+        ? value.items.map((item: any) =>
+            this.createChecklistItemGroup({
+              id: this.idOf(item),
+              title: item.title ?? '',
+              isCompleted: item.isCompleted === true,
+              initialCompleted: item.isCompleted === true,
+            }),
+          )
+        : [this.createChecklistItemGroup()];
 
     return this.fb.group({
       id: [value.id ?? ''],
-      title: [
-        value.title ?? '',
-        [Validators.maxLength(this.checklistTitleMaxLength)]
-      ],
-      items: this.fb.array(items)
+      title: [value.title ?? '', [Validators.maxLength(this.checklistTitleMaxLength)]],
+      items: this.fb.array(items),
     });
   }
 
   private createChecklistItemGroup(value: any = {}): FormGroup {
     return this.fb.group({
       id: [value.id ?? ''],
-      title: [
-        value.title ?? '',
-        [Validators.maxLength(this.checklistItemTitleMaxLength)]
-      ],
+      title: [value.title ?? '', [Validators.maxLength(this.checklistItemTitleMaxLength)]],
       isCompleted: [value.isCompleted ?? false],
-      initialCompleted: [value.initialCompleted ?? false]
+      initialCompleted: [value.initialCompleted ?? false],
     });
   }
 
@@ -1014,7 +1009,7 @@ export class AddEditMyNotesModal implements OnChanges {
 
       for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
         const itemTitle = String(
-          (items.at(itemIndex) as FormGroup).get('title')?.value ?? ''
+          (items.at(itemIndex) as FormGroup).get('title')?.value ?? '',
         ).trim();
 
         if (!itemTitle) continue;
@@ -1059,7 +1054,7 @@ export class AddEditMyNotesModal implements OnChanges {
 
       for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
         const itemTitle = String(
-          (items.at(itemIndex) as FormGroup).get('title')?.value ?? ''
+          (items.at(itemIndex) as FormGroup).get('title')?.value ?? '',
         ).trim();
 
         if (!itemTitle) return false;
@@ -1106,7 +1101,7 @@ export class AddEditMyNotesModal implements OnChanges {
       color: 'YELLOW',
       noteDate: '',
       workspaceMemberId: '',
-      withChecklist: false
+      withChecklist: false,
     });
   }
 
@@ -1146,11 +1141,7 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   private workspaceMemberRole(member: WorkspaceMemberListItem): string {
-    return String(
-      member.role?.name ??
-      member.role?.code ??
-      'Member'
-    ).trim();
+    return String(member.role?.name ?? member.role?.code ?? 'Member').trim();
   }
 
   private workspaceMemberAvatar(member: WorkspaceMemberListItem): string | null {
@@ -1169,9 +1160,7 @@ export class AddEditMyNotesModal implements OnChanges {
       profile?.['avatarUrl'] ??
       profile?.['profileImage'];
 
-    return typeof value === 'string' && value.trim()
-      ? value.trim()
-      : null;
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
   }
 
   private toDateKey(value: unknown): string | null {
@@ -1181,13 +1170,12 @@ export class AddEditMyNotesModal implements OnChanges {
 
     const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
-    return match
-      ? `${match[1]}-${match[2]}-${match[3]}`
-      : null;
+    return match ? `${match[1]}-${match[2]}-${match[3]}` : null;
   }
 
-  private normalizeColor(value: unknown):
-    'YELLOW' | 'PINK' | 'BLUE' | 'GREEN' | 'ORANGE' | 'PURPLE' | 'RED' | 'BROWN' | 'BLACK' {
+  private normalizeColor(
+    value: unknown,
+  ): 'YELLOW' | 'PINK' | 'BLUE' | 'GREEN' | 'ORANGE' | 'PURPLE' | 'RED' | 'BROWN' | 'BLACK' {
     switch (value) {
       case 'PINK':
       case 'BLUE':
@@ -1204,10 +1192,7 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   private handleLoadError(error: unknown, fallback: string): void {
-    this.notifyError(
-      extractErrorMessage(error, fallback),
-      'Could not open note editor'
-    );
+    this.notifyError(extractErrorMessage(error, fallback), 'Could not open note editor');
   }
 
   private notifyError(message: string, title: string): void {
@@ -1215,7 +1200,7 @@ export class AddEditMyNotesModal implements OnChanges {
 
     this.toastService.error(message, {
       title,
-      dedupeKey: `note-editor-${this.mode}-${this.id || 'new'}-${message}`
+      dedupeKey: `note-editor-${this.mode}-${this.id || 'new'}-${message}`,
     });
   }
 
@@ -1224,7 +1209,7 @@ export class AddEditMyNotesModal implements OnChanges {
       if (!this.open) return;
 
       const input = this.noteTitleInput?.nativeElement.querySelector(
-        'input:not([disabled])'
+        'input:not([disabled])',
       ) as HTMLInputElement | null;
 
       if (!input) return;

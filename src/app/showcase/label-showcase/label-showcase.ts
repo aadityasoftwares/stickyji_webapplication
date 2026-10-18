@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
 import {
   LucideAtSign,
@@ -19,11 +15,7 @@ import {
   LucideUser,
 } from '@lucide/angular';
 
-import {
-  Label,
-  type LabelSize,
-  type LabelVariant,
-} from '../../shared/components/label/label';
+import { Label, type LabelSize, type LabelVariant } from '../../shared/components/label/label';
 
 @Component({
   selector: 'app-label-showcase',
@@ -53,39 +45,39 @@ export class LabelShowcase {
     readonly label: string;
     readonly value: LabelSize;
   }> = [
-      { label: 'Extra small', value: 'xs' },
-      { label: 'Small', value: 'sm' },
-      { label: 'Medium', value: 'md' },
-      { label: 'Large', value: 'lg' },
-    ];
+    { label: 'Extra small', value: 'xs' },
+    { label: 'Small', value: 'sm' },
+    { label: 'Medium', value: 'md' },
+    { label: 'Large', value: 'lg' },
+  ];
 
   protected readonly semanticVariants: ReadonlyArray<{
     readonly label: string;
     readonly value: LabelVariant;
   }> = [
-      { label: 'Neutral', value: 'neutral' },
-      { label: 'Primary', value: 'primary' },
-      { label: 'Accent', value: 'accent' },
-      { label: 'Success', value: 'success' },
-      { label: 'Warning', value: 'warning' },
-      { label: 'Danger', value: 'danger' },
-      { label: 'Information', value: 'info' },
-    ];
+    { label: 'Neutral', value: 'neutral' },
+    { label: 'Primary', value: 'primary' },
+    { label: 'Accent', value: 'accent' },
+    { label: 'Success', value: 'success' },
+    { label: 'Warning', value: 'warning' },
+    { label: 'Danger', value: 'danger' },
+    { label: 'Information', value: 'info' },
+  ];
 
   protected readonly noteVariants: ReadonlyArray<{
     readonly label: string;
     readonly value: LabelVariant;
   }> = [
-      { label: 'Yellow note', value: 'noteYellow' },
-      { label: 'Orange note', value: 'noteOrange' },
-      { label: 'Pink note', value: 'notePink' },
-      { label: 'Red note', value: 'noteRed' },
-      { label: 'Green note', value: 'noteGreen' },
-      { label: 'Blue note', value: 'noteBlue' },
-      { label: 'Purple note', value: 'notePurple' },
-      { label: 'Brown note', value: 'noteBrown' },
-      { label: 'Black note', value: 'noteBlack' },
-    ];
+    { label: 'Yellow note', value: 'noteYellow' },
+    { label: 'Orange note', value: 'noteOrange' },
+    { label: 'Pink note', value: 'notePink' },
+    { label: 'Red note', value: 'noteRed' },
+    { label: 'Green note', value: 'noteGreen' },
+    { label: 'Blue note', value: 'noteBlue' },
+    { label: 'Purple note', value: 'notePurple' },
+    { label: 'Brown note', value: 'noteBrown' },
+    { label: 'Black note', value: 'noteBlack' },
+  ];
 
   protected readonly emailValue = signal('');
   protected readonly emailTouched = signal(false);
@@ -114,8 +106,6 @@ export class LabelShowcase {
   }
 
   protected get emailSuccess(): string {
-    return this.emailTouched() && !this.emailError
-      ? 'Email address looks good.'
-      : '';
+    return this.emailTouched() && !this.emailError ? 'Email address looks good.' : '';
   }
 }

@@ -20,8 +20,8 @@ describe('StickyNotesFavouritesComponent', () => {
         noteKey: 'ST-000001',
         title: 'Active note',
         content: 'First note',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     },
     {
       _id: 'fav-2',
@@ -31,9 +31,9 @@ describe('StickyNotesFavouritesComponent', () => {
         noteKey: 'ST-000002',
         title: 'Archived note',
         content: 'Second note',
-        status: 'ARCHIVED'
-      }
-    }
+        status: 'ARCHIVED',
+      },
+    },
   ];
 
   beforeEach(async () => {
@@ -41,7 +41,7 @@ describe('StickyNotesFavouritesComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [StickyNotesFavouritesComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StickyNotesFavouritesComponent);
@@ -53,7 +53,7 @@ describe('StickyNotesFavouritesComponent', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('normalizes favourite records and keeps active and archived counts', () => {
-    expect(component.notes().map(note => note.id)).toEqual(['note-1', 'note-2']);
+    expect(component.notes().map((note) => note.id)).toEqual(['note-1', 'note-2']);
     expect(component.totalCount()).toBe(2);
     expect(component.activeCount()).toBe(1);
     expect(component.archivedCount()).toBe(1);
@@ -61,11 +61,11 @@ describe('StickyNotesFavouritesComponent', () => {
 
   it('filters favourites by status and search text', () => {
     component.setNoteTab('archived');
-    expect(component.visibleNotes().map(note => note.id)).toEqual(['note-2']);
+    expect(component.visibleNotes().map((note) => note.id)).toEqual(['note-2']);
 
     component.setNoteTab('all');
     component.updateSearch('first');
-    expect(component.visibleNotes().map(note => note.id)).toEqual(['note-1']);
+    expect(component.visibleNotes().map((note) => note.id)).toEqual(['note-1']);
   });
 
   it('renders the grouped list with the same status sections as Workspace', () => {
@@ -85,7 +85,7 @@ describe('StickyNotesFavouritesComponent', () => {
 
     component.toggleFavorite(component.notes()[0]);
 
-    expect(component.notes().map(note => note.id)).toEqual(['note-2']);
+    expect(component.notes().map((note) => note.id)).toEqual(['note-2']);
   });
 
   it('rebuilds the shared favourite map without keeping stale notes', () => {

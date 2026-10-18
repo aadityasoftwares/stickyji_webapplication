@@ -11,7 +11,7 @@ import { STICKY_NOTE_COLUMN_TYPES } from '../../../shared/constants/common.const
   imports: [AppIcon, Badge, Button],
   templateUrl: './overdue-topbar.html',
   styleUrl: './overdue-topbar.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverdueTopbar {
   readonly columnTypes = STICKY_NOTE_COLUMN_TYPES;

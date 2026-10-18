@@ -22,4 +22,3 @@ export function removeLocalStorageItem(key: string): void {
     console.error('Error in removeLocalStorageItem:', error);
   }
 }
-

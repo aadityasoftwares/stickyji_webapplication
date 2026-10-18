@@ -28,7 +28,8 @@ describe('UserDateTimeFormatterService', () => {
   });
 
   it('never derives the display timezone from browser settings', () => {
-    const resolved = vi.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions')
+    const resolved = vi
+      .spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions')
       .mockReturnValue({ timeZone: 'Pacific/Honolulu' } as Intl.ResolvedDateTimeFormatOptions);
     preferences.updatePreference('timezone', 'Asia/Kolkata');
     expect(formatter.formatDateTime('2026-10-09T03:32:55.742Z')).toBe('09/10/2026 09:02 AM');
@@ -101,15 +102,24 @@ describe('UserDateTimeFormatterService', () => {
     expect(formatter.formatDateTime(0)).toBe('01/01/1970 00:00');
   });
 
-  it.each(['Pacific/Kiritimati', 'America/Los_Angeles'])('preserves date-only values in %s without inventing a time', timezone => {
-    preferences.updatePreference('timezone', timezone);
-    for (const value of ['2026-10-09', ' 2026-10-09 ', '09/10/2026', '09-10-2026', '09.10.2026']) {
-      expect(formatter.formatDate(value)).toBe('09/10/2026');
-      expect(formatter.formatDateTime(value)).toBe('09/10/2026');
-      expect(formatter.formatTime(value, 'No time')).toBe('No time');
-    }
-    expect(formatter.formatDate('2024-02-29')).toBe('29/02/2024');
-  });
+  it.each(['Pacific/Kiritimati', 'America/Los_Angeles'])(
+    'preserves date-only values in %s without inventing a time',
+    (timezone) => {
+      preferences.updatePreference('timezone', timezone);
+      for (const value of [
+        '2026-10-09',
+        ' 2026-10-09 ',
+        '09/10/2026',
+        '09-10-2026',
+        '09.10.2026',
+      ]) {
+        expect(formatter.formatDate(value)).toBe('09/10/2026');
+        expect(formatter.formatDateTime(value)).toBe('09/10/2026');
+        expect(formatter.formatTime(value, 'No time')).toBe('No time');
+      }
+      expect(formatter.formatDate('2024-02-29')).toBe('29/02/2024');
+    },
+  );
 
   it('preserves the explicit date-key helper used by note calendar dates', () => {
     preferences.updatePreference('timezone', 'America/Los_Angeles');
@@ -118,9 +128,21 @@ describe('UserDateTimeFormatterService', () => {
   });
 
   it.each([
-    null, undefined, '', '   ', 'not a date', '2026-02-30', '2026-02-30T12:00:00Z',
-    '2026-10-09Tinvalid', '31/02/2026', new Date(NaN), NaN, Infinity, {}, true,
-  ])('returns a safe fallback for invalid input %s', value => {
+    null,
+    undefined,
+    '',
+    '   ',
+    'not a date',
+    '2026-02-30',
+    '2026-02-30T12:00:00Z',
+    '2026-10-09Tinvalid',
+    '31/02/2026',
+    new Date(NaN),
+    NaN,
+    Infinity,
+    {},
+    true,
+  ])('returns a safe fallback for invalid input %s', (value) => {
     expect(formatter.formatDate(value, 'Unavailable')).toBe('Unavailable');
     expect(formatter.formatTime(value, 'Unavailable')).toBe('Unavailable');
     expect(formatter.formatDateTime(value, 'Unavailable')).toBe('Unavailable');
@@ -133,8 +155,10 @@ describe('UserDateTimeFormatterService', () => {
     preferences.updatePreference('locale', 'invalid_locale');
     preferences.updatePreference('timeFormat', 'invalid');
     expect(formatter.preferences()).toMatchObject({
-      dateFormat: 'DD/MM/YYYY', timezone: DEFAULT_USER_PREFERENCES['timezone'],
-      timeFormat: '12h', locale: 'en-US',
+      dateFormat: 'DD/MM/YYYY',
+      timezone: DEFAULT_USER_PREFERENCES['timezone'],
+      timeFormat: '12h',
+      locale: 'en-US',
     });
     expect(formatter.formatDateTime('2026-10-09T14:30:00Z')).not.toBe('');
   });
@@ -146,7 +170,9 @@ describe('UserDateTimeFormatterService', () => {
   });
 
   it('does not mistake valid output matching the fallback for an invalid date', () => {
-    expect(formatter.formatDateTime('2026-10-09T14:30:00Z', '09/10/2026')).toBe('09/10/2026 02:30 PM');
+    expect(formatter.formatDateTime('2026-10-09T14:30:00Z', '09/10/2026')).toBe(
+      '09/10/2026 02:30 PM',
+    );
   });
 
   it('reuses formatted results but invalidates them when preferences change', () => {

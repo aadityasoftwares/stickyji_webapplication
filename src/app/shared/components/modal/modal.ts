@@ -13,27 +13,16 @@ import {
   PLATFORM_ID,
   SimpleChanges,
   ViewChild,
-  signal
+  signal,
 } from '@angular/core';
 import { LucideX } from '@lucide/angular';
 
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
 
-export type ModalTone =
-  | 'paper'
-  | 'yellow'
-  | 'blue'
-  | 'pink'
-  | 'green'
-  | 'purple';
+export type ModalTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
 
-export type ModalSize =
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | 'full';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 let modalInstance = 0;
 let bodyLockCount = 0;
@@ -46,7 +35,7 @@ let savedBodyPaddingRight = '';
   imports: [AppIcon, Button],
   templateUrl: './modal.html',
   styleUrl: './modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Modal implements OnChanges, OnDestroy {
   @ViewChild('dialog')
@@ -89,8 +78,8 @@ export class Modal implements OnChanges, OnDestroy {
     @Inject(DOCUMENT)
     private readonly document: Document,
     @Inject(PLATFORM_ID)
-    private readonly platformId: object
-  ) { }
+    private readonly platformId: object,
+  ) {}
 
   get resolvedMaxWidth(): string | null {
     if (Number.isFinite(this.maxWidth) && Number(this.maxWidth) > 0) {
@@ -165,7 +154,7 @@ export class Modal implements OnChanges, OnDestroy {
       const firstFocusable = this.focusableElements()[0];
 
       (autofocus ?? firstFocusable ?? this.dialog?.nativeElement)?.focus({
-        preventScroll: true
+        preventScroll: true,
       });
 
       this.opened.emit();
@@ -224,14 +213,14 @@ export class Modal implements OnChanges, OnDestroy {
       'select:not([disabled])',
       'textarea:not([disabled])',
       '[contenteditable="true"]',
-      '[tabindex]:not([tabindex="-1"])'
+      '[tabindex]:not([tabindex="-1"])',
     ].join(',');
 
     return Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(
-      element =>
+      (element) =>
         !element.hasAttribute('hidden') &&
         element.getAttribute('aria-hidden') !== 'true' &&
-        element.getClientRects().length > 0
+        element.getClientRects().length > 0,
     );
   }
 

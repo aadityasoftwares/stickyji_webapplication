@@ -1,78 +1,167 @@
 @if (open) {
-<div class="modal fade show d-block add-edit-workspace-modal" tabindex="-1" role="dialog" aria-modal="true"
-    aria-labelledby="workspace-name-modal-title" aria-describedby="workspace-name-modal-description"
-    (mousedown)="onBackdropMouseDown($event)">
+  <div
+    class="modal fade show d-block add-edit-workspace-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="workspace-name-modal-title"
+    aria-describedby="workspace-name-modal-description"
+    (mousedown)="onBackdropMouseDown($event)"
+  >
+    <div
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <section class="modal-content workspace-modal-content">
+        <header class="modal-header workspace-modal-header">
+          <div class="workspace-modal-heading">
+            <span class="workspace-modal-icon" aria-hidden="true">
+              <app-icon [icon]="headerIcon" size="sm" />
+            </span>
 
-    <div class="modal-dialog modal-dialog-centered" role="document" (mousedown)="$event.stopPropagation()">
-        <section class="modal-content workspace-modal-content">
-            <header class="modal-header workspace-modal-header">
-                <div class="workspace-modal-heading">
-                    <span class="workspace-modal-icon" aria-hidden="true">
-                        <app-icon [icon]="headerIcon" size="sm" />
-                    </span>
-
-                    <div class="workspace-modal-heading-copy">
-                        <span class="workspace-modal-kicker">{{ eyebrow }}</span>
-                        <h2 id="workspace-name-modal-title" class="modal-title workspace-modal-title">{{ title }}</h2>
-                        <p id="workspace-name-modal-description" class="workspace-modal-description">{{ description }}
-                        </p>
-                    </div>
-                </div>
-
-                <app-button class="workspace-modal-close" [icon]="LucideX" [iconOnly]="true" variant="danger"
-                    appearance="standard" size="sm" ariaLabel="Close workspace editor" title="Close" [disabled]="isBusy"
-                    (buttonClick)="close()" />
-            </header>
-
-            <app-divider class="workspace-modal-divider" variant="neutral" lineStyle="dashed" spacing="none"
-                [thickness]="1" />
-
-            <div class="modal-body workspace-modal-body">
-                @if (loadingData()) {
-                <app-loader mode="section" size="md" tone="colorful" label="Loading workspace..."
-                    description="Getting the workspace editor ready." [minHeight]="260" />
-                } @else {
-                <div class="workspace-modal-form">
-                    <app-input #workspaceNameInput type="text" label="Workspace name"
-                        labelDescription="Keep it short and easy to recognise." placeholder="Example: Product planning"
-                        variant="paper" appearance="outlined" shape="rounded" size="md" [leadingIcon]="LucideFolder"
-                        [required]="true" [clearable]="true" [showCounter]="true" [maxLength]="nameMaxLength"
-                        [value]="name()" [disabled]="isBusy || !canEdit" [fullWidth]="true" autocomplete="off"
-                        (valueChange)="updateName($event)" (enterKey)="submit()" />
-
-                    <app-input label="Description" labelDescription="Optional — describe what this workspace is for."
-                        placeholder="Example: Notes and planning for the product team" variant="paper"
-                        appearance="outlined" shape="rounded" size="md" [multiline]="true" [rows]="3" [clearable]="true"
-                        [value]="workspaceDescription()" [disabled]="isBusy || !canEdit" [fullWidth]="true"
-                        (valueChange)="updateDescription($event)" />
-
-                    <div class="workspace-modal-select-field">
-                        <app-label for="workspace-visibility" text="Visibility" />
-                        <app-select id="workspace-visibility" [options]="visibilityOptions" [ngModel]="visibility()"
-                            [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateVisibility($event)"
-                            name="workspace-visibility" placeholder="Choose visibility"
-                            ariaLabel="Choose workspace visibility" variant="paper" shape="rounded" size="md"
-                            [disabled]="isBusy || isPersonal() || !canManageSettings" [clearable]="false" [searchable]="false"
-                            [fullWidth]="true" />
-                    </div>
-                </div>
-                }
+            <div class="workspace-modal-heading-copy">
+              <span class="workspace-modal-kicker">{{ eyebrow }}</span>
+              <h2 id="workspace-name-modal-title" class="modal-title workspace-modal-title">
+                {{ title }}
+              </h2>
+              <p id="workspace-name-modal-description" class="workspace-modal-description">
+                {{ description }}
+              </p>
             </div>
+          </div>
 
-            <app-divider class="workspace-modal-divider" variant="neutral" lineStyle="solid" spacing="none"
-                [thickness]="1" />
+          <app-button
+            class="workspace-modal-close"
+            [icon]="LucideX"
+            [iconOnly]="true"
+            variant="danger"
+            appearance="standard"
+            size="sm"
+            ariaLabel="Close workspace editor"
+            title="Close"
+            [disabled]="isBusy"
+            (buttonClick)="close()"
+          />
+        </header>
 
-            <footer class="modal-footer workspace-modal-footer">
-                <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
-                    (buttonClick)="close()" />
+        <app-divider
+          class="workspace-modal-divider"
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="none"
+          [thickness]="1"
+        />
 
-                <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                    size="sm" [loading]="loading()" [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
-                    [disabled]="!canSubmit" (buttonClick)="submit()" />
-            </footer>
-        </section>
+        <div class="modal-body workspace-modal-body">
+          @if (loadingData()) {
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Loading workspace..."
+              description="Getting the workspace editor ready."
+              [minHeight]="260"
+            />
+          } @else {
+            <div class="workspace-modal-form">
+              <app-input
+                #workspaceNameInput
+                type="text"
+                label="Workspace name"
+                labelDescription="Keep it short and easy to recognise."
+                placeholder="Example: Product planning"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [leadingIcon]="LucideFolder"
+                [required]="true"
+                [clearable]="true"
+                [showCounter]="true"
+                [maxLength]="nameMaxLength"
+                [value]="name()"
+                [disabled]="isBusy || !canEdit"
+                [fullWidth]="true"
+                autocomplete="off"
+                (valueChange)="updateName($event)"
+                (enterKey)="submit()"
+              />
+
+              <app-input
+                label="Description"
+                labelDescription="Optional — describe what this workspace is for."
+                placeholder="Example: Notes and planning for the product team"
+                variant="paper"
+                appearance="outlined"
+                shape="rounded"
+                size="md"
+                [multiline]="true"
+                [rows]="3"
+                [clearable]="true"
+                [value]="workspaceDescription()"
+                [disabled]="isBusy || !canEdit"
+                [fullWidth]="true"
+                (valueChange)="updateDescription($event)"
+              />
+
+              <div class="workspace-modal-select-field">
+                <app-label for="workspace-visibility" text="Visibility" />
+                <app-select
+                  id="workspace-visibility"
+                  [options]="visibilityOptions"
+                  [ngModel]="visibility()"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateVisibility($event)"
+                  name="workspace-visibility"
+                  placeholder="Choose visibility"
+                  ariaLabel="Choose workspace visibility"
+                  variant="paper"
+                  shape="rounded"
+                  size="md"
+                  [disabled]="isBusy || isPersonal() || !canManageSettings"
+                  [clearable]="false"
+                  [searchable]="false"
+                  [fullWidth]="true"
+                />
+              </div>
+            </div>
+          }
+        </div>
+
+        <app-divider
+          class="workspace-modal-divider"
+          variant="neutral"
+          lineStyle="solid"
+          spacing="none"
+          [thickness]="1"
+        />
+
+        <footer class="modal-footer workspace-modal-footer">
+          <app-button
+            label="Cancel"
+            variant="secondary"
+            appearance="standard"
+            size="sm"
+            [disabled]="isBusy"
+            (buttonClick)="close()"
+          />
+
+          <app-button
+            [label]="submitLabel"
+            [iconLeft]="submitIcon"
+            variant="noteYellow"
+            appearance="standard"
+            size="sm"
+            [loading]="loading()"
+            [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
+            [disabled]="!canSubmit"
+            (buttonClick)="submit()"
+          />
+        </footer>
+      </section>
     </div>
-</div>
+  </div>
 
-<div class="modal-backdrop fade show workspace-modal-backdrop" aria-hidden="true"></div>
+  <div class="modal-backdrop fade show workspace-modal-backdrop" aria-hidden="true"></div>
 }

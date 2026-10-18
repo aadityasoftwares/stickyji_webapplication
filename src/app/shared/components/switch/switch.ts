@@ -8,15 +8,9 @@ import {
   Output,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 
 export type SwitchSize = 'sm' | 'md' | 'lg';
 
@@ -95,7 +89,7 @@ export class Switch implements ControlValueAccessor {
   private onChange: (value: boolean) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  constructor(private readonly changeDetectorRef: ChangeDetectorRef) { }
+  constructor(private readonly changeDetectorRef: ChangeDetectorRef) {}
 
   get resolvedInputId(): string {
     return this.inputId || this.generatedId;
@@ -106,10 +100,9 @@ export class Switch implements ControlValueAccessor {
   }
 
   get resolvedDescribedBy(): string | null {
-    const ids = [
-      this.ariaDescribedBy,
-      this.description ? this.descriptionId : null,
-    ].filter((id): id is string => Boolean(id));
+    const ids = [this.ariaDescribedBy, this.description ? this.descriptionId : null].filter(
+      (id): id is string => Boolean(id),
+    );
 
     return ids.length > 0 ? ids.join(' ') : null;
   }

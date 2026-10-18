@@ -2298,10 +2298,9 @@ $member-table-grid-columns: 36px minmax(200px, 1.8fr) minmax(165px, 1.2fr) minma
 }
 
 .workspace-invitation-gtable tr {
-  grid-template-columns: minmax(220px, 2fr) minmax(140px, 1fr) minmax(100px, 0.8fr) minmax(
-      120px,
-      1fr
-    ) minmax(120px, 1fr) minmax(140px, 1fr) 130px;
+  grid-template-columns:
+    minmax(220px, 2fr) minmax(140px, 1fr) minmax(100px, 0.8fr) minmax(120px, 1fr)
+    minmax(120px, 1fr) minmax(140px, 1fr) 130px;
 }
 
 .workspace-gtable colgroup {

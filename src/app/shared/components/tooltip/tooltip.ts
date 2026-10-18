@@ -49,12 +49,7 @@ export type TooltipTone =
   | 'noteBlack';
 
 export type TooltipSize = 'sm' | 'md' | 'lg';
-export type TooltipTrigger =
-  | 'hover-focus'
-  | 'hover'
-  | 'focus'
-  | 'click'
-  | 'manual';
+export type TooltipTrigger = 'hover-focus' | 'hover' | 'focus' | 'click' | 'manual';
 
 interface TooltipCoordinates {
   left: number;
@@ -168,11 +163,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
       }
     }
 
-    if (
-      this.initialized &&
-      changes['tooltipOpen'] &&
-      this.tooltipTrigger === 'manual'
-    ) {
+    if (this.initialized && changes['tooltipOpen'] && this.tooltipTrigger === 'manual') {
       this.tooltipOpen ? this.show() : this.hide(true);
     }
   }
@@ -277,10 +268,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
         this.hovered = true;
 
-        if (
-          this.tooltipTrigger === 'hover' ||
-          this.tooltipTrigger === 'hover-focus'
-        ) {
+        if (this.tooltipTrigger === 'hover' || this.tooltipTrigger === 'hover-focus') {
           this.show();
         }
       }),
@@ -294,10 +282,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
         this.hovered = false;
 
-        if (
-          this.tooltipTrigger === 'hover' ||
-          this.tooltipTrigger === 'hover-focus'
-        ) {
+        if (this.tooltipTrigger === 'hover' || this.tooltipTrigger === 'hover-focus') {
           this.hideWhenInactive();
         }
       }),
@@ -309,10 +294,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
         this.renderer.listen(anchor, 'mouseenter', () => {
           this.hovered = true;
 
-          if (
-            this.tooltipTrigger === 'hover' ||
-            this.tooltipTrigger === 'hover-focus'
-          ) {
+          if (this.tooltipTrigger === 'hover' || this.tooltipTrigger === 'hover-focus') {
             this.show();
           }
         }),
@@ -322,10 +304,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
         this.renderer.listen(anchor, 'mouseleave', () => {
           this.hovered = false;
 
-          if (
-            this.tooltipTrigger === 'hover' ||
-            this.tooltipTrigger === 'hover-focus'
-          ) {
+          if (this.tooltipTrigger === 'hover' || this.tooltipTrigger === 'hover-focus') {
             this.hideWhenInactive();
           }
         }),
@@ -334,9 +313,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
     this.removeAnchorListeners.push(
       this.renderer.listen(anchor, 'focusin', () => {
-        const usesFocus =
-          this.tooltipTrigger === 'focus' ||
-          this.tooltipTrigger === 'hover-focus';
+        const usesFocus = this.tooltipTrigger === 'focus' || this.tooltipTrigger === 'hover-focus';
         this.focused = usesFocus;
         if (usesFocus) this.show();
       }),
@@ -352,10 +329,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
         this.focused = false;
 
-        if (
-          this.tooltipTrigger === 'focus' ||
-          this.tooltipTrigger === 'hover-focus'
-        ) {
+        if (this.tooltipTrigger === 'focus' || this.tooltipTrigger === 'hover-focus') {
           this.hideWhenInactive();
         }
       }),
@@ -541,9 +515,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
 
-    const textElement = tooltip.querySelector(
-      '.app-tooltip-text',
-    ) as HTMLSpanElement | null;
+    const textElement = tooltip.querySelector('.app-tooltip-text') as HTMLSpanElement | null;
 
     if (textElement) {
       textElement.textContent = this.text.trim();
@@ -589,18 +561,10 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     const placements = this.getPlacementCandidates(this.tooltipPosition);
 
     let selectedPlacement = placements[0];
-    let coordinates = this.calculateCoordinates(
-      selectedPlacement,
-      anchorRect,
-      tooltipRect,
-    );
+    let coordinates = this.calculateCoordinates(selectedPlacement, anchorRect, tooltipRect);
 
     for (const placement of placements) {
-      const candidate = this.calculateCoordinates(
-        placement,
-        anchorRect,
-        tooltipRect,
-      );
+      const candidate = this.calculateCoordinates(placement, anchorRect, tooltipRect);
 
       if (this.fitsViewport(candidate, tooltipRect, view, margin)) {
         selectedPlacement = placement;
@@ -609,14 +573,8 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
       }
     }
 
-    const maxLeft = Math.max(
-      margin,
-      view.innerWidth - tooltipRect.width - margin,
-    );
-    const maxTop = Math.max(
-      margin,
-      view.innerHeight - tooltipRect.height - margin,
-    );
+    const maxLeft = Math.max(margin, view.innerWidth - tooltipRect.width - margin);
+    const maxTop = Math.max(margin, view.innerHeight - tooltipRect.height - margin);
 
     const left = Math.min(Math.max(coordinates.left, margin), maxLeft);
     const top = Math.min(Math.max(coordinates.top, margin), maxTop);
@@ -716,9 +674,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  private getPlacementCandidates(
-    preferred: TooltipPosition,
-  ): TooltipPosition[] {
+  private getPlacementCandidates(preferred: TooltipPosition): TooltipPosition[] {
     const opposite: Record<'top' | 'bottom' | 'left' | 'right', string> = {
       top: 'bottom',
       bottom: 'top',
@@ -729,18 +685,12 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     const [rawSide, alignment] = preferred.split('-');
     const side = rawSide as 'top' | 'bottom' | 'left' | 'right';
 
-    const oppositePlacement = `${opposite[side]}${alignment ? `-${alignment}` : ''
-      }` as TooltipPosition;
+    const oppositePlacement = `${opposite[side]}${
+      alignment ? `-${alignment}` : ''
+    }` as TooltipPosition;
 
     return [
-      ...new Set<TooltipPosition>([
-        preferred,
-        oppositePlacement,
-        'top',
-        'bottom',
-        'right',
-        'left',
-      ]),
+      ...new Set<TooltipPosition>([preferred, oppositePlacement, 'top', 'bottom', 'right', 'left']),
     ];
   }
 
@@ -754,9 +704,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
     // Custom Angular component such as <app-button>:
     // use its actual rendered interactive child.
-    return (
-      host.querySelector<HTMLElement>(this.interactiveSelector) ?? host
-    );
+    return host.querySelector<HTMLElement>(this.interactiveSelector) ?? host;
   }
 
   private suppressNativeTooltip(): void {
@@ -805,11 +753,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
         const host = this.elementRef.nativeElement;
         const anchor = this.anchorElement;
 
-        if (
-          !target ||
-          host.contains(target) ||
-          Boolean(anchor?.contains(target))
-        ) {
+        if (!target || host.contains(target) || Boolean(anchor?.contains(target))) {
           return;
         }
 
@@ -820,9 +764,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
   private addAriaDescription(): void {
     const target = this.anchorElement ?? this.elementRef.nativeElement;
-    const ids = (target.getAttribute('aria-describedby') ?? '')
-      .split(/\s+/)
-      .filter(Boolean);
+    const ids = (target.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
 
     if (!ids.includes(this.tooltipId)) {
       ids.push(this.tooltipId);

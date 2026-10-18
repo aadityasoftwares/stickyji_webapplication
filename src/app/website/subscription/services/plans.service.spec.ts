@@ -2,11 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
-import {
-  PlansService,
-  PublicPlan,
-  SubscriptionCatalogResponse,
-} from './plans.service';
+import { PlansService, PublicPlan, SubscriptionCatalogResponse } from './plans.service';
 
 export const planFixture = (overrides: Partial<PublicPlan> = {}): PublicPlan => ({
   _id: 'plan-free',
@@ -216,13 +212,9 @@ describe('PlansService', () => {
   it('handles invalid or empty catalog responses with an error', () => {
     const errorFn = vi.fn();
 
-    TestBed.inject(PlansService)
-      .getSubscriptionCatalog()
-      .subscribe({ error: errorFn });
+    TestBed.inject(PlansService).getSubscriptionCatalog().subscribe({ error: errorFn });
 
-    http
-      .expectOne(API_ENDPOINTS.plans.subscriptionPlans)
-      .flush({ success: false, data: null });
+    http.expectOne(API_ENDPOINTS.plans.subscriptionPlans).flush({ success: false, data: null });
 
     expect(errorFn).toHaveBeenCalledOnce();
   });

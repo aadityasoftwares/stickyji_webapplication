@@ -1,75 +1,97 @@
 @if (rendered()) {
-<div class="modal show app-modal-layer" [class.is-closing]="closing()" role="presentation">
+  <div class="modal show app-modal-layer" [class.is-closing]="closing()" role="presentation">
+    <div
+      class="modal-backdrop show app-modal-backdrop"
+      aria-hidden="true"
+      (mousedown)="onBackdropMouseDown($event)"
+    ></div>
 
-    <div class="modal-backdrop show app-modal-backdrop" aria-hidden="true" (mousedown)="onBackdropMouseDown($event)">
-    </div>
+    <div
+      class="modal-dialog app-modal-dialog"
+      [class.is-mobile-fullscreen]="fullscreenOnMobile"
+      [attr.data-size]="size"
+      [style.--app-modal-custom-max-width]="resolvedMaxWidth"
+    >
+      <section
+        #dialog
+        class="modal-content app-modal"
+        [attr.data-tone]="tone"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="title ? null : ariaLabel"
+        [attr.aria-labelledby]="title ? titleId : null"
+        [attr.aria-describedby]="description ? descriptionId : null"
+        [attr.aria-busy]="busy"
+        tabindex="-1"
+      >
+        <header class="modal-header app-modal-header">
+          <span class="app-modal-tape" aria-hidden="true"></span>
 
-    <div class="modal-dialog app-modal-dialog" [class.is-mobile-fullscreen]="fullscreenOnMobile" [attr.data-size]="size"
-        [style.--app-modal-custom-max-width]="resolvedMaxWidth">
-
-        <section #dialog class="modal-content app-modal" [attr.data-tone]="tone" role="dialog" aria-modal="true"
-            [attr.aria-label]="title ? null : ariaLabel" [attr.aria-labelledby]="title ? titleId : null"
-            [attr.aria-describedby]="description ? descriptionId : null" [attr.aria-busy]="busy" tabindex="-1">
-
-            <header class="modal-header app-modal-header">
-                <span class="app-modal-tape" aria-hidden="true"></span>
-
-                <div class="app-modal-heading">
-                    @if (icon) {
-                    <span class="app-modal-icon" aria-hidden="true">
-                        <app-icon [icon]="icon" size="sm" />
-                    </span>
-                    }
-
-                    <div class="app-modal-heading-copy">
-                        <div class="app-modal-title-row">
-                            <div class="app-modal-title-copy">
-                                @if (eyebrow) {
-                                <span class="app-modal-eyebrow">
-                                    {{ eyebrow }}
-                                </span>
-                                }
-
-                                <h2 class="modal-title app-modal-title" [id]="titleId">
-                                    {{ title }}
-                                </h2>
-                            </div>
-
-                            @if (headerNote) {
-                            <span class="app-modal-note">
-                                {{ headerNote }}
-                            </span>
-                            }
-                        </div>
-
-                        @if (description) {
-                        <p class="app-modal-description" [id]="descriptionId">
-                            {{ description }}
-                        </p>
-                        }
-                    </div>
-                </div>
-
-                <div class="app-modal-header-actions">
-                    <ng-content select="[modal-header-action]" />
-
-                    @if (showClose) {
-                    <app-button [icon]="LucideX" [iconOnly]="true" variant="danger" appearance="standard" size="sm"
-                        ariaLabel="Close modal" title="Close" [disabled]="busy" (buttonClick)="requestClose()" />
-                    }
-                </div>
-            </header>
-
-            <main class="modal-body app-modal-body">
-                <ng-content select="[modal-body]" />
-            </main>
-
-            @if (showFooter) {
-            <footer class="modal-footer app-modal-footer">
-                <ng-content select="[modal-footer]" />
-            </footer>
+          <div class="app-modal-heading">
+            @if (icon) {
+              <span class="app-modal-icon" aria-hidden="true">
+                <app-icon [icon]="icon" size="sm" />
+              </span>
             }
-        </section>
+
+            <div class="app-modal-heading-copy">
+              <div class="app-modal-title-row">
+                <div class="app-modal-title-copy">
+                  @if (eyebrow) {
+                    <span class="app-modal-eyebrow">
+                      {{ eyebrow }}
+                    </span>
+                  }
+
+                  <h2 class="modal-title app-modal-title" [id]="titleId">
+                    {{ title }}
+                  </h2>
+                </div>
+
+                @if (headerNote) {
+                  <span class="app-modal-note">
+                    {{ headerNote }}
+                  </span>
+                }
+              </div>
+
+              @if (description) {
+                <p class="app-modal-description" [id]="descriptionId">
+                  {{ description }}
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="app-modal-header-actions">
+            <ng-content select="[modal-header-action]" />
+
+            @if (showClose) {
+              <app-button
+                [icon]="LucideX"
+                [iconOnly]="true"
+                variant="danger"
+                appearance="standard"
+                size="sm"
+                ariaLabel="Close modal"
+                title="Close"
+                [disabled]="busy"
+                (buttonClick)="requestClose()"
+              />
+            }
+          </div>
+        </header>
+
+        <main class="modal-body app-modal-body">
+          <ng-content select="[modal-body]" />
+        </main>
+
+        @if (showFooter) {
+          <footer class="modal-footer app-modal-footer">
+            <ng-content select="[modal-footer]" />
+          </footer>
+        }
+      </section>
     </div>
-</div>
+  </div>
 }

@@ -1585,7 +1585,9 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   isBusy(member: WorkspaceMemberListItem): boolean {
     return (
       this.loadedWorkspaceId !== this.selectedWorkspaceId() ||
-      this.loading() || this.bulkBusy() || this.busyIds().has(this.memberId(member))
+      this.loading() ||
+      this.bulkBusy() ||
+      this.busyIds().has(this.memberId(member))
     );
   }
 

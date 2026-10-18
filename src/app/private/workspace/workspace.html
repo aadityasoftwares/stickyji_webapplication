@@ -18,20 +18,42 @@
       <div class="workspace-header-actions">
         <div class="workspace-count-slot" aria-live="polite">
           @if (preferencesReady() && !loading() && !error()) {
-          <app-badge [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')" variant="noteYellow" size="sm"
-            shape="pill" />
+            <app-badge
+              [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')"
+              variant="noteYellow"
+              size="sm"
+              shape="pill"
+            />
           } @else {
-          <span class="workspace-count-placeholder" aria-hidden="true"></span>
+            <span class="workspace-count-placeholder" aria-hidden="true"></span>
           }
         </div>
 
-        <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue" size="md"
-          ariaLabel="Refresh spaces" appTooltip="Refresh spaces" tooltipTone="noteBlue" tooltipPosition="bottom"
-          tooltipSize="sm" [loading]="loading()" (buttonClick)="loadWorkspaces()" />
+        <app-button
+          [icon]="LucideRefreshCw"
+          [iconOnly]="true"
+          appearance="standard"
+          variant="noteBlue"
+          size="md"
+          ariaLabel="Refresh spaces"
+          appTooltip="Refresh spaces"
+          tooltipTone="noteBlue"
+          tooltipPosition="bottom"
+          tooltipSize="sm"
+          [loading]="loading()"
+          (buttonClick)="loadWorkspaces()"
+        />
 
         @if (canCreateWorkspaceInCurrentView()) {
-        <app-button class="workspace-new-button" label="New workspace" [iconLeft]="LucidePlus" variant="noteYellow"
-          appearance="standard" size="md" (buttonClick)="openCreateEditor()" />
+          <app-button
+            class="workspace-new-button"
+            label="New workspace"
+            [iconLeft]="LucidePlus"
+            variant="noteYellow"
+            appearance="standard"
+            size="md"
+            (buttonClick)="openCreateEditor()"
+          />
         }
       </div>
     </header>
@@ -39,497 +61,892 @@
     <section class="workspace-explorer" [attr.aria-busy]="loading() || !preferencesReady()">
       <div class="workspace-toolbar">
         <div class="workspace-toolbar-filters">
-          <app-tabs class="workspace-filter-tabs" [items]="filterTabs()" [value]="accessFilter()" variant="segmented"
-            shape="rounded" size="sm" density="compact" ariaLabel="Filter workspaces by access"
-            [fullWidth]="false" [scrollable]="true" (valueChange)="onAccessChange($event)" />
+          <app-tabs
+            class="workspace-filter-tabs"
+            [items]="filterTabs()"
+            [value]="accessFilter()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Filter workspaces by access"
+            [fullWidth]="false"
+            [scrollable]="true"
+            (valueChange)="onAccessChange($event)"
+          />
 
-          <app-tabs class="workspace-status-tabs" [items]="statusTabs()" [value]="statusFilter()"
-            variant="segmented" shape="rounded" size="sm" density="compact" ariaLabel="Filter workspaces by status"
-            [fullWidth]="false" [scrollable]="true" (valueChange)="onStatusChange($event)" />
+          <app-tabs
+            class="workspace-status-tabs"
+            [items]="statusTabs()"
+            [value]="statusFilter()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Filter workspaces by status"
+            [fullWidth]="false"
+            [scrollable]="true"
+            (valueChange)="onStatusChange($event)"
+          />
         </div>
 
         <div class="workspace-toolbar-actions">
           <div class="workspace-search">
-            <app-input type="search" label="Search spaces" labelMode="hidden" placeholder="Search spaces"
-              variant="paper" appearance="outlined" shape="rounded" size="sm" [leadingIcon]="LucideSearch"
-              [clearable]="true" [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search spaces"
-              (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+            <app-input
+              type="search"
+              label="Search spaces"
+              labelMode="hidden"
+              placeholder="Search spaces"
+              variant="paper"
+              appearance="outlined"
+              shape="rounded"
+              size="sm"
+              [leadingIcon]="LucideSearch"
+              [clearable]="true"
+              [value]="searchTerm()"
+              [fullWidth]="true"
+              ariaLabel="Search spaces"
+              (valueChange)="updateSearch($event)"
+              (cleared)="clearSearch()"
+            />
           </div>
 
-          <app-select class="workspace-sort" [options]="sortOptions" [ngModel]="sortBy()"
-            (ngModelChange)="setSort($event)" name="workspace-sort" placeholder="Sort" ariaLabel="Sort spaces"
-            variant="paper" shape="rounded" size="sm" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+          <app-select
+            class="workspace-sort"
+            [options]="sortOptions"
+            [ngModel]="sortBy()"
+            (ngModelChange)="setSort($event)"
+            name="workspace-sort"
+            placeholder="Sort"
+            ariaLabel="Sort spaces"
+            variant="paper"
+            shape="rounded"
+            size="sm"
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="true"
+          />
 
-          <app-tabs class="workspace-view-tabs" [items]="viewTabs" [value]="view()" variant="segmented" shape="rounded"
-            size="sm" density="compact" ariaLabel="Choose grid or list view" [scrollable]="false" [minTabWidth]="64"
-            (valueChange)="setWorkspaceView($event)" />
+          <app-tabs
+            class="workspace-view-tabs"
+            [items]="viewTabs"
+            [value]="view()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            ariaLabel="Choose grid or list view"
+            [scrollable]="false"
+            [minTabWidth]="64"
+            (valueChange)="setWorkspaceView($event)"
+          />
 
           <span class="workspace-toolbar-utility-divider" aria-hidden="true"></span>
 
-          <app-button size="sm" [iconLeft]="LucideTrash2" label="Trash" appearance="standard" variant="noteRed"
-            [hasIcon]="true" ariaLabel="Open workspace trash" appTooltip="Trash · Workspaces can be restored"
-            tooltipTone="noteRed" tooltipPosition="bottom" tooltipSize="sm" (buttonClick)="openWorkspaceTrash()" />
+          <app-button
+            size="sm"
+            [iconLeft]="LucideTrash2"
+            label="Trash"
+            appearance="standard"
+            variant="noteRed"
+            [hasIcon]="true"
+            ariaLabel="Open workspace trash"
+            appTooltip="Trash · Workspaces can be restored"
+            tooltipTone="noteRed"
+            tooltipPosition="bottom"
+            tooltipSize="sm"
+            (buttonClick)="openWorkspaceTrash()"
+          />
         </div>
       </div>
 
       <div class="workspace-explorer-body" [class.is-list]="view() === 'list'">
         @if (loading() || !preferencesReady()) {
-        <div class="workspace-loader-state">
-          <app-loader mode="section" size="md" tone="colorful" label="Opening your workspaces..."
-            description="Getting your sticky spaces ready." [minHeight]="360" />
-        </div>
+          <div class="workspace-loader-state">
+            <app-loader
+              mode="section"
+              size="md"
+              tone="colorful"
+              label="Opening your workspaces..."
+              description="Getting your sticky spaces ready."
+              [minHeight]="360"
+            />
+          </div>
         } @else if (error()) {
-        <div class="workspace-empty-state">
-          <span class="workspace-empty-icon is-error">
-            <app-icon [icon]="LucideX" size="lg" />
-          </span>
-          <span class="workspace-empty-note">Something slipped away</span>
-          <h2>Couldn’t load your spaces</h2>
-          <p>{{ error() }}</p>
-          <app-button label="Try again" [iconLeft]="LucideRefreshCw" variant="primary" size="sm"
-            (buttonClick)="loadWorkspaces()" />
-        </div>
-        } @else if (searchTerm() && visibleWorkspaces().length === 0) {
-        <div class="workspace-empty-state is-compact">
-          <span class="workspace-empty-icon">
-            <app-icon [icon]="LucideSearch" size="lg" />
-          </span>
-          <span class="workspace-empty-note">No sticky space matches</span>
-          <h2>No matching workspaces found.</h2>
-          <p>Try another name or clear your search.</p>
-          <app-button label="Clear search" variant="outline" size="sm" (buttonClick)="clearSearch()" />
-        </div>
-        } @else if (visibleWorkspaces().length === 0) {
-        <div class="workspace-empty-state is-compact">
-          <span class="workspace-empty-icon"><app-icon [icon]="LucideFolderOpen" size="lg" /></span>
-          <h2>{{ emptyMessage() }}</h2>
-          @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
-          <app-button label="New workspace" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
-            (buttonClick)="openCreateEditor()" />
-          }
-        </div>
-        } @else if (view() === 'grid') {
-        <div class="workspace-folder-grid workspace-folder-grid--cards" role="list">
-          @for (workspace of visibleWorkspaces(); track workspaceId(workspace)) {
-          <article class="workspace-folder-tile workspace-folder-tile--card" role="listitem"
-            [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)"
-            [appHighlight]="selectedWorkspaceId() === workspaceId(workspace) || contextMenuWorkspaceId() === workspaceId(workspace)"
-            highlightRadius="1rem" (contextmenu)="openWorkspaceContextMenu(workspace, $event)">
-            <app-workspace-folder-wrapper [name]="workspaceName(workspace)" [description]="workspace.description || ''"
-              [personal]="isPersonalWorkspace(workspace)" [typeLabel]="workspaceTypeLabel(workspace)"
-              [visibility]="workspaceVisibility(workspace)" [roleLabel]="workspaceRoleLabel(workspace)"
-              [status]="workspace.status || 'ACTIVE'" [updatedAt]="workspace.updatedAt || workspace.createdAt"
-              [folderCount]="workspaceFolderCount(workspace)" [folders]="workspaceFolders(workspace)"
-              [members]="workspaceMembers(workspace)" [memberCount]="workspaceMemberCount(workspace)"
-              [tooltipTone]="workspaceTheme(workspace).variant" [interactive]="!isInlineRenaming(workspace)"
-              [busy]="isBusy(workspace)" (opened)="handleWorkspaceClick(workspace, $event)"
-              (edited)="handleWorkspaceDoubleClick(workspace, $event)"
-              (keyboardOpened)="handleWorkspaceClick(workspace)">
-              <div folder-title>
-                @if (isInlineRenaming(workspace)) {
-                <input #renameInput class="workspace-inline-rename" [class.is-invalid]="!!inlineRenameError()"
-                  type="text" maxlength="80" aria-label="Rename workspace" [attr.aria-invalid]="!!inlineRenameError()"
-                  [attr.title]="inlineRenameError()" [value]="inlineRenameName()" (click)="$event.stopPropagation()"
-                  (dblclick)="$event.stopPropagation()" (input)="updateInlineRename($event)"
-                  (keydown.enter)="saveInlineRename(workspace, $event)" (keydown.escape)="cancelInlineRename($event)"
-                  (blur)="onInlineRenameBlur(workspace)" />
-                } @else {
-                <strong class="workspace-name-editable" appTooltip="Click to rename"
-                  [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top" tooltipSize="sm"
-                  (click)="beginInlineRename(workspace, $event)">{{ workspaceName(workspace) }}</strong>
-                }
-              </div>
-              <button folder-actions type="button" class="workspace-menu-trigger" [matMenuTriggerFor]="workspaceActions"
-                [disabled]="isBusy(workspace)" [attr.aria-label]="'Actions for ' + workspaceName(workspace)"
-                appTooltip="More actions" [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top"
-                tooltipSize="sm" (click)="handleWorkspaceMenuClick(workspace, $event)"
-                (dblclick)="$event.stopPropagation()">
-                <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-              </button>
-            </app-workspace-folder-wrapper>
-
-            <mat-menu #workspaceActions="matMenu" xPosition="before" yPosition="below" [overlapTrigger]="false"
-              class="workspace-actions-menu">
-              <ng-container *ngTemplateOutlet="workspaceMenu; context: { $implicit: workspace }" />
-            </mat-menu>
-          </article>
-          }
-
-          @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
-          <button type="button" class="workspace-create-folder" appTooltip="Create a new workspace"
-            tooltipTone="noteYellow" tooltipPosition="top" tooltipSize="sm" (click)="openCreateEditor()">
-            <span class="workspace-create-folder-visual" aria-hidden="true">
-              <span></span>
-              <app-icon [icon]="LucidePlus" size="md" />
+          <div class="workspace-empty-state">
+            <span class="workspace-empty-icon is-error">
+              <app-icon [icon]="LucideX" size="lg" />
             </span>
-            <strong>Create a new space</strong>
-            <small>A fresh folder for your next idea</small>
-          </button>
-          }
-        </div>
-        } @else {
-        <div class="workspace-grouped-table" aria-label="Workspaces grouped table">
-          <div class="workspace-table-groups-container">
-            @for (group of workspaceGroups(); track group.id) {
-            <section class="workspace-group" [style.--group-accent]="group.accent"
-              [class.is-collapsed]="isGroupCollapsed(group.id)" [attr.aria-labelledby]="'group-heading-' + group.id">
-              <header class="workspace-group-header">
-                <h3>
-                  <button type="button" class="workspace-group-toggle" [id]="'group-heading-' + group.id"
-                    [attr.aria-expanded]="!isGroupCollapsed(group.id)" [attr.aria-controls]="'group-body-' + group.id"
-                    [appTooltip]="isGroupCollapsed(group.id) ? 'Expand ' + group.label : 'Collapse ' + group.label"
-                    tooltipTone="paper" tooltipPosition="right" tooltipSize="sm" (click)="toggleGroup(group.id)">
-                    <app-icon class="workspace-group-chevron" [icon]="
-                            isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
-                          " size="sm" />
-                    <span class="workspace-group-accent-bar" aria-hidden="true"></span>
-                    <span class="workspace-group-label">{{ group.label }}</span>
-                    <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
-                      [ariaLabel]="group.count + (group.count === 1 ? ' space' : ' spaces')" />
+            <span class="workspace-empty-note">Something slipped away</span>
+            <h2>Couldn’t load your spaces</h2>
+            <p>{{ error() }}</p>
+            <app-button
+              label="Try again"
+              [iconLeft]="LucideRefreshCw"
+              variant="primary"
+              size="sm"
+              (buttonClick)="loadWorkspaces()"
+            />
+          </div>
+        } @else if (searchTerm() && visibleWorkspaces().length === 0) {
+          <div class="workspace-empty-state is-compact">
+            <span class="workspace-empty-icon">
+              <app-icon [icon]="LucideSearch" size="lg" />
+            </span>
+            <span class="workspace-empty-note">No sticky space matches</span>
+            <h2>No matching workspaces found.</h2>
+            <p>Try another name or clear your search.</p>
+            <app-button
+              label="Clear search"
+              variant="outline"
+              size="sm"
+              (buttonClick)="clearSearch()"
+            />
+          </div>
+        } @else if (visibleWorkspaces().length === 0) {
+          <div class="workspace-empty-state is-compact">
+            <span class="workspace-empty-icon"
+              ><app-icon [icon]="LucideFolderOpen" size="lg"
+            /></span>
+            <h2>{{ emptyMessage() }}</h2>
+            @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
+              <app-button
+                label="New workspace"
+                [iconLeft]="LucidePlus"
+                variant="noteYellow"
+                size="sm"
+                (buttonClick)="openCreateEditor()"
+              />
+            }
+          </div>
+        } @else if (view() === 'grid') {
+          <div class="workspace-folder-grid workspace-folder-grid--cards" role="list">
+            @for (workspace of visibleWorkspaces(); track workspaceId(workspace)) {
+              <article
+                class="workspace-folder-tile workspace-folder-tile--card"
+                role="listitem"
+                [class.is-archived]="isArchived(workspace)"
+                [class.is-busy]="isBusy(workspace)"
+                [appHighlight]="
+                  selectedWorkspaceId() === workspaceId(workspace) ||
+                  contextMenuWorkspaceId() === workspaceId(workspace)
+                "
+                highlightRadius="1rem"
+                (contextmenu)="openWorkspaceContextMenu(workspace, $event)"
+              >
+                <app-workspace-folder-wrapper
+                  [name]="workspaceName(workspace)"
+                  [description]="workspace.description || ''"
+                  [personal]="isPersonalWorkspace(workspace)"
+                  [typeLabel]="workspaceTypeLabel(workspace)"
+                  [visibility]="workspaceVisibility(workspace)"
+                  [roleLabel]="workspaceRoleLabel(workspace)"
+                  [status]="workspace.status || 'ACTIVE'"
+                  [updatedAt]="workspace.updatedAt || workspace.createdAt"
+                  [folderCount]="workspaceFolderCount(workspace)"
+                  [folders]="workspaceFolders(workspace)"
+                  [members]="workspaceMembers(workspace)"
+                  [memberCount]="workspaceMemberCount(workspace)"
+                  [tooltipTone]="workspaceTheme(workspace).variant"
+                  [interactive]="!isInlineRenaming(workspace)"
+                  [busy]="isBusy(workspace)"
+                  (opened)="handleWorkspaceClick(workspace, $event)"
+                  (edited)="handleWorkspaceDoubleClick(workspace, $event)"
+                  (keyboardOpened)="handleWorkspaceClick(workspace)"
+                >
+                  <div folder-title>
+                    @if (isInlineRenaming(workspace)) {
+                      <input
+                        #renameInput
+                        class="workspace-inline-rename"
+                        [class.is-invalid]="!!inlineRenameError()"
+                        type="text"
+                        maxlength="80"
+                        aria-label="Rename workspace"
+                        [attr.aria-invalid]="!!inlineRenameError()"
+                        [attr.title]="inlineRenameError()"
+                        [value]="inlineRenameName()"
+                        (click)="$event.stopPropagation()"
+                        (dblclick)="$event.stopPropagation()"
+                        (input)="updateInlineRename($event)"
+                        (keydown.enter)="saveInlineRename(workspace, $event)"
+                        (keydown.escape)="cancelInlineRename($event)"
+                        (blur)="onInlineRenameBlur(workspace)"
+                      />
+                    } @else {
+                      <strong
+                        class="workspace-name-editable"
+                        appTooltip="Click to rename"
+                        [tooltipTone]="workspaceTheme(workspace).variant"
+                        tooltipPosition="top"
+                        tooltipSize="sm"
+                        (click)="beginInlineRename(workspace, $event)"
+                        >{{ workspaceName(workspace) }}</strong
+                      >
+                    }
+                  </div>
+                  <button
+                    folder-actions
+                    type="button"
+                    class="workspace-menu-trigger"
+                    [matMenuTriggerFor]="workspaceActions"
+                    [disabled]="isBusy(workspace)"
+                    [attr.aria-label]="'Actions for ' + workspaceName(workspace)"
+                    appTooltip="More actions"
+                    [tooltipTone]="workspaceTheme(workspace).variant"
+                    tooltipPosition="top"
+                    tooltipSize="sm"
+                    (click)="handleWorkspaceMenuClick(workspace, $event)"
+                    (dblclick)="$event.stopPropagation()"
+                  >
+                    <app-icon [icon]="LucideMoreHorizontal" size="sm" />
                   </button>
-                </h3>
-                <div class="workspace-group-header-actions">
-                  @if (group.status === 'ACTIVE' && canCreateWorkspaceInCurrentView()) {
-                  <app-button [icon]="LucidePlus" [iconOnly]="true" variant="ghost" size="xs" ariaLabel="New workspace"
-                    appTooltip="New workspace in {{ group.label }}" tooltipTone="noteYellow" tooltipPosition="top"
-                    tooltipSize="sm" (buttonClick)="openCreateEditor()" />
-                  }
-                </div>
-              </header>
+                </app-workspace-folder-wrapper>
 
-              @if (!isGroupCollapsed(group.id)) {
-              <div class="workspace-group-body" [id]="'group-body-' + group.id" role="region" tabindex="0"
-                [attr.aria-labelledby]="'group-heading-' + group.id">
-                @if (group.items.length > 0) {
-                <table class="workspace-gtable" [attr.aria-label]="group.label">
-                  <colgroup>
-                    <col class="workspace-gt-select" />
-                    <col class="workspace-gt-name" />
-                    <col class="workspace-gt-role" />
-                    <col class="workspace-gt-visibility" />
-                    <col class="workspace-gt-folders" />
-                    <col class="workspace-gt-members" />
-                    <col class="workspace-gt-status" />
-                    <col class="workspace-gt-updated" />
-                    <col class="workspace-gt-actions" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th class="workspace-gt-select" scope="col">
-                        <app-checkbox [checked]="isAllSelected(group.items)"
-                          [indeterminate]="isSomeSelected(group.items)"
-                          (checkedChange)="toggleSelectAll($event, group.items)" size="xs"
-                          ariaLabel="Select all spaces in group" />
-                      </th>
-                      <th class="workspace-gt-name" scope="col">
-                        <app-icon [icon]="LucidePanelsTopLeft" size="xs" />
-                        Workspace
-                      </th>
-                      <th class="workspace-gt-role" scope="col">
-                        <app-icon [icon]="LucideShield" size="xs" />
-                        Access
-                      </th>
-                      <th class="workspace-gt-visibility" scope="col">
-                        <app-icon [icon]="LucideGlobe" size="xs" />
-                        Visibility
-                      </th>
-                      <th class="workspace-gt-folders" scope="col">
-                        <app-icon [icon]="LucideFolderOpen" size="xs" />
-                        Folders
-                      </th>
-                      <th class="workspace-gt-members" scope="col">
-                        <app-icon [icon]="LucideUsers" size="xs" />
-                        Members
-                      </th>
-                      <th class="workspace-gt-status" scope="col">
-                        <app-icon [icon]="LucideCheck" size="xs" />
-                        Status
-                      </th>
-                      <th class="workspace-gt-updated" scope="col">
-                        <app-icon [icon]="LucideClock3" size="xs" />
-                        Updated
-                      </th>
-                      <th class="workspace-gt-actions" scope="col">
-                        <span class="visually-hidden">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (workspace of group.items; track workspaceId(workspace)) {
-                    <tr [attr.data-workspace-theme]="workspaceTheme(workspace).variant"
-                      [class.is-archived]="isArchived(workspace)" [class.is-busy]="isBusy(workspace)"
-                      [appHighlight]="isWorkspaceSelected(workspace) || selectedWorkspaceId() === workspaceId(workspace) || contextMenuWorkspaceId() === workspaceId(workspace)"
-                      [highlightInset]="true" (contextmenu)="openWorkspaceContextMenu(workspace, $event)"
-                      (dblclick)="handleWorkspaceDoubleClick(workspace, $event)">
-                      <td class="workspace-gt-select">
-                        <app-checkbox [checked]="isWorkspaceSelected(workspace)"
-                          (checkedChange)="toggleWorkspaceSelection(workspace, $event)" size="xs"
-                          [ariaLabel]="'Select ' + workspaceName(workspace)" (click)="$event.stopPropagation()" />
-                      </td>
+                <mat-menu
+                  #workspaceActions="matMenu"
+                  xPosition="before"
+                  yPosition="below"
+                  [overlapTrigger]="false"
+                  class="workspace-actions-menu"
+                >
+                  <ng-container
+                    *ngTemplateOutlet="workspaceMenu; context: { $implicit: workspace }"
+                  />
+                </mat-menu>
+              </article>
+            }
 
-                      <td class="workspace-gt-name" data-label="Workspace">
-                        <div class="workspace-table-name-main" role="button" [attr.tabindex]="
+            @if (canCreateWorkspaceInCurrentView() && statusFilter() !== 'ARCHIVED') {
+              <button
+                type="button"
+                class="workspace-create-folder"
+                appTooltip="Create a new workspace"
+                tooltipTone="noteYellow"
+                tooltipPosition="top"
+                tooltipSize="sm"
+                (click)="openCreateEditor()"
+              >
+                <span class="workspace-create-folder-visual" aria-hidden="true">
+                  <span></span>
+                  <app-icon [icon]="LucidePlus" size="md" />
+                </span>
+                <strong>Create a new space</strong>
+                <small>A fresh folder for your next idea</small>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="workspace-grouped-table" aria-label="Workspaces grouped table">
+            <div class="workspace-table-groups-container">
+              @for (group of workspaceGroups(); track group.id) {
+                <section
+                  class="workspace-group"
+                  [style.--group-accent]="group.accent"
+                  [class.is-collapsed]="isGroupCollapsed(group.id)"
+                  [attr.aria-labelledby]="'group-heading-' + group.id"
+                >
+                  <header class="workspace-group-header">
+                    <h3>
+                      <button
+                        type="button"
+                        class="workspace-group-toggle"
+                        [id]="'group-heading-' + group.id"
+                        [attr.aria-expanded]="!isGroupCollapsed(group.id)"
+                        [attr.aria-controls]="'group-body-' + group.id"
+                        [appTooltip]="
+                          isGroupCollapsed(group.id)
+                            ? 'Expand ' + group.label
+                            : 'Collapse ' + group.label
+                        "
+                        tooltipTone="paper"
+                        tooltipPosition="right"
+                        tooltipSize="sm"
+                        (click)="toggleGroup(group.id)"
+                      >
+                        <app-icon
+                          class="workspace-group-chevron"
+                          [icon]="
+                            isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
+                          "
+                          size="sm"
+                        />
+                        <span class="workspace-group-accent-bar" aria-hidden="true"></span>
+                        <span class="workspace-group-label">{{ group.label }}</span>
+                        <app-badge
+                          [label]="'' + group.count"
+                          variant="neutral"
+                          size="xs"
+                          shape="rounded"
+                          [ariaLabel]="group.count + (group.count === 1 ? ' space' : ' spaces')"
+                        />
+                      </button>
+                    </h3>
+                    <div class="workspace-group-header-actions">
+                      @if (group.status === 'ACTIVE' && canCreateWorkspaceInCurrentView()) {
+                        <app-button
+                          [icon]="LucidePlus"
+                          [iconOnly]="true"
+                          variant="ghost"
+                          size="xs"
+                          ariaLabel="New workspace"
+                          appTooltip="New workspace in {{ group.label }}"
+                          tooltipTone="noteYellow"
+                          tooltipPosition="top"
+                          tooltipSize="sm"
+                          (buttonClick)="openCreateEditor()"
+                        />
+                      }
+                    </div>
+                  </header>
+
+                  @if (!isGroupCollapsed(group.id)) {
+                    <div
+                      class="workspace-group-body"
+                      [id]="'group-body-' + group.id"
+                      role="region"
+                      tabindex="0"
+                      [attr.aria-labelledby]="'group-heading-' + group.id"
+                    >
+                      @if (group.items.length > 0) {
+                        <table class="workspace-gtable" [attr.aria-label]="group.label">
+                          <colgroup>
+                            <col class="workspace-gt-select" />
+                            <col class="workspace-gt-name" />
+                            <col class="workspace-gt-role" />
+                            <col class="workspace-gt-visibility" />
+                            <col class="workspace-gt-folders" />
+                            <col class="workspace-gt-members" />
+                            <col class="workspace-gt-status" />
+                            <col class="workspace-gt-updated" />
+                            <col class="workspace-gt-actions" />
+                          </colgroup>
+                          <thead>
+                            <tr>
+                              <th class="workspace-gt-select" scope="col">
+                                <app-checkbox
+                                  [checked]="isAllSelected(group.items)"
+                                  [indeterminate]="isSomeSelected(group.items)"
+                                  (checkedChange)="toggleSelectAll($event, group.items)"
+                                  size="xs"
+                                  ariaLabel="Select all spaces in group"
+                                />
+                              </th>
+                              <th class="workspace-gt-name" scope="col">
+                                <app-icon [icon]="LucidePanelsTopLeft" size="xs" />
+                                Workspace
+                              </th>
+                              <th class="workspace-gt-role" scope="col">
+                                <app-icon [icon]="LucideShield" size="xs" />
+                                Access
+                              </th>
+                              <th class="workspace-gt-visibility" scope="col">
+                                <app-icon [icon]="LucideGlobe" size="xs" />
+                                Visibility
+                              </th>
+                              <th class="workspace-gt-folders" scope="col">
+                                <app-icon [icon]="LucideFolderOpen" size="xs" />
+                                Folders
+                              </th>
+                              <th class="workspace-gt-members" scope="col">
+                                <app-icon [icon]="LucideUsers" size="xs" />
+                                Members
+                              </th>
+                              <th class="workspace-gt-status" scope="col">
+                                <app-icon [icon]="LucideCheck" size="xs" />
+                                Status
+                              </th>
+                              <th class="workspace-gt-updated" scope="col">
+                                <app-icon [icon]="LucideClock3" size="xs" />
+                                Updated
+                              </th>
+                              <th class="workspace-gt-actions" scope="col">
+                                <span class="visually-hidden">Actions</span>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (workspace of group.items; track workspaceId(workspace)) {
+                              <tr
+                                [attr.data-workspace-theme]="workspaceTheme(workspace).variant"
+                                [class.is-archived]="isArchived(workspace)"
+                                [class.is-busy]="isBusy(workspace)"
+                                [appHighlight]="
+                                  isWorkspaceSelected(workspace) ||
+                                  selectedWorkspaceId() === workspaceId(workspace) ||
+                                  contextMenuWorkspaceId() === workspaceId(workspace)
+                                "
+                                [highlightInset]="true"
+                                (contextmenu)="openWorkspaceContextMenu(workspace, $event)"
+                                (dblclick)="handleWorkspaceDoubleClick(workspace, $event)"
+                              >
+                                <td class="workspace-gt-select">
+                                  <app-checkbox
+                                    [checked]="isWorkspaceSelected(workspace)"
+                                    (checkedChange)="toggleWorkspaceSelection(workspace, $event)"
+                                    size="xs"
+                                    [ariaLabel]="'Select ' + workspaceName(workspace)"
+                                    (click)="$event.stopPropagation()"
+                                  />
+                                </td>
+
+                                <td class="workspace-gt-name" data-label="Workspace">
+                                  <div
+                                    class="workspace-table-name-main"
+                                    role="button"
+                                    [attr.tabindex]="
                                       isInlineRenaming(workspace) || isBusy(workspace) ? -1 : 0
-                                    " [attr.aria-label]="
+                                    "
+                                    [attr.aria-label]="
                                       isInlineRenaming(workspace)
                                         ? null
                                         : 'Select ' + workspaceName(workspace)
-                                    " (click)="handleWorkspaceClick(workspace, $event)" (keydown.enter)="
+                                    "
+                                    (click)="handleWorkspaceClick(workspace, $event)"
+                                    (keydown.enter)="
                                       $event.target === $event.currentTarget &&
                                         handleWorkspaceClick(workspace)
-                                    ">
-                          <span [class]="
+                                    "
+                                  >
+                                    <span
+                                      [class]="
                                         'workspace-folder-thumbnail ' +
                                         workspaceTheme(workspace).variant
-                                      " aria-hidden="true">
-                            <span></span>
-                            <app-icon [icon]="workspaceTheme(workspace).icon" size="xs" />
-                          </span>
+                                      "
+                                      aria-hidden="true"
+                                    >
+                                      <span></span>
+                                      <app-icon [icon]="workspaceTheme(workspace).icon" size="xs" />
+                                    </span>
 
-                          <div class="workspace-table-copy">
-                            <div class="workspace-table-title-row">
-                              @if (isInlineRenaming(workspace)) {
-                              <input #renameInput class="workspace-inline-rename is-list"
-                                [class.is-invalid]="!!inlineRenameError()" type="text" maxlength="80"
-                                aria-label="Rename workspace" [attr.aria-invalid]="!!inlineRenameError()"
-                                [attr.title]="inlineRenameError()" [value]="inlineRenameName()"
-                                (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()"
-                                (input)="updateInlineRename($event)"
-                                (keydown.enter)="saveInlineRename(workspace, $event)"
-                                (keydown.escape)="cancelInlineRename($event)" (blur)="onInlineRenameBlur(workspace)" />
-                              } @else {
-                              <strong class="workspace-name-editable" appTooltip="Click to rename"
-                                [tooltipTone]="workspaceTheme(workspace).variant" tooltipPosition="top" tooltipSize="sm"
-                                (click)="beginInlineRename(workspace, $event)">
-                                {{ workspaceName(workspace) }}
-                              </strong>
-                              }
-                              <app-badge [label]="workspaceTypeLabel(workspace)" variant="neutral" size="xs"
-                                shape="pill" />
-                            </div>
+                                    <div class="workspace-table-copy">
+                                      <div class="workspace-table-title-row">
+                                        @if (isInlineRenaming(workspace)) {
+                                          <input
+                                            #renameInput
+                                            class="workspace-inline-rename is-list"
+                                            [class.is-invalid]="!!inlineRenameError()"
+                                            type="text"
+                                            maxlength="80"
+                                            aria-label="Rename workspace"
+                                            [attr.aria-invalid]="!!inlineRenameError()"
+                                            [attr.title]="inlineRenameError()"
+                                            [value]="inlineRenameName()"
+                                            (click)="$event.stopPropagation()"
+                                            (dblclick)="$event.stopPropagation()"
+                                            (input)="updateInlineRename($event)"
+                                            (keydown.enter)="saveInlineRename(workspace, $event)"
+                                            (keydown.escape)="cancelInlineRename($event)"
+                                            (blur)="onInlineRenameBlur(workspace)"
+                                          />
+                                        } @else {
+                                          <strong
+                                            class="workspace-name-editable"
+                                            appTooltip="Click to rename"
+                                            [tooltipTone]="workspaceTheme(workspace).variant"
+                                            tooltipPosition="top"
+                                            tooltipSize="sm"
+                                            (click)="beginInlineRename(workspace, $event)"
+                                          >
+                                            {{ workspaceName(workspace) }}
+                                          </strong>
+                                        }
+                                        <app-badge
+                                          [label]="workspaceTypeLabel(workspace)"
+                                          variant="neutral"
+                                          size="xs"
+                                          shape="pill"
+                                        />
+                                      </div>
 
-                            <small>{{
-                              workspaceDescription(workspace) ||
-                              workspaceTypeLabel(workspace)
-                              }}</small>
-                          </div>
-                        </div>
-                      </td>
+                                      <small>{{
+                                        workspaceDescription(workspace) ||
+                                          workspaceTypeLabel(workspace)
+                                      }}</small>
+                                    </div>
+                                  </div>
+                                </td>
 
-                      <td class="workspace-gt-role" data-label="Access">
-                        <app-badge [label]="workspaceRoleLabel(workspace)" variant="outline" size="xs" shape="pill"
-                          [appTooltip]="'Access role: ' + workspaceRoleLabel(workspace)" tooltipTone="paper"
-                          tooltipPosition="top" tooltipSize="sm" />
-                      </td>
+                                <td class="workspace-gt-role" data-label="Access">
+                                  <app-badge
+                                    [label]="workspaceRoleLabel(workspace)"
+                                    variant="outline"
+                                    size="xs"
+                                    shape="pill"
+                                    [appTooltip]="'Access role: ' + workspaceRoleLabel(workspace)"
+                                    tooltipTone="paper"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                  />
+                                </td>
 
-                      <td class="workspace-gt-visibility" data-label="Visibility">
-                        <app-badge [label]="workspaceVisibility(workspace)" variant="neutral" size="xs" shape="pill"
-                          [icon]="visibilityIcon(workspace)"
-                          [appTooltip]="'Visibility: ' + workspaceVisibility(workspace)" tooltipTone="paper"
-                          tooltipPosition="top" tooltipSize="sm" />
-                      </td>
+                                <td class="workspace-gt-visibility" data-label="Visibility">
+                                  <app-badge
+                                    [label]="workspaceVisibility(workspace)"
+                                    variant="neutral"
+                                    size="xs"
+                                    shape="pill"
+                                    [icon]="visibilityIcon(workspace)"
+                                    [appTooltip]="'Visibility: ' + workspaceVisibility(workspace)"
+                                    tooltipTone="paper"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                  />
+                                </td>
 
-                      <td class="workspace-gt-folders" data-label="Folders">
-                        <app-badge [label]="folderCountLabel(workspace)" variant="neutral" size="xs" shape="pill"
-                          [icon]="LucideFolderOpen" [appTooltip]="workspaceFolderTooltip(workspace)" tooltipTone="paper"
-                          tooltipPosition="top" tooltipSize="sm" />
-                      </td>
+                                <td class="workspace-gt-folders" data-label="Folders">
+                                  <app-badge
+                                    [label]="folderCountLabel(workspace)"
+                                    variant="neutral"
+                                    size="xs"
+                                    shape="pill"
+                                    [icon]="LucideFolderOpen"
+                                    [appTooltip]="workspaceFolderTooltip(workspace)"
+                                    tooltipTone="paper"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                  />
+                                </td>
 
-                      <td class="workspace-gt-members" data-label="Members">
-                        @if (workspaceMembers(workspace).length > 0) {
-                        <app-members-stack [members]="workspaceMembers(workspace)" [maxVisible]="3" size="xs" />
-                        } @else {
-                        <span class="workspace-table-muted">—</span>
-                        }
-                      </td>
+                                <td class="workspace-gt-members" data-label="Members">
+                                  @if (workspaceMembers(workspace).length > 0) {
+                                    <app-members-stack
+                                      [members]="workspaceMembers(workspace)"
+                                      [maxVisible]="3"
+                                      size="xs"
+                                    />
+                                  } @else {
+                                    <span class="workspace-table-muted">—</span>
+                                  }
+                                </td>
 
-                      <td class="workspace-gt-status" data-label="Status">
-                        <app-badge [label]="workspaceStatusLabel(workspace)"
-                          [variant]="isActive(workspace) ? 'success' : 'neutral'" size="xs" shape="pill"
-                          [appTooltip]="'Status: ' + workspaceStatusLabel(workspace)"
-                          [tooltipTone]="isActive(workspace) ? 'success' : 'paper'" tooltipPosition="top"
-                          tooltipSize="sm" />
-                      </td>
+                                <td class="workspace-gt-status" data-label="Status">
+                                  <app-badge
+                                    [label]="workspaceStatusLabel(workspace)"
+                                    [variant]="isActive(workspace) ? 'success' : 'neutral'"
+                                    size="xs"
+                                    shape="pill"
+                                    [appTooltip]="'Status: ' + workspaceStatusLabel(workspace)"
+                                    [tooltipTone]="isActive(workspace) ? 'success' : 'paper'"
+                                    tooltipPosition="top"
+                                    tooltipSize="sm"
+                                  />
+                                </td>
 
-                      <td class="workspace-gt-updated" data-label="Updated">
-                        @if (workspace.updatedAt || workspace.createdAt) {
-                        <time class="workspace-gt-datetime" [attr.datetime]="workspace.updatedAt || workspace.createdAt"
-                          [appTooltip]="'Last modified ' + (workspace.updatedAt || workspace.createdAt | userDate: 'datetime')"
-                          tooltipTone="paper" tooltipPosition="top" tooltipSize="sm">
-                          <span class="workspace-gt-date-text">{{
-                            workspace.updatedAt || workspace.createdAt
-                            | userDate: 'date'
-                            }}</span>
-                          <span class="workspace-gt-datetime-separator" aria-hidden="true">&middot;</span>
-                          <span class="workspace-gt-time-text">{{
-                            workspace.updatedAt || workspace.createdAt
-                            | userDate: 'time'
-                            }}</span>
-                        </time>
-                        } @else {
-                        <span class="workspace-table-muted">—</span>
-                        }
-                      </td>
+                                <td class="workspace-gt-updated" data-label="Updated">
+                                  @if (workspace.updatedAt || workspace.createdAt) {
+                                    <time
+                                      class="workspace-gt-datetime"
+                                      [attr.datetime]="workspace.updatedAt || workspace.createdAt"
+                                      [appTooltip]="
+                                        'Last modified ' +
+                                        (workspace.updatedAt || workspace.createdAt
+                                          | userDate: 'datetime')
+                                      "
+                                      tooltipTone="paper"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                    >
+                                      <span class="workspace-gt-date-text">{{
+                                        workspace.updatedAt || workspace.createdAt
+                                          | userDate: 'date'
+                                      }}</span>
+                                      <span
+                                        class="workspace-gt-datetime-separator"
+                                        aria-hidden="true"
+                                        >&middot;</span
+                                      >
+                                      <span class="workspace-gt-time-text">{{
+                                        workspace.updatedAt || workspace.createdAt
+                                          | userDate: 'time'
+                                      }}</span>
+                                    </time>
+                                  } @else {
+                                    <span class="workspace-table-muted">—</span>
+                                  }
+                                </td>
 
-                      <td class="workspace-gt-actions" data-label="Actions">
-                        <div class="workspace-table-action-group">
-                          <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue" appearance="standard"
-                            size="xs" [rounded]="true" [ariaLabel]="'Edit ' + workspaceName(workspace)"
-                            [appTooltip]="'Edit ' + workspaceName(workspace)" tooltipTone="noteBlue"
-                            tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
-                            (buttonClick)="openEditEditor(workspace, $event)" />
+                                <td class="workspace-gt-actions" data-label="Actions">
+                                  <div class="workspace-table-action-group">
+                                    <app-button
+                                      [icon]="LucidePencil"
+                                      [iconOnly]="true"
+                                      variant="noteBlue"
+                                      appearance="standard"
+                                      size="xs"
+                                      [rounded]="true"
+                                      [ariaLabel]="'Edit ' + workspaceName(workspace)"
+                                      [appTooltip]="'Edit ' + workspaceName(workspace)"
+                                      tooltipTone="noteBlue"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                      [disabled]="isBusy(workspace)"
+                                      (buttonClick)="openEditEditor(workspace, $event)"
+                                    />
 
-                          <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
-                            appearance="standard" size="xs" [rounded]="true"
-                            [ariaLabel]="'Open ' + workspaceName(workspace)"
-                            [appTooltip]="'Open ' + workspaceName(workspace)" tooltipTone="noteYellow"
-                            tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
-                            (buttonClick)="openWorkspace(workspace)" />
+                                    <app-button
+                                      [icon]="LucideArrowRight"
+                                      [iconOnly]="true"
+                                      variant="noteYellow"
+                                      appearance="standard"
+                                      size="xs"
+                                      [rounded]="true"
+                                      [ariaLabel]="'Open ' + workspaceName(workspace)"
+                                      [appTooltip]="'Open ' + workspaceName(workspace)"
+                                      tooltipTone="noteYellow"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                      [disabled]="isBusy(workspace)"
+                                      (buttonClick)="openWorkspace(workspace)"
+                                    />
 
-                          <button type="button" class="workspace-table-menu-button"
-                            [matMenuTriggerFor]="workspaceListActions" [attr.aria-label]="
+                                    <button
+                                      type="button"
+                                      class="workspace-table-menu-button"
+                                      [matMenuTriggerFor]="workspaceListActions"
+                                      [attr.aria-label]="
                                         'More actions for ' + workspaceName(workspace)
-                                      " [appTooltip]="'More actions for ' + workspaceName(workspace)"
-                            tooltipTone="paper" tooltipPosition="top" tooltipSize="sm" [disabled]="isBusy(workspace)"
-                            (click)="handleWorkspaceMenuClick(workspace, $event)" (dblclick)="$event.stopPropagation()">
-                            <app-icon [icon]="LucideMoreHorizontal" size="sm" />
-                          </button>
-                        </div>
+                                      "
+                                      [appTooltip]="'More actions for ' + workspaceName(workspace)"
+                                      tooltipTone="paper"
+                                      tooltipPosition="top"
+                                      tooltipSize="sm"
+                                      [disabled]="isBusy(workspace)"
+                                      (click)="handleWorkspaceMenuClick(workspace, $event)"
+                                      (dblclick)="$event.stopPropagation()"
+                                    >
+                                      <app-icon [icon]="LucideMoreHorizontal" size="sm" />
+                                    </button>
+                                  </div>
 
-                        <mat-menu #workspaceListActions="matMenu" xPosition="before" yPosition="below"
-                          [overlapTrigger]="false" class="workspace-actions-menu">
-                          <ng-container *ngTemplateOutlet="
+                                  <mat-menu
+                                    #workspaceListActions="matMenu"
+                                    xPosition="before"
+                                    yPosition="below"
+                                    [overlapTrigger]="false"
+                                    class="workspace-actions-menu"
+                                  >
+                                    <ng-container
+                                      *ngTemplateOutlet="
                                         workspaceMenu;
                                         context: { $implicit: workspace }
-                                      " />
-                        </mat-menu>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-                } @else {
-                <div class="workspace-group-empty">
-                  <span>{{
-                    searchTerm() ? 'No matching spaces' : 'No spaces in this section'
-                    }}</span>
-                  @if (!searchTerm() && group.status === 'ACTIVE' && canCreateWorkspaceInCurrentView()) {
-                  <app-button label="New space" [iconLeft]="LucidePlus" variant="outline" size="xs"
-                    (buttonClick)="openCreateEditor()" />
+                                      "
+                                    />
+                                  </mat-menu>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="workspace-group-empty">
+                          <span>{{
+                            searchTerm() ? 'No matching spaces' : 'No spaces in this section'
+                          }}</span>
+                          @if (
+                            !searchTerm() &&
+                            group.status === 'ACTIVE' &&
+                            canCreateWorkspaceInCurrentView()
+                          ) {
+                            <app-button
+                              label="New space"
+                              [iconLeft]="LucidePlus"
+                              variant="outline"
+                              size="xs"
+                              (buttonClick)="openCreateEditor()"
+                            />
+                          }
+                        </div>
+                      }
+                    </div>
                   }
-                </div>
-                }
-              </div>
+                </section>
               }
-            </section>
-            }
+            </div>
           </div>
-        </div>
         }
       </div>
       @if (pagination().totalPages > 1) {
-      <nav class="workspace-pagination" aria-label="Workspace pages">
-        <app-button label="Previous" size="sm" variant="secondary" [disabled]="loading() || page() <= 1"
-          (buttonClick)="previousPage()" />
-        <span>Page {{ page() }} of {{ pagination().totalPages }}</span>
-        <app-button label="Next" size="sm" variant="secondary"
-          [disabled]="loading() || page() >= pagination().totalPages" (buttonClick)="nextPage()" />
-      </nav>
+        <nav class="workspace-pagination" aria-label="Workspace pages">
+          <app-button
+            label="Previous"
+            size="sm"
+            variant="secondary"
+            [disabled]="loading() || page() <= 1"
+            (buttonClick)="previousPage()"
+          />
+          <span>Page {{ page() }} of {{ pagination().totalPages }}</span>
+          <app-button
+            label="Next"
+            size="sm"
+            variant="secondary"
+            [disabled]="loading() || page() >= pagination().totalPages"
+            (buttonClick)="nextPage()"
+          />
+        </nav>
       }
     </section>
   </main>
 </section>
 
-<span class="workspace-context-menu-origin" aria-hidden="true" [style.left.px]="contextMenuPosition().x"
-  [style.top.px]="contextMenuPosition().y" [matMenuTriggerFor]="workspaceContextMenu"
-  #workspaceContextMenuTrigger="matMenuTrigger"></span>
+<span
+  class="workspace-context-menu-origin"
+  aria-hidden="true"
+  [style.left.px]="contextMenuPosition().x"
+  [style.top.px]="contextMenuPosition().y"
+  [matMenuTriggerFor]="workspaceContextMenu"
+  #workspaceContextMenuTrigger="matMenuTrigger"
+></span>
 
-<mat-menu #workspaceContextMenu="matMenu" xPosition="after" yPosition="below" [overlapTrigger]="true"
-  class="workspace-actions-menu" (closed)="closeWorkspaceContextMenu()">
+<mat-menu
+  #workspaceContextMenu="matMenu"
+  xPosition="after"
+  yPosition="below"
+  [overlapTrigger]="true"
+  class="workspace-actions-menu"
+  (closed)="closeWorkspaceContextMenu()"
+>
   @if (contextMenuWorkspace(); as workspace) {
-  <ng-container *ngTemplateOutlet="workspaceMenu; context: { $implicit: workspace }" />
+    <ng-container *ngTemplateOutlet="workspaceMenu; context: { $implicit: workspace }" />
   }
 </mat-menu>
 
-<app-add-edit-workspace-side-panel [open]="workspaceEditorOpen()" [id]="workspaceEditorId()"
-  [workspace]="editorWorkspace()" (closed)="closeWorkspaceEditor()" (saved)="onWorkspaceSaved($event)" />
+<app-add-edit-workspace-side-panel
+  [open]="workspaceEditorOpen()"
+  [id]="workspaceEditorId()"
+  [workspace]="editorWorkspace()"
+  (closed)="closeWorkspaceEditor()"
+  (saved)="onWorkspaceSaved($event)"
+/>
 
-<app-bulk-action-panel [selectedCount]="selectedCount()" [totalCount]="visibleWorkspaces().length"
-  position="bottom-center" orientation="horizontal" variant="floating" (clearSelection)="clearSelection()"
-  [showDelete]="canBulk('canTrash')" (bulkDelete)="bulkDeleteSelected()">
+<app-bulk-action-panel
+  [selectedCount]="selectedCount()"
+  [totalCount]="visibleWorkspaces().length"
+  position="bottom-center"
+  orientation="horizontal"
+  variant="floating"
+  (clearSelection)="clearSelection()"
+  [showDelete]="canBulk('canTrash')"
+  (bulkDelete)="bulkDeleteSelected()"
+>
   @if (canBulk('canArchive')) {
-  <app-button [iconLeft]="LucideArchive" label="Archive spaces" variant="secondary" size="xs" shape="pill"
-    (buttonClick)="bulkArchiveSelected()" />
+    <app-button
+      [iconLeft]="LucideArchive"
+      label="Archive spaces"
+      variant="secondary"
+      size="xs"
+      shape="pill"
+      (buttonClick)="bulkArchiveSelected()"
+    />
   }
 </app-bulk-action-panel>
 
 @if (deleteTarget(); as workspace) {
-<div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
-  <section class="workspace-dialog-shell workspace-delete-shell" role="alertdialog" aria-modal="true"
-    aria-labelledby="workspace-delete-title" (mousedown)="$event.stopPropagation()">
-    <app-sticky-card class="workspace-dialog-note workspace-delete-note" variant="noteRed" appearance="elevated"
-      shape="note" size="sm" [fullWidth]="true" [hoverable]="false" [footerDivider]="true">
-      <span card-icon class="workspace-dialog-icon is-danger" aria-hidden="true">
-        <app-icon [icon]="LucideTrash2" size="sm" />
-      </span>
-
-      <span card-eyebrow class="workspace-dialog-kicker is-danger">Before you move it</span>
-
-      <h2 card-title id="workspace-delete-title" class="workspace-dialog-title">
-        Move workspace to trash?
-      </h2>
-
-      <p card-subtitle class="workspace-dialog-subtitle">
-        “{{ workspaceName(workspace) }}” will disappear from your active workspace list.
-      </p>
-
-      <div class="workspace-delete-message">
-        <span class="workspace-delete-message-icon" aria-hidden="true">
-          <app-icon [icon]="LucideArchive" size="xs" />
+  <div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
+    <section
+      class="workspace-dialog-shell workspace-delete-shell"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="workspace-delete-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <app-sticky-card
+        class="workspace-dialog-note workspace-delete-note"
+        variant="noteRed"
+        appearance="elevated"
+        shape="note"
+        size="sm"
+        [fullWidth]="true"
+        [hoverable]="false"
+        [footerDivider]="true"
+      >
+        <span card-icon class="workspace-dialog-icon is-danger" aria-hidden="true">
+          <app-icon [icon]="LucideTrash2" size="sm" />
         </span>
-        <span>If you only want it out of the way for now, archive it instead.</span>
-      </div>
 
-      <div card-footer class="workspace-dialog-actions">
-        <app-button label="Keep workspace" variant="secondary" size="sm" [disabled]="deleting()"
-          (buttonClick)="closeDeleteDialog()" />
-        <app-button label="Move to trash" variant="danger" size="sm" [loading]="deleting()" [disabled]="deleting()"
-          (buttonClick)="confirmDelete()" />
-      </div>
-    </app-sticky-card>
-  </section>
-</div>
+        <span card-eyebrow class="workspace-dialog-kicker is-danger">Before you move it</span>
+
+        <h2 card-title id="workspace-delete-title" class="workspace-dialog-title">
+          Move workspace to trash?
+        </h2>
+
+        <p card-subtitle class="workspace-dialog-subtitle">
+          “{{ workspaceName(workspace) }}” will disappear from your active workspace list.
+        </p>
+
+        <div class="workspace-delete-message">
+          <span class="workspace-delete-message-icon" aria-hidden="true">
+            <app-icon [icon]="LucideArchive" size="xs" />
+          </span>
+          <span>If you only want it out of the way for now, archive it instead.</span>
+        </div>
+
+        <div card-footer class="workspace-dialog-actions">
+          <app-button
+            label="Keep workspace"
+            variant="secondary"
+            size="sm"
+            [disabled]="deleting()"
+            (buttonClick)="closeDeleteDialog()"
+          />
+          <app-button
+            label="Move to trash"
+            variant="danger"
+            size="sm"
+            [loading]="deleting()"
+            [disabled]="deleting()"
+            (buttonClick)="confirmDelete()"
+          />
+        </div>
+      </app-sticky-card>
+    </section>
+  </div>
 }
 
 <ng-template #workspaceMenu let-workspace>
   @if (can(workspace, 'canEdit')) {
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item is-edit"
-    (click)="openEditEditor(workspace)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucidePencil" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Edit workspace</strong>
-      <small>Change workspace details</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(workspace)"
+      class="workspace-action-item is-edit"
+      (click)="openEditEditor(workspace)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucidePencil" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Edit workspace</strong>
+        <small>Change workspace details</small>
+      </span>
+    </button>
 
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
-    (click)="beginInlineRename(workspace)">
-    <span class="workspace-menu-item-icon workspace-menu-rename-icon" aria-hidden="true">
-      <app-icon [icon]="LucidePencil" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Quick rename</strong>
-      <small>Change only the workspace name</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(workspace)"
+      class="workspace-action-item"
+      (click)="beginInlineRename(workspace)"
+    >
+      <span class="workspace-menu-item-icon workspace-menu-rename-icon" aria-hidden="true">
+        <app-icon [icon]="LucidePencil" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Quick rename</strong>
+        <small>Change only the workspace name</small>
+      </span>
+    </button>
   }
 
   <mat-divider />
 
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
-    class="workspace-action-item is-open" (click)="openWorkspaceFolders(workspace, $event)">
+  <button
+    mat-menu-item
+    type="button"
+    [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
+    class="workspace-action-item is-open"
+    (click)="openWorkspaceFolders(workspace, $event)"
+  >
     <span class="workspace-menu-item-icon" aria-hidden="true">
       <app-icon [icon]="LucideFolderOpen" size="xs" />
     </span>
@@ -539,49 +956,72 @@
     </span>
   </button>
 
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
-    class="workspace-action-item" (click)="openWorkspaceMembers(workspace, $event)">
-    <span class="workspace-menu-item-icon" aria-hidden="true"><app-icon [icon]="LucideUsers" size="xs" /></span>
-    <span class="workspace-menu-item-copy"><strong>Manage members</strong><small>View and edit member
-        access</small></span>
+  <button
+    mat-menu-item
+    type="button"
+    [disabled]="isBusy(workspace) || !can(workspace, 'canView')"
+    class="workspace-action-item"
+    (click)="openWorkspaceMembers(workspace, $event)"
+  >
+    <span class="workspace-menu-item-icon" aria-hidden="true"
+      ><app-icon [icon]="LucideUsers" size="xs"
+    /></span>
+    <span class="workspace-menu-item-copy"
+      ><strong>Manage members</strong><small>View and edit member access</small></span
+    >
   </button>
 
   <mat-divider />
 
   @if (can(workspace, 'canArchive') && isActive(workspace)) {
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
-    (click)="archiveWorkspace(workspace)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucideArchive" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Archive</strong>
-      <small>Keep it for later</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(workspace)"
+      class="workspace-action-item"
+      (click)="archiveWorkspace(workspace)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideArchive" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Archive</strong>
+        <small>Keep it for later</small>
+      </span>
+    </button>
   } @else if (can(workspace, 'canArchive') && isArchived(workspace)) {
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item"
-    (click)="activateWorkspace(workspace)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucideRotateCcw" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Unarchive</strong>
-      <small>Bring it back</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(workspace)"
+      class="workspace-action-item"
+      (click)="activateWorkspace(workspace)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideRotateCcw" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Unarchive</strong>
+        <small>Bring it back</small>
+      </span>
+    </button>
   }
 
   @if (can(workspace, 'canTrash')) {
-  <button mat-menu-item type="button" [disabled]="isBusy(workspace)" class="workspace-action-item workspace-menu-danger"
-    (click)="moveToTrash(workspace)">
-    <span class="workspace-menu-item-icon" aria-hidden="true">
-      <app-icon [icon]="LucideTrash2" size="xs" />
-    </span>
-    <span class="workspace-menu-item-copy">
-      <strong>Move to trash</strong>
-      <small>Recoverable for 60 days</small>
-    </span>
-  </button>
+    <button
+      mat-menu-item
+      type="button"
+      [disabled]="isBusy(workspace)"
+      class="workspace-action-item workspace-menu-danger"
+      (click)="moveToTrash(workspace)"
+    >
+      <span class="workspace-menu-item-icon" aria-hidden="true">
+        <app-icon [icon]="LucideTrash2" size="xs" />
+      </span>
+      <span class="workspace-menu-item-copy">
+        <strong>Move to trash</strong>
+        <small>Recoverable for 60 days</small>
+      </span>
+    </button>
   }
 </ng-template>

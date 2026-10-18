@@ -1,178 +1,183 @@
 @use '../../../styles/variables.scss' as *;
 
 :host {
-    position: fixed;
-    z-index: 1050;
-    pointer-events: none;
-    transition: opacity 200ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
-    opacity: 0;
+  position: fixed;
+  z-index: 1050;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
 
-    &.is-visible {
-        opacity: 1;
-        pointer-events: auto;
-    }
+  &.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Positions */
 :host(.pos-bottom-center) {
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translate(-50%, 1.25rem) scale(0.96);
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translate(-50%, 1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translate(-50%, 0) scale(1);
-    }
+  &.is-visible {
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 :host(.pos-bottom-left) {
-    bottom: 1.5rem;
-    left: 1.5rem;
-    transform: translateY(1.25rem) scale(0.96);
+  bottom: 1.5rem;
+  left: 1.5rem;
+  transform: translateY(1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translateY(0) scale(1);
-    }
+  &.is-visible {
+    transform: translateY(0) scale(1);
+  }
 }
 
 :host(.pos-bottom-right) {
-    bottom: 1.5rem;
-    right: 1.5rem;
-    transform: translateY(1.25rem) scale(0.96);
+  bottom: 1.5rem;
+  right: 1.5rem;
+  transform: translateY(1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translateY(0) scale(1);
-    }
+  &.is-visible {
+    transform: translateY(0) scale(1);
+  }
 }
 
 :host(.pos-top-center) {
-    top: 5rem;
-    left: 50%;
-    transform: translate(-50%, -1.25rem) scale(0.96);
+  top: 5rem;
+  left: 50%;
+  transform: translate(-50%, -1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translate(-50%, 0) scale(1);
-    }
+  &.is-visible {
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 :host(.pos-top-left) {
-    top: 5rem;
-    left: 1.5rem;
-    transform: translateY(-1.25rem) scale(0.96);
+  top: 5rem;
+  left: 1.5rem;
+  transform: translateY(-1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translateY(0) scale(1);
-    }
+  &.is-visible {
+    transform: translateY(0) scale(1);
+  }
 }
 
 :host(.pos-top-right) {
-    top: 5rem;
-    right: 1.5rem;
-    transform: translateY(-1.25rem) scale(0.96);
+  top: 5rem;
+  right: 1.5rem;
+  transform: translateY(-1.25rem) scale(0.96);
 
-    &.is-visible {
-        transform: translateY(0) scale(1);
-    }
+  &.is-visible {
+    transform: translateY(0) scale(1);
+  }
 }
 
 :host(.pos-left-center) {
-    top: 50%;
-    left: 1.5rem;
-    transform: translate(-1.25rem, -50%) scale(0.96);
+  top: 50%;
+  left: 1.5rem;
+  transform: translate(-1.25rem, -50%) scale(0.96);
 
-    &.is-visible {
-        transform: translate(0, -50%) scale(1);
-    }
+  &.is-visible {
+    transform: translate(0, -50%) scale(1);
+  }
 }
 
 :host(.pos-right-center) {
-    top: 50%;
-    right: 1.5rem;
-    transform: translate(1.25rem, -50%) scale(0.96);
+  top: 50%;
+  right: 1.5rem;
+  transform: translate(1.25rem, -50%) scale(0.96);
 
-    &.is-visible {
-        transform: translate(0, -50%) scale(1);
-    }
+  &.is-visible {
+    transform: translate(0, -50%) scale(1);
+  }
 }
 
 .app-bulk-action-panel-inner {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem 0.5rem 0.875rem;
-    background: color-mix(in srgb, var(--app-paper, #ffffff) 94%, var(--app-focus-color, #3b82f6));
-    border: 1px solid color-mix(in srgb, var(--app-border, rgba(0, 0, 0, 0.15)) 80%, var(--app-focus-color, #3b82f6));
-    border-radius: 9999px;
-    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.14), 0 0.25rem 0.5rem rgba(0, 0, 0, 0.06);
-    backdrop-filter: blur(12px);
-    color: var(--app-text, #0f172a);
-    font-family: $font-body;
-    font-size: 0.8125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 0.875rem;
+  background: color-mix(in srgb, var(--app-paper, #ffffff) 94%, var(--app-focus-color, #3b82f6));
+  border: 1px solid
+    color-mix(in srgb, var(--app-border, rgba(0, 0, 0, 0.15)) 80%, var(--app-focus-color, #3b82f6));
+  border-radius: 9999px;
+  box-shadow:
+    0 0.75rem 2rem rgba(0, 0, 0, 0.14),
+    0 0.25rem 0.5rem rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px);
+  color: var(--app-text, #0f172a);
+  font-family: $font-body;
+  font-size: 0.8125rem;
 }
 
 :host(.orient-vertical) .app-bulk-action-panel-inner {
-    flex-direction: column;
-    align-items: stretch;
-    border-radius: 1rem;
-    padding: 0.75rem;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: 1rem;
+  padding: 0.75rem;
 }
 
 :host(.variant-dark) .app-bulk-action-panel-inner {
-    background: rgba(15, 23, 42, 0.94);
-    color: #f8fafc;
-    border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.94);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .app-bulk-action-panel-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .app-bulk-action-icon {
-    color: var(--app-focus-color, #3b82f6);
+  color: var(--app-focus-color, #3b82f6);
 }
 
 .app-bulk-action-count strong {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .app-bulk-action-clear {
-    display: inline-grid;
-    place-items: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    padding: 0;
-    color: var(--app-text-muted, #64748b);
-    background: transparent;
-    border: 0;
-    border-radius: 999px;
-    cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: var(--app-text-muted, #64748b);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
 
-    &:hover {
-        color: var(--app-text, #0f172a);
-        background: color-mix(in srgb, var(--app-text) 10%, transparent);
-    }
+  &:hover {
+    color: var(--app-text, #0f172a);
+    background: color-mix(in srgb, var(--app-text) 10%, transparent);
+  }
 }
 
 .app-bulk-action-panel-divider {
-    width: 1px;
-    height: 1.25rem;
-    background: var(--app-border-light, rgba(0, 0, 0, 0.12));
+  width: 1px;
+  height: 1.25rem;
+  background: var(--app-border-light, rgba(0, 0, 0, 0.12));
 }
 
 :host(.orient-vertical) .app-bulk-action-panel-divider {
-    width: 100%;
-    height: 1px;
+  width: 100%;
+  height: 1px;
 }
 
 .app-bulk-action-panel-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 :host(.orient-vertical) .app-bulk-action-panel-actions {
-    flex-direction: column;
-    align-items: stretch;
+  flex-direction: column;
+  align-items: stretch;
 }

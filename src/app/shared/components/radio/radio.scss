@@ -1,297 +1,298 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: inline-flex;
-    max-width: 100%;
-    vertical-align: middle;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
 }
 
 :host.app-radio-host-full {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 .app-radio {
-    --app-radio-size: 20px;
-    --app-radio-color: #{$primary};
-    --app-radio-dot: #ffffff;
+  --app-radio-size: 20px;
+  --app-radio-color: #{$primary};
+  --app-radio-dot: #ffffff;
 
-    position: relative;
-    display: inline-flex;
-    align-items: flex-start;
-    gap: 10px;
-    max-width: 100%;
-    margin: 0;
-    color: $text-primary;
-    font-family: $font-body;
-    line-height: 1.35;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 100%;
+  margin: 0;
+  color: $text-primary;
+  font-family: $font-body;
+  line-height: 1.35;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-radio-full {
-    width: 100%;
+  width: 100%;
 }
 
 .app-radio-native {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    border: 0;
-    white-space: nowrap;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
 }
 
 .app-radio-control {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 var(--app-radio-size);
-    width: var(--app-radio-size);
-    height: var(--app-radio-size);
-    box-sizing: border-box;
-    margin-top: 1px;
-    overflow: hidden;
-    border: 1.5px solid $border;
-    border-radius: 50%;
-    color: var(--app-radio-dot);
-    background: $paper;
-    box-shadow:
-        0 1px 0 rgba(94, 79, 57, 0.08),
-        inset 0 1px 1px rgba(17, 17, 17, 0.025);
-    transition:
-        background-color 150ms ease,
-        border-color 150ms ease,
-        box-shadow 150ms ease,
-        transform 150ms ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--app-radio-size);
+  width: var(--app-radio-size);
+  height: var(--app-radio-size);
+  box-sizing: border-box;
+  margin-top: 1px;
+  overflow: hidden;
+  border: 1.5px solid $border;
+  border-radius: 50%;
+  color: var(--app-radio-dot);
+  background: $paper;
+  box-shadow:
+    0 1px 0 rgba(94, 79, 57, 0.08),
+    inset 0 1px 1px rgba(17, 17, 17, 0.025);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 .app-radio-control::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.26), transparent 58%);
-    pointer-events: none;
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.26), transparent 58%);
+  pointer-events: none;
 }
 
 .app-radio:hover:not(.app-radio-disabled):not(.app-radio-readonly) .app-radio-control {
-    border-color: var(--app-radio-color);
-    box-shadow:
-        0 2px 0 rgba(94, 79, 57, 0.1),
-        0 4px 8px rgba(46, 38, 25, 0.08);
-    transform: translateY(-1px);
+  border-color: var(--app-radio-color);
+  box-shadow:
+    0 2px 0 rgba(94, 79, 57, 0.1),
+    0 4px 8px rgba(46, 38, 25, 0.08);
+  transform: translateY(-1px);
 }
 
-.app-radio-native:focus-visible+.app-radio-control {
-    outline: 3px solid rgba($accent, 0.28);
-    outline-offset: 3px;
+.app-radio-native:focus-visible + .app-radio-control {
+  outline: 3px solid rgba($accent, 0.28);
+  outline-offset: 3px;
 }
 
-.app-radio-native:checked+.app-radio-control {
-    border-color: var(--app-radio-color);
-    background-color: var(--app-radio-color);
-    box-shadow:
-        0 2px 0 rgba(17, 17, 17, 0.13),
-        0 4px 9px rgba(46, 38, 25, 0.1);
+.app-radio-native:checked + .app-radio-control {
+  border-color: var(--app-radio-color);
+  background-color: var(--app-radio-color);
+  box-shadow:
+    0 2px 0 rgba(17, 17, 17, 0.13),
+    0 4px 9px rgba(46, 38, 25, 0.1);
 }
 
 .app-radio-dot {
-    position: relative;
-    z-index: 1;
-    width: 42%;
-    height: 42%;
-    border-radius: 50%;
-    background: currentColor;
-    opacity: 0;
-    transform: scale(0.35);
-    transition: opacity 120ms ease, transform 150ms ease;
+  position: relative;
+  z-index: 1;
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0.35);
+  transition:
+    opacity 120ms ease,
+    transform 150ms ease;
 }
 
-.app-radio-native:checked+.app-radio-control .app-radio-dot {
-    opacity: 1;
-    transform: scale(1);
+.app-radio-native:checked + .app-radio-control .app-radio-dot {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .app-radio-content {
-    display: inline-flex;
-    align-items: flex-start;
-    flex-direction: column;
-    min-width: 0;
-    gap: 2px;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
 }
 
 .app-radio-label {
-    color: inherit;
-    font-weight: 700;
+  color: inherit;
+  font-weight: 700;
 }
 
 .app-radio-description {
-    color: $text-secondary;
-    font-size: 0.88em;
-    font-weight: 500;
-    line-height: 1.45;
+  color: $text-secondary;
+  font-size: 0.88em;
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 .app-radio-required {
-    margin-left: 3px;
-    color: $danger;
+  margin-left: 3px;
+  color: $danger;
 }
 
 .app-radio-label-left .app-radio-content {
-    order: 1;
-    align-items: flex-end;
-    text-align: right;
+  order: 1;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .app-radio-label-left .app-radio-control {
-    order: 2;
+  order: 2;
 }
 
 /* Sizes */
 
 .app-radio-xs {
-    --app-radio-size: 14px;
-    gap: 7px;
-    font-size: 11px;
+  --app-radio-size: 14px;
+  gap: 7px;
+  font-size: 11px;
 }
 
 .app-radio-sm {
-    --app-radio-size: 17px;
-    gap: 8px;
-    font-size: 13px;
+  --app-radio-size: 17px;
+  gap: 8px;
+  font-size: 13px;
 }
 
 .app-radio-md {
-    --app-radio-size: 20px;
-    font-size: 14px;
+  --app-radio-size: 20px;
+  font-size: 14px;
 }
 
 .app-radio-lg {
-    --app-radio-size: 24px;
-    gap: 12px;
-    font-size: 16px;
+  --app-radio-size: 24px;
+  gap: 12px;
+  font-size: 16px;
 }
 
 /* Semantic variants */
 
 .app-radio-primary {
-    --app-radio-color: #{$primary};
+  --app-radio-color: #{$primary};
 }
 
 .app-radio-secondary {
-    --app-radio-color: #{$secondary};
+  --app-radio-color: #{$secondary};
 }
 
 .app-radio-accent {
-    --app-radio-color: #{$accent};
+  --app-radio-color: #{$accent};
 }
 
 .app-radio-success {
-    --app-radio-color: #{$success};
+  --app-radio-color: #{$success};
 }
 
 .app-radio-warning {
-    --app-radio-color: #{$warning};
+  --app-radio-color: #{$warning};
 }
 
 .app-radio-danger {
-    --app-radio-color: #{$danger};
+  --app-radio-color: #{$danger};
 }
 
 .app-radio-info {
-    --app-radio-color: #{$info};
+  --app-radio-color: #{$info};
 }
 
 /* Sticky-note variants */
 
 .app-radio-noteYellow {
-    --app-radio-color: #{$note-button-yellow};
-    --app-radio-dot: #302b14;
+  --app-radio-color: #{$note-button-yellow};
+  --app-radio-dot: #302b14;
 }
 
 .app-radio-noteOrange {
-    --app-radio-color: #{$note-button-orange};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-orange};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-notePink {
-    --app-radio-color: #{$note-button-pink};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-pink};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-noteRed {
-    --app-radio-color: #{$note-button-red};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-red};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-noteGreen {
-    --app-radio-color: #{$note-button-green};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-green};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-noteBlue {
-    --app-radio-color: #{$note-button-blue};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-blue};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-notePurple {
-    --app-radio-color: #{$note-button-purple};
-    --app-radio-dot: #29251f;
+  --app-radio-color: #{$note-button-purple};
+  --app-radio-dot: #29251f;
 }
 
 .app-radio-noteBrown {
-    --app-radio-color: #{$note-button-brown};
+  --app-radio-color: #{$note-button-brown};
 }
 
 .app-radio-noteBlack {
-    --app-radio-color: #{$note-black};
+  --app-radio-color: #{$note-black};
 }
 
 /* States */
 
 .app-radio-invalid .app-radio-control {
-    border-color: $danger;
+  border-color: $danger;
 }
 
 .app-radio-invalid .app-radio-label {
-    color: $danger;
+  color: $danger;
 }
 
 .app-radio-readonly {
-    cursor: default;
+  cursor: default;
 }
 
 .app-radio-disabled {
-    opacity: 0.52;
-    cursor: not-allowed;
+  opacity: 0.52;
+  cursor: not-allowed;
 }
 
 .app-radio-disabled .app-radio-control {
-    box-shadow: none;
-    transform: none;
+  box-shadow: none;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .app-radio-control,
-    .app-radio-dot {
-        transition: none;
-    }
+  .app-radio-control,
+  .app-radio-dot {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
-    .app-radio-control {
-        border-color: ButtonText;
-    }
+  .app-radio-control {
+    border-color: ButtonText;
+  }
 
-    .app-radio-native:checked+.app-radio-control {
-        color: HighlightText;
-        background: Highlight;
-    }
+  .app-radio-native:checked + .app-radio-control {
+    color: HighlightText;
+    background: Highlight;
+  }
 }

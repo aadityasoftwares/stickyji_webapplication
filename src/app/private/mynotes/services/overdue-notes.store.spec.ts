@@ -7,26 +7,41 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { OverdueNotesStore } from './overdue-notes.store';
 
 const note = {
-  id: 'note-1', noteKey: 'ST-000001', title: 'Overdue task', content: '',
-  workspaceId: 'workspace', workspaceFolderId: 'folder', noteDate: '2026-10-04', daysOverdue: 1,
-  column: { id: 'todo', name: 'To Do', type: 'TODO' }
+  id: 'note-1',
+  noteKey: 'ST-000001',
+  title: 'Overdue task',
+  content: '',
+  workspaceId: 'workspace',
+  workspaceFolderId: 'folder',
+  noteDate: '2026-10-04',
+  daysOverdue: 1,
+  column: { id: 'todo', name: 'To Do', type: 'TODO' },
 };
 
 function response(notes: readonly any[] = [note], total = notes.length, page = 1) {
   return {
-    success: true, message: 'Loaded',
-    data: { today: '2026-10-05', total, notes, byColumn: [{ columnId: 'todo', name: 'To Do', type: 'TODO', count: total }] },
-    meta: { page, limit: 20, total, totalPages: Math.ceil(total / 20) }
+    success: true,
+    message: 'Loaded',
+    data: {
+      today: '2026-10-05',
+      total,
+      notes,
+      byColumn: [{ columnId: 'todo', name: 'To Do', type: 'TODO', count: total }],
+    },
+    meta: { page, limit: 20, total, totalPages: Math.ceil(total / 20) },
   };
 }
 
 describe('OverdueNotesStore', () => {
   let store: OverdueNotesStore;
   let http: HttpTestingController;
-  const getRequest = () => http.expectOne(request => request.url === API_ENDPOINTS.stickyNotes.overdue);
+  const getRequest = () =>
+    http.expectOne((request) => request.url === API_ENDPOINTS.stickyNotes.overdue);
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), OverdueNotesStore] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), OverdueNotesStore],
+    });
     store = TestBed.inject(OverdueNotesStore);
     http = TestBed.inject(HttpTestingController);
   });
@@ -43,7 +58,7 @@ describe('OverdueNotesStore', () => {
       workspaceFolderId: 'folder',
       page: 1,
       limit: 20,
-      sort: 'NEWEST_FIRST'
+      sort: 'NEWEST_FIRST',
     });
     request.flush(response([note], 7));
     expect(store.data()?.total).toBe(7);
@@ -91,7 +106,9 @@ describe('OverdueNotesStore', () => {
     expect(store.busy()).toBe(false);
     expect(refresh).not.toHaveBeenCalled();
     store.bringToToday([note.id], refresh);
-    http.expectOne(API_ENDPOINTS.stickyNotes.bringToday).flush({ success: false, message: 'Failed' });
+    http
+      .expectOne(API_ENDPOINTS.stickyNotes.bringToday)
+      .flush({ success: false, message: 'Failed' });
     expect(store.selectedIds().has(note.id)).toBe(true);
   });
 
@@ -105,13 +122,22 @@ describe('OverdueNotesStore', () => {
     store.bringToToday([note.id], refresh);
     http.expectOne(API_ENDPOINTS.stickyNotes.bringToday).flush({
       success: true,
-      data: { today: '2026-10-05', requested: 2, updated: 1, skipped: 1,
-        skippedNotes: [{ id: skipped.id, reason: 'NOT_OVERDUE_OR_UNAVAILABLE' }] }
+      data: {
+        today: '2026-10-05',
+        requested: 2,
+        updated: 1,
+        skipped: 1,
+        skippedNotes: [{ id: skipped.id, reason: 'NOT_OVERDUE_OR_UNAVAILABLE' }],
+      },
     });
     expect(refresh).toHaveBeenCalledTimes(1);
     getRequest().flush(response([skipped]));
     expect([...store.selectedIds()]).toEqual([skipped.id]);
-    expect(TestBed.inject(ToastService).toasts().some(toast => toast.variant === 'warning')).toBe(true);
+    expect(
+      TestBed.inject(ToastService)
+        .toasts()
+        .some((toast) => toast.variant === 'warning'),
+    ).toBe(true);
   });
 
   it('closes the panel and hides the banner after the final note is brought to today', () => {
@@ -121,7 +147,8 @@ describe('OverdueNotesStore', () => {
     store.selectedIds.set(new Set([note.id]));
     store.bringToToday([note.id], () => store.refresh());
     http.expectOne(API_ENDPOINTS.stickyNotes.bringToday).flush({
-      success: true, data: { today: '2026-10-05', requested: 1, updated: 1, skipped: 0, skippedNotes: [] }
+      success: true,
+      data: { today: '2026-10-05', requested: 1, updated: 1, skipped: 0, skippedNotes: [] },
     });
     getRequest().flush(response([]));
     expect(store.open()).toBe(false);
@@ -137,7 +164,10 @@ describe('OverdueNotesStore', () => {
     const update = http.expectOne(API_ENDPOINTS.stickyNotes.bringToday);
     store.refresh('workspace', 'other-folder');
     getRequest().flush(response());
-    update.flush({ success: true, data: { today: '2026-10-05', requested: 1, updated: 1, skipped: 0, skippedNotes: [] } });
+    update.flush({
+      success: true,
+      data: { today: '2026-10-05', requested: 1, updated: 1, skipped: 0, skippedNotes: [] },
+    });
     expect(refresh).not.toHaveBeenCalled();
     expect(store.bannerVisible()).toBe(true);
   });

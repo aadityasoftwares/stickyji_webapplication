@@ -1,22 +1,45 @@
 <section class="overdue-banner" aria-label="Overdue notes">
-    <span class="overdue-icon" aria-hidden="true"><app-icon [icon]="LucideCircleAlert" size="lg" /></span>
-    <div class="overdue-copy">
-        <strong aria-live="polite">{{ total }} overdue {{ total === 1 ? 'note' : 'notes' }}</strong>
-        <p>These notes were planned for earlier dates.</p>
-    </div>
-    <div class="overdue-summary" aria-label="Overdue notes by status">
-        @for (column of byColumn; track column.columnId) {
-        @if (column.type !== columnTypes.COMPLETED) {
-        <app-badge [label]="column.count + ' in ' + column.name" [dot]="true"
-            [variant]="column.type === columnTypes.TODO ? 'noteYellow' : column.type === columnTypes.IN_PROGRESS ? 'noteBlue' : 'noteOrange'"
-            size="xs" />
-        }
-        }
-    </div>
-    <div class="overdue-actions">
-        <app-button label="Review overdue" [iconRight]="LucideArrowRight" variant="noteYellow" size="sm"
-            (buttonClick)="review.emit()" />
-        <app-button [icon]="LucideX" [iconOnly]="true" variant="ghost" size="sm"
-            ariaLabel="Dismiss overdue banner" title="Dismiss banner" (buttonClick)="dismiss.emit()" />
-    </div>
+  <span class="overdue-icon" aria-hidden="true"
+    ><app-icon [icon]="LucideCircleAlert" size="lg"
+  /></span>
+  <div class="overdue-copy">
+    <strong aria-live="polite">{{ total }} overdue {{ total === 1 ? 'note' : 'notes' }}</strong>
+    <p>These notes were planned for earlier dates.</p>
+  </div>
+  <div class="overdue-summary" aria-label="Overdue notes by status">
+    @for (column of byColumn; track column.columnId) {
+      @if (column.type !== columnTypes.COMPLETED) {
+        <app-badge
+          [label]="column.count + ' in ' + column.name"
+          [dot]="true"
+          [variant]="
+            column.type === columnTypes.TODO
+              ? 'noteYellow'
+              : column.type === columnTypes.IN_PROGRESS
+                ? 'noteBlue'
+                : 'noteOrange'
+          "
+          size="xs"
+        />
+      }
+    }
+  </div>
+  <div class="overdue-actions">
+    <app-button
+      label="Review overdue"
+      [iconRight]="LucideArrowRight"
+      variant="noteYellow"
+      size="sm"
+      (buttonClick)="review.emit()"
+    />
+    <app-button
+      [icon]="LucideX"
+      [iconOnly]="true"
+      variant="ghost"
+      size="sm"
+      ariaLabel="Dismiss overdue banner"
+      title="Dismiss banner"
+      (buttonClick)="dismiss.emit()"
+    />
+  </div>
 </section>

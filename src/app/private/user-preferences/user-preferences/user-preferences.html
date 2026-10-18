@@ -1,271 +1,465 @@
 <main class="preferences-page" aria-labelledby="preferences-title">
-    <header class="page-header">
-        <div class="page-header__copy">
-            <app-badge label="Personal preferences" variant="noteYellow" size="sm" shape="pill"
-                [icon]="LucideSparkles" />
+  <header class="page-header">
+    <div class="page-header__copy">
+      <app-badge
+        label="Personal preferences"
+        variant="noteYellow"
+        size="sm"
+        shape="pill"
+        [icon]="LucideSparkles"
+      />
 
-            <h1 id="preferences-title">Preferences</h1>
+      <h1 id="preferences-title">Preferences</h1>
 
-            <p>
-                Choose how Sticky Ji looks, saves your work, sends updates,
-                and shares your activity.
-            </p>
-        </div>
+      <p>Choose how Sticky Ji looks, saves your work, sends updates, and shares your activity.</p>
+    </div>
 
-        <app-button label="Restore defaults" variant="secondary" size="md" [iconLeft]="LucideRefreshCcw"
-            [disabled]="loading() || saving()" (buttonClick)="restoreDefaults()" />
-    </header>
+    <app-button
+      label="Restore defaults"
+      variant="secondary"
+      size="md"
+      [iconLeft]="LucideRefreshCcw"
+      [disabled]="loading() || saving()"
+      (buttonClick)="restoreDefaults()"
+    />
+  </header>
 
-    @if (loading()) {
+  @if (loading()) {
     <section class="preferences-loading" aria-live="polite" aria-busy="true">
-        <div class="preferences-loading__notes" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
+      <div class="preferences-loading__notes" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
 
-        <div>
-            <strong>Loading your preferences</strong>
-            <p>Preparing your personal settings…</p>
-        </div>
+      <div>
+        <strong>Loading your preferences</strong>
+        <p>Preparing your personal settings…</p>
+      </div>
     </section>
-    } @else if (loadError()) {
-    <app-sticky-card variant="noteRed" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-        <div class="state-message" role="alert">
-            <div>
-                <h2>Preferences could not be loaded</h2>
-                <p>{{ loadError() }}</p>
-            </div>
-
-            <app-button label="Try again" variant="primary" size="md" (buttonClick)="reload()" />
+  } @else if (loadError()) {
+    <app-sticky-card
+      variant="noteRed"
+      appearance="outlined"
+      shape="rounded"
+      shadow="sm"
+      [fullWidth]="true"
+    >
+      <div class="state-message" role="alert">
+        <div>
+          <h2>Preferences could not be loaded</h2>
+          <p>{{ loadError() }}</p>
         </div>
+
+        <app-button label="Try again" variant="primary" size="md" (buttonClick)="reload()" />
+      </div>
     </app-sticky-card>
-    } @else {
+  } @else {
     @if (saved()) {
-    <div class="feedback-banner feedback-banner--success" role="status">
+      <div class="feedback-banner feedback-banner--success" role="status">
         <app-icon [icon]="LucideCheck" size="sm" tone="success" />
         <span>Your preferences have been saved.</span>
-    </div>
+      </div>
     }
 
     @if (saveError()) {
-    <div class="feedback-banner feedback-banner--error" role="alert">
+      <div class="feedback-banner feedback-banner--error" role="alert">
         <span>{{ saveError() }}</span>
-    </div>
+      </div>
     }
 
-    <form class="preferences-form" [formGroup]="preferenceForm" (ngSubmit)="savePreferences()" novalidate>
-        <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-            <section class="preferences-overview" aria-label="Preference summary">
-                <div class="overview-copy">
-                    <app-icon [icon]="LucideSparkles" size="md" tone="accent" surface="soft" shape="rounded" />
+    <form
+      class="preferences-form"
+      [formGroup]="preferenceForm"
+      (ngSubmit)="savePreferences()"
+      novalidate
+    >
+      <app-sticky-card
+        variant="paper"
+        appearance="outlined"
+        shape="rounded"
+        shadow="sm"
+        [fullWidth]="true"
+      >
+        <section class="preferences-overview" aria-label="Preference summary">
+          <div class="overview-copy">
+            <app-icon
+              [icon]="LucideSparkles"
+              size="md"
+              tone="accent"
+              surface="soft"
+              shape="rounded"
+            />
 
-                    <div>
-                        <span>Personal setup</span>
-                        <strong>Make the workspace feel like yours</strong>
-                    </div>
-                </div>
+            <div>
+              <span>Personal setup</span>
+              <strong>Make the workspace feel like yours</strong>
+            </div>
+          </div>
 
-                <div class="overview-status" [class.overview-status--changed]="changedCount() > 0">
-                    @if (changedCount() > 0) {
-                    <span class="status-dot"></span>
-                    <strong>{{ changedCount() }}</strong>
-                    <span>{{ changedCount() === 1 ? 'change' : 'changes' }} not saved</span>
-                    } @else {
-                    <app-icon [icon]="LucideCheck" size="sm" tone="success" />
-                    <span>Synced with your account</span>
-                    }
-                </div>
-            </section>
+          <div class="overview-status" [class.overview-status--changed]="changedCount() > 0">
+            @if (changedCount() > 0) {
+              <span class="status-dot"></span>
+              <strong>{{ changedCount() }}</strong>
+              <span>{{ changedCount() === 1 ? 'change' : 'changes' }} not saved</span>
+            } @else {
+              <app-icon [icon]="LucideCheck" size="sm" tone="success" />
+              <span>Synced with your account</span>
+            }
+          </div>
+        </section>
+      </app-sticky-card>
+
+      <div class="settings-grid">
+        <app-sticky-card
+          variant="paper"
+          appearance="outlined"
+          shape="rounded"
+          shadow="sm"
+          [fullWidth]="true"
+        >
+          <section class="settings-section" aria-labelledby="appearance-title">
+            <header class="section-heading">
+              <app-icon
+                [icon]="LucidePalette"
+                size="md"
+                tone="primary"
+                surface="soft"
+                shape="rounded"
+              />
+
+              <div>
+                <h2 id="appearance-title">Appearance</h2>
+                <p>Control your workspace and note presentation.</p>
+              </div>
+            </header>
+
+            <app-divider variant="neutral" spacing="md" />
+
+            <div class="select-grid">
+              <app-select
+                label="Theme"
+                placeholder="Choose theme"
+                formControlName="theme"
+                [options]="themeOptions"
+                [searchable]="false"
+                [clearable]="false"
+                [iconLeft]="LucidePalette"
+                variant="paper"
+                size="md"
+              />
+
+              <app-select
+                label="Default note color"
+                placeholder="Choose note color"
+                formControlName="defaultNoteColor"
+                [options]="noteColorOptions"
+                [searchable]="false"
+                [clearable]="false"
+                [iconLeft]="LucideStickyNote"
+                variant="paper"
+                size="md"
+              />
+
+              <app-select
+                class="select-grid__wide"
+                label="Default notes view"
+                placeholder="Choose view"
+                formControlName="noteView"
+                [options]="noteViewOptions"
+                [searchable]="false"
+                [clearable]="false"
+                [iconLeft]="LucideLayoutGrid"
+                variant="paper"
+                size="md"
+              />
+
+              <app-select
+                label="Today view"
+                placeholder="Choose Today view"
+                formControlName="todayView"
+                [options]="todayViewOptions"
+                [searchable]="false"
+                [clearable]="false"
+                [iconLeft]="LucideLayoutGrid"
+                variant="paper"
+                size="md"
+              />
+
+              <app-select
+                label="Overdue display"
+                placeholder="Choose overdue display"
+                formControlName="overdueView"
+                [options]="overdueViewOptions"
+                [searchable]="false"
+                [clearable]="false"
+                [iconLeft]="LucideLayoutGrid"
+                variant="paper"
+                size="md"
+              />
+            </div>
+          </section>
         </app-sticky-card>
 
-        <div class="settings-grid">
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="settings-section" aria-labelledby="appearance-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucidePalette" size="md" tone="primary" surface="soft" shape="rounded" />
+        <app-sticky-card
+          variant="paper"
+          appearance="outlined"
+          shape="rounded"
+          shadow="sm"
+          [fullWidth]="true"
+        >
+          <section class="settings-section" aria-labelledby="editor-title">
+            <header class="section-heading">
+              <app-icon
+                [icon]="LucideZap"
+                size="md"
+                tone="success"
+                surface="soft"
+                shape="rounded"
+              />
 
-                        <div>
-                            <h2 id="appearance-title">Appearance</h2>
-                            <p>Control your workspace and note presentation.</p>
-                        </div>
-                    </header>
+              <div>
+                <h2 id="editor-title">Editor and saving</h2>
+                <p>Decide how frequently your note changes are saved.</p>
+              </div>
+            </header>
 
-                    <app-divider variant="neutral" spacing="md" />
+            <app-divider variant="neutral" spacing="md" />
 
-                    <div class="select-grid">
-                        <app-select label="Theme" placeholder="Choose theme" formControlName="theme"
-                            [options]="themeOptions" [searchable]="false" [clearable]="false" [iconLeft]="LucidePalette"
-                            variant="paper" size="md" />
+            <div class="settings-list">
+              <app-switch
+                label="Auto-save notes"
+                description="Save edits automatically while you are writing."
+                labelPosition="left"
+                variant="success"
+                formControlName="autosaveEnabled"
+                [fullWidth]="true"
+                [onIcon]="LucideCheck"
+              />
 
-                        <app-select label="Default note color" placeholder="Choose note color"
-                            formControlName="defaultNoteColor" [options]="noteColorOptions" [searchable]="false"
-                            [clearable]="false" [iconLeft]="LucideStickyNote" variant="paper" size="md" />
+              <div
+                class="inline-setting"
+                [class.inline-setting--disabled]="!preferenceForm.controls.autosaveEnabled.value"
+              >
+                <div class="inline-setting__copy">
+                  <app-icon [icon]="LucideGauge" size="sm" tone="success" />
+                  <div>
+                    <strong>Auto-save interval</strong>
+                    <span>How often active note edits are stored.</span>
+                  </div>
+                </div>
 
-                        <app-select class="select-grid__wide" label="Default notes view" placeholder="Choose view"
-                            formControlName="noteView" [options]="noteViewOptions" [searchable]="false"
-                            [clearable]="false" [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
+                <app-select
+                  ariaLabel="Auto-save interval"
+                  formControlName="autosaveInterval"
+                  [options]="autosaveIntervalOptions"
+                  [searchable]="false"
+                  [clearable]="false"
+                  variant="paper"
+                  size="sm"
+                />
+              </div>
+            </div>
+          </section>
+        </app-sticky-card>
 
-                        <app-select label="Today view" placeholder="Choose Today view" formControlName="todayView"
-                            [options]="todayViewOptions" [searchable]="false" [clearable]="false"
-                            [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
+        <app-sticky-card
+          variant="paper"
+          appearance="outlined"
+          shape="rounded"
+          shadow="sm"
+          [fullWidth]="true"
+        >
+          <section class="settings-section" aria-labelledby="notifications-title">
+            <header class="section-heading">
+              <app-icon [icon]="LucideBell" size="md" tone="info" surface="soft" shape="rounded" />
 
-                        <app-select label="Overdue display" placeholder="Choose overdue display"
-                            formControlName="overdueView" [options]="overdueViewOptions" [searchable]="false"
-                            [clearable]="false" [iconLeft]="LucideLayoutGrid" variant="paper" size="md" />
-                    </div>
-                </section>
-            </app-sticky-card>
+              <div>
+                <h2 id="notifications-title">Notifications</h2>
+                <p>Choose which updates can reach you.</p>
+              </div>
+            </header>
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="settings-section" aria-labelledby="editor-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideZap" size="md" tone="success" surface="soft" shape="rounded" />
+            <app-divider variant="neutral" spacing="md" />
 
-                        <div>
-                            <h2 id="editor-title">Editor and saving</h2>
-                            <p>Decide how frequently your note changes are saved.</p>
-                        </div>
-                    </header>
+            <div class="settings-list">
+              <app-switch
+                label="Email notifications"
+                description="Receive account, reminder, and collaboration updates by email."
+                labelPosition="left"
+                variant="info"
+                formControlName="emailNotifications"
+                [fullWidth]="true"
+                [onIcon]="LucideMail"
+              />
 
-                    <app-divider variant="neutral" spacing="md" />
+              <app-switch
+                label="Push notifications"
+                description="Receive alerts on supported browsers and devices."
+                labelPosition="left"
+                variant="accent"
+                formControlName="pushNotifications"
+                [fullWidth]="true"
+                [onIcon]="LucideSmartphone"
+              />
 
-                    <div class="settings-list">
-                        <app-switch label="Auto-save notes"
-                            description="Save edits automatically while you are writing." labelPosition="left"
-                            variant="success" formControlName="autosaveEnabled" [fullWidth]="true"
-                            [onIcon]="LucideCheck" />
+              <app-switch
+                label="In-app notifications"
+                description="Show reminders and workspace activity inside Sticky Ji."
+                labelPosition="left"
+                variant="success"
+                formControlName="inAppNotifications"
+                [fullWidth]="true"
+                [onIcon]="LucideBell"
+              />
 
-                        <div class="inline-setting"
-                            [class.inline-setting--disabled]="!preferenceForm.controls.autosaveEnabled.value">
-                            <div class="inline-setting__copy">
-                                <app-icon [icon]="LucideGauge" size="sm" tone="success" />
-                                <div>
-                                    <strong>Auto-save interval</strong>
-                                    <span>How often active note edits are stored.</span>
-                                </div>
-                            </div>
+              <app-switch
+                label="Product and marketing emails"
+                description="Occasional product news, tips, and plan offers."
+                labelPosition="left"
+                variant="warning"
+                formControlName="marketingEmails"
+                [fullWidth]="true"
+                [onIcon]="LucideMail"
+              />
+            </div>
+          </section>
+        </app-sticky-card>
 
-                            <app-select ariaLabel="Auto-save interval" formControlName="autosaveInterval"
-                                [options]="autosaveIntervalOptions" [searchable]="false" [clearable]="false"
-                                variant="paper" size="sm" />
-                        </div>
-                    </div>
-                </section>
-            </app-sticky-card>
+        <app-sticky-card
+          variant="paper"
+          appearance="outlined"
+          shape="rounded"
+          shadow="sm"
+          [fullWidth]="true"
+        >
+          <section class="settings-section" aria-labelledby="privacy-title">
+            <header class="section-heading">
+              <app-icon
+                [icon]="LucideShieldCheck"
+                size="md"
+                tone="primary"
+                surface="soft"
+                shape="rounded"
+              />
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="settings-section" aria-labelledby="notifications-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideBell" size="md" tone="info" surface="soft" shape="rounded" />
+              <div>
+                <h2 id="privacy-title">Privacy</h2>
+                <p>Control what workspace collaborators can see.</p>
+              </div>
+            </header>
 
-                        <div>
-                            <h2 id="notifications-title">Notifications</h2>
-                            <p>Choose which updates can reach you.</p>
-                        </div>
-                    </header>
+            <app-divider variant="neutral" spacing="md" />
 
-                    <app-divider variant="neutral" spacing="md" />
+            <div class="settings-list">
+              <app-switch
+                label="Profile visible"
+                description="Let workspace members open your public profile details."
+                labelPosition="left"
+                variant="primary"
+                formControlName="profileVisible"
+                [fullWidth]="true"
+                [onIcon]="LucideEye"
+              />
 
-                    <div class="settings-list">
-                        <app-switch label="Email notifications"
-                            description="Receive account, reminder, and collaboration updates by email."
-                            labelPosition="left" variant="info" formControlName="emailNotifications" [fullWidth]="true"
-                            [onIcon]="LucideMail" />
+              <app-switch
+                label="Show online status"
+                description="Allow collaborators to see when you are currently active."
+                labelPosition="left"
+                variant="info"
+                formControlName="showOnlineStatus"
+                [fullWidth]="true"
+                [onIcon]="LucideEye"
+              />
+            </div>
+          </section>
+        </app-sticky-card>
 
-                        <app-switch label="Push notifications"
-                            description="Receive alerts on supported browsers and devices." labelPosition="left"
-                            variant="accent" formControlName="pushNotifications" [fullWidth]="true"
-                            [onIcon]="LucideSmartphone" />
+        <app-sticky-card
+          class="accessibility-card"
+          variant="paper"
+          appearance="outlined"
+          shape="rounded"
+          shadow="sm"
+          [fullWidth]="true"
+        >
+          <section class="settings-section" aria-labelledby="accessibility-title">
+            <header class="section-heading">
+              <app-icon
+                [icon]="LucideAccessibility"
+                size="md"
+                tone="warning"
+                surface="soft"
+                shape="rounded"
+              />
 
-                        <app-switch label="In-app notifications"
-                            description="Show reminders and workspace activity inside Sticky Ji."
-                            labelPosition="left" variant="success" formControlName="inAppNotifications"
-                            [fullWidth]="true" [onIcon]="LucideBell" />
+              <div>
+                <h2 id="accessibility-title">Accessibility</h2>
+                <p>Adjust motion and contrast for a more comfortable workspace.</p>
+              </div>
+            </header>
 
-                        <app-switch label="Product and marketing emails"
-                            description="Occasional product news, tips, and plan offers." labelPosition="left"
-                            variant="warning" formControlName="marketingEmails" [fullWidth]="true"
-                            [onIcon]="LucideMail" />
-                    </div>
-                </section>
-            </app-sticky-card>
+            <app-divider variant="neutral" spacing="md" />
 
-            <app-sticky-card variant="paper" appearance="outlined" shape="rounded" shadow="sm" [fullWidth]="true">
-                <section class="settings-section" aria-labelledby="privacy-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideShieldCheck" size="md" tone="primary" surface="soft" shape="rounded" />
+            <div class="settings-list settings-list--two-columns">
+              <app-switch
+                label="Reduce motion"
+                description="Minimize transitions and decorative movement."
+                labelPosition="left"
+                variant="warning"
+                formControlName="reduceMotion"
+                [fullWidth]="true"
+                [onIcon]="LucideAccessibility"
+              />
 
-                        <div>
-                            <h2 id="privacy-title">Privacy</h2>
-                            <p>Control what workspace collaborators can see.</p>
-                        </div>
-                    </header>
+              <app-switch
+                label="High contrast"
+                description="Increase separation between text, controls, and surfaces."
+                labelPosition="left"
+                variant="danger"
+                formControlName="highContrast"
+                [fullWidth]="true"
+                [onIcon]="LucideContrast"
+              />
+            </div>
+          </section>
+        </app-sticky-card>
+      </div>
 
-                    <app-divider variant="neutral" spacing="md" />
-
-                    <div class="settings-list">
-                        <app-switch label="Profile visible"
-                            description="Let workspace members open your public profile details." labelPosition="left"
-                            variant="primary" formControlName="profileVisible" [fullWidth]="true"
-                            [onIcon]="LucideEye" />
-
-                        <app-switch label="Show online status"
-                            description="Allow collaborators to see when you are currently active." labelPosition="left"
-                            variant="info" formControlName="showOnlineStatus" [fullWidth]="true" [onIcon]="LucideEye" />
-                    </div>
-                </section>
-            </app-sticky-card>
-
-            <app-sticky-card class="accessibility-card" variant="paper" appearance="outlined" shape="rounded"
-                shadow="sm" [fullWidth]="true">
-                <section class="settings-section" aria-labelledby="accessibility-title">
-                    <header class="section-heading">
-                        <app-icon [icon]="LucideAccessibility" size="md" tone="warning" surface="soft"
-                            shape="rounded" />
-
-                        <div>
-                            <h2 id="accessibility-title">Accessibility</h2>
-                            <p>Adjust motion and contrast for a more comfortable workspace.</p>
-                        </div>
-                    </header>
-
-                    <app-divider variant="neutral" spacing="md" />
-
-                    <div class="settings-list settings-list--two-columns">
-                        <app-switch label="Reduce motion" description="Minimize transitions and decorative movement."
-                            labelPosition="left" variant="warning" formControlName="reduceMotion" [fullWidth]="true"
-                            [onIcon]="LucideAccessibility" />
-
-                        <app-switch label="High contrast"
-                            description="Increase separation between text, controls, and surfaces." labelPosition="left"
-                            variant="danger" formControlName="highContrast" [fullWidth]="true"
-                            [onIcon]="LucideContrast" />
-                    </div>
-                </section>
-            </app-sticky-card>
+      <footer class="floating-save-bar" aria-label="Preference save actions">
+        <div class="floating-save-bar__status" aria-live="polite">
+          @if (changedCount() > 0) {
+            <span class="status-dot"></span>
+            <span
+              >{{ changedCount() }} {{ changedCount() === 1 ? 'change' : 'changes' }} waiting</span
+            >
+          } @else {
+            <app-icon [icon]="LucideCheck" size="xs" tone="success" />
+            <span>Everything is saved</span>
+          }
         </div>
 
-        <footer class="floating-save-bar" aria-label="Preference save actions">
-            <div class="floating-save-bar__status" aria-live="polite">
-                @if (changedCount() > 0) {
-                <span class="status-dot"></span>
-                <span>{{ changedCount() }} {{ changedCount() === 1 ? 'change' : 'changes' }} waiting</span>
-                } @else {
-                <app-icon [icon]="LucideCheck" size="xs" tone="success" />
-                <span>Everything is saved</span>
-                }
-            </div>
+        <div class="floating-save-bar__actions">
+          <app-button
+            label="Discard"
+            variant="secondary"
+            size="md"
+            [iconLeft]="LucideRotateCcw"
+            [disabled]="changedCount() === 0 || saving()"
+            (buttonClick)="discardChanges()"
+          />
 
-            <div class="floating-save-bar__actions">
-                <app-button label="Discard" variant="secondary" size="md" [iconLeft]="LucideRotateCcw"
-                    [disabled]="changedCount() === 0 || saving()" (buttonClick)="discardChanges()" />
-
-                <app-button label="Save preferences" variant="primary" size="md" [iconLeft]="LucideSave"
-                    [loading]="saving()" [disabled]="changedCount() === 0 || saving()"
-                    (buttonClick)="savePreferences()" />
-            </div>
-        </footer>
+          <app-button
+            label="Save preferences"
+            variant="primary"
+            size="md"
+            [iconLeft]="LucideSave"
+            [loading]="saving()"
+            [disabled]="changedCount() === 0 || saving()"
+            (buttonClick)="savePreferences()"
+          />
+        </div>
+      </footer>
     </form>
-    }
+  }
 </main>

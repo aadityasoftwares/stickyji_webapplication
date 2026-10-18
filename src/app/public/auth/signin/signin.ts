@@ -12,17 +12,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-} from '@angular/router';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -50,15 +41,10 @@ import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
-import {
-  LoginCredentials,
-  LoginResponse,
-} from '../models/auth.models';
+import { LoginCredentials, LoginResponse } from '../models/auth.models';
 import { AuthService } from '../services/auth-service';
 
-type LoginControl =
-  | 'email'
-  | 'password';
+type LoginControl = 'email' | 'password';
 
 @Component({
   selector: 'app-signin',
@@ -115,22 +101,8 @@ export class Signin implements OnInit {
   private routeRedirectUrl = '';
 
   readonly signInForm = this.formBuilder.nonNullable.group({
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(254),
-      ],
-    ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(200),
-      ],
-    ],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(200)]],
     rememberMe: [true],
   });
 
@@ -143,23 +115,13 @@ export class Signin implements OnInit {
   ngOnInit(): void {
     this.initSeo();
 
-    const inputEmail = this.initialEmail
-      .trim()
-      .toLowerCase();
+    const inputEmail = this.initialEmail.trim().toLowerCase();
 
-    const queryEmail = (
-      this.route.snapshot.queryParamMap.get('email') ?? ''
-    )
-      .trim()
-      .toLowerCase();
+    const queryEmail = (this.route.snapshot.queryParamMap.get('email') ?? '').trim().toLowerCase();
 
-    this.routeRedirectUrl = (
-      this.route.snapshot.queryParamMap.get('redirectUrl') ?? ''
-    ).trim();
+    this.routeRedirectUrl = (this.route.snapshot.queryParamMap.get('redirectUrl') ?? '').trim();
 
-    const email =
-      inputEmail ||
-      queryEmail;
+    const email = inputEmail || queryEmail;
 
     if (email) {
       this.emailControl.setValue(email);
@@ -224,17 +186,12 @@ export class Signin implements OnInit {
     if (this.signInForm.invalid) {
       this.signInForm.markAllAsTouched();
 
-      this.focusControl(
-        this.emailControl.invalid
-          ? 'email'
-          : 'password',
-      );
+      this.focusControl(this.emailControl.invalid ? 'email' : 'password');
 
       return;
     }
 
-    const credentials: LoginCredentials =
-      this.signInForm.getRawValue();
+    const credentials: LoginCredentials = this.signInForm.getRawValue();
 
     this.loading.set(true);
 
@@ -255,7 +212,7 @@ export class Signin implements OnInit {
         }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.handleLoginSuccess(response);
         },
         error: (error: HttpErrorResponse) => {
@@ -269,18 +226,11 @@ export class Signin implements OnInit {
       return;
     }
 
-    const email = this.emailControl.value
-      .trim()
-      .toLowerCase();
+    const email = this.emailControl.value.trim().toLowerCase();
 
-    void this.router.navigate(
-      ['/auth/signup'],
-      {
-        queryParams: email
-          ? { email }
-          : undefined,
-      },
-    );
+    void this.router.navigate(['/auth/signup'], {
+      queryParams: email ? { email } : undefined,
+    });
   }
 
   onForgotPassword(): void {
@@ -288,18 +238,11 @@ export class Signin implements OnInit {
       return;
     }
 
-    const email = this.emailControl.value
-      .trim()
-      .toLowerCase();
+    const email = this.emailControl.value.trim().toLowerCase();
 
-    void this.router.navigate(
-      ['/auth/forgot-password'],
-      {
-        queryParams: email
-          ? { email }
-          : undefined,
-      },
-    );
+    void this.router.navigate(['/auth/forgot-password'], {
+      queryParams: email ? { email } : undefined,
+    });
   }
 
   onGoogleSignIn(): void {
@@ -310,50 +253,28 @@ export class Signin implements OnInit {
     this.googleSignIn.emit();
   }
 
-  private handleLoginSuccess(
-    response: LoginResponse,
-  ): void {
+  private handleLoginSuccess(response: LoginResponse): void {
     if (!response?.success) {
-      this.toastService.error(
-        response?.message ||
-        AUTH_MESSAGES.ERROR.SIGN_IN_FAILED,
-        {
-          title: 'Sign-in failed',
-        },
-      );
+      this.toastService.error(response?.message || AUTH_MESSAGES.ERROR.SIGN_IN_FAILED, {
+        title: 'Sign-in failed',
+      });
 
       return;
     }
 
-    this.toastService.success(
-      response.message ||
-      AUTH_MESSAGES.SUCCESS.SIGNED_IN,
-      {
-        title: 'Welcome back!',
-      },
-    );
+    this.toastService.success(response.message || AUTH_MESSAGES.SUCCESS.SIGNED_IN, {
+      title: 'Welcome back!',
+    });
 
-    void this.router.navigateByUrl(
-      this.safeRedirectUrl(),
-    );
+    void this.router.navigateByUrl(this.safeRedirectUrl());
   }
 
-  private handleLoginFailure(
-    error: HttpErrorResponse,
-  ): void {
-    this.toastService.error(
-      this.resolveErrorMessage(error),
-      {
-        title:
-          this.resolveErrorTitle(error),
-        duration:
-          error.status === 423 ||
-            error.status === 429
-            ? 8_000
-            : 6_000,
-        dedupeKey: 'signin-error',
-      },
-    );
+  private handleLoginFailure(error: HttpErrorResponse): void {
+    this.toastService.error(this.resolveErrorMessage(error), {
+      title: this.resolveErrorTitle(error),
+      duration: error.status === 423 || error.status === 429 ? 8_000 : 6_000,
+      dedupeKey: 'signin-error',
+    });
 
     if (error.status === 401) {
       this.passwordControl.markAsTouched();
@@ -361,9 +282,7 @@ export class Signin implements OnInit {
     }
   }
 
-  private resolveErrorTitle(
-    error: HttpErrorResponse,
-  ): string {
+  private resolveErrorTitle(error: HttpErrorResponse): string {
     if (error.status === 0) {
       return 'Connection unavailable';
     }
@@ -387,75 +306,44 @@ export class Signin implements OnInit {
     return 'Sign-in failed';
   }
 
-  private resolveErrorMessage(
-    error: HttpErrorResponse,
-  ): string {
+  private resolveErrorMessage(error: HttpErrorResponse): string {
     const message = extractErrorMessage(error, '');
 
     if (error.status === 0) {
-      return (
-        'Unable to reach the server. ' +
-        'Check your connection and try again.'
-      );
+      return 'Unable to reach the server. ' + 'Check your connection and try again.';
     }
 
     if (error.status === 400) {
-      return (
-        message ||
-        'Please check your sign-in details.'
-      );
+      return message || 'Please check your sign-in details.';
     }
 
     if (error.status === 401) {
-      return (
-        message ||
-        'Email or password is incorrect.'
-      );
+      return message || 'Email or password is incorrect.';
     }
 
     if (error.status === 403) {
-      return (
-        message ||
-        'Your account does not currently have access.'
-      );
+      return message || 'Your account does not currently have access.';
     }
 
     if (error.status === 423) {
-      return (
-        message ||
-        'Your account is temporarily locked. Please try again later.'
-      );
+      return message || 'Your account is temporarily locked. Please try again later.';
     }
 
     if (error.status === 429) {
-      return (
-        message ||
-        'Too many sign-in attempts. Please wait and try again.'
-      );
+      return message || 'Too many sign-in attempts. Please wait and try again.';
     }
 
     if (error.status >= 500) {
-      return (
-        'The sign-in service is temporarily unavailable. ' +
-        'Please try again shortly.'
-      );
+      return 'The sign-in service is temporarily unavailable. ' + 'Please try again shortly.';
     }
 
-    return (
-      message ||
-      AUTH_MESSAGES.ERROR.SIGN_IN_FAILED
-    );
+    return message || AUTH_MESSAGES.ERROR.SIGN_IN_FAILED;
   }
 
   private safeRedirectUrl(): string {
-    const requestedUrl =
-      this.routeRedirectUrl ||
-      this.redirectUrl;
+    const requestedUrl = this.routeRedirectUrl || this.redirectUrl;
 
-    if (
-      !requestedUrl.startsWith('/') ||
-      requestedUrl.startsWith('//')
-    ) {
+    if (!requestedUrl.startsWith('/') || requestedUrl.startsWith('//')) {
       return '/app';
     }
 
@@ -471,13 +359,8 @@ export class Signin implements OnInit {
     return requestedUrl;
   }
 
-  private focusControl(
-    control: LoginControl,
-  ): void {
-    const id =
-      control === 'email'
-        ? 'sign-in-email'
-        : 'sign-in-password';
+  private focusControl(control: LoginControl): void {
+    const id = control === 'email' ? 'sign-in-email' : 'sign-in-password';
 
     const tryFocus = () => {
       const el = document.getElementById(id) as HTMLInputElement | null;
@@ -497,12 +380,8 @@ export class Signin implements OnInit {
     }
   }
 
-  private shouldShowError(
-    control: AbstractControl,
-  ): boolean {
-    return Boolean(
-      control.invalid && this.submitted(),
-    );
+  private shouldShowError(control: AbstractControl): boolean {
+    return Boolean(control.invalid && this.submitted());
   }
 
   private initSeo(): void {

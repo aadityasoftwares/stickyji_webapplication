@@ -1,87 +1,175 @@
 <ng-template #desktopPreview>
-    <aside class="workspace-folder-external-preview" [style.display]="loadingData() || loadFailed() ? 'none' : null"
-        aria-label="Live workspace folder preview" inert>
-        <app-badge label="Live preview" variant="neutral" size="sm" />
-        <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
-            [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
-            [roleLabel]="isDefaultFolder ? 'Default' : 'Folder'"
-            [status]="previewSource()?.status || 'ACTIVE'" [interactive]="false"
-            [countLabel]="previewNotesCountLabel"
-            [countTooltip]="previewNotesTooltip"
-            [countIconOverride]="LucideFileText" />
-    </aside>
+  <aside
+    class="workspace-folder-external-preview"
+    [style.display]="loadingData() || loadFailed() ? 'none' : null"
+    aria-label="Live workspace folder preview"
+    inert
+  >
+    <app-badge label="Live preview" variant="neutral" size="sm" />
+    <app-workspace-folder-wrapper
+      [name]="name()"
+      [description]="folderDescription()"
+      [personal]="isDefaultFolder"
+      [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+      [roleLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+      [status]="previewSource()?.status || 'ACTIVE'"
+      [interactive]="false"
+      [countLabel]="previewNotesCountLabel"
+      [countTooltip]="previewNotesTooltip"
+      [countIconOverride]="LucideFileText"
+    />
+  </aside>
 </ng-template>
 
-<app-side-panel [open]="open" [title]="panelTitle" [eyebrow]="eyebrow" [description]="description"
-    [headerNote]="statusText" [icon]="headerIcon" tone="yellow" [width]="580" [busy]="isBusy"
-    ariaLabel="Workspace folder editor" (closed)="close()">
-    <form panel-body class="workspace-folder-editor" (ngSubmit)="$event.preventDefault()" novalidate>
-        @if (loadingData()) {
-        <app-loader mode="section" size="md" tone="colorful" label="Loading folder..."
-            description="Getting the workspace folder ready." [minHeight]="280" />
-        } @else {
-        <section class="workspace-folder-fields" aria-label="Folder details">
-            <div class="workspace-folder-field workspace-folder-name-field">
-                <app-label forId="workspace-folder-name" text="Name" [required]="true" />
-                <div class="workspace-folder-field-control">
-                    <app-input #folderNameInput inputId="workspace-folder-name" label="Folder name" labelMode="hidden"
-                        placeholder="Give your folder a name" variant="paper" appearance="simple" shape="rounded" size="md"
-                        [required]="true" [maxLength]="nameMaxLength" [value]="name()"
-                        [disabled]="isBusy || loadFailed()" [fullWidth]="true" [clearable]="false" autocomplete="off"
-                        appTooltip="Enter a clear name for this folder" tooltipTone="noteYellow"
-                        tooltipPosition="top" tooltipSize="sm"
-                        (valueChange)="updateName($event)" (enterKey)="submit()" />
-                    <span class="workspace-folder-field-counter">{{ name().length }}/{{ nameMaxLength }}</span>
-                </div>
-            </div>
+<app-side-panel
+  [open]="open"
+  [title]="panelTitle"
+  [eyebrow]="eyebrow"
+  [description]="description"
+  [headerNote]="statusText"
+  [icon]="headerIcon"
+  tone="yellow"
+  [width]="580"
+  [busy]="isBusy"
+  ariaLabel="Workspace folder editor"
+  (closed)="close()"
+>
+  <form panel-body class="workspace-folder-editor" (ngSubmit)="$event.preventDefault()" novalidate>
+    @if (loadingData()) {
+      <app-loader
+        mode="section"
+        size="md"
+        tone="colorful"
+        label="Loading folder..."
+        description="Getting the workspace folder ready."
+        [minHeight]="280"
+      />
+    } @else {
+      <section class="workspace-folder-fields" aria-label="Folder details">
+        <div class="workspace-folder-field workspace-folder-name-field">
+          <app-label forId="workspace-folder-name" text="Name" [required]="true" />
+          <div class="workspace-folder-field-control">
+            <app-input
+              #folderNameInput
+              inputId="workspace-folder-name"
+              label="Folder name"
+              labelMode="hidden"
+              placeholder="Give your folder a name"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="md"
+              [required]="true"
+              [maxLength]="nameMaxLength"
+              [value]="name()"
+              [disabled]="isBusy || loadFailed()"
+              [fullWidth]="true"
+              [clearable]="false"
+              autocomplete="off"
+              appTooltip="Enter a clear name for this folder"
+              tooltipTone="noteYellow"
+              tooltipPosition="top"
+              tooltipSize="sm"
+              (valueChange)="updateName($event)"
+              (enterKey)="submit()"
+            />
+            <span class="workspace-folder-field-counter"
+              >{{ name().length }}/{{ nameMaxLength }}</span
+            >
+          </div>
+        </div>
 
-            <div class="workspace-folder-field workspace-folder-details-field">
-                <app-label forId="workspace-folder-description" text="Details" />
-                <div class="workspace-folder-field-control">
-                    <app-input inputId="workspace-folder-description" label="Description" labelMode="hidden"
-                        placeholder="What kind of notes belong here?" variant="paper" appearance="simple" shape="rounded" size="md"
-                        [multiline]="true" [rows]="4" resize="vertical" [clearable]="false"
-                        [maxLength]="descriptionMaxLength" [value]="folderDescription()"
-                        [disabled]="isBusy || loadFailed()" [fullWidth]="true"
-                        appTooltip="Add an optional description for this folder" tooltipTone="paper"
-                        tooltipPosition="top" tooltipSize="sm"
-                        (valueChange)="updateDescription($event)" />
-                    <span class="workspace-folder-field-hint">Optional</span>
-                </div>
-            </div>
+        <div class="workspace-folder-field workspace-folder-details-field">
+          <app-label forId="workspace-folder-description" text="Details" />
+          <div class="workspace-folder-field-control">
+            <app-input
+              inputId="workspace-folder-description"
+              label="Description"
+              labelMode="hidden"
+              placeholder="What kind of notes belong here?"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="md"
+              [multiline]="true"
+              [rows]="4"
+              resize="vertical"
+              [clearable]="false"
+              [maxLength]="descriptionMaxLength"
+              [value]="folderDescription()"
+              [disabled]="isBusy || loadFailed()"
+              [fullWidth]="true"
+              appTooltip="Add an optional description for this folder"
+              tooltipTone="paper"
+              tooltipPosition="top"
+              tooltipSize="sm"
+              (valueChange)="updateDescription($event)"
+            />
+            <span class="workspace-folder-field-hint">Optional</span>
+          </div>
+        </div>
+      </section>
+
+      @if (!loadFailed()) {
+        <section
+          class="workspace-folder-mobile-preview"
+          aria-label="Live workspace folder preview"
+          inert
+        >
+          <app-badge label="Live preview" variant="neutral" size="sm" />
+          <app-workspace-folder-wrapper
+            [name]="name()"
+            [description]="folderDescription()"
+            [personal]="isDefaultFolder"
+            [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+            [roleLabel]="isDefaultFolder ? 'Default' : 'Folder'"
+            [status]="previewSource()?.status || 'ACTIVE'"
+            [interactive]="false"
+            [countLabel]="previewNotesCountLabel"
+            [countTooltip]="previewNotesTooltip"
+            [countIconOverride]="LucideFileText"
+          />
         </section>
+      }
 
-        @if (!loadFailed()) {
-        <section class="workspace-folder-mobile-preview" aria-label="Live workspace folder preview" inert>
-            <app-badge label="Live preview" variant="neutral" size="sm" />
-            <app-workspace-folder-wrapper [name]="name()" [description]="folderDescription()"
-                [personal]="isDefaultFolder" [typeLabel]="isDefaultFolder ? 'Default' : 'Folder'"
-                [roleLabel]="isDefaultFolder ? 'Default' : 'Folder'"
-                [status]="previewSource()?.status || 'ACTIVE'" [interactive]="false"
-                [countLabel]="previewNotesCountLabel"
-                [countTooltip]="previewNotesTooltip"
-                [countIconOverride]="LucideFileText" />
-        </section>
-        }
-
-        @if (error()) {
+      @if (error()) {
         <div class="workspace-folder-editor-error" role="alert">
-            {{ error() }}
+          {{ error() }}
         </div>
-        }
-        }
-    </form>
+      }
+    }
+  </form>
 
-    <div panel-footer class="workspace-folder-editor-footer">
-        <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
-        <div class="workspace-folder-editor-footer-actions">
-            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="isBusy"
-                appTooltip="Close without saving" tooltipTone="paper" tooltipPosition="top" tooltipSize="sm"
-                (buttonClick)="close()" />
-            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                size="sm" [loading]="loading()" [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
-                [appTooltip]="submitTooltip" tooltipTone="noteYellow" tooltipPosition="top" tooltipSize="sm"
-                [disabled]="!canSubmit" (buttonClick)="submit()" />
-        </div>
+  <div panel-footer class="workspace-folder-editor-footer">
+    <app-badge [label]="statusText" variant="neutral" size="sm" role="status" />
+    <div class="workspace-folder-editor-footer-actions">
+      <app-button
+        label="Cancel"
+        variant="secondary"
+        appearance="standard"
+        size="sm"
+        [disabled]="isBusy"
+        appTooltip="Close without saving"
+        tooltipTone="paper"
+        tooltipPosition="top"
+        tooltipSize="sm"
+        (buttonClick)="close()"
+      />
+      <app-button
+        [label]="submitLabel"
+        [iconLeft]="submitIcon"
+        variant="noteYellow"
+        appearance="standard"
+        size="sm"
+        [loading]="loading()"
+        [loadingText]="isEdit ? 'Saving...' : 'Creating...'"
+        [appTooltip]="submitTooltip"
+        tooltipTone="noteYellow"
+        tooltipPosition="top"
+        tooltipSize="sm"
+        [disabled]="!canSubmit"
+        (buttonClick)="submit()"
+      />
     </div>
+  </div>
 </app-side-panel>

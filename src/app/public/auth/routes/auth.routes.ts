@@ -38,8 +38,7 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'forgot-password',
-    loadComponent: () =>
-      import('../forgot-password/forgot-password').then((m) => m.ForgotPassword),
+    loadComponent: () => import('../forgot-password/forgot-password').then((m) => m.ForgotPassword),
     title: 'Reset Your Password | Sticky Ji Workspace',
     data: {
       description:
@@ -50,8 +49,7 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'reset-password',
-    loadComponent: () =>
-      import('../reset-password/reset-password').then((m) => m.ResetPassword),
+    loadComponent: () => import('../reset-password/reset-password').then((m) => m.ResetPassword),
     title: 'Choose New Password | Sticky Ji Workspace',
     data: {
       description:

@@ -41,7 +41,9 @@ describe('AddEditWorkspaceRoleSidePanel', () => {
     component.updateDisplayName('Content editor');
     component.selectedPermissionIds.set(new Set(['existing']));
     component.permissionGroups = [{ module: 'NOTES', permissions: [] }];
-    component.ngOnChanges({ permissionGroups: new SimpleChange([], component.permissionGroups, false) });
+    component.ngOnChanges({
+      permissionGroups: new SimpleChange([], component.permissionGroups, false),
+    });
     expect(component.displayName()).toBe('Content editor');
     expect(component.selectedPermissionIds().has('existing')).toBe(true);
     expect(component.totalPermissionCount()).toBe(0);
@@ -49,15 +51,22 @@ describe('AddEditWorkspaceRoleSidePanel', () => {
 
   it('preserves the create payload and shows backend validation errors', () => {
     const api = TestBed.inject(WorkspaceRoleApiService);
-    const create = vi.spyOn(api, 'create').mockReturnValue(throwError(() => ({ error: { message: 'Code already exists' } })));
+    const create = vi
+      .spyOn(api, 'create')
+      .mockReturnValue(throwError(() => ({ error: { message: 'Code already exists' } })));
     component.workspaceId = '0123456789abcdef01234567';
     component.updateDisplayName('Content editor');
     component.selectedPermissionIds.set(new Set(['permission-id']));
     component.submit();
     expect(create).toHaveBeenCalledWith({
-      name: 'content-editor', displayName: 'Content editor', code: 'CONTENT_EDITOR',
-      description: '', scope: 'WORKSPACE', workspaceId: component.workspaceId,
-      permissions: ['permission-id'], isActive: true
+      name: 'content-editor',
+      displayName: 'Content editor',
+      code: 'CONTENT_EDITOR',
+      description: '',
+      scope: 'WORKSPACE',
+      workspaceId: component.workspaceId,
+      permissions: ['permission-id'],
+      isActive: true,
     });
     expect(component.error()).toBe('Code already exists');
     expect(component.saving()).toBe(false);
@@ -79,20 +88,34 @@ describe('AddEditWorkspaceRoleSidePanel', () => {
 
   it('updates a custom role with its assigned permissions and emits the saved role', () => {
     const existing: WorkspaceRole = {
-      id: 'abcdef0123456789abcdef01', name: 'editor', displayName: 'Editor', code: 'EDITOR',
-      type: 'CUSTOM', scope: 'WORKSPACE', permissions: ['retained'], isSystem: false,
-      isDefault: false, priority: 0, isActive: true
+      id: 'abcdef0123456789abcdef01',
+      name: 'editor',
+      displayName: 'Editor',
+      code: 'EDITOR',
+      type: 'CUSTOM',
+      scope: 'WORKSPACE',
+      permissions: ['retained'],
+      isSystem: false,
+      isDefault: false,
+      priority: 0,
+      isActive: true,
     };
     component.role = existing;
     component.open = true;
     component.workspaceId = '0123456789abcdef01234567';
     component.ngOnChanges({ role: new SimpleChange(null, existing, false) });
-    const update = vi.spyOn(TestBed.inject(WorkspaceRoleApiService), 'update').mockReturnValue(of({ data: existing }));
+    const update = vi
+      .spyOn(TestBed.inject(WorkspaceRoleApiService), 'update')
+      .mockReturnValue(of({ data: existing }));
     const saved = vi.spyOn(component.saved, 'emit');
     component.submit();
     expect(update).toHaveBeenCalledWith(existing.id, {
-      name: 'editor', displayName: 'Editor', code: 'EDITOR', description: '',
-      permissions: ['retained'], isActive: true
+      name: 'editor',
+      displayName: 'Editor',
+      code: 'EDITOR',
+      description: '',
+      permissions: ['retained'],
+      isActive: true,
     });
     expect(saved).toHaveBeenCalledWith(existing);
     expect(component.saving()).toBe(false);
@@ -105,9 +128,17 @@ describe('AddEditWorkspaceRoleSidePanel', () => {
 
   it('keeps default role values and permission checkboxes read-only', () => {
     component.role = {
-      id: 'abcdef0123456789abcdef01', name: 'member', displayName: 'Member', code: 'MEMBER',
-      type: 'SYSTEM', scope: 'WORKSPACE', permissions: [], isSystem: true,
-      isDefault: true, priority: 10, isActive: true
+      id: 'abcdef0123456789abcdef01',
+      name: 'member',
+      displayName: 'Member',
+      code: 'MEMBER',
+      type: 'SYSTEM',
+      scope: 'WORKSPACE',
+      permissions: [],
+      isSystem: true,
+      isDefault: true,
+      priority: 10,
+      isActive: true,
     };
 
     expect(component.mode).toBe('view');

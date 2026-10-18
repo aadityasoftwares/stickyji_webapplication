@@ -8,7 +8,7 @@ import { extractErrorMessage, extractList, idOf } from '../../../shared/function
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StickyNotesFavouriteService {
   private readonly http = inject(HttpClient);
@@ -87,14 +87,14 @@ export class StickyNotesFavouriteService {
     }
     this.loading.set(true);
     return this.getAll({ status: 'ACTIVE', limit: 500 }).pipe(
-      tap(res => {
+      tap((res) => {
         const list = extractList(res);
         this.populateFavorites(list);
         this.loaded = true;
       }),
       map(() => this.favoriteMap()),
       catchError(() => of(this.favoriteMap())),
-      finalize(() => this.loading.set(false))
+      finalize(() => this.loading.set(false)),
     );
   }
 
@@ -104,7 +104,7 @@ export class StickyNotesFavouriteService {
   toggleFavorite(
     noteId: string,
     currentFavoriteId?: string,
-    noteTitle?: string
+    noteTitle?: string,
   ): Observable<{ isFavorite: boolean; favoriteId?: string }> {
     const targetNoteId = idOf(noteId);
     if (!targetNoteId) {
@@ -124,39 +124,37 @@ export class StickyNotesFavouriteService {
           this.setFavoriteLocal(targetNoteId, false);
           this.toastService.success(
             noteTitle ? `Removed "${noteTitle}" from favourites` : 'Removed from favourites',
-            { dedupeKey: `fav-rem-${targetNoteId}` }
+            { dedupeKey: `fav-rem-${targetNoteId}` },
           );
         }),
         map(() => ({ isFavorite: false, favoriteId: undefined })),
-        catchError(error => {
-          this.toastService.error(
-            extractErrorMessage(error, 'Could not remove from favourites.'),
-            { dedupeKey: `fav-err-${targetNoteId}` }
-          );
+        catchError((error) => {
+          this.toastService.error(extractErrorMessage(error, 'Could not remove from favourites.'), {
+            dedupeKey: `fav-err-${targetNoteId}`,
+          });
           return throwError(() => error);
         }),
-        finalize(() => this.setBusy(targetNoteId, false))
+        finalize(() => this.setBusy(targetNoteId, false)),
       );
     } else {
       // Add to favorites
       return this.addFavorite(targetNoteId).pipe(
-        map(res => {
+        map((res) => {
           const newFavId = idOf(res?.data) || idOf(res);
           this.setFavoriteLocal(targetNoteId, true, newFavId);
           this.toastService.success(
             noteTitle ? `Added "${noteTitle}" to favourites` : 'Added to favourites',
-            { dedupeKey: `fav-add-${targetNoteId}` }
+            { dedupeKey: `fav-add-${targetNoteId}` },
           );
           return { isFavorite: true, favoriteId: newFavId };
         }),
-        catchError(error => {
-          this.toastService.error(
-            extractErrorMessage(error, 'Could not add to favourites.'),
-            { dedupeKey: `fav-err-${targetNoteId}` }
-          );
+        catchError((error) => {
+          this.toastService.error(extractErrorMessage(error, 'Could not add to favourites.'), {
+            dedupeKey: `fav-err-${targetNoteId}`,
+          });
           return throwError(() => error);
         }),
-        finalize(() => this.setBusy(targetNoteId, false))
+        finalize(() => this.setBusy(targetNoteId, false)),
       );
     }
   }
@@ -176,13 +174,10 @@ export class StickyNotesFavouriteService {
    * Query params: stickyNoteId, status, page, limit, sortBy, sortOrder
    */
   getAll(payload: any = {}): Observable<any> {
-    return this.http.get<any>(
-      `${this.favoriteBaseUrl}/getall`,
-      {
-        params: buildHttpParams(payload),
-        withCredentials: true
-      }
-    );
+    return this.http.get<any>(`${this.favoriteBaseUrl}/getall`, {
+      params: buildHttpParams(payload),
+      withCredentials: true,
+    });
   }
 
   /**
@@ -190,10 +185,9 @@ export class StickyNotesFavouriteService {
    */
   getById(id: string): Observable<any> {
     const targetId = idOf(id);
-    return this.http.get<any>(
-      `${this.favoriteBaseUrl}/get/${encodeURIComponent(targetId)}`,
-      { withCredentials: true }
-    );
+    return this.http.get<any>(`${this.favoriteBaseUrl}/get/${encodeURIComponent(targetId)}`, {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -204,13 +198,13 @@ export class StickyNotesFavouriteService {
     const stickyNoteId = idOf(
       typeof payload === 'string'
         ? payload
-        : payload?.stickyNoteId ?? payload?.id ?? payload?._id
+        : (payload?.stickyNoteId ?? payload?.id ?? payload?._id),
     );
 
     return this.http.post<any>(
       `${this.favoriteBaseUrl}/create`,
       { stickyNoteId },
-      { withCredentials: true }
+      { withCredentials: true },
     );
   }
 
@@ -229,7 +223,7 @@ export class StickyNotesFavouriteService {
     return this.http.put<any>(
       `${this.favoriteBaseUrl}/status/${encodeURIComponent(targetId)}`,
       { status },
-      { withCredentials: true }
+      { withCredentials: true },
     );
   }
 
@@ -238,10 +232,9 @@ export class StickyNotesFavouriteService {
    */
   delete(id: string): Observable<any> {
     const targetId = idOf(id);
-    return this.http.delete<any>(
-      `${this.favoriteBaseUrl}/delete/${encodeURIComponent(targetId)}`,
-      { withCredentials: true }
-    );
+    return this.http.delete<any>(`${this.favoriteBaseUrl}/delete/${encodeURIComponent(targetId)}`, {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -259,7 +252,7 @@ export class StickyNotesFavouriteService {
     return this.http.put<any>(
       `${this.favoriteBaseUrl}/restore/${encodeURIComponent(targetId)}`,
       {},
-      { withCredentials: true }
+      { withCredentials: true },
     );
   }
 
@@ -274,7 +267,6 @@ export class StickyNotesFavouriteService {
     }
     return this.addFavorite(stickyNoteId);
   }
-
 }
 
 /** Export alias for consistency across components */

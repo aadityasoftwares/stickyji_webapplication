@@ -13,33 +13,24 @@ import {
   PLATFORM_ID,
   SimpleChanges,
   ViewChild,
-  signal
+  signal,
 } from '@angular/core';
 import { LucideX } from '@lucide/angular';
 
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
 
-export type SidePanelTone =
-  | 'paper'
-  | 'yellow'
-  | 'blue'
-  | 'pink'
-  | 'green'
-  | 'purple';
+export type SidePanelTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
 
 let sidePanelInstance = 0;
 
 @Component({
   selector: 'app-side-panel',
   standalone: true,
-  imports: [
-    AppIcon,
-    Button
-  ],
+  imports: [AppIcon, Button],
   templateUrl: './side-panel.html',
   styleUrl: './side-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidePanel implements OnChanges, OnDestroy {
   @ViewChild('panel')
@@ -79,8 +70,8 @@ export class SidePanel implements OnChanges, OnDestroy {
     @Inject(DOCUMENT)
     private readonly document: Document,
     @Inject(PLATFORM_ID)
-    private readonly platformId: object
-  ) { }
+    private readonly platformId: object,
+  ) {}
 
   get resolvedWidth(): number {
     const width = Number.isFinite(this.width) ? this.width : 520;
@@ -163,7 +154,7 @@ export class SidePanel implements OnChanges, OnDestroy {
       const firstFocusable = this.focusableElements()[0];
 
       (firstFocusable ?? this.panel?.nativeElement)?.focus({
-        preventScroll: true
+        preventScroll: true,
       });
     });
   }
@@ -193,7 +184,7 @@ export class SidePanel implements OnChanges, OnDestroy {
       event.preventDefault();
 
       this.panel?.nativeElement.focus({
-        preventScroll: true
+        preventScroll: true,
       });
 
       return;
@@ -202,13 +193,9 @@ export class SidePanel implements OnChanges, OnDestroy {
     const first = elements[0];
     const last = elements[elements.length - 1];
     const active = this.document.activeElement;
-    const focusIsOutsidePanel =
-      !this.panel?.nativeElement.contains(active);
+    const focusIsOutsidePanel = !this.panel?.nativeElement.contains(active);
 
-    if (
-      event.shiftKey &&
-      (active === first || focusIsOutsidePanel)
-    ) {
+    if (event.shiftKey && (active === first || focusIsOutsidePanel)) {
       event.preventDefault();
       last.focus();
       return;
@@ -233,15 +220,11 @@ export class SidePanel implements OnChanges, OnDestroy {
       'input:not([disabled])',
       'select:not([disabled])',
       'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
+      '[tabindex]:not([tabindex="-1"])',
     ].join(',');
 
-    return Array.from(
-      root.querySelectorAll<HTMLElement>(selector)
-    ).filter(
-      element =>
-        !element.hasAttribute('hidden') &&
-        element.getClientRects().length > 0
+    return Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(
+      (element) => !element.hasAttribute('hidden') && element.getClientRects().length > 0,
     );
   }
 
@@ -252,8 +235,7 @@ export class SidePanel implements OnChanges, OnDestroy {
 
     const active = this.document.activeElement;
 
-    this.previouslyFocusedElement =
-      active instanceof HTMLElement ? active : null;
+    this.previouslyFocusedElement = active instanceof HTMLElement ? active : null;
   }
 
   private restoreFocus(): void {
@@ -267,36 +249,28 @@ export class SidePanel implements OnChanges, OnDestroy {
 
     if (target?.isConnected) {
       target.focus({
-        preventScroll: true
+        preventScroll: true,
       });
     }
   }
 
   private lockBodyScroll(): void {
-    if (
-      !isPlatformBrowser(this.platformId) ||
-      this.bodyLocked
-    ) {
+    if (!isPlatformBrowser(this.platformId) || this.bodyLocked) {
       return;
     }
 
-    this.previousBodyOverflow =
-      this.document.body.style.overflow;
+    this.previousBodyOverflow = this.document.body.style.overflow;
 
     this.document.body.style.overflow = 'hidden';
     this.bodyLocked = true;
   }
 
   private unlockBodyScroll(): void {
-    if (
-      !isPlatformBrowser(this.platformId) ||
-      !this.bodyLocked
-    ) {
+    if (!isPlatformBrowser(this.platformId) || !this.bodyLocked) {
       return;
     }
 
-    this.document.body.style.overflow =
-      this.previousBodyOverflow;
+    this.document.body.style.overflow = this.previousBodyOverflow;
 
     this.bodyLocked = false;
   }

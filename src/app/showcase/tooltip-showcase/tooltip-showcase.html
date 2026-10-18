@@ -1,261 +1,404 @@
 <main class="tooltip-showcase">
-    <header class="showcase-hero">
+  <header class="showcase-hero">
+    <div>
+      <span class="showcase-eyebrow">Sticky Ji design system</span>
+      <h1>Tooltip component</h1>
+      <p>
+        Lightweight contextual guidance for buttons, icons, notes, settings, and compact
+        actions—with no additional dependency.
+      </p>
+    </div>
+
+    <div class="hero-note">
+      <app-button
+        label="Hover for a tip"
+        variant="noteYellow"
+        size="lg"
+        [hasIcon]="true"
+        appTooltip="Pin important notes so they always stay at the top of your workspace."
+        tooltipTone="noteYellow"
+        tooltipPosition="bottom"
+        [tooltipMaxWidth]="260"
+      >
+        <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
+      </app-button>
+    </div>
+  </header>
+
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">01</span>
+      <div>
+        <h2>Placements</h2>
+        <p>Preferred positions automatically flip and clamp inside the viewport.</p>
+      </div>
+    </div>
+
+    <div class="placement-grid">
+      @for (item of positions; track item.value) {
+        <button
+          type="button"
+          class="demo-trigger"
+          [appTooltip]="item.label + ' tooltip'"
+          [tooltipPosition]="item.value"
+          tooltipTone="paper"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="showcase-section note-section">
+    <div class="section-heading">
+      <span class="section-number">02</span>
+      <div>
+        <h2>Theme tones</h2>
+        <p>Semantic colors and the complete Sticky Notes palette.</p>
+      </div>
+    </div>
+
+    <div class="tone-grid">
+      @for (item of tones; track item.value) {
+        <button
+          type="button"
+          class="tone-trigger"
+          [appTooltip]="item.label + ' tooltip'"
+          [tooltipTone]="item.value"
+          tooltipPosition="top"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="showcase-section split-section">
+    <div>
+      <div class="section-heading">
+        <span class="section-number">03</span>
         <div>
-            <span class="showcase-eyebrow">Sticky Ji design system</span>
-            <h1>Tooltip component</h1>
-            <p>
-                Lightweight contextual guidance for buttons, icons, notes,
-                settings, and compact actions—with no additional dependency.
-            </p>
+          <h2>Sizes</h2>
+          <p>Three readable density levels.</p>
         </div>
+      </div>
 
-        <div class="hero-note">
-            <app-button label="Hover for a tip" variant="noteYellow" size="lg" [hasIcon]="true"
-                appTooltip="Pin important notes so they always stay at the top of your workspace."
-                tooltipTone="noteYellow" tooltipPosition="bottom" [tooltipMaxWidth]="260">
-                <app-icon button-icon-left [icon]="icons.pin" size="inherit" />
-            </app-button>
-        </div>
-    </header>
+      <div class="example-stack">
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="Compact small tooltip"
+          tooltipSize="sm"
+        >
+          Small tooltip
+        </button>
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="Balanced medium tooltip"
+          tooltipSize="md"
+        >
+          Medium tooltip
+        </button>
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="A larger tooltip for slightly more detailed contextual guidance."
+          tooltipSize="lg"
+          [tooltipMaxWidth]="320"
+        >
+          Large tooltip
+        </button>
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">01</span>
-            <div>
-                <h2>Placements</h2>
-                <p>Preferred positions automatically flip and clamp inside the viewport.</p>
-            </div>
-        </div>
-
-        <div class="placement-grid">
-            @for (item of positions; track item.value) {
-            <button type="button" class="demo-trigger" [appTooltip]="item.label + ' tooltip'"
-                [tooltipPosition]="item.value" tooltipTone="paper">
-                {{ item.label }}
-            </button>
-            }
-        </div>
-    </section>
-
-    <section class="showcase-section note-section">
-        <div class="section-heading">
-            <span class="section-number">02</span>
-            <div>
-                <h2>Theme tones</h2>
-                <p>Semantic colors and the complete Sticky Notes palette.</p>
-            </div>
-        </div>
-
-        <div class="tone-grid">
-            @for (item of tones; track item.value) {
-            <button type="button" class="tone-trigger" [appTooltip]="item.label + ' tooltip'" [tooltipTone]="item.value"
-                tooltipPosition="top">
-                {{ item.label }}
-            </button>
-            }
-        </div>
-    </section>
-
-    <section class="showcase-section split-section">
+    <div>
+      <div class="section-heading">
+        <span class="section-number">04</span>
         <div>
-            <div class="section-heading">
-                <span class="section-number">03</span>
-                <div>
-                    <h2>Sizes</h2>
-                    <p>Three readable density levels.</p>
-                </div>
-            </div>
-
-            <div class="example-stack">
-                <button type="button" class="demo-trigger" appTooltip="Compact small tooltip" tooltipSize="sm">
-                    Small tooltip
-                </button>
-                <button type="button" class="demo-trigger" appTooltip="Balanced medium tooltip" tooltipSize="md">
-                    Medium tooltip
-                </button>
-                <button type="button" class="demo-trigger"
-                    appTooltip="A larger tooltip for slightly more detailed contextual guidance." tooltipSize="lg"
-                    [tooltipMaxWidth]="320">
-                    Large tooltip
-                </button>
-            </div>
+          <h2>Timing</h2>
+          <p>Configure show and hide delays independently.</p>
         </div>
+      </div>
 
-        <div>
-            <div class="section-heading">
-                <span class="section-number">04</span>
-                <div>
-                    <h2>Timing</h2>
-                    <p>Configure show and hide delays independently.</p>
-                </div>
-            </div>
+      <div class="example-stack">
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="I appear immediately"
+          [tooltipDelay]="0"
+        >
+          No delay
+        </button>
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="I appear after 700 milliseconds"
+          [tooltipDelay]="700"
+          tooltipTone="noteBlue"
+        >
+          Delayed tooltip
+        </button>
+        <button
+          type="button"
+          class="demo-trigger"
+          appTooltip="Move away and I linger briefly"
+          [tooltipHideDelay]="600"
+          tooltipTone="notePink"
+        >
+          Slow hide
+        </button>
+      </div>
+    </div>
+  </section>
 
-            <div class="example-stack">
-                <button type="button" class="demo-trigger" appTooltip="I appear immediately" [tooltipDelay]="0">
-                    No delay
-                </button>
-                <button type="button" class="demo-trigger" appTooltip="I appear after 700 milliseconds"
-                    [tooltipDelay]="700" tooltipTone="noteBlue">
-                    Delayed tooltip
-                </button>
-                <button type="button" class="demo-trigger" appTooltip="Move away and I linger briefly"
-                    [tooltipHideDelay]="600" tooltipTone="notePink">
-                    Slow hide
-                </button>
-            </div>
-        </div>
-    </section>
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">05</span>
+      <div>
+        <h2>Triggers</h2>
+        <p>
+          Hover and focus are the accessible default; click and manual control are also available.
+        </p>
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">05</span>
-            <div>
-                <h2>Triggers</h2>
-                <p>Hover and focus are the accessible default; click and manual control are also available.</p>
-            </div>
-        </div>
+    <div class="trigger-grid">
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="Opens on hover or keyboard focus"
+        tooltipTrigger="hover-focus"
+      >
+        Hover + focus
+      </button>
 
-        <div class="trigger-grid">
-            <button type="button" class="demo-trigger" appTooltip="Opens on hover or keyboard focus"
-                tooltipTrigger="hover-focus">
-                Hover + focus
-            </button>
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="This tooltip only reacts to focus"
+        tooltipTrigger="focus"
+        tooltipTone="noteGreen"
+      >
+        Focus only
+      </button>
 
-            <button type="button" class="demo-trigger" appTooltip="This tooltip only reacts to focus"
-                tooltipTrigger="focus" tooltipTone="noteGreen">
-                Focus only
-            </button>
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="Click again or click elsewhere to close"
+        tooltipTrigger="click"
+        tooltipTone="notePurple"
+      >
+        Click trigger
+      </button>
 
-            <button type="button" class="demo-trigger" appTooltip="Click again or click elsewhere to close"
-                tooltipTrigger="click" tooltipTone="notePurple">
-                Click trigger
-            </button>
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="Controlled by tooltipOpen"
+        tooltipTrigger="manual"
+        tooltipTone="noteOrange"
+        [tooltipOpen]="manualOpen()"
+      >
+        Manual target
+      </button>
 
-            <button type="button" class="demo-trigger" appTooltip="Controlled by tooltipOpen" tooltipTrigger="manual"
-                tooltipTone="noteOrange" [tooltipOpen]="manualOpen()">
-                Manual target
-            </button>
+      <button type="button" class="manual-control" (click)="manualOpen.set(!manualOpen())">
+        {{ manualOpen() ? 'Close manual tooltip' : 'Open manual tooltip' }}
+      </button>
+    </div>
+  </section>
 
-            <button type="button" class="manual-control" (click)="manualOpen.set(!manualOpen())">
-                {{ manualOpen() ? 'Close manual tooltip' : 'Open manual tooltip' }}
-            </button>
-        </div>
-    </section>
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">06</span>
+      <div>
+        <h2>Content and constraints</h2>
+        <p>
+          Long text wraps safely, arrows are optional, and empty or disabled tooltips do not render.
+        </p>
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">06</span>
-            <div>
-                <h2>Content and constraints</h2>
-                <p>Long text wraps safely, arrows are optional, and empty or disabled tooltips do not render.</p>
-            </div>
-        </div>
+    <div class="trigger-grid">
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="This is a longer tooltip with enough context to explain a feature while remaining concise and readable."
+        tooltipTone="paper"
+        [tooltipMaxWidth]="300"
+      >
+        Multiline content
+      </button>
 
-        <div class="trigger-grid">
-            <button type="button" class="demo-trigger"
-                appTooltip="This is a longer tooltip with enough context to explain a feature while remaining concise and readable."
-                tooltipTone="paper" [tooltipMaxWidth]="300">
-                Multiline content
-            </button>
+      <button
+        type="button"
+        class="demo-trigger"
+        appTooltip="No arrow is rendered on this tooltip"
+        tooltipTone="noteYellow"
+        [tooltipShowArrow]="false"
+      >
+        Without arrow
+      </button>
 
-            <button type="button" class="demo-trigger" appTooltip="No arrow is rendered on this tooltip"
-                tooltipTone="noteYellow" [tooltipShowArrow]="false">
-                Without arrow
-            </button>
+      <button
+        type="button"
+        class="demo-trigger muted-trigger"
+        appTooltip="You should not see this"
+        [tooltipDisabled]="true"
+      >
+        Disabled tooltip
+      </button>
 
-            <button type="button" class="demo-trigger muted-trigger" appTooltip="You should not see this"
-                [tooltipDisabled]="true">
-                Disabled tooltip
-            </button>
+      <span
+        class="inline-copy"
+        tabindex="0"
+        appTooltip="Tooltips can be attached to ordinary text."
+        tooltipTone="noteBlue"
+      >
+        Hover over inline text
+      </span>
+    </div>
+  </section>
 
-            <span class="inline-copy" tabindex="0" appTooltip="Tooltips can be attached to ordinary text."
-                tooltipTone="noteBlue">
-                Hover over inline text
-            </span>
-        </div>
-    </section>
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">07</span>
+      <div>
+        <h2>Icon actions</h2>
+        <p>Tooltips complement accessible labels on compact icon-only buttons.</p>
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">07</span>
-            <div>
-                <h2>Icon actions</h2>
-                <p>Tooltips complement accessible labels on compact icon-only buttons.</p>
-            </div>
-        </div>
+    <div class="action-toolbar" role="toolbar" aria-label="Note actions">
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Edit note"
+        appTooltip="Edit note"
+        tooltipTone="noteYellow"
+      >
+        <app-icon button-icon [icon]="icons.pencil" size="inherit" />
+      </app-button>
 
-        <div class="action-toolbar" role="toolbar" aria-label="Note actions">
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Edit note" appTooltip="Edit note"
-                tooltipTone="noteYellow">
-                <app-icon button-icon [icon]="icons.pencil" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Pin note"
+        appTooltip="Pin to the top"
+        tooltipTone="noteOrange"
+      >
+        <app-icon button-icon [icon]="icons.pin" size="inherit" />
+      </app-button>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Pin note" appTooltip="Pin to the top"
-                tooltipTone="noteOrange">
-                <app-icon button-icon [icon]="icons.pin" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Share note"
+        appTooltip="Share with people"
+        tooltipTone="noteBlue"
+      >
+        <app-icon button-icon [icon]="icons.share" size="inherit" />
+      </app-button>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Share note" appTooltip="Share with people"
-                tooltipTone="noteBlue">
-                <app-icon button-icon [icon]="icons.share" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Copy note"
+        [appTooltip]="copied() ? 'Copied!' : 'Copy note'"
+        [tooltipTone]="copied() ? 'success' : 'dark'"
+        (buttonClick)="copyNote()"
+      >
+        <app-icon button-icon [icon]="icons.copy" size="inherit" />
+      </app-button>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Copy note"
-                [appTooltip]="copied() ? 'Copied!' : 'Copy note'" [tooltipTone]="copied() ? 'success' : 'dark'"
-                (buttonClick)="copyNote()">
-                <app-icon button-icon [icon]="icons.copy" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Archive note"
+        appTooltip="Move to archive"
+        tooltipTone="noteBrown"
+      >
+        <app-icon button-icon [icon]="icons.archive" size="inherit" />
+      </app-button>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Archive note" appTooltip="Move to archive"
-                tooltipTone="noteBrown">
-                <app-icon button-icon [icon]="icons.archive" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="Delete note"
+        appTooltip="Delete permanently"
+        tooltipTone="danger"
+      >
+        <app-icon button-icon [icon]="icons.trash" size="inherit" />
+      </app-button>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="Delete note" appTooltip="Delete permanently"
-                tooltipTone="danger">
-                <app-icon button-icon [icon]="icons.trash" size="inherit" />
-            </app-button>
+      <app-button
+        variant="ghost"
+        [iconOnly]="true"
+        ariaLabel="More actions"
+        appTooltip="More actions"
+      >
+        <app-icon button-icon [icon]="icons.ellipsis" size="inherit" />
+      </app-button>
+    </div>
+  </section>
 
-            <app-button variant="ghost" [iconOnly]="true" ariaLabel="More actions" appTooltip="More actions">
-                <app-icon button-icon [icon]="icons.ellipsis" size="inherit" />
-            </app-button>
-        </div>
-    </section>
+  <section class="showcase-section">
+    <div class="section-heading">
+      <span class="section-number">08</span>
+      <div>
+        <h2>Sticky note pattern</h2>
+        <p>Contextual guidance integrated into an actual note card.</p>
+      </div>
+    </div>
 
-    <section class="showcase-section">
-        <div class="section-heading">
-            <span class="section-number">08</span>
-            <div>
-                <h2>Sticky note pattern</h2>
-                <p>Contextual guidance integrated into an actual note card.</p>
-            </div>
-        </div>
-
-        <article class="note-card">
-            <div class="note-tape"></div>
-            <header>
-                <span>Product ideas</span>
-                <button type="button" class="note-icon-button" aria-label="About this note"
-                    appTooltip="Shared with the Product Design team" tooltipTone="notePurple" tooltipPosition="left">
-                    <app-icon [icon]="icons.info" size="sm" />
-                </button>
-            </header>
-            <h3>Make organizing feel effortless</h3>
-            <p>Use colors, smart folders, and quick actions without making the workspace feel heavy.</p>
-            <footer>
-                <button type="button" class="note-action" appTooltip="Pin this idea" tooltipTone="noteYellow">
-                    <app-icon [icon]="icons.pin" size="sm" />
-                    Pin
-                </button>
-                <button type="button" class="note-action" appTooltip="Open color palette" tooltipTone="notePink">
-                    <app-icon [icon]="icons.palette" size="sm" />
-                    Color
-                </button>
-                <button type="button" class="note-action" appTooltip="Share this note" tooltipTone="noteBlue">
-                    <app-icon [icon]="icons.share" size="sm" />
-                    Share
-                </button>
-            </footer>
-        </article>
-    </section>
+    <article class="note-card">
+      <div class="note-tape"></div>
+      <header>
+        <span>Product ideas</span>
+        <button
+          type="button"
+          class="note-icon-button"
+          aria-label="About this note"
+          appTooltip="Shared with the Product Design team"
+          tooltipTone="notePurple"
+          tooltipPosition="left"
+        >
+          <app-icon [icon]="icons.info" size="sm" />
+        </button>
+      </header>
+      <h3>Make organizing feel effortless</h3>
+      <p>Use colors, smart folders, and quick actions without making the workspace feel heavy.</p>
+      <footer>
+        <button
+          type="button"
+          class="note-action"
+          appTooltip="Pin this idea"
+          tooltipTone="noteYellow"
+        >
+          <app-icon [icon]="icons.pin" size="sm" />
+          Pin
+        </button>
+        <button
+          type="button"
+          class="note-action"
+          appTooltip="Open color palette"
+          tooltipTone="notePink"
+        >
+          <app-icon [icon]="icons.palette" size="sm" />
+          Color
+        </button>
+        <button
+          type="button"
+          class="note-action"
+          appTooltip="Share this note"
+          tooltipTone="noteBlue"
+        >
+          <app-icon [icon]="icons.share" size="sm" />
+          Share
+        </button>
+      </footer>
+    </article>
+  </section>
 </main>

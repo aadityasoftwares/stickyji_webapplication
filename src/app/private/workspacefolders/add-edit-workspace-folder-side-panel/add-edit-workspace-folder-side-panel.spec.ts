@@ -7,7 +7,13 @@ import { WorkspaceFolderService } from '../services/workspace-folder.service';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
-const folder = { id: 'f', workspaceId: 'w', name: 'Fresh name', description: 'Fresh details', status: 'ACTIVE' };
+const folder = {
+  id: 'f',
+  workspaceId: 'w',
+  name: 'Fresh name',
+  description: 'Fresh details',
+  status: 'ACTIVE',
+};
 describe('Folder editor sessions', () => {
   let fixture: ComponentFixture<AddEditWorkspaceFolderSidePanel>;
   const api = { getById: vi.fn(), create: vi.fn(), update: vi.fn() };
@@ -16,11 +22,26 @@ describe('Folder editor sessions', () => {
     api.getById.mockReset().mockReturnValue(of({ data: folder }));
     api.create.mockReset().mockReturnValue(of({ data: folder }));
     api.update.mockReset().mockReturnValue(of({ data: folder }));
-    workspaceApi.getById.mockReset().mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: true } }));
-    await TestBed.configureTestingModule({ imports: [AddEditWorkspaceFolderSidePanel], providers: [provideHttpClient(),
-      { provide: WorkspaceFolderService, useValue: api }, { provide: WorkspaceService, useValue: workspaceApi },
-      { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-    ] }).overrideComponent(AddEditWorkspaceFolderSidePanel, { set: { template: '<ng-template #desktopPreview></ng-template><div #folderNameInput><input [value]="name()" /></div>', imports: [] } }).compileComponents();
+    workspaceApi.getById
+      .mockReset()
+      .mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: true } }));
+    await TestBed.configureTestingModule({
+      imports: [AddEditWorkspaceFolderSidePanel],
+      providers: [
+        provideHttpClient(),
+        { provide: WorkspaceFolderService, useValue: api },
+        { provide: WorkspaceService, useValue: workspaceApi },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      ],
+    })
+      .overrideComponent(AddEditWorkspaceFolderSidePanel, {
+        set: {
+          template:
+            '<ng-template #desktopPreview></ng-template><div #folderNameInput><input [value]="name()" /></div>',
+          imports: [],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(AddEditWorkspaceFolderSidePanel);
     fixture.componentRef.setInput('workspaceId', 'w');
     fixture.componentRef.setInput('open', true);
@@ -28,7 +49,10 @@ describe('Folder editor sessions', () => {
 
   it('focuses the loaded name with the caret at the end', () => {
     const frames: FrameRequestCallback[] = [];
-    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { frames.push(callback); return frames.length; });
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frames.push(callback);
+      return frames.length;
+    });
     try {
       fixture.componentRef.setInput('id', 'f');
       fixture.detectChanges();
@@ -50,7 +74,11 @@ describe('Folder editor sessions', () => {
     panel.updateDescription('x'.repeat(500));
     expect(panel.canSubmit).toBe(true);
     panel.submit();
-    expect(api.create).toHaveBeenCalledWith({ name: 'A', description: 'x'.repeat(500), workspaceId: 'w' });
+    expect(api.create).toHaveBeenCalledWith({
+      name: 'A',
+      description: 'x'.repeat(500),
+      workspaceId: 'w',
+    });
     panel.updateName('x'.repeat(101));
     expect(panel.canSubmit).toBe(false);
   });
@@ -65,17 +93,23 @@ describe('Folder editor sessions', () => {
   });
 
   it('allows an invited editor to create a folder', () => {
-    workspaceApi.getById.mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }));
+    workspaceApi.getById.mockReturnValue(
+      of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }),
+    );
     fixture.detectChanges();
     const panel = fixture.componentInstance;
     panel.updateName('Shared folder');
     expect(panel.canSubmit).toBe(true);
     panel.submit();
-    expect(api.create).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'w', name: 'Shared folder' }));
+    expect(api.create).toHaveBeenCalledWith(
+      expect.objectContaining({ workspaceId: 'w', name: 'Shared folder' }),
+    );
   });
 
   it('allows an invited editor to load and save an existing folder', () => {
-    workspaceApi.getById.mockReturnValue(of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }));
+    workspaceApi.getById.mockReturnValue(
+      of({ data: { id: 'w', status: 'ACTIVE', isOwner: false, isInvited: true, role: 'editor' } }),
+    );
     fixture.componentRef.setInput('id', 'f');
     fixture.detectChanges();
     const panel = fixture.componentInstance;
@@ -83,7 +117,10 @@ describe('Folder editor sessions', () => {
     panel.updateName('Updated shared folder');
     expect(panel.canSubmit).toBe(true);
     panel.submit();
-    expect(api.update).toHaveBeenCalledWith('f', expect.objectContaining({ name: 'Updated shared folder' }));
+    expect(api.update).toHaveBeenCalledWith(
+      'f',
+      expect.objectContaining({ name: 'Updated shared folder' }),
+    );
   });
 
   it('keeps unsaved input after a failed submission and prevents concurrent saves', () => {
@@ -92,7 +129,8 @@ describe('Folder editor sessions', () => {
     api.create.mockReturnValue(response);
     const panel = fixture.componentInstance;
     panel.updateName('Unsaved');
-    panel.submit(); panel.submit();
+    panel.submit();
+    panel.submit();
     expect(api.create).toHaveBeenCalledTimes(1);
     response.error({ status: 500, error: { message: 'Try again' } });
     expect(panel.name()).toBe('Unsaved');
@@ -113,15 +151,18 @@ describe('Folder editor sessions', () => {
     expect(fixture.componentInstance.name()).toBe('Fresh name');
     const pending = new Subject();
     api.getById.mockReturnValueOnce(pending);
-    fixture.componentRef.setInput('id', 'pending'); fixture.detectChanges();
-    fixture.componentRef.setInput('open', false); fixture.detectChanges();
+    fixture.componentRef.setInput('id', 'pending');
+    fixture.detectChanges();
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
     expect(pending.observed).toBe(false);
     expect(fixture.componentInstance.loadingData()).toBe(false);
   });
 
   it('blocks submission for a trashed folder', () => {
     api.getById.mockReturnValue(of({ data: { ...folder, status: 'DELETED' } }));
-    fixture.componentRef.setInput('id', 'f'); fixture.detectChanges();
+    fixture.componentRef.setInput('id', 'f');
+    fixture.detectChanges();
     fixture.componentInstance.updateName('Cannot edit');
     fixture.componentInstance.submit();
     expect(api.update).not.toHaveBeenCalled();

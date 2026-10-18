@@ -1,19 +1,26 @@
-<div class="app-divider" [ngClass]="dividerClasses" [style.--app-divider-thickness]="resolvedThickness"
-    [style.--app-divider-length]="resolvedLength" [style.--app-divider-spacing]="resolvedSpacing"
-    [style.--app-divider-inset]="resolvedInset" [attr.role]="decorative ? null : 'separator'"
-    [attr.aria-hidden]="decorative ? 'true' : null" [attr.aria-orientation]="decorative ? null : orientation"
-    [attr.aria-label]="decorative ? null : accessibleLabel">
-    <span class="app-divider-line" aria-hidden="true"></span>
+<div
+  class="app-divider"
+  [ngClass]="dividerClasses"
+  [style.--app-divider-thickness]="resolvedThickness"
+  [style.--app-divider-length]="resolvedLength"
+  [style.--app-divider-spacing]="resolvedSpacing"
+  [style.--app-divider-inset]="resolvedInset"
+  [attr.role]="decorative ? null : 'separator'"
+  [attr.aria-hidden]="decorative ? 'true' : null"
+  [attr.aria-orientation]="decorative ? null : orientation"
+  [attr.aria-label]="decorative ? null : accessibleLabel"
+>
+  <span class="app-divider-line" aria-hidden="true"></span>
 
-    @if (showLabel) {
+  @if (showLabel) {
     <span class="app-divider-label">
-        @if (label) {
+      @if (label) {
         {{ label }}
-        } @else {
+      } @else {
         <ng-content></ng-content>
-        }
+      }
     </span>
 
     <span class="app-divider-line" aria-hidden="true"></span>
-    }
+  }
 </div>

@@ -1,32 +1,46 @@
 <label class="app-checkbox" [ngClass]="checkboxClasses" [attr.for]="inputId" [attr.title]="title">
-    <input class="app-checkbox-native" type="checkbox" [id]="inputId" [name]="name" [value]="value" [checked]="checked"
-        [indeterminate]="indeterminate" [disabled]="isDisabled" [required]="required" [attr.tabindex]="tabIndex"
-        [attr.aria-label]="accessibleLabel" [attr.aria-describedby]="resolvedAriaDescribedBy"
-        [attr.aria-invalid]="invalid ? 'true' : null" [attr.aria-readonly]="readonly ? 'true' : null"
-        [attr.aria-checked]="indeterminate ? 'mixed' : checked" (change)="handleChange($event)" (blur)="handleBlur()" />
+  <input
+    class="app-checkbox-native"
+    type="checkbox"
+    [id]="inputId"
+    [name]="name"
+    [value]="value"
+    [checked]="checked"
+    [indeterminate]="indeterminate"
+    [disabled]="isDisabled"
+    [required]="required"
+    [attr.tabindex]="tabIndex"
+    [attr.aria-label]="accessibleLabel"
+    [attr.aria-describedby]="resolvedAriaDescribedBy"
+    [attr.aria-invalid]="invalid ? 'true' : null"
+    [attr.aria-readonly]="readonly ? 'true' : null"
+    [attr.aria-checked]="indeterminate ? 'mixed' : checked"
+    (change)="handleChange($event)"
+    (blur)="handleBlur()"
+  />
 
-    <span class="app-checkbox-control" aria-hidden="true">
-        <span class="app-checkbox-checkmark"></span>
-        <span class="app-checkbox-indeterminate-mark"></span>
+  <span class="app-checkbox-control" aria-hidden="true">
+    <span class="app-checkbox-checkmark"></span>
+    <span class="app-checkbox-indeterminate-mark"></span>
+  </span>
+
+  <span class="app-checkbox-content">
+    <span class="app-checkbox-label">
+      @if (label) {
+        {{ label }}
+      } @else {
+        <ng-content></ng-content>
+      }
+
+      @if (required) {
+        <span class="app-checkbox-required" aria-hidden="true">*</span>
+      }
     </span>
 
-    <span class="app-checkbox-content">
-        <span class="app-checkbox-label">
-            @if (label) {
-            {{ label }}
-            } @else {
-            <ng-content></ng-content>
-            }
-
-            @if (required) {
-            <span class="app-checkbox-required" aria-hidden="true">*</span>
-            }
-        </span>
-
-        @if (description) {
-        <span class="app-checkbox-description" [id]="resolvedDescriptionId">
-            {{ description }}
-        </span>
-        }
-    </span>
+    @if (description) {
+      <span class="app-checkbox-description" [id]="resolvedDescriptionId">
+        {{ description }}
+      </span>
+    }
+  </span>
 </label>

@@ -6,12 +6,7 @@
       (click)="onBrandClick($event)"
       [attr.aria-label]="brandName + ' home'"
     >
-      <img
-        [src]="logoSrc"
-        [alt]="brandName"
-        class="header-brand-logo"
-        height="40"
-      />
+      <img [src]="logoSrc" [alt]="brandName" class="header-brand-logo" height="40" />
       @if (showProductBadge && productBadge) {
         <app-badge [label]="productBadge" variant="noteYellow" size="xs" shape="pill" />
       }

@@ -2,13 +2,13 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -16,145 +16,147 @@
    ========================================================================== */
 
 :host ::ng-deep app-side-panel {
-    .app-side-panel-body {
-        background-color: var(--editor-body, #{$paper}) !important;
-        color: var(--editor-ink, #{$text-primary});
-        transition: background-color 200ms ease, color 200ms ease;
+  .app-side-panel-body {
+    background-color: var(--editor-body, #{$paper}) !important;
+    color: var(--editor-ink, #{$text-primary});
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  &[data-color='white'] .app-side-panel-body,
+  .note-editor[data-color='white'] {
+    --editor-paper: #{$paper};
+    --editor-paper-deep: #{$paper-dark};
+    --editor-body: #{$paper};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$secondary};
+  }
+
+  &[data-color='yellow'] .app-side-panel-body,
+  .note-editor[data-color='yellow'] {
+    --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
+    --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
+    --editor-body: #{color.mix($note-yellow, $paper, 30%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-mustard};
+  }
+
+  &[data-color='orange'] .app-side-panel-body,
+  .note-editor[data-color='orange'] {
+    --editor-paper: #{color.mix($note-orange, $paper, 20%)};
+    --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
+    --editor-body: #{color.mix($note-orange, $paper, 20%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-burnt-orange};
+  }
+
+  &[data-color='pink'] .app-side-panel-body,
+  .note-editor[data-color='pink'] {
+    --editor-paper: #{color.mix($note-pink, $paper, 34%)};
+    --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
+    --editor-body: #{color.mix($note-pink, $paper, 34%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-blush};
+  }
+
+  &[data-color='red'] .app-side-panel-body,
+  .note-editor[data-color='red'] {
+    --editor-paper: #{color.mix($note-red, $paper, 20%)};
+    --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
+    --editor-body: #{color.mix($note-red, $paper, 20%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-dark-red};
+  }
+
+  &[data-color='green'] .app-side-panel-body,
+  .note-editor[data-color='green'] {
+    --editor-paper: #{color.mix($note-green, $paper, 18%)};
+    --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
+    --editor-body: #{color.mix($note-green, $paper, 18%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-forest-green};
+  }
+
+  &[data-color='blue'] .app-side-panel-body,
+  .note-editor[data-color='blue'] {
+    --editor-paper: #{color.mix($note-blue, $paper, 16%)};
+    --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
+    --editor-body: #{color.mix($note-blue, $paper, 16%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-steel-blue};
+  }
+
+  &[data-color='purple'] .app-side-panel-body,
+  .note-editor[data-color='purple'] {
+    --editor-paper: #{color.mix($note-purple, $paper, 14%)};
+    --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
+    --editor-body: #{color.mix($note-purple, $paper, 14%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-grape};
+  }
+
+  &[data-color='brown'] .app-side-panel-body,
+  .note-editor[data-color='brown'] {
+    --editor-paper: #{color.mix($note-brown, $paper, 18%)};
+    --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
+    --editor-body: #{color.mix($note-brown, $paper, 18%)};
+    --editor-ink: #{$text-primary};
+    --editor-muted: #{$text-secondary};
+    --editor-rule: #{rgba($heading, 0.14)};
+    --note-accent: #{$note-coffee};
+  }
+
+  &[data-color='black'] .app-side-panel-body,
+  .note-editor[data-color='black'] {
+    --editor-paper: #{$note-jet-black};
+    --editor-paper-deep: #{$note-black};
+    --editor-body: #{$note-jet-black};
+    --editor-ink: #{$paper};
+    --editor-muted: #{rgba($paper, 0.72)};
+    --editor-rule: #{rgba($paper, 0.18)};
+    --note-accent: #{$note-gold};
+    --note-check: #{$note-mint};
+
+    .app-input-wrapper {
+      --app-input-background: #{$note-black};
+      --app-input-color: #{$paper};
+      --app-input-border: #{rgba($paper, 0.22)};
+      --app-input-muted: #{rgba($paper, 0.72)};
+      --app-input-placeholder: #{rgba($paper, 0.45)};
     }
 
-    &[data-color='white'] .app-side-panel-body,
-    .note-editor[data-color='white'] {
-        --editor-paper: #{$paper};
-        --editor-paper-deep: #{$paper-dark};
-        --editor-body: #{$paper};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$secondary};
+    .app-select-wrapper {
+      --app-select-background: #{$note-black};
+      --app-select-color: #{$paper};
+      --app-select-border: #{rgba($paper, 0.22)};
+      --app-select-muted: #{rgba($paper, 0.72)};
     }
 
-    &[data-color='yellow'] .app-side-panel-body,
-    .note-editor[data-color='yellow'] {
-        --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
-        --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
-        --editor-body: #{color.mix($note-yellow, $paper, 30%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-mustard};
+    .app-datepicker-wrapper {
+      --app-datepicker-background: #{$note-black};
+      --app-datepicker-color: #{$paper};
+      --app-datepicker-border: #{rgba($paper, 0.22)};
+      --app-datepicker-muted: #{rgba($paper, 0.72)};
+      --app-datepicker-placeholder: #{rgba($paper, 0.45)};
     }
-
-    &[data-color='orange'] .app-side-panel-body,
-    .note-editor[data-color='orange'] {
-        --editor-paper: #{color.mix($note-orange, $paper, 20%)};
-        --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
-        --editor-body: #{color.mix($note-orange, $paper, 20%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-burnt-orange};
-    }
-
-    &[data-color='pink'] .app-side-panel-body,
-    .note-editor[data-color='pink'] {
-        --editor-paper: #{color.mix($note-pink, $paper, 34%)};
-        --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
-        --editor-body: #{color.mix($note-pink, $paper, 34%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-blush};
-    }
-
-    &[data-color='red'] .app-side-panel-body,
-    .note-editor[data-color='red'] {
-        --editor-paper: #{color.mix($note-red, $paper, 20%)};
-        --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
-        --editor-body: #{color.mix($note-red, $paper, 20%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-dark-red};
-    }
-
-    &[data-color='green'] .app-side-panel-body,
-    .note-editor[data-color='green'] {
-        --editor-paper: #{color.mix($note-green, $paper, 18%)};
-        --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
-        --editor-body: #{color.mix($note-green, $paper, 18%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-forest-green};
-    }
-
-    &[data-color='blue'] .app-side-panel-body,
-    .note-editor[data-color='blue'] {
-        --editor-paper: #{color.mix($note-blue, $paper, 16%)};
-        --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
-        --editor-body: #{color.mix($note-blue, $paper, 16%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-steel-blue};
-    }
-
-    &[data-color='purple'] .app-side-panel-body,
-    .note-editor[data-color='purple'] {
-        --editor-paper: #{color.mix($note-purple, $paper, 14%)};
-        --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
-        --editor-body: #{color.mix($note-purple, $paper, 14%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-grape};
-    }
-
-    &[data-color='brown'] .app-side-panel-body,
-    .note-editor[data-color='brown'] {
-        --editor-paper: #{color.mix($note-brown, $paper, 18%)};
-        --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
-        --editor-body: #{color.mix($note-brown, $paper, 18%)};
-        --editor-ink: #{$text-primary};
-        --editor-muted: #{$text-secondary};
-        --editor-rule: #{rgba($heading, 0.14)};
-        --note-accent: #{$note-coffee};
-    }
-
-    &[data-color='black'] .app-side-panel-body,
-    .note-editor[data-color='black'] {
-        --editor-paper: #{$note-jet-black};
-        --editor-paper-deep: #{$note-black};
-        --editor-body: #{$note-jet-black};
-        --editor-ink: #{$paper};
-        --editor-muted: #{rgba($paper, 0.72)};
-        --editor-rule: #{rgba($paper, 0.18)};
-        --note-accent: #{$note-gold};
-        --note-check: #{$note-mint};
-
-        .app-input-wrapper {
-            --app-input-background: #{$note-black};
-            --app-input-color: #{$paper};
-            --app-input-border: #{rgba($paper, 0.22)};
-            --app-input-muted: #{rgba($paper, 0.72)};
-            --app-input-placeholder: #{rgba($paper, 0.45)};
-        }
-
-        .app-select-wrapper {
-            --app-select-background: #{$note-black};
-            --app-select-color: #{$paper};
-            --app-select-border: #{rgba($paper, 0.22)};
-            --app-select-muted: #{rgba($paper, 0.72)};
-        }
-
-        .app-datepicker-wrapper {
-            --app-datepicker-background: #{$note-black};
-            --app-datepicker-color: #{$paper};
-            --app-datepicker-border: #{rgba($paper, 0.22)};
-            --app-datepicker-muted: #{rgba($paper, 0.72)};
-            --app-datepicker-placeholder: #{rgba($paper, 0.45)};
-        }
-    }
+  }
 }
 
 /* ==========================================================================
@@ -162,45 +164,45 @@
    ========================================================================== */
 
 .note-editor {
-    --editor-paper: #{$paper};
-    --editor-body: var(--editor-paper);
-    --editor-ink: #{$text-primary};
-    --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading, 0.14)};
-    display: grid;
-    align-content: start;
-    gap: 18px;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    color: var(--editor-ink);
-    background: transparent;
-    font-family: $font-body;
+  --editor-paper: #{$paper};
+  --editor-body: var(--editor-paper);
+  --editor-ink: #{$text-primary};
+  --editor-muted: #{$text-secondary};
+  --editor-rule: #{rgba($heading, 0.14)};
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--editor-ink);
+  background: transparent;
+  font-family: $font-body;
 }
 
 .note-editor app-input,
 .note-editor app-select,
 .note-editor app-datepicker-input {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 
 .note-editor ::ng-deep {
-    .app-input-wrapper {
-        --app-input-background: #ffffff;
-        --app-input-border: #{$border};
-    }
+  .app-input-wrapper {
+    --app-input-background: #ffffff;
+    --app-input-border: #{$border};
+  }
 
-    .app-select-wrapper {
-        --app-select-background: #ffffff;
-        --app-select-border: #{$border};
-    }
+  .app-select-wrapper {
+    --app-select-background: #ffffff;
+    --app-select-border: #{$border};
+  }
 
-    .app-datepicker-wrapper {
-        --app-datepicker-background: #ffffff;
-        --app-datepicker-border: #{$border};
-    }
+  .app-datepicker-wrapper {
+    --app-datepicker-background: #ffffff;
+    --app-datepicker-border: #{$border};
+  }
 }
 
 /* ==========================================================================
@@ -208,27 +210,27 @@
    ========================================================================== */
 
 .note-context {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr;
-    gap: 8px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
 }
 
 .note-context-field {
-    min-width: 0;
+  min-width: 0;
 }
 
 .note-context-slash {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    font-weight: 500;
-    color: var(--editor-muted, #{$text-light});
-    opacity: 0.55;
-    user-select: none;
-    line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--editor-muted, #{$text-light});
+  opacity: 0.55;
+  user-select: none;
+  line-height: 1;
 }
 
 /* ==========================================================================
@@ -236,42 +238,42 @@
    ========================================================================== */
 
 .note-fields {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .note-field {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
 }
 
 .note-field > app-label {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .note-field-control {
-    min-width: 0;
+  min-width: 0;
 }
 
 .note-details-field ::ng-deep .app-input-textarea {
-    min-height: 108px;
-    line-height: 1.6;
+  min-height: 108px;
+  line-height: 1.6;
 }
 
 .note-field-counter {
-    display: block;
-    text-align: right;
-    padding: 3px 8px 0;
-    color: var(--editor-muted);
-    font-size: 10px;
+  display: block;
+  text-align: right;
+  padding: 3px 8px 0;
+  color: var(--editor-muted);
+  font-size: 10px;
 }
 
 .note-editor ::ng-deep .app-label {
-    color: var(--editor-muted);
-    font-size: 12px;
+  color: var(--editor-muted);
+  font-size: 12px;
 }
 
 /* ==========================================================================
@@ -279,73 +281,73 @@
    ========================================================================== */
 
 .note-date-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
 }
 
 .note-date-row > app-label {
-    padding-top: 0;
+  padding-top: 0;
 }
 
 .note-date-favorite-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .note-date-control {
-    width: 100%;
-    max-width: 240px;
-    min-width: 0;
-    flex: 1 1 200px;
+  width: 100%;
+  max-width: 240px;
+  min-width: 0;
+  flex: 1 1 200px;
 }
 
 .note-favorite-toggle-btn {
-    display: inline-flex;
+  display: inline-flex;
+  height: 36px;
+  flex: 0 0 auto;
+
+  ::ng-deep .app-button {
     height: 36px;
-    flex: 0 0 auto;
+    padding: 0 12px;
+    background: #ffffff !important;
+    border: 1px solid #{$border} !important;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    color: var(--editor-muted, #{$text-secondary});
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 140ms ease;
 
-    ::ng-deep .app-button {
-        height: 36px;
-        padding: 0 12px;
-        background: #ffffff !important;
-        border: 1px solid #{$border} !important;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-        color: var(--editor-muted, #{$text-secondary});
-        font-size: 12px;
-        font-weight: 600;
-        transition: all 140ms ease;
+    &:hover:not(:disabled) {
+      color: #d97706;
+      background: #ffffff !important;
+      border-color: rgba(#f59e0b, 0.5) !important;
+      box-shadow: 0 2px 5px rgba(245, 158, 11, 0.15);
+    }
+  }
 
-        &:hover:not(:disabled) {
-            color: #d97706;
-            background: #ffffff !important;
-            border-color: rgba(#f59e0b, 0.5) !important;
-            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.15);
-        }
+  &.is-favorited ::ng-deep .app-button {
+    color: #b45309;
+    background: #ffffff !important;
+    border-color: rgba(#f59e0b, 0.6) !important;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
+
+    app-icon {
+      color: #f59e0b;
     }
 
-    &.is-favorited ::ng-deep .app-button {
-        color: #b45309;
-        background: #ffffff !important;
-        border-color: rgba(#f59e0b, 0.6) !important;
-        font-weight: 700;
-        box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
-
-        app-icon {
-            color: #f59e0b;
-        }
-
-        &:hover:not(:disabled) {
-            color: #92400e;
-            border-color: #f59e0b !important;
-        }
+    &:hover:not(:disabled) {
+      color: #92400e;
+      border-color: #f59e0b !important;
     }
+  }
 }
 
 /* ==========================================================================
@@ -353,21 +355,21 @@
    ========================================================================== */
 
 .note-assignees-row {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
 }
 
 .note-assignees-row > app-label {
-    padding-top: 0;
-    white-space: nowrap;
+  padding-top: 0;
+  white-space: nowrap;
 }
 
 .note-assignees-control {
-    min-width: 0;
-    width: 100%;
+  min-width: 0;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -375,11 +377,11 @@
    ========================================================================== */
 
 .note-appearance {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-    align-items: center;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
 }
 
 /* ==========================================================================
@@ -391,374 +393,381 @@
    ========================================================================== */
 
 .note-add-block-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
 .note-add-block-trigger {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 1px dashed rgba($heading, 0.22);
+  border-radius: 6px;
+  color: var(--editor-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
     background: #ffffff;
-    border: 1px dashed rgba($heading, 0.22);
-    border-radius: 6px;
-    color: var(--editor-ink);
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.15s ease;
+    border-color: rgba($heading, 0.38);
+    border-style: solid;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
 
-    &:hover:not(:disabled) {
-        background: #ffffff;
-        border-color: rgba($heading, 0.38);
-        border-style: solid;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+  &:focus-visible {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+  }
 
-    &:focus-visible {
-        outline: none;
-        border-color: #f59e0b;
-        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .note-add-block-trigger-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    background: rgba($heading, 0.06);
-    color: var(--editor-ink);
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: rgba($heading, 0.06);
+  color: var(--editor-ink);
+  flex-shrink: 0;
 }
 
 .note-add-block-trigger-text {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
 
-    strong {
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--editor-ink);
-        white-space: nowrap;
-    }
+  strong {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--editor-ink);
+    white-space: nowrap;
+  }
 
-    small {
-        font-size: 11px;
-        color: var(--editor-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+  small {
+    font-size: 11px;
+    color: var(--editor-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .note-blocks-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
 .note-block-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 10px;
-    background: #ffffff;
-    border: 1px solid rgba($heading, 0.12);
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    min-width: 0;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid rgba($heading, 0.12);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
-    &:hover {
-        background: #ffffff;
-        border-color: rgba($heading, 0.2);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-    }
+  &:hover {
+    background: #ffffff;
+    border-color: rgba($heading, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .note-block-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid rgba($heading, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba($heading, 0.06);
 }
 
 .note-block-title-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .note-block-icon {
-    color: var(--editor-muted);
-    display: flex;
-    align-items: center;
+  color: var(--editor-muted);
+  display: flex;
+  align-items: center;
 }
 
 .note-block-title {
-    margin: 0;
-    font: 600 12.5px/1.3 $font-body;
-    color: var(--editor-ink);
-    letter-spacing: normal;
+  margin: 0;
+  font: 600 12.5px/1.3 $font-body;
+  color: var(--editor-ink);
+  letter-spacing: normal;
 }
 
 .note-block-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .note-block-content {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
 }
 
 .note-block-placeholder-body {
-    padding: 2px 0;
+  padding: 2px 0;
 }
 
 .note-block-placeholder-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .note-block-placeholder-hint {
-    font-size: 11.5px;
-    color: var(--editor-muted);
-    line-height: 1.35;
+  font-size: 11.5px;
+  color: var(--editor-muted);
+  line-height: 1.35;
 }
 
 ::ng-deep .note-blocks-menu.mat-mdc-menu-panel,
 ::ng-deep .today-note-actions-menu.mat-mdc-menu-panel {
-    min-width: 15rem;
-    max-width: 18rem;
-    overflow: hidden;
-    background: $paper;
-    border: 1px solid rgba($border, 0.82);
-    border-radius: 0.75rem;
-    box-shadow: $shadow-lg;
+  min-width: 15rem;
+  max-width: 18rem;
+  overflow: hidden;
+  background: $paper;
+  border: 1px solid rgba($border, 0.82);
+  border-radius: 0.75rem;
+  box-shadow: $shadow-lg;
 }
 
 ::ng-deep .note-blocks-menu .mat-mdc-menu-content,
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-content {
-    padding: 0.35rem;
+  padding: 0.35rem;
 }
 
 ::ng-deep .note-blocks-menu .mat-mdc-menu-item.today-note-action-item,
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item {
-    min-height: 3.25rem;
-    padding: 0.45rem 0.5rem;
-    color: $text-secondary;
-    border-radius: 0.5rem;
-    font-family: $font-body;
-    line-height: 1.2;
+  min-height: 3.25rem;
+  padding: 0.45rem 0.5rem;
+  color: $text-secondary;
+  border-radius: 0.5rem;
+  font-family: $font-body;
+  line-height: 1.2;
 
-    &:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-    }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 ::ng-deep .note-blocks-menu .mat-mdc-menu-item.today-note-action-item + .today-note-action-item,
-::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item + .today-note-action-item {
-    margin-top: 0.125rem;
+::ng-deep
+  .today-note-actions-menu
+  .mat-mdc-menu-item.today-note-action-item
+  + .today-note-action-item {
+  margin-top: 0.125rem;
 }
 
 ::ng-deep .note-blocks-menu .mat-mdc-menu-item.today-note-action-item:hover:not(:disabled),
 ::ng-deep .note-blocks-menu .mat-mdc-menu-item.today-note-action-item:focus-visible:not(:disabled),
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:hover:not(:disabled),
-::ng-deep .today-note-actions-menu .mat-mdc-menu-item.today-note-action-item:focus-visible:not(:disabled) {
-    background: rgba($note-yellow, 0.18);
+::ng-deep
+  .today-note-actions-menu
+  .mat-mdc-menu-item.today-note-action-item:focus-visible:not(:disabled) {
+  background: rgba($note-yellow, 0.18);
 }
 
 ::ng-deep .note-blocks-menu .mat-mdc-menu-item-text,
 ::ng-deep .today-note-actions-menu .mat-mdc-menu-item-text {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 0.625rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.625rem;
 }
 
 ::ng-deep .note-blocks-menu .today-note-menu-item-icon,
 ::ng-deep .today-note-actions-menu .today-note-menu-item-icon {
-    display: grid;
-    flex: 0 0 1.875rem;
-    width: 1.875rem;
-    height: 1.875rem;
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.58);
-    border: 1px solid rgba($border, 0.72);
-    border-radius: 0.4375rem;
-    place-items: center;
+  display: grid;
+  flex: 0 0 1.875rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  color: $text-secondary;
+  background: rgba($paper-dark, 0.58);
+  border: 1px solid rgba($border, 0.72);
+  border-radius: 0.4375rem;
+  place-items: center;
 }
 
 ::ng-deep .note-blocks-menu .today-note-menu-item-copy,
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-width: 0;
-    gap: 0.125rem;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
 }
 
 ::ng-deep .note-blocks-menu .note-block-menu-header-line {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 ::ng-deep .note-blocks-menu .today-note-menu-item-copy strong,
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy strong {
-    color: $heading;
-    font-size: 13px;
-    font-weight: 730;
-    line-height: 1.25;
+  color: $heading;
+  font-size: 13px;
+  font-weight: 730;
+  line-height: 1.25;
 }
 
 ::ng-deep .note-blocks-menu .today-note-menu-item-copy small,
 ::ng-deep .today-note-actions-menu .today-note-menu-item-copy small {
-    color: $text-light;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.3;
+  color: $text-light;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 ::ng-deep .note-blocks-menu .note-block-menu-badge {
-    font-size: 10px;
-    font-weight: 600;
-    color: $success;
-    background: rgba($success, 0.12);
-    padding: 1px 6px;
-    border-radius: 999px;
-    line-height: 1.3;
+  font-size: 10px;
+  font-weight: 600;
+  color: $success;
+  background: rgba($success, 0.12);
+  padding: 1px 6px;
+  border-radius: 999px;
+  line-height: 1.3;
 }
 
 .checklist-loading {
-    color: var(--editor-muted);
-    font-size: 12px;
+  color: var(--editor-muted);
+  font-size: 12px;
 }
 
 .checklist-empty {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border: 0;
-    text-align: left;
-    background: transparent;
-    color: var(--editor-ink);
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border: 0;
+  text-align: left;
+  background: transparent;
+  color: var(--editor-ink);
+  cursor: pointer;
 }
 
 .checklist-empty > span:last-child {
-    display: grid;
-    gap: 2px;
+  display: grid;
+  gap: 2px;
 }
 
 .checklist-empty strong {
-    font-size: 12px;
-    font-weight: 500;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .checklist-empty small {
-    color: var(--editor-muted);
-    font-size: 11px;
+  color: var(--editor-muted);
+  font-size: 11px;
 }
 
 .checklist-empty:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .checklist-groups {
-    display: grid;
-    gap: 8px;
+  display: grid;
+  gap: 8px;
 }
 
 .checklist-group {
-    display: grid;
-    gap: 5px;
+  display: grid;
+  gap: 5px;
 }
 
 .checklist-group + .checklist-group {
-    padding-top: 8px;
-    border-top: 1px dashed var(--editor-rule);
+  padding-top: 8px;
+  border-top: 1px dashed var(--editor-rule);
 }
 
 .checklist-title-row {
-    display: grid;
-    grid-template-columns: 20px minmax(0, 1fr) 24px;
-    align-items: center;
-    gap: 6px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 6px;
 }
 
 .checklist-number {
-    color: var(--editor-muted);
-    font-size: 11px;
-    text-align: center;
+  color: var(--editor-muted);
+  font-size: 11px;
+  text-align: center;
 }
 
 .checklist-items {
-    display: grid;
-    gap: 4px;
-    padding-left: 22px;
+  display: grid;
+  gap: 4px;
+  padding-left: 22px;
 }
 
 .checklist-item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) 24px;
-    align-items: center;
-    gap: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 6px;
 }
 
 .checklist-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: 0;
-    background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .checklist-item.is-completed ::ng-deep .app-input-control {
-    color: var(--editor-muted);
-    text-decoration: line-through;
-    opacity: 0.7;
+  color: var(--editor-muted);
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .remove-item {
-    opacity: 0.6;
-    transition: opacity 0.15s ease;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
 
-    &:hover,
-    &:focus-within {
-        opacity: 1;
-    }
+  &:hover,
+  &:focus-within {
+    opacity: 1;
+  }
 }
 
 .add-item {
-    justify-self: start;
-    margin-left: 22px;
+  justify-self: start;
+  margin-left: 22px;
 }
 
 /* ==========================================================================
@@ -767,51 +776,51 @@
 
 /* Floating preview is a sibling, not part of the panel's scrolling body. */
 .note-external-preview {
-    position: fixed;
-    z-index: 2147483000;
-    top: 90px;
-    right: calc(45vw + 24px);
-    width: min(320px, calc(55vw - 48px));
-    max-height: calc(100dvh - 120px);
-    overflow: hidden;
-    display: grid;
-    gap: 12px;
-    pointer-events: none;
-    transition: right 200ms ease;
+  position: fixed;
+  z-index: 2147483000;
+  top: 90px;
+  right: calc(45vw + 24px);
+  width: min(320px, calc(55vw - 48px));
+  max-height: calc(100dvh - 120px);
+  overflow: hidden;
+  display: grid;
+  gap: 12px;
+  pointer-events: none;
+  transition: right 200ms ease;
 }
 
 .note-external-preview app-badge {
-    justify-self: start;
+  justify-self: start;
 }
 
 .note-mobile-preview {
-    display: none;
+  display: none;
 }
 
 .note-editor-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .note-editor-footer-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .note-editor-error {
-    padding: 10px;
-    color: #9B2626;
-    background: #FDEAE7;
-    font-size: 12px;
-    border-radius: 8px;
+  padding: 10px;
+  color: #9b2626;
+  background: #fdeae7;
+  font-size: 12px;
+  border-radius: 8px;
 }
 
 /* ==========================================================================
@@ -819,59 +828,59 @@
    ========================================================================== */
 
 @media (max-width: 1199.98px) {
-    .note-external-preview {
-        display: none;
-    }
+  .note-external-preview {
+    display: none;
+  }
 
-    .note-mobile-preview {
-        display: grid;
-        gap: 12px;
-        max-width: 340px;
-        width: 100%;
-        justify-self: center;
-    }
+  .note-mobile-preview {
+    display: grid;
+    gap: 12px;
+    max-width: 340px;
+    width: 100%;
+    justify-self: center;
+  }
 }
 
 @media (max-width: 640px) {
-    .note-context {
-        grid-template-columns: 1fr;
-    }
+  .note-context {
+    grid-template-columns: 1fr;
+  }
 
-    .note-appearance {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .note-appearance {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 575.98px) {
-    .note-field,
-    .note-date-row {
-        grid-template-columns: 48px minmax(0, 1fr);
-        gap: 6px;
-    }
+  .note-field,
+  .note-date-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 6px;
+  }
 
-    .note-date-control {
-        max-width: none;
-    }
+  .note-date-control {
+    max-width: none;
+  }
 
-    .checklist-items {
-        padding-left: 0;
-    }
+  .checklist-items {
+    padding-left: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    :host ::ng-deep .app-side-panel-body,
-    .note-editor {
-        transition: none;
-    }
+  :host ::ng-deep .app-side-panel-body,
+  .note-editor {
+    transition: none;
+  }
 }
 
 @media (forced-colors: active) {
-    :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
-    .note-editor[data-color] {
-        --editor-body: Canvas;
-        --editor-paper: Canvas;
-        --editor-ink: CanvasText;
-        --editor-muted: CanvasText;
-        --editor-rule: CanvasText;
-    }
+  :host ::ng-deep app-side-panel[data-color] .app-side-panel-body,
+  .note-editor[data-color] {
+    --editor-body: Canvas;
+    --editor-paper: Canvas;
+    --editor-ink: CanvasText;
+    --editor-muted: CanvasText;
+    --editor-rule: CanvasText;
+  }
 }

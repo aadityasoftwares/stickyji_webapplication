@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
@@ -67,9 +63,7 @@ export class Divider {
   }
 
   get resolvedLength(): string {
-    return typeof this.length === 'number'
-      ? `${Math.max(0, this.length)}px`
-      : this.length;
+    return typeof this.length === 'number' ? `${Math.max(0, this.length)}px` : this.length;
   }
 
   get resolvedSpacing(): string {

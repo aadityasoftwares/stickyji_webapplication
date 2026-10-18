@@ -92,8 +92,6 @@ export class StickyCardShowcase {
   }
 
   displayName(value: string): string {
-    return value
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (letter) => letter.toUpperCase());
+    return value.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
   }
 }

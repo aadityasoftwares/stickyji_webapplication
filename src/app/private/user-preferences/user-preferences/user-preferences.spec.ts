@@ -17,10 +17,14 @@ describe('UserPreferences', () => {
 
   beforeEach(async () => {
     api = {
-      getMyPreferences: vi.fn(() => of({ data: [
-        { key: 'theme', value: 'LIGHT' },
-        { key: 'timezone', value: 'Asia/Kolkata' },
-      ] })),
+      getMyPreferences: vi.fn(() =>
+        of({
+          data: [
+            { key: 'theme', value: 'LIGHT' },
+            { key: 'timezone', value: 'Asia/Kolkata' },
+          ],
+        }),
+      ),
       createPreference: vi.fn((key, value) => of({ data: { key, value } })),
       updatePreference: vi.fn((key, value) => of({ data: { key, value } })),
     };

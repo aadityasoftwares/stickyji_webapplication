@@ -1,173 +1,173 @@
 @use '../../../styles/variables' as *;
 
 :host {
-    display: contents;
+  display: contents;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 :host ::ng-deep app-side-panel {
-    .app-side-panel-body {
-        background-color: var(--editor-body, #{$paper}) !important;
-        color: var(--editor-ink, #{$text-primary});
-    }
+  .app-side-panel-body {
+    background-color: var(--editor-body, #{$paper}) !important;
+    color: var(--editor-ink, #{$text-primary});
+  }
 }
 
 .workspace-folder-editor {
-    --editor-paper: #{$paper};
-    --editor-body: var(--editor-paper);
-    --editor-ink: #{$text-primary};
-    --editor-muted: #{$text-secondary};
-    --editor-rule: #{rgba($heading, 0.14)};
-    display: grid;
-    align-content: start;
-    gap: 18px;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-    color: var(--editor-ink);
-    background: transparent;
-    font-family: $font-body;
+  --editor-paper: #{$paper};
+  --editor-body: var(--editor-paper);
+  --editor-ink: #{$text-primary};
+  --editor-muted: #{$text-secondary};
+  --editor-rule: #{rgba($heading, 0.14)};
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--editor-ink);
+  background: transparent;
+  font-family: $font-body;
 }
 
 .workspace-folder-editor app-input {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 
 .workspace-folder-editor ::ng-deep {
-    .app-input-wrapper {
-        --app-input-background: #ffffff;
-        --app-input-border: #{$border};
-    }
+  .app-input-wrapper {
+    --app-input-background: #ffffff;
+    --app-input-border: #{$border};
+  }
 
-    .app-label {
-        color: var(--editor-muted);
-        font-size: 12px;
-    }
+  .app-label {
+    color: var(--editor-muted);
+    font-size: 12px;
+  }
 }
 
 .workspace-folder-fields {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .workspace-folder-field {
-    display: grid;
-    grid-template-columns: 62px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px;
-    min-width: 0;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .workspace-folder-field > app-label {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .workspace-folder-field-control {
-    min-width: 0;
+  min-width: 0;
 }
 
 .workspace-folder-details-field ::ng-deep .app-input-textarea {
-    min-height: 108px;
-    line-height: 1.6;
+  min-height: 108px;
+  line-height: 1.6;
 }
 
 .workspace-folder-field-counter,
 .workspace-folder-field-hint {
-    display: block;
-    text-align: right;
-    padding: 3px 8px 0;
-    color: var(--editor-muted);
-    font-size: 10px;
+  display: block;
+  text-align: right;
+  padding: 3px 8px 0;
+  color: var(--editor-muted);
+  font-size: 10px;
 }
 
 .workspace-folder-external-preview {
-    position: fixed;
-    z-index: 2147483000;
-    top: 90px;
-    right: calc(45vw + 24px);
-    display: grid;
-    gap: 12px;
-    width: min(320px, calc(55vw - 48px));
-    max-height: calc(100dvh - 120px);
-    overflow: visible;
-    color: $text-primary;
-    font-family: $font-body;
-    pointer-events: none;
+  position: fixed;
+  z-index: 2147483000;
+  top: 90px;
+  right: calc(45vw + 24px);
+  display: grid;
+  gap: 12px;
+  width: min(320px, calc(55vw - 48px));
+  max-height: calc(100dvh - 120px);
+  overflow: visible;
+  color: $text-primary;
+  font-family: $font-body;
+  pointer-events: none;
 }
 
 .workspace-folder-external-preview > app-badge,
 .workspace-folder-mobile-preview > app-badge {
-    justify-self: start;
+  justify-self: start;
 }
 
 .workspace-folder-external-preview app-workspace-folder-wrapper,
 .workspace-folder-mobile-preview app-workspace-folder-wrapper {
-    display: block;
-    width: 100%;
-    min-width: 0;
+  display: block;
+  width: 100%;
+  min-width: 0;
 }
 
 .workspace-folder-mobile-preview {
-    display: none;
+  display: none;
 }
 
 .workspace-folder-editor-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .workspace-folder-editor-footer-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .workspace-folder-editor-error {
-    padding: 10px;
-    color: #9B2626;
-    background: #FDEAE7;
-    border-radius: 8px;
-    font-size: 12px;
-    line-height: 1.5;
+  padding: 10px;
+  color: #9b2626;
+  background: #fdeae7;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 @media (max-width: 1199.98px) {
-    .workspace-folder-external-preview {
-        display: none;
-    }
+  .workspace-folder-external-preview {
+    display: none;
+  }
 
-    .workspace-folder-mobile-preview {
-        display: grid;
-        gap: 12px;
-        width: 100%;
-        max-width: 340px;
-        justify-self: center;
-    }
+  .workspace-folder-mobile-preview {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    max-width: 340px;
+    justify-self: center;
+  }
 }
 
 @media (max-width: 575.98px) {
-    .workspace-folder-editor {
-        gap: 14px;
-    }
+  .workspace-folder-editor {
+    gap: 14px;
+  }
 
-    .workspace-folder-field {
-        grid-template-columns: 48px minmax(0, 1fr);
-        gap: 6px;
-    }
+  .workspace-folder-field {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 6px;
+  }
 }

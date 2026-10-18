@@ -8,64 +8,56 @@
    ========================================================== */
 
 .workspace-mini-folder {
-    position: relative;
+  position: relative;
 
-    width: 1.875rem;
-    height: 1.375rem;
+  width: 1.875rem;
+  height: 1.375rem;
 
-    margin-top: 0.25rem;
+  margin-top: 0.25rem;
 
-    background:
-        linear-gradient(180deg, #ffd96a, #f3b927);
+  background: linear-gradient(180deg, #ffd96a, #f3b927);
 
-    border:
-        1px solid rgba(#976800, 0.30);
+  border: 1px solid rgba(#976800, 0.3);
 
-    border-radius:
-        0.1875rem 0.25rem 0.3125rem 0.3125rem;
+  border-radius: 0.1875rem 0.25rem 0.3125rem 0.3125rem;
 
-    box-shadow:
-        0 0.1875rem 0.4375rem rgba(#7e5900, 0.12);
+  box-shadow: 0 0.1875rem 0.4375rem rgba(#7e5900, 0.12);
 }
 
 .workspace-mini-folder::before {
-    position: absolute;
+  position: absolute;
 
-    top: -0.375rem;
-    left: 0.0625rem;
+  top: -0.375rem;
+  left: 0.0625rem;
 
-    width: 0.875rem;
-    height: 0.5rem;
+  width: 0.875rem;
+  height: 0.5rem;
 
-    content: '';
+  content: '';
 
-    background: #ffc83c;
+  background: #ffc83c;
 
-    border:
-        1px solid rgba(#976800, 0.26);
+  border: 1px solid rgba(#976800, 0.26);
 
-    border-bottom: 0;
+  border-bottom: 0;
 
-    border-radius:
-        0.25rem 0.3125rem 0 0;
+  border-radius: 0.25rem 0.3125rem 0 0;
 }
 
 .workspace-mini-folder::after {
-    position: absolute;
+  position: absolute;
 
-    top: 0.3125rem;
-    right: 0.1875rem;
-    left: 0.1875rem;
+  top: 0.3125rem;
+  right: 0.1875rem;
+  left: 0.1875rem;
 
-    height: 0.0625rem;
+  height: 0.0625rem;
 
-    content: '';
+  content: '';
 
-    background:
-        rgba(#895d00, 0.25);
+  background: rgba(#895d00, 0.25);
 
-    box-shadow:
-        0 0.25rem rgba(#895d00, 0.15);
+  box-shadow: 0 0.25rem rgba(#895d00, 0.15);
 }
 
 /* ==========================================================
@@ -73,143 +65,134 @@
    ========================================================== */
 
 .workspace-folder-grid {
-    display: grid;
-    flex: 1 1 auto;
+  display: grid;
+  flex: 1 1 auto;
 
-    width: 100%;
+  width: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    grid-template-columns:
-        repeat(auto-fill, minmax(11.25rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(11.25rem, 1fr));
 
-    align-content: start;
+  align-content: start;
 
-    gap: 0.75rem;
+  gap: 0.75rem;
 
-    padding:
-        0.125rem 0.125rem 0.75rem;
+  padding: 0.125rem 0.125rem 0.75rem;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.22) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.22) transparent;
 }
 
 .workspace-folder-grid::-webkit-scrollbar {
-    width: 0.5rem;
+  width: 0.5rem;
 }
 
 .workspace-folder-grid::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .workspace-folder-grid::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.20);
+  background: rgba($heading, 0.2);
 
-    border:
-        0.125rem solid $paper;
+  border: 0.125rem solid $paper;
 
-    border-radius: 999px;
+  border-radius: 999px;
 }
 
 .workspace-folder-grid::-webkit-scrollbar-button {
-    display: none;
+  display: none;
 
-    width: 0;
-    height: 0;
+  width: 0;
+  height: 0;
 }
 
 .workspace-folder-tile,
 .workspace-create-folder {
-    position: relative;
+  position: relative;
 
-    min-width: 0;
-    min-height: 13rem;
+  min-width: 0;
+  min-height: 13rem;
 
-    background: rgba($paper, 0.38);
+  background: rgba($paper, 0.38);
 
-    border:
-        1px solid rgba($border, 0.70);
+  border: 1px solid rgba($border, 0.7);
 
-    border-radius: 0.75rem;
+  border-radius: 0.75rem;
 
-    transition:
-        background-color 160ms ease,
-        border-color 160ms ease,
-        box-shadow 160ms ease;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .workspace-context-menu-origin {
-    position: fixed;
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
-    opacity: 0;
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0;
 }
 
 .workspace-folder-tile:hover,
 .workspace-folder-tile:focus-within {
-    background: rgba($note-yellow, 0.10);
+  background: rgba($note-yellow, 0.1);
 
-    border-color:
-        rgba($accent, 0.28);
+  border-color: rgba($accent, 0.28);
 
-    box-shadow:
-        0 0.5rem 1.25rem rgba($heading, 0.045);
+  box-shadow: 0 0.5rem 1.25rem rgba($heading, 0.045);
 }
 
 .workspace-folder-tile:hover .workspace-quick-edit,
 .workspace-folder-tile:hover .workspace-menu-trigger,
 .workspace-folder-tile:focus-within .workspace-quick-edit,
 .workspace-folder-tile:focus-within .workspace-menu-trigger {
-    opacity: 1;
+  opacity: 1;
 }
 
 .workspace-folder-tile.is-archived {
-    filter: saturate(0.72);
+  filter: saturate(0.72);
 }
 
 .workspace-folder-tile.is-busy {
-    pointer-events: none;
+  pointer-events: none;
 
-    opacity: 0.58;
+  opacity: 0.58;
 }
 
 .workspace-folder-open {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 
-    width: 100%;
+  width: 100%;
 
-    min-width: 0;
-    min-height: 10.625rem;
+  min-width: 0;
+  min-height: 10.625rem;
 
-    padding:
-        1.125rem 0.75rem 0.5rem;
+  padding: 1.125rem 0.75rem 0.5rem;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    background: transparent;
+  background: transparent;
 
-    border: 0;
-    border-radius: 0.6875rem;
+  border: 0;
+  border-radius: 0.6875rem;
 
-    text-align: center;
+  text-align: center;
 }
 
 .workspace-folder-open:focus-visible {
-    outline: none;
+  outline: none;
 
-    box-shadow:
-        var(--app-focus-ring);
+  box-shadow: var(--app-focus-ring);
 }
 
 /* ==========================================================
@@ -217,187 +200,166 @@
    ========================================================== */
 
 .workspace-folder-visual {
-    --folder-back: #ffc937;
-    --folder-front: #ffd65b;
-    --folder-edge: rgba(142, 98, 0, 0.24);
-    --folder-paper: #fffdf8;
-    --folder-accent: #d97706;
+  --folder-back: #ffc937;
+  --folder-front: #ffd65b;
+  --folder-edge: rgba(142, 98, 0, 0.24);
+  --folder-paper: #fffdf8;
+  --folder-accent: #d97706;
 
-    position: relative;
+  position: relative;
 
-    display: block;
-    flex: 0 0 auto;
+  display: block;
+  flex: 0 0 auto;
 
-    width: 7rem;
-    height: 4.875rem;
+  width: 7rem;
+  height: 4.875rem;
 
-    filter:
-        drop-shadow(0 0.375rem 0.4375rem rgba(#715100, 0.12));
+  filter: drop-shadow(0 0.375rem 0.4375rem rgba(#715100, 0.12));
 }
 
 .workspace-folder-visual.notePink {
-    --folder-paper: #fff0f5;
-    --folder-accent: #b94b75;
+  --folder-paper: #fff0f5;
+  --folder-accent: #b94b75;
 }
 
 .workspace-folder-visual.noteBlue {
-    --folder-paper: #edf7ff;
-    --folder-accent: #3f75a2;
+  --folder-paper: #edf7ff;
+  --folder-accent: #3f75a2;
 }
 
 .workspace-folder-visual.noteGreen {
-    --folder-paper: #eff9ed;
-    --folder-accent: #4e7b47;
+  --folder-paper: #eff9ed;
+  --folder-accent: #4e7b47;
 }
 
 .workspace-folder-visual.noteOrange {
-    --folder-paper: #fff2e5;
-    --folder-accent: #b56628;
+  --folder-paper: #fff2e5;
+  --folder-accent: #b56628;
 }
 
 .workspace-folder-visual.notePurple {
-    --folder-paper: #f5efff;
-    --folder-accent: #74559a;
+  --folder-paper: #f5efff;
+  --folder-accent: #74559a;
 }
 
 .workspace-folder-visual.noteRed {
-    --folder-paper: #fff0ef;
-    --folder-accent: #a94b45;
+  --folder-paper: #fff0ef;
+  --folder-accent: #a94b45;
 }
 
 .workspace-folder-visual.noteBrown {
-    --folder-paper: #f4eee7;
-    --folder-accent: #765a43;
+  --folder-paper: #f4eee7;
+  --folder-accent: #765a43;
 }
 
 .workspace-folder-visual.noteBlack {
-    --folder-paper: #edecec;
-    --folder-accent: #303030;
+  --folder-paper: #edecec;
+  --folder-accent: #303030;
 }
 
 .workspace-folder-back {
-    position: absolute;
+  position: absolute;
 
-    inset:
-        0.75rem 0.125rem 0.375rem;
+  inset: 0.75rem 0.125rem 0.375rem;
 
-    background:
-        linear-gradient(180deg, var(--folder-back), #f1b51f);
+  background: linear-gradient(180deg, var(--folder-back), #f1b51f);
 
-    border:
-        1px solid var(--folder-edge);
+  border: 1px solid var(--folder-edge);
 
-    border-radius:
-        0.375rem 0.4375rem 0.5rem 0.5rem;
+  border-radius: 0.375rem 0.4375rem 0.5rem 0.5rem;
 }
 
 .workspace-folder-back::before {
-    position: absolute;
+  position: absolute;
 
-    top: -0.75rem;
-    left: -0.0625rem;
+  top: -0.75rem;
+  left: -0.0625rem;
 
-    width: 2.75rem;
-    height: 1.125rem;
+  width: 2.75rem;
+  height: 1.125rem;
 
-    content: '';
+  content: '';
 
-    background:
-        var(--folder-back);
+  background: var(--folder-back);
 
-    border:
-        1px solid var(--folder-edge);
+  border: 1px solid var(--folder-edge);
 
-    border-bottom: 0;
+  border-bottom: 0;
 
-    border-radius:
-        0.4375rem 0.5625rem 0 0;
+  border-radius: 0.4375rem 0.5625rem 0 0;
 
-    clip-path:
-        polygon(0 0, 72% 0, 100% 56%, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, 72% 0, 100% 56%, 100% 100%, 0 100%);
 }
 
 .workspace-folder-sheet {
-    position: absolute;
-    z-index: 1;
+  position: absolute;
+  z-index: 1;
 
-    top: 1.3125rem;
-    right: 0.625rem;
-    left: 0.625rem;
+  top: 1.3125rem;
+  right: 0.625rem;
+  left: 0.625rem;
 
-    height: 2.875rem;
+  height: 2.875rem;
 
-    padding:
-        0.625rem 0.75rem;
+  padding: 0.625rem 0.75rem;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    background:
-        var(--folder-paper);
+  background: var(--folder-paper);
 
-    border:
-        1px solid rgba($border, 0.90);
+  border: 1px solid rgba($border, 0.9);
 
-    border-radius:
-        0.3125rem 0.3125rem 0.125rem 0.125rem;
+  border-radius: 0.3125rem 0.3125rem 0.125rem 0.125rem;
 
-    box-shadow:
-        0 0.125rem 0.25rem rgba($heading, 0.06);
+  box-shadow: 0 0.125rem 0.25rem rgba($heading, 0.06);
 
-    transform:
-        rotate(-1.2deg);
+  transform: rotate(-1.2deg);
 }
 
 .workspace-folder-sheet span {
-    display: block;
+  display: block;
 
-    width: 76%;
-    height: 0.125rem;
+  width: 76%;
+  height: 0.125rem;
 
-    margin-bottom: 0.3125rem;
+  margin-bottom: 0.3125rem;
 
-    background:
-        color-mix(in srgb, var(--folder-accent) 30%, transparent);
+  background: color-mix(in srgb, var(--folder-accent) 30%, transparent);
 
-    border-radius: 999px;
+  border-radius: 999px;
 }
 
 .workspace-folder-sheet span:nth-child(2) {
-    width: 92%;
+  width: 92%;
 }
 
 .workspace-folder-sheet span:nth-child(3) {
-    width: 58%;
+  width: 58%;
 }
 
 .workspace-folder-front {
-    position: absolute;
-    z-index: 2;
+  position: absolute;
+  z-index: 2;
 
-    right: 0;
-    bottom: 0;
-    left: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 
-    display: grid;
+  display: grid;
 
-    height: 2.875rem;
+  height: 2.875rem;
 
-    color:
-        color-mix(in srgb, var(--folder-accent) 74%, #222);
+  color: color-mix(in srgb, var(--folder-accent) 74%, #222);
 
-    background:
-        linear-gradient(180deg, #ffdc72, var(--folder-front));
+  background: linear-gradient(180deg, #ffdc72, var(--folder-front));
 
-    border:
-        1px solid var(--folder-edge);
+  border: 1px solid var(--folder-edge);
 
-    border-radius:
-        0.4375rem 0.4375rem 0.5625rem 0.5625rem;
+  border-radius: 0.4375rem 0.4375rem 0.5625rem 0.5625rem;
 
-    box-shadow:
-        inset 0 1px rgba(#fff, 0.45);
+  box-shadow: inset 0 1px rgba(#fff, 0.45);
 
-    place-items: center;
+  place-items: center;
 }
 
 /* ==========================================================
@@ -405,84 +367,82 @@
    ========================================================== */
 
 .workspace-folder-copy {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 
-    width: 100%;
+  width: 100%;
 
-    min-width: 0;
+  min-width: 0;
 
-    margin-top: 0.625rem;
+  margin-top: 0.625rem;
 
-    gap: 0.25rem;
+  gap: 0.25rem;
 }
 
 .workspace-folder-copy strong,
 .workspace-folder-copy small {
-    display: block;
+  display: block;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    width: 100%;
+  width: 100%;
 
-    text-overflow: ellipsis;
+  text-overflow: ellipsis;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .workspace-folder-copy strong {
-    color: $heading;
+  color: $heading;
 
-    font-size: var(--workspace-font-14);
-    font-weight: 750;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
+  font-size: var(--workspace-font-14);
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .workspace-folder-copy small {
-    color: $text-light;
+  color: $text-light;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 500;
-    line-height: 1.35;
+  font-size: var(--workspace-font-13);
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .workspace-folder-meta {
-    display: grid;
-    grid-template-columns:
-        auto auto minmax(0, 1fr);
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
 
-    align-items: center;
+  align-items: center;
 
-    min-width: 0;
+  min-width: 0;
 
-    gap: 0.5rem;
+  gap: 0.5rem;
 
-    padding:
-        0 0.75rem 0.75rem;
+  padding: 0 0.75rem 0.75rem;
 
-    color: $text-light;
+  color: $text-light;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 600;
-    line-height: 1.35;
+  font-size: var(--workspace-font-13);
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .workspace-folder-meta span {
-    display: inline-flex;
-    align-items: center;
+  display: inline-flex;
+  align-items: center;
 
-    gap: 0.1875rem;
+  gap: 0.1875rem;
 }
 
 .workspace-folder-meta time {
-    overflow: hidden;
+  overflow: hidden;
 
-    text-align: right;
-    text-overflow: ellipsis;
+  text-align: right;
+  text-overflow: ellipsis;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* ==========================================================
@@ -490,105 +450,95 @@
    ========================================================== */
 
 .workspace-create-folder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 
-    padding: 1rem;
+  padding: 1rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    background: rgba($paper, 0.34);
+  background: rgba($paper, 0.34);
 
-    border-style: dashed;
+  border-style: dashed;
 
-    text-align: center;
+  text-align: center;
 }
 
 .workspace-create-folder:hover,
 .workspace-create-folder:focus-visible {
-    color: $heading;
+  color: $heading;
 
-    background: rgba($note-yellow, 0.10);
+  background: rgba($note-yellow, 0.1);
 
-    border-color:
-        rgba($accent, 0.38);
+  border-color: rgba($accent, 0.38);
 
-    box-shadow:
-        0 0.5rem 1.25rem rgba($heading, 0.04);
+  box-shadow: 0 0.5rem 1.25rem rgba($heading, 0.04);
 
-    outline: none;
+  outline: none;
 }
 
 .workspace-create-folder strong {
-    margin-top: 0.75rem;
+  margin-top: 0.75rem;
 
-    color: $heading;
+  color: $heading;
 
-    font-size: var(--workspace-font-14);
-    font-weight: 750;
-    line-height: 1.35;
+  font-size: var(--workspace-font-14);
+  font-weight: 750;
+  line-height: 1.35;
 }
 
 .workspace-create-folder small {
-    margin-top: 0.25rem;
+  margin-top: 0.25rem;
 
-    color: $text-light;
+  color: $text-light;
 
-    font-family: $font-note;
-    font-size: var(--workspace-font-13);
-    font-weight: 700;
-    line-height: 1.35;
+  font-family: $font-note;
+  font-size: var(--workspace-font-13);
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .workspace-create-folder-visual {
-    position: relative;
+  position: relative;
 
-    display: grid;
+  display: grid;
 
-    width: 5.75rem;
-    height: 4rem;
+  width: 5.75rem;
+  height: 4rem;
 
-    color: #785900;
+  color: #785900;
 
-    background:
-        linear-gradient(180deg,
-            rgba($note-yellow, 0.82),
-            rgba($note-button-yellow, 0.72));
+  background: linear-gradient(180deg, rgba($note-yellow, 0.82), rgba($note-button-yellow, 0.72));
 
-    border:
-        1px solid rgba(#8b6500, 0.22);
+  border: 1px solid rgba(#8b6500, 0.22);
 
-    border-radius:
-        0.4375rem 0.4375rem 0.5625rem 0.5625rem;
+  border-radius: 0.4375rem 0.4375rem 0.5625rem 0.5625rem;
 
-    box-shadow:
-        0 0.375rem 0.625rem rgba(#755500, 0.10);
+  box-shadow: 0 0.375rem 0.625rem rgba(#755500, 0.1);
 
-    place-items: center;
+  place-items: center;
 }
 
-.workspace-create-folder-visual>span {
-    position: absolute;
+.workspace-create-folder-visual > span {
+  position: absolute;
 
-    top: -0.625rem;
-    left: -0.0625rem;
+  top: -0.625rem;
+  left: -0.0625rem;
 
-    width: 2.25rem;
-    height: 0.875rem;
+  width: 2.25rem;
+  height: 0.875rem;
 
-    background: $note-button-yellow;
+  background: $note-button-yellow;
 
-    border:
-        1px solid rgba(#8b6500, 0.20);
+  border: 1px solid rgba(#8b6500, 0.2);
 
-    border-bottom: 0;
+  border-bottom: 0;
 
-    border-radius:
-        0.375rem 0.4375rem 0 0;
+  border-radius: 0.375rem 0.4375rem 0 0;
 }
 
 /* ==========================================================
@@ -597,134 +547,124 @@
 
 .workspace-quick-edit,
 .workspace-menu-trigger {
-    position: absolute;
-    z-index: 20;
+  position: absolute;
+  z-index: 20;
 
-    top: 0.5rem;
+  top: 0.5rem;
 
-    display: grid;
+  display: grid;
 
-    width: 2rem;
-    min-width: 2rem;
-    height: 2rem;
-    min-height: 2rem;
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
 
-    padding: 0;
+  padding: 0;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    border-radius: 0.5rem;
+  border-radius: 0.5rem;
 
-    place-items: center;
+  place-items: center;
 
-    transition:
-        opacity 150ms ease,
-        background-color 150ms ease,
-        box-shadow 150ms ease;
+  transition:
+    opacity 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .workspace-quick-edit {
-    right: 2.9375rem;
+  right: 2.9375rem;
 
-    color: #386d97;
-    background: rgba($note-blue, 0.48);
+  color: #386d97;
+  background: rgba($note-blue, 0.48);
 
-    border:
-        1px solid rgba(#386d97, 0.18);
+  border: 1px solid rgba(#386d97, 0.18);
 
-    box-shadow:
-        0 0.25rem 0.625rem rgba($heading, 0.05);
+  box-shadow: 0 0.25rem 0.625rem rgba($heading, 0.05);
 
-    opacity: 0;
+  opacity: 0;
 }
 
 .workspace-quick-edit:hover {
-    background:
-        rgba($note-blue, 0.68);
+  background: rgba($note-blue, 0.68);
 }
 
 .workspace-menu-trigger {
-    right: 0.5rem;
+  right: 0.5rem;
 
-    color: $text-secondary;
-    background: rgba($paper, 0.90);
+  color: $text-secondary;
+  background: rgba($paper, 0.9);
 
-    border:
-        1px solid rgba($border, 0.78);
+  border: 1px solid rgba($border, 0.78);
 
-    box-shadow:
-        0 0.1875rem 0.5rem rgba($heading, 0.04);
+  box-shadow: 0 0.1875rem 0.5rem rgba($heading, 0.04);
 
-    opacity: 0;
+  opacity: 0;
 }
 
 .workspace-menu-trigger:hover {
-    color: $heading;
-    background: $paper;
+  color: $heading;
+  background: $paper;
 }
 
 .workspace-menu-trigger[aria-expanded='true'],
 .workspace-menu-trigger:focus-visible {
-    opacity: 1;
+  opacity: 1;
 }
 
 .workspace-inline-rename {
-    display: block;
+  display: block;
 
-    width: min(100%, 10rem);
-    height: 2rem;
+  width: min(100%, 10rem);
+  height: 2rem;
 
-    margin:
-        -0.1875rem auto 0;
+  margin: -0.1875rem auto 0;
 
-    padding:
-        0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem;
 
-    color: $heading;
-    background: $paper;
+  color: $heading;
+  background: $paper;
 
-    border:
-        1px solid $accent;
+  border: 1px solid $accent;
 
-    border-radius: 0.375rem;
+  border-radius: 0.375rem;
 
-    box-shadow:
-        0 0 0 0.1875rem rgba($accent, 0.11);
+  box-shadow: 0 0 0 0.1875rem rgba($accent, 0.11);
 
-    font-family: $font-body;
-    font-size: var(--workspace-font-14);
-    font-weight: 700;
-    line-height: 1.25;
+  font-family: $font-body;
+  font-size: var(--workspace-font-14);
+  font-weight: 700;
+  line-height: 1.25;
 
-    outline: none;
+  outline: none;
 
-    text-align: center;
+  text-align: center;
 }
 
 .workspace-inline-rename.is-list {
-    width: 100%;
-    max-width: 15rem;
+  width: 100%;
+  max-width: 15rem;
 
-    margin: 0;
+  margin: 0;
 
-    text-align: left;
+  text-align: left;
 }
 
 .workspace-inline-rename.is-invalid {
-    border-color: $danger;
+  border-color: $danger;
 
-    box-shadow:
-        0 0 0 0.1875rem rgba($danger, 0.10);
+  box-shadow: 0 0 0 0.1875rem rgba($danger, 0.1);
 }
 
 .workspace-name-editable {
-    cursor: text;
+  cursor: text;
 
-    border-radius: 0.25rem;
+  border-radius: 0.25rem;
 }
 
 .workspace-name-editable:hover {
-    color: $accent !important;
+  color: $accent !important;
 }
 
 /* ==========================================================
@@ -732,441 +672,421 @@
    ========================================================== */
 
 .workspace-notes-table {
-    --workspace-table-columns:
-        minmax(18rem, 1fr) 7rem 5.5rem 6rem 7.5rem 9.75rem;
+  --workspace-table-columns: minmax(18rem, 1fr) 7rem 5.5rem 6rem 7.5rem 9.75rem;
 
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    min-width: 0;
-    min-height: 0;
+  min-width: 0;
+  min-height: 0;
 
-    margin: 0;
+  margin: 0;
 
-    color: $text-primary;
-    background: transparent;
+  color: $text-primary;
+  background: transparent;
 
-    border: 0;
-    border-collapse: separate;
-    border-spacing: 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
 
-    --bs-table-bg: transparent;
-    --bs-table-color: #{$text-primary};
-    --bs-table-hover-bg: transparent;
-    --bs-table-hover-color: #{$text-primary};
-    --bs-table-border-color: transparent;
+  --bs-table-bg: transparent;
+  --bs-table-color: #{$text-primary};
+  --bs-table-hover-bg: transparent;
+  --bs-table-hover-color: #{$text-primary};
+  --bs-table-border-color: transparent;
 }
 
 .workspace-notes-table thead {
-    display: block;
-    flex: 0 0 auto;
+  display: block;
+  flex: 0 0 auto;
 
-    width: 100%;
+  width: 100%;
 
-    background:
-        rgba($paper-dark, 0.34);
+  background: rgba($paper-dark, 0.34);
 
-    border-bottom:
-        1px solid rgba($border, 0.82);
+  border-bottom: 1px solid rgba($border, 0.82);
 }
 
 .workspace-notes-table thead tr {
-    display: grid;
-    grid-template-columns:
-        var(--workspace-table-columns);
+  display: grid;
+  grid-template-columns: var(--workspace-table-columns);
 
-    align-items: center;
+  align-items: center;
 
-    width: 100%;
+  width: 100%;
 }
 
 .workspace-notes-table thead th {
-    width: auto !important;
-    height: 2.625rem;
+  width: auto !important;
+  height: 2.625rem;
 
-    padding:
-        0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem;
 
-    color: $text-light;
-    background: transparent;
+  color: $text-light;
+  background: transparent;
 
-    border: 0;
+  border: 0;
 
-    font-family: $font-mono;
-    font-size: var(--workspace-font-13);
-    font-weight: 800;
-    line-height: 1.3;
-    letter-spacing: 0.04em;
+  font-family: $font-mono;
+  font-size: var(--workspace-font-13);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
 
-    text-align: left;
-    text-transform: uppercase;
-    vertical-align: middle;
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .workspace-notes-table tbody {
-    display: block;
-    flex: 1 1 auto;
+  display: block;
+  flex: 1 1 auto;
 
-    width: 100%;
+  width: 100%;
 
-    min-height: 0;
+  min-height: 0;
 
-    padding-bottom: 0.625rem;
+  padding-bottom: 0.625rem;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color:
-        rgba($heading, 0.22) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($heading, 0.22) transparent;
 }
 
 .workspace-notes-table tbody::-webkit-scrollbar {
-    width: 0.5rem;
+  width: 0.5rem;
 }
 
 .workspace-notes-table tbody::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .workspace-notes-table tbody::-webkit-scrollbar-thumb {
-    background: rgba($heading, 0.20);
+  background: rgba($heading, 0.2);
 
-    border:
-        0.125rem solid $paper;
+  border: 0.125rem solid $paper;
 
-    border-radius: 999px;
+  border-radius: 999px;
 }
 
 .workspace-notes-table tbody tr {
-    --workspace-accent: #e7ad18;
-    --workspace-surface: rgba(255, 211, 74, 0.08);
-    --workspace-surface-hover: rgba(255, 211, 74, 0.15);
+  --workspace-accent: #e7ad18;
+  --workspace-surface: rgba(255, 211, 74, 0.08);
+  --workspace-surface-hover: rgba(255, 211, 74, 0.15);
 
-    display: grid;
-    grid-template-columns:
-        var(--workspace-table-columns);
+  display: grid;
+  grid-template-columns: var(--workspace-table-columns);
 
-    align-items: center;
+  align-items: center;
 
-    width: 100%;
+  width: 100%;
 
-    background:
-        linear-gradient(90deg, var(--workspace-surface), transparent 68%);
+  background: linear-gradient(90deg, var(--workspace-surface), transparent 68%);
 
-    border-bottom:
-        1px solid rgba($border, 0.62);
+  border-bottom: 1px solid rgba($border, 0.62);
 
-    // transition: *background* 140ms ease,
-    // box-shadow 140ms ease;
+  // transition: *background* 140ms ease,
+  // box-shadow 140ms ease;
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='notePink'] {
-    --workspace-accent: #d96b93;
-    --workspace-surface: rgba(244, 146, 181, 0.08);
-    --workspace-surface-hover: rgba(244, 146, 181, 0.15);
+  --workspace-accent: #d96b93;
+  --workspace-surface: rgba(244, 146, 181, 0.08);
+  --workspace-surface-hover: rgba(244, 146, 181, 0.15);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteBlue'] {
-    --workspace-accent: #4f91d8;
-    --workspace-surface: rgba(111, 174, 235, 0.08);
-    --workspace-surface-hover: rgba(111, 174, 235, 0.15);
+  --workspace-accent: #4f91d8;
+  --workspace-surface: rgba(111, 174, 235, 0.08);
+  --workspace-surface-hover: rgba(111, 174, 235, 0.15);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteGreen'] {
-    --workspace-accent: #36b86e;
-    --workspace-surface: rgba(83, 194, 125, 0.08);
-    --workspace-surface-hover: rgba(83, 194, 125, 0.15);
+  --workspace-accent: #36b86e;
+  --workspace-surface: rgba(83, 194, 125, 0.08);
+  --workspace-surface-hover: rgba(83, 194, 125, 0.15);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteOrange'] {
-    --workspace-accent: #e58a32;
-    --workspace-surface: rgba(241, 157, 74, 0.08);
-    --workspace-surface-hover: rgba(241, 157, 74, 0.15);
+  --workspace-accent: #e58a32;
+  --workspace-surface: rgba(241, 157, 74, 0.08);
+  --workspace-surface-hover: rgba(241, 157, 74, 0.15);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='notePurple'] {
-    --workspace-accent: #8d69cf;
-    --workspace-surface: rgba(153, 119, 214, 0.08);
-    --workspace-surface-hover: rgba(153, 119, 214, 0.15);
+  --workspace-accent: #8d69cf;
+  --workspace-surface: rgba(153, 119, 214, 0.08);
+  --workspace-surface-hover: rgba(153, 119, 214, 0.15);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteRed'] {
-    --workspace-accent: #d85d57;
-    --workspace-surface: rgba(226, 102, 96, 0.075);
-    --workspace-surface-hover: rgba(226, 102, 96, 0.14);
+  --workspace-accent: #d85d57;
+  --workspace-surface: rgba(226, 102, 96, 0.075);
+  --workspace-surface-hover: rgba(226, 102, 96, 0.14);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteBrown'] {
-    --workspace-accent: #8b694e;
-    --workspace-surface: rgba(148, 109, 78, 0.075);
-    --workspace-surface-hover: rgba(148, 109, 78, 0.14);
+  --workspace-accent: #8b694e;
+  --workspace-surface: rgba(148, 109, 78, 0.075);
+  --workspace-surface-hover: rgba(148, 109, 78, 0.14);
 }
 
 .workspace-notes-table tbody tr[data-workspace-theme='noteBlack'] {
-    --workspace-accent: #424242;
-    --workspace-surface: rgba(55, 55, 55, 0.05);
-    --workspace-surface-hover: rgba(55, 55, 55, 0.09);
+  --workspace-accent: #424242;
+  --workspace-surface: rgba(55, 55, 55, 0.05);
+  --workspace-surface-hover: rgba(55, 55, 55, 0.09);
 }
 
 .workspace-notes-table tbody tr:hover,
 .workspace-notes-table tbody tr:focus-within {
-    background:
-        linear-gradient(90deg, var(--workspace-surface-hover), transparent 72%);
+  background: linear-gradient(90deg, var(--workspace-surface-hover), transparent 72%);
 }
 
 .workspace-notes-table tbody tr:last-child {
-    border-bottom: 0;
+  border-bottom: 0;
 }
 
 .workspace-notes-table tbody tr.is-archived {
-    filter: saturate(0.70);
+  filter: saturate(0.7);
 }
 
 .workspace-notes-table tbody tr.is-busy {
-    pointer-events: none;
+  pointer-events: none;
 
-    opacity: 0.55;
+  opacity: 0.55;
 }
 
 .workspace-notes-table tbody td {
-    width: auto !important;
-    min-width: 0;
-    height: 4.5rem;
+  width: auto !important;
+  min-width: 0;
+  height: 4.5rem;
 
-    padding:
-        0.625rem 0.75rem;
+  padding: 0.625rem 0.75rem;
 
-    background: transparent;
+  background: transparent;
 
-    border: 0;
+  border: 0;
 
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .workspace-table-name-main {
-    display: grid;
-    grid-template-columns:
-        3rem minmax(0, 1fr);
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
 
-    align-items: center;
+  align-items: center;
 
-    min-width: 0;
+  min-width: 0;
 
-    gap: 0.625rem;
+  gap: 0.625rem;
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .workspace-folder-thumbnail {
-    --thumb-accent: #a66e00;
+  --thumb-accent: #a66e00;
 
-    position: relative;
+  position: relative;
 
-    display: grid;
+  display: grid;
 
-    width: 2.625rem;
-    height: 1.8125rem;
+  width: 2.625rem;
+  height: 1.8125rem;
 
-    color: var(--thumb-accent);
+  color: var(--thumb-accent);
 
-    background:
-        linear-gradient(180deg, #ffdc73, #ffc842);
+  background: linear-gradient(180deg, #ffdc73, #ffc842);
 
-    border:
-        1px solid rgba(#916200, 0.22);
+  border: 1px solid rgba(#916200, 0.22);
 
-    border-radius:
-        0.25rem 0.25rem 0.3125rem 0.3125rem;
+  border-radius: 0.25rem 0.25rem 0.3125rem 0.3125rem;
 
-    box-shadow:
-        0 0.1875rem 0.375rem rgba(#765100, 0.09);
+  box-shadow: 0 0.1875rem 0.375rem rgba(#765100, 0.09);
 
-    place-items: center;
+  place-items: center;
 }
 
 .workspace-folder-thumbnail::after {
-    position: absolute;
+  position: absolute;
 
-    top: -0.375rem;
-    left: 0;
+  top: -0.375rem;
+  left: 0;
 
-    width: 1.125rem;
-    height: 0.5625rem;
+  width: 1.125rem;
+  height: 0.5625rem;
 
-    content: '';
+  content: '';
 
-    background: #ffc63a;
+  background: #ffc63a;
 
-    border-radius:
-        0.25rem 0.3125rem 0 0;
+  border-radius: 0.25rem 0.3125rem 0 0;
 }
 
 .workspace-folder-thumbnail.notePink {
-    --thumb-accent: #a9476b;
+  --thumb-accent: #a9476b;
 }
 
 .workspace-folder-thumbnail.noteBlue {
-    --thumb-accent: #376f9d;
+  --thumb-accent: #376f9d;
 }
 
 .workspace-folder-thumbnail.noteGreen {
-    --thumb-accent: #47753f;
+  --thumb-accent: #47753f;
 }
 
 .workspace-folder-thumbnail.noteOrange {
-    --thumb-accent: #ad5d23;
+  --thumb-accent: #ad5d23;
 }
 
 .workspace-folder-thumbnail.notePurple {
-    --thumb-accent: #6b4c90;
+  --thumb-accent: #6b4c90;
 }
 
 .workspace-folder-thumbnail.noteRed {
-    --thumb-accent: #a14540;
+  --thumb-accent: #a14540;
 }
 
 .workspace-folder-thumbnail.noteBrown {
-    --thumb-accent: #6f523d;
+  --thumb-accent: #6f523d;
 }
 
 .workspace-folder-thumbnail.noteBlack {
-    --thumb-accent: #262626;
+  --thumb-accent: #262626;
 }
 
 .workspace-folder-thumbnail app-icon {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 
-    margin-top: 0.125rem;
+  margin-top: 0.125rem;
 }
 
 .workspace-table-copy {
-    min-width: 0;
+  min-width: 0;
 }
 
 .workspace-table-copy strong,
 .workspace-table-copy small {
-    display: block;
+  display: block;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    text-overflow: ellipsis;
+  text-overflow: ellipsis;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .workspace-table-copy strong {
-    color: $heading;
+  color: $heading;
 
-    font-size: var(--workspace-font-14);
-    font-weight: 760;
-    line-height: 1.35;
+  font-size: var(--workspace-font-14);
+  font-weight: 760;
+  line-height: 1.35;
 }
 
 .workspace-table-copy small {
-    margin-top: 0.1875rem;
+  margin-top: 0.1875rem;
 
-    color: $text-light;
+  color: $text-light;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 500;
-    line-height: 1.35;
+  font-size: var(--workspace-font-13);
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .workspace-table-number,
 .workspace-table-modified {
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 600;
-    line-height: 1.35;
+  font-size: var(--workspace-font-13);
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .workspace-table-modified {
-    color: $text-light;
+  color: $text-light;
 }
 
 .workspace-table-number span {
-    display: inline-flex;
-    align-items: center;
+  display: inline-flex;
+  align-items: center;
 
-    gap: 0.3125rem;
+  gap: 0.3125rem;
 }
 
 .workspace-table-actions-heading {
-    text-align: right !important;
+  text-align: right !important;
 }
 
 .workspace-table-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 
-    min-width: 0;
+  min-width: 0;
 
-    text-align: right !important;
+  text-align: right !important;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .workspace-table-action-group {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
 
-    gap: 0.25rem;
+  gap: 0.25rem;
 
-    padding: 0.25rem;
+  padding: 0.25rem;
 
-    background: $paper;
+  background: $paper;
 
-    border:
-        1px solid rgba($border, 0.74);
+  border: 1px solid rgba($border, 0.74);
 
-    border-radius: 0.625rem;
+  border-radius: 0.625rem;
 }
 
 .workspace-table-menu-button {
-    display: grid;
+  display: grid;
 
-    width: 1.75rem;
-    min-width: 1.75rem;
-    height: 1.75rem;
-    min-height: 1.75rem;
+  width: 1.75rem;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  min-height: 1.75rem;
 
-    padding: 0;
+  padding: 0;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    background: $paper;
+  background: $paper;
 
-    border:
-        1px solid rgba($border, 0.82);
+  border: 1px solid rgba($border, 0.82);
 
-    border-radius: 999px;
+  border-radius: 999px;
 
-    place-items: center;
+  place-items: center;
 }
 
 .workspace-table-menu-button:hover {
-    color: $heading;
-    background: $paper-light;
+  color: $heading;
+  background: $paper-light;
 }
 
 .workspace-table-menu-button:disabled {
-    cursor: not-allowed;
+  cursor: not-allowed;
 
-    opacity: 0.45;
+  opacity: 0.45;
 }
 
 /* ==========================================================
@@ -1174,141 +1094,133 @@
    ========================================================== */
 
 ::ng-deep .workspace-actions-menu.mat-mdc-menu-panel {
-    min-width: 14.5rem;
-    max-width: 15.5rem;
+  min-width: 14.5rem;
+  max-width: 15.5rem;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    background:
-        repeating-linear-gradient(to bottom,
-            transparent 0 2rem,
-            rgba($border, 0.10) 2.0625rem),
-        $paper;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 2rem, rgba($border, 0.1) 2.0625rem), $paper;
 
-    border:
-        1px solid rgba($border, 0.92);
+  border: 1px solid rgba($border, 0.92);
 
-    border-radius: 0.75rem;
+  border-radius: 0.75rem;
 
-    box-shadow:
-        0 1.125rem 2.625rem rgba($heading, 0.16),
-        0 0.1875rem 0.625rem rgba($heading, 0.06);
+  box-shadow:
+    0 1.125rem 2.625rem rgba($heading, 0.16),
+    0 0.1875rem 0.625rem rgba($heading, 0.06);
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-content {
-    padding: 0.5rem;
+  padding: 0.5rem;
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item {
-    min-height: 3rem;
-    height: auto;
+  min-height: 3rem;
+  height: auto;
 
-    padding:
-        0.3125rem 0.5rem;
+  padding: 0.3125rem 0.5rem;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    border-radius: 0.5rem;
+  border-radius: 0.5rem;
 
-    font-family: $font-body;
-    line-height: 1.2;
+  font-family: $font-body;
+  line-height: 1.2;
 }
 
-::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item+.workspace-action-item {
-    margin-top: 0.125rem;
+::ng-deep
+  .workspace-actions-menu
+  .mat-mdc-menu-item.workspace-action-item
+  + .workspace-action-item {
+  margin-top: 0.125rem;
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item:hover,
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item:focus-visible {
-    background:
-        rgba($note-yellow, 0.18);
+  background: rgba($note-yellow, 0.18);
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item.is-open {
-    background:
-        rgba($note-yellow, 0.24);
+  background: rgba($note-yellow, 0.24);
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item.workspace-action-item.is-edit {
-    background:
-        rgba($note-blue, 0.16);
+  background: rgba($note-blue, 0.16);
 }
 
 ::ng-deep .workspace-actions-menu .mat-mdc-menu-item-text {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    width: 100%;
+  width: 100%;
 
-    gap: 0.625rem;
+  gap: 0.625rem;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-item-icon {
-    display: grid;
+  display: grid;
 
-    width: 1.875rem;
-    height: 1.875rem;
+  width: 1.875rem;
+  height: 1.875rem;
 
-    flex: 0 0 1.875rem;
+  flex: 0 0 1.875rem;
 
-    color: $text-secondary;
-    background: rgba($paper-dark, 0.58);
+  color: $text-secondary;
+  background: rgba($paper-dark, 0.58);
 
-    border:
-        1px solid rgba($border, 0.72);
+  border: 1px solid rgba($border, 0.72);
 
-    border-radius: 0.4375rem;
+  border-radius: 0.4375rem;
 
-    place-items: center;
+  place-items: center;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-item-copy {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 
-    min-width: 0;
+  min-width: 0;
 
-    gap: 0.125rem;
+  gap: 0.125rem;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-item-copy strong {
-    color: $heading;
+  color: $heading;
 
-    font-size: var(--workspace-font-14);
-    font-weight: 730;
-    line-height: 1.25;
+  font-size: var(--workspace-font-14);
+  font-weight: 730;
+  line-height: 1.25;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-item-copy small {
-    color: $text-light;
+  color: $text-light;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 500;
-    line-height: 1.3;
+  font-size: var(--workspace-font-13);
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-danger {
-    color: $danger;
+  color: $danger;
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-danger .workspace-menu-item-icon {
-    color: $danger;
-    background: rgba($danger, 0.065);
+  color: $danger;
+  background: rgba($danger, 0.065);
 
-    border-color:
-        rgba($danger, 0.14);
+  border-color: rgba($danger, 0.14);
 }
 
 ::ng-deep .workspace-actions-menu .workspace-menu-danger .workspace-menu-item-copy strong {
-    color: $danger;
+  color: $danger;
 }
 
 ::ng-deep .workspace-actions-menu .mat-divider {
-    margin-block: 0.25rem;
+  margin-block: 0.25rem;
 
-    border-color:
-        $border-light;
+  border-color: $border-light;
 }
 
 /* ==========================================================
@@ -1316,413 +1228,378 @@
    ========================================================== */
 
 .workspace-dialog-backdrop {
-    position: fixed;
-    z-index: 1100;
+  position: fixed;
+  z-index: 1100;
 
-    inset: 0;
+  inset: 0;
 
-    display: grid;
+  display: grid;
 
-    padding: 1.5rem;
+  padding: 1.5rem;
 
-    background:
-        radial-gradient(circle at 50% 32%,
-            rgba($note-yellow, 0.12),
-            transparent 25rem),
-        radial-gradient(circle at 20% 80%,
-            rgba($note-blue, 0.07),
-            transparent 24rem),
-        rgba($heading, 0.49);
+  background:
+    radial-gradient(circle at 50% 32%, rgba($note-yellow, 0.12), transparent 25rem),
+    radial-gradient(circle at 20% 80%, rgba($note-blue, 0.07), transparent 24rem),
+    rgba($heading, 0.49);
 
-    backdrop-filter:
-        blur(0.4375rem);
+  backdrop-filter: blur(0.4375rem);
 
-    place-items: center;
+  place-items: center;
 }
 
 .workspace-dialog-shell {
-    width: min(100%, 34.375rem);
+  width: min(100%, 34.375rem);
 
-    max-height:
-        calc(100dvh - 3rem);
+  max-height: calc(100dvh - 3rem);
 }
 
 .workspace-delete-shell {
-    width: min(100%, 29.375rem);
+  width: min(100%, 29.375rem);
 }
 
 .workspace-dialog-note {
-    display: block;
+  display: block;
 
-    width: 100%;
+  width: 100%;
 
-    filter:
-        drop-shadow(0 1.75rem 2.5rem rgba($heading, 0.15));
+  filter: drop-shadow(0 1.75rem 2.5rem rgba($heading, 0.15));
 }
 
 .workspace-dialog-icon {
-    display: grid;
+  display: grid;
 
-    width: 2.375rem;
-    height: 2.375rem;
+  width: 2.375rem;
+  height: 2.375rem;
 
-    color: $danger;
-    background: rgba($paper, 0.70);
+  color: $danger;
+  background: rgba($paper, 0.7);
 
-    border:
-        1px solid rgba($danger, 0.14);
+  border: 1px solid rgba($danger, 0.14);
 
-    border-radius:
-        0.5rem 0.6875rem 0.5rem 0.625rem;
+  border-radius: 0.5rem 0.6875rem 0.5rem 0.625rem;
 
-    place-items: center;
+  place-items: center;
 }
 
 .workspace-dialog-kicker {
-    display: block;
+  display: block;
 
-    color: $danger;
+  color: $danger;
 
-    font-family: $font-note;
-    font-size: var(--workspace-font-14);
-    font-weight: 700;
-    line-height: 1.35;
+  font-family: $font-note;
+  font-size: var(--workspace-font-14);
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .workspace-dialog-title {
-    margin: 0;
+  margin: 0;
 
-    color: $heading;
+  color: $heading;
 
-    font-family: $font-heading;
-    font-size: var(--workspace-font-15);
-    font-weight: 800;
-    line-height: 1.35;
-    letter-spacing: -0.012em;
+  font-family: $font-heading;
+  font-size: var(--workspace-font-15);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.012em;
 }
 
 .workspace-dialog-subtitle {
-    margin: 0;
+  margin: 0;
 
-    color: $text-secondary;
+  color: $text-secondary;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 500;
-    line-height: 1.5;
+  font-size: var(--workspace-font-13);
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .workspace-delete-message {
-    display: flex;
-    align-items: flex-start;
+  display: flex;
+  align-items: flex-start;
 
-    gap: 0.5625rem;
+  gap: 0.5625rem;
 
-    padding:
-        0.6875rem 0.75rem;
+  padding: 0.6875rem 0.75rem;
 
-    color: $text-secondary;
-    background: rgba($paper, 0.50);
+  color: $text-secondary;
+  background: rgba($paper, 0.5);
 
-    border:
-        1px dashed rgba($danger, 0.20);
+  border: 1px dashed rgba($danger, 0.2);
 
-    border-radius: 0.5rem;
+  border-radius: 0.5rem;
 
-    font-size: var(--workspace-font-13);
-    font-weight: 550;
-    line-height: 1.45;
+  font-size: var(--workspace-font-13);
+  font-weight: 550;
+  line-height: 1.45;
 }
 
 .workspace-delete-message-icon {
-    display: grid;
+  display: grid;
 
-    width: 1.6875rem;
-    height: 1.6875rem;
+  width: 1.6875rem;
+  height: 1.6875rem;
 
-    flex: 0 0 1.6875rem;
+  flex: 0 0 1.6875rem;
 
-    color: $danger;
-    background: rgba($danger, 0.07);
+  color: $danger;
+  background: rgba($danger, 0.07);
 
-    border-radius: 0.4375rem;
+  border-radius: 0.4375rem;
 
-    place-items: center;
+  place-items: center;
 }
 
 .workspace-dialog-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 
-    width: 100%;
+  width: 100%;
 
-    gap: 0.5625rem;
+  gap: 0.5625rem;
 }
 
 /* ==========================================================
    RESPONSIVE — TABLET
    ========================================================== */
 @media (max-width: 62rem) {
+  .workspace-folder-grid {
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
 
-    .workspace-folder-grid {
-        grid-template-columns:
-            repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.625rem;
+  }
 
-        gap: 0.625rem;
-    }
-
-    .workspace-notes-table {
-        --workspace-table-columns:
-            minmax(15rem, 1fr) 6.5rem 5rem 5.5rem 7rem 9rem;
-    }
+  .workspace-notes-table {
+    --workspace-table-columns: minmax(15rem, 1fr) 6.5rem 5rem 5.5rem 7rem 9rem;
+  }
 }
 @media (max-width: 52rem) {
-
-    /*
+  /*
      * At this width the desktop table becomes cramped.
      * Keep the list structure but stack metadata instead of
      * allowing columns to overlap or force page scrolling.
      */
-    .workspace-notes-table {
-        --workspace-table-columns: none;
-    }
+  .workspace-notes-table {
+    --workspace-table-columns: none;
+  }
 
-    .workspace-notes-table thead {
-        display: none;
-    }
+  .workspace-notes-table thead {
+    display: none;
+  }
 
-    .workspace-notes-table tbody {
-        padding:
-            0 0 0.5rem;
-    }
+  .workspace-notes-table tbody {
+    padding: 0 0 0.5rem;
+  }
 
-    .workspace-notes-table tbody tr {
-        display: grid;
+  .workspace-notes-table tbody tr {
+    display: grid;
 
-        grid-template-columns:
-            minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
 
-        grid-template-areas:
-            'name actions'
-            'access actions'
-            'notes members'
-            'modified modified';
+    grid-template-areas:
+      'name actions'
+      'access actions'
+      'notes members'
+      'modified modified';
 
-        align-items: start;
+    align-items: start;
 
-        gap:
-            0.4375rem 0.75rem;
+    gap: 0.4375rem 0.75rem;
 
-        min-height: 0;
+    min-height: 0;
 
-        padding:
-            0.75rem;
-    }
+    padding: 0.75rem;
+  }
 
-    .workspace-notes-table tbody td {
-        display: block;
+  .workspace-notes-table tbody td {
+    display: block;
 
-        width: auto !important;
-        height: auto;
+    width: auto !important;
+    height: auto;
 
-        padding: 0;
-    }
+    padding: 0;
+  }
 
-    .workspace-table-name {
-        grid-area: name;
-    }
+  .workspace-table-name {
+    grid-area: name;
+  }
 
-    .workspace-table-access {
-        grid-area: access;
-    }
+  .workspace-table-access {
+    grid-area: access;
+  }
 
-    .workspace-table-number:nth-of-type(3) {
-        grid-area: notes;
-    }
+  .workspace-table-number:nth-of-type(3) {
+    grid-area: notes;
+  }
 
-    .workspace-table-number:nth-of-type(4) {
-        grid-area: members;
-    }
+  .workspace-table-number:nth-of-type(4) {
+    grid-area: members;
+  }
 
-    .workspace-table-modified {
-        grid-area: modified;
-    }
+  .workspace-table-modified {
+    grid-area: modified;
+  }
 
-    .workspace-table-actions {
-        grid-area: actions;
+  .workspace-table-actions {
+    grid-area: actions;
 
-        display: flex !important;
+    display: flex !important;
 
-        align-self: center;
-        justify-content: flex-end;
-    }
+    align-self: center;
+    justify-content: flex-end;
+  }
 
-    .workspace-table-modified::before {
-        content: 'Modified · ';
+  .workspace-table-modified::before {
+    content: 'Modified · ';
 
-        color: $text-light;
+    color: $text-light;
 
-        font-size: var(--workspace-font-13);
-        font-weight: 600;
-    }
+    font-size: var(--workspace-font-13);
+    font-weight: 600;
+  }
 }
 
 /* ==========================================================
    RESPONSIVE — MOBILE LANDSCAPE / SMALL TABLET
    ========================================================== */
 @media (max-width: 43.75rem) {
+  .workspace-mini-folder {
+    transform: scale(0.92);
+  }
 
-    .workspace-mini-folder {
-        transform:
-            scale(0.92);
-    }
+  .workspace-folder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    .workspace-folder-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
 
-        gap: 0.5rem;
+    padding: 0.0625rem 0.0625rem 0.5rem;
+  }
 
-        padding:
-            0.0625rem 0.0625rem 0.5rem;
-    }
+  .workspace-folder-tile,
+  .workspace-create-folder {
+    min-height: 12.25rem;
+  }
 
-    .workspace-folder-tile,
-    .workspace-create-folder {
-        min-height: 12.25rem;
-    }
+  .workspace-folder-open {
+    min-height: 9.875rem;
 
-    .workspace-folder-open {
-        min-height: 9.875rem;
+    padding: 1rem 0.625rem 0.4375rem;
+  }
 
-        padding:
-            1rem 0.625rem 0.4375rem;
-    }
+  .workspace-folder-visual {
+    width: 6.5rem;
+    height: 4.5rem;
+  }
 
-    .workspace-folder-visual {
-        width: 6.5rem;
-        height: 4.5rem;
-    }
+  .workspace-folder-sheet {
+    top: 1.25rem;
 
-    .workspace-folder-sheet {
-        top: 1.25rem;
+    height: 2.625rem;
+  }
 
-        height: 2.625rem;
-    }
+  .workspace-folder-front {
+    height: 2.625rem;
+  }
 
-    .workspace-folder-front {
-        height: 2.625rem;
-    }
+  .workspace-folder-meta {
+    grid-template-columns: auto auto;
 
-    .workspace-folder-meta {
-        grid-template-columns:
-            auto auto;
+    justify-content: center;
 
-        justify-content: center;
+    padding-inline: 0.5rem;
+  }
 
-        padding-inline:
-            0.5rem;
-    }
+  .workspace-folder-meta time {
+    display: none;
+  }
 
-    .workspace-folder-meta time {
-        display: none;
-    }
-
-    .workspace-quick-edit,
-    .workspace-menu-trigger {
-        opacity: 1;
-    }
+  .workspace-quick-edit,
+  .workspace-menu-trigger {
+    opacity: 1;
+  }
 }
 
 /* ==========================================================
    RESPONSIVE — MOBILE
    ========================================================== */
 @media (max-width: 36rem) {
+  .workspace-notes-table tbody tr {
+    grid-template-columns: minmax(0, 1fr);
 
-    .workspace-notes-table tbody tr {
-        grid-template-columns:
-            minmax(0, 1fr);
+    grid-template-areas:
+      'name'
+      'access'
+      'notes'
+      'members'
+      'modified'
+      'actions';
 
-        grid-template-areas:
-            'name'
-            'access'
-            'notes'
-            'members'
-            'modified'
-            'actions';
+    gap: 0.4375rem;
 
-        gap: 0.4375rem;
+    padding: 0.6875rem 0.625rem;
+  }
 
-        padding:
-            0.6875rem 0.625rem;
-    }
+  .workspace-table-actions {
+    justify-content: flex-start;
+  }
 
-    .workspace-table-actions {
-        justify-content: flex-start;
-    }
+  .workspace-table-action-group {
+    margin-left: 0;
+  }
 
-    .workspace-table-action-group {
-        margin-left: 0;
-    }
+  .workspace-dialog-backdrop {
+    align-items: end;
 
-    .workspace-dialog-backdrop {
-        align-items: end;
+    padding: 0.625rem;
+  }
 
-        padding: 0.625rem;
-    }
+  .workspace-dialog-shell,
+  .workspace-delete-shell {
+    width: 100%;
 
-    .workspace-dialog-shell,
-    .workspace-delete-shell {
-        width: 100%;
+    max-height: calc(100dvh - 1.25rem);
+  }
 
-        max-height:
-            calc(100dvh - 1.25rem);
-    }
-
-    .workspace-dialog-actions {
-        align-items: stretch;
-        flex-direction: column-reverse;
-    }
+  .workspace-dialog-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
 }
 
 /* ==========================================================
    RESPONSIVE — VERY SMALL MOBILE
    ========================================================== */
 @media (max-width: 27rem) {
+  .workspace-folder-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-    .workspace-folder-grid {
-        grid-template-columns:
-            minmax(0, 1fr);
-    }
+  .workspace-folder-tile,
+  .workspace-create-folder {
+    min-height: 11.5rem;
+  }
 
-    .workspace-folder-tile,
-    .workspace-create-folder {
-        min-height: 11.5rem;
-    }
+  .workspace-folder-open {
+    min-height: 9.25rem;
+  }
 
-    .workspace-folder-open {
-        min-height: 9.25rem;
-    }
+  .workspace-folder-meta {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
 
-    .workspace-folder-meta {
-        grid-template-columns:
-            auto auto minmax(0, 1fr);
-    }
-
-    .workspace-folder-meta time {
-        display: block;
-    }
+  .workspace-folder-meta time {
+    display: block;
+  }
 }
 
 /* ==========================================================
    SHORT VIEWPORTS
    ========================================================== */
 @media (max-height: 42rem) and (min-width: 43.751rem) {
-
-    .workspace-mini-folder {
-        transform:
-            scale(0.88);
-    }
+  .workspace-mini-folder {
+    transform: scale(0.88);
+  }
 }
 
 /* ==========================================================
@@ -1730,22 +1607,20 @@
    ========================================================== */
 
 @media (hover: none) {
-
-    .workspace-quick-edit,
-    .workspace-menu-trigger {
-        opacity: 1;
-    }
+  .workspace-quick-edit,
+  .workspace-menu-trigger {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .workspace-folder-tile,
-    .workspace-create-folder,
-    .workspace-quick-edit,
-    .workspace-menu-trigger,
-    .workspace-notes-table tbody tr {
-        transition: none;
-    }
+  .workspace-folder-tile,
+  .workspace-create-folder,
+  .workspace-quick-edit,
+  .workspace-menu-trigger,
+  .workspace-notes-table tbody tr {
+    transition: none;
+  }
 }
 
 /* ==========================================================
@@ -1755,176 +1630,179 @@
    ========================================================== */
 
 .workspace-folder-grid--cards {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr)) !important;
-    grid-auto-rows: minmax(14.75rem, auto) !important;
-    align-items: stretch;
-    gap: 1.125rem;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr)) !important;
+  grid-auto-rows: minmax(14.75rem, auto) !important;
+  align-items: stretch;
+  gap: 1.125rem;
 }
 
 .workspace-folder-grid--cards .workspace-folder-tile--card {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 14.75rem;
-    height: 100%;
-    padding: 0;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 14.75rem;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .workspace-folder-grid--cards .workspace-folder-tile--card:hover,
 .workspace-folder-grid--cards .workspace-folder-tile--card:focus-within {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .workspace-folder-tile--card app-workspace-folder-wrapper {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 14.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 14.75rem;
 }
 
 .workspace-folder-grid--cards .workspace-create-folder {
-    min-height: 14.75rem;
-    height: 100%;
+  min-height: 14.75rem;
+  height: 100%;
 }
 
 /* The projected action slot positions this button. */
 .workspace-folder-tile--card .workspace-menu-trigger {
-    position: static;
-    z-index: auto;
-    inset: auto;
-    opacity: 1;
-    color: $text-light;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
+  position: static;
+  z-index: auto;
+  inset: auto;
+  opacity: 1;
+  color: $text-light;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .workspace-folder-tile--card .workspace-menu-trigger:hover,
 .workspace-folder-tile--card .workspace-menu-trigger[aria-expanded='true'] {
-    color: $heading;
-    background: rgba($border, 0.25);
+  color: $heading;
+  background: rgba($border, 0.25);
 }
 
 .workspace-folder-tile--card .workspace-menu-trigger:focus-visible {
-    outline: 2px solid $accent;
-    outline-offset: 2px;
+  outline: 2px solid $accent;
+  outline-offset: 2px;
 }
 
 .workspace-folder-tile--card [folder-title] {
-    min-width: 0;
-    overflow-wrap: anywhere;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .workspace-folder-tile--card .workspace-name-editable {
-    display: block;
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: 750;
-    line-height: 1.45;
-    color: $heading;
-    font-family: $font-heading;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
+  display: block;
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  line-height: 1.45;
+  color: $heading;
+  font-family: $font-heading;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .workspace-folder-tile--card .workspace-inline-rename {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    text-align: left;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
 }
 
 @media (max-width: 62rem) {
-    .workspace-folder-grid--cards {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr)) !important;
-        grid-auto-rows: minmax(14.75rem, auto) !important;
-        gap: 1rem;
-    }
+  .workspace-folder-grid--cards {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr)) !important;
+    grid-auto-rows: minmax(14.75rem, auto) !important;
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 40rem) {
-    .workspace-folder-grid--cards {
-        grid-template-columns: 100% !important;
-        grid-auto-rows: minmax(14.75rem, auto) !important;
-        gap: 0.875rem;
-    }
+  .workspace-folder-grid--cards {
+    grid-template-columns: 100% !important;
+    grid-auto-rows: minmax(14.75rem, auto) !important;
+    gap: 0.875rem;
+  }
 }
 
 @media (max-width: 25rem) {
-    .workspace-folder-grid--cards {
-        grid-template-columns: 100% !important;
-        grid-auto-rows: minmax(14.75rem, auto) !important;
-        gap: 0.75rem;
-    }
+  .workspace-folder-grid--cards {
+    grid-template-columns: 100% !important;
+    grid-auto-rows: minmax(14.75rem, auto) !important;
+    gap: 0.75rem;
+  }
 }
 
 /* ==========================================================
    WORKSPACE GROUPED TABLE VIEW (Matching Today View)
    ========================================================== */
 
-@include explorer.grouped-table(36px minmax(200px, 2fr) minmax(95px, 0.9fr) minmax(95px, 0.9fr) minmax(90px, 0.8fr) minmax(130px, 1.1fr) minmax(95px, 0.9fr) minmax(120px, 1fr) 130px);
+@include explorer.grouped-table(
+  36px minmax(200px, 2fr) minmax(95px, 0.9fr) minmax(95px, 0.9fr) minmax(90px, 0.8fr)
+    minmax(130px, 1.1fr) minmax(95px, 0.9fr) minmax(120px, 1fr) 130px
+);
 
 .workspace-folder-thumbnail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 2rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: $radius-xs;
-    border: 1px solid rgba($border, 0.6);
-    background: color-mix(in srgb, $page-bg 60%, $paper);
-    color: $text-secondary;
-    transition: transform 120ms ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: $radius-xs;
+  border: 1px solid rgba($border, 0.6);
+  background: color-mix(in srgb, $page-bg 60%, $paper);
+  color: $text-secondary;
+  transition: transform 120ms ease;
 
-    &.noteYellow {
-        background: color-mix(in srgb, $note-yellow 18%, $paper);
-        color: #8c6800;
-        border-color: rgba($note-yellow, 0.4);
-    }
+  &.noteYellow {
+    background: color-mix(in srgb, $note-yellow 18%, $paper);
+    color: #8c6800;
+    border-color: rgba($note-yellow, 0.4);
+  }
 
-    &.noteBlue {
-        background: color-mix(in srgb, $note-blue 18%, $paper);
-        color: #0369a1;
-        border-color: rgba($note-blue, 0.4);
-    }
+  &.noteBlue {
+    background: color-mix(in srgb, $note-blue 18%, $paper);
+    color: #0369a1;
+    border-color: rgba($note-blue, 0.4);
+  }
 
-    &.notePink {
-        background: color-mix(in srgb, $note-pink 18%, $paper);
-        color: #be185d;
-        border-color: rgba($note-pink, 0.4);
-    }
+  &.notePink {
+    background: color-mix(in srgb, $note-pink 18%, $paper);
+    color: #be185d;
+    border-color: rgba($note-pink, 0.4);
+  }
 
-    &.noteGreen {
-        background: color-mix(in srgb, $note-green 18%, $paper);
-        color: #15803d;
-        border-color: rgba($note-green, 0.4);
-    }
+  &.noteGreen {
+    background: color-mix(in srgb, $note-green 18%, $paper);
+    color: #15803d;
+    border-color: rgba($note-green, 0.4);
+  }
 
-    &.notePurple {
-        background: color-mix(in srgb, $note-purple 18%, $paper);
-        color: #7e22ce;
-        border-color: rgba($note-purple, 0.4);
-    }
+  &.notePurple {
+    background: color-mix(in srgb, $note-purple 18%, $paper);
+    color: #7e22ce;
+    border-color: rgba($note-purple, 0.4);
+  }
 
-    &.noteOrange {
-        background: color-mix(in srgb, $note-orange 18%, $paper);
-        color: #c2410c;
-        border-color: rgba($note-orange, 0.4);
-    }
+  &.noteOrange {
+    background: color-mix(in srgb, $note-orange 18%, $paper);
+    color: #c2410c;
+    border-color: rgba($note-orange, 0.4);
+  }
 }
 
 @include explorer.table-details;

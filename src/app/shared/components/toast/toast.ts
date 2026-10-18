@@ -18,10 +18,7 @@ import {
   LucideX,
 } from '@lucide/angular';
 
-import {
-  AppIcon,
-  type AppIconDefinition,
-} from '../icon/icon';
+import { AppIcon, type AppIconDefinition } from '../icon/icon';
 import { ToastPosition, ToastItem } from './models/toast.model';
 import { ToastService } from './services/toast.service';
 
@@ -81,9 +78,7 @@ export class Toast implements OnDestroy {
   }
 
   toastRole(toast: ToastItem): 'alert' | 'status' {
-    return toast.variant === 'danger' || toast.variant === 'warning'
-      ? 'alert'
-      : 'status';
+    return toast.variant === 'danger' || toast.variant === 'warning' ? 'alert' : 'status';
   }
 
   resolvedIcon(toast: ToastItem): AppIconDefinition | null {
@@ -177,9 +172,7 @@ export class Toast implements OnDestroy {
   private resolveVisibleToasts(toasts: readonly ToastItem[]): ToastItem[] {
     const limit = Math.max(1, Math.floor(this.maxVisible || 1));
 
-    return this.newestOnTop
-      ? toasts.slice(-limit).reverse()
-      : toasts.slice(0, limit);
+    return this.newestOnTop ? toasts.slice(-limit).reverse() : toasts.slice(0, limit);
   }
 
   private syncTimers(visibleToasts: readonly ToastItem[]): void {

@@ -3,11 +3,24 @@ import type { WorkspaceFolder } from '../../private/workspacefolders/models/work
 
 describe('Folder permissions and lifecycle', () => {
   const owner = { id: 'w', isOwner: true, status: 'ACTIVE' };
-  const folder = { id: 'f', workspaceId: 'w', status: 'ACTIVE', isDefault: false } as WorkspaceFolder;
-  const writes: FolderAction[] = ['canCreate', 'canEdit', 'canArchive', 'canTrash', 'canRestore', 'canPermanentlyDelete'];
+  const folder = {
+    id: 'f',
+    workspaceId: 'w',
+    status: 'ACTIVE',
+    isDefault: false,
+  } as WorkspaceFolder;
+  const writes: FolderAction[] = [
+    'canCreate',
+    'canEdit',
+    'canArchive',
+    'canTrash',
+    'canRestore',
+    'canPermanentlyDelete',
+  ];
 
   it('never infers write access from membership or successful READ', () => {
-    for (const action of writes) expect(canFolderAction({ ...owner, isOwner: false }, folder, action, true)).toBe(false);
+    for (const action of writes)
+      expect(canFolderAction({ ...owner, isOwner: false }, folder, action, true)).toBe(false);
     expect(canFolderAction({ ...owner, isOwner: false }, folder, 'canView', true)).toBe(true);
     expect(canFolderAction({ ...owner, isOwner: false }, folder, 'canView')).toBe(false);
   });
@@ -57,7 +70,9 @@ describe('Folder permissions and lifecycle', () => {
     expect(canFolderAction(owner, trash, 'canArchive')).toBe(false);
     expect(canFolderAction(owner, trash, 'canView', true)).toBe(false);
     expect(canFolderAction(owner, trash, 'canRestore')).toBe(true);
-    expect(canFolderAction(owner, { ...trash, purgeAfter: '2000-01-01' }, 'canRestore')).toBe(false);
+    expect(canFolderAction(owner, { ...trash, purgeAfter: '2000-01-01' }, 'canRestore')).toBe(
+      false,
+    );
     expect(canFolderAction(owner, trash, 'canPermanentlyDelete')).toBe(true);
     expect(canFolderAction(owner, folder, 'canPermanentlyDelete')).toBe(false);
   });

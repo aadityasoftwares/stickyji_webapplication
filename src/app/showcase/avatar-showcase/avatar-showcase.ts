@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
 import {
   LucideBot,
@@ -53,13 +49,13 @@ export class AvatarShowcase {
     readonly label: string;
     readonly value: Exclude<AvatarSize, number>;
   }> = [
-      { label: 'XS · 24px', value: 'xs' },
-      { label: 'SM · 32px', value: 'sm' },
-      { label: 'MD · 40px', value: 'md' },
-      { label: 'LG · 48px', value: 'lg' },
-      { label: 'XL · 64px', value: 'xl' },
-      { label: '2XL · 80px', value: '2xl' },
-    ];
+    { label: 'XS · 24px', value: 'xs' },
+    { label: 'SM · 32px', value: 'sm' },
+    { label: 'MD · 40px', value: 'md' },
+    { label: 'LG · 48px', value: 'lg' },
+    { label: 'XL · 64px', value: 'xl' },
+    { label: '2XL · 80px', value: '2xl' },
+  ];
 
   protected readonly tones: ReadonlyArray<ToneExample> = [
     { label: 'Neutral', initials: 'NP', tone: 'neutral' },
@@ -79,10 +75,10 @@ export class AvatarShowcase {
     readonly label: string;
     readonly value: AvatarShape;
   }> = [
-      { label: 'Circle', value: 'circle' },
-      { label: 'Rounded', value: 'rounded' },
-      { label: 'Square', value: 'square' },
-    ];
+    { label: 'Circle', value: 'circle' },
+    { label: 'Rounded', value: 'rounded' },
+    { label: 'Square', value: 'square' },
+  ];
 
   protected readonly statuses: ReadonlyArray<StatusExample> = [
     { label: 'Online', status: 'online', tone: 'green' },
@@ -91,26 +87,17 @@ export class AvatarShowcase {
     { label: 'Offline', status: 'offline', tone: 'neutral' },
   ];
 
-  protected readonly profileImage =
-    'https://i.pravatar.cc/240?img=47';
+  protected readonly profileImage = 'https://i.pravatar.cc/240?img=47';
 
-  protected readonly secondProfileImage =
-    'https://i.pravatar.cc/240?img=12';
+  protected readonly secondProfileImage = 'https://i.pravatar.cc/240?img=12';
 
-  protected readonly brokenImage =
-    'https://invalid.example/avatar-that-does-not-exist.jpg';
+  protected readonly brokenImage = 'https://invalid.example/avatar-that-does-not-exist.jpg';
 
   protected readonly liveStatus = signal<AvatarStatus>('online');
   protected readonly lastImageEvent = signal('Waiting for image event');
 
   protected cycleStatus(): void {
-    const order: AvatarStatus[] = [
-      'online',
-      'away',
-      'busy',
-      'offline',
-      'none',
-    ];
+    const order: AvatarStatus[] = ['online', 'away', 'busy', 'offline', 'none'];
 
     const currentIndex = order.indexOf(this.liveStatus());
     this.liveStatus.set(order[(currentIndex + 1) % order.length]);

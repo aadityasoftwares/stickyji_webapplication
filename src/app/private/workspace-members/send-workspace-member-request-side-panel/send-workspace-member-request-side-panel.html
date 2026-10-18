@@ -1,296 +1,391 @@
-<app-side-panel [open]="open" [title]="title" [eyebrow]="eyebrow" [description]="description" [headerNote]="headerNote"
-    [icon]="headerIcon" tone="yellow" [width]="panelWidth" [busy]="isBusy" ariaLabel="Workspace member invitation"
-    (closed)="close()">
-
-    <form panel-body class="invite-editor" (ngSubmit)="submit()" novalidate>
-
-        @if (!isEdit) {
-
-        <!-- ================================================================
+<app-side-panel
+  [open]="open"
+  [title]="title"
+  [eyebrow]="eyebrow"
+  [description]="description"
+  [headerNote]="headerNote"
+  [icon]="headerIcon"
+  tone="yellow"
+  [width]="panelWidth"
+  [busy]="isBusy"
+  ariaLabel="Workspace member invitation"
+  (closed)="close()"
+>
+  <form panel-body class="invite-editor" (ngSubmit)="submit()" novalidate>
+    @if (!isEdit) {
+      <!-- ================================================================
              SECTION 1 · ROLE ASSIGNMENT MODE TOGGLE
              ================================================================ -->
 
-        <section class="invite-field invite-mode-field" aria-label="Role assignment mode">
+      <section class="invite-field invite-mode-field" aria-label="Role assignment mode">
+        <app-label class="invite-field-label" text="Mode" />
 
-            <app-label class="invite-field-label" text="Mode" />
+        <div class="invite-field-control">
+          <app-tabs
+            id="invite-mode-tabs"
+            [items]="invitationModeTabs"
+            [value]="invitationMode()"
+            variant="segmented"
+            shape="rounded"
+            size="sm"
+            density="compact"
+            [fullWidth]="false"
+            ariaLabel="Invitation role assignment mode"
+            [disabled]="isBusy"
+            (valueChange)="updateInvitationMode($event)"
+          />
 
-            <div class="invite-field-control">
+          <p class="invite-mode-caption">
+            @if (invitationMode() === 'same') {
+              One role assigned to every person you invite.
+            } @else {
+              Pick a different role for each recipient.
+            }
+          </p>
+        </div>
+      </section>
 
-                <app-tabs id="invite-mode-tabs" [items]="invitationModeTabs" [value]="invitationMode()"
-                    variant="segmented" shape="rounded" size="sm" density="compact" [fullWidth]="false"
-                    ariaLabel="Invitation role assignment mode" [disabled]="isBusy"
-                    (valueChange)="updateInvitationMode($event)" />
-
-                <p class="invite-mode-caption">
-                    @if (invitationMode() === 'same') {
-                    One role assigned to every person you invite.
-                    } @else {
-                    Pick a different role for each recipient.
-                    }
-                </p>
-
-            </div>
-
-        </section>
-
-        <!-- ================================================================
+      <!-- ================================================================
              SECTION 2 · EMAIL ADDRESSES
              ================================================================ -->
 
-        <section class="invite-field invite-emails-field" aria-label="Invitation recipients">
+      <section class="invite-field invite-emails-field" aria-label="Invitation recipients">
+        <app-label class="invite-field-label" text="To" forId="workspace-member-email" />
 
-            <app-label class="invite-field-label" text="To" forId="workspace-member-email" />
+        <div class="invite-field-control">
+          <app-input
+            #emailInput
+            inputId="workspace-member-email"
+            id="workspace-member-email"
+            type="email"
+            label="Email address"
+            labelMode="hidden"
+            placeholder="name@example.com"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="md"
+            [leadingIcon]="LucideMail"
+            [value]="emailDraft()"
+            [disabled]="isBusy || emails().length >= maxInviteEmails"
+            [clearable]="false"
+            [fullWidth]="true"
+            autocomplete="off"
+            inputMode="email"
+            [errorText]="emailInputError() ?? ''"
+            (valueChange)="updateEmailDraft($event)"
+            (enterKey)="addEmail($event)"
+          />
 
-            <div class="invite-field-control">
+          <div class="invite-email-meta">
+            <span>Press Enter to add</span>
+            <span>{{ emails().length }}/{{ maxInviteEmails }}</span>
+          </div>
 
-                <app-input #emailInput inputId="workspace-member-email" id="workspace-member-email" type="email"
-                    label="Email address" labelMode="hidden" placeholder="name@example.com" variant="paper"
-                    appearance="simple" shape="rounded" size="md" [leadingIcon]="LucideMail"
-                    [value]="emailDraft()" [disabled]="isBusy || emails().length >= maxInviteEmails"
-                    [clearable]="false" [fullWidth]="true" autocomplete="off" inputMode="email"
-                    [errorText]="emailInputError() ?? ''"
-                    (valueChange)="updateEmailDraft($event)" (enterKey)="addEmail($event)" />
+          @if (emails().length) {
+            <div class="invite-email-chips" aria-label="Added recipients">
+              @for (email of emails(); track email) {
+                <span class="invite-chip" [attr.title]="email">
+                  <span class="invite-chip-label">{{ email }}</span>
 
-                <div class="invite-email-meta">
-                    <span>Press Enter to add</span>
-                    <span>{{ emails().length }}/{{ maxInviteEmails }}</span>
-                </div>
+                  <!-- Edit button -->
+                  <button
+                    type="button"
+                    class="invite-chip-btn invite-chip-edit"
+                    [attr.aria-label]="'Edit ' + email"
+                    [disabled]="isBusy"
+                    (click)="editEmail(email)"
+                  >
+                    <app-icon [icon]="LucidePencil" size="inherit" />
+                  </button>
 
-                @if (emails().length) {
-                <div class="invite-email-chips" aria-label="Added recipients">
-
-                    @for (email of emails(); track email) {
-                    <span class="invite-chip" [attr.title]="email">
-
-                        <span class="invite-chip-label">{{ email }}</span>
-
-                        <!-- Edit button -->
-                        <button type="button" class="invite-chip-btn invite-chip-edit"
-                            [attr.aria-label]="'Edit ' + email" [disabled]="isBusy"
-                            (click)="editEmail(email)">
-                            <app-icon [icon]="LucidePencil" size="inherit" />
-                        </button>
-
-                        <!-- Remove button -->
-                        <button type="button" class="invite-chip-btn invite-chip-remove"
-                            [attr.aria-label]="'Remove ' + email" [disabled]="saving()"
-                            (click)="removeEmail(email)">
-                            <app-icon [icon]="LucideX" size="inherit" />
-                        </button>
-
-                    </span>
-                    }
-
-                </div>
-                }
-
+                  <!-- Remove button -->
+                  <button
+                    type="button"
+                    class="invite-chip-btn invite-chip-remove"
+                    [attr.aria-label]="'Remove ' + email"
+                    [disabled]="saving()"
+                    (click)="removeEmail(email)"
+                  >
+                    <app-icon [icon]="LucideX" size="inherit" />
+                  </button>
+                </span>
+              }
             </div>
+          }
+        </div>
+      </section>
 
-        </section>
-
-        <!-- ================================================================
+      <!-- ================================================================
              SECTION 3A · SAME ROLE: SINGLE ROLE SELECT
              ================================================================ -->
 
-        @if (invitationMode() === 'same') {
-
+      @if (invitationMode() === 'same') {
         <section class="invite-field invite-role-field" aria-label="Shared workspace role">
+          <app-label
+            class="invite-field-label"
+            text="Role"
+            forId="workspace-member-role"
+            [required]="true"
+          />
 
-            <app-label class="invite-field-label" text="Role" forId="workspace-member-role" [required]="true" />
+          <div class="invite-field-control">
+            <app-select
+              selectId="workspace-member-role"
+              id="workspace-member-role"
+              name="workspace-member-role"
+              dropdownTitle="Workspace role"
+              dropdownDescription="Choose the role assigned to all recipients."
+              [options]="availableRoleOptions()"
+              [ngModel]="roleId()"
+              [ngModelOptions]="{ standalone: true }"
+              [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
+              ariaLabel="Choose workspace role"
+              variant="paper"
+              appearance="simple"
+              shape="rounded"
+              size="sm"
+              [iconLeft]="LucideShield"
+              [disabled]="isBusy"
+              [clearable]="false"
+              [searchable]="true"
+              [fullWidth]="true"
+              (ngModelChange)="updateRoleId($event)"
+            />
 
-            <div class="invite-field-control">
-
-                <app-select selectId="workspace-member-role" id="workspace-member-role" name="workspace-member-role"
-                    dropdownTitle="Workspace role" dropdownDescription="Choose the role assigned to all recipients."
-                    [options]="availableRoleOptions()" [ngModel]="roleId()" [ngModelOptions]="{ standalone: true }"
-                    [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
-                    ariaLabel="Choose workspace role" variant="paper" appearance="simple" shape="rounded" size="sm"
-                    [iconLeft]="LucideShield" [disabled]="isBusy" [clearable]="false" [searchable]="true"
-                    [fullWidth]="true" (ngModelChange)="updateRoleId($event)" />
-
-                <small class="invite-field-hint">
-                    {{
-                    availableRoleOptions().length
-                    ? (emails().length > 1
+            <small class="invite-field-hint">
+              {{
+                availableRoleOptions().length
+                  ? emails().length > 1
                     ? 'Everyone will receive this role after accepting.'
-                    : 'Sets what this member can view and manage.')
-                    : !loadingRoles()
+                    : 'Sets what this member can view and manage.'
+                  : !loadingRoles()
                     ? 'No assignable workspace role is available.'
                     : 'Finding available roles...'
-                    }}
-                </small>
-
-            </div>
-
+              }}
+            </small>
+          </div>
         </section>
+      }
 
-        }
-
-        <!-- ================================================================
+      <!-- ================================================================
              SECTION 3B · INDIVIDUAL ROLES: PER-RECIPIENT SELECTS
              ================================================================ -->
 
-        @if (invitationMode() === 'individual') {
+      @if (invitationMode() === 'individual') {
+        <section
+          class="invite-field invite-individual-field"
+          aria-label="Individual workspace roles"
+        >
+          <div class="invite-field-label invite-individual-label-col">
+            <span class="invite-individual-label-text">Roles</span>
+            @if (emails().length) {
+              <app-badge
+                [count]="emails().length"
+                variant="neutral"
+                size="xs"
+                [ariaLabel]="emails().length + ' recipients'"
+              />
+            }
+          </div>
 
-        <section class="invite-field invite-individual-field" aria-label="Individual workspace roles">
-
-            <div class="invite-field-label invite-individual-label-col">
-                <span class="invite-individual-label-text">Roles</span>
-                @if (emails().length) {
-                <app-badge [count]="emails().length" variant="neutral" size="xs"
-                    [ariaLabel]="emails().length + ' recipients'" />
-                }
-            </div>
-
-            <div class="invite-field-control">
-
-                @if (!emails().length) {
-
-                <div class="invite-empty-state">
-                    <span class="invite-empty-icon" aria-hidden="true">
-                        <app-icon [icon]="LucideMail" size="sm" />
-                    </span>
-                    <div>
-                        <strong>Add recipients first</strong>
-                        <span>Add email addresses above. A role selector will appear for each.</span>
-                    </div>
+          <div class="invite-field-control">
+            @if (!emails().length) {
+              <div class="invite-empty-state">
+                <span class="invite-empty-icon" aria-hidden="true">
+                  <app-icon [icon]="LucideMail" size="sm" />
+                </span>
+                <div>
+                  <strong>Add recipients first</strong>
+                  <span>Add email addresses above. A role selector will appear for each.</span>
                 </div>
-
-                } @else {
-
-                <div class="invite-role-list">
-                    @for (email of emails(); track email) {
-                    <div class="invite-role-row">
-
-                        <div class="invite-role-email">
-                            <span class="invite-chip" [attr.title]="email">
-                                <span class="invite-chip-label">{{ email }}</span>
-                                <button type="button" class="invite-chip-btn invite-chip-edit"
-                                    [attr.aria-label]="'Edit ' + email" [disabled]="isBusy"
-                                    (click)="editEmail(email)">
-                                    <app-icon [icon]="LucidePencil" size="inherit" />
-                                </button>
-                                <button type="button" class="invite-chip-btn invite-chip-remove"
-                                    [attr.aria-label]="'Remove ' + email" [disabled]="saving()"
-                                    (click)="removeEmail(email)">
-                                    <app-icon [icon]="LucideX" size="inherit" />
-                                </button>
-                            </span>
-                        </div>
-
-                        <app-select class="invite-recipient-role" [id]="'workspace-member-role-' + $index"
-                            [selectId]="'workspace-member-role-' + $index"
-                            [name]="'workspace-member-role-' + $index"
-                            dropdownTitle="Workspace role"
-                            dropdownDescription="Choose the role assigned to this member."
-                            [options]="availableRoleOptions()" [ngModel]="individualRoleId(email)"
-                            [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
-                            [ariaLabel]="'Choose workspace role for ' + email" variant="paper" appearance="simple"
-                            shape="rounded" size="sm" [iconLeft]="LucideShield" [disabled]="isBusy"
-                            [clearable]="false" [searchable]="true" [fullWidth]="true"
-                            (ngModelChange)="updateIndividualRole(email, $event)" />
-
+              </div>
+            } @else {
+              <div class="invite-role-list">
+                @for (email of emails(); track email) {
+                  <div class="invite-role-row">
+                    <div class="invite-role-email">
+                      <span class="invite-chip" [attr.title]="email">
+                        <span class="invite-chip-label">{{ email }}</span>
+                        <button
+                          type="button"
+                          class="invite-chip-btn invite-chip-edit"
+                          [attr.aria-label]="'Edit ' + email"
+                          [disabled]="isBusy"
+                          (click)="editEmail(email)"
+                        >
+                          <app-icon [icon]="LucidePencil" size="inherit" />
+                        </button>
+                        <button
+                          type="button"
+                          class="invite-chip-btn invite-chip-remove"
+                          [attr.aria-label]="'Remove ' + email"
+                          [disabled]="saving()"
+                          (click)="removeEmail(email)"
+                        >
+                          <app-icon [icon]="LucideX" size="inherit" />
+                        </button>
+                      </span>
                     </div>
-                    }
-                </div>
 
+                    <app-select
+                      class="invite-recipient-role"
+                      [id]="'workspace-member-role-' + $index"
+                      [selectId]="'workspace-member-role-' + $index"
+                      [name]="'workspace-member-role-' + $index"
+                      dropdownTitle="Workspace role"
+                      dropdownDescription="Choose the role assigned to this member."
+                      [options]="availableRoleOptions()"
+                      [ngModel]="individualRoleId(email)"
+                      [ngModelOptions]="{ standalone: true }"
+                      [placeholder]="loadingRoles() ? 'Loading...' : 'Choose role'"
+                      [ariaLabel]="'Choose workspace role for ' + email"
+                      variant="paper"
+                      appearance="simple"
+                      shape="rounded"
+                      size="sm"
+                      [iconLeft]="LucideShield"
+                      [disabled]="isBusy"
+                      [clearable]="false"
+                      [searchable]="true"
+                      [fullWidth]="true"
+                      (ngModelChange)="updateIndividualRole(email, $event)"
+                    />
+                  </div>
                 }
-
-            </div>
-
+              </div>
+            }
+          </div>
         </section>
+      }
 
-        }
-
-        <!-- ================================================================
+      <!-- ================================================================
              SECTION 4 · PERSONAL MESSAGE
              ================================================================ -->
 
-        <section class="invite-field invite-message-field" aria-label="Invitation message">
+      <section class="invite-field invite-message-field" aria-label="Invitation message">
+        <app-label class="invite-field-label" text="Note" forId="workspace-member-message" />
 
-            <app-label class="invite-field-label" text="Note" forId="workspace-member-message" />
-
-            <div class="invite-field-control">
-                <app-input inputId="workspace-member-message" id="workspace-member-message" label="Personal message"
-                    labelMode="hidden" placeholder="Add a short welcome message..." variant="paper"
-                    appearance="simple" shape="rounded" size="md" [multiline]="true" [rows]="3" resize="vertical"
-                    [maxLength]="messageMaxLength" [showCounter]="true" [clearable]="false" [value]="message()"
-                    [disabled]="isBusy" [fullWidth]="true" (valueChange)="updateMessage($event)" />
-            </div>
-
-        </section>
-
-        <!-- ACCESS BANNER -->
-        <div class="invite-access-banner" aria-label="Access information">
-            <span class="invite-access-icon" aria-hidden="true">
-                <app-icon [icon]="LucideShield" size="xs" />
-            </span>
-            <div>
-                <strong>Access starts after acceptance</strong>
-                <span>
-                    @if (invitationMode() === 'individual') {
-                    Each recipient gets the role selected beside their email after accepting.
-                    } @else {
-                    Recipients get the selected workspace role after accepting.
-                    }
-                </span>
-            </div>
+        <div class="invite-field-control">
+          <app-input
+            inputId="workspace-member-message"
+            id="workspace-member-message"
+            label="Personal message"
+            labelMode="hidden"
+            placeholder="Add a short welcome message..."
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="md"
+            [multiline]="true"
+            [rows]="3"
+            resize="vertical"
+            [maxLength]="messageMaxLength"
+            [showCounter]="true"
+            [clearable]="false"
+            [value]="message()"
+            [disabled]="isBusy"
+            [fullWidth]="true"
+            (valueChange)="updateMessage($event)"
+          />
         </div>
+      </section>
 
-        } @else {
-
-        <!-- ================================================================
+      <!-- ACCESS BANNER -->
+      <div class="invite-access-banner" aria-label="Access information">
+        <span class="invite-access-icon" aria-hidden="true">
+          <app-icon [icon]="LucideShield" size="xs" />
+        </span>
+        <div>
+          <strong>Access starts after acceptance</strong>
+          <span>
+            @if (invitationMode() === 'individual') {
+              Each recipient gets the role selected beside their email after accepting.
+            } @else {
+              Recipients get the selected workspace role after accepting.
+            }
+          </span>
+        </div>
+      </div>
+    } @else {
+      <!-- ================================================================
              EDIT EXISTING MEMBER — ROLE
              ================================================================ -->
 
-        <section class="invite-field invite-role-field" aria-label="Workspace member details">
+      <section class="invite-field invite-role-field" aria-label="Workspace member details">
+        <app-label
+          class="invite-field-label"
+          text="Role"
+          forId="workspace-member-role"
+          [required]="true"
+        />
 
-            <app-label class="invite-field-label" text="Role" forId="workspace-member-role" [required]="true" />
+        <div class="invite-field-control">
+          <app-select
+            selectId="workspace-member-role"
+            id="workspace-member-role"
+            name="workspace-member-role"
+            dropdownTitle="Workspace role"
+            dropdownDescription="Choose the role assigned to this member."
+            [options]="availableRoleOptions()"
+            [ngModel]="roleId()"
+            [ngModelOptions]="{ standalone: true }"
+            [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
+            ariaLabel="Choose workspace role"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucideShield"
+            [disabled]="isBusy"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+            (ngModelChange)="updateRoleId($event)"
+          />
 
-            <div class="invite-field-control">
-
-                <app-select selectId="workspace-member-role" id="workspace-member-role" name="workspace-member-role"
-                    dropdownTitle="Workspace role" dropdownDescription="Choose the role assigned to this member."
-                    [options]="availableRoleOptions()" [ngModel]="roleId()" [ngModelOptions]="{ standalone: true }"
-                    [placeholder]="loadingRoles() ? 'Loading roles...' : 'Choose role'"
-                    ariaLabel="Choose workspace role" variant="paper" appearance="simple" shape="rounded" size="sm"
-                    [iconLeft]="LucideShield" [disabled]="isBusy" [clearable]="false" [searchable]="true"
-                    [fullWidth]="true" (ngModelChange)="updateRoleId($event)" />
-
-                <small class="invite-field-hint">
-                    {{
-                    availableRoleOptions().length
-                    ? 'Sets what this member can view and manage.'
-                    : !loadingRoles()
-                    ? 'No assignable workspace role is available.'
-                    : 'Finding available roles...'
-                    }}
-                </small>
-
-            </div>
-
-        </section>
-
-        }
-
-        <!-- ERROR -->
-        @if (error()) {
-        <div class="invite-error" role="alert">{{ error() }}</div>
-        }
-
-    </form>
-
-    <!-- FOOTER -->
-    <div panel-footer class="invite-footer">
-        <span class="invite-status" [title]="statusText">{{ statusText }}</span>
-        <div class="invite-actions">
-            <app-button label="Cancel" variant="secondary" appearance="standard" size="sm" [disabled]="saving()"
-                (buttonClick)="close()" />
-            <app-button [label]="submitLabel" [iconLeft]="submitIcon" variant="noteYellow" appearance="standard"
-                size="sm" [loading]="saving()" [loadingText]="isEdit ? 'Updating...' : 'Sending...'"
-                [disabled]="!canSubmit" (buttonClick)="submit()" />
+          <small class="invite-field-hint">
+            {{
+              availableRoleOptions().length
+                ? 'Sets what this member can view and manage.'
+                : !loadingRoles()
+                  ? 'No assignable workspace role is available.'
+                  : 'Finding available roles...'
+            }}
+          </small>
         </div>
-    </div>
+      </section>
+    }
 
+    <!-- ERROR -->
+    @if (error()) {
+      <div class="invite-error" role="alert">{{ error() }}</div>
+    }
+  </form>
+
+  <!-- FOOTER -->
+  <div panel-footer class="invite-footer">
+    <span class="invite-status" [title]="statusText">{{ statusText }}</span>
+    <div class="invite-actions">
+      <app-button
+        label="Cancel"
+        variant="secondary"
+        appearance="standard"
+        size="sm"
+        [disabled]="saving()"
+        (buttonClick)="close()"
+      />
+      <app-button
+        [label]="submitLabel"
+        [iconLeft]="submitIcon"
+        variant="noteYellow"
+        appearance="standard"
+        size="sm"
+        [loading]="saving()"
+        [loadingText]="isEdit ? 'Updating...' : 'Sending...'"
+        [disabled]="!canSubmit"
+        (buttonClick)="submit()"
+      />
+    </div>
+  </div>
 </app-side-panel>

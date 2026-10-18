@@ -18,18 +18,12 @@ import {
   ViewContainerRef,
   computed,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, finalize, takeUntil, timer } from 'rxjs';
-import {
-  LucideCheck,
-  LucideLock,
-  LucidePencil,
-  LucidePlus,
-  LucideShield
-} from '@lucide/angular';
+import { LucideCheck, LucideLock, LucidePencil, LucidePlus, LucideShield } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Badge } from '../../../shared/components/badge/badge';
@@ -43,7 +37,11 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
 import { humanize } from '../../../shared/functions/string.functions';
 import { PermissionGroup, Permission } from '../models/permission.models';
-import { WorkspaceRole, WorkspaceRoleCreateRequest, WorkspaceRoleUpdateRequest } from '../models/workspace-role.models';
+import {
+  WorkspaceRole,
+  WorkspaceRoleCreateRequest,
+  WorkspaceRoleUpdateRequest,
+} from '../models/workspace-role.models';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
 
@@ -62,11 +60,11 @@ type RoleEditorMode = 'create' | 'edit' | 'view';
     Label,
     SidePanel,
     Switch,
-    WorkspaceRoleWrapper
+    WorkspaceRoleWrapper,
   ],
   templateUrl: './add-edit-workspace-role-side-panel.html',
   styleUrl: './add-edit-workspace-role-side-panel.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   private readonly roleApi = inject(WorkspaceRoleApiService);
@@ -114,10 +112,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   private readonly permissionGroupsState = signal<readonly PermissionGroup[]>([]);
 
   readonly totalPermissionCount = computed(() =>
-    this.permissionGroupsState().reduce(
-      (total, group) => total + group.permissions.length,
-      0
-    )
+    this.permissionGroupsState().reduce((total, group) => total + group.permissions.length, 0),
   );
 
   readonly selectedCount = computed(() => this.selectedPermissionIds().size);
@@ -260,11 +255,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
       return;
     }
 
-    if (
-      changes['open']?.currentValue === true ||
-      changes['role'] ||
-      changes['workspaceId']
-    ) {
+    if (changes['open']?.currentValue === true || changes['role'] || changes['workspaceId']) {
       this.initialize();
       this.focusInput();
     }
@@ -272,10 +263,14 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   private focusInput(): void {
     if (this.isReadOnly || !isPlatformBrowser(this.previewPlatform)) return;
-    timer(120).pipe(takeUntil(this.editorReset), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const inputEl = this.roleNameInput?.nativeElement?.querySelector('input') as HTMLInputElement | null;
-      inputEl?.focus();
-    });
+    timer(120)
+      .pipe(takeUntil(this.editorReset), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const inputEl = this.roleNameInput?.nativeElement?.querySelector(
+          'input',
+        ) as HTMLInputElement | null;
+        inputEl?.focus();
+      });
   }
 
   updateDisplayName(value: InputValue): void {
@@ -285,9 +280,12 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
     if (!this.codeEditedManually && this.mode === 'create') {
       const generated = this.toRoleCode(next);
-      this.code.set((/^[A-Z]/.test(generated) && generated.length >= 2
-        ? generated
-        : `ROLE_${generated || 'CUSTOM'}`).slice(0, 60));
+      this.code.set(
+        (/^[A-Z]/.test(generated) && generated.length >= 2
+          ? generated
+          : `ROLE_${generated || 'CUSTOM'}`
+        ).slice(0, 60),
+      );
     }
   }
 
@@ -304,7 +302,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   toggleActive(): void {
     if (this.isReadOnly || this.saving()) return;
-    this.active.update(value => !value);
+    this.active.update((value) => !value);
   }
 
   isPermissionSelected(permission: Permission): boolean {
@@ -327,7 +325,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
   selectedInGroup(group: PermissionGroup): number {
     return group.permissions.reduce(
       (count, permission) => count + (this.isPermissionSelected(permission) ? 1 : 0),
-      0
+      0,
     );
   }
 
@@ -382,7 +380,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
         scope: 'WORKSPACE',
         workspaceId: this.workspaceId.trim(),
         permissions,
-        isActive: this.active()
+        isActive: this.active(),
       };
 
       this.roleApi
@@ -390,20 +388,25 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
         .pipe(
           finalize(() => this.saving.set(false)),
           takeUntil(this.editorReset),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.toastService.success(`“${response.data.displayName}” is ready to use.`, {
               title: 'Role created',
-              dedupeKey: 'workspace-role-create-success'
+              dedupeKey: 'workspace-role-create-success',
             });
 
             this.removeDesktopPreview();
             this.saved.emit(response.data);
             this.closed.emit();
           },
-          error: error => this.handleSubmitError(error, 'Unable to create workspace role.', 'Role creation failed')
+          error: (error) =>
+            this.handleSubmitError(
+              error,
+              'Unable to create workspace role.',
+              'Role creation failed',
+            ),
         });
 
       return;
@@ -422,7 +425,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
       code,
       description,
       permissions,
-      isActive: this.active()
+      isActive: this.active(),
     };
 
     this.roleApi
@@ -430,20 +433,21 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
       .pipe(
         finalize(() => this.saving.set(false)),
         takeUntil(this.editorReset),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.toastService.success(`“${response.data.displayName}” was updated.`, {
             title: 'Role updated',
-            dedupeKey: 'workspace-role-update-success'
+            dedupeKey: 'workspace-role-update-success',
           });
 
           this.removeDesktopPreview();
           this.saved.emit(response.data);
           this.closed.emit();
         },
-        error: error => this.handleSubmitError(error, 'Unable to update workspace role.', 'Role update failed')
+        error: (error) =>
+          this.handleSubmitError(error, 'Unable to update workspace role.', 'Role update failed'),
       });
   }
 
@@ -487,22 +491,26 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
     }
 
     this.displayName.set(this.roleDisplayName(this.role));
-    this.code.set(String(this.role.code ?? '').trim().toUpperCase());
+    this.code.set(
+      String(this.role.code ?? '')
+        .trim()
+        .toUpperCase(),
+    );
     this.description.set(String(this.role.description ?? '').trim());
     this.active.set(this.role.isActive !== false);
 
-    const allKnown = this.permissionGroupsState().flatMap(g => g.permissions);
+    const allKnown = this.permissionGroupsState().flatMap((g) => g.permissions);
     const selected = new Set<string>();
     for (const raw of Array.isArray(this.role.permissions) ? this.role.permissions : []) {
       const id = idOf(raw);
       if (id) {
-        const match = allKnown.find(p => p.code?.toUpperCase() === id.toUpperCase());
-        selected.add(match ? (idOf(match) || id) : id);
+        const match = allKnown.find((p) => p.code?.toUpperCase() === id.toUpperCase());
+        selected.add(match ? idOf(match) || id : id);
       } else {
         const code = typeof raw === 'string' ? raw : (raw as { code?: string })?.code;
         if (code) {
-          const match = allKnown.find(p => p.code?.toUpperCase() === String(code).toUpperCase());
-          selected.add(match ? (idOf(match) || String(code)) : String(code));
+          const match = allKnown.find((p) => p.code?.toUpperCase() === String(code).toUpperCase());
+          selected.add(match ? idOf(match) || String(code) : String(code));
         }
       }
     }
@@ -553,8 +561,8 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
     this.toastService.error(message, {
       title,
-      dedupeKey: this.mode === 'create' ? 'workspace-role-create-error' : 'workspace-role-update-error'
+      dedupeKey:
+        this.mode === 'create' ? 'workspace-role-create-error' : 'workspace-role-update-error',
     });
   }
-
 }

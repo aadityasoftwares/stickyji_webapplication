@@ -8,10 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export type CheckboxSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -88,7 +85,7 @@ export class Checkbox implements ControlValueAccessor {
   private onChange: (value: boolean) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  constructor(private readonly cdr: ChangeDetectorRef) { }
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 
   @Input()
   get checked(): boolean {
@@ -104,9 +101,7 @@ export class Checkbox implements ControlValueAccessor {
   }
 
   get resolvedDescriptionId(): string | null {
-    return this.description
-      ? `${this.inputId}-description`
-      : null;
+    return this.description ? `${this.inputId}-description` : null;
   }
 
   get resolvedAriaDescribedBy(): string | null {

@@ -14,10 +14,7 @@ describe('Signup', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Signup],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Signup);
@@ -58,4 +55,3 @@ describe('Signup', () => {
     expect(component.firstNameError).toBe('');
   });
 });
-
