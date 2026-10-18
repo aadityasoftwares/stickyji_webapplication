@@ -6,6 +6,7 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
+    --app-sidebar-width: 248px;
 }
 
 .skip-link {
@@ -44,11 +45,11 @@
 
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: var(--app-sidebar-width, 280px);
+    flex-basis: var(--app-sidebar-width, 248px);
 
-    width: var(--app-sidebar-width, 280px);
-    min-width: var(--app-sidebar-width, 280px);
-    max-width: var(--app-sidebar-width, 280px);
+    width: var(--app-sidebar-width, 248px);
+    min-width: var(--app-sidebar-width, 248px);
+    max-width: var(--app-sidebar-width, 248px);
 
     min-height: 0;
     box-sizing: border-box;

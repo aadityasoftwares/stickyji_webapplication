@@ -14,7 +14,14 @@ const resourceEndpoints = (resource: string) => ({
 });
 
 export const API_ENDPOINTS = {
-    plans: { getAll: `${API_BASE_URL}/plans/getall` },
+    plans: {
+        getAll: `${API_BASE_URL}/plans/getall`,
+        subscriptionPlans: `${API_BASE_URL}/plans/subscriptionplans`,
+    },
+    billing: {
+        subscribe: `${API_BASE_URL}/billing/subscribe`,
+        verify: `${API_BASE_URL}/billing/verify`,
+    },
     auth: {
         login: `${API_BASE_URL}/auth/login`,
         register: `${API_BASE_URL}/auth/register`,

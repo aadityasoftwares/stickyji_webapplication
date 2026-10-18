@@ -40,6 +40,19 @@
   text-decoration: none;
 }
 
+.header-brand-logo {
+  display: block;
+  height: clamp(34px, 3.8vw, 42px);
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.header-brand:hover .header-brand-logo {
+  transform: scale(1.03) rotate(-1deg);
+}
+
 .brand-mark {
   position: relative;
   display: grid;

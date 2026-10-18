@@ -17,6 +17,7 @@ describe('WebsiteHeader navigation', () => {
 
   it('marks the current section in desktop and mobile navigation', () => {
     const fixture = TestBed.createComponent(WebsiteHeader);
+    fixture.detectChanges();
     fixture.componentInstance.activeSection.set('pricing');
     fixture.componentInstance.mobileMenuOpen = true;
     fixture.detectChanges();

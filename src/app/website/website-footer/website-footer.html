@@ -4,7 +4,10 @@
             <span class="footer-note-tape" aria-hidden="true"></span>
 
             <div class="footer-note-copy">
-                <app-badge label="One last note" variant="notePink" size="sm" shape="pill" [icon]="LucideSparkles" />
+                <div class="footer-badge-row">
+                    <app-badge label="One last note" variant="notePink" size="sm" shape="pill" [icon]="LucideSparkles" />
+                    <img [src]="mascotSrc" alt="Sticky Ji mascot" class="footer-mascot-sticker" />
+                </div>
 
                 <h2 id="footer-cta-title">{{ ctaTitle }}</h2>
                 <p>{{ ctaDescription }}</p>
@@ -29,10 +32,11 @@
         <div class="footer-board">
             <div class="footer-brand-column">
                 <a class="footer-brand" [attr.href]="brandHref" [attr.aria-label]="brandName + ' home'">
-                    <span class="brand-mark" aria-hidden="true">
-                        <span class="brand-note"><app-icon [icon]="LucideSparkles" size="sm" /></span>
-                    </span>
-                    <strong id="footer-brand-name">{{ brandName }}</strong>
+                    <img
+                        [src]="logoSrc"
+                        [alt]="brandName"
+                        class="footer-brand-logo-img"
+                    />
                 </a>
 
                 <p>{{ description }}</p>

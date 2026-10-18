@@ -90,7 +90,9 @@ export class WebsiteFooter {
   readonly LucideMail = LucideMail;
   readonly LucideSparkles = LucideSparkles;
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
+  @Input() logoSrc = 'StickyJiVerticalLogo.png';
+  @Input() mascotSrc = 'StickyJiLogo.png';
   @Input() brandHref = '/home#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
   @Input() ctaTitle = 'Your next good idea needs somewhere to land.';

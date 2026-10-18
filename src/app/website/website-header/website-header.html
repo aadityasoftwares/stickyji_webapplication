@@ -6,18 +6,15 @@
       (click)="onBrandClick($event)"
       [attr.aria-label]="brandName + ' home'"
     >
-      <span class="brand-mark" aria-hidden="true">
-        <span class="brand-mark-note">
-          <app-icon [icon]="LucideSparkles" size="sm" />
-        </span>
-      </span>
-
-      <span class="brand-copy">
-        <strong>{{ brandName }}</strong>
-        @if (showProductBadge && productBadge) {
-          <app-badge [label]="productBadge" variant="noteYellow" size="xs" shape="pill" />
-        }
-      </span>
+      <img
+        [src]="logoSrc"
+        [alt]="brandName"
+        class="header-brand-logo"
+        height="40"
+      />
+      @if (showProductBadge && productBadge) {
+        <app-badge [label]="productBadge" variant="noteYellow" size="xs" shape="pill" />
+      }
     </a>
 
     <nav class="desktop-navigation" aria-label="Primary navigation">

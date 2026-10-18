@@ -1,4 +1,4 @@
-import { PublicPlan } from '../subscription/services/plans.service';
+import { PlanCardDTO, PublicPlan } from '../subscription/services/plans.service';
 import { Router } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { Hero } from '../hero/hero';
@@ -17,7 +17,8 @@ import { WebsiteFooter } from '../website-footer/website-footer';
 })
 export class Home {
   private readonly router = inject(Router);
-  choosePlan(plan: PublicPlan): void {
+
+  choosePlan(plan: any): void {
     void this.router.navigate(['/auth/signup'], { queryParams: { plan: plan.code } });
   }
 

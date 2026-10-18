@@ -1,210 +1,786 @@
 @use '../../styles/variables' as *;
+
 :host {
   display: block;
 }
+
 .subscription {
   padding: 88px 0;
-  background: #f3f2ec;
+  background: $app-bg;
   border-bottom: 1px solid $border-light;
 }
+
 .subscription-shell {
-  width: min(1160px, calc(100% - 64px));
+  width: min(1180px, calc(100% - 48px));
   margin-inline: auto;
 }
+
+/* ==========================================================
+   Section Heading & Billing Selector
+   ========================================================== */
+
 .section-heading {
-  max-width: 720px;
-  margin: 0 auto 44px;
+  max-width: 760px;
+  margin: 0 auto 48px;
   text-align: center;
 }
+
 .section-eyebrow {
-  color: #64734f;
-  font: 600 10px/1.5 $font-body;
-  letter-spacing: 0.15em;
+  color: $secondary;
+  font: 600 11px/1.5 $font-body;
+  letter-spacing: 0.16em;
 }
+
 .section-heading h2 {
   margin: 16px 0 18px;
-  color: #252922;
-  font: 600 clamp(32px, 3.5vw, 46px)/1.13 $font-heading;
-  letter-spacing: -0.045em;
+  color: $heading;
+  font: 700 clamp(32px, 3.8vw, 48px)/1.12 $font-heading;
+  letter-spacing: -0.04em;
 }
+
 .section-heading h2 span {
-  color: #64734f;
+  color: $secondary;
 }
+
 .section-heading p {
-  max-width: 550px;
+  max-width: 580px;
   margin-inline: auto;
   color: $text-secondary;
-  font: 400 16px/1.75 $font-body;
+  font: 400 16px/1.7 $font-body;
 }
+
+.billing-cycle-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 28px;
+}
+
+/* ==========================================================
+   Current Subscription Banner
+   ========================================================== */
+
+.current-sub-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 860px;
+  margin: 0 auto 36px;
+  padding: 14px 20px;
+  background: $paper;
+  border: 1px solid color-mix(in srgb, $success 35%, $border);
+  border-left: 4px solid $success;
+  border-radius: 12px;
+  box-shadow: $shadow-sm;
+}
+
+.sub-banner-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $success;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sub-banner-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.sub-status-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(22, 163, 74, 0.1);
+  color: $success;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.sub-period {
+  color: $text-secondary;
+  font-size: 12px;
+}
+
+/* ==========================================================
+   Pricing Cards Grid (Folded Sticky Notes)
+   ========================================================== */
+
 .plans-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 32px 24px;
+  align-items: stretch;
+  padding-top: 14px;
 }
-.plan-card {
+
+.plan-card-shell {
+  --fold-size: 36px;
+  --card-surface: #{$paper};
+  --card-border: #{$border};
+  --card-fold-color: #ddd1b7;
+  --card-tape-bg: rgba(255, 255, 255, 0.72);
+  --card-tape-border: rgba(200, 190, 170, 0.45);
+
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 28px;
-  background: $paper;
-  border: 1px solid #dedfd3;
-  border-radius: 16px;
+  isolation: isolate;
+  filter: drop-shadow(0 2px 4px rgba(44, 37, 22, 0.06)) drop-shadow(0 10px 22px rgba(44, 37, 22, 0.08));
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 220ms ease;
+
+  @media (min-width: 900px) {
+    &:nth-child(1) {
+      transform: rotate(-0.75deg);
+    }
+    &:nth-child(2) {
+      transform: rotate(0.4deg);
+    }
+    &:nth-child(3) {
+      transform: rotate(0.95deg);
+    }
+  }
+
+  &:hover {
+    transform: translateY(-6px) rotate(0deg) !important;
+    filter: drop-shadow(0 4px 8px rgba(44, 37, 22, 0.08)) drop-shadow(0 18px 34px rgba(44, 37, 22, 0.14));
+  }
 }
+
+/* Palette Variations for the 3 Plans */
+/* 1. Free: Warm Clean Cream Sticky Paper */
+.plan-card-shell[data-plan-code="FREE"] {
+  --card-surface: #fffdf5;
+  --card-border: #e6ded1;
+  --card-fold-color: #dcd0bc;
+  --card-tape-bg: rgba(255, 253, 245, 0.85);
+  --card-tape-border: rgba(215, 203, 185, 0.55);
+}
+
+/* 2. Individual: Fresh Mint Sticky Paper */
+.plan-card-shell[data-plan-code="INDIVIDUAL"] {
+  --card-surface: #f1f8ee;
+  --card-border: #cbdfc3;
+  --card-fold-color: #b0d2a2;
+  --card-tape-bg: rgba(230, 246, 225, 0.88);
+  --card-tape-border: rgba(180, 215, 170, 0.65);
+}
+
+/* 3. Pro: Signature Vibrant Yellow Sticky Paper */
+.plan-card-shell[data-plan-code="PRO"] {
+  --card-surface: #fef7b8;
+  --card-border: #e2cb5a;
+  --card-fold-color: #cdb233;
+  --card-tape-bg: rgba(255, 233, 118, 0.95);
+  --card-tape-border: rgba(200, 175, 55, 0.7);
+}
+
+.plan-card-shell.is-popular-shell {
+  filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.12)) drop-shadow(0 14px 28px rgba(44, 37, 22, 0.11));
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  padding: 34px 28px calc(var(--fold-size) + 16px);
+  color: $heading;
+  background-color: var(--card-surface);
+  border: 1px solid var(--card-border);
+  border-radius: 6px 6px 0 6px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--fold-size)),
+    calc(100% - var(--fold-size)) 100%,
+    0 100%
+  );
+  overflow: hidden;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
 .plan-card.is-popular {
-  border-color: #7a8b65;
-  box-shadow:
-    0 0 0 3px rgba(#64734f, 0.1),
-    0 14px 35px -24px rgba(#35462f, 0.3);
+  border-color: #d99a18;
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.25);
 }
+
+.plan-card.is-current {
+  border-color: color-mix(in srgb, $success 75%, var(--card-border));
+}
+
+/* Paper Fiber Grain Texture */
+.paper-grain-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.11;
+  background-image:
+    radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.88) 0 0.65px, transparent 0.85px),
+    radial-gradient(circle at 73% 66%, rgba(41, 35, 24, 0.12) 0 0.5px, transparent 0.78px),
+    radial-gradient(circle at 42% 80%, rgba(255, 255, 255, 0.6) 0 0.5px, transparent 0.74px);
+  background-size: 14px 14px, 19px 19px, 23px 23px;
+}
+
+/* Washi Tape Strip at Top */
+.sticky-tape-strip {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 24px;
+  z-index: 5;
+  background: var(--card-tape-bg);
+  border: 1px solid var(--card-tape-border);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(30, 24, 15, 0.08);
+  pointer-events: none;
+  backdrop-filter: blur(1.5px);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 2px,
+      rgba(40, 30, 10, 0.12) 2px,
+      rgba(40, 30, 10, 0.12) 4px
+    );
+  }
+  &::before { left: 0; }
+  &::after { right: 0; }
+}
+
+/* Folded Corner Triangle */
+.sticky-corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  width: var(--fold-size);
+  height: var(--fold-size);
+  pointer-events: none;
+  background: var(--card-fold-color);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+
+  /* Diagonal lighting gradient */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, transparent 58%);
+  }
+
+  /* Diagonal crease edge */
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 142%;
+    height: 1px;
+    background: rgba(39, 33, 20, 0.22);
+    transform: rotate(-45deg);
+    transform-origin: right bottom;
+  }
+}
+
+/* Soft shadow cast directly under the folded flap */
+.sticky-corner-shadow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: calc(var(--fold-size) + 6px);
+  height: calc(var(--fold-size) + 6px);
+  pointer-events: none;
+  background: radial-gradient(circle at 10% 10%, rgba(40, 32, 18, 0.22) 0%, transparent 68%);
+}
+
+/* Card Topline */
 .plan-topline {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-height: 26px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
+
 .plan-code {
   color: $text-secondary;
-  font: 500 10px/1.4 $font-body;
-  letter-spacing: 0.12em;
-  overflow-wrap: anywhere;
+  font: 600 11px/1.4 $font-body;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.popular-label {
-  display: inline-flex;
+
+.topline-badges {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 8px;
-  border-radius: 20px;
-  background: #edf1e7;
-  color: #4e6240;
-  font-size: 11px;
-  white-space: nowrap;
+  gap: 6px;
+  flex-wrap: wrap;
 }
-.plan-card h3 {
-  font: 600 25px/1.3 $font-heading;
+
+.plan-name {
+  color: $heading;
+  font: 700 26px/1.2 $font-heading;
   letter-spacing: -0.03em;
 }
+
 .plan-description {
-  margin-top: 12px;
+  margin-top: 10px;
+  min-height: 44px;
   color: $text-secondary;
-  font: 400 14px/1.7 $font-body;
+  font: 400 14px/1.6 $font-body;
 }
+
+/* Plan Price */
 .plan-price {
   display: grid;
-  gap: 8px;
-  padding: 28px 0;
-  border-bottom: 1px solid $border-light;
+  gap: 6px;
+  padding: 22px 0 20px;
+  margin: 14px 0 18px;
+  border-top: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
 }
-.plan-price strong {
-  color: #35462f;
-  font: 600 29px/1.2 $font-heading;
+
+.price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.price-main strong {
+  color: $heading;
+  font: 700 clamp(32px, 3vw, 40px)/1 $font-heading;
   letter-spacing: -0.04em;
 }
-.plan-price span {
+
+.price-interval {
+  color: $text-secondary;
+  font: 500 14px/1 $font-body;
+}
+
+.price-extras {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.price-per-month {
   color: $text-secondary;
   font-size: 12px;
 }
+
+/* Plan Highlights */
 .plan-details {
   display: grid;
-  gap: 14px;
-  margin: 24px 0;
+  gap: 12px;
+  margin: 0 0 24px;
   padding: 0;
   list-style: none;
 }
+
 .plan-details li {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
+  gap: 10px;
   color: $text-secondary;
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.5;
 }
-.plan-details app-icon {
+
+.plan-details .check-icon {
   flex-shrink: 0;
-  color: #64734f;
+  margin-top: 2px;
+  color: $accent;
 }
+
+.plan-card.is-popular .plan-details .check-icon {
+  color: $accent;
+}
+
+/* Plan Action */
 .plan-action {
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 12px;
 }
-.plan-action small {
+
+.action-caption {
   display: block;
-  margin-top: 12px;
+  margin-top: 10px;
   text-align: center;
+  color: $text-light;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+/* ==========================================================
+   Plan Comparison Matrix Section
+   ========================================================== */
+
+.comparison-section {
+  margin-top: 72px;
+}
+
+.comparison-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.comparison-header h3 {
+  color: $heading;
+  font: 700 clamp(24px, 2.5vw, 32px)/1.2 $font-heading;
+  letter-spacing: -0.03em;
+}
+
+.comparison-header p {
+  margin-top: 8px;
   color: $text-secondary;
+  font-size: 15px;
+}
+
+.comparison-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  background: $paper;
+  border: 1px solid $border;
+  border-radius: 16px;
+  box-shadow: $shadow-sm;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: $font-body;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-light;
+}
+
+.comparison-table thead tr th {
+  padding: 22px 20px;
+  background: $paper-dark;
+  border-bottom: 2px solid $border;
+  vertical-align: bottom;
+}
+
+.feature-col-header {
+  width: 38%;
+  color: $heading;
+  font: 700 15px/1.3 $font-heading;
+}
+
+.plan-col-header {
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.plan-col-name {
+  color: $heading;
+  font: 700 18px/1.2 $font-heading;
+}
+
+.plan-col-price {
+  margin-top: 4px;
+  color: $text-secondary;
+  font: 600 13px/1.3 $font-body;
+}
+
+.plan-col-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(217, 119, 6, 0.12);
+  color: $accent;
   font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.pricing-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 9px;
-  margin-top: 30px;
-  color: #64734f;
+
+.is-popular-col {
+  background: rgba(255, 246, 168, 0.14);
+}
+
+.is-current-col {
+  background: rgba(22, 163, 74, 0.04);
+}
+
+.comparison-row:hover th,
+.comparison-row:hover td {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.feature-name-cell {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: $paper;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.comparison-row:hover .feature-name-cell {
+  background: $paper-light;
+}
+
+.feature-title {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  color: $heading;
+}
+
+.feature-desc {
+  display: block;
+  margin-top: 3px;
+  color: $text-light;
   font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
 }
-.pricing-footer p {
-  margin: 0;
+
+.feature-value-cell {
+  text-align: center;
+  font-size: 13.5px;
+  color: $text-secondary;
 }
+
+.indicator-enabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $success;
+}
+
+.indicator-disabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-light;
+}
+
+.indicator-numeric {
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.indicator-numeric.is-unlimited {
+  color: $accent;
+  font-weight: 700;
+}
+
+.indicator-unit {
+  font-size: 12px;
+  color: $text-secondary;
+  font-weight: 400;
+}
+
+.indicator-text {
+  font-weight: 500;
+  color: $text-primary;
+}
+
+/* ==========================================================
+   State & Skeleton Cards
+   ========================================================== */
+
 .state-card {
-  padding: 48px 24px;
+  max-width: 540px;
+  margin: 36px auto;
+  padding: 48px 32px;
   background: $paper;
   border: 1px solid $border;
   border-radius: 16px;
   text-align: center;
+  box-shadow: $shadow-sm;
 }
+
+.state-card-icon {
+  margin-bottom: 16px;
+  color: $secondary;
+}
+
 .state-card h3 {
   font-size: 22px;
+  color: $heading;
 }
+
 .state-card p {
   margin: 12px 0 24px;
   color: $text-secondary;
+  line-height: 1.6;
 }
+
 .state-message {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   color: $text-secondary;
   text-align: center;
+  font-size: 14px;
 }
+
 .plan-skeleton {
-  min-height: 330px;
-  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  min-height: 440px;
+  padding: 32px 28px;
   border: 1px solid $border-light;
   border-radius: 16px;
   background: $paper;
 }
-.plan-skeleton span {
-  display: block;
-  height: 18px;
-  margin-bottom: 24px;
+
+.plan-skeleton .skel-badge {
+  width: 32%;
+  height: 16px;
+  border-radius: 4px;
+  background: color-mix(in srgb, $paper-dark 80%, #000);
+  opacity: 0.2;
+}
+
+.plan-skeleton .skel-title {
+  width: 55%;
+  height: 26px;
+  margin-top: 18px;
   border-radius: 6px;
-  background: #ebece4;
+  background: color-mix(in srgb, $paper-dark 80%, #000);
+  opacity: 0.2;
 }
-.plan-skeleton span:first-child {
-  width: 35%;
+
+.plan-skeleton .skel-price {
+  width: 70%;
+  height: 38px;
+  margin: 24px 0 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, $paper-dark 80%, #000);
+  opacity: 0.15;
 }
-.plan-skeleton span:last-child {
-  height: 100px;
+
+.plan-skeleton .skel-lines {
+  display: grid;
+  gap: 14px;
 }
-@media (max-width: 760px) {
+
+.plan-skeleton .skel-lines span {
+  display: block;
+  height: 14px;
+  border-radius: 4px;
+  background: color-mix(in srgb, $paper-dark 80%, #000);
+  opacity: 0.15;
+}
+
+.plan-skeleton .skel-lines span:nth-child(1) {
+  width: 85%;
+}
+.plan-skeleton .skel-lines span:nth-child(2) {
+  width: 72%;
+}
+.plan-skeleton .skel-lines span:nth-child(3) {
+  width: 80%;
+}
+
+.plan-skeleton .skel-button {
+  width: 100%;
+  height: 44px;
+  margin-top: auto;
+  border-radius: 10px;
+  background: color-mix(in srgb, $paper-dark 80%, #000);
+  opacity: 0.18;
+}
+
+/* ==========================================================
+   Footer
+   ========================================================== */
+
+.pricing-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 48px;
+  color: $secondary;
+  font-size: 13px;
+  text-align: center;
+}
+
+.pricing-footer-mascot {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(44, 37, 22, 0.12));
+}
+
+.pricing-footer p {
+  margin: 0;
+}
+
+/* ==========================================================
+   Responsive & Accessibility
+   ========================================================== */
+
+@media (max-width: 768px) {
   .subscription {
     padding: 56px 0;
   }
+
   .subscription-shell {
     width: calc(100% - 32px);
   }
+
   .plan-card {
-    padding: 24px;
+    padding: 24px 20px;
   }
-  .section-heading p {
-    font-size: 15px;
+
+  .comparison-section {
+    margin-top: 48px;
+  }
+
+  .current-sub-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-card,
+  .plan-card:hover {
+    transition: none;
+    transform: none !important;
+  }
+}
+
 @media (forced-colors: active) {
   .plan-card,
   .state-card,
-  .plan-skeleton {
+  .plan-skeleton,
+  .comparison-table-scroll {
     border-color: CanvasText;
   }
+
   .plan-card.is-popular {
     border-color: Highlight;
   }

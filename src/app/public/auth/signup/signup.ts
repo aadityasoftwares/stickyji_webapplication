@@ -104,10 +104,10 @@ export class Signup {
   readonly LucideSparkles = LucideSparkles;
   readonly LucideUserRound = LucideUserRound;
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
-  @Input() logoSrc?: string | null;
-  @Input() logoAlt = '';
+  @Input() logoSrc?: string | null = 'StickyJiHorizontalLogo.png';
+  @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
   @Input() redirectUrl = '/auth/verify-email';
   @Input() showGoogleSignUp = true;

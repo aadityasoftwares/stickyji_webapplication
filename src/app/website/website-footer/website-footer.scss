@@ -122,6 +122,39 @@
     text-decoration: none;
 }
 
+.footer-brand-logo-img {
+    display: block;
+    height: clamp(52px, 5vw, 68px);
+    width: auto;
+    max-width: 170px;
+    object-fit: contain;
+    transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.footer-brand:hover .footer-brand-logo-img {
+    transform: scale(1.04) rotate(-1.5deg);
+}
+
+.footer-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.footer-mascot-sticker {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(44, 37, 22, 0.15));
+    animation: gentleWiggle 3.5s ease-in-out infinite;
+}
+
+@keyframes gentleWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg) translateY(-2px); }
+    75% { transform: rotate(4deg) translateY(1px); }
+}
+
 .footer-brand strong {
     font: 820 clamp(20px, 2vw, 26px)/1 $font-heading;
     letter-spacing: -0.045em;

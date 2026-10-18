@@ -96,10 +96,10 @@ export class Signin implements OnInit {
   readonly LucideShieldCheck = LucideShieldCheck;
   readonly LucideSparkles = LucideSparkles;
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
-  @Input() logoSrc?: string | null;
-  @Input() logoAlt = '';
+  @Input() logoSrc?: string | null = 'StickyJiHorizontalLogo.png';
+  @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
   @Input() redirectUrl = '/app';
   @Input() showGoogleSignIn = true;

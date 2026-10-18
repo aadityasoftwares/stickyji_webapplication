@@ -107,7 +107,8 @@ export class WebsiteHeader {
   readonly LucideSparkles = LucideSparkles;
   readonly LucideX = LucideX;
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
+  @Input() logoSrc = 'StickyJiHorizontalLogo.png';
   @Input() brandHref = '/home#top';
   @Input() productBadge = 'BETA';
   @Input() showProductBadge = false;

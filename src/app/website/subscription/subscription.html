@@ -1,5 +1,6 @@
 <section id="pricing" class="subscription" aria-labelledby="subscription-title">
   <div class="subscription-shell">
+    <!-- Header -->
     <header class="section-heading">
       <span class="section-eyebrow">ROOM FOR YOUR NEXT CHAPTER</span>
       <h2 id="subscription-title">
@@ -9,97 +10,318 @@
         Find the workspace that fits your day. Explore our available plans and choose where to
         begin.
       </p>
+
+      <!-- Billing Cycle Selector -->
+      @if (!loading() && !error() && billingIntervals().length > 1) {
+        <div class="billing-cycle-wrap">
+          <app-tabs
+            [items]="cycleTabs()"
+            [value]="selectedCycle()"
+            variant="segmented"
+            activeVariant="noteYellow"
+            shape="pill"
+            density="compact"
+            ariaLabel="Select billing cycle"
+            (valueChange)="onCycleChange($event)"
+          />
+        </div>
+      }
     </header>
 
+    <!-- Current Subscription Notification Banner -->
+    @if (!loading() && userSubscription(); as sub) {
+      <aside class="current-sub-banner" role="status">
+        <div class="sub-banner-badge">
+          <app-icon [icon]="LucideShield" size="sm" />
+          <span>Active Subscription</span>
+        </div>
+        <div class="sub-banner-info">
+          <strong>Plan: {{ sub.planCode }}</strong>
+          <span class="sub-status-pill">{{ sub.status }}</span>
+          @if (sub.currentPeriodEnd) {
+            <span class="sub-period">Active until {{ formatPeriodEnd(sub.currentPeriodEnd) }}</span>
+          }
+        </div>
+      </aside>
+    }
+
+    <!-- Content State Handlers -->
     <div class="plans-content" [attr.aria-busy]="loading()">
+      <!-- Loading Skeleton State -->
       @if (loading()) {
         <p class="state-message" role="status">Loading available plans...</p>
         <div class="plans-grid" aria-hidden="true">
           @for (card of [1, 2, 3]; track card) {
-            <div class="plan-skeleton"><span></span><span></span><span></span></div>
+            <div class="plan-card-shell">
+              <div class="sticky-tape-strip"></div>
+              <div class="plan-card plan-skeleton">
+                <span class="skel-badge"></span>
+                <span class="skel-title"></span>
+                <span class="skel-price"></span>
+                <div class="skel-lines">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="skel-button"></span>
+              </div>
+              <span class="sticky-corner-shadow"></span>
+              <span class="sticky-corner"></span>
+            </div>
           }
         </div>
       } @else if (error()) {
+        <!-- Error State -->
         <div class="state-card" role="alert">
+          <app-icon [icon]="LucideAlertCircle" size="lg" class="state-card-icon" />
           <h3>Plans are taking a little longer to load.</h3>
-          <p>Please try again in a moment.</p>
-          <app-button label="Try again" variant="outline" (buttonClick)="loadPlans()" />
+          <p>We could not retrieve the subscription catalog. Please try again in a moment.</p>
+          <app-button
+            label="Try again"
+            variant="outline"
+            [hasIcon]="true"
+            iconPosition="left"
+            (buttonClick)="loadPlans()"
+          >
+            <app-icon button-icon-left [icon]="LucideRefreshCw" size="inherit" />
+          </app-button>
         </div>
       } @else if (!plans().length) {
+        <!-- Empty Catalog State -->
         <div class="state-card" role="status">
+          <app-icon [icon]="LucideInfo" size="lg" class="state-card-icon" />
           <h3>New plans are on the way.</h3>
-          <p>There are no public plans available right now. Please check back soon.</p>
+          <p>There are no public subscription plans available right now. Please check back soon.</p>
+          <app-button
+            label="Refresh catalog"
+            variant="outline"
+            (buttonClick)="loadPlans()"
+          />
         </div>
       } @else {
+        <!-- Dynamic Pricing Cards Grid (Folded Sticky Notes) -->
         <div class="plans-grid">
-          @for (plan of plans(); track plan._id) {
-            <article
-              class="plan-card"
-              [class.is-popular]="plan.isPopular"
-              [attr.aria-labelledby]="'plan-' + plan._id"
+          @for (plan of plans(); track plan.id) {
+            <div
+              class="plan-card-shell"
+              [class.is-popular-shell]="plan.isPopular"
+              [class.is-current-shell]="plan.isCurrent"
+              [attr.data-plan-code]="plan.code"
             >
-              <div class="plan-topline">
-                <span class="plan-code">{{ plan.code }}</span>
-                @if (plan.isPopular) {
-                  <span class="popular-label"
-                    ><app-icon [icon]="LucideSparkles" size="xs" /> Popular</span
+              <!-- Washi Tape Strip at Top -->
+              <div class="sticky-tape-strip" aria-hidden="true"></div>
+
+              <article
+                class="plan-card"
+                [class.is-popular]="plan.isPopular"
+                [class.is-current]="plan.isCurrent"
+                [attr.aria-labelledby]="'plan-' + plan.id"
+              >
+                <!-- Tactile Paper Grain Overlay -->
+                <div class="paper-grain-overlay" aria-hidden="true"></div>
+
+                <!-- Topline with Code & Badges -->
+                <div class="plan-topline">
+                  <span class="plan-code">{{ plan.code }}</span>
+                  <div class="topline-badges">
+                    @if (plan.isCurrent) {
+                      <app-badge
+                        label="Current Plan"
+                        variant="success"
+                        size="xs"
+                        shape="pill"
+                        [icon]="LucideCheck"
+                      />
+                    }
+                    @if (plan.isPopular) {
+                      <app-badge
+                        label="Popular"
+                        variant="accent"
+                        size="xs"
+                        shape="pill"
+                        [icon]="LucideSparkles"
+                      />
+                    }
+                    @if (plan.badge) {
+                      <app-badge
+                        [label]="plan.badge"
+                        variant="neutral"
+                        size="xs"
+                        shape="pill"
+                      />
+                    }
+                  </div>
+                </div>
+
+                <!-- Title & Description -->
+                <h3 [id]="'plan-' + plan.id" class="plan-name">{{ plan.name }}</h3>
+                <p class="plan-description">{{ plan.description }}</p>
+
+                <!-- Price Box -->
+                <div class="plan-price">
+                  <div class="price-main">
+                    <strong>{{ priceDisplay(plan) }}</strong>
+                    @if (intervalDisplay(plan)) {
+                      <span class="price-interval">{{ intervalDisplay(plan) }}</span>
+                    }
+                  </div>
+
+                  @if (selectedCycle() === 'YEARLY' && getPrice(plan); as yrPrice) {
+                    <div class="price-extras">
+                      @if (yrPrice.savingsPercentage && yrPrice.savingsPercentage > 0) {
+                        <app-badge
+                          [label]="'Save ' + yrPrice.savingsPercentage + '%'"
+                          variant="noteYellow"
+                          size="xs"
+                          shape="pill"
+                        />
+                      }
+                      @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
+                        <span class="price-per-month">
+                          Billed annually ({{ yrPrice.currencySymbol || '₹' }}{{ yrPrice.monthlyEquivalent }}/mo)
+                        </span>
+                      } @else if (yrPrice.pricePerMonthFormatted) {
+                        <span class="price-per-month">
+                          Billed annually ({{ yrPrice.pricePerMonthFormatted }}/mo)
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Highlights List -->
+                <ul class="plan-details" aria-label="Key plan features">
+                  @if (plan.highlights && plan.highlights.length) {
+                    @for (highlight of plan.highlights; track highlight) {
+                      <li>
+                        <app-icon [icon]="LucideCheck" size="sm" class="check-icon" />
+                        <span>{{ highlight }}</span>
+                      </li>
+                    }
+                  } @else if (plan.features && plan.features.length) {
+                    @for (feat of plan.features; track feat.code) {
+                      <li>
+                        <app-icon [icon]="LucideCheck" size="sm" class="check-icon" />
+                        <span>{{ feat.name }}: {{ feat.formattedLimit || feat.displayValue }}</span>
+                      </li>
+                    }
+                  }
+                </ul>
+
+                <!-- Action Button -->
+                <div class="plan-action">
+                  <app-button
+                    [label]="getButtonLabel(plan)"
+                    [variant]="getButtonVariant(plan)"
+                    size="lg"
+                    [fullWidth]="true"
+                    [hasIcon]="!isButtonDisabled(plan)"
+                    iconPosition="right"
+                    [disabled]="isButtonDisabled(plan)"
+                    [loading]="processingPlanId() === plan.id"
+                    (buttonClick)="choosePlan(plan)"
                   >
-                }
-              </div>
-              <h3 [id]="'plan-' + plan._id">{{ plan.name }}</h3>
-              <p class="plan-description">{{ plan.description }}</p>
-              <div class="plan-price">
-                <strong>{{ priceLabel(plan) }}</strong>
-                <span>{{
-                  plan.type === 'FREE'
-                    ? 'No subscription charge'
-                    : plan.pricingModel === 'CUSTOM' || plan.type === 'CUSTOM'
-                      ? 'Pricing tailored to your needs'
-                      : 'Pricing details will be available soon'
-                }}</span>
-              </div>
-              <ul class="plan-details">
-                @if (plan.type === 'FREE') {
-                  <li><app-icon [icon]="LucideCheck" size="sm" /> A free plan to get started</li>
-                }
-                @if (plan.trialDays > 0) {
-                  <li>
-                    <app-icon [icon]="LucideCheck" size="sm" /> {{ plan.trialDays }}-day trial
-                  </li>
-                }
-                @if (plan.isDefault) {
-                  <li>
-                    <app-icon [icon]="LucideCheck" size="sm" /> Your starting plan for a new account
-                  </li>
-                }
-                @if (plan.type === 'CUSTOM' || plan.pricingModel === 'CUSTOM') {
-                  <li>
-                    <app-icon [icon]="LucideCheck" size="sm" /> A plan shaped around your
-                    requirements
-                  </li>
-                }
-              </ul>
-              <div class="plan-action">
-                <app-button
-                  [label]="plan.type === 'FREE' ? 'Get started free' : 'Get started'"
-                  [variant]="plan.isPopular ? 'primary' : 'outline'"
-                  size="lg"
-                  [fullWidth]="true"
-                  [hasIcon]="true"
-                  iconPosition="right"
-                  (buttonClick)="choosePlan(plan)"
-                >
-                  <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-                </app-button>
-                <small>Create an account to get started.</small>
-              </div>
-            </article>
+                    <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                  </app-button>
+
+                  <small class="action-caption">
+                    @if (plan.isCurrent) {
+                      This is your active subscription.
+                    } @else if (plan.code === 'FREE') {
+                      No credit card required. Free forever.
+                    } @else {
+                      Secure checkout powered by Razorpay.
+                    }
+                  </small>
+                </div>
+              </article>
+
+              <!-- Folded Sticky Corner -->
+              <span class="sticky-corner-shadow" aria-hidden="true"></span>
+              <span class="sticky-corner" aria-hidden="true"></span>
+            </div>
           }
         </div>
+
+        <!-- Plan Feature Comparison Table -->
+        @if (comparisonMatrix().length && plans().length) {
+          <div class="comparison-section">
+            <header class="comparison-header">
+              <h3>Compare features & limits</h3>
+              <p>Everything included in each plan to help you pick the best fit.</p>
+            </header>
+
+            <div class="comparison-table-scroll" tabindex="0" role="region" aria-label="Features comparison table">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th class="feature-col-header" scope="col">Features</th>
+                    @for (plan of plans(); track plan.id) {
+                      <th
+                        scope="col"
+                        class="plan-col-header"
+                        [class.is-popular-col]="plan.isPopular"
+                        [class.is-current-col]="plan.isCurrent"
+                      >
+                        <div class="plan-col-name">{{ plan.name }}</div>
+                        <div class="plan-col-price">{{ priceDisplay(plan) }}</div>
+                        @if (plan.isPopular) {
+                          <span class="plan-col-badge">Popular</span>
+                        }
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of comparisonMatrix(); track row.featureCode) {
+                    <tr class="comparison-row">
+                      <th class="feature-name-cell" scope="row">
+                        <span class="feature-title">{{ row.featureName }}</span>
+                        @if (row.description) {
+                          <span class="feature-desc">{{ row.description }}</span>
+                        }
+                      </th>
+
+                      @for (plan of plans(); track plan.id) {
+                        <td
+                          class="feature-value-cell"
+                          [class.is-popular-col]="plan.isPopular"
+                          [class.is-current-col]="plan.isCurrent"
+                        >
+                          @if (getFeatureValue(row, plan); as val) {
+                            @if (row.type === 'BOOLEAN') {
+                              @if (val.included ?? val.isEnabled) {
+                                <span class="indicator-enabled" title="Included">
+                                  <app-icon [icon]="LucideCheck" size="sm" />
+                                </span>
+                              } @else {
+                                <span class="indicator-disabled" title="Not included">
+                                  <app-icon [icon]="LucideMinus" size="sm" />
+                                </span>
+                              }
+                            } @else {
+                              <span class="indicator-numeric" [class.is-unlimited]="val.isUnlimited">
+                                {{ val.formattedValue || val.displayValue || (val.isUnlimited ? 'Unlimited' : '—') }}
+                              </span>
+                            }
+                          } @else {
+                            <span class="indicator-disabled">—</span>
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
       }
     </div>
+
+    <!-- Sticky Note Inspired Footer Quote -->
     <footer class="pricing-footer">
-      <app-icon [icon]="LucideSparkles" size="sm" />
+      <img src="StickyJiLogo.png" alt="Sticky Ji" class="pricing-footer-mascot" />
       <p>Start with your ideas. Build your workspace one note at a time.</p>
     </footer>
   </div>
