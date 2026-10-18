@@ -1,16 +1,15 @@
-<section class="today-page" aria-labelledby="today-page-title">
+<section class="today-page today-workspace" aria-labelledby="today-page-title">
     <main class="today-main">
         <header class="today-header">
             <div class="today-intro">
                 <span class="today-calendar-mark" aria-hidden="true">
                     <span class="today-calendar-top">TODAY</span>
-                    <strong>{{ today() | userDate }}</strong>
-                    <small>{{ today() | userTime }}</small>
+                    <strong>{{ todayDay() }}</strong>
                 </span>
                 <div>
-                    <span class="today-kicker">Today · {{ today() | userDateTime }}</span>
+                    <span class="today-kicker">Today · {{ today() | date:'MMMM d, y' }}</span>
                     <h1 id="today-page-title">Plan, organise, and get things done</h1>
-                    <p class="today-subtitle">Turn your thoughts into progress, one note at a time.</p>
+                    <!-- <p class="today-subtitle">Turn your thoughts into progress, one note at a time.</p> -->
                 </div>
             </div>
             <div class="today-header-actions">
@@ -29,6 +28,7 @@
                             (ngModelChange)="onWorkspaceSelection($event)" name="today-workspace"
                             [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
                             ariaLabel="Choose workspace for today" variant="paper" shape="rounded" size="sm"
+                            appearance="simple" [height]="UI.button.height.md" [radius]="UI.radius.xs"
                             [iconLeft]="LucidePanelsTopLeft" [clearable]="false" [searchable]="true"
                             [fullWidth]="true" />
                     </div>
@@ -38,15 +38,17 @@
                             (ngModelChange)="onFolderSelection($event)" name="today-folder"
                             [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
                             ariaLabel="Choose folder for today" variant="paper" shape="rounded" size="sm"
+                            appearance="simple" [height]="UI.button.height.md" [radius]="UI.radius.xs"
                             [iconLeft]="LucideFolderOpen" [clearable]="false" [searchable]="true" [fullWidth]="true" />
                     </div>
                 </div>
                 <div class="today-header-command-group">
                     <app-button [icon]="LucideRefreshCw" [iconOnly]="true" appearance="standard" variant="noteBlue"
-                        size="md" ariaLabel="Refresh today board" title="Refresh today board" [loading]="boardLoading()"
-                        [disabled]="!activeFolder()" (buttonClick)="refreshBoard()" />
-                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="md"
-                        [disabled]="!activeFolder() || !hasColumns()"
+                        [height]="UI.button.height.md" size="sm" ariaLabel="Refresh today board"
+                        title="Refresh today board" [loading]="boardLoading()" [disabled]="!activeFolder()"
+                        (buttonClick)="refreshBoard()" />
+                    <app-button label="New note" [iconLeft]="LucidePlus" variant="noteYellow" size="sm"
+                        [height]="UI.button.height.md" [disabled]="!activeFolder() || !hasColumns()"
                         (buttonClick)="openNoteCreatePanel(firstActionColumnId())" />
                 </div>
             </div>
@@ -59,8 +61,17 @@
             <div class="today-toolbar">
                 <div class="today-toolbar-left">
                     <app-tabs [items]="viewTabs" [value]="view()" variant="segmented" activeVariant="noteYellow"
-                        shape="rounded" size="sm" density="compact" ariaLabel="Choose view" [scrollable]="false"
+                        shape="rounded" size="md" density="compact" ariaLabel="Choose view" [scrollable]="false"
                         [minTabWidth]="76" (valueChange)="setView($event)" />
+                </div>
+                <div class="today-search">
+                    <app-input type="search" label="Search today notes" labelMode="hidden" placeholder="Search notes"
+                        variant="paper" appearance="simple" shape="rounded" [height]="UI.button.height.md"
+                        [radius]="UI.radius.xs" size="xs" [leadingIcon]="LucideSearch" [clearable]="true"
+                        [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search today notes"
+                        (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
+                </div>
+                <div class="today-toolbar-team" aria-label="Workspace members">
                     @if (loadingWorkspaceMembers()) {
                     <span class="today-toolbar-members-skeleton" aria-label="Loading workspace members">
                         <span></span>
@@ -69,49 +80,51 @@
                     </span>
                     } @else if (workspaceMemberStack().length > 0) {
                     <app-members-stack class="today-toolbar-members" [members]="workspaceMemberStack()" [maxVisible]="4"
-                        size="sm" shape="rounded" [overlap]="10" [bordered]="true" [elevated]="false"
+                        size="sm" shape="circle" [overlap]="10" [bordered]="true" [elevated]="false"
                         ariaLabel="Active workspace members" />
                     }
                 </div>
-                <div class="today-search">
-                    <app-input type="search" label="Search today notes" labelMode="hidden" placeholder="Search notes"
-                        variant="paper" appearance="outlined" shape="rounded" size="sm" [leadingIcon]="LucideSearch"
-                        [clearable]="true" [value]="searchTerm()" [fullWidth]="true" ariaLabel="Search today notes"
-                        (valueChange)="updateSearch($event)" (cleared)="clearSearch()" />
-                </div>
                 <div class="today-toolbar-controls">
-                    <div class="today-font-select">
-                        <app-select [options]="stickyNoteFontOptions" [ngModel]="stickyNoteFont()"
-                            (ngModelChange)="chooseFont($event)" name="today-note-font" placeholder="Note font"
-                            ariaLabel="Choose note font" variant="paper" shape="rounded" size="sm"
-                            [iconLeft]="LucideType" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                    <div class="today-display-settings" role="group" aria-label="Note display settings">
+                        <div class="today-font-select">
+                            <app-select [options]="stickyNoteFontOptions" [ngModel]="stickyNoteFont()"
+                                (ngModelChange)="chooseFont($event)" name="today-note-font" placeholder="Note font"
+                                ariaLabel="Choose note font" variant="paper" shape="rounded" size="xs"
+                                appearance="simple" [height]="UI.button.height.md" [radius]="UI.radius.xs"
+                                [iconLeft]="LucideType" [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                        </div>
+                        <div class="today-layout-select">
+                            <app-select [options]="stickyNoteFontSizeOptions" [ngModel]="stickyNoteFontSize()"
+                                (ngModelChange)="onStickyNoteFontSizeSelection($event)" name="today-note-font-size"
+                                placeholder="Font size" ariaLabel="Choose note font size" variant="paper"
+                                shape="rounded" appearance="simple" [height]="UI.button.height.md"
+                                [radius]="UI.radius.xs" size="xs" [iconLeft]="LucideAArrowUp" [clearable]="false"
+                                [searchable]="false" [fullWidth]="true" />
+                        </div>
+                        <div class="today-layout-select">
+                            <app-select [options]="stickyNoteLayoutOptions" [ngModel]="stickyNoteLayout()"
+                                (ngModelChange)="onStickyNoteLayoutSelection($event)" name="today-sticky-note-layout"
+                                placeholder="Note layout" ariaLabel="Choose sticky note layout" variant="paper"
+                                appearance="simple" [height]="UI.button.height.md" [radius]="UI.radius.xs"
+                                shape="rounded" size="xs"
+                                [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
+                                [clearable]="false" [searchable]="false" [fullWidth]="true" />
+                        </div>
                     </div>
-                    <div class="today-layout-select">
-                        <app-select [options]="stickyNoteFontSizeOptions" [ngModel]="stickyNoteFontSize()"
-                            (ngModelChange)="onStickyNoteFontSizeSelection($event)" name="today-note-font-size"
-                            placeholder="Font size" ariaLabel="Choose note font size" variant="paper" shape="rounded"
-                            size="sm" [iconLeft]="LucideAArrowUp" [clearable]="false" [searchable]="false"
-                            [fullWidth]="true" />
+                    <div class="today-toolbar-utilities" role="group" aria-label="Note utilities">
+                        <app-button size="xs" [iconLeft]="LucideTrash2" [disabled]="!activeWorkspaceId()" label="Trash"
+                            appearance="standard" variant="noteRed" [hasIcon]="true" [height]="UI.button.height.md"
+                            ariaLabel="Open recently deleted sticky notes"
+                            title="Trash · Notes can be restored for 60 days" (buttonClick)="openStickyNoteTrash()" />
+                        @if (overdueButtonVisible()) {
+                        <app-button size="xs" [iconLeft]="LucideClockAlert"
+                            [label]="'Overdue (' + overdue.data().total + ')'" appearance="standard"
+                            variant="noteOrange" [height]="UI.button.height.md"
+                            [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'"
+                            title="Review overdue notes" [ariaExpanded]="overdue.open()"
+                            (buttonClick)="overdue.open.set(true)" />
+                        }
                     </div>
-                    <div class="today-layout-select">
-                        <app-select [options]="stickyNoteLayoutOptions" [ngModel]="stickyNoteLayout()"
-                            (ngModelChange)="onStickyNoteLayoutSelection($event)" name="today-sticky-note-layout"
-                            placeholder="Note layout" ariaLabel="Choose sticky note layout" variant="paper"
-                            shape="rounded" size="sm"
-                            [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
-                            [clearable]="false" [searchable]="false" [fullWidth]="true" />
-                    </div>
-                    <span class="today-toolbar-utility-divider" aria-hidden="true"></span>
-                    <app-button size="sm" [iconLeft]="LucideTrash2" [disabled]="!activeWorkspaceId()" label="Trash"
-                        appearance="standard" variant="noteRed" [hasIcon]="true"
-                        ariaLabel="Open recently deleted sticky notes" title="Trash · Notes can be restored for 60 days"
-                        (buttonClick)="openStickyNoteTrash()" />
-                    @if (overdueButtonVisible()) {
-                    <app-button size="sm" [iconLeft]="LucideClockAlert" [label]="'Overdue (' + overdue.data().total + ')'"
-                        appearance="standard" variant="noteOrange"
-                        [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'" title="Review overdue notes"
-                        [ariaExpanded]="overdue.open()" (buttonClick)="overdue.open.set(true)" />
-                    }
                 </div>
             </div>
             <div class="today-explorer-body" [class.is-table]="isTableView()" [class.is-list]="isTableView()">
@@ -263,28 +276,24 @@
                             [cdkDragStartDelay]="{ touch: 150, mouse: 0 }" [style.--column-accent]="column.accent"
                             [attr.aria-labelledby]="column.id + '-heading'">
                             <header class="today-column-header">
-                                <div class="today-column-title">
+                                <div class="today-column-title today-column-drag-handle" cdkDragHandle
+                                    [title]="'Hold to rearrange ' + column.label + ' column'">
                                     <span class="today-column-dot" aria-hidden="true"></span>
-                                    <h3 [id]="column.id + '-heading'">{{ column.label | uppercase }}</h3>
+                                    <h3 [id]="column.id + '-heading'">{{ column.label }}</h3>
                                     <app-badge [count]="visibleNotesFor(column.id).length" variant="neutral" size="xs"
                                         shape="pill" [ariaLabel]="visibleNotesFor(column.id).length + ' notes'" />
                                 </div>
                                 <div class="today-column-actions">
-                                    <app-button class="today-column-drag-handle" cdkDragHandle [icon]="LucideGrip"
-                                        [iconOnly]="true" variant="secondary" size="sm"
-                                        [ariaLabel]="'Hold to rearrange ' + column.label + ' column'"
-                                        [title]="'Hold to rearrange ' + column.label + ' column'" />
                                     <app-button [icon]="LucidePlus" [iconOnly]="true" variant="secondary" size="sm"
                                         [ariaLabel]="'Add note to ' + column.label"
                                         [title]="'Add note to ' + column.label"
                                         (buttonClick)="openNoteCreatePanel(column.id)" />
-                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="secondary" size="sm"
-                                        [ariaLabel]="'Edit ' + column.label + ' column'"
+                                    <app-button [icon]="LucideMoreHorizontal" [iconOnly]="true" variant="secondary"
+                                        size="sm" [ariaLabel]="'Edit ' + column.label + ' column'"
                                         [title]="'Edit ' + column.label + ' column'"
                                         (buttonClick)="requestColumnEdit(column, $event)" />
                                 </div>
                             </header>
-                            <app-divider variant="neutral" lineStyle="dashed" spacing="none" [thickness]="1" />
                             <div class="today-column-notes" cdkDropList [id]="column.id + '-drop-list'"
                                 [cdkDropListData]="visibleNotesFor(column.id)"
                                 [cdkDropListConnectedTo]="columnDropListIds()"
@@ -302,11 +311,13 @@
                                 } @empty {
                                 <div class="today-empty-column">
                                     <span class="today-empty-column-visual" aria-hidden="true">
-                                        <span></span><span></span><span></span>
+                                        <app-icon
+                                            [icon]="column.type === 'COMPLETED' ? LucideClipboardCheck : LucideFileText"
+                                            [size]="40" [strokeWidth]="1.75" />
                                     </span>
                                     <strong>
                                         {{ searchTerm() ? 'No matching notes' : column.type === 'COMPLETED' ? 'Nothing
-                                        completed yet' : 'No notes here yet' }}
+                                        completed yet' : 'No notes yet' }}
                                     </strong>
                                     <small>
                                         {{ searchTerm() ? 'Try another search or clear the filter.' : column.type ===
@@ -318,7 +329,7 @@
                                     <app-button label="Clear search" variant="outline" size="xs"
                                         (buttonClick)="clearSearch()" />
                                     } @else {
-                                    <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="xs"
+                                    <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="sm"
                                         (buttonClick)="openNoteCreatePanel(column.id)" />
                                     }
                                 </div>
@@ -362,8 +373,7 @@
                         [cdkDropListEnterPredicate]="canDropColumn" (cdkDropListDropped)="dropColumn($event)">
                         @for (group of tableGroups(); track group.id) {
                         <section class="today-group" cdkDrag [cdkDragData]="group.column"
-                            [cdkDragDisabled]="boardLoading() || movingColumn()"
-                            [style.--group-accent]="group.accent"
+                            [cdkDragDisabled]="boardLoading() || movingColumn()" [style.--group-accent]="group.accent"
                             [class.is-collapsed]="isGroupCollapsed(group.id)"
                             [attr.aria-labelledby]="'group-heading-' + group.id">
                             <header class="today-group-header">
@@ -376,7 +386,8 @@
                                             size="sm" />
                                         <span class="today-group-accent-bar" aria-hidden="true"></span>
                                         <span class="today-group-label">{{ group.label }}</span>
-                                        <app-badge [label]="'' + group.count" variant="neutral" size="xs" shape="rounded"
+                                        <app-badge [label]="'' + group.count" variant="neutral" size="xs"
+                                            shape="rounded"
                                             [ariaLabel]="group.count + (group.count === 1 ? ' note' : ' notes')" />
                                     </button>
                                 </h3>
@@ -387,24 +398,22 @@
                                         <app-icon [icon]="LucideGrip" size="xs" />
                                     </button>
                                     <app-button [icon]="LucidePencil" [iconOnly]="true" variant="ghost" size="xs"
-                                        [disabled]="!!movingColumn()"
-                                        [ariaLabel]="'Edit ' + group.label + ' column'" [title]="'Edit ' + group.label + ' column'"
+                                        [disabled]="!!movingColumn()" [ariaLabel]="'Edit ' + group.label + ' column'"
+                                        [title]="'Edit ' + group.label + ' column'"
                                         (buttonClick)="requestColumnEdit(group.column, $event)" />
                                     <app-button [icon]="LucidePlus" [iconOnly]="true" variant="ghost" size="xs"
-                                        [disabled]="!!movingNoteId()"
-                                        [ariaLabel]="'Add note to ' + group.label" [title]="'Add note to ' + group.label"
+                                        [disabled]="!!movingNoteId()" [ariaLabel]="'Add note to ' + group.label"
+                                        [title]="'Add note to ' + group.label"
                                         (buttonClick)="openNoteCreatePanel(group.id)" />
                                 </div>
                             </header>
 
                             @if (!isGroupCollapsed(group.id)) {
                             <div class="today-group-body" cdkDropList [id]="group.id + '-table-drop-list'"
-                                [cdkDropListData]="group.notes"
-                                [cdkDropListConnectedTo]="columnDropListIds()"
+                                [cdkDropListData]="group.notes" [cdkDropListConnectedTo]="columnDropListIds()"
                                 [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
                                 [cdkDropListEnterPredicate]="canDropNote"
-                                (cdkDropListDropped)="dropNote($event, group.id)"
-                                role="region" tabindex="0"
+                                (cdkDropListDropped)="dropNote($event, group.id)" role="region" tabindex="0"
                                 [attr.aria-labelledby]="'group-heading-' + group.id">
                                 @if (group.notes.length > 0) {
                                 <table class="today-gtable" [class.is-compact]="isCompactLayout()"
@@ -428,19 +437,26 @@
                                                 <span class="visually-hidden">Drag</span>
                                             </th>
                                             <th class="today-gt-select" scope="col">
-                                                <app-checkbox [checked]="isAllSelected(group.notes)" [indeterminate]="isSomeSelected(group.notes)"
-                                                    (checkedChange)="toggleSelectAll($event, group.notes)" size="xs" ariaLabel="Select all notes in stage" />
+                                                <app-checkbox [checked]="isAllSelected(group.notes)"
+                                                    [indeterminate]="isSomeSelected(group.notes)"
+                                                    (checkedChange)="toggleSelectAll($event, group.notes)" size="xs"
+                                                    ariaLabel="Select all notes in stage" />
                                             </th>
                                             <th class="today-gt-note" scope="col">
                                                 <app-icon [icon]="LucideType" size="xs" />
                                                 Note
                                             </th>
-                                            <th class="today-gt-description" scope="col"><app-icon [icon]="LucideList" size="xs" /> Description</th>
-                                            <th class="today-gt-date" scope="col"><app-icon [icon]="LucideCalendarDays" size="xs" /> Date</th>
+                                            <th class="today-gt-description" scope="col"><app-icon [icon]="LucideList"
+                                                    size="xs" /> Description</th>
+                                            <th class="today-gt-date" scope="col"><app-icon [icon]="LucideCalendarDays"
+                                                    size="xs" /> Date</th>
                                             @if (isDetailLayout()) {
-                                            <th class="today-gt-folder" scope="col"><app-icon [icon]="LucideFolderOpen" size="xs" /> Folder</th>
-                                            <th class="today-gt-progress" scope="col"><app-icon [icon]="LucideList" size="xs" /> Progress</th>
-                                            <th class="today-gt-updated" scope="col"><app-icon [icon]="LucideClock3" size="xs" /> Updated</th>
+                                            <th class="today-gt-folder" scope="col"><app-icon [icon]="LucideFolderOpen"
+                                                    size="xs" /> Folder</th>
+                                            <th class="today-gt-progress" scope="col"><app-icon [icon]="LucideList"
+                                                    size="xs" /> Progress</th>
+                                            <th class="today-gt-updated" scope="col"><app-icon [icon]="LucideClock3"
+                                                    size="xs" /> Updated</th>
                                             }
                                             <th class="today-gt-actions" scope="col">
                                                 <span class="visually-hidden">Actions</span>
@@ -464,8 +480,10 @@
                                                 </button>
                                             </td>
                                             <td class="today-gt-select">
-                                                <app-checkbox [checked]="isNoteSelected(note)" (checkedChange)="toggleNoteSelection(note, $event)"
-                                                    size="xs" [ariaLabel]="'Select ' + (note?.title || 'note')" (click)="$event.stopPropagation()" />
+                                                <app-checkbox [checked]="isNoteSelected(note)"
+                                                    (checkedChange)="toggleNoteSelection(note, $event)" size="xs"
+                                                    [ariaLabel]="'Select ' + (note?.title || 'note')"
+                                                    (click)="$event.stopPropagation()" />
                                             </td>
                                             <td class="today-gt-note" data-label="Note">
                                                 <div class="today-gt-note-cell">
@@ -477,13 +495,16 @@
                                                             [title]="isKeyCopied(note?.noteKey) ? 'Copied!' : 'Copy key'"
                                                             (click)="copyNoteKey(note?.noteKey, $event)"
                                                             (dblclick)="$event.stopPropagation()">
-                                                            <app-icon [icon]="isKeyCopied(note?.noteKey) ? LucideCheck : LucideCopy" size="xs" />
+                                                            <app-icon
+                                                                [icon]="isKeyCopied(note?.noteKey) ? LucideCheck : LucideCopy"
+                                                                size="xs" />
                                                         </button>
                                                     </div>
                                                     }
                                                     @if (tableEditingTitleId() === (note?.id || note?._id)) {
-                                                    <input type="text" class="today-table-title-input" autocomplete="off"
-                                                        spellcheck="true" data-inline-note-title [value]="tableTitleDraft()"
+                                                    <input type="text" class="today-table-title-input"
+                                                        autocomplete="off" spellcheck="true" data-inline-note-title
+                                                        [value]="tableTitleDraft()"
                                                         [attr.aria-label]="'Rename ' + (note?.title || 'note')"
                                                         (click)="$event.stopPropagation()"
                                                         (dblclick)="$event.stopPropagation()"
@@ -491,7 +512,8 @@
                                                         (keydown)="onTableTitleKeydown($event, note)"
                                                         (blur)="commitTableTitleEdit(note)" />
                                                     } @else {
-                                                    <button type="button" class="today-gt-title" [title]="note?.title || 'Untitled note'"
+                                                    <button type="button" class="today-gt-title"
+                                                        [title]="note?.title || 'Untitled note'"
                                                         [attr.aria-label]="'Rename ' + (note?.title || 'note')"
                                                         [disabled]="!!movingNoteId()"
                                                         (click)="startTableTitleEdit(note, $event)"
@@ -500,29 +522,35 @@
                                                     </button>
                                                     }
                                                     @if (isDetailLayout() && note?.creatorEmail) {
-                                                    <small class="today-gt-owner" [title]="note?.creatorEmail">{{ note?.creatorEmail }}</small>
+                                                    <small class="today-gt-owner" [title]="note?.creatorEmail">{{
+                                                        note?.creatorEmail }}</small>
                                                     }
                                                 </div>
                                             </td>
                                             <td class="today-gt-description" data-label="Description"
                                                 [title]="note?.content || note?.description || '-'">
-                                                <span class="today-gt-description-text">{{ note?.content || note?.description || '-' }}</span>
+                                                <span class="today-gt-description-text">{{ note?.content ||
+                                                    note?.description || '-' }}</span>
                                             </td>
                                             <td class="today-gt-date" data-label="Date">
-                                                <span class="today-gt-date-text">{{ noteDateLabel(note?.noteDate) }}</span>
+                                                <span class="today-gt-date-text">{{ noteDateLabel(note?.noteDate)
+                                                    }}</span>
                                             </td>
                                             @if (isDetailLayout()) {
                                             <td class="today-gt-folder" data-label="Folder">
-                                                <app-badge [label]="noteFolderName(note)" variant="neutral"
-                                                    size="xs" shape="pill" [icon]="LucideFolderOpen" [title]="noteFolderName(note)" />
+                                                <app-badge [label]="noteFolderName(note)" variant="neutral" size="xs"
+                                                    shape="pill" [icon]="LucideFolderOpen"
+                                                    [title]="noteFolderName(note)" />
                                             </td>
                                             <td class="today-gt-progress" data-label="Progress">
                                                 @if (noteChecklistTotal(note) > 0) {
                                                 <div class="today-table-progress-wrap" role="progressbar"
                                                     [attr.aria-label]="(note?.title || 'Note') + ' checklist progress'"
-                                                    aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="noteProgressPct(note)">
+                                                    aria-valuemin="0" aria-valuemax="100"
+                                                    [attr.aria-valuenow]="noteProgressPct(note)">
                                                     <div class="today-table-progress-label">
-                                                        <strong>{{ noteChecklistCompleted(note) }}/{{ noteChecklistTotal(note) }}</strong>
+                                                        <strong>{{ noteChecklistCompleted(note) }}/{{
+                                                            noteChecklistTotal(note) }}</strong>
                                                         <span>{{ noteProgressPct(note) }}%</span>
                                                     </div>
                                                     <span class="today-table-progress-track" aria-hidden="true">
@@ -544,22 +572,25 @@
                                             }
                                             <td class="today-gt-actions" data-label="Actions">
                                                 <div class="today-table-action-group">
-                                                    <app-button [icon]="LucidePencil" [iconOnly]="true" variant="noteBlue"
-                                                        appearance="standard" size="xs" [rounded]="true"
-                                                        [ariaLabel]="'Edit ' + (note?.title || 'note')"
-                                                        [title]="'Edit ' + (note?.title || 'note')" [disabled]="!!movingNoteId()"
+                                                    <app-button [icon]="LucidePencil" [iconOnly]="true"
+                                                        variant="noteBlue" appearance="standard" size="xs"
+                                                        [rounded]="true" [ariaLabel]="'Edit ' + (note?.title || 'note')"
+                                                        [title]="'Edit ' + (note?.title || 'note')"
+                                                        [disabled]="!!movingNoteId()"
                                                         (buttonClick)="openNoteEditPanel(note, $event)" />
 
                                                     @if (canMoveForward(note)) {
-                                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true" variant="noteYellow"
-                                                        appearance="standard" size="xs" [rounded]="true"
+                                                    <app-button [icon]="LucideArrowRight" [iconOnly]="true"
+                                                        variant="noteYellow" appearance="standard" size="xs"
+                                                        [rounded]="true"
                                                         [ariaLabel]="'Move forward ' + (note?.title || 'note')"
                                                         title="Move forward" [disabled]="!!movingNoteId()"
                                                         (buttonClick)="moveForward(note)" />
                                                     } @else {
-                                                    <app-button [icon]="isNoteFavorite(note) ? LucideStar : LucideStarOff"
-                                                        [iconOnly]="true" variant="noteYellow"
-                                                        appearance="standard" size="xs" [rounded]="true"
+                                                    <app-button
+                                                        [icon]="isNoteFavorite(note) ? LucideStar : LucideStarOff"
+                                                        [iconOnly]="true" variant="noteYellow" appearance="standard"
+                                                        size="xs" [rounded]="true"
                                                         [ariaLabel]="(isNoteFavorite(note) ? 'Remove ' : 'Add ') + (note?.title || 'note') + ' from/to favorites'"
                                                         [title]="isNoteFavorite(note) ? 'Remove favorite' : 'Add favorite'"
                                                         [disabled]="!!movingNoteId() || isFavoriteBusy(note)"
@@ -567,17 +598,19 @@
                                                     }
 
                                                     <button type="button" class="today-table-menu-button"
-                                                        [matMenuTriggerFor]="groupNoteMenu" [disabled]="!!movingNoteId()"
+                                                        [matMenuTriggerFor]="groupNoteMenu"
+                                                        [disabled]="!!movingNoteId()"
                                                         [attr.aria-label]="'More actions for ' + (note?.title || 'note')"
                                                         title="More note actions" (click)="$event.stopPropagation()"
                                                         (dblclick)="$event.stopPropagation()">
                                                         <app-icon [icon]="LucideMoreHorizontal" size="sm" />
                                                     </button>
 
-                                                    <mat-menu #groupNoteMenu="matMenu" xPosition="before" yPosition="below"
-                                                        [overlapTrigger]="false" class="today-note-actions-menu">
-                                                        <button mat-menu-item type="button" class="today-note-action-item"
-                                                            [disabled]="!!movingNoteId()"
+                                                    <mat-menu #groupNoteMenu="matMenu" xPosition="before"
+                                                        yPosition="below" [overlapTrigger]="false"
+                                                        class="today-note-actions-menu">
+                                                        <button mat-menu-item type="button"
+                                                            class="today-note-action-item" [disabled]="!!movingNoteId()"
                                                             (click)="openNoteEditPanel(note)">
                                                             <span class="today-note-menu-item-icon" aria-hidden="true">
                                                                 <app-icon [icon]="LucidePencil" size="xs" />
@@ -588,21 +621,27 @@
                                                             </span>
                                                         </button>
 
-                                                        <button mat-menu-item type="button" class="today-note-action-item"
+                                                        <button mat-menu-item type="button"
+                                                            class="today-note-action-item"
                                                             [disabled]="!!movingNoteId() || isFavoriteBusy(note)"
                                                             (click)="toggleNoteFavorite(note)">
                                                             <span class="today-note-menu-item-icon" aria-hidden="true">
-                                                                <app-icon [icon]="isNoteFavorite(note) ? LucideStarOff : LucideStar" size="xs" />
+                                                                <app-icon
+                                                                    [icon]="isNoteFavorite(note) ? LucideStarOff : LucideStar"
+                                                                    size="xs" />
                                                             </span>
                                                             <span class="today-note-menu-item-copy">
-                                                                <strong>{{ isNoteFavorite(note) ? 'Remove favorite' : 'Add to favorite' }}</strong>
-                                                                <small>{{ isNoteFavorite(note) ? 'Remove from favorites list' : 'Keep handy in favorites' }}</small>
+                                                                <strong>{{ isNoteFavorite(note) ? 'Remove favorite' :
+                                                                    'Add to favorite' }}</strong>
+                                                                <small>{{ isNoteFavorite(note) ? 'Remove from favorites
+                                                                    list' : 'Keep handy in favorites' }}</small>
                                                             </span>
                                                         </button>
 
                                                         <mat-divider />
 
-                                                        <button mat-menu-item type="button" class="today-note-action-item"
+                                                        <button mat-menu-item type="button"
+                                                            class="today-note-action-item"
                                                             [disabled]="!canMoveBackward(note) || !!movingNoteId()"
                                                             (click)="moveBackward(note)">
                                                             <span class="today-note-menu-item-icon" aria-hidden="true">
@@ -614,7 +653,8 @@
                                                             </span>
                                                         </button>
 
-                                                        <button mat-menu-item type="button" class="today-note-action-item"
+                                                        <button mat-menu-item type="button"
+                                                            class="today-note-action-item"
                                                             [disabled]="!canMoveForward(note) || !!movingNoteId()"
                                                             (click)="moveForward(note)">
                                                             <span class="today-note-menu-item-icon is-forward"
@@ -649,7 +689,8 @@
                                 </table>
                                 } @else {
                                 <div class="today-group-empty">
-                                    <span>{{ searchTerm() ? 'No matching notes' : 'No notes in this column yet' }}</span>
+                                    <span>{{ searchTerm() ? 'No matching notes' : 'No notes in this column yet'
+                                        }}</span>
                                     @if (!searchTerm()) {
                                     <app-button label="Add note" [iconLeft]="LucidePlus" variant="outline" size="xs"
                                         (buttonClick)="openNoteCreatePanel(group.id)" />
@@ -682,7 +723,7 @@
 
 <app-overdue-notes-panel [open]="overdue.open()" [data]="overdue.data()" [pagination]="overdue.pagination()"
     [loading]="overdue.loading()" [busy]="overdue.busy()" [error]="overdue.error()"
-    [selectedIds]="overdue.selectedIds()" [columnFilter]="overdue.columnFilter()"
-    (closed)="overdue.open.set(false)" (selectionChange)="overdue.selectedIds.set($event)"
-    (filterChange)="overdue.columnFilter.set($event)" (pageChange)="overdue.changePage($event)"
-    (retry)="overdue.refresh()" (bringToToday)="bringOverdueToToday($event)" (openNote)="openOverdueNote($event)" />
+    [selectedIds]="overdue.selectedIds()" [columnFilter]="overdue.columnFilter()" (closed)="overdue.open.set(false)"
+    (selectionChange)="overdue.selectedIds.set($event)" (filterChange)="overdue.columnFilter.set($event)"
+    (pageChange)="overdue.changePage($event)" (retry)="overdue.refresh()" (bringToToday)="bringOverdueToToday($event)"
+    (openNote)="openOverdueNote($event)" />

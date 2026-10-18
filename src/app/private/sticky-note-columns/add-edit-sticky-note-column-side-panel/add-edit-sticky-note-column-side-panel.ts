@@ -21,7 +21,7 @@ import {
   Validators
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import {
   LucideCheck,
   LucideColumns3,
@@ -136,9 +136,18 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
   readonly panelWorkspaces = signal<any[]>([]);
   readonly panelFolders = signal<any[]>([]);
+  readonly folderColumns = signal<any[]>([]);
   readonly columnMeta = signal<any>(null);
 
   private editorId = '';
+  private focusFrame: number | null = null;
+  private focusTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.cancelFocus();
+    });
+  }
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
     this.panelWorkspaces()
@@ -154,11 +163,52 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       .filter(item => Boolean(item.value))
   );
 
+  readonly positionOptions = computed<SelectOption[]>(() => {
+    const columns = this.folderColumns();
+    const isEdit = this.isEdit;
+    const currentId = this.editorId;
+    const currentPos = this.controlNumber('position');
+
+    const total = isEdit
+      ? Math.max(1, columns.length)
+      : columns.length + 1;
+
+    const options: SelectOption[] = [];
+
+    for (let i = 0; i < total; i++) {
+      let suffix = '';
+      if (isEdit) {
+        const colAtIdx = columns[i];
+        if (idOf(colAtIdx) === currentId || (i === currentPos && (!colAtIdx || idOf(colAtIdx) === currentId))) {
+          suffix = ' (Current)';
+        } else if (colAtIdx) {
+          const colName = colAtIdx.name || colAtIdx.label;
+          if (colName) suffix = ` (${colName})`;
+        }
+      } else {
+        if (i < columns.length) {
+          const colName = columns[i]?.name || columns[i]?.label;
+          if (colName) suffix = ` (${colName})`;
+        } else {
+          suffix = ' (At end)';
+        }
+      }
+
+      options.push({
+        label: `Position ${i + 1}${suffix}`,
+        value: i
+      });
+    }
+
+    return options;
+  });
+
   readonly form = this.fb.group({
     workspaceId: ['', Validators.required],
     workspaceFolderId: ['', Validators.required],
     name: ['', [Validators.required, Validators.maxLength(this.nameMaxLength)]],
-    color: ['YELLOW', Validators.required]
+    color: ['YELLOW', Validators.required],
+    position: [0]
   });
 
   get isBusy(): boolean {
@@ -255,12 +305,19 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         changes['workspaceFolderId'])
     ) {
       this.initialize();
+    } else if (changes['open'] && !this.open) {
+      this.cancelFocus();
     }
   }
 
   controlString(controlName: string): string {
     const value = this.form.get(controlName)?.value;
     return typeof value === 'string' ? value : '';
+  }
+
+  controlNumber(controlName: string): number {
+    const value = this.form.get(controlName)?.value;
+    return typeof value === 'number' ? value : Number(value) || 0;
   }
 
   updateText(controlName: 'name', value: unknown): void {
@@ -272,11 +329,16 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   updateSelect(controlName: string, value: unknown): void {
-    if (this.isBusy || typeof value !== 'string') return;
+    if (this.isBusy) return;
     this.error.set('');
 
-    if (controlName === 'color') {
+    if (controlName === 'color' && typeof value === 'string') {
       this.form.controls.color.setValue(value);
+    } else if (controlName === 'position') {
+      const pos = Number(value);
+      if (!Number.isNaN(pos)) {
+        this.form.controls.position.setValue(pos);
+      }
     }
 
     this.saveState.set('editing');
@@ -292,6 +354,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     this.form.controls.workspaceId.setValue(workspaceId);
     this.form.controls.workspaceFolderId.setValue('');
     this.panelFolders.set([]);
+    this.folderColumns.set([]);
     this.saveState.set('editing');
 
     if (workspaceId) {
@@ -307,6 +370,13 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     this.error.set('');
     this.form.controls.workspaceFolderId.setValue(folderId);
     this.saveState.set('editing');
+
+    const workspaceId = this.controlString('workspaceId');
+    if (workspaceId && folderId) {
+      this.loadFolderColumns(workspaceId, folderId);
+    } else {
+      this.folderColumns.set([]);
+    }
   }
 
   colorLabel(value: string): string {
@@ -327,6 +397,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
   close(): void {
     if (this.isBusy) return;
+    this.cancelFocus();
     this.error.set('');
     this.closed.emit();
   }
@@ -338,6 +409,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const workspaceFolderId = this.controlString('workspaceFolderId');
     const name = this.controlString('name').trim().replace(/\s+/g, ' ');
     const color = (this.controlString('color') || 'YELLOW') as any;
+    const newPosition = this.controlNumber('position');
     const id = this.editorId;
 
     const isEdit = this.isEdit;
@@ -346,52 +418,111 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     this.saveState.set('saving');
     this.error.set('');
 
-    const request$ = (isEdit && id)
-      ? this.columnApi.update(id, { name, color })
-      : this.columnApi.create({ workspaceId, workspaceFolderId, name, color });
+    let currentColumns = [...this.folderColumns()];
+    if (currentColumns.length === 0 && this.columnStore.contextMatches(workspaceId, workspaceFolderId)) {
+      currentColumns = [...this.columnStore.orderedColumns()];
+    }
 
-    request$
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: any) => {
-          const savedId = response?.data?.id || response?.data?._id || id;
-          this.saveState.set('saved');
-          this.form.markAsPristine();
+    const originalPosition = Number(this.columnMeta()?.position ?? -1);
+    const positionChanged = isEdit && originalPosition >= 0 && newPosition !== originalPosition;
 
-          this.toastService.success(
-            isEdit
-              ? 'Column updated successfully.'
-              : 'Column created successfully.',
-            {
-              title: isEdit ? 'Column updated' : 'Column created',
-              dedupeKey: `column-${savedId || 'new'}`
-            }
-          );
+    let reorderedColumnIds: string[] = [];
+    let updatedColumnsForStore: any[] = [];
 
-          this.saved.emit(savedId);
-        },
-        error: (error: any) => {
-          this.saveState.set('error');
-          const message = extractErrorMessage(
-            error,
-            isEdit ? 'Unable to update column.' : 'Unable to create column.'
-          );
-          this.error.set(message);
-          this.toastService.error(message, {
-            title: isEdit ? 'Column update failed' : 'Column creation failed',
-            dedupeKey: `column-error-${id || 'new'}`
-          });
+    if (isEdit && positionChanged && currentColumns.length > 1) {
+      const prevIdx = currentColumns.findIndex(c => idOf(c) === id);
+      if (prevIdx >= 0) {
+        const item = currentColumns.splice(prevIdx, 1)[0];
+        currentColumns.splice(newPosition, 0, item);
+        updatedColumnsForStore = currentColumns.map((col, idx) => ({ ...col, position: idx }));
+        reorderedColumnIds = updatedColumnsForStore.map(col => idOf(col)).filter(Boolean);
+      }
+    }
+
+    const baseRequest$ = (isEdit && id)
+      ? this.columnApi.update(id, { name, color, position: newPosition })
+      : this.columnApi.create({ workspaceId, workspaceFolderId, name, color, position: newPosition });
+
+    const request$ = baseRequest$.pipe(
+      switchMap((response: any) => {
+        const savedId = response?.data?.id || response?.data?._id || id;
+
+        if (!isEdit && savedId && newPosition < currentColumns.length) {
+          const newCols = [...currentColumns];
+          newCols.splice(newPosition, 0, { id: savedId, ...response?.data });
+          const createReorderIds = newCols.map(c => idOf(c)).filter(Boolean);
+          if (createReorderIds.length > 1) {
+            return this.columnApi.reorder({
+              workspaceId,
+              workspaceFolderId,
+              columnIds: createReorderIds
+            }).pipe(
+              map(() => response),
+              catchError(() => of(response))
+            );
+          }
         }
-      });
+
+        if (isEdit && positionChanged && reorderedColumnIds.length > 1) {
+          return this.columnApi.reorder({
+            workspaceId,
+            workspaceFolderId,
+            columnIds: reorderedColumnIds
+          }).pipe(
+            map(() => response),
+            catchError(() => of(response))
+          );
+        }
+
+        return of(response);
+      }),
+      finalize(() => this.loading.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
+    request$.subscribe({
+      next: (response: any) => {
+        const savedId = response?.data?.id || response?.data?._id || id;
+        this.saveState.set('saved');
+        this.form.markAsPristine();
+
+        if (updatedColumnsForStore.length > 0) {
+          this.columnStore.setColumns(workspaceId, workspaceFolderId, updatedColumnsForStore);
+        }
+
+        this.toastService.success(
+          isEdit
+            ? 'Column updated successfully.'
+            : 'Column created successfully.',
+          {
+            title: isEdit ? 'Column updated' : 'Column created',
+            dedupeKey: `column-${savedId || 'new'}`
+          }
+        );
+
+        this.saved.emit(savedId);
+      },
+      error: (error: any) => {
+        this.saveState.set('error');
+        const message = extractErrorMessage(
+          error,
+          isEdit ? 'Unable to update column.' : 'Unable to create column.'
+        );
+        this.error.set(message);
+        this.toastService.error(message, {
+          title: isEdit ? 'Column update failed' : 'Column creation failed',
+          dedupeKey: `column-error-${id || 'new'}`
+        });
+      }
+    });
   }
 
   private resetEditor(): void {
+    this.cancelFocus();
     this.editorId = '';
     this.saveState.set(this.mode === 'edit' ? 'saved' : 'idle');
     this.panelFolders.set([]);
+    this.folderColumns.set([]);
     this.loadingWorkspaces.set(false);
     this.loadingFolders.set(false);
     this.loadingData.set(false);
@@ -403,7 +534,8 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         workspaceId: '',
         workspaceFolderId: '',
         name: '',
-        color: 'YELLOW'
+        color: 'YELLOW',
+        position: 0
       },
       { emitEvent: false }
     );
@@ -440,7 +572,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   private setupCreateForm(workspaceId: string, folderId: string): void {
     this.columnMeta.set({
       type: 'CUSTOM',
-      position: 0,
+      position: this.folderColumns().length,
       isSystem: false
     });
     this.form.reset(
@@ -448,13 +580,17 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         workspaceId,
         workspaceFolderId: folderId,
         name: '',
-        color: 'YELLOW'
+        color: 'YELLOW',
+        position: this.folderColumns().length
       },
       { emitEvent: false }
     );
 
     if (workspaceId) {
       this.loadFolders(workspaceId, folderId);
+      if (folderId) {
+        this.loadFolderColumns(workspaceId, folderId);
+      }
     }
   }
 
@@ -465,19 +601,24 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const folderId = idOf(column?.workspaceFolderId) || fallbackFolderId;
     const name = column?.name || column?.label || '';
     const color = this.validColor(column?.color) ? column.color : 'YELLOW';
+    const position = Number(column?.position ?? 0) || 0;
 
     this.form.patchValue(
       {
         workspaceId,
         workspaceFolderId: folderId,
         name,
-        color
+        color,
+        position
       },
       { emitEvent: false }
     );
 
     if (workspaceId) {
       this.loadFolders(workspaceId, folderId);
+      if (folderId) {
+        this.loadFolderColumns(workspaceId, folderId);
+      }
     }
   }
 
@@ -515,7 +656,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
     this.loadingWorkspaces.set(true);
     this.workspaceApi
-      .getMyWorkspaces({ page: 1, limit: 100, status: 'ACTIVE' })
+      .getAll({ page: 1, limit: 100, status: 'ACTIVE' })
       .pipe(
         finalize(() => this.loadingWorkspaces.set(false)),
         takeUntilDestroyed(this.destroyRef)
@@ -577,21 +718,104 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     const currentFolderId = this.form.controls.workspaceFolderId.value;
     const resolvedFolderId = resolveDefaultFolderId(folderList, preferredFolderId || currentFolderId);
     this.form.controls.workspaceFolderId.setValue(resolvedFolderId);
+
+    if (workspaceId && resolvedFolderId) {
+      this.loadFolderColumns(workspaceId, resolvedFolderId);
+    }
+  }
+
+  private loadFolderColumns(workspaceId: string, folderId: string): void {
+    if (!workspaceId || !folderId) {
+      this.folderColumns.set([]);
+      return;
+    }
+
+    if (
+      this.columnStore.initialized() &&
+      this.columnStore.contextMatches(workspaceId, folderId) &&
+      this.columnStore.columns().length > 0
+    ) {
+      const cols = [...this.columnStore.orderedColumns()];
+      this.folderColumns.set(cols);
+      if (this.mode === 'create' && this.controlNumber('position') === 0 && cols.length > 0) {
+        this.form.controls.position.setValue(cols.length);
+      }
+      return;
+    }
+
+    this.columnApi
+      .getAll({ workspaceId, workspaceFolderId: folderId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: any) => {
+          const list = extractList(response);
+          const sorted = [...list].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+          this.folderColumns.set(sorted);
+          if (this.mode === 'create' && this.controlNumber('position') === 0 && sorted.length > 0) {
+            this.form.controls.position.setValue(sorted.length);
+          }
+        },
+        error: () => {
+          this.folderColumns.set([]);
+        }
+      });
   }
 
   private validColor(value: any): boolean {
     return isValidColumnColor(value, this.colorOptions);
   }
 
-  private focusName(): void {
-    setTimeout(() => {
-      if (!this.open) return;
-      const input = this.columnNameInput?.nativeElement.querySelector('input:not([disabled])') as HTMLInputElement | null;
-      if (!input || document.activeElement === input) return;
-      input.focus({ preventScroll: true });
-      if (this.mode === 'edit' && input.value) {
-        input.setSelectionRange(0, input.value.length);
+  private focusName(retries = 2): void {
+    this.cancelFocus();
+    if (typeof requestAnimationFrame !== 'function') {
+      this.focusTimer = setTimeout(() => {
+        this.focusTimer = null;
+        this.applyInputFocus(retries);
+      }, 50);
+      return;
+    }
+
+    this.focusFrame = requestAnimationFrame(() => {
+      this.focusFrame = requestAnimationFrame(() => {
+        this.focusFrame = null;
+        this.applyInputFocus(retries);
+      });
+    });
+  }
+
+  private cancelFocus(): void {
+    if (this.focusFrame !== null && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(this.focusFrame);
+    }
+    this.focusFrame = null;
+
+    if (this.focusTimer !== null) {
+      clearTimeout(this.focusTimer);
+      this.focusTimer = null;
+    }
+  }
+
+  private applyInputFocus(retries: number): void {
+    if (!this.open || this.loadingData()) return;
+    const input = this.columnNameInput?.nativeElement.querySelector<HTMLInputElement>('input:not([disabled])');
+    if (!input) {
+      if (retries > 0) {
+        this.focusTimer = setTimeout(() => {
+          this.focusTimer = null;
+          this.applyInputFocus(retries - 1);
+        }, 50);
       }
-    }, 100);
+      return;
+    }
+
+    input.focus({ preventScroll: true });
+    const len = input.value?.length ?? this.controlString('name').length;
+    if (typeof input.setSelectionRange === 'function') {
+      try {
+        input.setSelectionRange(len, len);
+      } catch {
+        // Safe fallback
+      }
+    }
   }
 }

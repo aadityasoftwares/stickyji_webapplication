@@ -20,14 +20,22 @@ export class StickyNoteColumnApiService {
         );
     }
 
-    getByWorkspaceFolder(workspaceId: string, workspaceFolderId: string): Observable<any> {
-        return this.http.get<any>(
+    getAll(payload: any = {}): Observable<any> {
+        return this.http.post<any>(
             API_ENDPOINTS.stickyNoteColumns.getAll,
+            payload,
             {
-                params: buildHttpParams({ workspaceId, workspaceFolderId }),
                 withCredentials: true
             }
         );
+    }
+
+    getByWorkspaceFolder(workspaceId: string, workspaceFolderId: string, payload: any = {}): Observable<any> {
+        return this.getAll({
+            workspaceId,
+            workspaceFolderId,
+            ...payload
+        });
     }
 
     create(payload: any): Observable<any> {

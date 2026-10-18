@@ -28,7 +28,9 @@ import {
   LucideChevronRight,
   LucideClock3,
   LucideClockAlert,
+  LucideClipboardCheck,
   LucideCopy,
+  LucideFileText,
   LucideFolderOpen,
   LucideGrip,
   LucideList,
@@ -48,7 +50,6 @@ import {
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
-import { Divider } from '../../shared/components/divider/divider';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
@@ -56,6 +57,7 @@ import { Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { COMMON_MESSAGES } from '../../shared/constants/common.messages';
+import { UI } from '../../shared/constants/ui.constants';
 
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
@@ -122,6 +124,7 @@ import { WorkspaceFolderService } from '../workspacefolders/services/workspace-f
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { WorkspaceFolder, WorkspaceFolderQuery } from '../workspacefolders/models/workspace-folder.models';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
+import { WorkspaceMemberQuery } from '../workspace-members/models/workspace-member.models';
 import { TODAY_MESSAGES } from './messages/today.messages';
 
 const DEFAULT_PAGE = 1;
@@ -153,14 +156,12 @@ type OverdueView = 'bar' | 'button';
     Button,
     Checkbox,
     BulkActionPanel,
-    Divider,
     Loader,
     MembersStack,
     Select,
     StickyNote,
     Tabs,
     UserDatePipe,
-    UserDateTimePipe,
     UserTimePipe,
     AddEditNoteSidePanel,
     OverdueTopbar,
@@ -202,7 +203,9 @@ export class Today {
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
   readonly LucideClockAlert = LucideClockAlert;
+  readonly LucideClipboardCheck = LucideClipboardCheck;
   readonly LucideCopy = LucideCopy;
+  readonly LucideFileText = LucideFileText;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideList = LucideList;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
@@ -221,8 +224,29 @@ export class Today {
   readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
   readonly today = signal(new Date());
+  readonly todayDay = computed(() => {
+    const { locale, timezone } = this.dateTimeFormatter.preferences();
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: timezone,
+      calendar: 'gregory',
+      day: 'numeric'
+    }).format(this.today());
+  });
   readonly VIEW = VIEW;
+  readonly todayMonth = computed(() => {
+    const { locale, timezone } = this.dateTimeFormatter.preferences();
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: timezone, calendar: 'gregory', month: 'short'
+    }).format(this.today());
+  });
+  readonly todayWeekday = computed(() => {
+    const { locale, timezone } = this.dateTimeFormatter.preferences();
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: timezone, calendar: 'gregory', weekday: 'long'
+    }).format(this.today());
+  });
   readonly TODAY_MESSAGES: any = TODAY_MESSAGES;
+  readonly UI = UI;
   readonly view = computed<View>(() =>
     String(this.userPreferenceStore.todayView() ?? '').toUpperCase() === 'TABLE'
       ? VIEW.TABLE
@@ -559,7 +583,11 @@ export class Today {
     this.workspaceStore.clearError();
     this.workspaceErrorKind.set('server');
 
-    this.workspaceApiService.getMyWorkspaces()
+    this.workspaceApiService.getAll({
+      page: DEFAULT_PAGE,
+      limit: 100,
+      status: ACTIVE_STATUS
+    })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.workspaceStore.setLoading(false))
@@ -628,14 +656,16 @@ export class Today {
     const requestVersion = ++this.workspaceMemberRequestVersion;
     this.loadingWorkspaceMembers.set(true);
 
-    this.workspaceMemberApiService.getAll({
+    const query: WorkspaceMemberQuery = {
       workspaceId: id,
       status: ACTIVE_STATUS,
       page: DEFAULT_PAGE,
       limit: DEFAULT_LIMIT,
       sortBy: 'updatedAt',
       sortOrder: SORT_DESC
-    })
+    };
+
+    this.workspaceMemberApiService.getAllWorkspaceMembers(query)
       .pipe(
         finalize(() => {
           if (requestVersion === this.workspaceMemberRequestVersion) {
@@ -765,7 +795,10 @@ export class Today {
     this.boardErrorKind.set('server');
 
     this.stickyNoteColumnApiService
-      .getByWorkspaceFolder(workspaceId, folderId)
+      .getAll({
+        workspaceId,
+        workspaceFolderId: folderId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {

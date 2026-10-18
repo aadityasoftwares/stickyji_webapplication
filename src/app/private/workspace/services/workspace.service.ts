@@ -10,6 +10,10 @@ import { buildHttpParams } from '../../../shared/functions/api.functions';
 export class WorkspaceService {
     private readonly http = inject(HttpClient);
 
+    getAll(query: any = {}): Observable<any> {
+        return this.getAllWorkspaces(query);
+    }
+
     getAllWorkspaces(query: any = {}): Observable<any> {
         return this.http.post<any>(
             API_ENDPOINTS.workspaces.getAll,

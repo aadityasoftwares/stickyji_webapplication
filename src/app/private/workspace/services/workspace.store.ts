@@ -54,7 +54,13 @@ export class WorkspaceStore {
         this._loading.set(true);
         this._error.set(null);
 
-        this.workspaceService.getMyWorkspaces()
+        const request$ = typeof this.workspaceService.getAll === 'function'
+            ? this.workspaceService.getAll({ status: 'ACTIVE' })
+            : (typeof this.workspaceService.getAllWorkspaces === 'function'
+                ? this.workspaceService.getAllWorkspaces({ status: 'ACTIVE' })
+                : this.workspaceService.getMyWorkspaces());
+
+        request$
             .pipe(finalize(() => this._loading.set(false)))
             .subscribe({
                 next: (response: any) => {
@@ -68,6 +74,8 @@ export class WorkspaceStore {
                     const pagination =
                         response?.data?.pagination ??
                         response?.pagination ??
+                        response?.data?.meta ??
+                        response?.meta ??
                         null;
 
                     this._workspaces.set(

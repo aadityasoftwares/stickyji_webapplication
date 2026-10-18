@@ -37,9 +37,14 @@ describe('OverdueNotesStore', () => {
     expect(store.loading()).toBe(true);
     expect(store.bannerVisible()).toBe(false);
     const request = getRequest();
-    expect(request.request.method).toBe('GET');
-    expect(request.request.params.keys().sort()).toEqual(['limit', 'page', 'sort', 'workspaceFolderId', 'workspaceId']);
-    expect(request.request.params.get('workspaceFolderId')).toBe('folder');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      workspaceId: 'workspace',
+      workspaceFolderId: 'folder',
+      page: 1,
+      limit: 20,
+      sort: 'NEWEST_FIRST'
+    });
     request.flush(response([note], 7));
     expect(store.data()?.total).toBe(7);
     expect(store.bannerVisible()).toBe(true);
@@ -160,7 +165,8 @@ describe('OverdueNotesStore', () => {
     expect(store.selectedIds().size).toBe(0);
     getRequest().flush(response([], 20, 2));
     const retry = getRequest();
-    expect(retry.request.params.get('page')).toBe('1');
+    expect(retry.request.method).toBe('POST');
+    expect(retry.request.body.page).toBe(1);
     retry.flush(response([note], 20));
     expect(store.pagination()?.page).toBe(1);
   });

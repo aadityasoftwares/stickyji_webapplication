@@ -470,9 +470,9 @@ export class MyNotes implements OnInit, OnChanges {
     }
     const requestVersion = ++this.workspaceRequestVersion;
     this.workspaceStore.setLoading(true);
-    const query: any = { page: 1, limit: 100 };
+    const query: any = { page: 1, limit: 100, status: 'ACTIVE' };
     this.workspaceApi
-      .getMyWorkspaces(query)
+      .getAll(query)
       .pipe(
         finalize(() => this.workspaceStore.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)

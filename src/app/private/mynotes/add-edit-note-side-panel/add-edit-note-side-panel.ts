@@ -1062,7 +1062,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     }
 
     this.loadingWorkspaces.set(true);
-    this.workspaceApi.getMyWorkspaces({ page: 1, limit: 100, status: 'ACTIVE' }).pipe(
+    this.workspaceApi.getAll({ page: 1, limit: 100, status: 'ACTIVE' }).pipe(
       finalize(() => this.loadingWorkspaces.set(false)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({

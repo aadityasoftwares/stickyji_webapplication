@@ -55,6 +55,7 @@ export class WorkspaceMemberApiService {
 
     /**
      * Lightweight people-table endpoint.
+     * Supports POST (matching all other getall endpoints) and optional GET.
      *
      * Response shape:
      * {
@@ -65,19 +66,41 @@ export class WorkspaceMemberApiService {
      * }
      */
     getAll(
-        query: WorkspaceMemberQuery
+        query: WorkspaceMemberQuery = {} as WorkspaceMemberQuery,
+        method: 'post' | 'get' = 'post'
     ): Observable<
         PaginatedApiResponse<WorkspaceMemberListItem>
     > {
-        return this.http.get<
+        if (method === 'get') {
+            return this.http.get<
+                PaginatedApiResponse<WorkspaceMemberListItem>
+            >(
+                this.getAllUrl,
+                {
+                    params: buildHttpParams(query),
+                    withCredentials: true
+                }
+            );
+        }
+
+        return this.http.post<
             PaginatedApiResponse<WorkspaceMemberListItem>
         >(
             this.getAllUrl,
+            query,
             {
-                params: buildHttpParams(query),
                 withCredentials: true
             }
         );
+    }
+
+    getAllWorkspaceMembers(
+        query: WorkspaceMemberQuery = {} as WorkspaceMemberQuery,
+        method: 'post' | 'get' = 'post'
+    ): Observable<
+        PaginatedApiResponse<WorkspaceMemberListItem>
+    > {
+        return this.getAll(query, method);
     }
 
     getById(

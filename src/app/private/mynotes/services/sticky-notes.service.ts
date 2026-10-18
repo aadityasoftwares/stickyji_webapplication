@@ -13,11 +13,12 @@ import { removeEmptyValues } from '../../../shared/functions/object.functions';
 export class StickyNoteApiService {
     private readonly http = inject(HttpClient);
 
-    getOverdueNotes(query: any): Observable<any> {
-        return this.http.get<any>(API_ENDPOINTS.stickyNotes.overdue, {
-            params: { ...query },
-            withCredentials: true
-        });
+    getOverdueNotes(payload: any = {}): Observable<any> {
+        return this.http.post<any>(
+            API_ENDPOINTS.stickyNotes.overdue,
+            payload,
+            { withCredentials: true }
+        );
     }
 
     bringOverdueNotesToToday(stickyNoteIds: readonly string[]): Observable<any> {

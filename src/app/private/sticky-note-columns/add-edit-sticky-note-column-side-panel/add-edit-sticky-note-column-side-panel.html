@@ -84,20 +84,18 @@
             </div>
         </section>
 
-        <!-- <section class="column-color-swatches" aria-label="Quick color selection">
-            <div class="column-color-options" role="radiogroup" aria-label="Choose column color">
-                @for (option of colorOptions; track option.value) {
-                <button type="button" class="column-color-option"
-                    [class.is-selected]="controlString('color') === option.value"
-                    [attr.data-column-color]="colorClass(option.value)"
-                    [attr.aria-checked]="controlString('color') === option.value"
-                    [disabled]="isBusy" role="radio" (click)="updateSelect('color', option.value)">
-                    <span class="column-color-swatch" aria-hidden="true"></span>
-                    <span>{{ option.label }}</span>
-                </button>
-                }
+        <section class="column-position-section" aria-label="Column position">
+            <app-label forId="column-position" text="Position" />
+            <div class="column-position-control">
+                <app-select class="column-position-select" selectId="column-position" name="column-position"
+                    [options]="positionOptions()" [ngModel]="controlNumber('position')"
+                    [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateSelect('position', $event)"
+                    ariaLabel="Column position" dropdownTitle="Column position" variant="paper"
+                    appearance="simple" shape="rounded" size="sm" [disabled]="isBusy || positionOptions().length <= 1"
+                    [clearable]="false" [searchable]="false" [fullWidth]="true"
+                    [dropdownMatchTriggerWidth]="false" />
             </div>
-        </section> -->
+        </section>
 
         @if (isEdit && columnMeta()) {
         <section class="column-meta" aria-label="Column metadata">
@@ -107,19 +105,13 @@
             </div>
             <div class="column-meta-item">
                 <span>Position</span>
-                <strong>{{ (columnMeta()?.position ?? 0) + 1 }}</strong>
+                <strong>{{ (controlNumber('position') ?? 0) + 1 }}</strong>
             </div>
             <div class="column-meta-item">
                 <span>Kind</span>
                 <strong>{{ isSystemColumn ? 'System' : 'Custom' }}</strong>
             </div>
         </section>
-
-        @if (isSystemColumn) {
-        <p class="column-system-note">
-            System column role and position are managed automatically. You can change its name and color.
-        </p>
-        }
         }
 
         <section class="column-mobile-preview" aria-label="Live column preview">
@@ -144,10 +136,6 @@
                 </div>
             </div>
         </section>
-
-        @if (error()) {
-        <div class="column-editor-error" role="alert">{{ error() }}</div>
-        }
         }
     </form>
     <div panel-footer class="column-editor-footer">

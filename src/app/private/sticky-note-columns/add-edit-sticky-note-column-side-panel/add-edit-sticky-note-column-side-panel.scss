@@ -126,7 +126,8 @@
    Color Selection & Swatches
    ========================================================================== */
 
-.column-appearance {
+.column-appearance,
+.column-position-section {
     display: grid;
     grid-template-columns: 62px minmax(0, 1fr);
     gap: 10px;
@@ -134,7 +135,8 @@
     min-width: 0;
 }
 
-.column-color-control {
+.column-color-control,
+.column-position-control {
     min-width: 0;
 }
 
@@ -440,7 +442,8 @@
 
 @media (max-width: 575.98px) {
     .column-field,
-    .column-appearance {
+    .column-appearance,
+    .column-position-section {
         grid-template-columns: 48px minmax(0, 1fr);
         gap: 6px;
     }
