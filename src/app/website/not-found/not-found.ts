@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
     <span>404</span>
     <h1>This page isn't here.</h1>
     <p>Let's get you back to your ideas.</p>
-    <a routerLink="/home">Back to MyStickyNotes</a>
+    <a routerLink="/home">Back to Sticky Ji</a>
   </main>`,
   styles: [
     `

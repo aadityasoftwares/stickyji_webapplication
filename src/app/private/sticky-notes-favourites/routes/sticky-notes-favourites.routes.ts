@@ -7,6 +7,6 @@ export const STICKY_NOTES_FAVOURITES_ROUTES: Routes = [
             import('../sticky-notes-favourites.component').then(
                 component => component.StickyNotesFavouritesComponent
             ),
-        title: 'Favourites | MyStickyNotes'
+        title: 'Favourites | Sticky Ji'
     }
 ];

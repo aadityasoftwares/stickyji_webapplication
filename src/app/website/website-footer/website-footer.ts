@@ -104,7 +104,7 @@ export class WebsiteFooter {
   @Input() socialLinks: readonly FooterSocialLink[] = [
     { label: 'Instagram', href: 'https://instagram.com', icon: LucideHeart },
     { label: 'LinkedIn', href: 'https://linkedin.com', icon: LucideHeart },
-    { label: 'Email us', href: 'mailto:hello@mystickynotes.app', icon: LucideMail },
+    { label: 'Email us', href: 'mailto:hello@stickyji.app', icon: LucideMail },
   ];
 
   @Output() primaryActionClick = new EventEmitter<void>();

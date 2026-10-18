@@ -111,7 +111,7 @@ export class BillingService {
         key: checkoutDetails.keyId,
         amount: checkoutDetails.amount,
         currency: checkoutDetails.currency,
-        name: 'MyStickyNotes',
+        name: 'Sticky Ji',
         description: `${planName} Subscription`,
         order_id: checkoutDetails.orderId,
         prefill: {

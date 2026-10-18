@@ -18,62 +18,52 @@
                     }
                 </a>
 
-                <app-badge label="Free to start" variant="notePink" size="md" shape="pill" [icon]="LucideSparkles"
+                <app-badge label="Free to start" variant="noteYellow" size="sm" shape="pill" [icon]="LucideSparkles"
                     role="status" />
             </header>
 
             <div class="story-content">
                 <span class="handwritten-kicker">
-                    A fresh page for your ideas.
+                    Your digital desk
                 </span>
 
                 <h2>
-                    Start small.
-                    Build momentum.
-                    <span>Feel lighter.</span>
+                    Think clearly.
+                    <span>Create freely.</span>
                 </h2>
 
                 <p class="story-description">
-                    Create your workspace, capture what matters, and turn scattered
-                    thoughts into progress you can see.
+                    The tactile, visual workspace for your notes, plans, and next steps.
                 </p>
 
-                <div class="thought-flow" aria-label="Your first steps with MyStickyNotes">
+                <div class="thought-flow" aria-label="Preview of sticky notes in your workspace">
+                    <app-sticky-card class="thought-note thought-note-yellow" variant="noteYellow" appearance="flat"
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
+                        eyebrow="FOCUS" cardTitle="Today's Priorities">
+                        <app-icon card-icon [icon]="LucideSparkles" size="sm" />
+
+                        <p>
+                            Keep what matters top of mind.
+                        </p>
+                    </app-sticky-card>
+
                     <app-sticky-card class="thought-note thought-note-pink" variant="notePink" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="118" [padding]="15"
-                        eyebrow="CAPTURE" cardTitle="Save your first thought">
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
+                        eyebrow="CAPTURE" cardTitle="Instant Thoughts">
                         <app-icon card-icon [icon]="LucideLightbulb" size="sm" />
 
                         <p>
-                            Ideas stay close instead of getting lost.
+                            Collect ideas before they slip away.
                         </p>
                     </app-sticky-card>
-
-                    <div class="flow-line" aria-hidden="true">
-                        <span></span>
-                    </div>
-
-                    <app-sticky-card class="thought-note thought-note-purple" variant="notePurple" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="118" [padding]="15"
-                        eyebrow="ORGANIZE" cardTitle="Shape a simple plan">
-                        <app-icon card-icon [icon]="LucideCalendarDays" size="sm" />
-
-                        <p>
-                            Give each thought a clear next step.
-                        </p>
-                    </app-sticky-card>
-
-                    <div class="flow-line" aria-hidden="true">
-                        <span></span>
-                    </div>
 
                     <app-sticky-card class="thought-note thought-note-green" variant="noteGreen" appearance="flat"
-                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="118" [padding]="15"
-                        eyebrow="PROGRESS" cardTitle="Enjoy getting it done">
+                        shape="note" size="sm" shadow="sm" [fullWidth]="true" [minHeight]="110" [padding]="14"
+                        eyebrow="PROGRESS" cardTitle="Clear & Calmer">
                         <app-icon card-icon [icon]="LucideCheckCircle2" size="sm" />
 
                         <p>
-                            Move forward with less mental clutter.
+                            Less clutter, more momentum.
                         </p>
                     </app-sticky-card>
                 </div>
@@ -82,14 +72,17 @@
             <footer class="story-footer">
                 <span>
                     <app-icon [icon]="LucideShieldCheck" size="xs" />
-
                     Private by default
                 </span>
 
                 <span>
                     <app-icon [icon]="LucideClock3" size="xs" />
+                    Setup in 30 seconds
+                </span>
 
-                    Set up in under a minute
+                <span>
+                    <app-icon [icon]="LucideSparkles" size="xs" />
+                    Free forever
                 </span>
             </footer>
         </aside>
@@ -98,13 +91,11 @@
             <header class="form-topbar">
                 <a class="back-home" [routerLink]="brandHref">
                     <app-icon [icon]="LucideArrowLeft" size="xs" />
-
                     <span>Back to home</span>
                 </a>
 
                 <div class="signin-shortcut">
-                    <span>Already joined?</span>
-
+                    <span>Already have an account?</span>
                     <app-button label="Sign in" variant="outline" size="sm" type="button" [disabled]="loading()"
                         (buttonClick)="onSignIn()" />
                 </div>
@@ -114,16 +105,15 @@
                 <div class="form-container">
                     <header class="signup-heading">
                         <span class="signup-kicker">
-                            Start something good!
+                            Get started
                         </span>
 
                         <h1 id="sign-up-title">
-                            Create your free workspace.
+                            Create your free workspace
                         </h1>
 
                         <p>
-                            No complicated setup. Just a calm place for your notes, plans,
-                            and next steps.
+                            Free forever. No credit card required.
                         </p>
                     </header>
 
@@ -135,9 +125,9 @@
                                     First name
                                 </label>
 
-                                <app-input inputId="sign-up-first-name" name="firstName" type="text" label="First name"
+                                <app-input inputId="sign-up-first-name" [autofocus]="true" name="firstName" type="text" label="First name"
                                     labelMode="hidden" placeholder="First name" autocomplete="given-name"
-                                    variant="notePurple" appearance="underlined" shape="square" size="md"
+                                    variant="paper" appearance="outlined" shape="rounded" size="md"
                                     [leadingIcon]="LucideUserRound" [required]="true" [fullWidth]="true"
                                     [formControl]="firstNameControl" [status]="firstNameError ? 'danger' : 'default'"
                                     [errorText]="firstNameError" />
@@ -150,7 +140,7 @@
 
                                 <app-input inputId="sign-up-last-name" name="lastName" type="text" label="Last name"
                                     labelMode="hidden" placeholder="Last name" autocomplete="family-name"
-                                    variant="notePurple" appearance="underlined" shape="square" size="md"
+                                    variant="paper" appearance="outlined" shape="rounded" size="md"
                                     [leadingIcon]="LucideUserRound" [required]="true" [fullWidth]="true"
                                     [formControl]="lastNameControl" [status]="lastNameError ? 'danger' : 'default'"
                                     [errorText]="lastNameError" />
@@ -164,7 +154,7 @@
 
                             <app-input inputId="sign-up-email" name="email" type="email" label="Email address"
                                 labelMode="hidden" placeholder="you@example.com" autocomplete="email"
-                                variant="notePurple" appearance="underlined" shape="square" size="md"
+                                variant="paper" appearance="outlined" shape="rounded" size="md"
                                 [leadingIcon]="LucideMail" [required]="true" [fullWidth]="true"
                                 [formControl]="emailControl" [status]="emailError ? 'danger' : 'default'"
                                 [errorText]="emailError" />
@@ -177,13 +167,13 @@
                                 </label>
 
                                 <span class="field-hint">
-                                    8–128 characters
+                                    Min. 8 characters
                                 </span>
                             </div>
 
                             <app-input inputId="sign-up-password" name="password" type="password" label="Password"
                                 labelMode="hidden" placeholder="Create a password" autocomplete="new-password"
-                                variant="notePurple" appearance="underlined" shape="square" size="md"
+                                variant="paper" appearance="outlined" shape="rounded" size="md"
                                 [leadingIcon]="LucideLockKeyhole" [passwordToggle]="true" [required]="true"
                                 [fullWidth]="true" [formControl]="passwordControl"
                                 [status]="passwordError ? 'danger' : 'default'" [errorText]="passwordError" />
@@ -202,8 +192,8 @@
                         </div>
 
                         <app-button class="signup-submit" label="Create my workspace"
-                            loadingText="Creating your workspace…" variant="notePink" appearance="tape" size="lg"
-                            type="submit" [height]="50" [fullWidth]="true" [hasIcon]="true" iconPosition="right"
+                            loadingText="Creating your workspace…" variant="primary" size="lg"
+                            type="submit" [height]="48" [fullWidth]="true" [hasIcon]="true" iconPosition="right"
                             [loading]="loading()">
                             <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
                         </app-button>
@@ -211,11 +201,16 @@
                         @if (showGoogleSignUp) {
                         <app-divider label="or continue with" [hasLabel]="true" variant="neutral" spacing="xs" />
 
-                        <app-button label="Continue with Google" variant="outline" size="md" type="button" [height]="48"
+                        <app-button label="Continue with Google" variant="outline" size="md" type="button" [height]="46"
                             [fullWidth]="true" [hasIcon]="true" iconPosition="left" [disabled]="loading()"
                             (buttonClick)="onGoogleSignUp()">
                             <span button-icon-left class="google-mark" aria-hidden="true">
-                                G
+                                <svg width="18" height="18" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                                </svg>
                             </span>
                         </app-button>
                         }
@@ -223,7 +218,6 @@
 
                     <p class="mobile-signin">
                         Already have an account?
-
                         <button type="button" [disabled]="loading()" (click)="onSignIn()">
                             Sign in
                         </button>
@@ -231,8 +225,7 @@
 
                     <p class="privacy-note">
                         <app-icon [icon]="LucideShieldCheck" size="xs" />
-
-                        Your workspace starts private and secure.
+                        Encrypted & private. No credit card required.
                     </p>
                 </div>
             </div>

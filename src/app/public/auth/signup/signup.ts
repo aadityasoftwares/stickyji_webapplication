@@ -167,8 +167,6 @@ export class Signup {
 
       if (email) {
         this.emailControl.setValue(email);
-        this.focusControl('password');
-        return;
       }
 
       this.focusControl('firstName');
@@ -433,7 +431,7 @@ export class Signup {
       response.message ||
       AUTH_MESSAGES.SUCCESS.ACCOUNT_CREATED,
       {
-        title: 'Welcome to MyStickyNotes!',
+        title: 'Welcome to Sticky Ji!',
       },
     );
 
@@ -549,11 +547,22 @@ export class Signup {
       acceptTerms: 'signup-terms',
     };
 
-    requestAnimationFrame(() => {
-      document
-        .getElementById(ids[control])
-        ?.focus();
-    });
+    const tryFocus = () => {
+      const el = document.getElementById(ids[control]) as HTMLInputElement | null;
+      if (el) {
+        el.focus();
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryFocus()) {
+      requestAnimationFrame(() => {
+        if (!tryFocus()) {
+          setTimeout(tryFocus, 60);
+        }
+      });
+    }
   }
 
   private safeRedirectUrl(): string {
@@ -569,12 +578,7 @@ export class Signup {
     control: AbstractControl,
   ): boolean {
     return Boolean(
-      control.invalid &&
-      (
-        this.submitted() ||
-        control.touched ||
-        control.dirty
-      ),
+      control.invalid && this.submitted(),
     );
   }
 }

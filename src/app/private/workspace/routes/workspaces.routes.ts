@@ -12,7 +12,7 @@ export const WORKSPACES_ROUTES: Routes = [
             import('../workspace').then(
                 component => component.Workspace
             ),
-        title: 'Profile & preferences | MyStickyNotes',
+        title: 'Workspaces | Sticky Ji',
     },
     {
         path: 'trash',
@@ -20,6 +20,6 @@ export const WORKSPACES_ROUTES: Routes = [
             import('../workspace-trash/workspace-trash').then(
                 component => component.WorkspaceTrash
             ),
-        title: 'Workspace Trash | MyStickyNotes',
+        title: 'Workspace Trash | Sticky Ji',
     },
 ];

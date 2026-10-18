@@ -68,7 +68,7 @@ export const DEMO_USER_REVIEWS: readonly UserReview[] = [
     role: 'Product manager',
     audience: 'Work note',
     headline: 'It shows me the work—not the machinery around it.',
-    quote: 'I needed a place for the three decisions that matter today, not another system to administer. MyStickyNotes gives me exactly that and gets out of the way.',
+    quote: 'I needed a place for the three decisions that matter today, not another system to administer. Sticky Ji gives me exactly that and gets out of the way.',
     result: 'Priorities stay visible between meetings and messages.',
     usedFor: 'Daily priorities',
     rating: 5,

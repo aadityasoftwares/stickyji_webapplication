@@ -21,7 +21,7 @@ export const routes: Routes = [
       import('./public/auth/accept-workspace-invitation/accept-workspace-invitation').then(
         (m) => m.AcceptWorkspaceInvitation,
       ),
-    title: 'Accept workspace invitation | MyStickyNotes',
+    title: 'Accept workspace invitation | Sticky Ji',
   },
   {
     path: '',

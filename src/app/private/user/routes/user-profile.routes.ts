@@ -12,6 +12,6 @@ export const USER_PROFILE_ROUTES: Routes = [
             import('../user-profile/user-profile').then(
                 component => component.UserProfileComponent
             ),
-        title: 'Profile & preferences | MyStickyNotes',
+        title: 'Profile | Sticky Ji',
     },
 ];

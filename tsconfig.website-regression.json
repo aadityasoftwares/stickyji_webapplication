@@ -6,6 +6,9 @@
     "src/app/website/subscription/**/*.spec.ts",
     "src/app/website/website-header/website-header.spec.ts",
     "src/app/website/routes/website.routes.spec.ts",
-    "src/app/private/sidebar/sidebar.spec.ts"
+    "src/app/private/sidebar/sidebar.spec.ts",
+    "src/app/public/auth/signup/signup.spec.ts",
+    "src/app/public/auth/signin/signin.spec.ts",
+    "src/app/public/auth/forgot-password/forgot-password.spec.ts"
   ]
 }

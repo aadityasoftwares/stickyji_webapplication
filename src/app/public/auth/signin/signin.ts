@@ -475,22 +475,29 @@ export class Signin implements OnInit {
         ? 'sign-in-email'
         : 'sign-in-password';
 
-    requestAnimationFrame(() => {
-      document
-        .getElementById(id)
-        ?.focus();
-    });
+    const tryFocus = () => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) {
+        el.focus();
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryFocus()) {
+      requestAnimationFrame(() => {
+        if (!tryFocus()) {
+          setTimeout(tryFocus, 60);
+        }
+      });
+    }
   }
 
   private shouldShowError(
     control: AbstractControl,
   ): boolean {
-    return (
-      control.invalid &&
-      (
-        this.submitted() ||
-        control.touched
-      )
+    return Boolean(
+      control.invalid && this.submitted(),
     );
   }
 }

@@ -15,7 +15,7 @@ export const WEBSITE_ROUTES: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'home' },
       {
         path: 'home',
-        title: 'MyStickyNotes | A calmer workspace for your ideas',
+        title: 'Sticky Ji | A calmer workspace for your ideas',
         loadComponent: () => import('../home/home').then((m) => m.Home),
       },
       sectionRoute('features', 'features'),
@@ -26,7 +26,7 @@ export const WEBSITE_ROUTES: Routes = [
       sectionRoute('reviews', 'reviews'),
       {
         path: '**',
-        title: 'Page not found | MyStickyNotes',
+        title: 'Page not found | Sticky Ji',
         loadComponent: () => import('../not-found/not-found').then((m) => m.WebsiteNotFound),
       },
     ],

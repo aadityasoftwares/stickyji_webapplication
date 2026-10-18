@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -87,12 +88,13 @@ export type TextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
     '[class.app-input-host-full]': 'isFullWidth',
   },
 })
-export class Input implements ControlValueAccessor {
+export class Input implements ControlValueAccessor, AfterViewInit {
   private static nextId = 0;
 
   @ViewChild('nativeControl')
   private nativeControl?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
 
+  @AngularInput() autofocus = false;
   @AngularInput() type: InputType = 'text';
   @AngularInput() variant: InputVariant = 'default';
   @AngularInput() appearance: InputAppearance = 'outlined';
@@ -190,6 +192,12 @@ export class Input implements ControlValueAccessor {
   private onTouched: () => void = () => undefined;
 
   constructor(private readonly cdr: ChangeDetectorRef) { }
+
+  ngAfterViewInit(): void {
+    if (this.autofocus) {
+      this.focusControl();
+    }
+  }
 
   @AngularInput()
   get value(): InputValue {

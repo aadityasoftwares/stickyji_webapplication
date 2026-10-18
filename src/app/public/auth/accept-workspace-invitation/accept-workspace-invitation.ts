@@ -116,10 +116,10 @@ export class AcceptWorkspaceInvitation implements OnInit {
   readonly LucideUserRound = LucideUserRound;
   readonly LucideUsers = LucideUsers;
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
-  @Input() logoSrc?: string | null;
-  @Input() logoAlt = '';
+  @Input() logoSrc?: string | null = 'StickyJiHorizontalLogo.png';
+  @Input() logoAlt = 'Sticky Ji';
   @Input() redirectUrl = '/app';
 
   readonly pageState =

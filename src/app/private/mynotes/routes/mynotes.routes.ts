@@ -12,7 +12,7 @@ export const MYNOTES_ROUTES: Routes = [
             import('../mynotes').then(
                 component => component.MyNotes,
             ),
-        title: 'MyNotes | MyStickyNotes',
+        title: 'My Notes | Sticky Ji',
     },
     {
         path: 'trash',
@@ -20,7 +20,7 @@ export const MYNOTES_ROUTES: Routes = [
             import('../sticky-note-trash/sticky-note-trash').then(
                 component => component.StickyNoteTrash,
             ),
-        title: 'Sticky Note Trash | MyStickyNotes',
+        title: 'Sticky Note Trash | Sticky Ji',
     },
     {
         path: 'favorites',
@@ -28,6 +28,6 @@ export const MYNOTES_ROUTES: Routes = [
             import('../../sticky-notes-favourites/routes/sticky-notes-favourites.routes').then(
                 m => m.STICKY_NOTES_FAVOURITES_ROUTES
             ),
-        title: 'Sticky Note Favorites | MyStickyNotes'
+        title: 'Sticky Note Favorites | Sticky Ji'
     },
 ];

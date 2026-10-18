@@ -5,7 +5,7 @@ export const ROLES_ROUTES: Routes = [
     path: 'roles-permissions',
     loadComponent: () =>
       import('../roles-permissions/roles-permissions').then(component => component.RolesPermissions),
-    title: 'Roles & permissions | MyStickyNotes'
+    title: 'Roles & permissions | Sticky Ji'
   }
 ];
 

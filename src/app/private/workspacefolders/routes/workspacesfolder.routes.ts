@@ -12,11 +12,11 @@ export const WORKSPACESFOLDER_ROUTES: Routes = [
             import('../workspacefolders').then(
                 component => component.Workspacefolders
             ),
-        title: 'Workspace Folders | MyStickyNotes',
+        title: 'Workspace Folders | Sticky Ji',
     },
     {
         path: 'trash',
         loadComponent: () => import('../workspace-folder-trash/workspace-folder-trash').then(component => component.WorkspaceFolderTrash),
-        title: 'Folder Trash | MyStickyNotes',
+        title: 'Folder Trash | Sticky Ji',
     },
 ];

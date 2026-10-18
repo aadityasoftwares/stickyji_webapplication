@@ -92,10 +92,10 @@ export class ResetPassword implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly brandName = 'MyStickyNotes';
+  readonly brandName = 'Sticky Ji';
   readonly brandHref = '/';
-  readonly logoSrc: string | null = null;
-  readonly logoAlt = 'MyStickyNotes';
+  readonly logoSrc = 'StickyJiHorizontalLogo.png';
+  readonly logoAlt = 'Sticky Ji';
 
   readonly loading = signal(false);
   readonly submitted = signal(false);
@@ -201,11 +201,7 @@ export class ResetPassword implements OnInit {
     }
 
     const shouldShowMismatch =
-      (
-        this.submitted() ||
-        control.touched ||
-        control.dirty
-      ) &&
+      this.submitted() &&
       this.resetPasswordForm.hasError(
         'passwordMismatch',
       );
@@ -441,12 +437,7 @@ export class ResetPassword implements OnInit {
     control: AbstractControl,
   ): boolean {
     return Boolean(
-      control.invalid &&
-      (
-        control.touched ||
-        control.dirty ||
-        this.submitted()
-      ),
+      control.invalid && this.submitted(),
     );
   }
 

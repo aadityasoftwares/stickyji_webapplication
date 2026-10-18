@@ -12,6 +12,6 @@ export const USER_PREFERENCE_ROUTES: Routes = [
             import('../user-preferences/user-preferences').then(
                 component => component.UserPreferences
             ),
-        title: 'Profile & preferences | MyStickyNotes',
+        title: 'Preferences | Sticky Ji',
     },
 ];

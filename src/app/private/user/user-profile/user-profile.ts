@@ -141,7 +141,7 @@ export class UserProfileComponent implements OnInit {
   readonly completionPercent = signal(0);
 
   readonly previewName = signal('Your profile');
-  readonly previewOccupation = signal('MyStickyNotes member');
+  readonly previewOccupation = signal('Sticky Ji member');
 
   readonly countryOptions = signal<SelectOption[]>([]);
   readonly timezoneOptions = signal<SelectOption[]>([]);
@@ -645,7 +645,7 @@ export class UserProfileComponent implements OnInit {
 
     this.previewOccupation.set(
       value.occupation?.trim() ||
-      'MyStickyNotes member',
+      'Sticky Ji member',
     );
   }
 

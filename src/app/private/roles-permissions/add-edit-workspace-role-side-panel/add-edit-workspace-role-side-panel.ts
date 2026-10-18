@@ -198,7 +198,7 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   get descriptionText(): string {
     if (this.mode === 'view') {
-      return 'This protected role is managed by MyStickyNotes. You can review its access here.';
+      return 'This protected role is managed by Sticky Ji. You can review its access here.';
     }
 
     return this.mode === 'create'

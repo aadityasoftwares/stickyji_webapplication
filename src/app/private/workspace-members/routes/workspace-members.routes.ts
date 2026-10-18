@@ -12,6 +12,6 @@ export const WORKSPACES_MEMBERS_ROUTES: Routes = [
             import('../workspace-members/workspace-members').then(
                 component => component.WorkspaceMembers
             ),
-        title: 'Profile & preferences | MyStickyNotes',
+        title: 'Workspace Members | Sticky Ji',
     },
 ];

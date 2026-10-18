@@ -26,6 +26,7 @@ import {
   LucideArrowLeft,
   LucideArrowRight,
   LucideCheckCircle2,
+  LucideClock3,
   LucideLockKeyhole,
   LucideMail,
   LucideShieldCheck,
@@ -70,10 +71,10 @@ export class ForgotPassword implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
-  @Input() brandName = 'MyStickyNotes';
+  @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
-  @Input() logoSrc: string | null = null;
-  @Input() logoAlt = '';
+  @Input() logoSrc: string | null = 'StickyJiHorizontalLogo.png';
+  @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
 
   readonly loading = signal(false);
@@ -84,6 +85,7 @@ export class ForgotPassword implements OnInit {
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheckCircle2 = LucideCheckCircle2;
+  readonly LucideClock3 = LucideClock3;
   readonly LucideLockKeyhole = LucideLockKeyhole;
   readonly LucideMail = LucideMail;
   readonly LucideShieldCheck = LucideShieldCheck;
@@ -137,15 +139,7 @@ export class ForgotPassword implements OnInit {
   get emailError(): string {
     const control = this.emailControl;
 
-    const shouldShow =
-      control.invalid &&
-      (
-        this.submitted() ||
-        control.touched ||
-        control.dirty
-      );
-
-    if (!shouldShow) {
+    if (!control.invalid || !this.submitted()) {
       return '';
     }
 
@@ -344,12 +338,12 @@ export class ForgotPassword implements OnInit {
   }
 
   private focusEmail(): void {
-    requestAnimationFrame(() => {
-      document
-        .getElementById(
-          'forgot-password-email',
-        )
-        ?.focus();
-    });
+    const focus = () => {
+      document.getElementById('forgot-password-email')?.focus();
+    };
+
+    focus();
+    requestAnimationFrame(focus);
+    setTimeout(focus, 120);
   }
 }
