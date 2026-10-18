@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideBriefcaseBusiness,
@@ -20,11 +15,9 @@ import { AvatarTone, Avatar } from '../../shared/components/avatar/avatar';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
-import { Divider } from '../../shared/components/divider/divider';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
-
 
 export type UserPersonaId = 'student' | 'professional' | 'creator' | 'life' | 'team';
 type PersonaNoteVariant = 'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple';
@@ -58,16 +51,7 @@ interface UserPersona {
 
 @Component({
   standalone: true,
-  imports: [
-    AppIcon,
-    Avatar,
-    Badge,
-    Button,
-    Checkbox,
-    Divider,
-    Label,
-    StickyCard,
-  ],
+  imports: [AppIcon, Avatar, Badge, Button, Checkbox, Label, StickyCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-use-cases',
   styleUrl: './use-cases.scss',
@@ -94,9 +78,14 @@ export class UseCases {
       avatarInitials: 'NK',
       context: 'Exam week',
       title: 'Turn three subjects into one calm study plan',
-      description: 'Keep assignments, revision, and everyday reminders visible without building a complicated system.',
+      description:
+        'Keep assignments, revision, and everyday reminders visible without building a complicated system.',
       tasks: [
-        { label: 'Review chapter four', description: 'Highlight the five key formulas', done: true },
+        {
+          label: 'Review chapter four',
+          description: 'Highlight the five key formulas',
+          done: true,
+        },
         { label: 'Finish the lab summary', done: false },
         { label: 'Pack notes for study group', done: false },
       ],
@@ -118,10 +107,15 @@ export class UseCases {
       avatarInitials: 'AM',
       context: 'Monday priorities',
       title: 'Keep meaningful work above the meeting noise',
-      description: 'Collect follow-ups, decisions, and your next focused block in one lightweight place.',
+      description:
+        'Collect follow-ups, decisions, and your next focused block in one lightweight place.',
       tasks: [
         { label: 'Send the revised proposal', done: true },
-        { label: 'Prepare three launch decisions', description: 'Keep it to one page', done: false },
+        {
+          label: 'Prepare three launch decisions',
+          description: 'Keep it to one page',
+          done: false,
+        },
         { label: 'Follow up with product team', done: false },
       ],
       sideNoteTitle: '2:00 PM focus',
@@ -142,7 +136,8 @@ export class UseCases {
       avatarInitials: 'SK',
       context: 'Content day',
       title: 'Give unfinished ideas somewhere friendly to grow',
-      description: 'Capture sparks, shape rough concepts, and keep the next publishable idea close.',
+      description:
+        'Capture sparks, shape rough concepts, and keep the next publishable idea close.',
       tasks: [
         { label: 'Choose the opening hook', done: true },
         { label: 'Sketch the thumbnail idea', done: true },
@@ -166,7 +161,8 @@ export class UseCases {
       avatarInitials: 'JD',
       context: 'Life admin',
       title: 'Make ordinary life feel a little less scattered',
-      description: 'Groceries, appointments, personal goals, and the one thing you promised not to forget.',
+      description:
+        'Groceries, appointments, personal goals, and the one thing you promised not to forget.',
       tasks: [
         { label: 'Book the dentist appointment', done: true },
         { label: 'Pick up groceries on the way home', done: false },
@@ -210,7 +206,9 @@ export class UseCases {
   taskChecks = this.personas[0].tasks.map((task) => task.done);
 
   get activePersona(): UserPersona {
-    return this.personas.find((persona) => persona.id === this.selectedPersonaId) ?? this.personas[0];
+    return (
+      this.personas.find((persona) => persona.id === this.selectedPersonaId) ?? this.personas[0]
+    );
   }
 
   get completedTaskCount(): number {
@@ -241,16 +239,21 @@ export class UseCases {
           ? -1
           : 0;
 
-    if (!direction) {
+    if (!direction && event.key !== 'Home' && event.key !== 'End') {
       return;
     }
 
     event.preventDefault();
 
-    const nextIndex = (currentIndex + direction + this.personas.length) % this.personas.length;
-    const tabs = (event.currentTarget as HTMLElement)
-      .parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    const nextIndex =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? this.personas.length - 1
+          : (currentIndex + direction + this.personas.length) % this.personas.length;
+    const tabs = (
+      event.currentTarget as HTMLElement
+    ).parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
 
     this.selectPersona(this.personas[nextIndex]);
     tabs?.[nextIndex]?.focus();

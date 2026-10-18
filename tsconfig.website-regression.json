@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/website/home/home.spec.ts",
+    "src/app/website/subscription/**/*.spec.ts",
+    "src/app/website/website-header/website-header.spec.ts",
+    "src/app/website/routes/website.routes.spec.ts"
+  ]
+}

@@ -91,6 +91,26 @@ main {
   display: block;
 }
 
+:is(#top, #features, #how-it-works, #use-cases, #reviews, #pricing) {
+  scroll-margin-top: calc(var(--app-header-height, 72px) + 16px);
+}
+
+/* Keep keyboard focus visible across the custom website controls and links. */
+:is(
+    app-website-header,
+    app-hero,
+    app-thought-flow,
+    app-use-cases,
+    app-reviews,
+    app-subscription,
+    app-website-footer
+  )
+  :is(a, button, [tabindex]):focus-visible {
+  outline: 3px solid var(--app-focus-color);
+  outline-offset: 3px;
+  box-shadow: var(--app-focus-ring);
+}
+
 h1,
 h2,
 h3,

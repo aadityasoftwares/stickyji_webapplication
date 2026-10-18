@@ -1,178 +1,256 @@
 <section id="how-it-works" class="thought-flow" aria-labelledby="thought-flow-title">
-    <div class="thought-flow-shell">
-        <header class="section-heading">
-            <app-badge label="Simple on purpose" variant="noteYellow" size="md" shape="pill" [icon]="LucideSparkles" />
+  <div class="thought-flow-shell">
+    <header class="section-heading">
+      <div>
+        <span class="section-eyebrow">A SIMPLE WAY TO MOVE FORWARD</span>
+        <h2 id="thought-flow-title">
+          From a passing thought<br /><span>to a little progress.</span>
+        </h2>
+      </div>
+      <p>
+        Capture the idea. Give it a next step. Enjoy getting it done. A familiar workflow that makes
+        room for the way you think.
+      </p>
+    </header>
+    <div class="flow-layout">
+      <div class="flow-steps" role="tablist" aria-label="Thought workflow stages">
+        @for (stage of stages; track stage.id; let stageIndex = $index) {
+          <button
+            class="flow-step"
+            type="button"
+            role="tab"
+            [class.is-active]="selectedStage === stage.id"
+            [id]="'flow-tab-' + stage.id"
+            [attr.aria-selected]="selectedStage === stage.id"
+            aria-controls="thought-flow-panel"
+            [attr.tabindex]="selectedStage === stage.id ? 0 : -1"
+            (click)="selectStage(stage.id)"
+            (keydown)="onStageKeydown($event, stageIndex)"
+          >
+            <span class="step-number" aria-hidden="true">{{ stage.number }}</span>
 
-            <h2 id="thought-flow-title">
-                Your thought already has momentum.
-                <span>We just help it keep moving.</span>
-            </h2>
+            <span class="step-icon" [class]="'step-icon step-icon-' + stage.id" aria-hidden="true">
+              <app-icon [icon]="stage.icon" size="md" />
+            </span>
 
-            <p>
-                MyStickyNotes turns a passing idea into one small, visible next step—without making you manage a
-                complicated productivity system.
-            </p>
-        </header>
+            <span class="step-copy">
+              <small>{{ stage.eyebrow }}</small>
+              <strong>{{ stage.title }}</strong>
+              <span>{{ stage.description }}</span>
+            </span>
 
-        <app-divider label="The gentle workflow" [hasLabel]="true" variant="noteYellow" lineStyle="dashed"
-            spacing="xl" />
+            <span class="step-arrow" aria-hidden="true">
+              <app-icon [icon]="LucideArrowRight" size="sm" />
+            </span>
+          </button>
+        }
+      </div>
 
-        <div class="flow-layout">
-            <div class="flow-steps" role="tablist" aria-label="Thought workflow stages">
-                @for (stage of stages; track stage.id; let stageIndex = $index) {
-                <button class="flow-step" type="button" role="tab" [class.is-active]="selectedStage === stage.id"
-                    [id]="'flow-tab-' + stage.id" [attr.aria-selected]="selectedStage === stage.id"
-                    aria-controls="thought-flow-panel" [attr.tabindex]="selectedStage === stage.id ? 0 : -1"
-                    (click)="selectStage(stage.id)" (keydown)="onStageKeydown($event, stageIndex)">
-                    <span class="step-number" aria-hidden="true">{{ stage.number }}</span>
-
-                    <span class="step-icon" [class]="'step-icon step-icon-' + stage.id" aria-hidden="true">
-                        <app-icon [icon]="stage.icon" size="md" />
-                    </span>
-
-                    <span class="step-copy">
-                        <small>{{ stage.eyebrow }}</small>
-                        <strong>{{ stage.title }}</strong>
-                        <span>{{ stage.description }}</span>
-                    </span>
-
-                    <span class="step-arrow" aria-hidden="true">
-                        <app-icon [icon]="LucideArrowRight" size="sm" />
-                    </span>
-                </button>
-                }
+      <div class="preview-wrap">
+        <div
+          id="thought-flow-panel"
+          class="workflow-preview"
+          role="tabpanel"
+          tabindex="0"
+          [attr.aria-labelledby]="'flow-tab-' + selectedStage"
+        >
+          <header class="preview-header">
+            <div>
+              <app-label
+                text="INTERACTIVE PREVIEW"
+                variant="neutral"
+                appearance="plain"
+                size="xs"
+                weight="bold"
+              />
+              <h3>{{ activeStage.title }}</h3>
             </div>
 
-            <div class="preview-wrap">
-                <span class="preview-tape" aria-hidden="true"></span>
-                <span class="preview-paper preview-paper-one" aria-hidden="true"></span>
-                <span class="preview-paper preview-paper-two" aria-hidden="true"></span>
+            <app-badge
+              [label]="activeStage.number + ' / 03'"
+              [variant]="activeStage.labelVariant"
+              size="sm"
+              shape="pill"
+            />
+          </header>
 
-                <div id="thought-flow-panel" class="workflow-preview" role="tabpanel"
-                    [attr.aria-labelledby]="'flow-tab-' + selectedStage">
-                    <header class="preview-header">
-                        <div>
-                            <app-label text="LIVE EXAMPLE" variant="neutral" appearance="plain" size="xs"
-                                weight="bold" />
-                            <h3>{{ activeStage.title }}</h3>
-                        </div>
-
-                        <app-badge [label]="activeStage.number + ' / 03'" [variant]="activeStage.labelVariant" size="sm"
-                            shape="pill" />
-                    </header>
-
-                    @switch (selectedStage) {
-                    @case ('capture') {
-                    <div class="preview-stage capture-stage">
-                        <div class="capture-source">
-                            <span class="source-icon"><app-icon [icon]="LucideLightbulb" size="sm" /></span>
-                            <span><small>QUICK CAPTURE</small><strong>Saved before it slipped away</strong></span>
-                            <app-badge label="Just now" variant="outline" size="xs" shape="pill" />
-                        </div>
-
-                        <app-sticky-card variant="noteYellow" appearance="flat" shape="note" size="md"
-                            [fullWidth]="true" [minHeight]="230" [padding]="24" [hoverable]="true" eyebrow="NEW THOUGHT"
-                            cardTitle="What if planning felt lighter?">
-                            <p class="note-body">
-                                Build a homepage that feels like clearing a desk—not opening another complicated tool.
-                            </p>
-
-                            <div card-footer class="note-footer">
-                                <span class="note-owner">
-                                    <app-avatar name="Alex Patel" initials="AP" size="sm" tone="pink"
-                                        [elevated]="true" />
-                                    <span><small>Captured by</small><strong>You</strong></span>
-                                </span>
-                                <app-label text="Inbox" variant="noteYellow" appearance="soft" size="xs" />
-                            </div>
-                        </app-sticky-card>
-
-                        <p class="stage-caption"><app-icon [icon]="LucideClock3" size="xs" /> From idea to saved in 4
-                            seconds.</p>
-                    </div>
-                    }
-
-                    @case ('organize') {
-                    <div class="preview-stage organize-stage">
-                        <app-sticky-card variant="noteBlue" appearance="flat" shape="note" size="md" [fullWidth]="true"
-                            [minHeight]="300" [padding]="24" [hoverable]="true" eyebrow="TODAY'S FOCUS"
-                            cardTitle="Make the homepage feel human">
-                            <p class="note-body">A big idea becomes easier when the next steps stay small.</p>
-
-                            <div class="task-list" aria-label="Homepage task checklist">
-                                <app-checkbox inputId="flow-headline" label="Write the human headline"
-                                    description="Use the words our customers use" variant="noteBlue" size="sm"
-                                    [checked]="checklist.headline" (checkedChange)="updateTask('headline', $event)" />
-
-                                <app-checkbox inputId="flow-mobile-copy" label="Tighten the mobile copy"
-                                    variant="noteBlue" size="sm" [checked]="checklist.mobileCopy"
-                                    (checkedChange)="updateTask('mobileCopy', $event)" />
-
-                                <app-checkbox inputId="flow-final-review" label="Do one calm final review"
-                                    variant="noteBlue" size="sm" [checked]="checklist.finalReview"
-                                    (checkedChange)="updateTask('finalReview', $event)" />
-                            </div>
-
-                            <div card-footer class="progress-footer">
-                                <span>{{ completedTaskCount }} of 3 tiny steps</span>
-                                <span class="mini-progress" aria-hidden="true"><i
-                                        [style.width.%]="(completedTaskCount / 3) * 100"></i></span>
-                            </div>
-                        </app-sticky-card>
-                    </div>
-                    }
-
-                    @case ('finish') {
-                    <div class="preview-stage finish-stage">
-                        <div class="celebration-mark" aria-hidden="true">
-                            <app-icon [icon]="LucideCheck" size="lg" />
-                        </div>
-
-                        <app-sticky-card variant="noteGreen" appearance="flat" shape="note" size="md" [fullWidth]="true"
-                            [minHeight]="245" [padding]="24" eyebrow="DONE AT 10:24" cardTitle="Homepage story shared">
-                            <p class="note-body">
-                                The first draft is out of your head and with the people who can move it forward.
-                            </p>
-
-                            <div card-footer class="done-footer">
-                                <span class="avatar-stack" aria-label="Shared with three teammates">
-                                    <app-avatar name="Alex Patel" initials="AP" size="sm" tone="pink" />
-                                    <app-avatar name="Maya Khan" initials="MK" size="sm" tone="blue" />
-                                    <app-avatar name="Jordan Lee" initials="JL" size="sm" tone="yellow" />
-                                </span>
-                                <app-badge label="Complete" variant="noteGreen" size="sm" shape="pill"
-                                    [icon]="LucideCheck" />
-                            </div>
-                        </app-sticky-card>
-
-                        <div class="mind-space">
-                            <app-icon [icon]="LucideSparkles" size="sm" />
-                            <span><strong>One less open loop.</strong><small>Your mind has more room now.</small></span>
-                        </div>
-                    </div>
-                    }
-                    }
+          @switch (selectedStage) {
+            @case ('capture') {
+              <div class="preview-stage capture-stage">
+                <div class="capture-source">
+                  <span class="source-icon"><app-icon [icon]="LucideLightbulb" size="sm" /></span>
+                  <span
+                    ><small>QUICK CAPTURE</small><strong>Saved before it slipped away</strong></span
+                  >
+                  <app-badge label="Just now" variant="outline" size="xs" shape="pill" />
                 </div>
-            </div>
+
+                <app-sticky-card
+                  variant="noteYellow"
+                  appearance="flat"
+                  shape="note"
+                  size="md"
+                  [fullWidth]="true"
+                  [minHeight]="230"
+                  [padding]="24"
+                  [hoverable]="true"
+                  eyebrow="NEW THOUGHT"
+                  cardTitle="What if planning felt lighter?"
+                >
+                  <p class="note-body">
+                    Build a homepage that feels like clearing a desk—not opening another complicated
+                    tool.
+                  </p>
+
+                  <div card-footer class="note-footer">
+                    <span class="note-owner">
+                      <app-avatar
+                        name="Alex Patel"
+                        initials="AP"
+                        size="sm"
+                        tone="pink"
+                        [elevated]="true"
+                      />
+                      <span><small>Captured by</small><strong>You</strong></span>
+                    </span>
+                    <app-label text="Inbox" variant="noteYellow" appearance="soft" size="xs" />
+                  </div>
+                </app-sticky-card>
+
+                <p class="stage-caption">
+                  <app-icon [icon]="LucideClock3" size="xs" /> Try switching steps to explore the
+                  workflow.
+                </p>
+              </div>
+            }
+
+            @case ('organize') {
+              <div class="preview-stage organize-stage">
+                <app-sticky-card
+                  variant="noteBlue"
+                  appearance="flat"
+                  shape="note"
+                  size="md"
+                  [fullWidth]="true"
+                  [minHeight]="300"
+                  [padding]="24"
+                  [hoverable]="true"
+                  eyebrow="TODAY'S FOCUS"
+                  cardTitle="Make the homepage feel human"
+                >
+                  <p class="note-body">A big idea becomes easier when the next steps stay small.</p>
+
+                  <div class="task-list" aria-label="Homepage task checklist">
+                    <app-checkbox
+                      inputId="flow-headline"
+                      label="Write the human headline"
+                      description="Use the words our customers use"
+                      variant="noteBlue"
+                      size="sm"
+                      [checked]="checklist.headline"
+                      (checkedChange)="updateTask('headline', $event)"
+                    />
+
+                    <app-checkbox
+                      inputId="flow-mobile-copy"
+                      label="Tighten the mobile copy"
+                      variant="noteBlue"
+                      size="sm"
+                      [checked]="checklist.mobileCopy"
+                      (checkedChange)="updateTask('mobileCopy', $event)"
+                    />
+
+                    <app-checkbox
+                      inputId="flow-final-review"
+                      label="Do one calm final review"
+                      variant="noteBlue"
+                      size="sm"
+                      [checked]="checklist.finalReview"
+                      (checkedChange)="updateTask('finalReview', $event)"
+                    />
+                  </div>
+
+                  <div card-footer class="progress-footer">
+                    <span>{{ completedTaskCount }} of 3 tiny steps</span>
+                    <span class="mini-progress" aria-hidden="true"
+                      ><i [style.width.%]="(completedTaskCount / 3) * 100"></i
+                    ></span>
+                  </div>
+                </app-sticky-card>
+              </div>
+            }
+
+            @case ('finish') {
+              <div class="preview-stage finish-stage">
+                <div class="celebration-mark" aria-hidden="true">
+                  <app-icon [icon]="LucideCheck" size="lg" />
+                </div>
+
+                <app-sticky-card
+                  variant="noteGreen"
+                  appearance="flat"
+                  shape="note"
+                  size="md"
+                  [fullWidth]="true"
+                  [minHeight]="245"
+                  [padding]="24"
+                  eyebrow="DONE AT 10:24"
+                  cardTitle="Homepage story shared"
+                >
+                  <p class="note-body">
+                    The first draft is out of your head and with the people who can move it forward.
+                  </p>
+
+                  <div card-footer class="done-footer">
+                    <span class="avatar-stack" aria-label="Shared with three teammates">
+                      <app-avatar name="Alex Patel" initials="AP" size="sm" tone="pink" />
+                      <app-avatar name="Maya Khan" initials="MK" size="sm" tone="blue" />
+                      <app-avatar name="Jordan Lee" initials="JL" size="sm" tone="yellow" />
+                    </span>
+                    <app-badge
+                      label="Complete"
+                      variant="noteGreen"
+                      size="sm"
+                      shape="pill"
+                      [icon]="LucideCheck"
+                    />
+                  </div>
+                </app-sticky-card>
+
+                <div class="mind-space">
+                  <app-icon [icon]="LucideSparkles" size="sm" />
+                  <span
+                    ><strong>One less open loop.</strong
+                    ><small>Your mind has more room now.</small></span
+                  >
+                </div>
+              </div>
+            }
+          }
         </div>
-
-        <footer class="section-footer">
-            <div class="people-proof">
-                <span class="avatar-stack" aria-label="People using MyStickyNotes">
-                    <app-avatar name="Anika Mehta" initials="AM" size="md" tone="yellow" [elevated]="true" />
-                    <app-avatar name="Sam Kim" initials="SK" size="md" tone="blue" [elevated]="true" />
-                    <app-avatar name="Jamie Diaz" initials="JD" size="md" tone="pink" [elevated]="true" />
-                    <app-avatar name="Two thousand more people" initials="2K" size="md" tone="black"
-                        [elevated]="true" />
-                </span>
-                <span><strong>Built for real, busy minds.</strong><small>No productivity expertise
-                        required.</small></span>
-            </div>
-
-            <app-button label="Explore the gentle workflow" variant="primary" size="lg" [hasIcon]="true"
-                iconPosition="right" (buttonClick)="exploreClick.emit()">
-                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-            </app-button>
-        </footer>
+      </div>
     </div>
+
+    <footer class="section-footer">
+      <div class="footer-copy">
+        <span class="footer-icon" aria-hidden="true"
+          ><app-icon [icon]="LucideSparkles" size="md"
+        /></span>
+        <div>
+          <strong>Less to keep in your head. More room to create.</strong>
+          <p>Start with one note and make it your own.</p>
+        </div>
+      </div>
+      <app-button
+        label="Create your first note"
+        variant="primary"
+        size="md"
+        [hasIcon]="true"
+        iconPosition="right"
+        (buttonClick)="exploreClick.emit()"
+      >
+        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+      </app-button>
+    </footer>
+  </div>
 </section>

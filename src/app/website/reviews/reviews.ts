@@ -171,6 +171,10 @@ export class Reviews {
     }
   }
 
+  get usingDemoReviews(): boolean {
+    return this.reviewItems === DEMO_USER_REVIEWS;
+  }
+
   get reviews(): readonly UserReview[] {
     return this.reviewItems;
   }

@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -18,11 +13,9 @@ import { Avatar } from '../../shared/components/avatar/avatar';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
-import { Divider } from '../../shared/components/divider/divider';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
 import { LabelVariant, Label } from '../../shared/components/label/label';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
-
 
 export type ThoughtFlowStageId = 'capture' | 'organize' | 'finish';
 
@@ -38,23 +31,13 @@ interface ThoughtFlowStage {
 
 @Component({
   standalone: true,
-  imports: [
-    AppIcon,
-    Avatar,
-    Badge,
-    Button,
-    Checkbox,
-    Divider,
-    Label,
-    StickyCard,
-  ],
+  imports: [AppIcon, Avatar, Badge, Button, Checkbox, Label, StickyCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-thought-flow',
   styleUrl: './thought-flow.scss',
   templateUrl: './thought-flow.html',
 })
 export class ThoughtFlow {
-
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheck = LucideCheck;
   readonly LucideClock3 = LucideClock3;
@@ -128,23 +111,28 @@ export class ThoughtFlow {
           ? -1
           : 0;
 
-    if (!direction) {
+    if (!direction && event.key !== 'Home' && event.key !== 'End') {
       return;
     }
 
     event.preventDefault();
 
-    const nextIndex = (currentIndex + direction + this.stages.length) % this.stages.length;
+    const nextIndex =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? this.stages.length - 1
+          : (currentIndex + direction + this.stages.length) % this.stages.length;
     const nextStage = this.stages[nextIndex];
-    const tabs = (event.currentTarget as HTMLElement)
-      .parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    const tabs = (
+      event.currentTarget as HTMLElement
+    ).parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
 
     this.selectStage(nextStage.id);
     tabs?.[nextIndex]?.focus();
   }
 
-  updateTask(task: keyof any['checklist'], checked: boolean): void {
+  updateTask(task: keyof ThoughtFlow['checklist'], checked: boolean): void {
     this.checklist = {
       ...this.checklist,
       [task]: checked,

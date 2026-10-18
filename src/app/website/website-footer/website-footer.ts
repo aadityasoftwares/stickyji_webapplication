@@ -45,28 +45,28 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
   {
     title: 'Product',
     links: [
-      { label: 'Features', href: '#features' },
-      { label: 'How it works', href: '#how-it-works' },
-      { label: 'Collaboration', href: '#collaboration', badge: 'New' },
-      { label: 'Pricing', href: '#pricing' },
+      { label: 'Features', href: '/home#features' },
+      { label: 'How it works', href: '/home#how-it-works' },
+      { label: 'Use cases', href: '/home#use-cases' },
+      { label: 'Pricing', href: '/home#pricing' },
     ],
   },
   {
     title: 'Good to know',
     links: [
-      { label: 'About us', href: '/about' },
-      { label: 'Stories', href: '#reviews' },
-      { label: 'Changelog', href: '/changelog' },
-      { label: 'Contact', href: '/contact' },
+      { label: 'Home', href: '/home' },
+      { label: 'Stories', href: '/home#reviews' },
+      { label: 'Use cases', href: '/home#use-cases' },
+      { label: 'Plans', href: '/home#pricing' },
     ],
   },
   {
-    title: 'Help desk',
+    title: 'Get started',
     links: [
-      { label: 'Help center', href: '/help' },
-      { label: 'Privacy', href: '/privacy' },
-      { label: 'Terms', href: '/terms' },
-      { label: 'System status', href: '/status', external: true },
+      { label: 'Create an account', href: '/auth/signup' },
+      { label: 'Sign in', href: '/auth/login' },
+      { label: 'How it works', href: '/home#how-it-works' },
+      { label: 'Forgot password', href: '/auth/forgot-password' },
     ],
   },
 ];
@@ -91,7 +91,7 @@ export class WebsiteFooter {
   readonly LucideSparkles = LucideSparkles;
 
   @Input() brandName = 'MyStickyNotes';
-  @Input() brandHref = '#top';
+  @Input() brandHref = '/home#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
   @Input() ctaTitle = 'Your next good idea needs somewhere to land.';
   @Input() ctaDescription = 'Start with one note. Invite your people when the idea gets bigger.';

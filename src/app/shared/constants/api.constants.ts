@@ -14,6 +14,7 @@ const resourceEndpoints = (resource: string) => ({
 });
 
 export const API_ENDPOINTS = {
+    plans: { getAll: `${API_BASE_URL}/plans/getall` },
     auth: {
         login: `${API_BASE_URL}/auth/login`,
         register: `${API_BASE_URL}/auth/register`,

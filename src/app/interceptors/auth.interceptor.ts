@@ -11,7 +11,7 @@ import {
 } from 'rxjs';
 import { AuthRefreshService } from '../public/auth/services/auth-refresh.service';
 import { AuthStore } from '../public/auth/state/auth.store';
-import { API_BASE_URL, PUBLIC_AUTH_ENDPOINTS } from '../shared/constants/api.constants';
+import { API_BASE_URL, API_ENDPOINTS, PUBLIC_AUTH_ENDPOINTS } from '../shared/constants/api.constants';
 import { APP_ROUTES, routeCommands } from '../shared/constants/route.constants';
 
 export const authInterceptor: HttpInterceptorFn = (
@@ -26,6 +26,11 @@ export const authInterceptor: HttpInterceptorFn = (
         request.url.startsWith(API_BASE_URL);
 
     if (!isOurApi) {
+        return next(request);
+    }
+
+    // Public catalogue failures must not redirect website visitors to sign in.
+    if (request.method === 'GET' && request.url.split('?')[0] === API_ENDPOINTS.plans.getAll) {
         return next(request);
     }
 

@@ -1,123 +1,106 @@
 <section id="pricing" class="subscription" aria-labelledby="subscription-title">
-    <div class="subscription-shell">
-        <header class="section-heading">
-            <app-badge label="Simple, honest pricing" variant="noteGreen" size="md" shape="pill"
-                [icon]="LucideSparkles" />
+  <div class="subscription-shell">
+    <header class="section-heading">
+      <span class="section-eyebrow">ROOM FOR YOUR NEXT CHAPTER</span>
+      <h2 id="subscription-title">
+        A little space to start.<br /><span>Room to grow from there.</span>
+      </h2>
+      <p>
+        Find the workspace that fits your day. Explore our available plans and choose where to
+        begin.
+      </p>
+    </header>
 
-            <h2 id="subscription-title">
-                Choose how much
-                <span>desk space</span>
-                you need.
-            </h2>
-
-            <p>
-                Start with one clear corner. Add more room only when your notes, projects, or people genuinely need it.
-            </p>
-        </header>
-
-        <div class="billing-wrap">
-            <div class="billing-toggle" role="radiogroup" aria-label="Billing frequency"
-                (keydown)="onBillingKeydown($event)">
-                <button type="button" role="radio" data-cycle="monthly" [class.is-active]="billingCycle === 'monthly'"
-                    [attr.aria-checked]="billingCycle === 'monthly'"
-                    [attr.tabindex]="billingCycle === 'monthly' ? 0 : -1" (click)="setBillingCycle('monthly')">
-                    Monthly
-                </button>
-
-                <button type="button" role="radio" data-cycle="yearly" [class.is-active]="billingCycle === 'yearly'"
-                    [attr.aria-checked]="billingCycle === 'yearly'" [attr.tabindex]="billingCycle === 'yearly' ? 0 : -1"
-                    (click)="setBillingCycle('yearly')">
-                    Yearly
-                    <app-badge label="Save more" variant="noteGreen" size="xs" shape="pill" />
-                </button>
-            </div>
-
-            <app-label text="Prices shown per month" variant="neutral" appearance="plain" size="xs" weight="medium" />
+    <div class="plans-content" [attr.aria-busy]="loading()">
+      @if (loading()) {
+        <p class="state-message" role="status">Loading available plans...</p>
+        <div class="plans-grid" aria-hidden="true">
+          @for (card of [1, 2, 3]; track card) {
+            <div class="plan-skeleton"><span></span><span></span><span></span></div>
+          }
         </div>
-
-        <app-divider label="Pick your note" [hasLabel]="true" variant="noteGreen" lineStyle="dashed" spacing="lg" />
-
+      } @else if (error()) {
+        <div class="state-card" role="alert">
+          <h3>Plans are taking a little longer to load.</h3>
+          <p>Please try again in a moment.</p>
+          <app-button label="Try again" variant="outline" (buttonClick)="loadPlans()" />
+        </div>
+      } @else if (!plans().length) {
+        <div class="state-card" role="status">
+          <h3>New plans are on the way.</h3>
+          <p>There are no public plans available right now. Please check back soon.</p>
+        </div>
+      } @else {
         <div class="plans-grid">
-            @for (plan of plans; track plan.id) {
-            <article class="plan-wrap" [class.is-featured]="plan.featured" [attr.data-plan]="plan.id">
-                @if (plan.featured) {
-                <span class="featured-tape" aria-hidden="true"></span>
-                <app-badge class="featured-badge" [label]="plan.badge || 'Recommended'" variant="notePink" size="sm"
-                    shape="pill" [icon]="LucideSparkles" />
+          @for (plan of plans(); track plan._id) {
+            <article
+              class="plan-card"
+              [class.is-popular]="plan.isPopular"
+              [attr.aria-labelledby]="'plan-' + plan._id"
+            >
+              <div class="plan-topline">
+                <span class="plan-code">{{ plan.code }}</span>
+                @if (plan.isPopular) {
+                  <span class="popular-label"
+                    ><app-icon [icon]="LucideSparkles" size="xs" /> Popular</span
+                  >
                 }
-
-                <app-sticky-card [variant]="plan.noteVariant" appearance="flat" shape="note" size="md"
-                    [fullWidth]="true" [minHeight]="570" [padding]="25" [hoverable]="true"
-                    [eyebrow]="plan.eyebrow.toUpperCase()" [cardTitle]="plan.name">
-                    <p class="plan-description">{{ plan.description }}</p>
-
-                    <div class="plan-price">
-                        <span class="currency">{{ currencySymbol }}</span>
-                        <strong>{{ getPrice(plan) }}</strong>
-                        <span class="price-period">
-                            <small>/ month</small>
-                            @if (plan.priceSuffix) {
-                            <small>{{ plan.priceSuffix }}</small>
-                            }
-                        </span>
-                    </div>
-
-                    <div class="billing-note">
-                        <span>{{ getBillingNote(plan) }}</span>
-                        @if (billingCycle === 'yearly' && plan.yearlySavingLabel && getPrice(plan) > 0) {
-                        <app-badge [label]="plan.yearlySavingLabel" variant="noteGreen" size="xs" shape="pill" />
-                        }
-                    </div>
-
-                    @if (plan.teamPreview) {
-                    <div class="team-preview">
-                        <span class="team-avatars" aria-label="Example team members">
-                            <app-avatar name="Maya Shah" initials="MS" size="sm" tone="purple" [elevated]="true" />
-                            <app-avatar name="Alex Patel" initials="AP" size="sm" tone="blue" [elevated]="true" />
-                            <app-avatar name="Sara Kim" initials="SK" size="sm" tone="pink" [elevated]="true" />
-                        </span>
-                        <span><app-icon [icon]="LucideUsersRound" size="xs" /> Grow one seat at a time</span>
-                    </div>
-                    }
-
-                    <app-divider spacing="sm" inset="none" lineStyle="dashed" />
-
-                    <ul class="feature-list" [attr.aria-label]="plan.name + ' plan features'">
-                        @for (feature of plan.features; track feature.label) {
-                        <li [class.is-unavailable]="!feature.included">
-                            <span class="feature-icon">
-                                <app-icon [icon]="feature.included ? LucideCheck : LucideMinus" size="xs" />
-                            </span>
-                            {{ feature.label }}
-                        </li>
-                        }
-                    </ul>
-
-                    <div card-footer class="plan-footer">
-                        <app-button [label]="plan.ctaLabel" [variant]="plan.featured ? 'primary' : 'outline'" size="lg"
-                            [fullWidth]="true" [hasIcon]="true" iconPosition="right" (buttonClick)="choosePlan(plan)">
-                            <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-                        </app-button>
-
-                        <small>{{ plan.footnote }}</small>
-                    </div>
-                </app-sticky-card>
+              </div>
+              <h3 [id]="'plan-' + plan._id">{{ plan.name }}</h3>
+              <p class="plan-description">{{ plan.description }}</p>
+              <div class="plan-price">
+                <strong>{{ priceLabel(plan) }}</strong>
+                <span>{{
+                  plan.type === 'FREE'
+                    ? 'No subscription charge'
+                    : plan.pricingModel === 'CUSTOM' || plan.type === 'CUSTOM'
+                      ? 'Pricing tailored to your needs'
+                      : 'Pricing details will be available soon'
+                }}</span>
+              </div>
+              <ul class="plan-details">
+                @if (plan.type === 'FREE') {
+                  <li><app-icon [icon]="LucideCheck" size="sm" /> A free plan to get started</li>
+                }
+                @if (plan.trialDays > 0) {
+                  <li>
+                    <app-icon [icon]="LucideCheck" size="sm" /> {{ plan.trialDays }}-day trial
+                  </li>
+                }
+                @if (plan.isDefault) {
+                  <li>
+                    <app-icon [icon]="LucideCheck" size="sm" /> Your starting plan for a new account
+                  </li>
+                }
+                @if (plan.type === 'CUSTOM' || plan.pricingModel === 'CUSTOM') {
+                  <li>
+                    <app-icon [icon]="LucideCheck" size="sm" /> A plan shaped around your
+                    requirements
+                  </li>
+                }
+              </ul>
+              <div class="plan-action">
+                <app-button
+                  [label]="plan.type === 'FREE' ? 'Get started free' : 'Get started'"
+                  [variant]="plan.isPopular ? 'primary' : 'outline'"
+                  size="lg"
+                  [fullWidth]="true"
+                  [hasIcon]="true"
+                  iconPosition="right"
+                  (buttonClick)="choosePlan(plan)"
+                >
+                  <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+                </app-button>
+                <small>Create an account to get started.</small>
+              </div>
             </article>
-            }
+          }
         </div>
-
-        <footer class="pricing-receipt">
-            <div class="receipt-title">
-                <span><app-icon [icon]="LucideShieldCheck" size="md" /></span>
-                <span><strong>A plan should feel like permission, not pressure.</strong><small>Change or cancel whenever
-                        your needs change.</small></span>
-            </div>
-
-            <div class="receipt-promises" aria-label="Subscription promises">
-                <span><app-icon [icon]="LucideCreditCard" size="xs" /> No card for Free</span>
-                <span><app-icon [icon]="LucideZap" size="xs" /> Upgrade in seconds</span>
-                <span><app-icon [icon]="LucideCheck" size="xs" /> No setup fees</span>
-            </div>
-        </footer>
+      }
     </div>
+    <footer class="pricing-footer">
+      <app-icon [icon]="LucideSparkles" size="sm" />
+      <p>Start with your ideas. Build your workspace one note at a time.</p>
+    </footer>
+  </div>
 </section>

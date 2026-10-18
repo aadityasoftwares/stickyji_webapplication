@@ -1,118 +1,189 @@
 <section id="use-cases" class="use-cases" aria-labelledby="use-cases-title">
-    <div class="use-cases-shell">
-        <header class="section-heading">
-            <app-badge label="Made for real life" variant="noteBlue" size="md" shape="pill" [icon]="LucideSparkles" />
-
-            <h2 id="use-cases-title">
-                Your brain doesn’t need
-                <span>a job title.</span>
-            </h2>
-
-            <p>
-                Whether you are studying, leading, creating, planning a home, or helping a small team—every thought
-                deserves the same clear next step.
-            </p>
-        </header>
-
-        <app-divider label="Choose your kind of day" [hasLabel]="true" variant="noteBlue" lineStyle="dashed"
-            spacing="xl" />
-
-        <div class="persona-tabs" role="tablist" aria-label="Choose a user type">
-            @for (persona of personas; track persona.id; let personaIndex = $index) {
-            <button class="persona-tab" [class.is-active]="selectedPersonaId === persona.id"
-                [attr.data-persona]="persona.id" type="button" role="tab" [id]="'persona-tab-' + persona.id"
-                [attr.aria-selected]="selectedPersonaId === persona.id" aria-controls="persona-board"
-                [attr.tabindex]="selectedPersonaId === persona.id ? 0 : -1" (click)="selectPersona(persona)"
-                (keydown)="onPersonaKeydown($event, personaIndex)">
-                <span class="persona-icon" aria-hidden="true"><app-icon [icon]="persona.icon" size="md" /></span>
-                <span class="persona-tab-copy"><small>{{ persona.shortLabel }}</small><strong>{{ persona.label
-                        }}</strong></span>
-                <span class="persona-check" aria-hidden="true"><app-icon [icon]="LucideCheck" size="xs" /></span>
-            </button>
-            }
-        </div>
-
-        <div id="persona-board" class="persona-board" role="tabpanel"
-            [attr.aria-labelledby]="'persona-tab-' + selectedPersonaId">
-            <div class="board-pin board-pin-left" aria-hidden="true"></div>
-            <div class="board-pin board-pin-right" aria-hidden="true"></div>
-
-            <header class="board-header">
-                <div class="board-owner">
-                    <app-avatar [name]="activePersona.avatarName" [initials]="activePersona.avatarInitials" size="lg"
-                        [tone]="activePersona.avatarTone" status="online" [elevated]="true" />
-                    <span>
-                        <app-label [text]="activePersona.context" [variant]="activePersona.labelVariant"
-                            appearance="plain" size="xs" weight="bold" />
-                        <strong>{{ activePersona.avatarName }}’s board</strong>
-                    </span>
-                </div>
-
-                <div class="board-status">
-                    <span aria-hidden="true"></span>
-                    Live example
-                </div>
-            </header>
-
-            <div class="board-content">
-                <app-sticky-card class="main-persona-note" [variant]="activePersona.noteVariant" appearance="flat"
-                    shape="note" size="md" [fullWidth]="true" [minHeight]="390" [padding]="25" [hoverable]="true"
-                    [eyebrow]="activePersona.context.toUpperCase()" [cardTitle]="activePersona.title">
-                    <p class="persona-description">{{ activePersona.description }}</p>
-
-                    <div class="persona-task-list" [attr.aria-label]="activePersona.label + ' example tasks'">
-                        @for (task of activePersona.tasks; track task.label; let taskIndex = $index) {
-                        <app-checkbox [inputId]="'persona-task-' + selectedPersonaId + '-' + taskIndex"
-                            [label]="task.label" [description]="task.description || ''"
-                            [variant]="activePersona.checkboxVariant" size="sm" [checked]="taskChecks[taskIndex]"
-                            (checkedChange)="updateTask(taskIndex, $event)" />
-                        }
-                    </div>
-
-                    <div card-footer class="main-note-footer">
-                        <span>
-                            <app-icon [icon]="LucideCalendarDays" size="xs" />
-                            {{ completedTaskCount }} of {{ activePersona.tasks.length }} moving
-                        </span>
-                        <app-badge [label]="activePersona.shortLabel" [variant]="activePersona.labelVariant" size="xs"
-                            shape="pill" />
-                    </div>
-                </app-sticky-card>
-
-                <aside class="side-notes" aria-label="Supporting notes">
-                    <article class="small-note reminder-note">
-                        <app-label [text]="activePersona.sideNoteTitle" variant="notePink" appearance="tape" size="xs"
-                            weight="bold" />
-                        <p>{{ activePersona.sideNoteText }}</p>
-                        <span><app-icon [icon]="LucideClock3" size="xs" /> Keep close</span>
-                    </article>
-
-                    <article class="small-note outcome-note">
-                        <span class="outcome-check"><app-icon [icon]="LucideCheck" size="sm" /></span>
-                        <app-label text="WHAT CHANGES" variant="noteGreen" appearance="plain" size="xs" weight="bold" />
-                        <p>{{ activePersona.outcome }}</p>
-                    </article>
-
-                    <article class="quote-note">
-                        <app-avatar [name]="activePersona.avatarName" [initials]="activePersona.avatarInitials"
-                            size="sm" [tone]="activePersona.avatarTone" />
-                        <blockquote>“{{ activePersona.quote }}”</blockquote>
-                    </article>
-                </aside>
-            </div>
-        </div>
-
-        <footer class="section-footer">
-            <div>
-                <span class="footer-spark"><app-icon [icon]="LucideSparkles" size="sm" /></span>
-                <span><strong>Same simple workspace.</strong><small>Shaped around the life you already
-                        have.</small></span>
-            </div>
-
-            <app-button [label]="'Start as ' + activePersona.label" variant="primary" size="lg" [hasIcon]="true"
-                iconPosition="right" (buttonClick)="startForSelectedPersona()">
-                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-            </app-button>
-        </footer>
+  <div class="use-cases-shell">
+    <header class="section-heading">
+      <span class="section-eyebrow">YOUR WORKSPACE, YOUR WAY</span>
+      <h2 id="use-cases-title">
+        For everything on your mind.<br /><span>And every kind of day.</span>
+      </h2>
+      <p>
+        Study plans, creative projects, work priorities, or the everyday details. Find a little more
+        clarity, wherever you need it.
+      </p>
+    </header>
+    <div class="persona-tabs" role="tablist" aria-label="Choose a user type">
+      @for (persona of personas; track persona.id; let personaIndex = $index) {
+        <button
+          class="persona-tab"
+          [class.is-active]="selectedPersonaId === persona.id"
+          [attr.data-persona]="persona.id"
+          type="button"
+          role="tab"
+          [id]="'persona-tab-' + persona.id"
+          [attr.aria-selected]="selectedPersonaId === persona.id"
+          aria-controls="persona-board"
+          [attr.tabindex]="selectedPersonaId === persona.id ? 0 : -1"
+          (click)="selectPersona(persona)"
+          (keydown)="onPersonaKeydown($event, personaIndex)"
+        >
+          <span class="persona-icon" aria-hidden="true"
+            ><app-icon [icon]="persona.icon" size="md"
+          /></span>
+          <span class="persona-tab-copy"
+            ><small>{{ persona.shortLabel }}</small
+            ><strong>{{ persona.label }}</strong></span
+          >
+          <span class="persona-check" aria-hidden="true"
+            ><app-icon [icon]="LucideCheck" size="xs"
+          /></span>
+        </button>
+      }
     </div>
+
+    <div
+      id="persona-board"
+      class="persona-board"
+      role="tabpanel"
+      tabindex="0"
+      [attr.aria-labelledby]="'persona-tab-' + selectedPersonaId"
+    >
+      <header class="board-header">
+        <div class="board-owner">
+          <app-avatar
+            [name]="activePersona.avatarName"
+            [initials]="activePersona.avatarInitials"
+            size="lg"
+            [tone]="activePersona.avatarTone"
+            [elevated]="true"
+          />
+          <span>
+            <app-label
+              [text]="activePersona.context"
+              [variant]="activePersona.labelVariant"
+              appearance="plain"
+              size="xs"
+              weight="bold"
+            />
+            <strong>{{ activePersona.avatarName }}&#8217;s board</strong>
+          </span>
+        </div>
+
+        <div class="board-status">
+          <span aria-hidden="true"></span>
+          Example workspace
+        </div>
+      </header>
+
+      <div class="board-content">
+        <app-sticky-card
+          class="main-persona-note"
+          [variant]="activePersona.noteVariant"
+          appearance="flat"
+          shape="note"
+          size="md"
+          [fullWidth]="true"
+          [minHeight]="390"
+          [padding]="25"
+          [hoverable]="true"
+          [eyebrow]="activePersona.context.toUpperCase()"
+          [cardTitle]="activePersona.title"
+        >
+          <p class="persona-description">{{ activePersona.description }}</p>
+
+          <div class="persona-task-list" [attr.aria-label]="activePersona.label + ' example tasks'">
+            @for (task of activePersona.tasks; track task.label; let taskIndex = $index) {
+              <app-checkbox
+                [inputId]="'persona-task-' + selectedPersonaId + '-' + taskIndex"
+                [label]="task.label"
+                [description]="task.description || ''"
+                [variant]="activePersona.checkboxVariant"
+                size="sm"
+                [checked]="taskChecks[taskIndex]"
+                (checkedChange)="updateTask(taskIndex, $event)"
+              />
+            }
+          </div>
+
+          <div card-footer class="main-note-footer">
+            <span>
+              <app-icon [icon]="LucideCalendarDays" size="xs" />
+              {{ completedTaskCount }} of {{ activePersona.tasks.length }} complete
+            </span>
+            <app-badge
+              [label]="activePersona.shortLabel"
+              [variant]="activePersona.labelVariant"
+              size="xs"
+              shape="pill"
+            />
+          </div>
+        </app-sticky-card>
+
+        <aside class="side-notes" aria-label="Supporting notes">
+          <article class="small-note reminder-note">
+            <app-label
+              [text]="activePersona.sideNoteTitle"
+              variant="notePink"
+              appearance="plain"
+              size="xs"
+              weight="bold"
+            />
+            <p>{{ activePersona.sideNoteText }}</p>
+            <span><app-icon [icon]="LucideClock3" size="xs" /> Keep close</span>
+          </article>
+
+          <article class="small-note outcome-note">
+            <span class="outcome-check"><app-icon [icon]="LucideCheck" size="sm" /></span>
+            <app-label
+              text="WHAT CHANGES"
+              variant="noteGreen"
+              appearance="plain"
+              size="xs"
+              weight="bold"
+            />
+            <p>{{ activePersona.outcome }}</p>
+          </article>
+
+          <article class="progress-note">
+            <div>
+              <span>Small steps, real progress</span
+              ><strong>{{ completedTaskCount }}/{{ activePersona.tasks.length }}</strong>
+            </div>
+            <div
+              class="task-progress"
+              role="progressbar"
+              aria-label="Example tasks completed"
+              [attr.aria-valuenow]="completedTaskCount"
+              aria-valuemin="0"
+              [attr.aria-valuemax]="activePersona.tasks.length"
+            >
+              <span
+                [style.width.%]="(completedTaskCount / activePersona.tasks.length) * 100"
+              ></span>
+            </div>
+            <p>Try checking off a task in this example.</p>
+          </article>
+        </aside>
+      </div>
+    </div>
+
+    <footer class="section-footer">
+      <div>
+        <span class="footer-spark"><app-icon [icon]="LucideSparkles" size="sm" /></span>
+        <span
+          ><strong>Same simple workspace.</strong
+          ><small>Shaped around the life you already have.</small></span
+        >
+      </div>
+
+      <app-button
+        label="Make space for your ideas"
+        variant="primary"
+        size="md"
+        [hasIcon]="true"
+        iconPosition="right"
+        (buttonClick)="startForSelectedPersona()"
+      >
+        <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
+      </app-button>
+    </footer>
+  </div>
 </section>
