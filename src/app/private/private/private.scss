@@ -6,7 +6,8 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  --app-sidebar-width: 248px;
+  --app-sidebar-width: 260px;
+  --app-sidebar-collapsed-width: 76px;
 }
 
 .skip-link {
@@ -101,7 +102,28 @@ app-topbar {
   display: none;
 }
 
+.mobile-navigation-bar {
+  display: none;
+}
+
 @media (max-width: 1023.98px) {
+  .mobile-navigation-bar {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 12px;
+    min-height: 58px;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    background: #fcfaf6;
+    border-bottom: 1px solid #eeeae2;
+
+    img {
+      width: 116px;
+      height: auto;
+    }
+  }
+
   .shell-sidebar,
   .sidebar-collapsed > .shell-sidebar {
     position: fixed;

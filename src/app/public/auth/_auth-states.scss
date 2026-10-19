@@ -1,0 +1,78 @@
+@use './auth-layout';
+
+// Shared presentation for recovery and invitation feedback states.
+.story-note {
+  padding: clamp(17px, 1.6vw, 28px);
+}
+.auth-description {
+  margin: 0;
+  color: #637089;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.auth-title {
+  overflow-wrap: anywhere;
+}
+.form-alert,
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid #f5cdc6;
+  border-radius: 12px;
+  background: #fff3f0;
+  color: #a52d21;
+  font-size: 13px;
+  line-height: 1.4;
+  app-icon {
+    flex: 0 0 auto;
+  }
+}
+.form-error {
+  margin-bottom: 12px;
+}
+.state-icon,
+.success-note-icon {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  color: #9a650c;
+  background: #fff1ba;
+}
+.state-icon-success,
+.success-note-icon {
+  color: #226746;
+  background: #d9f8e5;
+}
+.state-icon-error {
+  color: #a52d21;
+  background: #ffe8e2;
+}
+.invitation-state > .auth-description {
+  margin: 12px 0 20px;
+}
+.state-actions {
+  display: grid;
+  gap: 12px;
+}
+@media (max-width: 1199px), (max-height: 800px) {
+  .story-note {
+    padding: 16px 14px;
+  }
+}
+@media (max-height: 680px) {
+  .story-note {
+    padding: 14px;
+  }
+  .state-icon,
+  .success-note-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 12px;
+  }
+}

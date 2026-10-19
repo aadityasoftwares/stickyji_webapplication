@@ -4,12 +4,14 @@
   [class.mobile-sidebar-open]="mobileSidebarOpen()"
 >
   <app-sidebar
+    id="app-sidebar"
     class="shell-sidebar"
     [collapsed]="sidebarCollapsed()"
     [mobileOpen]="mobileSidebarOpen()"
     [workspaceId]="activeWorkspaceId()"
     [workspaces]="sidebarWorkspaces()"
     [loadingWorkspaces]="loadingWorkspaces()"
+    [loggingOut]="loggingOut()"
     (collapsedChange)="setSidebarCollapsed($event)"
     (mobileClosed)="closeMobileSidebar()"
     (workspaceChange)="onWorkspaceChange($event)"
@@ -26,6 +28,20 @@
   ></button>
 
   <section class="shell-main">
+    <header class="mobile-navigation-bar">
+      <app-button
+        #mobileMenuButton
+        variant="ghost"
+        size="sm"
+        [iconOnly]="true"
+        [icon]="LucideMenu"
+        ariaLabel="Open navigation"
+        ariaControls="app-sidebar"
+        [ariaExpanded]="mobileSidebarOpen()"
+        (buttonClick)="openMobileSidebar()"
+      />
+      <img src="StickyJiHorizontalLogo.png" alt="Sticky Ji" />
+    </header>
     <main id="main-content" class="app-content" tabindex="-1">
       <router-outlet />
     </main>

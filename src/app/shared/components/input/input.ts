@@ -48,6 +48,7 @@ export type InputVariant =
   | 'paper'
   | 'glass'
   | 'dark'
+  | 'auth'
   | 'noteYellow'
   | 'noteOrange'
   | 'notePink'

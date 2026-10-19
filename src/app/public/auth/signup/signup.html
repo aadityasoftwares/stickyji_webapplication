@@ -1,8 +1,15 @@
-<main id="signup-main" class="sign-up-page">
-  <section class="auth-layout" aria-labelledby="sign-up-title">
-    <aside class="story-panel" aria-label="Create a calmer home for your ideas">
-      <div class="story-grid" aria-hidden="true"></div>
+<main id="signup-main" class="auth-page">
+  <!-- Subtle organic background waves and glows -->
+  <div class="bg-shape bg-shape-top-left" aria-hidden="true"></div>
+  <div class="bg-shape bg-shape-bottom-wave" aria-hidden="true"></div>
+  <div class="confetti confetti-top" aria-hidden="true"></div>
+  <div class="confetti confetti-bottom" aria-hidden="true"></div>
 
+  <section class="auth-layout" aria-labelledby="sign-up-title">
+    <!-- ========================================================
+         Left Showcase Panel
+         ======================================================== -->
+    <aside class="story-panel" aria-label="A calmer home for your thoughts">
       <header class="story-topbar">
         <a class="brand-link" [routerLink]="brandHref" [attr.aria-label]="brandName + ' home'">
           @if (logoSrc) {
@@ -13,334 +20,491 @@
               <span></span>
               <span></span>
             </span>
-
             <strong>{{ brandName }}</strong>
           }
         </a>
 
-        <app-badge
-          label="Free to start"
-          variant="noteYellow"
-          size="sm"
-          shape="pill"
-          [icon]="LucideSparkles"
-          role="status"
-        />
+        <!-- Welcome back pill badge with doodle rays -->
+        <div class="welcome-pill-wrapper">
+          <svg
+            class="pill-doodle"
+            width="18"
+            height="16"
+            viewBox="0 0 18 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M11 2L17 7M17 2L13 6"
+              stroke="#F59E0B"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <div class="ideas-doodle" aria-hidden="true">
+            <span>Your next idea<br />starts here</span>
+            <svg width="66" height="44" viewBox="0 0 66 44" fill="none">
+              <path
+                d="M4 27C26 45 39 14 20 22C10 30 47 39 58 6M46 11L59 5L62 19"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
       </header>
 
       <div class="story-content">
-        <span class="handwritten-kicker"> Your digital desk </span>
+        <!-- Main Headline with orange doodle rays -->
+        <div class="headline-container">
+          <svg
+            class="headline-ray-left"
+            width="28"
+            height="32"
+            viewBox="0 0 28 32"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M22 6L4 2M24 16L2 14M22 26L6 28"
+              stroke="#F59E0B"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            />
+          </svg>
 
-        <h2>
-          Think clearly.
-          <span>Create freely.</span>
-        </h2>
+          <h2 class="story-headline">
+            A little space to
+            <span class="highlight-phrase">think big.</span>
+          </h2>
+
+          <svg
+            class="headline-ray-right"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 18L18 8M6 22L20 14"
+              stroke="#F59E0B"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
 
         <p class="story-description">
-          The tactile, visual workspace for your notes, plans, and next steps.
+          Keep your notes, plans, and bright ideas together. Create your free workspace and make
+          room for what matters.
         </p>
 
-        <div class="thought-flow" aria-label="Preview of sticky notes in your workspace">
+        <!-- Three Mini Sticky Notes Showcase -->
+        <div class="cards-showcase" aria-label="A preview of your new workspace">
           <app-sticky-card
-            class="thought-note thought-note-yellow"
+            class="mini-note-wrap mini-note-wrap-yellow"
             variant="noteYellow"
             appearance="flat"
-            shape="note"
-            size="sm"
+            shape="rounded"
             shadow="sm"
+            [radius]="20"
+            [padding]="0"
+            [minHeight]="0"
+            [bodyFlush]="true"
             [fullWidth]="true"
-            [minHeight]="110"
-            [padding]="14"
-            eyebrow="FOCUS"
-            cardTitle="Today's Priorities"
           >
-            <app-icon card-icon [icon]="LucideSparkles" size="sm" />
-
-            <p>Keep what matters top of mind.</p>
+            <div class="signup-note">
+              <div class="mini-note-head">
+                <div class="mini-icon-badge" aria-hidden="true">
+                  <app-icon [icon]="LucideCheckCircle2" size="sm" />
+                </div>
+                <h3 class="mini-title">Focus on<br />what matters</h3>
+              </div>
+              <div class="mini-note-body"><p>Turn your plans into small, clear steps.</p></div>
+            </div>
           </app-sticky-card>
-
           <app-sticky-card
-            class="thought-note thought-note-pink"
+            class="mini-note-wrap mini-note-wrap-pink"
             variant="notePink"
             appearance="flat"
-            shape="note"
-            size="sm"
+            shape="rounded"
             shadow="sm"
+            [radius]="20"
+            [padding]="0"
+            [minHeight]="0"
+            [bodyFlush]="true"
             [fullWidth]="true"
-            [minHeight]="110"
-            [padding]="14"
-            eyebrow="CAPTURE"
-            cardTitle="Instant Thoughts"
           >
-            <app-icon card-icon [icon]="LucideLightbulb" size="sm" />
-
-            <p>Collect ideas before they slip away.</p>
+            <div class="signup-note">
+              <div class="mini-note-head">
+                <div class="mini-icon-badge" aria-hidden="true">
+                  <app-icon [icon]="LucideLightbulb" size="sm" />
+                </div>
+                <h3 class="mini-title">Capture<br />fresh thoughts</h3>
+              </div>
+              <div class="mini-note-body"><p>A home for every spark of inspiration.</p></div>
+            </div>
           </app-sticky-card>
-
           <app-sticky-card
-            class="thought-note thought-note-green"
+            class="mini-note-wrap mini-note-wrap-green"
             variant="noteGreen"
             appearance="flat"
-            shape="note"
-            size="sm"
+            shape="rounded"
             shadow="sm"
+            [radius]="20"
+            [padding]="0"
+            [minHeight]="0"
+            [bodyFlush]="true"
             [fullWidth]="true"
-            [minHeight]="110"
-            [padding]="14"
-            eyebrow="PROGRESS"
-            cardTitle="Clear & Calmer"
           >
-            <app-icon card-icon [icon]="LucideCheckCircle2" size="sm" />
-
-            <p>Less clutter, more momentum.</p>
+            <div class="signup-note">
+              <div class="mini-note-head">
+                <div class="mini-icon-badge" aria-hidden="true">
+                  <app-icon [icon]="LucideSparkles" size="sm" />
+                </div>
+                <h3 class="mini-title">Feel organised<br />and calmer</h3>
+              </div>
+              <div class="mini-note-body"><p>Less mental clutter. More room to create.</p></div>
+            </div>
           </app-sticky-card>
+        </div>
+
+        <!-- Handwriting Quote with brush highlighter & heart -->
+        <div class="story-quote" aria-hidden="true">
+          <div class="quote-inner">
+            <span class="quote-text">A clearer mind, every day.</span>
+            <span class="quote-heart">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#292524"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"
+                />
+              </svg>
+            </span>
+            <svg
+              class="quote-brush"
+              width="140"
+              height="10"
+              viewBox="0 0 140 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 6.5C38 3 92 4 137 7.5"
+                stroke="#FDE047"
+                stroke-width="4.5"
+                stroke-linecap="round"
+                stroke-opacity="0.85"
+              />
+            </svg>
+          </div>
         </div>
       </div>
 
+      <div class="plan-doodle" aria-hidden="true">
+        <svg width="76" height="35" viewBox="0 0 76 35" fill="none">
+          <path
+            d="M3 29C20 6 48 7 69 23M65 12L70 24L57 23"
+            stroke="currentColor"
+            stroke-width="2.3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span>Plan<br />Organize<br />Get things done ♡</span>
+      </div>
+
+      <svg class="sticky-mascot" viewBox="0 0 270 260" fill="none" aria-hidden="true">
+        <path
+          d="M199 27L195 4M212 30L221 9M227 40L243 27"
+          stroke="#ff9500"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+        <g transform="rotate(-18 135 150)">
+          <rect x="33" y="88" width="175" height="153" rx="17" fill="#f7ce63" opacity=".4" />
+          <rect x="45" y="76" width="175" height="153" rx="13" fill="#ffab8c" />
+          <path d="M45 201Q125 227 220 208V218Q220 230 208 230H58Q45 230 45 217Z" fill="#f58e77" />
+          <rect x="65" y="57" width="175" height="153" rx="13" fill="#ffca42" />
+          <path
+            d="M78 49H222Q239 49 239 65V187Q156 211 79 199Q66 197 66 184V65Q66 49 78 49Z"
+            fill="#ffe976"
+          />
+          <path d="M207 49H224Q239 49 239 66V78Q217 74 207 49Z" fill="#fff5b8" />
+          <ellipse cx="121" cy="115" rx="4.5" ry="7" fill="#161b28" />
+          <ellipse cx="174" cy="115" rx="4.5" ry="7" fill="#161b28" />
+          <ellipse cx="103" cy="131" rx="9" ry="5.5" fill="#ff9b24" />
+          <ellipse cx="192" cy="131" rx="9" ry="5.5" fill="#ff9b24" />
+          <path
+            d="M134 132Q147 151 162 132"
+            stroke="#161b28"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </g>
+      </svg>
+
+      <!-- Trust Pillars Footer -->
       <footer class="story-footer">
-        <span>
-          <app-icon [icon]="LucideShieldCheck" size="xs" />
-          Private by default
-        </span>
+        <div class="trust-item">
+          <app-icon [icon]="LucideShieldCheck" size="sm" class="trust-icon" />
+          <div class="trust-text">
+            <strong>Private by default</strong>
+            <span>Your data stays yours.</span>
+          </div>
+        </div>
 
-        <span>
-          <app-icon [icon]="LucideClock3" size="xs" />
-          Setup in 30 seconds
-        </span>
+        <div class="trust-divider" aria-hidden="true"></div>
 
-        <span>
-          <app-icon [icon]="LucideSparkles" size="xs" />
-          Free forever
-        </span>
+        <div class="trust-item">
+          <app-icon [icon]="LucideClock3" size="sm" class="trust-icon" />
+          <div class="trust-text">
+            <strong>Ready in moments</strong>
+            <span>A fresh start in a few clicks.</span>
+          </div>
+        </div>
+
+        <div class="trust-divider" aria-hidden="true"></div>
+
+        <div class="trust-item">
+          <app-icon [icon]="LucideSparkles" size="sm" class="trust-icon" />
+          <div class="trust-text">
+            <strong>Free forever</strong>
+            <span>All the essentials, always.</span>
+          </div>
+        </div>
       </footer>
     </aside>
 
-    <section class="form-panel">
-      <header class="form-topbar">
-        <a class="back-home" [routerLink]="brandHref">
-          <app-icon [icon]="LucideArrowLeft" size="xs" />
-          <span>Back to home</span>
-        </a>
-
-        <div class="signin-shortcut">
-          <span>Already have an account?</span>
-          <app-button
-            label="Sign in"
-            variant="outline"
-            size="sm"
-            type="button"
-            [disabled]="loading()"
-            (buttonClick)="onSignIn()"
-          />
-        </div>
-      </header>
-
-      <div class="form-area">
-        <div class="form-container">
-          <header class="signup-heading">
-            <span class="signup-kicker"> Get started </span>
-
-            <h1 id="sign-up-title">Create your free workspace</h1>
-
-            <p>Free forever. No credit card required.</p>
-          </header>
-
-          <form
-            class="sign-up-form"
-            [formGroup]="signUpForm"
-            [attr.aria-busy]="loading()"
-            (ngSubmit)="submit()"
-            novalidate
-          >
-            <div class="name-fields">
-              <div class="auth-field">
-                <label class="field-label" for="sign-up-first-name"> First name </label>
-
-                <app-input
-                  inputId="sign-up-first-name"
-                  [autofocus]="true"
-                  name="firstName"
-                  type="text"
-                  label="First name"
-                  labelMode="hidden"
-                  placeholder="First name"
-                  autocomplete="given-name"
-                  variant="paper"
-                  appearance="outlined"
-                  shape="rounded"
-                  size="md"
-                  [leadingIcon]="LucideUserRound"
-                  [required]="true"
-                  [fullWidth]="true"
-                  [formControl]="firstNameControl"
-                  [status]="firstNameError ? 'danger' : 'default'"
-                  [errorText]="firstNameError"
-                />
-              </div>
-
-              <div class="auth-field">
-                <label class="field-label" for="sign-up-last-name"> Last name </label>
-
-                <app-input
-                  inputId="sign-up-last-name"
-                  name="lastName"
-                  type="text"
-                  label="Last name"
-                  labelMode="hidden"
-                  placeholder="Last name"
-                  autocomplete="family-name"
-                  variant="paper"
-                  appearance="outlined"
-                  shape="rounded"
-                  size="md"
-                  [leadingIcon]="LucideUserRound"
-                  [required]="true"
-                  [fullWidth]="true"
-                  [formControl]="lastNameControl"
-                  [status]="lastNameError ? 'danger' : 'default'"
-                  [errorText]="lastNameError"
-                />
-              </div>
-            </div>
-
-            <div class="auth-field">
-              <label class="field-label" for="sign-up-email"> Email address </label>
-
-              <app-input
-                inputId="sign-up-email"
-                name="email"
-                type="email"
-                label="Email address"
-                labelMode="hidden"
-                placeholder="you@example.com"
-                autocomplete="email"
-                variant="paper"
-                appearance="outlined"
-                shape="rounded"
-                size="md"
-                [leadingIcon]="LucideMail"
-                [required]="true"
-                [fullWidth]="true"
-                [formControl]="emailControl"
-                [status]="emailError ? 'danger' : 'default'"
-                [errorText]="emailError"
-              />
-            </div>
-
-            <div class="auth-field">
-              <div class="field-heading">
-                <label class="field-label" for="sign-up-password"> Password </label>
-
-                <span class="field-hint"> Min. 8 characters </span>
-              </div>
-
-              <app-input
-                inputId="sign-up-password"
-                name="password"
-                type="password"
-                label="Password"
-                labelMode="hidden"
-                placeholder="Create a password"
-                autocomplete="new-password"
-                variant="paper"
-                appearance="outlined"
-                shape="rounded"
-                size="md"
-                [leadingIcon]="LucideLockKeyhole"
-                [passwordToggle]="true"
-                [required]="true"
-                [fullWidth]="true"
-                [formControl]="passwordControl"
-                [status]="passwordError ? 'danger' : 'default'"
-                [errorText]="passwordError"
-              />
-            </div>
-
-            <div class="terms-block">
-              <app-checkbox
-                inputId="signup-terms"
-                label="I agree to the Terms of Service and Privacy Policy"
-                variant="primary"
-                size="sm"
-                formControlName="acceptTerms"
-              />
-
-              @if (termsError) {
-                <span class="terms-error" role="alert">
-                  {{ termsError }}
-                </span>
-              }
-            </div>
-
+    <section class="form-panel-wrapper">
+      <div class="form-card">
+        <header class="card-topbar">
+          <a class="back-home-link" [routerLink]="brandHref" aria-label="Back to home">
+            <app-icon [icon]="LucideArrowLeft" size="xs" />
+            <span>Back to home</span>
+          </a>
+          <div class="signup-shortcut">
+            <span>Already a member?</span>
             <app-button
-              class="signup-submit"
-              label="Create my workspace"
-              loadingText="Creating your workspace…"
-              variant="primary"
-              size="lg"
-              type="submit"
-              [height]="48"
-              [fullWidth]="true"
-              [hasIcon]="true"
-              iconPosition="right"
-              [loading]="loading()"
+              label="Sign in"
+              variant="outline"
+              size="sm"
+              type="button"
+              [disabled]="loading()"
+              (buttonClick)="onSignIn()"
+            />
+          </div>
+        </header>
+        <div class="card-body">
+          <div class="form-container">
+            <header class="form-heading">
+              <div class="welcome-eyebrow">
+                <span class="eyebrow-text">A fresh start</span>
+                <app-icon [icon]="LucideSparkles" size="xs" aria-hidden="true" />
+              </div>
+              <h1 id="sign-up-title" class="auth-title">Create your account</h1>
+              <p class="auth-subtitle">Free forever. No credit card required.</p>
+            </header>
+            <form
+              class="auth-form"
+              [formGroup]="signUpForm"
+              [attr.aria-busy]="loading()"
+              (ngSubmit)="submit()"
+              novalidate
             >
-              <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
-            </app-button>
+              <div class="name-fields" role="group" aria-label="Your name">
+                <div class="auth-field">
+                  <label class="field-label" for="sign-up-first-name"> First name </label>
 
-            @if (showGoogleSignUp) {
-              <app-divider
-                label="or continue with"
-                [hasLabel]="true"
-                variant="neutral"
-                spacing="xs"
-              />
+                  <app-input
+                    inputId="sign-up-first-name"
+                    [autofocus]="true"
+                    name="firstName"
+                    type="text"
+                    label="First name"
+                    labelMode="hidden"
+                    placeholder="First name"
+                    autocomplete="given-name"
+                    variant="auth"
+                    appearance="outlined"
+                    shape="rounded"
+                    [height]="44"
+                    [leadingIcon]="LucideUserRound"
+                    [required]="true"
+                    [fullWidth]="true"
+                    [formControl]="firstNameControl"
+                    [status]="firstNameError ? 'danger' : 'default'"
+                    [errorText]="firstNameError"
+                  />
+                </div>
+
+                <div class="auth-field">
+                  <label class="field-label" for="sign-up-last-name"> Last name </label>
+
+                  <app-input
+                    inputId="sign-up-last-name"
+                    name="lastName"
+                    type="text"
+                    label="Last name"
+                    labelMode="hidden"
+                    placeholder="Last name"
+                    autocomplete="family-name"
+                    variant="auth"
+                    appearance="outlined"
+                    shape="rounded"
+                    [height]="44"
+                    [leadingIcon]="LucideUserRound"
+                    [required]="true"
+                    [fullWidth]="true"
+                    [formControl]="lastNameControl"
+                    [status]="lastNameError ? 'danger' : 'default'"
+                    [errorText]="lastNameError"
+                  />
+                </div>
+              </div>
+
+              <div class="auth-field">
+                <label class="field-label" for="sign-up-email"> Email address </label>
+
+                <app-input
+                  inputId="sign-up-email"
+                  name="email"
+                  type="email"
+                  label="Email address"
+                  labelMode="hidden"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  variant="auth"
+                  appearance="outlined"
+                  shape="rounded"
+                  [height]="44"
+                  [leadingIcon]="LucideMail"
+                  [required]="true"
+                  [fullWidth]="true"
+                  [formControl]="emailControl"
+                  [status]="emailError ? 'danger' : 'default'"
+                  [errorText]="emailError"
+                />
+              </div>
+
+              <div class="auth-field">
+                <div class="field-label-row">
+                  <label class="field-label" for="sign-up-password"> Password </label>
+
+                  <span class="field-hint"> Min. 8 characters </span>
+                </div>
+
+                <app-input
+                  inputId="sign-up-password"
+                  name="password"
+                  type="password"
+                  label="Password"
+                  labelMode="hidden"
+                  placeholder="Create a password"
+                  autocomplete="new-password"
+                  variant="auth"
+                  appearance="outlined"
+                  shape="rounded"
+                  [height]="44"
+                  [leadingIcon]="LucideLockKeyhole"
+                  [passwordToggle]="true"
+                  [required]="true"
+                  [fullWidth]="true"
+                  [formControl]="passwordControl"
+                  [status]="passwordError ? 'danger' : 'default'"
+                  [errorText]="passwordError"
+                />
+              </div>
+
+              <div class="terms-block remember-row">
+                <app-checkbox
+                  inputId="signup-terms"
+                  label="I agree to the Terms of Service and Privacy Policy"
+                  variant="primary"
+                  size="sm"
+                  formControlName="acceptTerms"
+                />
+
+                @if (termsError) {
+                  <span class="terms-error" role="alert">
+                    {{ termsError }}
+                  </span>
+                }
+              </div>
 
               <app-button
-                label="Continue with Google"
-                variant="outline"
+                class="signup-submit"
+                label="Create my workspace"
+                loadingText="Creating your workspace…"
+                variant="primary"
                 size="md"
-                type="button"
-                [height]="46"
+                type="submit"
                 [fullWidth]="true"
                 [hasIcon]="true"
-                iconPosition="left"
-                [disabled]="loading()"
-                (buttonClick)="onGoogleSignUp()"
+                iconPosition="right"
+                [loading]="loading()"
               >
-                <span button-icon-left class="google-mark" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                </span>
+                <app-icon button-icon-right [icon]="LucideArrowRight" size="inherit" />
               </app-button>
-            }
-          </form>
 
-          <p class="mobile-signin">
-            Already have an account?
-            <button type="button" [disabled]="loading()" (click)="onSignIn()">Sign in</button>
-          </p>
+              @if (showGoogleSignUp) {
+                <app-divider
+                  label="or continue with"
+                  [hasLabel]="true"
+                  variant="neutral"
+                  spacing="none"
+                />
 
-          <p class="privacy-note">
-            <app-icon [icon]="LucideShieldCheck" size="xs" />
-            Encrypted & private. No credit card required.
-          </p>
+                <app-button
+                  label="Continue with Google"
+                  variant="outline"
+                  size="md"
+                  type="button"
+                  [fullWidth]="true"
+                  [hasIcon]="true"
+                  iconPosition="left"
+                  [disabled]="loading()"
+                  (buttonClick)="onGoogleSignUp()"
+                >
+                  <span button-icon-left class="google-mark" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
+                  </span>
+                </app-button>
+              }
+            </form>
+            <p class="card-privacy-note">
+              <app-icon [icon]="LucideShieldCheck" size="xs" class="privacy-icon" />
+              <span>Encrypted &amp; private. Your ideas stay yours.</span>
+            </p>
+          </div>
         </div>
       </div>
     </section>

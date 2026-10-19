@@ -1,1063 +1,250 @@
-@use '../../../styles/variables' as *;
+@use '../auth-states';
 
-:host {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  min-height: 100dvh;
+.form-heading,
+.card-topbar {
+  margin-bottom: clamp(10px, 1.8vh, 18px);
 }
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-.sign-up-page {
-  width: 100%;
-  min-width: 0;
-  min-height: 100dvh;
-  color: $text-primary;
-  background: $paper;
-}
-
-.auth-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(430px, 0.88fr);
-  width: 100%;
-  min-width: 0;
-  min-height: 100dvh;
-}
-
-/* =========================================================
-   STORY PANEL
-========================================================= */
-
-.story-panel {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  padding: clamp(24px, 2.8vw, 44px);
-  flex-direction: column;
-  background: #f7edf1;
-  border-right: 1px solid #e4d3da;
-}
-
-.story-grid {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  opacity: 0.48;
-  background-image:
-    linear-gradient(rgba(116, 72, 89, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(116, 72, 89, 0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(to bottom, #000, transparent 88%);
-}
-
-.story-panel::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  right: -100px;
-  bottom: -145px;
-  width: 360px;
-  height: 360px;
-  border: 72px solid rgba(255, 255, 255, 0.38);
-  border-radius: 50%;
-}
-
-.story-topbar,
-.brand-link,
-.story-footer,
-.story-footer span,
-.form-topbar,
-.back-home,
-.signin-shortcut,
-.field-heading,
-.privacy-note,
-.locked-email-hint,
-.form-error,
-.invitation-summary,
-.invitation-summary-main,
-.thought-note-heading,
-.join-finish-card {
-  display: flex;
-  align-items: center;
-}
-
-.story-topbar {
-  justify-content: space-between;
-  gap: 24px;
-  min-width: 0;
-}
-
-.brand-link {
-  gap: 11px;
-  min-width: 0;
-  color: inherit;
-  text-decoration: none;
-}
-
-.brand-link strong {
-  min-width: 0;
-  overflow: hidden;
-  font: 800 clamp(18px, 2vw, 21px)/1 $font-heading;
-  letter-spacing: -0.045em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.brand-logo {
-  display: block;
-  width: auto;
-  max-width: min(210px, 52vw);
-  height: 42px;
-  object-fit: contain;
-}
-
-.brand-mark {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-}
-
-.brand-mark span {
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(29, 29, 29, 0.15);
-  border-radius: 7px 7px 7px 2px;
-  box-shadow: 2px 3px 0 rgba(29, 29, 29, 0.07);
-}
-
-.brand-mark span:nth-child(1) {
-  background: $note-button-purple;
-  transform: translate(-5px, 3px) rotate(-7deg);
-}
-
-.brand-mark span:nth-child(2) {
-  background: $note-button-green;
-  transform: translate(5px, 3px) rotate(7deg);
-}
-
-.brand-mark span:nth-child(3) {
-  background: $note-button-pink;
-  transform: rotate(-1deg);
-}
-
-.story-content {
-  width: min(860px, 100%);
-  margin: auto;
-  padding-block: clamp(32px, 5vh, 58px) 28px;
-}
-
-.handwritten-kicker {
-  display: block;
-  margin-bottom: 9px;
-  color: #8f3d63;
-  font: 700 clamp(22px, 2.2vw, 30px)/1 $font-note;
-  transform: rotate(-1deg);
-}
-
-.story-content h2 {
-  max-width: 720px;
-  margin: 0;
-  font: 800 clamp(36px, 4vw, 58px)/1.02 $font-heading;
-  letter-spacing: -0.06em;
-  overflow-wrap: break-word;
-  word-break: normal;
-  hyphens: none;
-}
-
-.story-content h2 span {
-  display: block;
-  color: #76537f;
-}
-
-.story-description {
-  max-width: 600px;
-  margin: 16px 0 0;
-  color: $text-secondary;
-  font: 500 clamp(14px, 1.15vw, 17px)/1.55 $font-body;
-}
-
-/* =========================================================
-   INVITATION STORY NOTES
-   Custom internal heading prevents normal words from being
-   split by the generic StickyCard title layout.
-========================================================= */
-
-.thought-flow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr) 26px minmax(0, 1fr);
-  align-items: center;
-  gap: 0;
-  width: 100%;
-  margin-top: clamp(26px, 4vh, 40px);
-}
-
-.thought-note {
-  display: block;
-  min-width: 0;
-  height: 100%;
-}
-
-.thought-note-pink {
-  transform: rotate(-1deg);
-}
-
-.thought-note-purple {
-  transform: rotate(0.65deg) translateY(4px);
-}
-
-.thought-note-green {
-  transform: rotate(-0.55deg);
-}
-
-.thought-note-content {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  gap: 18px;
-}
-
-.thought-note-heading {
-  align-items: flex-start;
-  gap: 11px;
-  width: 100%;
-  min-width: 0;
-}
-
-.thought-note-icon {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border: 1px solid rgba(29, 29, 29, 0.1);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.38);
-  place-items: center;
-}
-
-.thought-note-heading-copy {
-  display: grid;
-  min-width: 0;
-  flex: 1;
-  gap: 5px;
-}
-
-.thought-note-eyebrow {
-  color: rgba(88, 55, 70, 0.72);
-  font: 800 11px/1.1 $font-body;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.thought-note-title {
-  display: block;
-  min-width: 0;
-  color: $text-primary;
-  font: 800 clamp(19px, 1.55vw, 25px)/1.08 $font-heading;
-  letter-spacing: -0.035em;
-
-  /* Important: do not split normal words character-by-character. */
-  word-break: normal;
-  overflow-wrap: break-word;
-  hyphens: none;
-}
-
-.thought-note p {
-  margin: 0;
-  color: rgba(29, 29, 29, 0.67);
-  font: 500 12px/1.48 $font-body;
-  word-break: normal;
-  overflow-wrap: break-word;
-  hyphens: none;
-}
-
-.flow-line {
-  position: relative;
-  width: 100%;
-  height: 1px;
-  background: rgba(72, 47, 58, 0.24);
-}
-
-.flow-line span {
-  position: absolute;
-  right: -1px;
-  top: -3px;
-  width: 7px;
-  height: 7px;
-  border-top: 1px solid rgba(72, 47, 58, 0.45);
-  border-right: 1px solid rgba(72, 47, 58, 0.45);
-  transform: rotate(45deg);
-}
-
-.invite-message-note {
-  max-width: 600px;
-  margin-top: 22px;
-  padding: 12px 14px;
-  border: 1px solid rgba(72, 47, 58, 0.12);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.invite-message-note span {
-  display: block;
-  margin-bottom: 4px;
-  color: #8f3d63;
-  font: 750 10px/1.2 $font-body;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-}
-
-.invite-message-note p {
-  margin: 0;
-  color: $text-secondary;
-  font: 600 12px/1.5 $font-body;
-  overflow-wrap: break-word;
-  word-break: normal;
-}
-
-.story-footer {
-  justify-content: space-between;
-  gap: 18px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(72, 47, 58, 0.12);
-  color: $text-secondary;
-  font: 700 11px/1.4 $font-body;
-}
-
-.story-footer span {
-  gap: 7px;
-  min-width: 0;
-}
-
-/* =========================================================
-   FORM PANEL
-========================================================= */
-
-.form-panel {
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-  padding: clamp(22px, 2.5vw, 40px);
-  flex-direction: column;
-  background: $paper;
-}
-
-.form-topbar {
-  min-height: 42px;
-  justify-content: space-between;
-  gap: 18px;
-  min-width: 0;
-}
-
-.back-home {
-  gap: 7px;
-  color: $text-secondary;
-  font: 700 13px/1 $font-body;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.back-home:hover {
-  color: $text-primary;
-}
-
-.signin-shortcut {
-  gap: 11px;
-  min-width: 0;
-  color: $text-secondary;
-  font: 600 13px/1 $font-body;
-}
-
-.form-area {
-  display: grid;
-  flex: 1;
-  min-height: 0;
-  padding-block: clamp(20px, 3.5vh, 38px);
-  place-items: center;
-}
-
-.form-container {
-  width: min(460px, 100%);
-  min-width: 0;
-}
-
-.signup-heading {
-  margin-bottom: 18px;
-}
-
-.signup-kicker {
-  display: inline-block;
-  color: #8f3d63;
-  font: 700 clamp(23px, 2vw, 29px)/1 $font-note;
-  transform: rotate(-1.2deg);
-}
-
-.signup-heading h1,
-.invitation-state h1 {
-  margin: 7px 0;
-  font: 800 clamp(30px, 2.65vw, 41px)/1.06 $font-heading;
-  letter-spacing: -0.05em;
-  word-break: normal;
-  overflow-wrap: break-word;
-  hyphens: none;
-}
-
-.signup-heading p,
-.invitation-state > p {
-  margin: 0;
-  color: $text-secondary;
-  font: 500 14px/1.55 $font-body;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
-.invitation-summary {
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
-  margin-bottom: 14px;
-  padding: 10px 11px;
-  border: 1px solid #e4d3da;
-  border-radius: 10px;
-  background: rgba(247, 237, 241, 0.65);
-}
-
-.invitation-summary-main {
-  min-width: 0;
-  gap: 9px;
-  flex: 1;
-}
-
-.invitation-summary-icon {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  color: #76537f;
-  border: 1px solid rgba(118, 83, 127, 0.14);
-  border-radius: 8px;
-  background: rgba($note-button-purple, 0.22);
-  place-items: center;
-}
-
-.invitation-summary-main > div {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-}
-
-.invitation-summary-main span {
-  color: $text-light;
-  font: 650 10px/1.2 $font-body;
-}
-
-.invitation-summary-main strong {
-  overflow: hidden;
-  min-width: 0;
-  color: $text-primary;
-  font: 750 12px/1.3 $font-body;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.form-error {
-  align-items: flex-start;
-  gap: 7px;
-  margin-bottom: 12px;
-  padding: 9px 10px;
-  color: $danger;
-  border: 1px solid rgba($danger, 0.18);
-  border-radius: 8px;
-  background: rgba($danger, 0.05);
-  font: 650 11px/1.4 $font-body;
-}
-
-.form-error span {
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-.sign-up-form {
-  display: grid;
-  gap: 12px;
-}
-
-.auth-field {
-  display: grid;
-  min-width: 0;
-  gap: 8px;
-}
-
-.auth-field app-input {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-.field-heading {
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.field-label {
-  color: $text-primary;
-  font: 750 13px/1 $font-body;
+.auth-form {
+  gap: clamp(7px, 1.3vh, 12px);
 }
-
-.field-hint {
-  color: $text-light;
-  font: 650 11px/1 $font-body;
-  text-align: right;
-}
-
-.locked-email-hint {
-  align-items: flex-start;
-  gap: 5px;
-  color: $text-light;
-  font: 600 10px/1.4 $font-body;
-}
-
-.locked-email-hint app-icon {
-  flex: 0 0 auto;
-}
-
-.terms-block {
-  display: grid;
-  gap: 5px;
-}
-
-.terms-error {
-  color: $danger;
-  font: 650 11px/1.35 $font-body;
-}
-
-.signup-submit {
-  display: block;
-  margin-top: 2px;
-  transform: rotate(-0.2deg);
-}
-
-.privacy-note {
-  justify-content: center;
-  gap: 7px;
-  margin: 14px 0 0;
-  color: $text-light;
-  text-align: center;
-  font: 600 11px/1.4 $font-body;
-}
-
-.privacy-note app-icon {
-  flex: 0 0 auto;
-}
-
-.mobile-signin {
-  display: none;
-}
-
 .name-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
   gap: 12px;
-  width: 100%;
-}
-
-.name-fields .auth-field,
-.name-fields app-input {
   min-width: 0;
-  width: 100%;
 }
-
-/* =========================================================
-   STATES
-========================================================= */
-
-.invitation-state {
+.auth-field {
+  min-width: 0;
+}
+.field-hint {
+  color: #637089;
+  font-size: 11px;
+  text-align: right;
+}
+.terms-block {
   display: grid;
-  justify-items: center;
-  width: 100%;
-  padding: 20px 0;
-  text-align: center;
+  gap: 4px;
 }
-
-.state-icon {
-  display: grid;
-  width: 58px;
-  height: 58px;
-  margin-bottom: 14px;
-  border-radius: 15px;
-  place-items: center;
+.terms-error {
+  color: #a52d21;
+  font-size: 12px;
 }
-
-.state-icon-loading {
-  color: #76537f;
-  border: 1px solid rgba(118, 83, 127, 0.14);
-  background: rgba($note-button-purple, 0.2);
-}
-
-.state-icon-error {
-  color: $danger;
-  border: 1px solid rgba($danger, 0.16);
-  background: rgba($danger, 0.06);
-}
-
-.state-icon-success {
-  color: #4b7447;
-  border: 1px solid rgba(75, 116, 71, 0.16);
-  background: rgba($note-button-green, 0.25);
-}
-
-.state-actions {
+.invitation-summary {
   display: flex;
-  justify-content: center;
-  gap: 9px;
-  margin-top: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #ece3c9;
+  border-radius: 14px;
+  background: #fffbef;
+  app-badge {
+    flex: 0 1 auto;
+    max-width: 45%;
+  }
 }
-
+.invitation-summary-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.invitation-summary-icon {
+  flex: 0 0 auto;
+  color: #ad7819;
+}
+.invitation-summary-main > div {
+  min-width: 0;
+}
+.invitation-summary-main span,
+.accepted-summary span,
+.join-finish-kicker {
+  display: block;
+  color: #637089;
+  font-size: 11px;
+}
+.invitation-summary-main strong {
+  display: block;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.invitation-meta {
+  margin: 4px 0 10px;
+  color: #637089;
+  font-size: 11px;
+}
+.invitation-message {
+  margin: 0 0 10px;
+  color: #49566d;
+  font-size: 12px;
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  summary:focus-visible {
+    outline: 2px solid #ecaa34;
+    outline-offset: 3px;
+  }
+  p {
+    margin: 8px 0 0;
+    padding: 10px;
+    border-radius: 10px;
+    background: #fff7df;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
 .accepted-summary {
   display: grid;
-  width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin: 20px 0 14px;
+  gap: 16px;
+  margin: 18px 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f0fbf4;
+  strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
 }
-
-.accepted-summary > div {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-  padding: 10px 11px;
-  text-align: left;
-  border: 1px solid #e4d3da;
-  border-radius: 9px;
-  background: rgba(247, 237, 241, 0.5);
-}
-
-.accepted-summary span {
-  color: $text-light;
-  font: 650 9px/1.2 $font-body;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-}
-
-.accepted-summary strong {
-  min-width: 0;
-  color: $text-primary;
-  font: 750 12px/1.35 $font-body;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
-/* =========================================================
-   POST-AUTH JOIN RETRY
-========================================================= */
-
 .join-finish-card {
-  align-items: flex-start;
+  display: flex;
   gap: 12px;
-  margin-top: 2px;
-  padding: 14px;
-  border: 1px solid rgba(75, 116, 71, 0.18);
-  border-radius: 12px;
-  background: rgba($note-button-green, 0.15);
+  padding: 16px;
+  border-radius: 14px;
+  background: #f0fbf4;
+  &.has-error {
+    background: #fff3f0;
+  }
 }
-
-.join-finish-card.has-error {
-  border-color: rgba($danger, 0.18);
-  background: rgba($danger, 0.045);
-}
-
 .join-finish-icon {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  color: #4b7447;
-  border: 1px solid rgba(75, 116, 71, 0.16);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.52);
-  place-items: center;
+  flex: 0 0 auto;
+  color: #226746;
 }
-
-.join-finish-card.has-error .join-finish-icon {
-  color: $danger;
-  border-color: rgba($danger, 0.14);
-}
-
-.join-finish-icon.is-loading {
-  color: #76537f;
-}
-
 .join-finish-copy {
-  display: grid;
   min-width: 0;
-  gap: 3px;
-  flex: 1;
+  strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  p {
+    margin: 6px 0 0;
+    color: #637089;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
 }
-
-.join-finish-kicker {
-  color: $text-light;
-  font: 700 9px/1.2 $font-body;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
-}
-
-.join-finish-copy strong {
-  min-width: 0;
-  overflow: hidden;
-  color: $text-primary;
-  font: 750 12px/1.35 $font-body;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.join-finish-copy p {
-  margin: 3px 0 0;
-  color: $text-secondary;
-  font: 600 11px/1.45 $font-body;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
 .retry-join-button {
   margin-top: 12px;
 }
-
-/* =========================================================
-   RESPONSIVE: LARGE / MEDIUM DESKTOP
-========================================================= */
-
-@media (min-width: 1440px) {
-  .auth-layout {
-    grid-template-columns: minmax(0, 1.18fr) minmax(450px, 0.82fr);
-  }
-
-  .story-content {
-    width: min(900px, 100%);
+.signin-alternative {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 10px 0 0;
+  color: #637089;
+  font-size: 12px;
+}
+@media (max-width: 900px) {
+  .form-card {
+    max-height: 740px;
   }
 }
-
-@media (max-width: 1180px) and (min-width: 861px) {
-  .auth-layout {
-    grid-template-columns: minmax(0, 0.98fr) minmax(440px, 1.02fr);
+@media (max-width: 480px) {
+  .form-card {
+    padding-inline: 16px;
   }
-
-  .story-panel {
-    padding: 28px;
-  }
-
-  .story-content {
-    width: min(520px, 100%);
-    padding-block: 28px 22px;
-  }
-
-  .story-content h2 {
-    font-size: clamp(34px, 4.1vw, 47px);
-  }
-
-  .story-description {
-    max-width: 500px;
-  }
-
-  /* Stack the notes before they become narrow enough to split words. */
-  .thought-flow {
-    grid-template-columns: 1fr;
-    gap: 11px;
-    width: min(430px, 100%);
-    margin-top: 24px;
-  }
-
-  .flow-line {
-    display: none;
-  }
-
-  .thought-note {
-    height: auto;
-    transform: none;
-  }
-
-  .thought-note-content {
-    gap: 12px;
-  }
-
-  .thought-note-heading {
-    align-items: center;
-  }
-
-  .thought-note-title {
-    font-size: 21px;
-  }
-
-  .story-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 7px;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE: TABLET / MOBILE
-========================================================= */
-
-@media (max-width: 860px) {
-  .auth-layout {
-    grid-template-columns: 1fr;
-    min-height: 100dvh;
-  }
-
-  .story-panel {
-    min-height: auto;
-    padding: 18px clamp(18px, 4vw, 28px);
-    border-right: 0;
-    border-bottom: 1px solid #e4d3da;
-  }
-
-  .story-grid,
-  .story-panel::after,
-  .story-content,
-  .story-footer {
-    display: none;
-  }
-
-  .story-topbar {
-    min-height: 42px;
-  }
-
-  .story-topbar app-badge {
-    display: inline-flex;
-  }
-
-  .form-panel {
-    min-height: calc(100dvh - 79px);
-    padding: 20px clamp(20px, 6vw, 48px) 30px;
-  }
-
-  .form-area {
-    align-items: start;
-    padding-block: clamp(26px, 4vh, 40px) 18px;
-  }
-
-  .form-container {
-    width: min(500px, 100%);
-    margin-inline: auto;
-  }
-}
-
-@media (max-width: 600px) {
-  .story-panel {
-    padding: 15px 18px;
-  }
-
-  .story-topbar app-badge,
-  .signin-shortcut,
-  .back-home span {
-    display: none;
-  }
-
-  .brand-logo {
-    max-width: 170px;
-    height: 36px;
-  }
-
-  .brand-mark {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-  }
-
-  .form-panel {
-    min-height: calc(100dvh - 65px);
-    padding: 16px 18px 24px;
-  }
-
-  .form-topbar {
-    min-height: 34px;
-    justify-content: flex-start;
-  }
-
-  .form-area {
-    padding-block: 22px 10px;
-  }
-
-  .signup-heading {
-    margin-bottom: 17px;
-  }
-
-  .signup-heading h1,
-  .invitation-state h1 {
-    font-size: clamp(28px, 8vw, 34px);
-    line-height: 1.08;
-  }
-
-  .signup-heading p,
-  .invitation-state > p {
-    font-size: 13px;
-  }
-
   .name-fields {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
-
-  .field-heading {
-    align-items: flex-start;
-    gap: 6px;
-    flex-direction: column;
+  .field-label-row {
+    gap: 4px;
   }
-
   .field-hint {
-    text-align: left;
-  }
-
-  .invitation-summary {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .invitation-summary-main {
-    width: 100%;
-  }
-
-  .state-actions {
-    display: grid;
-    width: 100%;
-    grid-template-columns: 1fr;
-  }
-
-  .state-actions app-button {
-    width: 100%;
-  }
-
-  .accepted-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .mobile-signin {
-    display: block;
-    margin: 20px 0 0;
-    text-align: center;
-    color: $text-secondary;
-    font: 600 13px/1.5 $font-body;
-  }
-
-  .mobile-signin button {
-    padding: 0;
-    color: $text-primary;
-    background: none;
-    border: 0;
-    font: inherit;
-    font-weight: 800;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
-
-  .join-finish-card {
-    padding: 12px;
+    font-size: 10px;
   }
 }
-
-@media (max-width: 380px) {
-  .form-panel {
-    padding-inline: 14px;
+@media (max-height: 800px) {
+  .welcome-eyebrow,
+  .card-privacy-note {
+    display: none;
   }
-
-  .story-panel {
-    padding-inline: 14px;
+  .form-heading,
+  .card-topbar {
+    margin-bottom: 10px;
   }
-
-  .signup-heading h1,
-  .invitation-state h1 {
-    font-size: 27px;
-  }
-
-  .signup-kicker {
-    font-size: 22px;
-  }
-
-  .privacy-note {
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .join-finish-card {
-    gap: 9px;
-  }
-
-  .join-finish-icon {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-  }
-}
-
-/* =========================================================
-   SHORT VIEWPORTS
-========================================================= */
-
-@media (max-height: 790px) and (min-width: 861px) {
-  .story-panel,
-  .form-panel {
-    overflow-y: auto;
-  }
-
-  .story-content {
-    margin-block: auto;
-    padding-block: 20px 16px;
-  }
-
-  .thought-flow {
-    margin-top: 18px;
-  }
-
-  .form-area {
-    padding-block: 14px;
-  }
-
-  .signup-heading {
-    margin-bottom: 14px;
-  }
-
-  .sign-up-form {
-    gap: 9px;
-  }
-}
-
-@media (max-height: 620px) and (min-width: 861px) {
-  .story-content h2 {
-    font-size: 34px;
-  }
-
-  .handwritten-kicker {
-    font-size: 22px;
-  }
-
-  .story-description {
-    margin-top: 10px;
-    font-size: 13px;
-  }
-
-  .thought-flow {
+  .auth-form {
     gap: 8px;
   }
-
-  .invite-message-note {
-    display: none;
+  .invitation-summary {
+    padding: 8px 10px;
+  }
+  .auth-description {
+    font-size: 13px;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition: none !important;
+@media (max-width: 900px) and (max-height: 800px) {
+  .auth-layout {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .story-topbar {
+    display: none;
+  }
+  .form-panel-wrapper {
+    grid-row: 1;
+  }
+}
+@media (max-height: 680px) {
+  .auth-form {
+    gap: 6px;
+  }
+  .invitation-summary {
+    padding-block: 6px;
+  }
+  .invitation-meta {
+    margin-bottom: 6px;
+  }
+  .invitation-message {
+    margin-bottom: 6px;
+  }
+}
+@media (min-width: 600px) and (max-height: 540px) {
+  .invitation-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 16px;
+  }
+  .name-fields {
+    grid-column: 1 / -1;
+    gap: 16px;
+  }
+  .invitation-form > .auth-field {
+    grid-column: auto;
+  }
+  .auth-field:first-child > .field-label {
+    min-height: 0;
+  }
+  .invitation-form > app-button[type='submit'] {
+    grid-row: auto;
+    grid-column: 2;
+  }
+  .terms-block,
+  .invitation-form > app-checkbox {
+    grid-column: 1;
+  }
+  .invitation-summary {
+    padding-block: 6px;
+  }
+  .invitation-meta {
+    margin-bottom: 6px;
+  }
+  .form-heading,
+  .card-topbar {
+    margin-bottom: 6px;
   }
 }

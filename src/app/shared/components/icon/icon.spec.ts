@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Icon } from './icon';
+import { LucidePlus } from '@lucide/angular';
+import { AppIcon } from './icon';
 
-describe('Icon', () => {
-  let component: Icon;
-  let fixture: ComponentFixture<Icon>;
+describe('AppIcon', () => {
+  let component: AppIcon;
+  let fixture: ComponentFixture<AppIcon>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Icon],
+      imports: [AppIcon],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Icon);
+    fixture = TestBed.createComponent(AppIcon);
     component = fixture.componentInstance;
+    component.icon = LucidePlus;
     await fixture.whenStable();
   });
 

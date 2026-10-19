@@ -2,20 +2,30 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
+  Injector,
   PLATFORM_ID,
+  ViewChild,
+  afterNextRender,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { LucideUserRound, LucideUsersRound } from '@lucide/angular';
+import { Router, RouterOutlet } from '@angular/router';
+import { LucideMenu, LucideUserRound, LucideUsersRound } from '@lucide/angular';
+import { finalize } from 'rxjs';
 
-import { Sidebar } from '../sidebar/sidebar';
+import { Sidebar, type SidebarWorkspace } from '../sidebar/sidebar';
+import { Button } from '../../shared/components/button/button';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { AppSessionStore } from '../../shared/functions/app-session.store';
+import { AuthService } from '../../public/auth/services/auth-service';
+import { AuthStore } from '../../public/auth/state/auth.store';
+import { ToastService } from '../../shared/components/toast/services/toast.service';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { STORAGE_KEYS } from '../../shared/constants/app.constants';
 import {
   getLocalStorageItem,
@@ -26,21 +36,31 @@ import {
 @Component({
   selector: 'app-private',
   standalone: true,
-  imports: [RouterOutlet, Sidebar],
+  imports: [RouterOutlet, Sidebar, Button],
   templateUrl: './private.html',
   styleUrl: './private.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Private {
+  private readonly injector = inject(Injector);
+  @ViewChild('mobileMenuButton', { read: ElementRef })
+  private mobileMenuButton?: ElementRef<HTMLElement>;
+  @ViewChild(Sidebar, { read: ElementRef }) private sidebarElement?: ElementRef<HTMLElement>;
+  readonly LucideMenu = LucideMenu;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
+  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
 
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly sidebarCollapsed = signal(false);
   readonly mobileSidebarOpen = signal(false);
+  readonly loggingOut = signal(false);
 
   readonly initializing = this.appSessionStore.initializing;
   readonly initializationError = this.appSessionStore.error;
@@ -51,7 +71,7 @@ export class Private {
 
   readonly loadingWorkspaces = this.workspaceStore.loading;
 
-  readonly sidebarWorkspaces = computed<readonly any[]>(() =>
+  readonly sidebarWorkspaces = computed<readonly SidebarWorkspace[]>(() =>
     this.workspaceStore.workspaces().map((workspace) => ({
       label: workspace.name,
       value: workspace.id,
@@ -106,8 +126,31 @@ export class Private {
     }
   }
 
+  openMobileSidebar(): void {
+    this.mobileSidebarOpen.set(true);
+    afterNextRender(
+      () => {
+        if (this.mobileSidebarOpen()) {
+          this.sidebarElement?.nativeElement
+            .querySelector<HTMLButtonElement>('.mobile-close button')
+            ?.focus();
+        }
+      },
+      { injector: this.injector },
+    );
+  }
+
   closeMobileSidebar(): void {
+    const wasOpen = this.mobileSidebarOpen();
     this.mobileSidebarOpen.set(false);
+    if (wasOpen) {
+      afterNextRender(
+        () => {
+          this.mobileMenuButton?.nativeElement.querySelector<HTMLButtonElement>('button')?.focus();
+        },
+        { injector: this.injector },
+      );
+    }
   }
 
   onWorkspaceChange(workspaceId: string): void {
@@ -134,12 +177,39 @@ export class Private {
   }
 
   logout(): void {
-    this.appSessionStore.reset();
-    this.workspaceFolderStore.clear();
-
-    if (this.isBrowser) {
-      removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
+    if (this.loggingOut()) {
+      return;
     }
+
+    this.closeMobileSidebar();
+    this.loggingOut.set(true);
+
+    this.authService
+      .logout()
+      .pipe(
+        finalize(() => {
+          this.authStore.clearSession();
+          this.appSessionStore.reset();
+          this.workspaceFolderStore.clear();
+
+          if (this.isBrowser) {
+            removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
+          }
+
+          this.loggingOut.set(false);
+          void this.router.navigate(routeCommands(APP_ROUTES.LOGIN));
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.toastService.success(response?.message || 'Logged out successfully', {
+            title: 'See you soon!',
+          });
+        },
+        error: () => {
+          this.toastService.info('You have been logged out.');
+        },
+      });
   }
 
   private ensureWorkspaceSelected(workspaces: readonly any[]): void {

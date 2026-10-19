@@ -30,7 +30,6 @@ import {
   LucideUserRound,
 } from '@lucide/angular';
 
-import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { Divider } from '../../../shared/components/divider/divider';
@@ -60,7 +59,6 @@ interface BrowserRegistrationContext {
     ReactiveFormsModule,
     RouterLink,
     AppIcon,
-    Badge,
     Button,
     Checkbox,
     Divider,

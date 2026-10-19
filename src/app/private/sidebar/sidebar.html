@@ -1,191 +1,216 @@
 <aside
   class="sidebar"
-  [class.is-collapsed]="collapsed"
+  [class.is-collapsed]="compact"
   [class.is-mobile-open]="mobileOpen"
   aria-label="Primary navigation"
 >
-  <!-- =====================================================
-         BRAND
-    ====================================================== -->
-
   <header class="brand-row">
     <a
       class="brand-link"
-      routerLink="/app/today"
+      [routerLink]="routes.TODAY"
       aria-label="Sticky Ji home"
       (click)="closeMobileNavigation()"
     >
       <img src="StickyJiHorizontalLogo.png" alt="Sticky Ji" class="brand-logo-expanded" />
-
       <img src="StickyJiLogo.png" alt="Sticky Ji" class="brand-logo-collapsed" />
     </a>
-
-    <button
+    <app-button
+      class="sidebar-toggle"
+      variant="ghost"
+      size="sm"
+      [iconOnly]="true"
+      [icon]="compact ? LucidePanelLeftOpen : LucidePanelLeftClose"
+      [ariaLabel]="compact ? 'Expand sidebar' : 'Collapse sidebar'"
+      [ariaExpanded]="!collapsed"
+      ariaControls="sidebar-content"
+      (buttonClick)="toggleCollapsed()"
+    />
+    <app-button
       class="mobile-close"
-      type="button"
-      aria-label="Close navigation"
-      (click)="mobileClosed.emit()"
-    >
-      <app-icon [icon]="LucideX" size="sm" />
-    </button>
+      variant="ghost"
+      size="sm"
+      [iconOnly]="true"
+      [icon]="LucideX"
+      ariaLabel="Close navigation"
+      (buttonClick)="closeMobileNavigation()"
+    />
   </header>
 
-  <!-- =====================================================
-         WORKSPACE SELECTOR
-    ====================================================== -->
-
-  <!-- <section class="workspace-section" aria-label="Current workspace">
-
-        <div class="workspace-select-shell" [attr.title]="
-                collapsed
-                    ? activeWorkspaceLabel
-                    : null
-            ">
-
-            <app-select class="workspace-select" ariaLabel="Switch workspace" placeholder="Select workspace"
-                searchPlaceholder="Search workspaces..." emptyText="No workspaces found"
-                loadingText="Loading workspaces..." eyebrow="Current workspace" dropdownTitle="Switch workspace"
-                dropdownDescription="Choose where you want to organize your notes." size="sm" variant="workspace"
-                placement="auto" [options]="workspaces" [ngModel]="workspaceId" [searchable]="true" [clearable]="false"
-                [loading]="loadingWorkspaces" [fullWidth]="true" (ngModelChange)="
-                    onWorkspaceChange($event)
-                " />
-
+  <nav id="sidebar-content" class="sidebar-navigation" aria-label="Application navigation">
+    @for (group of mainGroups; track group.label; let groupIndex = $index) {
+      <section class="navigation-group" [attr.aria-label]="group.label">
+        <div class="section-heading">
+          <span class="section-label">{{ group.label }}</span>
+          <app-button
+            variant="ghost"
+            size="xs"
+            [iconOnly]="true"
+            [icon]="isGroupExpanded(group.label) ? LucideChevronDown : LucideChevronRight"
+            [ariaLabel]="(isGroupExpanded(group.label) ? 'Collapse ' : 'Expand ') + group.label"
+            [ariaExpanded]="isGroupExpanded(group.label)"
+            [ariaControls]="'sidebar-group-' + groupIndex"
+            (buttonClick)="toggleGroup(group.label)"
+          />
         </div>
-
-    </section> -->
-
-  <!-- =====================================================
-         COMMON DASHED DIVIDER
-    ====================================================== -->
-
-  <app-divider
-    class="workspace-divider"
-    variant="neutral"
-    lineStyle="dashed"
-    spacing="sm"
-    inset="sm"
-    [decorative]="true"
-  />
-
-  <!-- =====================================================
-         NAVIGATION
-    ====================================================== -->
-
-  <nav class="sidebar-navigation" aria-label="Application navigation">
-    @for (
-      group of navigationGroups;
-      track group.label;
-      let groupIndex = $index;
-      let lastGroup = $last
-    ) {
-      <section class="navigation-group" [attr.aria-labelledby]="'sidebar-group-' + groupIndex">
-        <!-- =================================================
-                     GROUP TITLE
-                ================================================== -->
-
-        <p class="section-label" [id]="'sidebar-group-' + groupIndex">
-          {{ group.label }}
-        </p>
-
-        <!-- =================================================
-                     ITEMS
-                ================================================== -->
-
-        <div class="nav-list">
+        <div
+          class="nav-list"
+          [id]="'sidebar-group-' + groupIndex"
+          [hidden]="!isGroupExpanded(group.label)"
+        >
           @for (item of group.items; track item.route) {
             <a
               class="nav-item"
               [routerLink]="item.route"
               routerLinkActive="is-active"
-              [routerLinkActiveOptions]="{
-                exact: true,
-              }"
+              [routerLinkActiveOptions]="activeMatchOptions"
               ariaCurrentWhenActive="page"
-              [attr.title]="collapsed ? item.label : null"
+              [attr.aria-label]="item.label"
+              [appTooltip]="item.label"
+              tooltipPosition="right"
+              tooltipTrigger="hover-focus"
+              [tooltipDisabled]="!compact"
               (click)="closeMobileNavigation()"
             >
-              <!-- Active marker -->
-
-              <span class="nav-active-marker" aria-hidden="true"> </span>
-
-              <!-- Icon -->
-
-              <span class="nav-icon" aria-hidden="true">
-                <app-icon [icon]="item.icon" size="sm" />
-              </span>
-
-              <!-- Label -->
-
-              <span class="nav-label">
-                {{ item.label }}
-              </span>
+              <span class="nav-icon" aria-hidden="true"
+                ><app-icon [icon]="item.icon" size="sm"
+              /></span>
+              <span class="nav-label">{{ item.label }}</span>
             </a>
           }
         </div>
       </section>
-
-      <!-- =================================================
-                 DASHED DIVIDER BETWEEN GROUPS
-            ================================================== -->
-
-      @if (!lastGroup) {
-        <app-divider
-          class="navigation-divider"
-          variant="neutral"
-          lineStyle="dashed"
-          spacing="sm"
-          inset="sm"
-          [decorative]="true"
-        />
-      }
     }
+
+    <section
+      class="navigation-group workspace-section"
+      aria-label="My workspaces"
+      [attr.aria-busy]="loadingWorkspaces"
+    >
+      <div class="section-heading">
+        <span class="section-label">My workspaces</span>
+        <app-button
+          variant="ghost"
+          size="xs"
+          [iconOnly]="true"
+          [icon]="isGroupExpanded('My workspaces') ? LucideChevronDown : LucideChevronRight"
+          [ariaLabel]="
+            isGroupExpanded('My workspaces') ? 'Collapse My workspaces' : 'Expand My workspaces'
+          "
+          [ariaExpanded]="isGroupExpanded('My workspaces')"
+          ariaControls="sidebar-workspaces"
+          (buttonClick)="toggleGroup('My workspaces')"
+        />
+      </div>
+      <div id="sidebar-workspaces" class="nav-list" [hidden]="!isGroupExpanded('My workspaces')">
+        @if (loadingWorkspaces) {
+          <p class="workspace-status" role="status">
+            <app-icon [icon]="LucideLoaderCircle" size="sm" [spin]="true" />
+            <span class="nav-label">Loading workspaces...</span>
+            @if (compact) {
+              <span class="visually-hidden">Loading workspaces...</span>
+            }
+          </p>
+        } @else {
+          @for (workspace of workspaces; track workspace.value) {
+            <button
+              class="nav-item workspace-item"
+              type="button"
+              [class.is-selected]="workspaceId === workspace.value"
+              [disabled]="workspace.disabled"
+              [attr.aria-pressed]="workspaceId === workspace.value"
+              [attr.aria-label]="'Switch to ' + workspace.label"
+              [attr.title]="compact ? null : workspace.label"
+              [appTooltip]="workspace.label"
+              tooltipPosition="right"
+              tooltipTrigger="hover-focus"
+              [tooltipDisabled]="!compact"
+              (click)="onWorkspaceChange(workspace.value)"
+            >
+              <span class="nav-icon" aria-hidden="true"
+                ><span
+                  class="workspace-dot"
+                  [style.background-color]="workspaceColor(workspace)"
+                ></span
+              ></span>
+              <span class="nav-label">{{ workspace.label }}</span>
+              @if (workspaceId === workspace.value) {
+                <span class="workspace-current" aria-hidden="true"></span>
+              }
+            </button>
+          } @empty {
+            <p class="workspace-status nav-label">Your workspaces will appear here.</p>
+          }
+        }
+        <a
+          class="nav-item manage-workspaces"
+          [routerLink]="routes.WORKSPACES"
+          aria-label="Manage workspaces"
+          appTooltip="Manage workspaces"
+          tooltipPosition="right"
+          tooltipTrigger="hover-focus"
+          [tooltipDisabled]="!compact"
+          (click)="closeMobileNavigation()"
+        >
+          <span class="nav-icon" aria-hidden="true"
+            ><app-icon [icon]="LucidePanelsTopLeft" size="sm"
+          /></span>
+          <span class="nav-label">Manage workspaces</span>
+        </a>
+      </div>
+    </section>
   </nav>
 
-  <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-  <footer class="sidebar-footer">
-    <!-- Common dashed divider -->
-
-    <app-divider
-      class="logout-divider"
-      variant="neutral"
-      lineStyle="dashed"
-      spacing="sm"
-      inset="sm"
-      [decorative]="true"
-    />
-
-    <!-- Logout -->
-
-    <button
-      class="nav-item logout-item"
-      type="button"
-      [attr.title]="collapsed ? 'Logout' : null"
-      aria-label="Logout"
-      (click)="requestLogout()"
-    >
-      <span class="nav-icon" aria-hidden="true">
-        <app-icon [icon]="LucideLogOut" size="sm" />
-      </span>
-
-      <span class="nav-label"> Logout </span>
-    </button>
+  <footer class="sidebar-footer" aria-label="Account">
+    <div class="section-heading">
+      <span class="section-label">Account</span>
+      <app-button
+        variant="ghost"
+        size="xs"
+        [iconOnly]="true"
+        [icon]="isGroupExpanded('Account') ? LucideChevronDown : LucideChevronRight"
+        [ariaLabel]="isGroupExpanded('Account') ? 'Collapse Account' : 'Expand Account'"
+        [ariaExpanded]="isGroupExpanded('Account')"
+        ariaControls="sidebar-account"
+        (buttonClick)="toggleGroup('Account')"
+      />
+    </div>
+    <div id="sidebar-account" class="nav-list" [hidden]="!isGroupExpanded('Account')">
+      @for (item of accountItems; track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="activeMatchOptions"
+          ariaCurrentWhenActive="page"
+          [attr.aria-label]="item.label"
+          [appTooltip]="item.label"
+          tooltipPosition="right"
+          tooltipTrigger="hover-focus"
+          [tooltipDisabled]="!compact"
+          (click)="closeMobileNavigation()"
+        >
+          <span class="nav-icon" aria-hidden="true"><app-icon [icon]="item.icon" size="sm" /></span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+      <app-button
+        class="logout-item"
+        variant="ghost"
+        size="sm"
+        [fullWidth]="true"
+        [iconOnly]="compact"
+        [iconLeft]="LucideLogOut"
+        [icon]="LucideLogOut"
+        label="Logout"
+        [loading]="loggingOut"
+        loadingText="Logging out..."
+        ariaLabel="Logout"
+        appTooltip="Logout"
+        tooltipPosition="right"
+        tooltipTrigger="hover-focus"
+        [tooltipDisabled]="!compact"
+        (buttonClick)="requestLogout()"
+      />
+    </div>
   </footer>
-
-  <!-- =====================================================
-         COLLAPSE BUTTON
-    ====================================================== -->
-
-  <button
-    class="sidebar-toggle"
-    type="button"
-    [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-    [attr.aria-expanded]="!collapsed"
-    (click)="toggleCollapsed()"
-  >
-    <app-icon [icon]="collapsed ? LucidePanelLeftOpen : LucidePanelLeftClose" size="xs" />
-  </button>
 </aside>

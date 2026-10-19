@@ -26,7 +26,6 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
-import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
@@ -41,7 +40,7 @@ import { ForgotPasswordResponse } from '../models/auth.models';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, AppIcon, Badge, Button, AppInput, StickyCard],
+  imports: [ReactiveFormsModule, RouterLink, AppIcon, Button, AppInput, StickyCard],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

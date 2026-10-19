@@ -1,0 +1,97 @@
+@use './auth-states';
+
+.form-security-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #637089;
+  font-size: 12px;
+  line-height: 1.4;
+  app-icon {
+    flex: 0 0 auto;
+    margin-top: 2px;
+  }
+}
+.success-state {
+  display: grid;
+  gap: 18px;
+}
+.success-note-icon {
+  margin: 0;
+}
+.success-check {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  right: -5px;
+  bottom: -5px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #226746;
+  color: white;
+}
+.success-heading {
+  margin: 0;
+}
+.submitted-email {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f0fbf4;
+  color: #315e46;
+  app-icon {
+    flex: 0 0 auto;
+  }
+  strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+}
+.resend-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #637089;
+  font-size: 13px;
+}
+@media (max-height: 680px) {
+  .success-state {
+    gap: 12px;
+  }
+}
+@media (min-width: 600px) and (max-height: 540px) {
+  .recovery-form {
+    grid-template-columns: 1fr;
+  }
+  .recovery-form > app-button[type='submit'] {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .form-container {
+    max-width: 510px;
+  }
+  .success-state {
+    gap: 8px;
+  }
+  .success-note-icon {
+    display: none;
+  }
+}

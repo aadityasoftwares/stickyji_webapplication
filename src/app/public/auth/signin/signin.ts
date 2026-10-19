@@ -19,23 +19,22 @@ import { finalize } from 'rxjs';
 import {
   LucideArrowLeft,
   LucideArrowRight,
-  LucideCalendarDays,
   LucideCheckCircle2,
-  LucideClock3,
+  LucideHeart,
   LucideLightbulb,
-  LucideLockKeyhole,
+  LucideLock,
   LucideMail,
+  LucidePencil,
   LucideShieldCheck,
   LucideSparkles,
+  LucideZap,
 } from '@lucide/angular';
 
-import { Badge } from '../../../shared/components/badge/badge';
-import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
+import { Button } from '../../../shared/components/button/button';
 import { Divider } from '../../../shared/components/divider/divider';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
-import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { SeoService } from '../../../shared/services/seo.service';
@@ -49,17 +48,7 @@ type LoginControl = 'email' | 'password';
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    AppIcon,
-    Badge,
-    Button,
-    Checkbox,
-    Divider,
-    AppInput,
-    StickyCard,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, AppIcon, Checkbox, AppInput, Button, Divider],
   templateUrl: './signin.html',
   styleUrl: './signin.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,14 +64,15 @@ export class Signin implements OnInit {
 
   readonly LucideArrowLeft = LucideArrowLeft;
   readonly LucideArrowRight = LucideArrowRight;
-  readonly LucideCalendarDays = LucideCalendarDays;
   readonly LucideCheckCircle2 = LucideCheckCircle2;
-  readonly LucideClock3 = LucideClock3;
+  readonly LucideHeart = LucideHeart;
   readonly LucideLightbulb = LucideLightbulb;
-  readonly LucideLockKeyhole = LucideLockKeyhole;
+  readonly LucideLock = LucideLock;
   readonly LucideMail = LucideMail;
+  readonly LucidePencil = LucidePencil;
   readonly LucideShieldCheck = LucideShieldCheck;
   readonly LucideSparkles = LucideSparkles;
+  readonly LucideZap = LucideZap;
 
   @Input() brandName = 'Sticky Ji';
   @Input() brandHref = '/';
