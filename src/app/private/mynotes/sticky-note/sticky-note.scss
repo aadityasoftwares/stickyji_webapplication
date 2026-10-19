@@ -408,18 +408,46 @@
 }
 
 .sticky-note__description {
-  display: -webkit-box;
+  display: block;
   margin: 0.38rem 0 0;
-  overflow: hidden;
+  padding: 0;
+  text-indent: 0;
   color: var(--note-muted);
+  font: inherit;
   font-size: var(--note-font-size);
   font-weight: 400;
   line-height: 1.55;
+  letter-spacing: inherit;
   overflow-wrap: anywhere;
-  white-space: pre-wrap;
+  white-space: pre-line;
   cursor: text;
+}
+
+.sticky-note.is-compact .sticky-note__title {
+  display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticky-note.is-compact .sticky-note__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticky-note.is-detail .sticky-note__description,
+.sticky-note:not(.is-compact) .sticky-note__description {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .sticky-note__description.is-empty {

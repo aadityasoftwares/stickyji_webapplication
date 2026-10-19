@@ -246,6 +246,7 @@ export class UserPreferences implements OnInit {
   ];
 
   readonly todayViewOptions: readonly SelectOption[] = [
+    { label: 'Notes', value: 'NOTES' },
     { label: 'Kanban', value: 'KANBAN' },
     { label: 'Table', value: 'TABLE' },
   ];

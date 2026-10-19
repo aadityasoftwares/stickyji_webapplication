@@ -519,6 +519,178 @@
               (buttonClick)="clearSearch()"
             />
           </div>
+        } @else if (isNotesView()) {
+          <div
+            class="today-notes-canvas"
+            [class.is-compact-layout]="isCompactLayout()"
+            [class.is-detail-layout]="isDetailLayout()"
+            [style.--today-note-font-family]="fontFamilyFor(stickyNoteFont())"
+            [style.--today-note-font-size.px]="stickyNoteFontSize()"
+            cdkDropListGroup
+            aria-label="Today Sticky Notes workspace"
+          >
+            <!-- Left Section: Today Notes (~70%) -->
+            <section
+              class="today-notes-section"
+              aria-labelledby="today-notes-heading"
+            >
+              <header class="today-section-header">
+                <div class="today-section-title">
+                  <span class="today-section-icon" aria-hidden="true">
+                    <app-icon [icon]="LucideStickyNote" [size]="16" [strokeWidth]="2" />
+                  </span>
+                  <h3 id="today-notes-heading">Today Notes</h3>
+                  <app-badge
+                    [count]="incompleteNoteCount()"
+                    variant="neutral"
+                    size="xs"
+                    shape="pill"
+                    [ariaLabel]="incompleteNoteCount() + ' notes'"
+                  />
+                </div>
+                <div class="today-section-actions">
+                  <app-button
+                    appearance="flat"
+                    label="New note"
+                    [iconLeft]="LucidePlus"
+                    variant="noteYellow"
+                    size="sm"
+                    (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
+                  />
+                </div>
+              </header>
+
+              <div
+                class="today-notes-grid"
+                id="today-notes-drop-list"
+                cdkDropList
+                [cdkDropListData]="todayIncompleteNotes()"
+                [cdkDropListConnectedTo]="['today-completed-drop-list']"
+                [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
+                [cdkDropListEnterPredicate]="canDropNote"
+                (cdkDropListDropped)="onNotesDrop($event, false)"
+              >
+                @for (note of todayIncompleteNotes(); track note.id) {
+                  <app-sticky-note
+                    class="today-canvas-note"
+                    cdkDrag
+                    [cdkDragData]="note"
+                    [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
+                    [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
+                    [data]="stickyNoteData(note)"
+                    (editRequested)="openNoteEditPanel(note)"
+                    (deleted)="onNoteDeleted($event)"
+                    (deleteRequested)="onNoteDeleted(note.id)"
+                    (noteUpdated)="onNoteUpdated($event)"
+                    (completionToggled)="toggleNoteCompletion($event.noteId, $event.isCompleted)"
+                  />
+                } @empty {
+                  <div class="today-notes-empty">
+                    <span class="today-notes-empty-visual" aria-hidden="true">
+                      <app-icon
+                        [icon]="searchTerm() ? LucideSearch : LucideSparkles"
+                        [size]="28"
+                        [strokeWidth]="1.75"
+                      />
+                    </span>
+                    <strong>{{ searchTerm() ? 'No matching notes' : 'All clear for today!' }}</strong>
+                    <small>
+                      {{
+                        searchTerm()
+                          ? 'Try adjusting your search filter.'
+                          : 'You’re all caught up. Create a note to plan your day.'
+                      }}
+                    </small>
+                    @if (searchTerm()) {
+                      <app-button
+                        appearance="flat"
+                        label="Clear search"
+                        variant="outline"
+                        size="xs"
+                        (buttonClick)="clearSearch()"
+                      />
+                    } @else {
+                      <app-button
+                        appearance="flat"
+                        label="Add note"
+                        [iconLeft]="LucidePlus"
+                        variant="outline"
+                        size="sm"
+                        (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
+                      />
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+
+            <!-- Right Section: Completed (~30%) -->
+            <section
+              class="today-completed-section"
+              aria-labelledby="today-completed-heading"
+            >
+              <header class="today-section-header is-completed-header">
+                <div class="today-section-title">
+                  <span class="today-section-icon is-completed" aria-hidden="true">
+                    <app-icon [icon]="LucideCheckCheck" [size]="16" [strokeWidth]="2" />
+                  </span>
+                  <h3 id="today-completed-heading">Completed</h3>
+                  <app-badge
+                    [count]="completedNoteCount()"
+                    variant="success"
+                    size="xs"
+                    shape="pill"
+                    [ariaLabel]="completedNoteCount() + ' completed notes'"
+                  />
+                </div>
+              </header>
+
+              <div
+                class="today-completed-list"
+                id="today-completed-drop-list"
+                cdkDropList
+                [cdkDropListData]="todayCompletedNotes()"
+                [cdkDropListConnectedTo]="['today-notes-drop-list']"
+                [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
+                [cdkDropListEnterPredicate]="canDropNote"
+                (cdkDropListDropped)="onNotesDrop($event, true)"
+              >
+                @for (note of todayCompletedNotes(); track note.id) {
+                  <app-sticky-note
+                    class="today-canvas-note today-completed-card"
+                    cdkDrag
+                    [cdkDragData]="note"
+                    [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
+                    [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
+                    [data]="stickyNoteData(note)"
+                    (editRequested)="openNoteEditPanel(note)"
+                    (deleted)="onNoteDeleted($event)"
+                    (deleteRequested)="onNoteDeleted(note.id)"
+                    (noteUpdated)="onNoteUpdated($event)"
+                    (completionToggled)="toggleNoteCompletion($event.noteId, $event.isCompleted)"
+                  />
+                } @empty {
+                  <div class="today-completed-empty">
+                    <span class="today-completed-empty-visual" aria-hidden="true">
+                      <app-icon [icon]="LucideCheckCircle2" [size]="24" [strokeWidth]="1.75" />
+                    </span>
+                    <strong>{{
+                      searchTerm()
+                        ? 'No matching completed notes'
+                        : 'No completed notes yet'
+                    }}</strong>
+                    <small>
+                      {{
+                        searchTerm()
+                          ? 'Try another search term.'
+                          : 'Drag notes here or mark them complete when done.'
+                      }}
+                    </small>
+                  </div>
+                }
+              </div>
+            </section>
+          </div>
         } @else if (isKanbanView()) {
           <div
             #kanbanBoard

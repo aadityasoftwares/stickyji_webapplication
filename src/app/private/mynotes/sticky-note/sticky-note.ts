@@ -28,6 +28,7 @@ import {
   LucideMoreHorizontal,
   LucideGrip,
   LucidePencil,
+  LucideRotateCcw,
   LucideStar,
   LucideStarOff,
   LucideTrash2,
@@ -120,6 +121,10 @@ export class StickyNote {
   }>();
   @Output() readonly deleteRequested = new EventEmitter<any>();
   @Output() readonly deleted = new EventEmitter<string>();
+  @Output() readonly completionToggled = new EventEmitter<{
+    noteId: string;
+    isCompleted: boolean;
+  }>();
   @Output() readonly noteUpdated = new EventEmitter<any>();
   @Output() readonly noteClick = new EventEmitter<any>();
 
@@ -138,6 +143,7 @@ export class StickyNote {
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucideGrip = LucideGrip;
   readonly LucidePencil = LucidePencil;
+  readonly LucideRotateCcw = LucideRotateCcw;
   readonly LucideStar = LucideStar;
   readonly LucideStarOff = LucideStarOff;
   readonly LucideTrash2 = LucideTrash2;
@@ -253,7 +259,24 @@ export class StickyNote {
   /* --- Presentation & Controls --- */
 
   get isCompleted(): boolean {
-    return this.data?.completed === true;
+    return this.data?.isCompleted === true || this.data?.completed === true;
+  }
+
+  get showCompletionAction(): boolean {
+    return Boolean(this.data?.showCompletionAction);
+  }
+
+  get showFavoriteAction(): boolean {
+    return this.data?.showFavoriteAction !== false;
+  }
+
+  toggleCompletion(event?: Event): void {
+    event?.stopPropagation();
+    event?.preventDefault();
+    this.completionToggled.emit({
+      noteId: this.noteId,
+      isCompleted: !this.isCompleted,
+    });
   }
 
   get isFavorite(): boolean {
@@ -407,6 +430,7 @@ export class StickyNote {
       'is-disabled': this.disabled,
       'is-saving': this.isSaving,
       'is-compact': this.isCompact,
+      'is-detail': this.isDetail,
       [`is-view-${this.view}`]: true,
     };
   }

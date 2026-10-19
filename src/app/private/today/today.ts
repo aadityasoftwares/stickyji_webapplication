@@ -25,6 +25,8 @@ import {
   LucideArrowRight,
   LucideCalendarDays,
   LucideCheck,
+  LucideCheckCheck,
+  LucideCheckCircle2,
   LucideChevronDown,
   LucideChevronRight,
   LucideClock3,
@@ -40,9 +42,12 @@ import {
   LucidePencil,
   LucidePlus,
   LucideRefreshCw,
+  LucideRotateCcw,
   LucideSearch,
+  LucideSparkles,
   LucideStar,
   LucideStarOff,
+  LucideStickyNote,
   LucideTrash2,
   LucideType,
   LucideX,
@@ -129,6 +134,7 @@ import {
 } from '../workspacefolders/models/workspace-folder.models';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
 import { WorkspaceMemberQuery } from '../workspace-members/models/workspace-member.models';
+import { AuthStore } from '../../public/auth/state/auth.store';
 import { TODAY_MESSAGES } from './messages/today.messages';
 
 const DEFAULT_PAGE = 1;
@@ -180,6 +186,7 @@ export class Today {
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+  private readonly authStore = inject(AuthStore);
 
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
@@ -203,6 +210,8 @@ export class Today {
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCalendarDays = LucideCalendarDays;
   readonly LucideCheck = LucideCheck;
+  readonly LucideCheckCheck = LucideCheckCheck;
+  readonly LucideCheckCircle2 = LucideCheckCircle2;
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
@@ -217,13 +226,18 @@ export class Today {
   readonly LucidePencil = LucidePencil;
   readonly LucidePlus = LucidePlus;
   readonly LucideRefreshCw = LucideRefreshCw;
+  readonly LucideRotateCcw = LucideRotateCcw;
   readonly LucideSearch = LucideSearch;
+  readonly LucideSparkles = LucideSparkles;
+  readonly LucideStickyNote = LucideStickyNote;
   readonly LucideStar = LucideStar;
   readonly LucideStarOff = LucideStarOff;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
   readonly LucideX = LucideX;
   readonly LucideGrip = LucideGrip;
+
+  readonly currentUserId = computed(() => this.authStore.user()?.id ?? '');
 
   readonly copiedKeyMap = signal<Record<string, boolean>>({});
 
@@ -255,11 +269,12 @@ export class Today {
   });
   readonly TODAY_MESSAGES: any = TODAY_MESSAGES;
   readonly UI = UI;
-  readonly view = computed<View>(() =>
-    String(this.userPreferenceStore.todayView() ?? '').toUpperCase() === 'TABLE'
-      ? VIEW.TABLE
-      : VIEW.KANBAN,
-  );
+  readonly view = computed<View>(() => {
+    const raw = String(this.userPreferenceStore.todayView() ?? '').toUpperCase();
+    if (raw === 'TABLE') return VIEW.TABLE;
+    if (raw === 'KANBAN') return VIEW.KANBAN;
+    return VIEW.NOTES;
+  });
   readonly overdueView = computed<OverdueView>(() =>
     String(this.userPreferenceStore.overdueView() ?? '').toUpperCase() === 'BUTTON'
       ? 'button'
@@ -441,6 +456,17 @@ export class Today {
       : this.stickyNotes();
   });
 
+  readonly todayIncompleteNotes = computed(() =>
+    this.visibleListNotes().filter((note) => !this.isNoteCompleted(note)),
+  );
+
+  readonly todayCompletedNotes = computed(() =>
+    this.visibleListNotes().filter((note) => this.isNoteCompleted(note)),
+  );
+
+  readonly incompleteNoteCount = computed(() => this.todayIncompleteNotes().length);
+  readonly completedNoteCount = computed(() => this.todayCompletedNotes().length);
+
   readonly notesByColumn = computed(() => {
     const grouped = new Map<string, any[]>();
     for (const note of this.stickyNotes()) {
@@ -511,13 +537,24 @@ export class Today {
 
   setView(view: any): void {
     const raw = String(view ?? '').toLowerCase();
-    const nextView = raw === VIEW.TABLE || raw === 'list' || raw === 'table' ? 'TABLE' : 'KANBAN';
+    let nextView: 'NOTES' | 'KANBAN' | 'TABLE' = 'NOTES';
+    if (raw === VIEW.TABLE || raw === 'list' || raw === 'table') {
+      nextView = 'TABLE';
+    } else if (raw === VIEW.KANBAN || raw === 'kanban') {
+      nextView = 'KANBAN';
+    } else {
+      nextView = 'NOTES';
+    }
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.TODAY_VIEW, nextView);
     this.searchTerm.set('');
   }
 
   dismissOverdueBar(): void {
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.OVERDUE_VIEW, 'BUTTON');
+  }
+
+  isNotesView(): boolean {
+    return this.view() === VIEW.NOTES;
   }
 
   isKanbanView(): boolean {
@@ -1187,6 +1224,163 @@ export class Today {
     this.moveNote(note, colId, event.currentIndex);
   }
 
+  onNotesDrop(event: CdkDragDrop<any[]>, targetIsCompleted: boolean): void {
+    if (this.searchTerm().trim() || this.movingNoteId()) return;
+
+    const note = event.item.data;
+    const noteId = idOf(note);
+    if (!noteId) return;
+
+    // Moving across sections (Today Notes <-> Completed)
+    if (event.previousContainer !== event.container) {
+      this.toggleNoteCompletion(noteId, targetIsCompleted);
+      return;
+    }
+
+    // Reordering within the same section
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    const currentList = targetIsCompleted
+      ? this.todayCompletedNotes()
+      : this.todayIncompleteNotes();
+    const sourceIndex = event.previousIndex;
+    const targetIndex = event.currentIndex;
+
+    if (sourceIndex < 0 || sourceIndex >= currentList.length) return;
+    if (targetIndex < 0 || targetIndex >= currentList.length) return;
+
+    const previousNotes = [...this.stickyNotes()];
+    const reorderedSection = [...currentList];
+    const [movedItem] = reorderedSection.splice(sourceIndex, 1);
+    reorderedSection.splice(targetIndex, 0, movedItem);
+
+    const { beforeId, afterId } = getNeighborNoteIds(reorderedSection, targetIndex, noteId);
+
+    const otherNotes = previousNotes.filter(
+      (n) => (targetIsCompleted ? !this.isNoteCompleted(n) : this.isNoteCompleted(n)),
+    );
+    const updatedFullList = targetIsCompleted
+      ? [...otherNotes, ...reorderedSection]
+      : [...reorderedSection, ...otherNotes];
+
+    this.stickyNotes.set(updatedFullList);
+    this.movingNoteId.set(noteId);
+
+    this.stickyNoteApiService
+      .reorder(noteId, {
+        columnId: movedItem?.columnId,
+        beforeId,
+        afterId,
+      })
+      .pipe(
+        finalize(() => this.movingNoteId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response: any) => {
+          const updated = response?.data ?? response;
+          if (updated && idOf(updated) === noteId) {
+            const mapped = this.mapNote(updated);
+            this.stickyNotes.update((notes) =>
+              notes.map((item) => (idOf(item) === noteId ? { ...item, ...mapped } : item)),
+            );
+          }
+        },
+        error: (error: any) => {
+          this.stickyNotes.set(previousNotes);
+          this.toastService.error(
+            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.REORDER_FAILED),
+            {
+              title: 'Reorder failed',
+              dedupeKey: `note-reorder-${noteId}`,
+            },
+          );
+        },
+      });
+  }
+
+  toggleNoteCompletion(noteId: string, isCompleted: boolean): void {
+    const id = idOf(noteId);
+    if (!id || this.movingNoteId()) return;
+
+    const previousNotes = [...this.stickyNotes()];
+    const targetNote = previousNotes.find((n) => idOf(n) === id);
+    if (!targetNote) return;
+
+    if (this.isNoteCompleted(targetNote) === isCompleted) return;
+
+    const completedAt = isCompleted ? new Date().toISOString() : null;
+    const completedBy = isCompleted ? this.currentUserId() : null;
+
+    this.stickyNoteDataCache.delete(id);
+    this.stickyNotes.update((notes) =>
+      notes.map((item) =>
+        idOf(item) === id
+          ? {
+              ...item,
+              isCompleted,
+              completed: isCompleted,
+              completedAt,
+              completedBy,
+            }
+          : item,
+      ),
+    );
+
+    const updatePayload: any = {
+      isCompleted,
+      completedAt,
+      completedBy,
+    };
+
+    this.stickyNoteApiService
+      .update(id, updatePayload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: any) => {
+          const updated = response?.data ?? response;
+          if (updated && idOf(updated) === id) {
+            this.stickyNoteDataCache.delete(id);
+            this.stickyNotes.update((notes) =>
+              notes.map((item) =>
+                idOf(item) === id
+                  ? {
+                      ...item,
+                      ...this.mapNote(updated),
+                      isCompleted,
+                      completed: isCompleted,
+                    }
+                  : item,
+              ),
+            );
+          }
+          this.toastService.success(
+            isCompleted ? 'Note marked as completed' : 'Note moved back to Today Notes',
+            {
+              title: isCompleted ? 'Completed' : 'Reopened',
+              dedupeKey: `note-completion-${id}`,
+            },
+          );
+        },
+        error: (error: any) => {
+          this.stickyNoteDataCache.delete(id);
+          this.stickyNotes.set(previousNotes);
+          this.toastService.error(
+            extractErrorMessage(
+              error,
+              isCompleted ? 'Failed to complete note' : 'Failed to uncomplete note',
+            ),
+            {
+              title: 'Action failed',
+              dedupeKey: `note-completion-err-${id}`,
+            },
+          );
+        },
+      });
+  }
+
   moveBackward(note: any): void {
     const colId = idOf(note?.columnId);
     const index = this.columnIndex(colId);
@@ -1210,6 +1404,12 @@ export class Today {
   }
 
   isNoteCompleted(note: any): boolean {
+    if (note?.isCompleted !== undefined && note?.isCompleted !== null) {
+      return Boolean(note.isCompleted);
+    }
+    if (note?.completed !== undefined && note?.completed !== null) {
+      return Boolean(note.completed);
+    }
     return this.columnForNote(note)?.type === 'COMPLETED';
   }
 
@@ -1315,15 +1515,27 @@ export class Today {
       });
   }
 
-  stickyNoteData(note: any, column: any): any {
+  stickyNoteData(note: any, column?: any): any {
+    const resolvedColumn = column ?? this.columnForNote(note);
     const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
-    const columnLabel = column?.label ?? column?.name ?? 'Note';
+    const columnLabel =
+      resolvedColumn?.label ?? resolvedColumn?.name ?? note?.columnName ?? 'Note';
     const layout = this.stickyNoteLayout();
     const font = this.stickyNoteFont();
     const fontSize = this.stickyNoteFontSize();
     const movingNoteId = this.movingNoteId();
     const canMoveBackward = this.canMoveBackward(note);
     const canMoveForward = this.canMoveForward(note);
+    const isCompleted = this.isNoteCompleted(note);
+    const isNotesView = this.isNotesView();
+    const effectiveShape = isNotesView ? 'SQUARE' : (note?.shape ?? 'SQUARE');
+    const effectiveVariant = isNotesView ? 'PLAIN' : (note?.variant ?? 'PLAIN');
+    const effectivePattern = isNotesView ? 'NONE' : (note?.backgroundPattern ?? 'NONE');
+    const effectiveNoteKey =
+      note?.noteKey ??
+      (typeof note?.stickyNoteNumber === 'number'
+        ? `ST-${String(note.stickyNoteNumber).padStart(6, '0')}`
+        : '');
     const key = JSON.stringify([
       noteId,
       note?.title,
@@ -1331,9 +1543,10 @@ export class Today {
       note?.description,
       note?.columnId,
       note?.color,
-      note?.shape,
-      note?.variant,
-      note?.backgroundPattern,
+      effectiveShape,
+      effectiveVariant,
+      effectivePattern,
+      effectiveNoteKey,
       note?.noteDate,
       note?.updatedAt,
       note?.isFavorite,
@@ -1344,9 +1557,9 @@ export class Today {
       note?.completedChecklistItemCount,
       note?.assignees?.length,
       note?.checklists?.length,
-      column?.id,
+      resolvedColumn?.id,
       columnLabel,
-      column?.checkboxVariant,
+      resolvedColumn?.checkboxVariant,
       this.view(),
       layout,
       font,
@@ -1355,7 +1568,8 @@ export class Today {
       movingNoteId,
       canMoveBackward,
       canMoveForward,
-      this.isNoteCompleted(note),
+      isCompleted,
+      isNotesView,
     ]);
     const cached = this.stickyNoteDataCache.get(noteId);
     if (cached?.key === key) {
@@ -1364,16 +1578,24 @@ export class Today {
 
     const value = {
       ...note,
+      shape: effectiveShape,
+      variant: effectiveVariant,
+      backgroundPattern: effectivePattern,
+      color: note?.color ?? 'WHITE',
+      noteKey: effectiveNoteKey,
       eyebrow: this.noteEyebrow(note),
       columnLabel,
-      checkboxVariant: column?.checkboxVariant,
-      completed: this.isNoteCompleted(note),
+      checkboxVariant: resolvedColumn?.checkboxVariant,
+      completed: isCompleted,
+      isCompleted,
+      showCompletionAction: true,
       view: this.view(),
       layout,
       font,
       fontSize,
-      showDragHandle: !this.searchTerm().trim() && !this.movingNoteId(),
-      showMoveActions: true,
+      showDragHandle: !isNotesView && !this.searchTerm().trim() && !this.movingNoteId(),
+      showFavoriteAction: !isNotesView,
+      showMoveActions: !isNotesView && this.isKanbanView(),
       canMoveBackward,
       canMoveForward,
       actionsDisabled: movingNoteId === (note?.id ?? note?._id),
@@ -1752,6 +1974,8 @@ export class Today {
       0,
     );
 
+    const isCompleted = this.isNoteCompleted(note);
+
     return {
       ...note,
       id: idOf(note),
@@ -1774,6 +1998,10 @@ export class Today {
       shape: note?.shape ?? 'SQUARE',
       variant: note?.variant ?? 'PLAIN',
       backgroundPattern: note?.backgroundPattern ?? 'NONE',
+      isCompleted,
+      completed: isCompleted,
+      completedAt: note?.completedAt ?? null,
+      completedBy: note?.completedBy ?? null,
       checklists,
       checklistCount: checklists.length,
       checklistItemCount: totalCount,

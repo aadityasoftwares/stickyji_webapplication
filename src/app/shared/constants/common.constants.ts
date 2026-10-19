@@ -16,6 +16,7 @@ import {
 } from '@lucide/angular';
 
 export const VIEW = {
+  NOTES: 'notes',
   KANBAN: 'kanban',
   TABLE: 'table',
   GRID: 'grid',
@@ -85,7 +86,7 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
   workspaceRoleSortOrder: 'PRIORITY',
   defaultNoteColor: 'YELLOW',
   noteView: 'GRID',
-  todayView: 'KANBAN',
+  todayView: 'NOTES',
   overdueView: 'BAR',
   autosaveEnabled: true,
   autosaveInterval: 5,
@@ -149,6 +150,12 @@ export const WORKSPACE_ACCESS_FILTERS = [
 ] as const;
 
 export const STICKY_NOTE_VIEW_OPTIONS: any[] = [
+  {
+    label: 'Notes',
+    value: VIEW.NOTES,
+    icon: LucideStickyNote,
+    ariaLabel: 'Notes view',
+  },
   {
     label: 'Kanban',
     value: VIEW.KANBAN,

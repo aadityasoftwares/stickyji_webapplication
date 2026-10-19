@@ -48,7 +48,7 @@ export type DefaultNoteColor =
 
 export type NoteView = 'GRID' | 'LIST' | 'TABLE' | 'KANBAN';
 
-export type TodayPreferenceView = 'KANBAN' | 'TABLE';
+export type TodayPreferenceView = 'NOTES' | 'KANBAN' | 'TABLE';
 export type OverduePreferenceView = 'BAR' | 'BUTTON';
 
 export type WorkspacePreferenceView = 'GRID' | 'LIST';
@@ -185,7 +185,7 @@ export const DEFAULT_USER_PREFERENCES: Readonly<UserPreferencesM> = {
   workspaceRoleSortOrder: 'PRIORITY',
   defaultNoteColor: 'YELLOW',
   noteView: 'GRID',
-  todayView: 'KANBAN',
+  todayView: 'NOTES',
   overdueView: 'BAR',
   autosaveEnabled: true,
   autosaveInterval: 5,

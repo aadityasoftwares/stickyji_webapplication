@@ -8,7 +8,9 @@ import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
-import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
+import { USER_PREFERENCE_KEYS, VIEW } from '../../shared/constants/common.constants';
+import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
+import { of, throwError } from 'rxjs';
 
 describe('Today', () => {
   let component: Today;
@@ -298,6 +300,102 @@ describe('Today', () => {
 
     expect(toolbarEl.classList.contains('has-search-expanded')).toBe(true);
     expect(searchEl.classList.contains('has-search-active')).toBe(true);
+  });
+
+  it('defaults to Notes view and partitions incomplete and completed notes', async () => {
+    const preferences = TestBed.inject(UserPreferenceStore);
+    preferences.updatePreference(USER_PREFERENCE_KEYS.TODAY_VIEW, 'NOTES');
+    await fixture.whenStable();
+
+    expect(component.view()).toBe(VIEW.NOTES);
+    expect(component.isNotesView()).toBe(true);
+
+    // Initial notes in beforeEach:
+    // 'first' (todo), 'second' (todo), 'third' (doing) -> all incomplete
+    expect(component.todayIncompleteNotes()).toHaveLength(3);
+    expect(component.todayCompletedNotes()).toHaveLength(0);
+
+    // Mark 'first' as completed
+    component.stickyNotes.update((notes) =>
+      notes.map((n) => (n.id === 'first' ? { ...n, isCompleted: true } : n)),
+    );
+    expect(component.todayIncompleteNotes().map((n) => n.id)).toEqual(['second', 'third']);
+    expect(component.todayCompletedNotes().map((n) => n.id)).toEqual(['first']);
+    expect(component.incompleteNoteCount()).toBe(2);
+    expect(component.completedNoteCount()).toBe(1);
+  });
+
+  it('renders 70/30 layout in Notes view with Today Notes and Completed sections', async () => {
+    component.setView('notes');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const canvasEl = fixture.nativeElement.querySelector('.today-notes-canvas');
+    const notesSection = fixture.nativeElement.querySelector('.today-notes-section');
+    const completedSection = fixture.nativeElement.querySelector('.today-completed-section');
+    const notesGrid = fixture.nativeElement.querySelector('#today-notes-drop-list');
+    const completedList = fixture.nativeElement.querySelector('#today-completed-drop-list');
+
+    expect(canvasEl).toBeTruthy();
+    expect(notesSection).toBeTruthy();
+    expect(completedSection).toBeTruthy();
+    expect(notesGrid).toBeTruthy();
+    expect(completedList).toBeTruthy();
+  });
+
+  it('toggles note completion optimistically and calls update API', async () => {
+    const noteApi = TestBed.inject(StickyNoteApiService);
+    const updateSpy = vi.spyOn(noteApi, 'update').mockReturnValue(
+      of({ data: { id: 'second', isCompleted: true } }),
+    );
+
+    component.toggleNoteCompletion('second', true);
+    expect(component.isNoteCompleted(component.stickyNotes().find((n) => n.id === 'second'))).toBe(true);
+    expect(updateSpy).toHaveBeenCalledWith('second', expect.objectContaining({ isCompleted: true }));
+  });
+
+  it('rolls back note completion when update API fails', async () => {
+    const noteApi = TestBed.inject(StickyNoteApiService);
+    vi.spyOn(noteApi, 'update').mockReturnValue(
+      throwError(() => new Error('Server error')),
+    );
+
+    const originalNote = component.stickyNotes().find((n) => n.id === 'second');
+    expect(component.isNoteCompleted(originalNote)).toBe(false);
+
+    component.toggleNoteCompletion('second', true);
+    const rolledBackNote = component.stickyNotes().find((n) => n.id === 'second');
+    expect(component.isNoteCompleted(rolledBackNote)).toBe(false);
+  });
+
+  it('completes a note when dropped from Today Notes to Completed section', async () => {
+    const toggleSpy = vi.spyOn(component, 'toggleNoteCompletion').mockImplementation(() => {});
+
+    const mockEvent = {
+      item: { data: { id: 'first', title: 'First note' } },
+      previousContainer: { id: 'today-notes-drop-list' },
+      container: { id: 'today-completed-drop-list' },
+      previousIndex: 0,
+      currentIndex: 0,
+    } as any;
+
+    component.onNotesDrop(mockEvent, true);
+    expect(toggleSpy).toHaveBeenCalledWith('first', true);
+  });
+
+  it('uncompletes a note when dropped from Completed to Today Notes section', async () => {
+    const toggleSpy = vi.spyOn(component, 'toggleNoteCompletion').mockImplementation(() => {});
+
+    const mockEvent = {
+      item: { data: { id: 'third', title: 'Third note' } },
+      previousContainer: { id: 'today-completed-drop-list' },
+      container: { id: 'today-notes-drop-list' },
+      previousIndex: 0,
+      currentIndex: 0,
+    } as any;
+
+    component.onNotesDrop(mockEvent, false);
+    expect(toggleSpy).toHaveBeenCalledWith('third', false);
   });
 });
 

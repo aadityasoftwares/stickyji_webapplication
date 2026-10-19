@@ -170,6 +170,9 @@ export class StickyNoteApiService {
       'backgroundPattern',
       'position',
       'noteDate',
+      'isCompleted',
+      'completedAt',
+      'completedBy',
     ];
     const cleaned: any = {};
     for (const key of allowed) {
@@ -195,6 +198,9 @@ export class StickyNoteApiService {
       'backgroundPattern',
       'position',
       'noteDate',
+      'isCompleted',
+      'completedAt',
+      'completedBy',
     ];
     const cleaned: any = {};
     for (const key of allowed) {

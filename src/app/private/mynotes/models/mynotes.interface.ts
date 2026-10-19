@@ -161,6 +161,10 @@ export interface StickyNote {
 
   noteDate: any;
 
+  isCompleted?: boolean;
+  completedAt?: string | null;
+  completedBy?: string | StickyNoteReference | null;
+
   createdAt?: string;
   updatedAt?: string;
 }
@@ -175,6 +179,9 @@ export interface StickyNoteCreateRequest {
 
   color?: StickyNoteColor;
   position?: number;
+  isCompleted?: boolean;
+  completedAt?: string | null;
+  completedBy?: string | null;
 }
 
 export interface StickyNoteUpdateRequest {
@@ -186,6 +193,9 @@ export interface StickyNoteUpdateRequest {
 
   color?: StickyNoteColor;
   position?: number;
+  isCompleted?: boolean;
+  completedAt?: string | null;
+  completedBy?: string | null;
 }
 
 export interface StickyNoteStatusUpdateRequest {

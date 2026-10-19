@@ -40,19 +40,21 @@
     }
     @if (!preview) {
       <div class="sticky-note__header-actions">
-        <button
-          type="button"
-          class="sticky-note__favorite-trigger"
-          [class.is-favorited]="isFavorite"
-          [disabled]="disabled || isFavoriteBusy"
-          [attr.aria-label]="
-            isFavorite ? 'Remove ' + title + ' from favourites' : 'Add ' + title + ' to favourites'
-          "
-          [title]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
-          (click)="toggleFavorite($event)"
-        >
-          <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
-        </button>
+        @if (showFavoriteAction) {
+          <button
+            type="button"
+            class="sticky-note__favorite-trigger"
+            [class.is-favorited]="isFavorite"
+            [disabled]="disabled || isFavoriteBusy"
+            [attr.aria-label]="
+              isFavorite ? 'Remove ' + title + ' from favourites' : 'Add ' + title + ' to favourites'
+            "
+            [title]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+            (click)="toggleFavorite($event)"
+          >
+            <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
+          </button>
+        }
 
         <button
           type="button"
@@ -115,6 +117,26 @@
               <span class="sticky-note-menu-item-copy">
                 <strong>Move right</strong>
                 <small>Send to next column</small>
+              </span>
+            </button>
+
+            <mat-divider />
+          }
+
+          @if (showCompletionAction) {
+            <button
+              mat-menu-item
+              type="button"
+              class="sticky-note-action-item sticky-note-menu-completion"
+              [disabled]="disabled"
+              (click)="toggleCompletion($event)"
+            >
+              <span class="sticky-note-menu-item-icon" aria-hidden="true">
+                <app-icon [icon]="isCompleted ? LucideRotateCcw : LucideCheckCircle2" size="xs" />
+              </span>
+              <span class="sticky-note-menu-item-copy">
+                <strong>{{ isCompleted ? 'Move to Today Notes' : 'Mark completed' }}</strong>
+                <small>{{ isCompleted ? 'Return note to Today Notes' : 'Move to Completed section' }}</small>
               </span>
             </button>
 
@@ -238,12 +260,7 @@
           "
           (click)="startDescriptionEdit($event)"
           (keydown.enter)="startDescriptionEdit($event)"
-        >
-          {{ description || 'Add a description…' }}
-          @if (descriptionUpdating) {
-            <span class="sticky-note__saving-dot" aria-label="Saving description"></span>
-          }
-        </p>
+        >{{ description || 'Add a description…' }}@if (descriptionUpdating) {<span class="sticky-note__saving-dot" aria-label="Saving description"></span>}</p>
       }
     }
 
