@@ -1187,3 +1187,14 @@
     outline-color: Highlight;
   }
 }
+
+/* Flat controls keep each variant's color and focus states without raised edges. */
+.app-button.app-button-appearance-flat,
+.app-button.app-button-appearance-flat:hover:not(:disabled),
+.app-button.app-button-appearance-flat:active:not(:disabled) {
+  box-shadow: none;
+  transform: none;
+}
+.app-button.app-button-appearance-flat::after {
+  display: none;
+}

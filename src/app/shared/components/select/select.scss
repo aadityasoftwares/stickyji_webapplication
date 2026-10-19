@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/sticky-note-palette' as note;
 
 :host {
   min-width: 0;
@@ -1116,16 +1117,16 @@
 
 /* Defined on the swatch itself so body-mounted menus retain the palette. */
 .app-select-color-swatch {
-  --app-select-swatch-white: #{$paper};
-  --app-select-swatch-yellow: #{color.mix($note-yellow, $paper, 30%)};
-  --app-select-swatch-orange: #{color.mix($note-orange, $paper, 20%)};
-  --app-select-swatch-pink: #{color.mix($note-pink, $paper, 34%)};
-  --app-select-swatch-red: #{color.mix($note-red, $paper, 20%)};
-  --app-select-swatch-green: #{color.mix($note-green, $paper, 18%)};
-  --app-select-swatch-blue: #{color.mix($note-blue, $paper, 16%)};
-  --app-select-swatch-purple: #{color.mix($note-purple, $paper, 14%)};
-  --app-select-swatch-brown: #{color.mix($note-brown, $paper, 18%)};
-  --app-select-swatch-black: #{$note-jet-black};
+  --app-select-swatch-white: #{note.surface('white')};
+  --app-select-swatch-yellow: #{note.surface('yellow')};
+  --app-select-swatch-orange: #{note.surface('orange')};
+  --app-select-swatch-pink: #{note.surface('pink')};
+  --app-select-swatch-red: #{note.surface('red')};
+  --app-select-swatch-green: #{note.surface('green')};
+  --app-select-swatch-blue: #{note.surface('blue')};
+  --app-select-swatch-purple: #{note.surface('purple')};
+  --app-select-swatch-brown: #{note.surface('brown')};
+  --app-select-swatch-black: #{note.surface('black')};
   display: inline-block;
   flex: 0 0 18px;
   width: 18px;

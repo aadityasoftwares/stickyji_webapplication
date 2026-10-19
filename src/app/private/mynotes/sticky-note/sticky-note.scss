@@ -1,5 +1,5 @@
-@use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/sticky-note-palette' as note;
 
 :host {
   display: block;
@@ -14,11 +14,11 @@
 }
 
 .sticky-note {
-  --note-paper: #{$paper};
-  --note-paper-deep: #{$paper-dark};
+  --note-paper: #{note.surface('white')};
+  --note-paper-deep: #{note.fold('white')};
   --note-ink: #{$text-primary};
   --note-muted: #{$text-secondary};
-  --note-border: #{rgba($heading, 0.14)};
+  --note-border: #{rgba(#716343, 0.09)};
   --note-accent: #{$accent};
   --note-check: #{$success};
   --note-radius: 0.2rem;
@@ -38,7 +38,7 @@
   background: var(--note-paper);
   border: 1px solid var(--note-border);
   border-radius: var(--note-radius);
-  box-shadow: $shadow-sm;
+  box-shadow: note.$shadow-rest;
   font-family: var(--note-font-family, #{$font-body});
   font-size: var(--note-font-size);
   transform: translateZ(0);
@@ -49,13 +49,12 @@
 }
 
 .sticky-note:hover {
-  // border-color: color-mix(in srgb, var(--note-accent) 34%, var(--note-border));
-  box-shadow: $shadow;
+  box-shadow: note.$shadow-hover;
   transform: translateY(-1px);
 }
 
 .sticky-note:focus-within {
-  // outline: 2px solid color-mix(in srgb, var(--note-accent) 55%, white);
+  outline: 2px solid color-mix(in srgb, var(--note-accent) 65%, transparent);
   outline-offset: 2px;
 }
 
@@ -73,6 +72,23 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+}
+
+/* Paper lighting stays underneath the optional line/grid pattern. */
+.sticky-note__surface {
+  background-color: var(--note-paper);
+  background-image: note.$light;
+}
+
+.sticky-note__surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: radial-gradient(rgba(84, 65, 32, 0.18) 0.5px, transparent 0.7px);
+  background-size: 5px 7px;
 }
 
 /* One transparent SVG tile: exact 1px strokes, no shaded backgrounds. */
@@ -384,9 +400,9 @@
   color: var(--note-ink);
   font: inherit;
   font-size: calc(var(--note-font-size) + 3px);
-  font-weight: 800;
-  line-height: 1.3;
-  letter-spacing: -0.018em;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.012em;
   overflow-wrap: anywhere;
   cursor: text;
 }
@@ -397,8 +413,8 @@
   overflow: hidden;
   color: var(--note-muted);
   font-size: var(--note-font-size);
-  font-weight: 500;
-  line-height: 1.48;
+  font-weight: 400;
+  line-height: 1.55;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   cursor: text;
@@ -574,64 +590,64 @@
   object-fit: cover;
 }
 
-/* Palette: shared theme variables are softened against the shared paper color. */
+/* Keep note surfaces, editor previews, and picker swatches on the same palette. */
 .is-color-white {
-  --note-paper: #{$paper};
-  --note-paper-deep: #{$paper-dark};
+  --note-paper: #{note.surface('white')};
+  --note-paper-deep: #{note.fold('white')};
   --note-accent: #{$secondary};
 }
 
 .is-color-yellow {
-  --note-paper: #{color.mix($note-yellow, $paper, 30%)};
-  --note-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
+  --note-paper: #{note.surface('yellow')};
+  --note-paper-deep: #{note.fold('yellow')};
   --note-accent: #{$note-mustard};
 }
 
 .is-color-orange {
-  --note-paper: #{color.mix($note-orange, $paper, 20%)};
-  --note-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
+  --note-paper: #{note.surface('orange')};
+  --note-paper-deep: #{note.fold('orange')};
   --note-accent: #{$note-burnt-orange};
 }
 
 .is-color-pink {
-  --note-paper: #{color.mix($note-pink, $paper, 34%)};
-  --note-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
+  --note-paper: #{note.surface('pink')};
+  --note-paper-deep: #{note.fold('pink')};
   --note-accent: #{$note-blush};
 }
 
 .is-color-red {
-  --note-paper: #{color.mix($note-red, $paper, 20%)};
-  --note-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
+  --note-paper: #{note.surface('red')};
+  --note-paper-deep: #{note.fold('red')};
   --note-accent: #{$note-dark-red};
 }
 
 .is-color-green {
-  --note-paper: #{color.mix($note-green, $paper, 18%)};
-  --note-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
+  --note-paper: #{note.surface('green')};
+  --note-paper-deep: #{note.fold('green')};
   --note-accent: #{$note-forest-green};
 }
 
 .is-color-blue {
-  --note-paper: #{color.mix($note-blue, $paper, 16%)};
-  --note-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
+  --note-paper: #{note.surface('blue')};
+  --note-paper-deep: #{note.fold('blue')};
   --note-accent: #{$note-steel-blue};
 }
 
 .is-color-purple {
-  --note-paper: #{color.mix($note-purple, $paper, 14%)};
-  --note-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
+  --note-paper: #{note.surface('purple')};
+  --note-paper-deep: #{note.fold('purple')};
   --note-accent: #{$note-grape};
 }
 
 .is-color-brown {
-  --note-paper: #{color.mix($note-brown, $paper, 18%)};
-  --note-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
+  --note-paper: #{note.surface('brown')};
+  --note-paper-deep: #{note.fold('brown')};
   --note-accent: #{$note-coffee};
 }
 
 .is-color-black {
-  --note-paper: #{$note-jet-black};
-  --note-paper-deep: #{$note-black};
+  --note-paper: #{note.surface('black')};
+  --note-paper-deep: #292a2c;
   --note-ink: #{$paper};
   --note-muted: #{$border};
   --note-border: #{rgba($paper, 0.18)};
@@ -689,11 +705,12 @@
 }
 
 .is-variant-folded .sticky-note__paper {
-  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.12));
+  filter: drop-shadow(0 1px 2px rgba(63, 49, 25, 0.08))
+    drop-shadow(0 4px 5px rgba(63, 49, 25, 0.06));
 }
 
 .is-variant-folded .sticky-note__surface {
-  background: var(--note-paper);
+  background-color: var(--note-paper);
   clip-path: polygon(
     0 0,
     100% 0,
@@ -710,7 +727,8 @@
   display: block;
   width: var(--cut-size);
   height: var(--cut-size);
-  background: var(--note-paper-deep);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 65%), var(--note-paper-deep);
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
   transform: rotate(180deg);
   transform-origin: center;
@@ -924,7 +942,7 @@
 
 .sticky-note.is-preview:hover {
   transform: none;
-  box-shadow: $shadow-sm;
+  box-shadow: note.$shadow-rest;
 }
 
 .sticky-note.is-preview .sticky-note__title,

@@ -7,6 +7,7 @@ import {
   inject,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -274,6 +275,11 @@ export class Today {
       (this.overdue.data()?.total ?? 0) > 0,
   );
   readonly searchTerm = signal('');
+  readonly searchExpanded = signal(false);
+  readonly isSearchExpanded = computed(
+    () => this.searchExpanded() || !!this.searchTerm().trim(),
+  );
+  readonly todaySearchInput = viewChild<AppInput>('todaySearchInput');
   readonly movingColumn = signal(false);
 
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
@@ -289,6 +295,15 @@ export class Today {
   readonly stickyNoteLayout = this.userPreferenceStore.stickyNoteLayout;
   readonly stickyNoteFont = this.userPreferenceStore.stickyNoteFont;
   readonly stickyNoteFontSize = this.userPreferenceStore.stickyNoteFontSize;
+
+  readonly fontSelectWidth = computed(() => {
+    const font = this.stickyNoteFont();
+    const option = this.stickyNoteFontOptions.find((o) => o.value === font);
+    const label = option?.label ?? 'Note font';
+    const textWidth = Math.ceil(label.length * 7.5);
+    const calculated = 87 + textWidth + 14;
+    return Math.min(Math.max(calculated, 155), 215);
+  });
 
   readonly workspaceOptions = computed<any[]>(() =>
     this.workspaceStore.workspaces().map((workspace) => ({
@@ -936,6 +951,29 @@ export class Today {
     this.router.navigate(routeCommands(APP_ROUTES.TRASH), {
       queryParams: workspaceId ? { workspaceId } : undefined,
     });
+  }
+
+  openSearch(): void {
+    this.searchExpanded.set(true);
+    setTimeout(() => {
+      this.todaySearchInput()?.focus();
+    }, 0);
+  }
+
+  onSearchFocus(): void {
+    this.searchExpanded.set(true);
+  }
+
+  onSearchBlur(): void {
+    if (!this.searchTerm().trim()) {
+      this.searchExpanded.set(false);
+    }
+  }
+
+  onSearchEscape(event: Event): void {
+    event.preventDefault();
+    this.searchTerm.set('');
+    this.searchExpanded.set(false);
   }
 
   updateSearch(value: any): void {

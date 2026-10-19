@@ -1,16 +1,9 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/sticky-note-palette' as note;
 
-$card-note-white: #fffdf5;
-$card-note-yellow: #f7df72;
-$card-note-orange: #ffc97d;
-$card-note-pink: #f4bed1;
-$card-note-red: #efa9a2;
-$card-note-green: #c4e4b5;
-$card-note-blue: #b5dff0;
-$card-note-purple: #d6bee9;
-$card-note-brown: #d9bd98;
-$card-note-black: #292929;
+$card-note-white: note.surface('white');
+$card-note-black: note.surface('black');
 
 :host {
   display: block;
@@ -374,39 +367,83 @@ $card-note-black: #292929;
 }
 
 .app-card-noteYellow {
-  @include card-palette($card-note-yellow, #dac44f, #302a13, #fae77f, #f4d95f);
+  @include card-palette(
+    note.surface('yellow'),
+    color.mix(note.surface('yellow'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('yellow')};
 }
 
 .app-card-noteOrange {
-  @include card-palette($card-note-orange, #dfa958, #352615, #ffd38e, #f7bc68);
+  @include card-palette(
+    note.surface('orange'),
+    color.mix(note.surface('orange'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('orange')};
 }
 
 .app-card-notePink {
-  @include card-palette($card-note-pink, #d79cae, #352229, #fac8d8, #efb0c7);
+  @include card-palette(
+    note.surface('pink'),
+    color.mix(note.surface('pink'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('pink')};
 }
 
 .app-card-noteRed {
-  @include card-palette($card-note-red, #d28d87, #3a2422, #f5b9b2, #e99d96);
+  @include card-palette(note.surface('red'), color.mix(note.surface('red'), #796a50, 86%), #302e29);
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('red')};
 }
 
 .app-card-noteGreen {
-  @include card-palette($card-note-green, #9fc88d, #24301f, #d0ecbf, #b6dda4);
+  @include card-palette(
+    note.surface('green'),
+    color.mix(note.surface('green'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('green')};
 }
 
 .app-card-noteBlue {
-  @include card-palette($card-note-blue, #91bfd3, #1f3038, #c4e8f6, #a7d5e8);
+  @include card-palette(
+    note.surface('blue'),
+    color.mix(note.surface('blue'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('blue')};
 }
 
 .app-card-notePurple {
-  @include card-palette($card-note-purple, #b9a0ce, #30243a, #e0cef0, #cbb3df);
+  @include card-palette(
+    note.surface('purple'),
+    color.mix(note.surface('purple'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('purple')};
 }
 
 .app-card-noteBrown {
-  @include card-palette($card-note-brown, #b99a73, #362a20, #e3c9a7, #cfad82);
+  @include card-palette(
+    note.surface('brown'),
+    color.mix(note.surface('brown'), #796a50, 86%),
+    #302e29
+  );
+  --app-card-background-image: #{note.$light};
+  --app-card-fold: #{note.fold('brown')};
 }
 
 .app-card-noteBlack {
-  @include card-palette($card-note-black, #404040, #ffffff, #333333, #242424);
+  @include card-palette($card-note-black, #454648, #fffdf7, #37383a, #303133);
   --app-card-muted: rgba(255, 255, 255, 0.7);
   --app-card-divider: rgba(255, 255, 255, 0.15);
   --app-card-fold: #161616;
@@ -435,11 +472,17 @@ $card-note-black: #292929;
     0 1px 2px rgba(49, 41, 25, 0.05),
     0 4px 8px rgba(49, 41, 25, 0.055);
 }
+.app-card-shadow-sm[class*='app-card-note'] {
+  box-shadow: note.$shadow-rest;
+}
 
 .app-card-shadow-md {
   box-shadow:
     0 2px 3px rgba(49, 41, 25, 0.055),
     0 7px 15px rgba(49, 41, 25, 0.07);
+}
+.app-card-shadow-md[class*='app-card-note'] {
+  box-shadow: note.$shadow-hover;
 }
 
 .app-card-shadow-lg {

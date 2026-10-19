@@ -89,7 +89,10 @@ describe('Sidebar navigation', () => {
       ['Preferences', '/app/account/preferences'],
     ];
     for (const [label, route] of destinations) {
-      const link = fixture.nativeElement.querySelector(`a[aria-label="${label}"]`);
+      const link = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('a'),
+      ).find((element) => element.getAttribute('aria-label') === label) as
+        HTMLAnchorElement | undefined;
       expect(link?.getAttribute('href')).toBe(route);
       expect(link?.closest('[hidden]')).toBeNull();
     }

@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/sticky-note-palette' as note;
 
 :host {
   display: contents;
@@ -26,9 +27,9 @@
 
   &[data-color='white'] .app-side-panel-body,
   .note-editor[data-color='white'] {
-    --editor-paper: #{$paper};
-    --editor-paper-deep: #{$paper-dark};
-    --editor-body: #{$paper};
+    --editor-paper: #{note.surface('white')};
+    --editor-paper-deep: #{note.fold('white')};
+    --editor-body: #{note.surface('white')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -37,9 +38,9 @@
 
   &[data-color='yellow'] .app-side-panel-body,
   .note-editor[data-color='yellow'] {
-    --editor-paper: #{color.mix($note-yellow, $paper, 30%)};
-    --editor-paper-deep: #{color.mix($note-yellow, $paper-dark, 44%)};
-    --editor-body: #{color.mix($note-yellow, $paper, 30%)};
+    --editor-paper: #{note.surface('yellow')};
+    --editor-paper-deep: #{note.fold('yellow')};
+    --editor-body: #{note.surface('yellow')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -48,9 +49,9 @@
 
   &[data-color='orange'] .app-side-panel-body,
   .note-editor[data-color='orange'] {
-    --editor-paper: #{color.mix($note-orange, $paper, 20%)};
-    --editor-paper-deep: #{color.mix($note-orange, $paper-dark, 32%)};
-    --editor-body: #{color.mix($note-orange, $paper, 20%)};
+    --editor-paper: #{note.surface('orange')};
+    --editor-paper-deep: #{note.fold('orange')};
+    --editor-body: #{note.surface('orange')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -59,9 +60,9 @@
 
   &[data-color='pink'] .app-side-panel-body,
   .note-editor[data-color='pink'] {
-    --editor-paper: #{color.mix($note-pink, $paper, 34%)};
-    --editor-paper-deep: #{color.mix($note-pink, $paper-dark, 48%)};
-    --editor-body: #{color.mix($note-pink, $paper, 34%)};
+    --editor-paper: #{note.surface('pink')};
+    --editor-paper-deep: #{note.fold('pink')};
+    --editor-body: #{note.surface('pink')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -70,9 +71,9 @@
 
   &[data-color='red'] .app-side-panel-body,
   .note-editor[data-color='red'] {
-    --editor-paper: #{color.mix($note-red, $paper, 20%)};
-    --editor-paper-deep: #{color.mix($note-red, $paper-dark, 33%)};
-    --editor-body: #{color.mix($note-red, $paper, 20%)};
+    --editor-paper: #{note.surface('red')};
+    --editor-paper-deep: #{note.fold('red')};
+    --editor-body: #{note.surface('red')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -81,9 +82,9 @@
 
   &[data-color='green'] .app-side-panel-body,
   .note-editor[data-color='green'] {
-    --editor-paper: #{color.mix($note-green, $paper, 18%)};
-    --editor-paper-deep: #{color.mix($note-green, $paper-dark, 28%)};
-    --editor-body: #{color.mix($note-green, $paper, 18%)};
+    --editor-paper: #{note.surface('green')};
+    --editor-paper-deep: #{note.fold('green')};
+    --editor-body: #{note.surface('green')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -92,9 +93,9 @@
 
   &[data-color='blue'] .app-side-panel-body,
   .note-editor[data-color='blue'] {
-    --editor-paper: #{color.mix($note-blue, $paper, 16%)};
-    --editor-paper-deep: #{color.mix($note-blue, $paper-dark, 26%)};
-    --editor-body: #{color.mix($note-blue, $paper, 16%)};
+    --editor-paper: #{note.surface('blue')};
+    --editor-paper-deep: #{note.fold('blue')};
+    --editor-body: #{note.surface('blue')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -103,9 +104,9 @@
 
   &[data-color='purple'] .app-side-panel-body,
   .note-editor[data-color='purple'] {
-    --editor-paper: #{color.mix($note-purple, $paper, 14%)};
-    --editor-paper-deep: #{color.mix($note-purple, $paper-dark, 23%)};
-    --editor-body: #{color.mix($note-purple, $paper, 14%)};
+    --editor-paper: #{note.surface('purple')};
+    --editor-paper-deep: #{note.fold('purple')};
+    --editor-body: #{note.surface('purple')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -114,9 +115,9 @@
 
   &[data-color='brown'] .app-side-panel-body,
   .note-editor[data-color='brown'] {
-    --editor-paper: #{color.mix($note-brown, $paper, 18%)};
-    --editor-paper-deep: #{color.mix($note-brown, $paper-dark, 28%)};
-    --editor-body: #{color.mix($note-brown, $paper, 18%)};
+    --editor-paper: #{note.surface('brown')};
+    --editor-paper-deep: #{note.fold('brown')};
+    --editor-body: #{note.surface('brown')};
     --editor-ink: #{$text-primary};
     --editor-muted: #{$text-secondary};
     --editor-rule: #{rgba($heading, 0.14)};
@@ -125,9 +126,9 @@
 
   &[data-color='black'] .app-side-panel-body,
   .note-editor[data-color='black'] {
-    --editor-paper: #{$note-jet-black};
+    --editor-paper: #{note.surface('black')};
     --editor-paper-deep: #{$note-black};
-    --editor-body: #{$note-jet-black};
+    --editor-body: #{note.surface('black')};
     --editor-ink: #{$paper};
     --editor-muted: #{rgba($paper, 0.72)};
     --editor-rule: #{rgba($paper, 0.18)};
@@ -164,7 +165,7 @@
    ========================================================================== */
 
 .note-editor {
-  --editor-paper: #{$paper};
+  --editor-paper: #{note.surface('white')};
   --editor-body: var(--editor-paper);
   --editor-ink: #{$text-primary};
   --editor-muted: #{$text-secondary};

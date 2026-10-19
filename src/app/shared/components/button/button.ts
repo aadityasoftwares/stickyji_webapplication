@@ -27,7 +27,7 @@ export type ButtonVariant =
   | 'noteBrown'
   | 'noteBlack';
 
-export type ButtonAppearance = 'standard' | 'tape';
+export type ButtonAppearance = 'standard' | 'tape' | 'flat';
 export type ButtonType = 'button' | 'submit' | 'reset';
 
 export type ButtonWidth = 'auto' | 'full' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';

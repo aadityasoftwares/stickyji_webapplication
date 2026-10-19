@@ -3,30 +3,35 @@
     <header class="today-header">
       <div class="today-intro">
         <span class="today-calendar-mark" aria-hidden="true">
-          <span class="today-calendar-top">TODAY</span>
+          <span class="today-calendar-top">{{ todayMonth() }}</span>
           <strong>{{ todayDay() }}</strong>
         </span>
         <div>
-          <span class="today-kicker">Today · {{ today() | date: 'MMMM d, y' }}</span>
-          <h1 id="today-page-title">Plan, organise, and get things done</h1>
-          <!-- <p class="today-subtitle">Turn your thoughts into progress, one note at a time.</p> -->
+          <div class="today-heading-meta">
+            <span class="today-kicker">Today</span
+            ><span class="today-heading-date"
+              >{{ todayWeekday() }} &middot; {{ today() | userDate }}</span
+            >
+            <div class="today-note-count-slot" aria-live="polite">
+              @if (noteCount() > 0) {
+                <app-badge
+                  class="today-note-count"
+                  [label]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')"
+                  variant="noteYellow"
+                  size="sm"
+                  shape="pill"
+                  [ariaLabel]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')"
+                />
+              } @else {
+                <span class="today-note-count-placeholder" aria-hidden="true"></span>
+              }
+            </div>
+          </div>
+          <h1 id="today-page-title">Your day, one note at a time.</h1>
+          <!-- <p class="today-subtitle">A little focus. A little progress.</p> -->
         </div>
       </div>
       <div class="today-header-actions">
-        <div class="today-note-count-slot" aria-live="polite">
-          @if (noteCount() > 0) {
-            <app-badge
-              class="today-note-count"
-              [label]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')"
-              variant="noteYellow"
-              size="sm"
-              shape="pill"
-              [ariaLabel]="noteCount() + (noteCount() === 1 ? ' note' : ' notes')"
-            />
-          } @else {
-            <span class="today-note-count-placeholder" aria-hidden="true"></span>
-          }
-        </div>
         <div class="today-header-context-picker" aria-label="Workspace and folder selection">
           <div class="today-workspace-picker">
             <app-select
@@ -74,8 +79,8 @@
           <app-button
             [icon]="LucideRefreshCw"
             [iconOnly]="true"
-            appearance="standard"
-            variant="noteBlue"
+            appearance="flat"
+            variant="outline"
             [height]="UI.button.height.md"
             size="sm"
             ariaLabel="Refresh today board"
@@ -85,6 +90,7 @@
             (buttonClick)="refreshBoard()"
           />
           <app-button
+            appearance="flat"
             label="New note"
             [iconLeft]="LucidePlus"
             variant="noteYellow"
@@ -105,7 +111,7 @@
       />
     }
     <section class="today-explorer" [attr.aria-busy]="boardLoading()">
-      <div class="today-toolbar">
+      <div class="today-toolbar" [class.has-search-expanded]="isSearchExpanded()">
         <div class="today-toolbar-left">
           <app-tabs
             [items]="viewTabs"
@@ -121,8 +127,9 @@
             (valueChange)="setView($event)"
           />
         </div>
-        <div class="today-search">
+        <div class="today-search" [class.has-search-active]="isSearchExpanded()">
           <app-input
+            #todaySearchInput
             type="search"
             label="Search today notes"
             labelMode="hidden"
@@ -140,6 +147,9 @@
             ariaLabel="Search today notes"
             (valueChange)="updateSearch($event)"
             (cleared)="clearSearch()"
+            (inputFocus)="onSearchFocus()"
+            (inputBlur)="onSearchBlur()"
+            (keydown.escape)="onSearchEscape($event)"
           />
         </div>
         <div class="today-toolbar-team" aria-label="Workspace members">
@@ -163,6 +173,7 @@
             />
           }
         </div>
+        <div class="today-toolbar-spacer" aria-hidden="true"></div>
         <div class="today-toolbar-controls">
           <div class="today-display-settings" role="group" aria-label="Note display settings">
             <div class="today-font-select">
@@ -179,13 +190,15 @@
                 appearance="simple"
                 [height]="UI.button.height.md"
                 [radius]="UI.radius.xs"
+                [width]="fontSelectWidth()"
+                [maxWidth]="215"
                 [iconLeft]="LucideType"
                 [clearable]="false"
                 [searchable]="false"
-                [fullWidth]="true"
+                [fullWidth]="false"
               />
             </div>
-            <div class="today-layout-select">
+            <div class="today-font-size-select">
               <app-select
                 [options]="stickyNoteFontSizeOptions"
                 [ngModel]="stickyNoteFontSize()"
@@ -199,10 +212,12 @@
                 [height]="UI.button.height.md"
                 [radius]="UI.radius.xs"
                 size="xs"
+                [width]="125"
+                [maxWidth]="135"
                 [iconLeft]="LucideAArrowUp"
                 [clearable]="false"
                 [searchable]="false"
-                [fullWidth]="true"
+                [fullWidth]="false"
               />
             </div>
             <div class="today-layout-select">
@@ -219,10 +234,12 @@
                 [radius]="UI.radius.xs"
                 shape="rounded"
                 size="xs"
+                [width]="145"
+                [maxWidth]="155"
                 [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
                 [clearable]="false"
                 [searchable]="false"
-                [fullWidth]="true"
+                [fullWidth]="false"
               />
             </div>
           </div>
@@ -232,8 +249,8 @@
               [iconLeft]="LucideTrash2"
               [disabled]="!activeWorkspaceId()"
               label="Trash"
-              appearance="standard"
-              variant="noteRed"
+              appearance="flat"
+              variant="ghost"
               [hasIcon]="true"
               [height]="UI.button.height.md"
               ariaLabel="Open recently deleted sticky notes"
@@ -245,7 +262,7 @@
                 size="xs"
                 [iconLeft]="LucideClockAlert"
                 [label]="'Overdue (' + overdue.data().total + ')'"
-                appearance="standard"
+                appearance="flat"
                 variant="noteOrange"
                 [height]="UI.button.height.md"
                 [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'"
@@ -286,6 +303,7 @@
             </h2>
             <p>{{ errorMessage(workspaceErrorKind(), workspaceError()) }}</p>
             <app-button
+              appearance="flat"
               label="Try again"
               [iconLeft]="LucideRefreshCw"
               variant="primary"
@@ -302,6 +320,7 @@
             <h2>No workspace yet</h2>
             <p>{{ TODAY_MESSAGES.EMPTY.NO_WORKSPACE }}</p>
             <app-button
+              appearance="flat"
               label="New workspace"
               [iconLeft]="LucidePlus"
               variant="noteYellow"
@@ -340,6 +359,7 @@
             </h2>
             <p>{{ errorMessage(foldersErrorKind(), foldersError()) }}</p>
             <app-button
+              appearance="flat"
               label="Try again"
               [iconLeft]="LucideRefreshCw"
               variant="primary"
@@ -354,6 +374,7 @@
             <h2>Folders are unavailable</h2>
             <p>{{ foldersError() }}</p>
             <app-button
+              appearance="flat"
               label="Try again"
               [iconLeft]="LucideRefreshCw"
               variant="primary"
@@ -368,6 +389,7 @@
             <h2>No folders yet</h2>
             <p>{{ TODAY_MESSAGES.EMPTY.NO_FOLDERS }}</p>
             <app-button
+              appearance="flat"
               label="New folder"
               [iconLeft]="LucidePlus"
               variant="noteYellow"
@@ -382,6 +404,7 @@
             <h2>Create your first folder</h2>
             <p>Today needs a folder before notes can be organised into a board.</p>
             <app-button
+              appearance="flat"
               label="New folder"
               [iconLeft]="LucidePlus"
               variant="noteYellow"
@@ -427,6 +450,7 @@
             </h2>
             <p>{{ errorMessage(boardErrorKind(), boardError()) }}</p>
             <app-button
+              appearance="flat"
               label="Try again"
               [iconLeft]="LucideRefreshCw"
               variant="primary"
@@ -441,6 +465,7 @@
             <h2>Couldn’t load today’s notes</h2>
             <p>{{ boardError() }}</p>
             <app-button
+              appearance="flat"
               label="Try again"
               [iconLeft]="LucideRefreshCw"
               variant="primary"
@@ -457,6 +482,7 @@
             <h2>This folder needs columns</h2>
             <p>Create or configure columns before adding notes to this board.</p>
             <app-button
+              appearance="flat"
               label="Add column"
               [iconLeft]="LucidePlus"
               variant="outline"
@@ -471,6 +497,7 @@
             <h2>No notes yet</h2>
             <p>{{ TODAY_MESSAGES.EMPTY.NO_NOTES }}</p>
             <app-button
+              appearance="flat"
               label="New note"
               [iconLeft]="LucidePlus"
               variant="noteYellow"
@@ -485,6 +512,7 @@
             <h2>No matching notes found</h2>
             <p>{{ TODAY_MESSAGES.EMPTY.NO_SEARCH_RESULTS }}</p>
             <app-button
+              appearance="flat"
               label="Clear search"
               variant="outline"
               size="sm"
@@ -537,18 +565,20 @@
                     </div>
                     <div class="today-column-actions">
                       <app-button
+                        appearance="flat"
                         [icon]="LucidePlus"
                         [iconOnly]="true"
-                        variant="secondary"
+                        variant="ghost"
                         size="sm"
                         [ariaLabel]="'Add note to ' + column.label"
                         [title]="'Add note to ' + column.label"
                         (buttonClick)="openNoteCreatePanel(column.id)"
                       />
                       <app-button
+                        appearance="flat"
                         [icon]="LucideMoreHorizontal"
                         [iconOnly]="true"
-                        variant="secondary"
+                        variant="ghost"
                         size="sm"
                         [ariaLabel]="'Edit ' + column.label + ' column'"
                         [title]="'Edit ' + column.label + ' column'"
@@ -588,7 +618,7 @@
                             [icon]="
                               column.type === 'COMPLETED' ? LucideClipboardCheck : LucideFileText
                             "
-                            [size]="40"
+                            [size]="30"
                             [strokeWidth]="1.75"
                           />
                         </span>
@@ -597,8 +627,7 @@
                             searchTerm()
                               ? 'No matching notes'
                               : column.type === 'COMPLETED'
-                                ? 'Nothing
-                                        completed yet'
+                                ? 'Room for a little progress'
                                 : 'No notes yet'
                           }}
                         </strong>
@@ -608,13 +637,12 @@
                               ? 'Try another search or clear the filter.'
                               : column.type === 'COMPLETED'
                                 ? 'Move notes here when they’re done.'
-                                : 'Add a note or drag one
-                                        into
-                                        this column.'
+                                : 'Add your first note, or drag one here.'
                           }}
                         </small>
                         @if (searchTerm()) {
                           <app-button
+                            appearance="flat"
                             label="Clear search"
                             variant="outline"
                             size="xs"
@@ -622,6 +650,7 @@
                           />
                         } @else {
                           <app-button
+                            appearance="flat"
                             label="Add note"
                             [iconLeft]="LucidePlus"
                             variant="outline"
@@ -637,7 +666,11 @@
             </div>
             <aside class="today-add-column-rail" aria-label="Add another column">
               <div class="today-add-column-inner">
+                <span class="today-add-column-visual" aria-hidden="true"
+                  ><app-icon [icon]="LucidePanelsTopLeft" [size]="22"
+                /></span>
                 <app-button
+                  appearance="flat"
                   label="Add column"
                   [iconLeft]="LucidePlus"
                   variant="outline"
@@ -646,7 +679,7 @@
                   title="Add column"
                   (buttonClick)="openColumnCreateSidePanel()"
                 />
-                <small>Create another stage</small>
+                <small>A new space for the next step.</small>
               </div>
             </aside>
           </div>
@@ -668,6 +701,7 @@
               </p>
               @if (searchTerm()) {
                 <app-button
+                  appearance="flat"
                   label="Clear search"
                   variant="outline"
                   size="sm"
@@ -675,6 +709,7 @@
                 />
               } @else {
                 <app-button
+                  appearance="flat"
                   label="New note"
                   [iconLeft]="LucidePlus"
                   variant="noteYellow"
@@ -749,6 +784,7 @@
                           <app-icon [icon]="LucideGrip" size="xs" />
                         </button>
                         <app-button
+                          appearance="flat"
                           [icon]="LucidePencil"
                           [iconOnly]="true"
                           variant="ghost"
@@ -759,6 +795,7 @@
                           (buttonClick)="requestColumnEdit(group.column, $event)"
                         />
                         <app-button
+                          appearance="flat"
                           [icon]="LucidePlus"
                           [iconOnly]="true"
                           variant="ghost"
@@ -1016,8 +1053,8 @@
                                       <app-button
                                         [icon]="LucidePencil"
                                         [iconOnly]="true"
-                                        variant="noteBlue"
-                                        appearance="standard"
+                                        variant="outline"
+                                        appearance="flat"
                                         size="xs"
                                         [rounded]="true"
                                         [ariaLabel]="'Edit ' + (note?.title || 'note')"
@@ -1031,7 +1068,7 @@
                                           [icon]="LucideArrowRight"
                                           [iconOnly]="true"
                                           variant="noteYellow"
-                                          appearance="standard"
+                                          appearance="flat"
                                           size="xs"
                                           [rounded]="true"
                                           [ariaLabel]="'Move forward ' + (note?.title || 'note')"
@@ -1044,7 +1081,7 @@
                                           [icon]="isNoteFavorite(note) ? LucideStar : LucideStarOff"
                                           [iconOnly]="true"
                                           variant="noteYellow"
-                                          appearance="standard"
+                                          appearance="flat"
                                           size="xs"
                                           [rounded]="true"
                                           [ariaLabel]="
@@ -1210,6 +1247,7 @@
                             }}</span>
                             @if (!searchTerm()) {
                               <app-button
+                                appearance="flat"
                                 label="Add note"
                                 [iconLeft]="LucidePlus"
                                 variant="outline"

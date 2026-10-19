@@ -243,4 +243,61 @@ describe('Today', () => {
     expect(overdueRefresh).toHaveBeenCalledOnce();
     expect(notesRefresh).toHaveBeenCalledOnce();
   });
+
+  it('manages Zoho-style expandable search state properly', () => {
+    expect(component.isSearchExpanded()).toBe(false);
+
+    component.openSearch();
+    expect(component.searchExpanded()).toBe(true);
+    expect(component.isSearchExpanded()).toBe(true);
+
+    // Blurring when empty collapses search
+    component.onSearchBlur();
+    expect(component.searchExpanded()).toBe(false);
+    expect(component.isSearchExpanded()).toBe(false);
+
+    // When there is an active search query, blurring keeps it expanded
+    component.updateSearch('ideas');
+    component.onSearchBlur();
+    expect(component.isSearchExpanded()).toBe(true);
+
+    // Escape clears search and collapses
+    const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+    component.onSearchEscape(escapeEvent);
+    expect(component.searchTerm()).toBe('');
+    expect(component.searchExpanded()).toBe(false);
+    expect(component.isSearchExpanded()).toBe(false);
+  });
+
+  it('calculates font select width within configured min and max limits according to text', () => {
+    const preferences = TestBed.inject(UserPreferenceStore);
+
+    // Short font: Caveat (6 chars) -> should clamp to min 155
+    preferences.updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, 'CAVEAT');
+    expect(component.fontSelectWidth()).toBe(155);
+
+    // Medium font: Comic Neue (10 chars) -> 87 + 75 + 14 = 176
+    preferences.updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, 'COMIC_NEUE');
+    expect(component.fontSelectWidth()).toBe(176);
+
+    // Long font: Architects Daughter (19 chars) -> should clamp to max 215
+    preferences.updatePreference(USER_PREFERENCE_KEYS.STICKY_NOTE_FONT, 'ARCHITECTS_DAUGHTER');
+    expect(component.fontSelectWidth()).toBe(215);
+  });
+
+  it('applies has-search-expanded on today-toolbar and has-search-active on today-search in template', async () => {
+    fixture.detectChanges();
+    const toolbarEl = fixture.nativeElement.querySelector('.today-toolbar') as HTMLElement;
+    const searchEl = fixture.nativeElement.querySelector('.today-search') as HTMLElement;
+
+    expect(toolbarEl.classList.contains('has-search-expanded')).toBe(false);
+    expect(searchEl.classList.contains('has-search-active')).toBe(false);
+
+    component.openSearch();
+    fixture.detectChanges();
+
+    expect(toolbarEl.classList.contains('has-search-expanded')).toBe(true);
+    expect(searchEl.classList.contains('has-search-active')).toBe(true);
+  });
 });
+

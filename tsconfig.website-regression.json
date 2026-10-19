@@ -8,6 +8,8 @@
     "src/app/website/routes/website.routes.spec.ts",
     "src/app/private/sidebar/sidebar.spec.ts",
     "src/app/private/private/private.spec.ts",
+    "src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts",
+    "src/app/shared/components/sticky-card/sticky-card.spec.ts",
     "src/app/public/auth/signup/signup.spec.ts",
     "src/app/public/auth/signin/signin.spec.ts",
     "src/app/public/auth/forgot-password/forgot-password.spec.ts",

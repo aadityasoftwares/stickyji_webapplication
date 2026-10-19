@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../styles/variables' as *;
 
 /* ==========================================================
@@ -246,8 +247,9 @@
 }
 
 .today-toolbar {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   flex: 0 0 auto;
   min-width: 0;
@@ -255,6 +257,20 @@
   padding: 0.5rem 0.65rem;
   background: $paper;
   border-bottom: 1px solid rgba($border, 0.82);
+
+  &.has-search-expanded {
+    .today-toolbar-team {
+      position: absolute;
+      z-index: 1;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .today-toolbar-spacer {
+      display: none;
+    }
+  }
 }
 
 .today-toolbar-left,
@@ -326,33 +342,59 @@
   }
 }
 
-.today-search,
-.today-layout-select,
-.today-font-select {
-  width: 100%;
+.today-toolbar-spacer {
+  flex: 1 1 auto;
+  min-width: 1rem;
+}
+
+.today-display-settings {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
   min-width: 0;
 }
 
-.today-font-select {
-  width: 9.5rem;
-}
-
+.today-font-select,
+.today-font-size-select,
 .today-layout-select {
-  width: 7.5rem;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
 }
 
 .today-search {
-  flex: 1 1 10rem;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
   width: auto;
-  max-width: 20rem;
+  min-width: 0;
+  box-sizing: border-box;
+
+  &.has-search-active,
+  &:focus-within {
+    z-index: 10;
+  }
 }
 
-.today-search app-input,
-.today-layout-select app-select,
-.today-font-select app-select {
+.today-search app-input {
   display: block;
   width: 100%;
   min-width: 0;
+}
+
+.today-layout-select app-select,
+.today-font-size-select app-select,
+.today-font-select app-select {
+  display: block;
+  width: auto;
+  min-width: 0;
+}
+
+.today-search.is-expanded app-input {
+  width: 100%;
 }
 
 .today-explorer-body {
@@ -705,504 +747,452 @@
 
 /* Reference workspace shell. Table rows retain their existing styles. */
 .today-page.today-workspace {
-  padding: 0.875rem 1rem 0;
-  background: $paper;
+  padding: clamp(14px, 1.8vw, 26px) clamp(14px, 2vw, 30px) 0;
+  background: #fcfaf6;
 
   .today-main {
     container: today-workspace / inline-size;
     width: 100%;
   }
-
   .today-header {
-    grid-template-columns: minmax(19rem, 1fr) auto;
+    grid-template-columns: minmax(18rem, 1fr) auto;
     align-items: center;
-    gap: 0.75rem 1.5rem;
-    padding: 0 0.5rem 0.75rem;
-    background: $paper;
+    gap: 16px 24px;
+    padding: 0 0 20px;
+    background: transparent;
   }
-
   .today-intro {
-    gap: 1rem;
+    gap: 16px;
   }
-
-  .today-kicker {
-    display: block;
-    color: $accent;
-    font-family: $font-note;
-    font-size: 1.15rem;
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: 0.01em;
-    transform: rotate(-1deg);
-    transform-origin: left center;
-  }
-
   .today-intro h1 {
-    margin-top: 0.25rem;
-    font-size: clamp(1.25rem, 1.5vw, 1.5rem);
-    font-weight: 800;
+    margin-top: 5px;
+    font-size: clamp(21px, 1.8vw, 28px);
+    font-weight: 750;
     line-height: 1.2;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.035em;
+    white-space: normal;
   }
-
-  .today-subtitle {
-    margin: 0.2rem 0 0;
-    color: $text-secondary;
-    font-size: var(--today-font-14);
-    font-weight: 500;
+  .today-heading-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .today-kicker {
+    color: #b6760a;
+    font: 700 23px/1 $font-note;
+    transform: rotate(-3deg);
+  }
+  .today-heading-date {
+    color: #77756e;
+    font-size: 11px;
     line-height: 1.4;
   }
-
+  .today-subtitle {
+    margin-top: 6px;
+    color: #77756e;
+    font-size: 12px;
+    font-weight: 400;
+  }
   .today-calendar-mark {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 3.25rem;
-    min-width: 3.25rem;
-    height: 3.35rem;
-    border: 1px solid rgba($accent, 0.28);
-    border-radius: $radius-xs;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba($heading, 0.04);
-    overflow: hidden;
+    width: 48px;
+    min-width: 48px;
+    height: 56px;
+    border-color: #eadfbe;
+    border-radius: 9px;
+    box-shadow: 0 2px 3px rgba(70, 55, 20, 0.03);
   }
-
   .today-calendar-top {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 0;
-    background: color-mix(in srgb, $note-button-yellow 60%, white);
-    border-bottom: 1px solid rgba($accent, 0.15);
-    color: $note-button-yellow-text;
-    font-family: $font-mono;
-    font-size: 0.6rem;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-align: center;
+    padding: 5px 0;
+    background: #fff0b7;
+    border-color: #f1e1a9;
   }
-
   .today-calendar-mark strong {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1 1 auto;
-    width: 100%;
-    padding: 0;
-    color: $heading;
-    font-family: $font-heading;
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1;
+    font-size: 23px;
+    font-weight: 700;
   }
-
   .today-header-actions {
-    grid-template-columns: auto minmax(18rem, 23rem) auto;
-    align-items: center;
-    gap: 0.875rem;
+    grid-template-columns: minmax(17rem, 21rem) auto;
+    gap: 12px;
   }
-
+  .today-note-count-slot {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
   .today-header-context-picker {
-    gap: 0.5rem;
+    width: 100%;
+    gap: 6px;
   }
   .today-header-context-separator {
-    align-self: center;
+    opacity: 0.45;
+  }
+  .today-header-command-group {
+    gap: 8px;
   }
 
   .today-explorer {
     margin: 0;
-    background: $paper;
-    border: 1px solid $border-light;
-    border-bottom: 0;
-    border-radius: 0.875rem 0.875rem 0 0;
+    border: 0;
+    border-radius: 0;
     box-shadow: none;
+    background: transparent;
   }
-
   .today-toolbar {
-    column-gap: 0.75rem;
-    row-gap: 0.5rem;
-    padding: 0.625rem 0.875rem;
-    background: $paper;
-    border-bottom: 1px solid $border-light;
-  }
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 8px 12px;
+    background: #fffefa;
+    border: 1px solid #eae6dd;
+    border-radius: 12px;
+    margin-bottom: 16px;
 
+    &.has-search-expanded {
+      .today-toolbar-team {
+        position: absolute;
+        z-index: 1;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .today-toolbar-spacer {
+        display: none;
+      }
+    }
+  }
   .today-toolbar-left {
     flex: 0 0 auto;
     width: auto;
-    padding-right: 0.75rem;
-    border-right: 1px solid $border-light;
+    padding: 0;
+    border: 0;
   }
-
   .today-search {
-    flex: 1 1 11rem;
+    flex: 1 1 auto;
     width: auto;
-    max-width: none;
-    margin: 0;
-  }
+    min-width: 0;
+    z-index: 2;
 
+    &.has-search-active,
+    &:focus-within {
+      z-index: 10;
+    }
+  }
   .today-toolbar-team {
     display: flex;
     align-items: center;
     flex: 0 0 auto;
-    padding-inline: 0.375rem;
+    transition: opacity 0.2s ease, visibility 0.2s;
   }
-
   .today-toolbar-team:empty {
     display: none;
   }
-
-  .today-toolbar-controls {
-    flex: 0 1 auto;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    width: auto;
-    margin: 0;
-    padding: 0 0 0 0.75rem;
-    border-left: 1px solid $border-light;
+  .today-toolbar-spacer {
+    display: none;
   }
-
+  .today-toolbar-controls {
+    flex: 0 0 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: auto;
+    gap: 10px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+    justify-content: flex-end;
+  }
   .today-display-settings,
   .today-toolbar-utilities {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     min-width: 0;
-    gap: 0.5rem;
+    gap: 6px;
   }
-
   .today-display-settings {
     flex: 0 1 auto;
   }
-
   .today-toolbar-utilities {
-    padding-left: 0.75rem;
-    border-left: 1px solid $border-light;
+    padding-left: 10px;
+    border-left: 1px solid #eae6dd;
   }
-
-  .today-font-select {
-    width: 9rem;
+  .today-toolbar-controls app-button {
+    width: auto;
+    margin: 0;
   }
+  .today-font-select,
+  .today-font-size-select,
   .today-layout-select {
-    width: 6.75rem;
+    flex: 0 0 auto;
+    width: auto;
   }
-
   .today-explorer-body:not(.is-table):not(.is-list) {
-    padding: 0.5rem 0.75rem 0;
-    background: $paper;
-  }
-
-  .today-kanban {
-    --today-column-width: clamp(17rem, calc((100cqw - 3.5rem) / 4), 22rem);
-    padding-bottom: 0;
-    gap: 0.625rem;
-  }
-
-  .today-kanban-columns {
-    gap: 0.625rem;
-  }
-
-  /* Zoho-style Kanban column: clear vertical lanes without bulky card layout */
-  .today-kanban-column {
-    display: flex;
-    flex-direction: column;
+    padding: 0;
     background: transparent;
-    border: 1px solid $border-light;
-    border-radius: $radius-xs;
+  }
+  .today-kanban {
+    --today-column-width: clamp(14.5rem, calc((100cqw - 14rem) / 3), 22rem);
+    gap: 14px;
+    padding: 0 1px 14px;
+  }
+  .today-kanban-columns {
+    gap: 14px;
+  }
+  .today-kanban-column {
+    padding: 0;
+    background: color-mix(in srgb, var(--column-accent) 2%, #f6f5f0);
+    border: 1px solid #eae7df;
+    border-radius: 14px;
     box-shadow: none;
     overflow: hidden;
-    transition:
-      border-color 150ms ease,
-      background-color 150ms ease;
-
-    &:hover {
-      border-color: rgba($border, 0.9);
-    }
   }
-
   .today-column-header {
-    min-height: 2.375rem;
-    padding: 0.35rem 0.625rem;
-    background: color-mix(in srgb, var(--column-accent) 5%, $paper);
-    border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 12%, $border-light);
+    min-height: 52px;
+    padding: 9px 12px;
+    background: color-mix(in srgb, var(--column-accent) 7%, #fffefa);
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 10%, #eae7df);
     border-radius: 0;
   }
-
   .today-column-title {
-    gap: 0.45rem;
+    gap: 8px;
   }
-  .today-column-actions {
-    gap: 0.2rem;
-  }
-
   .today-column-title h3 {
-    font-size: var(--today-font-13);
-    font-weight: 750;
+    font-size: 13px;
+    font-weight: 650;
     letter-spacing: -0.01em;
   }
-
   .today-column-dot {
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    box-shadow: inset 0 1px 2px rgba(white, 0.4);
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+    box-shadow: none;
   }
-
+  .today-column-actions {
+    gap: 0;
+  }
   .today-column-notes {
-    gap: 0.5rem;
-    padding: 0.5rem 0.45rem;
+    gap: 12px;
+    padding: 12px 10px 18px;
   }
-
   .today-column-notes.cdk-drop-list-receiving {
     outline: 2px dashed var(--column-accent);
-    outline-offset: -2px;
-    background: color-mix(in srgb, var(--column-accent) 4%, transparent);
+    outline-offset: -3px;
+    background: color-mix(in srgb, var(--column-accent) 6%, transparent);
   }
-
   .today-draggable-note.cdk-drag-placeholder {
     opacity: 0.3;
     animation: none;
     border-color: var(--column-accent);
   }
 
-  /* Space-efficient note representation inside Zoho-style Kanban lanes:
-       Prevents long notes from consuming entire column space */
-  .today-kanban-column .today-draggable-note {
-    .sticky-note {
-      min-height: auto;
-      max-height: 18.5rem;
-      padding: 0.625rem 0.75rem 0.55rem;
-      border-radius: $radius-xs;
-      box-shadow: 0 1px 3px rgba($heading, 0.05);
-
-      &:hover {
-        box-shadow: 0 3px 8px rgba($heading, 0.08);
-      }
-    }
-
-    .sticky-note__header {
-      min-height: 1.35rem;
-      margin-bottom: 0.25rem;
-      gap: 0.25rem;
-    }
-
-    .sticky-note__title {
-      font-size: 0.875rem;
-      font-weight: 700;
-      line-height: 1.3;
-    }
-
-    .sticky-note__description {
-      margin-top: 0.25rem;
-      font-size: 0.8125rem;
-      line-height: 1.4;
-      -webkit-line-clamp: 2;
-      overflow: hidden;
-    }
-
-    .sticky-note__checklists {
-      margin-top: 0.45rem;
-      padding-top: 0.4rem;
-      gap: 0.35rem;
-    }
-
-    .sticky-note__checklist-heading {
-      font-size: 0.75rem;
-    }
-
-    .sticky-note__checklist-items {
-      max-height: 5.5rem;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
-
-    .sticky-note__footer {
-      margin-top: 0.35rem;
-      padding-top: 0.35rem;
-    }
-  }
-
   .today-empty-column {
-    flex: 1 0 auto;
-    grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: min-content;
-    min-height: 12rem;
-    margin: 0.25rem;
-    padding: 1.5rem 0.75rem 1rem;
-    gap: 0.5rem;
+    flex: 0 0 auto;
+    min-height: 240px;
+    padding: 30px 12px;
+    margin: 0;
+    gap: 10px;
     place-content: center;
-    justify-items: center;
-    border: 1px dashed rgba($border, 0.7);
-    border-radius: $radius-xs;
-    text-align: center;
-    background: color-mix(in srgb, $paper 90%, white);
+    border: 0;
+    background: transparent;
   }
-
   .today-empty-column strong {
-    margin-top: 0.2rem;
-    font-size: var(--today-font-13);
-    font-weight: 750;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
   }
-
   .today-empty-column small {
     max-width: 12rem;
-    color: $text-secondary;
-    font-size: var(--today-font-12);
-    line-height: 1.4;
+    color: #77756e;
+    font-size: 12px;
+    line-height: 1.6;
   }
-
   .today-empty-column-visual {
-    width: 3.25rem;
-    height: 3.25rem;
-    margin-bottom: 0.15rem;
-    color: var(--column-accent);
-    background: color-mix(in srgb, var(--column-accent) 8%, white);
-    border-radius: 50%;
+    width: 56px;
+    height: 58px;
+    margin-bottom: 4px;
+    color: color-mix(in srgb, var(--column-accent) 70%, #555);
   }
-
   .today-empty-column-visual::before,
   .today-empty-column-visual::after {
-    display: none;
+    border-radius: 5px;
   }
-
+  .today-empty-column-visual::before {
+    inset: 3px 0;
+    background: color-mix(in srgb, var(--column-accent) 10%, #fffefa);
+    transform: rotate(-10deg);
+  }
+  .today-empty-column-visual::after {
+    inset: 0;
+    width: auto;
+    height: auto;
+    background: color-mix(in srgb, var(--column-accent) 5%, #fffefa);
+    transform: rotate(4deg);
+    border: 1px solid rgba(90, 80, 55, 0.08);
+    box-shadow: 0 3px 4px rgba(90, 80, 55, 0.05);
+  }
   .today-empty-column app-button {
-    margin-top: 0.4rem;
+    margin-top: 4px;
   }
-
   .today-add-column-rail {
     align-self: flex-start;
-    padding: 0.625rem;
-    background: transparent;
-    border: 1px dashed rgba($border, 0.7);
-    border-radius: $radius-xs;
+    flex: 0 0 11rem;
+    width: 11rem;
+    min-width: 11rem;
+    padding: 24px 12px;
+    border: 1px dashed #ddd8cb;
+    border-radius: 14px;
+    background: rgba(255, 254, 250, 0.5);
+  }
+  .today-add-column-inner {
+    gap: 12px;
+  }
+  .today-add-column-visual {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: #898371;
+    background: #f0ede4;
+    border-radius: 10px;
+  }
+  .today-add-column-inner small {
+    max-width: 8rem;
+    color: #898371;
+    font: 12px/1.5 $font-body;
+  }
+  .today-grouped-table {
+    border: 1px solid #eae6dd;
+    border-radius: 12px;
+    background: #fffefa;
   }
 
-  @container today-workspace (max-width: 74rem) {
+  @container today-workspace (max-width: 72rem) {
     .today-header {
       grid-template-columns: minmax(0, 1fr);
-      gap: 0.75rem;
+      gap: 12px;
+      padding-bottom: 16px;
     }
-
     .today-header-actions {
       grid-template-columns: minmax(0, 1fr) auto;
       width: 100%;
     }
-
-    .today-note-count-slot {
-      display: none;
-    }
     .today-header-context-picker {
-      width: min(100%, 34rem);
+      width: min(100%, 26rem);
     }
-
     .today-toolbar-controls {
       flex: 1 1 100%;
-      padding-left: 0;
-      border-left: 0;
-    }
-
-    .today-toolbar-utilities {
-      margin-left: auto;
+      justify-content: space-between;
     }
   }
-
-  @container today-workspace (max-width: 44rem) {
+  @container today-workspace (max-width: 42rem) {
     .today-header {
-      padding-inline: 0;
+      gap: 12px;
+    }
+    .today-intro {
+      gap: 12px;
+    }
+    .today-intro h1 {
+      font-size: 21px;
+    }
+    .today-subtitle {
+      display: none;
     }
     .today-header-actions {
       grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
     }
     .today-header-context-picker {
       width: 100%;
+      grid-template-columns: minmax(0, 1fr) 8px minmax(0, 1fr);
+    }
+    .today-header-context-separator {
+      display: grid;
+      width: 8px;
     }
     .today-header-command-group {
-      justify-content: flex-start;
+      display: flex;
+      justify-content: flex-end;
+      width: auto;
     }
     .today-toolbar {
-      gap: 0.625rem;
-      padding: 0.75rem;
+      padding: 8px;
+      margin-bottom: 12px;
+      gap: 8px;
+      flex-wrap: nowrap;
+
+      &.has-search-expanded {
+        .today-toolbar-team {
+          position: absolute;
+          z-index: 1;
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        .today-toolbar-spacer {
+          display: none;
+        }
+      }
     }
     .today-toolbar-left {
-      padding-right: 0;
-      border-right: 0;
+      width: auto;
+      flex: 0 0 auto;
     }
-
     .today-search {
-      order: 1;
-      flex-basis: 100%;
+      flex: 1 1 auto;
+      width: auto;
+      min-width: 0;
     }
-
+    .today-toolbar-spacer {
+      display: none;
+    }
     .today-toolbar-controls {
-      order: 2;
-      flex-direction: row;
+      margin-left: auto;
+      gap: 8px;
     }
-
     .today-display-settings {
-      flex: 1 1 100%;
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      gap: 6px;
     }
-    .today-font-select {
-      flex: 1 1 9rem;
-    }
+    .today-font-select,
+    .today-font-size-select,
     .today-layout-select {
-      flex: 1 1 6.75rem;
+      flex: 0 0 auto;
+      width: auto;
     }
-
     .today-toolbar-utilities {
-      padding-left: 0;
-      margin-left: 0;
-      border-left: 0;
+      padding: 0;
+      border: 0;
+      margin-left: auto;
     }
-
     .today-kanban {
-      --today-column-width: min(21rem, calc(100cqw - 2rem));
+      --today-column-width: min(20rem, calc(100cqw - 1.5rem));
     }
-    .today-explorer-body:not(.is-table):not(.is-list) {
-      padding: 0.5rem 0.5rem 0;
-    }
-
-    .today-intro h1 {
-      white-space: normal;
+    .today-column-header {
+      min-height: 48px;
     }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .today-kanban-column,
-    .today-draggable-note {
-      transition: none;
+  @media (max-height: 44rem) {
+    .today-header {
+      padding-bottom: 10px;
+      gap: 8px;
+    }
+    .today-subtitle {
+      display: none;
+    }
+    .today-calendar-mark {
+      height: 48px;
+    }
+    .today-toolbar {
+      margin-bottom: 10px;
     }
   }
 }
-
-:host ::ng-deep .today-workspace .today-column-actions .app-button {
-  background: #fff;
-  border-color: $border-light;
-  box-shadow: 0 2px 5px rgba($heading, 0.05);
-}
-
-:host ::ng-deep .today-workspace .today-column-actions .app-button:hover:not(:disabled) {
-  background: $page-bg;
-  border-color: $border;
-}
-
-:host ::ng-deep .today-workspace .today-empty-column .app-button-outline {
-  background: $paper;
-  border-color: rgba($note-mustard, 0.35);
-}
-
-:host ::ng-deep .today-workspace .today-toolbar-left .app-tab.is-active {
-  background: linear-gradient(180deg, #fff8d4, $note-button-yellow);
-  border-color: rgba($note-mustard, 0.3);
-  box-shadow: 0 2px 5px rgba($accent, 0.07);
-}
-
-:host ::ng-deep .today-workspace .today-column-actions .app-button:hover:not(:disabled) {
-  background: rgba($heading, 0.06);
-  border-color: transparent;
-}
-
 /* List view */
 /* Grouped list: native tables retain aligned columns and table semantics. */
 .today-grouped-table {
@@ -2110,27 +2100,33 @@ section.today-group.cdk-drag-placeholder {
   }
 
   .today-toolbar-left,
-  .today-search,
   .today-toolbar-controls {
     width: 100%;
   }
 
   .today-search {
-    flex-basis: 100%;
-    max-width: none;
+    width: 2.375rem;
+    flex-basis: 2.375rem;
+
+    &.is-expanded {
+      width: 100%;
+      flex-basis: 100%;
+    }
+  }
+
+  .today-toolbar-spacer {
+    display: none;
   }
 
   .today-toolbar-controls {
     justify-content: stretch;
   }
 
-  .today-font-select {
-    flex: 1 1 auto;
-    width: auto;
-  }
-
+  .today-font-select,
+  .today-font-size-select,
   .today-layout-select {
-    flex: 0 0 8.5rem;
+    flex: 0 0 auto;
+    width: auto;
   }
 }
 
@@ -2236,6 +2232,7 @@ section.today-group.cdk-drag-placeholder {
   }
 
   .today-font-select,
+  .today-font-size-select,
   .today-layout-select {
     width: 100%;
     flex-basis: auto;
@@ -2433,5 +2430,22 @@ section.today-group.cdk-drag-placeholder {
   .today-toolbar-controls app-button {
     width: 100%;
     margin-left: 0;
+  }
+}
+
+/* Short landscape screens retain usable board space below the compact controls. */
+@media (max-height: 32rem) {
+  .today-page.today-workspace {
+    overflow-y: auto;
+  }
+  .today-page.today-workspace .today-main {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+  .today-page.today-workspace .today-explorer {
+    flex: 0 0 auto;
+    min-height: 20rem;
+    height: 65dvh;
   }
 }
