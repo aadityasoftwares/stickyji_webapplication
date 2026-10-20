@@ -64,6 +64,15 @@ export type InputDecoration = 'standard' | 'tape';
 export type InputShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type InputStatus = 'default' | 'success' | 'warning' | 'danger';
 export type InputLabelMode = 'top' | 'floating' | 'hidden';
+export type InputShadow =
+  | 'none'
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'upside'
+  | 'subtle'
+  | 'soft';
 export type TextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
 
 @Component({
@@ -98,6 +107,7 @@ export class Input implements ControlValueAccessor, AfterViewInit {
   @AngularInput() shape: InputShape = 'rounded';
   @AngularInput() size: InputSize = 'md';
   @AngularInput() status: InputStatus = 'default';
+  @AngularInput() shadow: InputShadow | boolean = 'none';
   @AngularInput() labelMode: InputLabelMode = 'top';
 
   @AngularInput() label = '';
@@ -339,7 +349,18 @@ export class Input implements ControlValueAccessor, AfterViewInit {
     }
   }
 
+  get resolvedShadow(): InputShadow {
+    if (this.shadow === true) {
+      return 'upside';
+    }
+    if (!this.shadow || this.shadow === 'none') {
+      return 'none';
+    }
+    return this.shadow;
+  }
+
   get wrapperClasses(): Record<string, boolean> {
+    const shadow = this.resolvedShadow;
     const classes: Record<string, boolean> = {
       [`app-input-${this.variant}`]: true,
       [`app-input-appearance-${this.appearance}`]: true,
@@ -348,6 +369,8 @@ export class Input implements ControlValueAccessor, AfterViewInit {
       [`app-input-size-${this.size}`]: true,
       [`app-input-status-${this.effectiveStatus}`]: true,
       [`app-input-label-${this.labelMode}`]: true,
+      [`app-input-shadow-${shadow}`]: shadow !== 'none',
+      'app-input-has-shadow': shadow !== 'none',
       'app-input-focused': this.focused,
       'app-input-has-value': this.hasValue,
       'app-input-disabled': this.isDisabled,

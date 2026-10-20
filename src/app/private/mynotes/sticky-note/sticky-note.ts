@@ -9,6 +9,7 @@ import {
   inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,6 +42,7 @@ import { Divider } from '../../../shared/components/divider/divider';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { Tooltip, TooltipTone } from '../../../shared/components/tooltip/tooltip';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistItemApiService } from '../services/sticky-note-checklist-item.service';
 import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
@@ -78,6 +80,7 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
   imports: [
     CommonModule,
     FormsModule,
+    CdkDragHandle,
     MatDividerModule,
     MatMenuModule,
     AppIcon,
@@ -87,6 +90,7 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
     Checkbox,
     Divider,
     DeleteConfirmModal,
+    Tooltip,
   ],
   templateUrl: './sticky-note.html',
   styleUrl: './sticky-note.scss',
@@ -218,7 +222,11 @@ export class StickyNote {
   }
 
   get isCompact(): boolean {
-    return this.layout === 'COMPACT' || this.layout === 'PLAIN' || this.data?.compact === true;
+    return (
+      this.layout === 'COMPACT' ||
+      this.layout === 'PLAIN' ||
+      (!this.data?.notesCanvas && this.data?.compact === true)
+    );
   }
 
   get isDetail(): boolean {
@@ -366,7 +374,11 @@ export class StickyNote {
 
   get hasFooterContent(): boolean {
     return Boolean(
-      this.isCompleted || this.dueLabel || this.timeEstimate || this.tag || this.assignees.length,
+      this.isCompleted ||
+      (!this.data?.notesCanvas && this.dueLabel) ||
+      this.timeEstimate ||
+      this.tag ||
+      this.assignees.length,
     );
   }
 
@@ -418,6 +430,14 @@ export class StickyNote {
     return this.color === 'WHITE' ? 'paper' : this.badgeVariant;
   }
 
+  get tooltipTone(): TooltipTone {
+    const variant = this.badgeVariant;
+    if (variant === 'neutral') {
+      return 'paper';
+    }
+    return variant as TooltipTone;
+  }
+
   get cardClasses(): any {
     return {
       [`is-color-${this.classToken(this.color)}`]: true,
@@ -431,6 +451,7 @@ export class StickyNote {
       'is-saving': this.isSaving,
       'is-compact': this.isCompact,
       'is-detail': this.isDetail,
+      'is-notes-canvas': this.data?.notesCanvas === true,
       [`is-view-${this.view}`]: true,
     };
   }

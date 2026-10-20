@@ -42,6 +42,15 @@ export type SelectAppearance = 'standard' | 'inline' | 'transparent' | 'outlined
 export type SelectShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type SelectStatus = 'default' | 'success' | 'warning' | 'danger';
 export type SelectPlacement = 'auto' | 'top' | 'bottom';
+export type SelectShadow =
+  | 'none'
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'upside'
+  | 'subtle'
+  | 'soft';
 export interface SelectOptionAvatar {
   src?: string | null;
   alt?: string;
@@ -159,6 +168,8 @@ export class Select implements ControlValueAccessor, AfterViewInit, OnDestroy {
   shape: SelectShape = 'rounded';
   @Input()
   status: SelectStatus = 'default';
+  @Input()
+  shadow: SelectShadow | boolean = 'none';
   @Input()
   placement: SelectPlacement = 'auto';
   @Input()
@@ -359,13 +370,25 @@ export class Select implements ControlValueAccessor, AfterViewInit, OnDestroy {
   get selectedLabel(): string {
     return this.selectedOptions.map((option) => option.label).join(', ');
   }
+  get resolvedShadow(): SelectShadow {
+    if (this.shadow === true) {
+      return 'upside';
+    }
+    if (!this.shadow || this.shadow === 'none') {
+      return 'none';
+    }
+    return this.shadow;
+  }
   get wrapperClasses(): Record<string, boolean> {
+    const shadow = this.resolvedShadow;
     return {
       [`app-select-${this.variant}`]: true,
       [`app-select-appearance-${this.appearance}`]: true,
       [`app-select-size-${this.size}`]: true,
       [`app-select-shape-${this.shape}`]: true,
       [`app-select-status-${this.effectiveStatus}`]: true,
+      [`app-select-shadow-${shadow}`]: shadow !== 'none',
+      'app-select-has-shadow': shadow !== 'none',
       'app-select-has-secondary-action': this.hasSecondaryAction,
       'app-select-open': this.isOpen,
       'app-select-disabled': this.isDisabled,

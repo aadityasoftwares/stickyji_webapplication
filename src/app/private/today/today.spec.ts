@@ -10,7 +10,10 @@ import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.st
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { USER_PREFERENCE_KEYS, VIEW } from '../../shared/constants/common.constants';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
+import { StickyNote } from '../mynotes/sticky-note/sticky-note';
 
 describe('Today', () => {
   let component: Today;
@@ -345,20 +348,23 @@ describe('Today', () => {
 
   it('toggles note completion optimistically and calls update API', async () => {
     const noteApi = TestBed.inject(StickyNoteApiService);
-    const updateSpy = vi.spyOn(noteApi, 'update').mockReturnValue(
-      of({ data: { id: 'second', isCompleted: true } }),
-    );
+    const updateSpy = vi
+      .spyOn(noteApi, 'update')
+      .mockReturnValue(of({ data: { id: 'second', isCompleted: true } }));
 
     component.toggleNoteCompletion('second', true);
-    expect(component.isNoteCompleted(component.stickyNotes().find((n) => n.id === 'second'))).toBe(true);
-    expect(updateSpy).toHaveBeenCalledWith('second', expect.objectContaining({ isCompleted: true }));
+    expect(component.isNoteCompleted(component.stickyNotes().find((n) => n.id === 'second'))).toBe(
+      true,
+    );
+    expect(updateSpy).toHaveBeenCalledWith(
+      'second',
+      expect.objectContaining({ isCompleted: true }),
+    );
   });
 
   it('rolls back note completion when update API fails', async () => {
     const noteApi = TestBed.inject(StickyNoteApiService);
-    vi.spyOn(noteApi, 'update').mockReturnValue(
-      throwError(() => new Error('Server error')),
-    );
+    vi.spyOn(noteApi, 'update').mockReturnValue(throwError(() => new Error('Server error')));
 
     const originalNote = component.stickyNotes().find((n) => n.id === 'second');
     expect(component.isNoteCompleted(originalNote)).toBe(false);
@@ -397,5 +403,181 @@ describe('Today', () => {
     component.onNotesDrop(mockEvent, false);
     expect(toggleSpy).toHaveBeenCalledWith('third', false);
   });
-});
 
+  it('keeps note details when completion returns only changed fields', () => {
+    vi.spyOn(component.overdue, 'refresh').mockImplementation(() => {});
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'update').mockReturnValue(
+      of({ data: { id: 'second', isCompleted: true } }),
+    );
+    component.toggleNoteCompletion('second', true);
+    expect(component.stickyNotes().find((note) => note.id === 'second')).toMatchObject({
+      title: 'Second note',
+      description: 'Later task',
+      columnId: 'todo',
+      isCompleted: true,
+    });
+    expect(component.movingNoteId()).toBeNull();
+  });
+
+  it('serializes completion changes and only rolls back completion fields on failure', () => {
+    const pending = new Subject<any>();
+    const update = vi
+      .spyOn(TestBed.inject(StickyNoteApiService), 'update')
+      .mockReturnValue(pending);
+    component.toggleNoteCompletion('second', true);
+    component.toggleNoteCompletion('second', false);
+    component.toggleNoteCompletion('third', true);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(component.noteDragDisabled()).toBe(true);
+
+    component.onNoteUpdated({ id: 'second', title: 'Edited while saving' });
+    component.onNoteUpdated({ id: 'third', title: 'Another edit' });
+    pending.error(new Error('Save failed'));
+
+    expect(component.stickyNotes().find((note) => note.id === 'second')).toMatchObject({
+      title: 'Edited while saving',
+      isCompleted: false,
+    });
+    expect(component.stickyNotes().find((note) => note.id === 'third')?.title).toBe('Another edit');
+    expect(component.movingNoteId()).toBeNull();
+  });
+
+  it('ignores completion responses after leaving the folder', () => {
+    const pending = new Subject<any>();
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'update').mockReturnValue(pending);
+    component.toggleNoteCompletion('second', true);
+    component.onFolderSelection(null);
+    component.stickyNotes.set([{ id: 'new-folder-note', title: 'Different folder' }]);
+    pending.error(new Error('Old request failed'));
+    expect(component.stickyNotes().map((note) => note.id)).toEqual(['new-folder-note']);
+    expect(component.movingNoteId()).toBeNull();
+  });
+
+  it('ignores a drop outside the board and blocks drops during loading', () => {
+    const complete = vi.spyOn(component, 'toggleNoteCompletion');
+    const event = {
+      item: { data: component.stickyNotes()[0] },
+      previousContainer: {},
+      container: {},
+      isPointerOverContainer: false,
+    } as any;
+    component.onNotesDrop(event, true);
+    component.loadingNotes.set(true);
+    component.onNotesDrop({ ...event, isPointerOverContainer: true }, true);
+    expect(complete).not.toHaveBeenCalled();
+  });
+
+  it('reorders a canvas note using only neighbors from its own column', () => {
+    const pending = new Subject<any>();
+    const reorder = vi
+      .spyOn(TestBed.inject(StickyNoteApiService), 'reorder')
+      .mockReturnValue(pending);
+    const notes = [
+      { id: 'first', title: 'First note', columnId: 'todo', rank: 'a' },
+      { id: 'second', title: 'Second note', columnId: 'todo', rank: 'b' },
+      { id: 'third', title: 'Third note', columnId: 'doing', rank: 'a' },
+    ];
+    component.stickyNotes.set(notes);
+    const container = { data: notes };
+    component.onNotesDrop(
+      {
+        item: { data: notes[1] },
+        previousContainer: container,
+        container,
+        previousIndex: 1,
+        currentIndex: 0,
+        isPointerOverContainer: true,
+      } as any,
+      false,
+    );
+    expect(reorder).toHaveBeenCalledWith('second', {
+      columnId: 'todo',
+      beforeId: null,
+      afterId: 'first',
+    });
+    expect(component.visibleNotesFor('todo').map((note) => note.id)).toEqual(['second', 'first']);
+    pending.next({ data: { id: 'second', rank: '0' } });
+    pending.complete();
+    expect(component.visibleNotesFor('todo').map((note) => note.id)).toEqual(['second', 'first']);
+    expect(component.stickyNotes().find((note) => note.id === 'second')?.title).toBe('Second note');
+  });
+
+  it('rejects canvas reorder positions in a different column', () => {
+    const reorder = vi.spyOn(TestBed.inject(StickyNoteApiService), 'reorder');
+    const container = { data: component.todayIncompleteNotes() };
+    const drag = { data: component.stickyNotes()[0], dropContainer: container };
+    expect(component.canSortCanvasNote(2, drag, container)).toBe(false);
+    component.onNotesDrop(
+      {
+        item: drag,
+        previousContainer: container,
+        container,
+        previousIndex: 0,
+        currentIndex: 2,
+      } as any,
+      false,
+    );
+    expect(reorder).not.toHaveBeenCalled();
+  });
+
+  it('restores a failed reorder without discarding another note edit or resurrecting a deleted note', () => {
+    const pending = new Subject<any>();
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'reorder').mockReturnValue(pending);
+    const note = component.stickyNotes().find((item) => item.id === 'first');
+    component.dropNote(
+      {
+        item: { data: note },
+        previousContainer: {},
+        container: {},
+        currentIndex: 1,
+      },
+      'doing',
+    );
+    component.onNoteUpdated({ id: 'third', title: 'Keep this edit' });
+    component.onNoteDeleted('second', false);
+    pending.error(new Error('Reorder failed'));
+    expect(component.stickyNotes().find((item) => item.id === 'first')?.columnId).toBe('todo');
+    expect(component.stickyNotes().find((item) => item.id === 'third')?.title).toBe(
+      'Keep this edit',
+    );
+    expect(component.stickyNotes().some((item) => item.id === 'second')).toBe(false);
+  });
+
+  it('uses grid-aware drop lists and registers a handle inside each note', async () => {
+    component.setView('notes');
+    await fixture.whenStable();
+    const lists = fixture.debugElement.queryAll(By.directive(CdkDropList));
+    expect(lists).toHaveLength(2);
+    for (const list of lists) {
+      expect(list.injector.get(CdkDropList).orientation).toBe('mixed');
+    }
+    const drag = fixture.debugElement.query(By.directive(CdkDrag)).injector.get(CdkDrag);
+    expect(drag._dragRef.getRootElement().querySelector('.cdk-drag-handle')).toBeTruthy();
+    const refresh = vi.spyOn(component.overdue, 'refresh').mockImplementation(() => {});
+    const card = fixture.debugElement.query(By.directive(StickyNote))
+      .componentInstance as StickyNote;
+    card.deleted.emit(card.data.id);
+    card.deleteRequested.emit(card.data);
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
+  it('handles completion from a Kanban card menu', async () => {
+    component.setView('kanban');
+    await fixture.whenStable();
+    const complete = vi.spyOn(component, 'toggleNoteCompletion').mockImplementation(() => {});
+    const card = fixture.debugElement.query(By.directive(StickyNote))
+      .componentInstance as StickyNote;
+    card.completionToggled.emit({ noteId: card.data.id, isCompleted: true });
+    expect(complete).toHaveBeenCalledWith(card.data.id, true);
+  });
+
+  it('keeps visible notes when a background refresh fails', () => {
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'getAll').mockReturnValue(
+      throwError(() => new Error('Refresh failed')),
+    );
+    const ids = component.stickyNotes().map((note) => note.id);
+    component.getNotesForToday();
+    expect(component.stickyNotes().map((note) => note.id)).toEqual(ids);
+    expect(component.loadingNotes()).toBe(false);
+  });
+});

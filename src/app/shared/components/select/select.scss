@@ -1146,3 +1146,65 @@
   width: 12px;
   height: 12px;
 }
+
+/* =========================================================
+   Shadow Variants
+   Opt-in box-shadow treatment for select triggers.
+   Does not alter existing flow when shadow is "none" or omitted.
+   ========================================================= */
+
+.app-select-shadow-xs,
+.app-select-shadow-subtle {
+  --app-select-shadow-box: 0 1px 2px rgba(46, 38, 25, 0.05), 0 1px 1px rgba(0, 0, 0, 0.025);
+  --app-select-shadow-hover: 0 1px 3px rgba(46, 38, 25, 0.07), 0 2px 4px rgba(46, 38, 25, 0.04);
+}
+
+.app-select-shadow-sm,
+.app-select-shadow-soft {
+  --app-select-shadow-box: 0 1px 2px rgba(46, 38, 25, 0.055), 0 2px 5px rgba(46, 38, 25, 0.05);
+  --app-select-shadow-hover: 0 2px 4px rgba(46, 38, 25, 0.07), 0 4px 10px rgba(46, 38, 25, 0.065);
+}
+
+.app-select-shadow-upside {
+  --app-select-shadow-box:
+    0 -1px 2px rgba(46, 38, 25, 0.025),
+    0 1px 2px rgba(46, 38, 25, 0.06),
+    0 2px 6px rgba(46, 38, 25, 0.05);
+  --app-select-shadow-hover:
+    0 -1px 2px rgba(46, 38, 25, 0.035),
+    0 2px 4px rgba(46, 38, 25, 0.075),
+    0 4px 10px rgba(46, 38, 25, 0.065);
+}
+
+.app-select-shadow-md {
+  --app-select-shadow-box: 0 2px 4px rgba(46, 38, 25, 0.065), 0 6px 14px rgba(46, 38, 25, 0.07);
+  --app-select-shadow-hover: 0 3px 6px rgba(46, 38, 25, 0.08), 0 8px 18px rgba(46, 38, 25, 0.085);
+}
+
+.app-select-shadow-lg {
+  --app-select-shadow-box: 0 4px 8px rgba(46, 38, 25, 0.075), 0 12px 24px rgba(46, 38, 25, 0.09);
+  --app-select-shadow-hover: 0 6px 12px rgba(46, 38, 25, 0.09), 0 16px 32px rgba(46, 38, 25, 0.11);
+}
+
+.app-select-has-shadow .app-select-trigger {
+  box-shadow: var(--app-select-shadow-box) !important;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-select-has-shadow:not(.app-select-disabled, .app-select-open) .app-select-trigger:hover {
+    border-color: color.adjust($border, $lightness: -10%);
+    box-shadow: var(--app-select-shadow-hover, var(--app-select-shadow-box)) !important;
+  }
+}
+
+.app-select-has-shadow.app-select-open .app-select-trigger,
+.app-select-has-shadow .app-select-trigger:focus-visible {
+  border-color: $accent;
+  box-shadow:
+    0 0 0 3px rgba($accent, 0.16),
+    var(--app-select-shadow-box) !important;
+}

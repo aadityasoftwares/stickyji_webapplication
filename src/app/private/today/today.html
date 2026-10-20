@@ -45,6 +45,7 @@
               shape="rounded"
               size="sm"
               appearance="simple"
+              shadow="upside"
               [height]="UI.button.height.md"
               [radius]="UI.radius.xs"
               [iconLeft]="LucidePanelsTopLeft"
@@ -66,6 +67,7 @@
               shape="rounded"
               size="sm"
               appearance="simple"
+              shadow="upside"
               [height]="UI.button.height.md"
               [radius]="UI.radius.xs"
               [iconLeft]="LucideFolderOpen"
@@ -79,23 +81,25 @@
           <app-button
             [icon]="LucideRefreshCw"
             [iconOnly]="true"
-            appearance="flat"
-            variant="outline"
-            [height]="UI.button.height.md"
-            size="sm"
+            appearance="standard"
+            variant="noteBlue"
+            size="md"
             ariaLabel="Refresh today board"
-            title="Refresh today board"
+            appTooltip="Refresh today board"
+            tooltipTone="noteBlue"
+            tooltipPosition="bottom"
+            tooltipSize="sm"
             [loading]="boardLoading()"
-            [disabled]="!activeFolder()"
+            [disabled]="!activeFolder() || !!movingNoteId() || movingColumn()"
             (buttonClick)="refreshBoard()"
           />
           <app-button
-            appearance="flat"
+            class="workspace-new-button"
             label="New note"
             [iconLeft]="LucidePlus"
             variant="noteYellow"
-            size="sm"
-            [height]="UI.button.height.md"
+            appearance="standard"
+            size="md"
             [disabled]="!activeFolder() || !hasColumns()"
             (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
           />
@@ -137,6 +141,7 @@
             variant="paper"
             appearance="simple"
             shape="rounded"
+            shadow="upside"
             [height]="UI.button.height.md"
             [radius]="UI.radius.xs"
             size="xs"
@@ -188,6 +193,7 @@
                 shape="rounded"
                 size="xs"
                 appearance="simple"
+                shadow="upside"
                 [height]="UI.button.height.md"
                 [radius]="UI.radius.xs"
                 [width]="fontSelectWidth()"
@@ -209,6 +215,7 @@
                 variant="paper"
                 shape="rounded"
                 appearance="simple"
+                shadow="upside"
                 [height]="UI.button.height.md"
                 [radius]="UI.radius.xs"
                 size="xs"
@@ -230,6 +237,7 @@
                 ariaLabel="Choose sticky note layout"
                 variant="paper"
                 appearance="simple"
+                shadow="upside"
                 [height]="UI.button.height.md"
                 [radius]="UI.radius.xs"
                 shape="rounded"
@@ -524,29 +532,31 @@
             class="today-notes-canvas"
             [class.is-compact-layout]="isCompactLayout()"
             [class.is-detail-layout]="isDetailLayout()"
+            [class.is-dragging-note]="!!draggingNoteId()"
             [style.--today-note-font-family]="fontFamilyFor(stickyNoteFont())"
             [style.--today-note-font-size.px]="stickyNoteFontSize()"
             cdkDropListGroup
             aria-label="Today Sticky Notes workspace"
           >
             <!-- Left Section: Today Notes (~70%) -->
-            <section
-              class="today-notes-section"
-              aria-labelledby="today-notes-heading"
-            >
+            <section class="today-notes-section" aria-labelledby="today-notes-heading">
               <header class="today-section-header">
                 <div class="today-section-title">
                   <span class="today-section-icon" aria-hidden="true">
-                    <app-icon [icon]="LucideStickyNote" [size]="16" [strokeWidth]="2" />
+                    <app-icon [icon]="LucideStickyNote" [size]="16" [strokeWidth]="1.75" />
                   </span>
-                  <h3 id="today-notes-heading">Today Notes</h3>
-                  <app-badge
-                    [count]="incompleteNoteCount()"
-                    variant="neutral"
-                    size="xs"
-                    shape="pill"
-                    [ariaLabel]="incompleteNoteCount() + ' notes'"
-                  />
+                  <div class="today-section-copy">
+                    <div class="today-section-heading">
+                      <h3 id="today-notes-heading">Today Notes</h3>
+                      <app-badge
+                        [count]="incompleteNoteCount()"
+                        variant="neutral"
+                        size="xs"
+                        shape="pill"
+                        [ariaLabel]="incompleteNoteCount() + ' notes'"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div class="today-section-actions">
                   <app-button
@@ -554,7 +564,7 @@
                     label="New note"
                     [iconLeft]="LucidePlus"
                     variant="noteYellow"
-                    size="sm"
+                    size="xs"
                     (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
                   />
                 </div>
@@ -564,9 +574,13 @@
                 class="today-notes-grid"
                 id="today-notes-drop-list"
                 cdkDropList
+                cdkDropListOrientation="mixed"
+                [cdkDropListSortPredicate]="canSortCanvasNote"
+                [class.is-empty]="incompleteNoteCount() === 0"
+                aria-label="Today Notes. Drop a completed note here to reopen it."
                 [cdkDropListData]="todayIncompleteNotes()"
                 [cdkDropListConnectedTo]="['today-completed-drop-list']"
-                [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
+                [cdkDropListDisabled]="noteDragDisabled()"
                 [cdkDropListEnterPredicate]="canDropNote"
                 (cdkDropListDropped)="onNotesDrop($event, false)"
               >
@@ -574,13 +588,14 @@
                   <app-sticky-note
                     class="today-canvas-note"
                     cdkDrag
+                    (cdkDragStarted)="draggingNoteId.set(note.id)"
+                    (cdkDragEnded)="draggingNoteId.set(null)"
                     [cdkDragData]="note"
-                    [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
+                    [cdkDragDisabled]="noteDragDisabled()"
                     [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
                     [data]="stickyNoteData(note)"
                     (editRequested)="openNoteEditPanel(note)"
                     (deleted)="onNoteDeleted($event)"
-                    (deleteRequested)="onNoteDeleted(note.id)"
                     (noteUpdated)="onNoteUpdated($event)"
                     (completionToggled)="toggleNoteCompletion($event.noteId, $event.isCompleted)"
                   />
@@ -593,7 +608,9 @@
                         [strokeWidth]="1.75"
                       />
                     </span>
-                    <strong>{{ searchTerm() ? 'No matching notes' : 'All clear for today!' }}</strong>
+                    <strong>{{
+                      searchTerm() ? 'No matching notes' : 'All clear for today!'
+                    }}</strong>
                     <small>
                       {{
                         searchTerm()
@@ -625,23 +642,24 @@
             </section>
 
             <!-- Right Section: Completed (~30%) -->
-            <section
-              class="today-completed-section"
-              aria-labelledby="today-completed-heading"
-            >
+            <section class="today-completed-section" aria-labelledby="today-completed-heading">
               <header class="today-section-header is-completed-header">
                 <div class="today-section-title">
                   <span class="today-section-icon is-completed" aria-hidden="true">
-                    <app-icon [icon]="LucideCheckCheck" [size]="16" [strokeWidth]="2" />
+                    <app-icon [icon]="LucideCheckCircle2" [size]="16" [strokeWidth]="1.75" />
                   </span>
-                  <h3 id="today-completed-heading">Completed</h3>
-                  <app-badge
-                    [count]="completedNoteCount()"
-                    variant="success"
-                    size="xs"
-                    shape="pill"
-                    [ariaLabel]="completedNoteCount() + ' completed notes'"
-                  />
+                  <div class="today-section-copy">
+                    <div class="today-section-heading">
+                      <h3 id="today-completed-heading">Completed</h3>
+                      <app-badge
+                        [count]="completedNoteCount()"
+                        variant="success"
+                        size="xs"
+                        shape="pill"
+                        [ariaLabel]="completedNoteCount() + ' completed notes'"
+                      />
+                    </div>
+                  </div>
                 </div>
               </header>
 
@@ -649,9 +667,13 @@
                 class="today-completed-list"
                 id="today-completed-drop-list"
                 cdkDropList
+                cdkDropListOrientation="mixed"
+                [cdkDropListSortPredicate]="canSortCanvasNote"
+                [class.is-empty]="completedNoteCount() === 0"
+                aria-label="Completed. Drop a note here to mark it complete."
                 [cdkDropListData]="todayCompletedNotes()"
                 [cdkDropListConnectedTo]="['today-notes-drop-list']"
-                [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId()"
+                [cdkDropListDisabled]="noteDragDisabled()"
                 [cdkDropListEnterPredicate]="canDropNote"
                 (cdkDropListDropped)="onNotesDrop($event, true)"
               >
@@ -659,13 +681,14 @@
                   <app-sticky-note
                     class="today-canvas-note today-completed-card"
                     cdkDrag
+                    (cdkDragStarted)="draggingNoteId.set(note.id)"
+                    (cdkDragEnded)="draggingNoteId.set(null)"
                     [cdkDragData]="note"
-                    [cdkDragDisabled]="!!searchTerm() || !!movingNoteId()"
+                    [cdkDragDisabled]="noteDragDisabled()"
                     [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
                     [data]="stickyNoteData(note)"
                     (editRequested)="openNoteEditPanel(note)"
                     (deleted)="onNoteDeleted($event)"
-                    (deleteRequested)="onNoteDeleted(note.id)"
                     (noteUpdated)="onNoteUpdated($event)"
                     (completionToggled)="toggleNoteCompletion($event.noteId, $event.isCompleted)"
                   />
@@ -675,9 +698,7 @@
                       <app-icon [icon]="LucideCheckCircle2" [size]="24" [strokeWidth]="1.75" />
                     </span>
                     <strong>{{
-                      searchTerm()
-                        ? 'No matching completed notes'
-                        : 'No completed notes yet'
+                      searchTerm() ? 'No matching completed notes' : 'No completed notes yet'
                     }}</strong>
                     <small>
                       {{
@@ -705,7 +726,7 @@
               cdkDropList
               cdkDropListOrientation="horizontal"
               [cdkDropListData]="stickyNoteColumns()"
-              [cdkDropListDisabled]="boardLoading() || movingColumn()"
+              [cdkDropListDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
               [cdkDropListEnterPredicate]="canDropColumn"
               (cdkDropListDropped)="dropColumn($event)"
             >
@@ -714,7 +735,7 @@
                   class="today-kanban-column"
                   cdkDrag
                   [cdkDragData]="column"
-                  [cdkDragDisabled]="boardLoading() || movingColumn()"
+                  [cdkDragDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
                   [cdkDragStartDelay]="{ touch: 150, mouse: 0 }"
                   [style.--column-accent]="column.accent"
                   [attr.aria-labelledby]="column.id + '-heading'"
@@ -764,7 +785,7 @@
                     [id]="column.id + '-drop-list'"
                     [cdkDropListData]="visibleNotesFor(column.id)"
                     [cdkDropListConnectedTo]="columnDropListIds()"
-                    [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
+                    [cdkDropListDisabled]="noteDragDisabled()"
                     [cdkDropListEnterPredicate]="canDropNote"
                     (cdkDropListDropped)="dropNote($event, column.id)"
                   >
@@ -773,14 +794,16 @@
                         class="today-draggable-note"
                         cdkDrag
                         [cdkDragData]="note"
-                        [cdkDragDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
+                        [cdkDragDisabled]="noteDragDisabled()"
                         [cdkDragStartDelay]="{ touch: 300, mouse: 0 }"
                         [data]="stickyNoteData(note, column)"
                         (editRequested)="openNoteEditPanel(note)"
                         (deleted)="onNoteDeleted($event)"
-                        (deleteRequested)="onNoteDeleted(note.id)"
                         (noteUpdated)="onNoteUpdated($event)"
                         (moveBackwardRequested)="moveBackward(note)"
+                        (completionToggled)="
+                          toggleNoteCompletion($event.noteId, $event.isCompleted)
+                        "
                         (moveForwardRequested)="moveForward(note)"
                       />
                     } @empty {
@@ -903,7 +926,7 @@
                 cdkDropList
                 cdkDropListOrientation="vertical"
                 [cdkDropListData]="stickyNoteColumns()"
-                [cdkDropListDisabled]="boardLoading() || movingColumn()"
+                [cdkDropListDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
                 [cdkDropListEnterPredicate]="canDropColumn"
                 (cdkDropListDropped)="dropColumn($event)"
               >
@@ -912,7 +935,7 @@
                     class="today-group"
                     cdkDrag
                     [cdkDragData]="group.column"
-                    [cdkDragDisabled]="boardLoading() || movingColumn()"
+                    [cdkDragDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
                     [style.--group-accent]="group.accent"
                     [class.is-collapsed]="isGroupCollapsed(group.id)"
                     [attr.aria-labelledby]="'group-heading-' + group.id"
@@ -987,7 +1010,7 @@
                         [id]="group.id + '-table-drop-list'"
                         [cdkDropListData]="group.notes"
                         [cdkDropListConnectedTo]="columnDropListIds()"
-                        [cdkDropListDisabled]="!!searchTerm() || !!movingNoteId() || movingColumn()"
+                        [cdkDropListDisabled]="noteDragDisabled()"
                         [cdkDropListEnterPredicate]="canDropNote"
                         (cdkDropListDropped)="dropNote($event, group.id)"
                         role="region"

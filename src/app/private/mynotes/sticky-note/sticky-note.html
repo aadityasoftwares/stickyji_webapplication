@@ -21,11 +21,19 @@
   <!-- 1. Header -->
   <header class="sticky-note__header">
     @if (showDragHandle) {
-      <span class="sticky-note__grip" aria-hidden="true">
+      <span
+        class="sticky-note__grip"
+        cdkDragHandle
+        appTooltip="Drag note"
+        [tooltipTone]="tooltipTone"
+        tooltipPosition="top"
+        tooltipSize="sm"
+        aria-label="Drag note"
+      >
         <app-icon [icon]="LucideGrip" size="sm" />
       </span>
     }
-    @if (noteKey) {
+    @if (noteKey && (!data?.notesCanvas || isDetail)) {
       <app-badge
         class="sticky-note__key-badge"
         [label]="noteKey"
@@ -33,6 +41,10 @@
         size="xs"
         shape="pill"
         [ariaLabel]="'Note key: ' + noteKey"
+        [appTooltip]="'Note: ' + noteKey"
+        [tooltipTone]="tooltipTone"
+        tooltipPosition="top"
+        tooltipSize="sm"
       />
     }
     @if (isSaving) {
@@ -47,9 +59,14 @@
             [class.is-favorited]="isFavorite"
             [disabled]="disabled || isFavoriteBusy"
             [attr.aria-label]="
-              isFavorite ? 'Remove ' + title + ' from favourites' : 'Add ' + title + ' to favourites'
+              isFavorite
+                ? 'Remove ' + title + ' from favourites'
+                : 'Add ' + title + ' to favourites'
             "
-            [title]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+            [appTooltip]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+            [tooltipTone]="tooltipTone"
+            tooltipPosition="top"
+            tooltipSize="sm"
             (click)="toggleFavorite($event)"
           >
             <app-icon [icon]="LucideStar" size="xs" [fill]="isFavorite ? 'currentColor' : 'none'" />
@@ -61,7 +78,10 @@
           class="sticky-note__edit-trigger"
           [disabled]="disabled"
           [attr.aria-label]="'Edit ' + title"
-          [title]="'Edit ' + title"
+          appTooltip="Edit note"
+          [tooltipTone]="tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
           (click)="requestEdit($event)"
         >
           <app-icon [icon]="LucidePencil" size="xs" />
@@ -73,7 +93,10 @@
           [matMenuTriggerFor]="noteActionsMenu"
           [disabled]="disabled"
           [attr.aria-label]="'More actions for ' + title"
-          title="More note actions"
+          appTooltip="More actions"
+          [tooltipTone]="tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
           (click)="$event.stopPropagation()"
           (dblclick)="$event.stopPropagation()"
         >
@@ -136,7 +159,9 @@
               </span>
               <span class="sticky-note-menu-item-copy">
                 <strong>{{ isCompleted ? 'Move to Today Notes' : 'Mark completed' }}</strong>
-                <small>{{ isCompleted ? 'Return note to Today Notes' : 'Move to Completed section' }}</small>
+                <small>{{
+                  isCompleted ? 'Return note to Today Notes' : 'Move to Completed section'
+                }}</small>
               </span>
             </button>
 
@@ -210,7 +235,11 @@
         class="sticky-note__title"
         [attr.tabindex]="preview ? null : 0"
         [attr.role]="preview ? null : 'button'"
-        [attr.title]="preview || data?.inlineEditing === false ? null : 'Click to rename'"
+        appTooltip="Click to rename"
+        [tooltipDisabled]="preview || data?.inlineEditing === false"
+        [tooltipTone]="tooltipTone"
+        tooltipPosition="top"
+        tooltipSize="sm"
         (click)="startTitleEdit($event)"
         (keydown.enter)="startTitleEdit($event)"
         (keydown.space)="startTitleEdit($event)"
@@ -255,12 +284,19 @@
           [attr.tabindex]="preview ? null : 0"
           [attr.role]="preview ? null : 'button'"
           [class.is-empty]="!description"
-          [attr.title]="
-            preview || data?.inlineEditing === false ? null : 'Click to edit description'
-          "
+          appTooltip="Click to edit description"
+          [tooltipDisabled]="preview || data?.inlineEditing === false"
+          [tooltipTone]="tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
           (click)="startDescriptionEdit($event)"
           (keydown.enter)="startDescriptionEdit($event)"
-        >{{ description || 'Add a description…' }}@if (descriptionUpdating) {<span class="sticky-note__saving-dot" aria-label="Saving description"></span>}</p>
+        >
+          {{ description || 'Add a description…' }}
+          @if (descriptionUpdating) {
+            <span class="sticky-note__saving-dot" aria-label="Saving description"></span>
+          }
+        </p>
       }
     }
 
@@ -322,6 +358,41 @@
     }
   </div>
 
+  @if (data?.notesCanvas && isDetail && (columnLabel || dueLabel)) {
+    <div class="sticky-note__column-meta">
+      @if (columnLabel) {
+        <app-badge
+          class="sticky-note__column-badge"
+          [label]="columnLabel"
+          [variant]="columnBadgeVariant"
+          [dot]="true"
+          size="sm"
+          shape="pill"
+          [appTooltip]="'Column: ' + columnLabel"
+          [tooltipTone]="tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
+          [ariaLabel]="'Column: ' + columnLabel"
+        />
+      }
+      @if (dueLabel) {
+        <app-badge
+          class="sticky-note__date-badge"
+          [label]="dueLabel"
+          variant="neutral"
+          size="sm"
+          shape="pill"
+          [icon]="LucideCalendarDays"
+          [ariaLabel]="'Note date: ' + dueLabel"
+          [appTooltip]="dueLabel"
+          [tooltipTone]="tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
+        />
+      }
+    </div>
+  }
+
   <!-- 3. Metadata (Progress Bar) -->
   @if (isDetail && totalChecklistItems > 0) {
     <div class="sticky-note__progress" aria-label="Checklist progress">
@@ -346,15 +417,23 @@
             size="xs"
             shape="pill"
             [icon]="LucideCheckCircle2"
+            appTooltip="Completed note"
+            [tooltipTone]="tooltipTone"
+            tooltipPosition="top"
+            tooltipSize="sm"
           />
         }
-        @if (dueLabel) {
+        @if (dueLabel && !data?.notesCanvas) {
           <app-badge
             [label]="dueLabel"
             [variant]="badgeVariant"
             size="xs"
             shape="pill"
             [icon]="LucideCalendarDays"
+            [appTooltip]="'Due: ' + dueLabel"
+            [tooltipTone]="tooltipTone"
+            tooltipPosition="top"
+            tooltipSize="sm"
           />
         }
         @if (timeEstimate) {
@@ -364,16 +443,35 @@
             size="xs"
             shape="pill"
             [icon]="LucideClock3"
+            [appTooltip]="'Estimated time: ' + timeEstimate"
+            [tooltipTone]="tooltipTone"
+            tooltipPosition="top"
+            tooltipSize="sm"
           />
         }
         @if (tag) {
-          <app-badge [label]="tag" [variant]="badgeVariant" size="xs" shape="pill" />
+          <app-badge
+            [label]="tag"
+            [variant]="badgeVariant"
+            size="xs"
+            shape="pill"
+            [appTooltip]="'Tag: ' + tag"
+            [tooltipTone]="tooltipTone"
+            tooltipPosition="top"
+            tooltipSize="sm"
+          />
         }
       </div>
       @if (assignees.length) {
         <div class="sticky-note__assignees" aria-label="Assigned members">
           @for (assignee of assignees; track assignee.id || assignee._id || $index) {
-            <span class="sticky-note__avatar" [title]="avatarName(assignee)">
+            <span
+              class="sticky-note__avatar"
+              [appTooltip]="avatarName(assignee)"
+              [tooltipTone]="tooltipTone"
+              tooltipPosition="top"
+              tooltipSize="sm"
+            >
               @if (avatarImage(assignee)) {
                 <img [src]="avatarImage(assignee)" [alt]="avatarName(assignee)" />
               } @else {

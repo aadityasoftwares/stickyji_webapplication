@@ -60,6 +60,7 @@ import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { Tabs } from '../../shared/components/tabs/tabs';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { COMMON_MESSAGES } from '../../shared/constants/common.messages';
@@ -171,6 +172,7 @@ type OverdueView = 'bar' | 'button';
     Select,
     StickyNote,
     Tabs,
+    Tooltip,
     UserDatePipe,
     UserTimePipe,
     AddEditNoteSidePanel,
@@ -291,9 +293,7 @@ export class Today {
   );
   readonly searchTerm = signal('');
   readonly searchExpanded = signal(false);
-  readonly isSearchExpanded = computed(
-    () => this.searchExpanded() || !!this.searchTerm().trim(),
-  );
+  readonly isSearchExpanded = computed(() => this.searchExpanded() || !!this.searchTerm().trim());
   readonly todaySearchInput = viewChild<AppInput>('todaySearchInput');
   readonly movingColumn = signal(false);
 
@@ -372,6 +372,10 @@ export class Today {
   readonly boardError = signal<string | null>(null);
   readonly boardErrorKind = signal<TodayLoadErrorKind>('server');
   readonly movingNoteId = signal<string | null>(null);
+  readonly draggingNoteId = signal<string | null>(null);
+  readonly noteDragDisabled = computed(
+    () => this.hasSearch() || this.boardLoading() || !!this.movingNoteId() || this.movingColumn(),
+  );
   readonly tableEditingTitleId = signal<string | null>(null);
   readonly tableTitleDraft = signal('');
   readonly collapsedGroups = signal<Set<string>>(new Set());
@@ -440,7 +444,12 @@ export class Today {
   readonly hasVisibleNotes = computed(() => this.visibleListNotes().length > 0);
   readonly hasSearch = computed(() => !!this.searchTerm().trim());
   readonly hasColumns = computed(() => this.stickyNoteColumns().length > 0);
-  readonly firstActionColumnId = computed(() => this.stickyNoteColumns()[0]?.id ?? '');
+  readonly firstActionColumnId = computed(
+    () =>
+      this.stickyNoteColumns().find((column) => column.type !== 'COMPLETED')?.id ??
+      this.stickyNoteColumns()[0]?.id ??
+      '',
+  );
 
   /** IDs of all note drop-lists — used by [cdkDropListConnectedTo] so that
    *  notes can be dragged across columns even when the drop lists are nested
@@ -479,7 +488,7 @@ export class Today {
     }
 
     for (const [columnId, notes] of grouped) {
-      grouped.set(columnId, sortNotesByRank(notes));
+      grouped.set(columnId, this.movingNoteId() ? notes : sortNotesByRank(notes));
     }
 
     return grouped;
@@ -942,7 +951,7 @@ export class Today {
           ) {
             return;
           }
-          const notes = sortNotesByRank(extractList(response)).map((note) => this.mapNote(note));
+          const notes = this.sortNotes(extractList(response).map((note) => this.mapNote(note)));
           this.boardError.set(null);
           this.stickyNotes.set(notes);
         },
@@ -954,7 +963,6 @@ export class Today {
           ) {
             return;
           }
-          this.stickyNotes.set([]);
           const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTES_LOAD_FAILED);
           this.boardErrorKind.set(this.errorKind(error));
           if (hadNotes) {
@@ -970,6 +978,7 @@ export class Today {
   }
 
   refreshBoard(): void {
+    if (this.movingNoteId() || this.movingColumn()) return;
     const workspaceId = this.activeWorkspaceId();
     if (!workspaceId) return;
 
@@ -1153,9 +1162,21 @@ export class Today {
 
   readonly canDropColumn = (drag: any) => isColumnDragItem(drag?.data);
   readonly canDropNote = (drag: any) => isNoteDragItem(drag?.data);
+  // Note ranks belong to a column. A canvas drop must not use another column's neighbors.
+  readonly canSortCanvasNote = (index: number, drag: any, drop: any): boolean => {
+    if (drag.dropContainer !== drop) return true;
+    const target = drop.data?.[index];
+    return !!target && idOf(target.columnId) === idOf(drag.data?.columnId);
+  };
 
   dropColumn(event: CdkDragDrop<any[]>): void {
-    if (event.previousIndex === event.currentIndex || this.movingColumn() || this.boardLoading()) {
+    if (
+      event.previousIndex === event.currentIndex ||
+      this.movingColumn() ||
+      this.movingNoteId() ||
+      this.boardLoading() ||
+      event.isPointerOverContainer === false
+    ) {
       return;
     }
 
@@ -1210,7 +1231,7 @@ export class Today {
   }
 
   dropNote(event: any, targetColumnId: string): void {
-    if (this.searchTerm().trim() || this.movingNoteId()) return;
+    if (this.noteDragDisabled() || event.isPointerOverContainer === false) return;
 
     const note = event.item.data;
     const noteId = idOf(note);
@@ -1225,7 +1246,8 @@ export class Today {
   }
 
   onNotesDrop(event: CdkDragDrop<any[]>, targetIsCompleted: boolean): void {
-    if (this.searchTerm().trim() || this.movingNoteId()) return;
+    this.draggingNoteId.set(null);
+    if (this.noteDragDisabled() || event.isPointerOverContainer === false) return;
 
     const note = event.item.data;
     const noteId = idOf(note);
@@ -1245,65 +1267,19 @@ export class Today {
     const currentList = targetIsCompleted
       ? this.todayCompletedNotes()
       : this.todayIncompleteNotes();
-    const sourceIndex = event.previousIndex;
-    const targetIndex = event.currentIndex;
+    const targetNote = currentList[event.currentIndex];
+    const columnId = idOf(note.columnId);
+    if (!targetNote || !columnId || idOf(targetNote.columnId) !== columnId) return;
 
-    if (sourceIndex < 0 || sourceIndex >= currentList.length) return;
-    if (targetIndex < 0 || targetIndex >= currentList.length) return;
-
-    const previousNotes = [...this.stickyNotes()];
-    const reorderedSection = [...currentList];
-    const [movedItem] = reorderedSection.splice(sourceIndex, 1);
-    reorderedSection.splice(targetIndex, 0, movedItem);
-
-    const { beforeId, afterId } = getNeighborNoteIds(reorderedSection, targetIndex, noteId);
-
-    const otherNotes = previousNotes.filter(
-      (n) => (targetIsCompleted ? !this.isNoteCompleted(n) : this.isNoteCompleted(n)),
+    const targetIndex = this.notesInColumn(columnId).findIndex(
+      (item) => idOf(item) === idOf(targetNote),
     );
-    const updatedFullList = targetIsCompleted
-      ? [...otherNotes, ...reorderedSection]
-      : [...reorderedSection, ...otherNotes];
-
-    this.stickyNotes.set(updatedFullList);
-    this.movingNoteId.set(noteId);
-
-    this.stickyNoteApiService
-      .reorder(noteId, {
-        columnId: movedItem?.columnId,
-        beforeId,
-        afterId,
-      })
-      .pipe(
-        finalize(() => this.movingNoteId.set(null)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response: any) => {
-          const updated = response?.data ?? response;
-          if (updated && idOf(updated) === noteId) {
-            const mapped = this.mapNote(updated);
-            this.stickyNotes.update((notes) =>
-              notes.map((item) => (idOf(item) === noteId ? { ...item, ...mapped } : item)),
-            );
-          }
-        },
-        error: (error: any) => {
-          this.stickyNotes.set(previousNotes);
-          this.toastService.error(
-            extractErrorMessage(error, STICKY_NOTE_MESSAGES.ERROR.REORDER_FAILED),
-            {
-              title: 'Reorder failed',
-              dedupeKey: `note-reorder-${noteId}`,
-            },
-          );
-        },
-      });
+    if (targetIndex >= 0) this.moveNote(note, columnId, targetIndex);
   }
 
   toggleNoteCompletion(noteId: string, isCompleted: boolean): void {
     const id = idOf(noteId);
-    if (!id || this.movingNoteId()) return;
+    if (!id || this.movingNoteId() || this.boardLoading()) return;
 
     const previousNotes = [...this.stickyNotes()];
     const targetNote = previousNotes.find((n) => idOf(n) === id);
@@ -1313,7 +1289,9 @@ export class Today {
 
     const completedAt = isCompleted ? new Date().toISOString() : null;
     const completedBy = isCompleted ? this.currentUserId() : null;
+    const requestVersion = this.notesRequestVersion;
 
+    this.movingNoteId.set(id);
     this.stickyNoteDataCache.delete(id);
     this.stickyNotes.update((notes) =>
       notes.map((item) =>
@@ -1337,9 +1315,15 @@ export class Today {
 
     this.stickyNoteApiService
       .update(id, updatePayload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => {
+          if (requestVersion === this.notesRequestVersion) this.movingNoteId.set(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response: any) => {
+          if (requestVersion !== this.notesRequestVersion) return;
           const updated = response?.data ?? response;
           if (updated && idOf(updated) === id) {
             this.stickyNoteDataCache.delete(id);
@@ -1348,7 +1332,7 @@ export class Today {
                 idOf(item) === id
                   ? {
                       ...item,
-                      ...this.mapNote(updated),
+                      ...this.mapNote({ ...item, ...updated }),
                       isCompleted,
                       completed: isCompleted,
                     }
@@ -1356,6 +1340,7 @@ export class Today {
               ),
             );
           }
+          this.overdue.refresh();
           this.toastService.success(
             isCompleted ? 'Note marked as completed' : 'Note moved back to Today Notes',
             {
@@ -1365,8 +1350,21 @@ export class Today {
           );
         },
         error: (error: any) => {
+          if (requestVersion !== this.notesRequestVersion) return;
           this.stickyNoteDataCache.delete(id);
-          this.stickyNotes.set(previousNotes);
+          this.stickyNotes.update((notes) =>
+            notes.map((item) =>
+              idOf(item) === id
+                ? {
+                    ...item,
+                    isCompleted: this.isNoteCompleted(targetNote),
+                    completed: this.isNoteCompleted(targetNote),
+                    completedAt: targetNote.completedAt,
+                    completedBy: targetNote.completedBy,
+                  }
+                : item,
+            ),
+          );
           this.toastService.error(
             extractErrorMessage(
               error,
@@ -1518,8 +1516,8 @@ export class Today {
   stickyNoteData(note: any, column?: any): any {
     const resolvedColumn = column ?? this.columnForNote(note);
     const noteId = idOf(note) || String(note?.id ?? note?._id ?? '');
-    const columnLabel =
-      resolvedColumn?.label ?? resolvedColumn?.name ?? note?.columnName ?? 'Note';
+    const columnLabel = resolvedColumn?.label ?? resolvedColumn?.name ?? note?.columnName ?? 'Note';
+    const columnBadgeVariant = this.noteColumnBadgeVariant(note);
     const layout = this.stickyNoteLayout();
     const font = this.stickyNoteFont();
     const fontSize = this.stickyNoteFontSize();
@@ -1559,6 +1557,7 @@ export class Today {
       note?.checklists?.length,
       resolvedColumn?.id,
       columnLabel,
+      columnBadgeVariant,
       resolvedColumn?.checkboxVariant,
       this.view(),
       layout,
@@ -1570,6 +1569,7 @@ export class Today {
       canMoveForward,
       isCompleted,
       isNotesView,
+      this.noteDragDisabled(),
     ]);
     const cached = this.stickyNoteDataCache.get(noteId);
     if (cached?.key === key) {
@@ -1585,6 +1585,8 @@ export class Today {
       noteKey: effectiveNoteKey,
       eyebrow: this.noteEyebrow(note),
       columnLabel,
+      columnBadgeVariant,
+      notesCanvas: isNotesView,
       checkboxVariant: resolvedColumn?.checkboxVariant,
       completed: isCompleted,
       isCompleted,
@@ -1593,12 +1595,12 @@ export class Today {
       layout,
       font,
       fontSize,
-      showDragHandle: !isNotesView && !this.searchTerm().trim() && !this.movingNoteId(),
+      showDragHandle: !this.noteDragDisabled(),
       showFavoriteAction: !isNotesView,
       showMoveActions: !isNotesView && this.isKanbanView(),
       canMoveBackward,
       canMoveForward,
-      actionsDisabled: movingNoteId === (note?.id ?? note?._id),
+      actionsDisabled: !!movingNoteId,
     };
 
     if (noteId) {
@@ -1744,9 +1746,10 @@ export class Today {
   private moveNote(note: any, targetColumnId: string, targetIndex: number): void {
     const noteId = idOf(note);
     const targetColId = idOf(targetColumnId);
-    if (!noteId || !targetColId || this.movingNoteId()) return;
+    if (!noteId || !this.stickyNoteColumnById().has(targetColId) || this.noteDragDisabled()) return;
 
     const previousNotes = [...this.stickyNotes()];
+    const requestVersion = this.notesRequestVersion;
 
     const targetColumnNotes = this.notesInColumn(targetColId).filter(
       (item) => idOf(item) !== noteId,
@@ -1763,8 +1766,11 @@ export class Today {
     );
     const nextNotes = [...otherNotes, ...optimisticTargetNotes];
 
-    this.stickyNotes.set(this.sortNotes(nextNotes));
     this.movingNoteId.set(noteId);
+    // Keep the optimistic insertion order until the server returns the new rank.
+    this.stickyNotes.set(
+      nextNotes.sort((a, b) => this.columnIndex(a.columnId) - this.columnIndex(b.columnId)),
+    );
     this.boardError.set(null);
 
     this.stickyNoteApiService
@@ -1774,26 +1780,40 @@ export class Today {
         afterId,
       })
       .pipe(
-        finalize(() => this.movingNoteId.set(null)),
+        finalize(() => {
+          if (requestVersion === this.notesRequestVersion) this.movingNoteId.set(null);
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: any) => {
+          if (requestVersion !== this.notesRequestVersion) return;
           const updated = response?.data ?? response;
           if (idOf(note.columnId) !== targetColId) this.overdue.refresh();
           if (updated && idOf(updated) === noteId) {
-            const mapped = this.mapNote(updated);
             this.stickyNotes.update((notes) =>
-              this.sortNotes(
-                notes.map((item) => (idOf(item) === noteId ? { ...item, ...mapped } : item)),
+              notes.map((item) =>
+                idOf(item) === noteId ? this.mapNote({ ...item, ...updated }) : item,
               ),
             );
           }
         },
         error: (error: any) => {
-          this.stickyNotes.set(previousNotes);
-          this.boardError.set(extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTE_MOVE_FAILED));
-          this.getNotesForToday();
+          if (requestVersion !== this.notesRequestVersion) return;
+          const previousOrder = new Map(previousNotes.map((item, index) => [idOf(item), index]));
+          this.stickyNotes.update((notes) =>
+            notes
+              .map((item) => (idOf(item) === noteId ? { ...item, columnId: note.columnId } : item))
+              .sort(
+                (a, b) =>
+                  (previousOrder.get(idOf(a)) ?? previousNotes.length) -
+                  (previousOrder.get(idOf(b)) ?? previousNotes.length),
+              ),
+          );
+          this.toastService.error(
+            extractErrorMessage(error, TODAY_MESSAGES.ERROR.NOTE_MOVE_FAILED),
+            { title: 'Note not moved', dedupeKey: `note-reorder-${noteId}` },
+          );
         },
       });
   }
@@ -1906,6 +1926,8 @@ export class Today {
     this.boardError.set(null);
     this.loadingNotes.set(false);
     this.movingNoteId.set(null);
+    this.draggingNoteId.set(null);
+    this.selectedNoteIds.set(new Set());
     this.tableEditingTitleId.set(null);
     this.tableTitleDraft.set('');
   }
@@ -1958,7 +1980,7 @@ export class Today {
 
   private mapNote(note: any): any {
     const title = String(note?.title || '').trim() || 'Untitled note';
-    const content = String(note?.content || '').trim();
+    const content = String(note?.content ?? note?.description ?? '').trim();
     const rawChecklists = Array.isArray(note?.checklists)
       ? note.checklists
       : note?.checklist
@@ -1986,9 +2008,9 @@ export class Today {
           : undefined),
       columnId: idOf(note?.columnId),
       folderId: idOf(note?.workspaceFolderId),
-      columnName: entityNameOf(note?.columnId, 'Note'),
-      folderName: entityNameOf(note?.workspaceFolderId, 'My Notes'),
-      workspaceName: entityNameOf(note?.workspaceId, 'Workspace'),
+      columnName: entityNameOf(note?.columnId, note?.columnName ?? 'Note'),
+      folderName: entityNameOf(note?.workspaceFolderId, note?.folderName ?? 'My Notes'),
+      workspaceName: entityNameOf(note?.workspaceId, note?.workspaceName ?? 'Workspace'),
       creatorEmail: String(note?.createdBy?.email ?? '').trim(),
       updatedByEmail: String(note?.updatedBy?.email ?? '').trim(),
       title,

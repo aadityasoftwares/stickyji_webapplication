@@ -1085,3 +1085,70 @@ $input-note-black: #252525;
     outline: 2px solid Highlight;
   }
 }
+
+/* =========================================================
+   Shadow Variants
+   Opt-in box-shadow treatment for input control shells.
+   Does not alter existing flow when shadow is "none" or omitted.
+   ========================================================= */
+
+.app-input-shadow-xs,
+.app-input-shadow-subtle {
+  --app-input-shadow-box: 0 1px 2px rgba(46, 38, 25, 0.05), 0 1px 1px rgba(0, 0, 0, 0.025);
+  --app-input-shadow-hover: 0 1px 3px rgba(46, 38, 25, 0.07), 0 2px 4px rgba(46, 38, 25, 0.04);
+}
+
+.app-input-shadow-sm,
+.app-input-shadow-soft {
+  --app-input-shadow-box: 0 1px 2px rgba(46, 38, 25, 0.055), 0 2px 5px rgba(46, 38, 25, 0.05);
+  --app-input-shadow-hover: 0 2px 4px rgba(46, 38, 25, 0.07), 0 4px 10px rgba(46, 38, 25, 0.065);
+}
+
+.app-input-shadow-upside {
+  --app-input-shadow-box:
+    0 -1px 2px rgba(46, 38, 25, 0.025),
+    0 1px 2px rgba(46, 38, 25, 0.06),
+    0 2px 6px rgba(46, 38, 25, 0.05);
+  --app-input-shadow-hover:
+    0 -1px 2px rgba(46, 38, 25, 0.035),
+    0 2px 4px rgba(46, 38, 25, 0.075),
+    0 4px 10px rgba(46, 38, 25, 0.065);
+}
+
+.app-input-shadow-md {
+  --app-input-shadow-box: 0 2px 4px rgba(46, 38, 25, 0.065), 0 6px 14px rgba(46, 38, 25, 0.07);
+  --app-input-shadow-hover: 0 3px 6px rgba(46, 38, 25, 0.08), 0 8px 18px rgba(46, 38, 25, 0.085);
+}
+
+.app-input-shadow-lg {
+  --app-input-shadow-box: 0 4px 8px rgba(46, 38, 25, 0.075), 0 12px 24px rgba(46, 38, 25, 0.09);
+  --app-input-shadow-hover: 0 6px 12px rgba(46, 38, 25, 0.09), 0 16px 32px rgba(46, 38, 25, 0.11);
+}
+
+.app-input-has-shadow .app-input-control-shell {
+  box-shadow: var(--app-input-shadow-box) !important;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-input-has-shadow:not(
+      .app-input-disabled,
+      .app-input-readonly,
+      .app-input-loading,
+      .app-input-focused
+    ):hover
+    .app-input-control-shell {
+    border-color: color.adjust($border, $lightness: -10%);
+    box-shadow: var(--app-input-shadow-hover, var(--app-input-shadow-box)) !important;
+  }
+}
+
+.app-input-has-shadow.app-input-focused .app-input-control-shell {
+  border-color: $accent;
+  box-shadow:
+    0 0 0 3px rgba($accent, 0.16),
+    var(--app-input-shadow-box) !important;
+}

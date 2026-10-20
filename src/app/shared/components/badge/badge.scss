@@ -1,7 +1,15 @@
 @use '../../../styles/variables' as *;
+@use '../../../styles/sticky-note-palette' as note;
+
+@mixin badge-tone($surface, $ink, $edge: rgba($ink, 0.2)) {
+  --app-badge-surface: #{$surface};
+  --app-badge-ink: #{$ink};
+  --app-badge-edge: #{$edge};
+}
 
 :host {
   display: inline-flex;
+  min-width: 0;
   max-width: 100%;
   vertical-align: middle;
 }
@@ -12,6 +20,7 @@
   --app-badge-dot-size: 6px;
   --app-badge-padding-x: 9px;
   --app-badge-gap: 5px;
+  @include badge-tone(#f3efe6, #62594b);
 
   position: relative;
   isolation: isolate;
@@ -23,19 +32,24 @@
   gap: var(--app-badge-gap);
 
   min-width: 0;
+  max-width: 100%;
   height: var(--app-badge-height);
 
   box-sizing: border-box;
   padding: 0 var(--app-badge-padding-x);
 
-  color: $text-primary;
-  background: $paper-dark;
-  border: 1px solid $border;
+  color: var(--app-badge-ink);
+  background: var(--app-badge-surface);
+  border: 1px solid var(--app-badge-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 1px 1px rgba(63, 49, 25, 0.04);
 
   font-family: $font-body;
-  font-weight: 800;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
-  letter-spacing: 0.015em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 
   vertical-align: middle;
@@ -56,7 +70,7 @@
 
   border-radius: inherit;
 
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 65%);
 
   pointer-events: none;
 }
@@ -65,19 +79,19 @@
 
 .app-badge-xs {
   --app-badge-height: 18px;
-  --app-badge-icon-size: 10px;
+  --app-badge-icon-size: 11px;
   --app-badge-dot-size: 5px;
-  --app-badge-padding-x: 6px;
+  --app-badge-padding-x: 7px;
   --app-badge-gap: 4px;
 
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .app-badge-sm {
   --app-badge-height: 24px;
   --app-badge-icon-size: 13px;
   --app-badge-dot-size: 6px;
-  --app-badge-padding-x: 9px;
+  --app-badge-padding-x: 10px;
 
   font-size: 11px;
 }
@@ -105,7 +119,7 @@
 /* Shapes */
 
 .app-badge-square {
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .app-badge-rounded {
@@ -116,114 +130,79 @@
   border-radius: 9999px;
 }
 
-/* Variants */
+/* Matte paper tones; status colors keep their meaning without button-like fills. */
 
 .app-badge-neutral {
-  color: $text-secondary;
-  background-color: $paper-dark;
-  border-color: $border;
+  @include badge-tone(#f3efe6, #62594b);
 }
 
 .app-badge-primary {
-  color: #ffffff;
-  background-color: $primary;
-  border-color: #000000;
+  @include badge-tone(#34332f, #fffdf7, #24231f);
 }
 
 .app-badge-secondary {
-  color: $btn-secondary-text;
-  background-color: $btn-secondary-bg;
-  border-color: $btn-secondary-border;
+  @include badge-tone(#eeebe3, #49473f);
 }
 
 .app-badge-accent {
-  color: #ffffff;
-  background-color: $button-accent-bg;
-  border-color: rgba(97, 47, 5, 0.32);
+  @include badge-tone(#ffed99, #624b0b);
 }
 
 .app-badge-success {
-  color: #ffffff;
-  background-color: $button-success-bg;
-  border-color: rgba(8, 70, 32, 0.35);
+  @include badge-tone(#e4f0e2, #2b6339);
 }
 
 .app-badge-warning {
-  color: #ffffff;
-  background-color: $button-warning-bg;
-  border-color: rgba(97, 47, 5, 0.35);
+  @include badge-tone(#fff0d1, #805013);
 }
 
 .app-badge-danger {
-  color: #ffffff;
-  background-color: $button-danger-bg;
-  border-color: rgba(91, 16, 16, 0.35);
+  @include badge-tone(#fbe3df, #963d38);
 }
 
 .app-badge-info {
-  color: #ffffff;
-  background-color: $button-info-bg;
-  border-color: rgba(16, 43, 114, 0.35);
+  @include badge-tone(#e4eef8, #345e88);
 }
 
 .app-badge-outline {
-  color: $text-primary;
-  background-color: rgba($paper, 0.78);
-  border-color: $border;
+  @include badge-tone(note.surface('white'), #62594b, #c9c0b1);
+  box-shadow: none;
 }
 
 .app-badge-noteYellow {
-  color: #614900;
-  background-color: $note-button-yellow;
-  border-color: rgba(97, 73, 0, 0.22);
+  @include badge-tone(note.surface('yellow'), #715715);
 }
 
 .app-badge-noteOrange {
-  color: #713407;
-  background-color: $note-button-orange;
-  border-color: rgba(113, 52, 7, 0.22);
+  @include badge-tone(note.surface('orange'), #8a4b22);
 }
 
 .app-badge-notePink {
-  color: #7e2247;
-  background-color: $note-button-pink;
-  border-color: rgba(126, 34, 71, 0.22);
+  @include badge-tone(note.surface('pink'), #923e62);
 }
 
 .app-badge-noteRed {
-  color: #822020;
-  background-color: $note-button-red;
-  border-color: rgba(130, 32, 32, 0.22);
+  @include badge-tone(note.surface('red'), #933c35);
 }
 
 .app-badge-noteGreen {
-  color: #245f31;
-  background-color: $note-button-green;
-  border-color: rgba(36, 95, 49, 0.22);
+  @include badge-tone(note.surface('green'), #456530);
 }
 
 .app-badge-noteBlue {
-  color: #205576;
-  background-color: $note-button-blue;
-  border-color: rgba(32, 85, 118, 0.22);
+  @include badge-tone(note.surface('blue'), #355f83);
 }
 
 .app-badge-notePurple {
-  color: #5c367d;
-  background-color: $note-button-purple;
-  border-color: rgba(92, 54, 125, 0.22);
+  @include badge-tone(note.surface('purple'), #6c4788);
 }
 
 .app-badge-noteBrown {
-  color: #ffffff;
-  background-color: $note-button-brown;
-  border-color: rgba(60, 33, 16, 0.35);
+  @include badge-tone(note.surface('brown'), #715039);
 }
 
 .app-badge-noteBlack {
-  color: #ffffff;
-  background-color: $note-button-black;
-  border-color: #000000;
+  @include badge-tone(note.surface('black'), #fffdf7, #252628);
 }
 
 /* Content */
@@ -261,6 +240,7 @@
 
   background: currentColor;
   border-radius: 50%;
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 10%, transparent);
 }
 
 .app-badge-dot-pulse::after {
@@ -289,13 +269,13 @@
   padding: 2px;
 
   color: inherit;
-  background: transparent;
+  background: color-mix(in srgb, currentColor 6%, transparent);
   border: 0;
   border-radius: 50%;
   outline: none;
 
   cursor: pointer;
-  opacity: 0.72;
+  opacity: 0.85;
 
   transition:
     background-color 150ms ease,
@@ -304,7 +284,7 @@
 }
 
 .app-badge-remove:hover:not(:disabled) {
-  background-color: rgba(17, 17, 17, 0.1);
+  background-color: color-mix(in srgb, currentColor 14%, transparent);
   opacity: 1;
 }
 
@@ -319,8 +299,8 @@
 
 .app-badge-disabled {
   cursor: not-allowed;
-  filter: grayscale(0.16);
-  opacity: 0.52;
+  filter: grayscale(0.35);
+  opacity: 0.6;
 }
 
 .app-badge-remove:disabled {
@@ -354,5 +334,15 @@
     color: ButtonText;
     background: ButtonFace;
     border-color: ButtonText;
+    box-shadow: none;
+  }
+
+  .app-badge::before {
+    display: none;
+  }
+
+  .app-badge-dot {
+    background: CanvasText;
+    box-shadow: none;
   }
 }
