@@ -18,6 +18,10 @@
   </span>
   <span class="sticky-note__fold" aria-hidden="true"></span>
 
+  @if (data?.notesCanvas) {
+    <span class="sticky-note__tape" aria-hidden="true"></span>
+  }
+
   <!-- 1. Header -->
   <header class="sticky-note__header">
     @if (showDragHandle) {

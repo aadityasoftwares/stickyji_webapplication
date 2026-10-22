@@ -372,7 +372,7 @@ $card-note-black: note.surface('black');
     color.mix(note.surface('yellow'), #796a50, 86%),
     #302e29
   );
-  --app-card-background-image: #{note.$light};
+  --app-card-background-image: #{note.gradient('yellow')};
   --app-card-fold: #{note.fold('yellow')};
 }
 
@@ -392,7 +392,7 @@ $card-note-black: note.surface('black');
     color.mix(note.surface('pink'), #796a50, 86%),
     #302e29
   );
-  --app-card-background-image: #{note.$light};
+  --app-card-background-image: #{note.gradient('pink')};
   --app-card-fold: #{note.fold('pink')};
 }
 
@@ -408,7 +408,7 @@ $card-note-black: note.surface('black');
     color.mix(note.surface('green'), #796a50, 86%),
     #302e29
   );
-  --app-card-background-image: #{note.$light};
+  --app-card-background-image: #{note.gradient('green')};
   --app-card-fold: #{note.fold('green')};
 }
 
@@ -418,7 +418,7 @@ $card-note-black: note.surface('black');
     color.mix(note.surface('blue'), #796a50, 86%),
     #302e29
   );
-  --app-card-background-image: #{note.$light};
+  --app-card-background-image: #{note.gradient('blue')};
   --app-card-fold: #{note.fold('blue')};
 }
 

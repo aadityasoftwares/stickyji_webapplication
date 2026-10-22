@@ -348,6 +348,38 @@ describe('Today', () => {
     expect(completedList).toBeTruthy();
   });
 
+  it.each(['DETAIL', 'COMPACT'])(
+    'shows decorative paper tape only in Notes view (%s)',
+    async (layout) => {
+      TestBed.inject(UserPreferenceStore).updatePreference(
+        USER_PREFERENCE_KEYS.STICKY_NOTE_LAYOUT,
+        layout,
+      );
+      component.stickyNotes.update((notes) =>
+        notes.map((note) => (note.id === 'first' ? { ...note, isCompleted: true } : note)),
+      );
+      component.setView('notes');
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const tapes = fixture.nativeElement.querySelectorAll('.sticky-note__tape');
+      expect(tapes).toHaveLength(3);
+      for (const tape of tapes) {
+        expect(tape.getAttribute('aria-hidden')).toBe('true');
+      }
+      expect(
+        fixture.nativeElement.querySelector('.today-completed-list .sticky-note__tape'),
+      ).toBeTruthy();
+      expect(fixture.nativeElement.querySelectorAll('.sticky-note__edit-trigger')).toHaveLength(3);
+      expect(fixture.nativeElement.querySelectorAll('.sticky-note__menu-trigger')).toHaveLength(3);
+
+      component.setView('kanban');
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelectorAll('.sticky-note__tape')).toHaveLength(0);
+    },
+  );
+
   it('toggles note completion optimistically and calls update API', async () => {
     const noteApi = TestBed.inject(StickyNoteApiService);
     const updateSpy = vi

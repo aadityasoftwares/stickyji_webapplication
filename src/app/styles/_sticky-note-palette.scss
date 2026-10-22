@@ -4,12 +4,12 @@
 // Paper colors are separate from the stronger brand/status colors used by controls.
 $surfaces: (
   'white': #fffdf7,
-  'yellow': #fff4bb,
+  'yellow': #fff3a4,
   'orange': #ffe7cc,
-  'pink': #ffe4e7,
+  'pink': #ffe0e2,
   'red': #ffdbd5,
-  'green': #e5f1d2,
-  'blue': #e0effc,
+  'green': #e7f6c8,
+  'blue': #d9edff,
   'purple': #eee3f7,
   'brown': #eddfcc,
   'black': #343537,
@@ -21,6 +21,22 @@ $surfaces: (
 
 @function fold($name) {
   @return color.mix(surface($name), #6e6047, 86%);
+}
+
+// Keep the hero hues, with a softer wash for comfortable everyday reading.
+$gradients: (
+  'yellow': linear-gradient(
+      115deg,
+      color.mix(#ffeb7a, surface('yellow'), 30%),
+      surface('yellow') 70%
+    ),
+  'pink': linear-gradient(120deg, color.mix(#ffd1d5, surface('pink'), 30%), surface('pink') 80%),
+  'green': linear-gradient(120deg, color.mix(#d9f0b3, surface('green'), 30%), surface('green') 65%),
+  'blue': linear-gradient(110deg, color.mix(#cce6fb, surface('blue'), 30%), surface('blue') 75%),
+);
+
+@function gradient($name) {
+  @return map.get($gradients, $name);
 }
 
 // A restrained edge and contact shadow keep the paper close to the board.

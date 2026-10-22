@@ -1248,12 +1248,15 @@
                                       <app-button
                                         [icon]="LucidePencil"
                                         [iconOnly]="true"
-                                        variant="outline"
-                                        appearance="flat"
+                                        variant="noteBlue"
+                                        appearance="standard"
                                         size="xs"
                                         [rounded]="true"
                                         [ariaLabel]="'Edit ' + (note?.title || 'note')"
-                                        [title]="'Edit ' + (note?.title || 'note')"
+                                        [appTooltip]="'Edit ' + (note?.title || 'note')"
+                                        tooltipTone="noteBlue"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
                                         [disabled]="!!movingNoteId()"
                                         (buttonClick)="openNoteEditPanel(note, $event)"
                                       />
@@ -1263,11 +1266,14 @@
                                           [icon]="LucideArrowRight"
                                           [iconOnly]="true"
                                           variant="noteYellow"
-                                          appearance="flat"
+                                          appearance="standard"
                                           size="xs"
                                           [rounded]="true"
                                           [ariaLabel]="'Move forward ' + (note?.title || 'note')"
-                                          title="Move forward"
+                                          appTooltip="Move forward"
+                                          tooltipTone="noteYellow"
+                                          tooltipPosition="top"
+                                          tooltipSize="sm"
                                           [disabled]="!!movingNoteId()"
                                           (buttonClick)="moveForward(note)"
                                         />
@@ -1276,7 +1282,7 @@
                                           [icon]="isNoteFavorite(note) ? LucideStar : LucideStarOff"
                                           [iconOnly]="true"
                                           variant="noteYellow"
-                                          appearance="flat"
+                                          appearance="standard"
                                           size="xs"
                                           [rounded]="true"
                                           [ariaLabel]="
@@ -1284,11 +1290,14 @@
                                             (note?.title || 'note') +
                                             ' from/to favorites'
                                           "
-                                          [title]="
+                                          [appTooltip]="
                                             isNoteFavorite(note)
                                               ? 'Remove favorite'
                                               : 'Add favorite'
                                           "
+                                          tooltipTone="noteYellow"
+                                          tooltipPosition="top"
+                                          tooltipSize="sm"
                                           [disabled]="!!movingNoteId() || isFavoriteBusy(note)"
                                           (buttonClick)="toggleNoteFavorite(note, $event)"
                                         />
@@ -1302,7 +1311,10 @@
                                         [attr.aria-label]="
                                           'More actions for ' + (note?.title || 'note')
                                         "
-                                        title="More note actions"
+                                        [appTooltip]="'More actions for ' + (note?.title || 'note')"
+                                        tooltipTone="paper"
+                                        tooltipPosition="top"
+                                        tooltipSize="sm"
                                         (click)="$event.stopPropagation()"
                                         (dblclick)="$event.stopPropagation()"
                                       >

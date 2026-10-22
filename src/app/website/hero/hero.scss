@@ -1,4 +1,5 @@
 ﻿@use '../../styles/variables' as *;
+@use '../../styles/sticky-note-palette' as note;
 :host {
   display: block;
 }
@@ -206,7 +207,7 @@
   top: 146px;
   width: 169px;
   height: 205px;
-  background: linear-gradient(115deg, #ffeb7a, #fff3a4 70%, #fff093);
+  background: note.gradient('yellow');
   transform: rotate(-15deg);
 }
 .note-yellow span {
@@ -232,7 +233,7 @@
   width: 154px;
   height: 173px;
   transform: rotate(-14deg);
-  background: linear-gradient(120deg, #ffd1d5, #ffe0e2 80%, #ffd5dc);
+  background: note.gradient('pink');
   font-size: 25px;
 }
 .note-heart {
@@ -255,7 +256,7 @@
   width: 161px;
   height: 193px;
   transform: rotate(11deg);
-  background: linear-gradient(120deg, #d9f0b3, #e7f6c8 65%, #dff0b6);
+  background: note.gradient('green');
   z-index: 1;
 }
 .note-green span {
@@ -286,7 +287,7 @@
   width: 151px;
   height: 180px;
   transform: rotate(3deg);
-  background: linear-gradient(110deg, #cce6fb, #d9edff 75%, #cce4f7);
+  background: note.gradient('blue');
   font-size: 24px;
 }
 .little-rays {
@@ -567,14 +568,14 @@
   padding: 20px;
   min-height: 190px;
   border-radius: 3px;
-  background: #fff3bf;
+  background: note.gradient('yellow');
 }
 .preview-notes article:nth-child(2) {
-  background: #ffe4e5;
+  background: note.gradient('pink');
   transform: rotate(1deg);
 }
 .preview-notes article:nth-child(3) {
-  background: #e4f1d2;
+  background: note.gradient('green');
   transform: rotate(-1deg);
 }
 .preview-notes small {
