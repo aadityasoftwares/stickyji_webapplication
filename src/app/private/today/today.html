@@ -1097,9 +1097,11 @@
                                       class="today-table-drag-handle"
                                       cdkDragHandle
                                       [attr.aria-label]="
-                                        'Hold to reorder ' + (note?.title || 'note')
+                                        'Hold to reorder ' + (plainText(note?.title) || 'note')
                                       "
-                                      [title]="'Hold to reorder ' + (note?.title || 'note')"
+                                      [title]="
+                                        'Hold to reorder ' + (plainText(note?.title) || 'note')
+                                      "
                                     >
                                       <app-icon [icon]="LucideGrip" size="xs" />
                                     </button>
@@ -1109,7 +1111,7 @@
                                       [checked]="isNoteSelected(note)"
                                       (checkedChange)="toggleNoteSelection(note, $event)"
                                       size="xs"
-                                      [ariaLabel]="'Select ' + (note?.title || 'note')"
+                                      [ariaLabel]="'Select ' + (plainText(note?.title) || 'note')"
                                       (click)="$event.stopPropagation()"
                                     />
                                   </td>
@@ -1142,31 +1144,40 @@
                                         </div>
                                       }
                                       @if (tableEditingTitleId() === (note?.id || note?._id)) {
-                                        <input
-                                          type="text"
+                                        <app-sticky-markdown-editor
+                                          mode="SINGLE_LINE"
                                           class="today-table-title-input"
-                                          autocomplete="off"
-                                          spellcheck="true"
                                           data-inline-note-title
+                                          label="Rename note"
+                                          [maxMarkdownLength]="200"
                                           [value]="tableTitleDraft()"
-                                          [attr.aria-label]="'Rename ' + (note?.title || 'note')"
+                                          (valueChange)="tableTitleDraft.set($event)"
                                           (click)="$event.stopPropagation()"
                                           (dblclick)="$event.stopPropagation()"
-                                          (input)="onTableTitleInput($event)"
+                                          (enterKey)="onTableTitleKeydown($event, note)"
                                           (keydown)="onTableTitleKeydown($event, note)"
-                                          (blur)="commitTableTitleEdit(note)"
+                                          (focusout)="onTableEditorBlur($event, note)"
                                         />
                                       } @else {
                                         <button
                                           type="button"
                                           class="today-gt-title"
-                                          [title]="note?.title || 'Untitled note'"
-                                          [attr.aria-label]="'Rename ' + (note?.title || 'note')"
+                                          [title]="plainText(note?.title) || 'Untitled note'"
+                                          [attr.aria-label]="
+                                            'Rename ' + (plainText(note?.title) || 'note')
+                                          "
                                           [disabled]="!!movingNoteId()"
                                           (click)="startTableTitleEdit(note, $event)"
                                           (dblclick)="$event.stopPropagation()"
                                         >
-                                          {{ note?.title || 'Untitled note' }}
+                                          <app-sticky-markdown-renderer
+                                            [markdown]="note?.title || 'Untitled note'"
+                                            [config]="{
+                                              compact: true,
+                                              maxLines: 1,
+                                              allowLinks: false,
+                                            }"
+                                          />
                                         </button>
                                       }
                                       @if (isDetailLayout() && note?.creatorEmail) {
@@ -1181,11 +1192,17 @@
                                   <td
                                     class="today-gt-description"
                                     data-label="Description"
-                                    [title]="note?.content || note?.description || '-'"
+                                    [title]="
+                                      plainText(note?.content) ||
+                                      plainText(note?.description) ||
+                                      '-'
+                                    "
                                   >
-                                    <span class="today-gt-description-text">{{
-                                      note?.content || note?.description || '-'
-                                    }}</span>
+                                    <span class="today-gt-description-text"
+                                      ><app-sticky-markdown-renderer
+                                        [markdown]="note?.content || note?.description || '-'"
+                                        [config]="{ compact: true, maxLines: 2 }"
+                                    /></span>
                                   </td>
                                   <td class="today-gt-date" data-label="Date">
                                     <span class="today-gt-date-text">{{
@@ -1209,7 +1226,8 @@
                                           class="today-table-progress-wrap"
                                           role="progressbar"
                                           [attr.aria-label]="
-                                            (note?.title || 'Note') + ' checklist progress'
+                                            (plainText(note?.title) || 'Note') +
+                                            ' checklist progress'
                                           "
                                           aria-valuemin="0"
                                           aria-valuemax="100"
@@ -1252,7 +1270,7 @@
                                         appearance="standard"
                                         size="xs"
                                         [rounded]="true"
-                                        [ariaLabel]="'Edit ' + (note?.title || 'note')"
+                                        [ariaLabel]="'Edit ' + (plainText(note?.title) || 'note')"
                                         [appTooltip]="'Edit ' + (note?.title || 'note')"
                                         tooltipTone="noteBlue"
                                         tooltipPosition="top"
@@ -1269,7 +1287,9 @@
                                           appearance="standard"
                                           size="xs"
                                           [rounded]="true"
-                                          [ariaLabel]="'Move forward ' + (note?.title || 'note')"
+                                          [ariaLabel]="
+                                            'Move forward ' + (plainText(note?.title) || 'note')
+                                          "
                                           appTooltip="Move forward"
                                           tooltipTone="noteYellow"
                                           tooltipPosition="top"
@@ -1287,7 +1307,7 @@
                                           [rounded]="true"
                                           [ariaLabel]="
                                             (isNoteFavorite(note) ? 'Remove ' : 'Add ') +
-                                            (note?.title || 'note') +
+                                            (plainText(note?.title) || 'note') +
                                             ' from/to favorites'
                                           "
                                           [appTooltip]="
@@ -1309,7 +1329,7 @@
                                         [matMenuTriggerFor]="groupNoteMenu"
                                         [disabled]="!!movingNoteId()"
                                         [attr.aria-label]="
-                                          'More actions for ' + (note?.title || 'note')
+                                          'More actions for ' + (plainText(note?.title) || 'note')
                                         "
                                         [appTooltip]="'More actions for ' + (note?.title || 'note')"
                                         tooltipTone="paper"

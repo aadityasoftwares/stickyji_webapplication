@@ -4,7 +4,7 @@
   [style.--note-font-family]="fontFamily"
   [style.--note-font-size]="fontSize + 'px'"
   [attr.data-note-id]="noteId"
-  [attr.aria-label]="title"
+  [attr.aria-label]="plainText(title)"
   [attr.inert]="preview ? '' : null"
   [attr.aria-busy]="isSaving"
   [attr.aria-disabled]="disabled"
@@ -64,8 +64,8 @@
             [disabled]="disabled || isFavoriteBusy"
             [attr.aria-label]="
               isFavorite
-                ? 'Remove ' + title + ' from favourites'
-                : 'Add ' + title + ' to favourites'
+                ? 'Remove ' + plainText(title) + ' from favourites'
+                : 'Add ' + plainText(title) + ' to favourites'
             "
             [appTooltip]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
             [tooltipTone]="tooltipTone"
@@ -81,7 +81,7 @@
           type="button"
           class="sticky-note__edit-trigger"
           [disabled]="disabled"
-          [attr.aria-label]="'Edit ' + title"
+          [attr.aria-label]="'Edit ' + plainText(title)"
           appTooltip="Edit note"
           [tooltipTone]="tooltipTone"
           tooltipPosition="top"
@@ -96,7 +96,7 @@
           class="sticky-note__menu-trigger"
           [matMenuTriggerFor]="noteActionsMenu"
           [disabled]="disabled"
-          [attr.aria-label]="'More actions for ' + title"
+          [attr.aria-label]="'More actions for ' + plainText(title)"
           appTooltip="More actions"
           [tooltipTone]="tooltipTone"
           tooltipPosition="top"
@@ -217,19 +217,14 @@
         class="sticky-note__inline-editor sticky-note__inline-editor--title"
         (click)="$event.stopPropagation()"
         (keydown)="onTitleKeydown($event)"
-        (focusout)="saveTitle()"
+        (focusout)="onInlineBlur($event, 'title')"
       >
-        <app-input
+        <app-sticky-markdown-editor
+          mode="SINGLE_LINE"
+          (enterKey)="onTitleKeydown($event)"
           label="Note title"
-          labelMode="hidden"
           placeholder="Note title"
-          [variant]="inputVariant"
-          appearance="outlined"
-          shape="soft"
-          size="sm"
-          [fullWidth]="true"
-          [clearable]="true"
-          [maxLength]="200"
+          [maxMarkdownLength]="200"
           [disabled]="titleUpdating"
           [(ngModel)]="titleDraft"
         />
@@ -248,7 +243,10 @@
         (keydown.enter)="startTitleEdit($event)"
         (keydown.space)="startTitleEdit($event)"
       >
-        {{ title }}
+        <app-sticky-markdown-renderer
+          [markdown]="title"
+          [config]="{ compact: true, maxLines: 2 }"
+        />
         @if (titleUpdating) {
           <span class="sticky-note__saving-dot" aria-label="Saving title"></span>
         }
@@ -261,21 +259,13 @@
         <div
           class="sticky-note__inline-editor sticky-note__inline-editor--description"
           (click)="$event.stopPropagation()"
-          (focusout)="saveDescription()"
+          (focusout)="onInlineBlur($event, 'content')"
         >
-          <app-input
+          <app-sticky-markdown-editor
+            mode="MULTI_LINE"
             label="Note description"
-            labelMode="hidden"
             placeholder="Add a description…"
-            [variant]="inputVariant"
-            appearance="filled"
-            shape="soft"
-            size="sm"
-            [multiline]="true"
-            [rows]="3"
-            [maxLength]="10000"
-            resize="vertical"
-            [fullWidth]="true"
+            [maxMarkdownLength]="10000"
             [disabled]="descriptionUpdating"
             [(ngModel)]="descriptionDraft"
             (keydown)="onDescriptionKeydown($event)"
@@ -296,7 +286,10 @@
           (click)="startDescriptionEdit($event)"
           (keydown.enter)="startDescriptionEdit($event)"
         >
-          {{ description || 'Add a description…' }}
+          <app-sticky-markdown-renderer
+            [markdown]="description || 'Add a description…'"
+            [config]="{ compact: !isDetail }"
+          />
           @if (descriptionUpdating) {
             <span class="sticky-note__saving-dot" aria-label="Saving description"></span>
           }
@@ -317,7 +310,11 @@
         @for (checklist of checklists; track checklist.id || checklist._id || $index) {
           <section class="sticky-note__checklist">
             <div class="sticky-note__checklist-heading">
-              <strong>{{ checklist?.title || 'Checklist' }}</strong>
+              <strong
+                ><app-sticky-markdown-renderer
+                  [markdown]="checklist?.title || 'Checklist'"
+                  [config]="{ compact: true, allowLinks: false }"
+              /></strong>
               <span
                 >{{ checklist?.completedCount ?? 0 }}/{{
                   checklist?.totalCount ?? (checklist?.items?.length || 0)
@@ -328,7 +325,7 @@
               @for (item of visibleItems(checklist); track item.id || item._id || $index) {
                 <app-checkbox
                   class="sticky-note__check-item"
-                  [label]="item?.title || 'Checklist item'"
+                  [ariaLabel]="plainText(item?.title || 'Checklist item')"
                   [checked]="item?.isCompleted === true"
                   [disabled]="disabled || item?.updating || isItemUpdating(item?.id ?? item?._id)"
                   [readonly]="preview"
@@ -336,7 +333,12 @@
                   size="sm"
                   [fullWidth]="true"
                   (checkedChange)="changeChecklistItem(item, $event)"
-                />
+                >
+                  <app-sticky-markdown-renderer
+                    [markdown]="item?.title || 'Checklist item'"
+                    [config]="{ compact: true, allowLinks: false }"
+                  />
+                </app-checkbox>
               }
             </div>
             @if (hiddenItemCount(checklist) > 0 || isChecklistExpanded(checklist)) {
@@ -494,7 +496,7 @@
     [open]="showDeleteConfirm"
     mode="trash"
     title="Move this note to Trash?"
-    [itemName]="title"
+    [itemName]="plainText(title)"
     message="It will disappear from here, but it is not gone permanently."
     supportingText="You can restore it from Sticky Note Trash for up to 60 days."
     confirmLabel="Move to trash"

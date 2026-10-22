@@ -593,7 +593,7 @@
                                     [checked]="isNoteSelected(note)"
                                     (checkedChange)="toggleNoteSelection(note, $event)"
                                     size="xs"
-                                    [ariaLabel]="'Select ' + noteTitle(note)"
+                                    [ariaLabel]="'Select ' + plainText(noteTitle(note))"
                                     (click)="$event.stopPropagation()"
                                   />
                                 </td>
@@ -603,7 +603,7 @@
                                     class="workspace-table-name-main"
                                     role="button"
                                     [attr.tabindex]="isBusy(note) ? -1 : 0"
-                                    [attr.aria-label]="'Edit ' + noteTitle(note)"
+                                    [attr.aria-label]="'Edit ' + plainText(noteTitle(note))"
                                     (click)="openEditEditor(note, $event)"
                                     (keydown.enter)="
                                       $event.target === $event.currentTarget &&
@@ -636,7 +636,14 @@
                                       }
 
                                       <strong class="workspace-name-editable" title="Click to edit">
-                                        {{ noteTitle(note) }}
+                                        <app-sticky-markdown-renderer
+                                          [markdown]="noteTitle(note)"
+                                          [config]="{
+                                            compact: true,
+                                            maxLines: 1,
+                                            allowLinks: false,
+                                          }"
+                                        />
                                       </strong>
                                     </div>
                                   </div>
@@ -645,10 +652,13 @@
                                 <td
                                   class="workspace-gt-description"
                                   data-label="Description"
-                                  [title]="noteContent(note) || 'No description'"
+                                  [title]="plainText(noteContent(note)) || 'No description'"
                                 >
                                   <span class="notes-table-description-text">
-                                    {{ noteContent(note) || 'No description' }}
+                                    <app-sticky-markdown-renderer
+                                      [markdown]="noteContent(note) || 'No description'"
+                                      [config]="{ compact: true, maxLines: 2 }"
+                                    />
                                   </span>
                                 </td>
 
@@ -671,7 +681,9 @@
                                     <div
                                       class="notes-table-progress"
                                       role="progressbar"
-                                      [attr.aria-label]="noteTitle(note) + ' checklist progress'"
+                                      [attr.aria-label]="
+                                        plainText(noteTitle(note)) + ' checklist progress'
+                                      "
                                       aria-valuemin="0"
                                       aria-valuemax="100"
                                       [attr.aria-valuenow]="noteProgressPct(note)"
@@ -701,7 +713,8 @@
                                     [loading]="isBusy(note)"
                                     [disabled]="isBusy(note)"
                                     [ariaLabel]="
-                                      (isActive(note) ? 'Archive ' : 'Activate ') + noteTitle(note)
+                                      (isActive(note) ? 'Archive ' : 'Activate ') +
+                                      plainText(noteTitle(note))
                                     "
                                     [title]="isActive(note) ? 'Archive note' : 'Activate note'"
                                     (click)="$event.stopPropagation()"
@@ -732,7 +745,7 @@
                                       appearance="standard"
                                       size="xs"
                                       [rounded]="true"
-                                      [ariaLabel]="'Edit ' + noteTitle(note)"
+                                      [ariaLabel]="'Edit ' + plainText(noteTitle(note))"
                                       appTooltip="Edit note"
                                       tooltipTone="noteBlue"
                                       tooltipPosition="bottom"
@@ -750,7 +763,7 @@
                                       [rounded]="true"
                                       [ariaLabel]="
                                         (isNoteFavorite(note) ? 'Remove ' : 'Add ') +
-                                        noteTitle(note) +
+                                        plainText(noteTitle(note)) +
                                         ' from/to favourites'
                                       "
                                       [appTooltip]="
@@ -770,7 +783,9 @@
                                       class="workspace-table-menu-button"
                                       [matMenuTriggerFor]="tableActions"
                                       [disabled]="isBusy(note)"
-                                      [attr.aria-label]="'More actions for ' + noteTitle(note)"
+                                      [attr.aria-label]="
+                                        'More actions for ' + plainText(noteTitle(note))
+                                      "
                                       (click)="$event.stopPropagation()"
                                       (dblclick)="$event.stopPropagation()"
                                     >
@@ -979,7 +994,7 @@
           Move note to trash?
         </h2>
         <p card-subtitle class="workspace-dialog-subtitle">
-          “{{ noteTitle(note) }}” will disappear from this folder.
+          “{{ plainText(noteTitle(note)) }}” will disappear from this folder.
         </p>
         <div class="workspace-delete-message">
           <span class="workspace-delete-message-icon" aria-hidden="true"

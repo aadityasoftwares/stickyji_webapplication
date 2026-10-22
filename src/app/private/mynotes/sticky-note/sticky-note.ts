@@ -40,7 +40,9 @@ import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { Divider } from '../../../shared/components/divider/divider';
 import { AppIcon } from '../../../shared/components/icon/icon';
-import { Input as AppInput } from '../../../shared/components/input/input';
+import { StickyMarkdownEditorComponent } from '../../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
+import { StickyMarkdownRendererComponent } from '../../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../../shared/utils/sticky-markdown/markdown-plain-text';
 import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { Tooltip, TooltipTone } from '../../../shared/components/tooltip/tooltip';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
@@ -84,7 +86,8 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
     MatDividerModule,
     MatMenuModule,
     AppIcon,
-    AppInput,
+    StickyMarkdownEditorComponent,
+    StickyMarkdownRendererComponent,
     Badge,
     Button,
     Checkbox,
@@ -97,6 +100,12 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNote {
+  readonly plainText = stickyMarkdownToPlainText;
+
+  onInlineBlur(event: FocusEvent, field: 'title' | 'content'): void {
+    if ((event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) return;
+    field === 'title' ? this.saveTitle() : this.saveDescription();
+  }
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
   private readonly favoriteApi = inject(StickyNotesFavouriteService);

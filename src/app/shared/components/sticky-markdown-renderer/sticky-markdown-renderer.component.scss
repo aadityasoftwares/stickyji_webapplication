@@ -1,0 +1,29 @@
+@use '../sticky-markdown-editor/markdown-content';
+app-sticky-markdown-renderer {
+  display: inline;
+  min-width: 0;
+}
+.sticky-markdown-renderer {
+  display: block;
+  &.is-clamped {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  &.is-compact {
+    line-height: inherit;
+    ul,
+    ol {
+      margin: 0;
+    }
+  }
+  &.collapse-breaks {
+    white-space: normal;
+    p {
+      display: inline;
+      &::after {
+        content: ' ';
+      }
+    }
+  }
+}

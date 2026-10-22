@@ -1,3 +1,4 @@
+import { stickyMarkdownToPlainText } from '../../../shared/utils/sticky-markdown/markdown-plain-text';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap, throwError } from 'rxjs';
@@ -123,7 +124,9 @@ export class StickyNotesFavouriteService {
         tap(() => {
           this.setFavoriteLocal(targetNoteId, false);
           this.toastService.success(
-            noteTitle ? `Removed "${noteTitle}" from favourites` : 'Removed from favourites',
+            noteTitle
+              ? `Removed "${stickyMarkdownToPlainText(noteTitle)}" from favourites`
+              : 'Removed from favourites',
             { dedupeKey: `fav-rem-${targetNoteId}` },
           );
         }),
@@ -143,7 +146,9 @@ export class StickyNotesFavouriteService {
           const newFavId = idOf(res?.data) || idOf(res);
           this.setFavoriteLocal(targetNoteId, true, newFavId);
           this.toastService.success(
-            noteTitle ? `Added "${noteTitle}" to favourites` : 'Added to favourites',
+            noteTitle
+              ? `Added "${stickyMarkdownToPlainText(noteTitle)}" to favourites`
+              : 'Added to favourites',
             { dedupeKey: `fav-add-${targetNoteId}` },
           );
           return { isFavorite: true, favoriteId: newFavId };

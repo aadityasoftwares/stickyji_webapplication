@@ -1,0 +1,108 @@
+<div
+  class="sticky-markdown-editor"
+  [class.is-disabled]="isDisabled"
+  [class.is-single-line]="!isMultiline"
+  (focusin)="onFocus()"
+  (focusout)="onFocusOut($event)"
+>
+  @if (toolbarVisible) {
+    <app-sticky-markdown-toolbar
+      #floatingToolbar
+      [class.is-floating]="toolbar === 'selection'"
+      [attr.popover]="toolbar === 'selection' ? 'manual' : null"
+      [style.left.px]="toolbar === 'selection' ? floatingLeft : null"
+      [style.top.px]="toolbar === 'selection' ? floatingTop : null"
+      [style.width.px]="toolbar === 'selection' ? floatingWidth : null"
+      [marks]="activeMarks"
+      [list]="activeList"
+      [multiline]="mode === 'MULTI_LINE'"
+      [disabled]="!editable"
+      [canUndo]="history.canUndo"
+      [canRedo]="history.canRedo"
+      (command)="command($event)"
+    />
+  }
+  <div
+    #surface
+    class="sticky-markdown-content sticky-markdown-surface"
+    [id]="inputId"
+    role="textbox"
+    [hidden]="sourceVisible"
+    [attr.contenteditable]="editable ? 'true' : 'false'"
+    [attr.tabindex]="isDisabled ? -1 : 0"
+    [attr.aria-label]="label"
+    [attr.aria-multiline]="isMultiline"
+    [attr.aria-required]="required"
+    [attr.aria-disabled]="isDisabled"
+    [attr.aria-readonly]="readonly"
+    [attr.aria-invalid]="!!error"
+    [attr.aria-describedby]="error ? inputId + '-error' : null"
+    [attr.data-placeholder]="placeholder"
+    [class.is-empty]="empty"
+    spellcheck="true"
+    (beforeinput)="beforeInput($any($event))"
+    (input)="onInput()"
+    (keydown)="onKeydown($event)"
+    (pointerup)="refreshSelection()"
+    (keyup)="refreshSelection()"
+    (click)="preventLinkNavigation($event)"
+    (compositionstart)="compositionStart()"
+    (compositionend)="compositionEnd()"
+    (paste)="onPaste($event)"
+    (copy)="onCopy($event)"
+    (cut)="onCopy($event, true)"
+    (drop)="onDrop($event)"
+  ></div>
+  @if (showSource) {
+    <button type="button" class="markdown-source-toggle" (click)="toggleSource()">
+      {{ sourceVisible ? 'Visual view' : 'Markdown source' }}
+    </button>
+    @if (sourceVisible) {
+      <textarea
+        class="markdown-source"
+        aria-label="Markdown source"
+        [value]="markdown"
+        [disabled]="isDisabled"
+        [readOnly]="readonly"
+        (input)="sourceInput($event)"
+      ></textarea>
+    }
+  }
+  @if (error) {
+    <small class="markdown-error" role="status" [id]="inputId + '-error'">{{ error }}</small>
+  }
+  @if (popover) {
+    <div
+      #popoverPanel
+      popover="manual"
+      class="sticky-markdown-popover"
+      role="dialog"
+      [attr.aria-label]="popover === 'link' ? 'Edit link' : 'Highlight text'"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="false"
+      (keydown.escape)="$event.stopPropagation(); closePopover()"
+    >
+      <button
+        type="button"
+        class="markdown-popover-close"
+        aria-label="Close formatting popup"
+        (click)="closePopover()"
+      >
+        ×
+      </button>
+      @if (popover === 'highlight') {
+        <app-sticky-highlight-picker
+          [highlight]="activeMarks.highlight"
+          (apply)="applyHighlight($event)"
+        />
+      } @else {
+        <app-sticky-link-popover
+          [label]="linkLabel"
+          [url]="linkUrl"
+          (apply)="applyLink($event)"
+          (remove)="removeLink()"
+        />
+      }
+    </div>
+  }
+</div>

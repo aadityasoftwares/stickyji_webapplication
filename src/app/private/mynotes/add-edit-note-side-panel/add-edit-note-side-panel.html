@@ -129,22 +129,16 @@
         <div class="note-field note-title-field">
           <app-label forId="note-title" text="Title" />
           <div class="note-field-control">
-            <app-input
+            <app-sticky-markdown-editor
               #noteTitleInput
               inputId="note-title"
+              mode="SINGLE_LINE"
+              toolbar="focus"
               label="Title"
-              labelMode="hidden"
               placeholder="Give your note a title"
-              variant="paper"
-              appearance="simple"
-              shape="rounded"
-              size="md"
-              [maxLength]="titleMaxLength"
-              [value]="controlString('title')"
+              [maxMarkdownLength]="titleMaxLength"
+              formControlName="title"
               [disabled]="isBusy"
-              [fullWidth]="true"
-              [clearable]="false"
-              autocomplete="off"
               (valueChange)="updateText('title', $event)"
               (enterKey)="onTitleEnter($event)"
             />
@@ -153,24 +147,15 @@
         <div class="note-field note-details-field">
           <app-label forId="note-content" text="Details" [required]="true" />
           <div class="note-field-control">
-            <app-input
+            <app-sticky-markdown-editor
               inputId="note-content"
+              mode="MULTI_LINE"
               label="Details"
-              labelMode="hidden"
               [required]="true"
               placeholder="Write something worth remembering…"
-              variant="paper"
-              appearance="simple"
-              shape="rounded"
-              size="md"
-              [multiline]="true"
-              [rows]="4"
-              resize="vertical"
-              [clearable]="false"
-              [maxLength]="contentMaxLength"
-              [value]="controlString('content')"
+              [maxMarkdownLength]="contentMaxLength"
+              formControlName="content"
               [disabled]="isBusy"
-              [fullWidth]="true"
               (valueChange)="updateText('content', $event)"
             />
             <span class="note-field-counter"
@@ -433,19 +418,13 @@
                                 variant="neutral"
                                 size="xs"
                               />
-                              <app-input
-                                type="text"
+                              <app-sticky-markdown-editor
+                                mode="CHECKLIST_ITEM"
                                 label="Checklist title"
-                                labelMode="hidden"
                                 placeholder="Checklist title"
-                                variant="paper"
-                                appearance="underlined"
-                                size="sm"
-                                [clearable]="false"
-                                [maxLength]="checklistTitleMaxLength"
+                                [maxMarkdownLength]="checklistTitleMaxLength"
                                 [value]="checklistTitle(checklistIndex)"
                                 [disabled]="isBusy"
-                                [fullWidth]="true"
                                 (valueChange)="updateChecklistTitle(checklistIndex, $event)"
                                 (enterKey)="onChecklistTitleEnter($event, checklistIndex)"
                               />
@@ -493,19 +472,13 @@
                                       setChecklistItemCompleted(checklistIndex, itemIndex, $event)
                                     "
                                   />
-                                  <app-input
-                                    type="text"
+                                  <app-sticky-markdown-editor
+                                    mode="CHECKLIST_ITEM"
                                     label="Checklist item"
-                                    labelMode="hidden"
                                     placeholder="Add a task"
-                                    variant="paper"
-                                    appearance="underlined"
-                                    size="sm"
-                                    [clearable]="false"
-                                    [maxLength]="checklistItemTitleMaxLength"
+                                    [maxMarkdownLength]="checklistItemTitleMaxLength"
                                     [value]="checklistItemTitle(checklistIndex, itemIndex)"
                                     [disabled]="isBusy"
-                                    [fullWidth]="true"
                                     (valueChange)="
                                       updateChecklistItemTitle(checklistIndex, itemIndex, $event)
                                     "

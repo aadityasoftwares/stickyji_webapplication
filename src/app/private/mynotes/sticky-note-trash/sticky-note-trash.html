@@ -224,7 +224,7 @@
                       appearance="standard"
                       size="xs"
                       [rounded]="true"
-                      [ariaLabel]="'Delete ' + noteTitle(note) + ' permanently'"
+                      [ariaLabel]="'Delete ' + plainText(noteTitle(note)) + ' permanently'"
                       [title]="'Delete permanently'"
                       [disabled]="!!actionId()"
                       (buttonClick)="requestPermanentDelete(note)"
@@ -243,7 +243,11 @@
                 </div>
 
                 <div class="sticky-trash-list-info">
-                  <strong>{{ noteTitle(note) }}</strong>
+                  <strong
+                    ><app-sticky-markdown-renderer
+                      [markdown]="noteTitle(note)"
+                      [config]="{ compact: true, maxLines: 1, allowLinks: false }"
+                  /></strong>
                   <span>{{ folderLabel(note) }} · {{ columnLabel(note) }}</span>
                   <span class="sticky-trash-days" [class.is-urgent]="daysRemaining(note) <= 7">
                     <app-icon [icon]="LucideClock3" size="xs" />

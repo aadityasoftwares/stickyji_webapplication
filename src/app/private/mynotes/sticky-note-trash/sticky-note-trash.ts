@@ -1,3 +1,5 @@
+import { StickyMarkdownRendererComponent } from '../../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../../shared/utils/sticky-markdown/markdown-plain-text';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -53,6 +55,7 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
   selector: 'app-sticky-note-trash',
   standalone: true,
   imports: [
+    StickyMarkdownRendererComponent,
     CommonModule,
     FormsModule,
     AppIcon,
@@ -71,6 +74,7 @@ type TrashSort = 'deletedAt' | 'purgeAfter' | 'title';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNoteTrash implements OnInit {
+  readonly plainText = stickyMarkdownToPlainText;
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -133,7 +137,7 @@ export class StickyNoteTrash implements OnInit {
           this.noteContent(note),
           this.folderLabel(note),
           this.columnLabel(note),
-        ].some((value) => value.toLowerCase().includes(search));
+        ].some((value) => stickyMarkdownToPlainText(value).toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'title') {

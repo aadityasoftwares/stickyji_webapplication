@@ -237,7 +237,7 @@
                                   class="workspace-table-name-main"
                                   role="button"
                                   [attr.tabindex]="isBusy(note) ? -1 : 0"
-                                  [attr.aria-label]="'Edit ' + noteTitle(note)"
+                                  [attr.aria-label]="'Edit ' + plainText(noteTitle(note))"
                                   (click)="openEditEditor(note, $event)"
                                   (keydown.enter)="openEditEditor(note, $event)"
                                 >
@@ -267,14 +267,24 @@
                                         </button>
                                       </span>
                                     }
-                                    <strong>{{ noteTitle(note) }}</strong>
+                                    <strong
+                                      ><app-sticky-markdown-renderer
+                                        [markdown]="noteTitle(note)"
+                                        [config]="{
+                                          compact: true,
+                                          maxLines: 1,
+                                          allowLinks: false,
+                                        }"
+                                    /></strong>
                                   </div>
                                 </div>
                               </td>
                               <td class="workspace-gt-description" data-label="Description">
-                                <span class="notes-table-description-text">{{
-                                  noteContent(note) || 'No description'
-                                }}</span>
+                                <span class="notes-table-description-text"
+                                  ><app-sticky-markdown-renderer
+                                    [markdown]="noteContent(note) || 'No description'"
+                                    [config]="{ compact: true, maxLines: 2 }"
+                                /></span>
                               </td>
                               <td class="workspace-gt-date" data-label="Date">
                                 <span class="workspace-gt-date-text">{{
@@ -300,7 +310,9 @@
                                   <div
                                     class="notes-table-progress"
                                     role="progressbar"
-                                    [attr.aria-label]="noteTitle(note) + ' checklist progress'"
+                                    [attr.aria-label]="
+                                      plainText(noteTitle(note)) + ' checklist progress'
+                                    "
                                     aria-valuemin="0"
                                     aria-valuemax="100"
                                     [attr.aria-valuenow]="noteProgressPct(note)"
@@ -329,7 +341,8 @@
                                   [loading]="isBusy(note)"
                                   [disabled]="isBusy(note)"
                                   [ariaLabel]="
-                                    (isActive(note) ? 'Archive ' : 'Activate ') + noteTitle(note)
+                                    (isActive(note) ? 'Archive ' : 'Activate ') +
+                                    plainText(noteTitle(note))
                                   "
                                   (click)="$event.stopPropagation()"
                                   (checkedChange)="changeNoteStatus(note, $event)"
@@ -352,7 +365,7 @@
                                     size="xs"
                                     [rounded]="true"
                                     [disabled]="isBusy(note)"
-                                    [ariaLabel]="'Edit ' + noteTitle(note)"
+                                    [ariaLabel]="'Edit ' + plainText(noteTitle(note))"
                                     appTooltip="Edit note"
                                     tooltipPosition="top"
                                     tooltipSize="sm"
@@ -365,7 +378,9 @@
                                     size="xs"
                                     [rounded]="true"
                                     [disabled]="isBusy(note)"
-                                    [ariaLabel]="'Remove ' + noteTitle(note) + ' from favourites'"
+                                    [ariaLabel]="
+                                      'Remove ' + plainText(noteTitle(note)) + ' from favourites'
+                                    "
                                     appTooltip="Remove from favourites"
                                     tooltipPosition="top"
                                     tooltipSize="sm"
@@ -376,7 +391,9 @@
                                     class="workspace-table-menu-button"
                                     [matMenuTriggerFor]="noteActions"
                                     [disabled]="isBusy(note)"
-                                    [attr.aria-label]="'More actions for ' + noteTitle(note)"
+                                    [attr.aria-label]="
+                                      'More actions for ' + plainText(noteTitle(note))
+                                    "
                                     (click)="$event.stopPropagation()"
                                     (dblclick)="$event.stopPropagation()"
                                   >
@@ -491,7 +508,7 @@
           Move note to trash?
         </h2>
         <p card-subtitle class="workspace-dialog-subtitle">
-          “{{ noteTitle(note) }}” will be moved to trash.
+          “{{ plainText(noteTitle(note)) }}” will be moved to trash.
         </p>
         <div card-footer class="workspace-dialog-actions">
           <app-button

@@ -82,7 +82,7 @@
             <article class="overdue-note">
               <div class="overdue-note-heading">
                 <app-checkbox
-                  [ariaLabel]="'Select ' + (note.title || note.noteKey)"
+                  [ariaLabel]="'Select ' + (plainText(note.title) || note.noteKey)"
                   size="sm"
                   variant="noteYellow"
                   [checked]="selectedIds().has(note.id)"
@@ -102,7 +102,12 @@
                   "
                 />
               </div>
-              <h4>{{ note.title || 'Untitled note' }}</h4>
+              <h4>
+                <app-sticky-markdown-renderer
+                  [markdown]="note.title || 'Untitled note'"
+                  [config]="{ compact: true, maxLines: 2 }"
+                />
+              </h4>
               <div class="overdue-date">
                 <app-icon [icon]="LucideCalendarDays" size="xs" />
                 <span>Planned: {{ note.noteDate | userDate }}</span>
@@ -126,7 +131,9 @@
                   variant="secondary"
                   size="xs"
                   [disabled]="busy()"
-                  [ariaLabel]="'Open ' + (note.title || note.noteKey) + ' to edit or reschedule'"
+                  [ariaLabel]="
+                    'Open ' + (plainText(note.title) || note.noteKey) + ' to edit or reschedule'
+                  "
                   (buttonClick)="requestOpen(note)"
                 />
               </div>

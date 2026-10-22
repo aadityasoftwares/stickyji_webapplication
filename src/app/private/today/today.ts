@@ -1,3 +1,6 @@
+import { StickyMarkdownEditorComponent } from '../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
+import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -157,6 +160,8 @@ type OverdueView = 'bar' | 'button';
   templateUrl: './today.html',
   styleUrl: './today.scss',
   imports: [
+    StickyMarkdownEditorComponent,
+    StickyMarkdownRendererComponent,
     CommonModule,
     FormsModule,
     DragDropModule,
@@ -184,6 +189,7 @@ type OverdueView = 'bar' | 'button';
   ],
 })
 export class Today {
+  readonly plainText = stickyMarkdownToPlainText;
   readonly overdue = inject(OverdueNotesStore);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -344,12 +350,8 @@ export class Today {
     if (!this.hasWorkspaces()) return null;
     return this.workspaceDropdownStore.selectedWorkspaceId() ?? this.workspaceStore.selectedId();
   });
-  readonly loadingWorkspaces = computed(
-    () => this.workspaceDropdownStore.loading(),
-  );
-  readonly workspaceError = computed(
-    () => this.workspaceDropdownStore.error(),
-  );
+  readonly loadingWorkspaces = computed(() => this.workspaceDropdownStore.loading());
+  readonly workspaceError = computed(() => this.workspaceDropdownStore.error());
   readonly workspacesLoaded = computed(
     () => this.workspaceDropdownStore.loaded() || this.workspaceStore.loaded(),
   );
@@ -1101,10 +1103,21 @@ export class Today {
     const sourceElement = event?.currentTarget as HTMLElement | null;
     setTimeout(() => {
       const row = sourceElement?.closest('tr');
-      const input = row?.querySelector<HTMLInputElement>('[data-inline-note-title]');
+      const input = row?.querySelector<HTMLElement>('[data-inline-note-title] [contenteditable]');
       input?.focus();
-      input?.select();
+      if (input) {
+        const range = document.createRange();
+        range.selectNodeContents(input);
+        const selection = document.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
     });
+  }
+
+  onTableEditorBlur(event: FocusEvent, note: any): void {
+    if ((event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) return;
+    this.commitTableTitleEdit(note);
   }
 
   onTableTitleInput(event: Event): void {
@@ -2021,7 +2034,11 @@ export class Today {
 
   private noteMatchesSearch(note: any, search: string): boolean {
     if (!search) return true;
-    return `${note?.title ?? ''} ${note?.description ?? ''}`.toLowerCase().includes(search);
+    return stickyMarkdownToPlainText(
+      `${note?.title ?? ''} ${note?.content ?? note?.description ?? ''}`,
+    )
+      .toLowerCase()
+      .includes(search);
   }
 
   private responseMessage(response: any, fallback: string): string {

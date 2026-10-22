@@ -1,3 +1,5 @@
+import { StickyMarkdownRendererComponent } from '../../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../../shared/utils/sticky-markdown/markdown-plain-text';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import {
   LucideCalendarDays,
@@ -18,12 +20,23 @@ import { STICKY_NOTE_COLUMN_TYPES } from '../../../shared/constants/common.const
 @Component({
   selector: 'app-overdue-notes-panel',
   standalone: true,
-  imports: [AppIcon, Badge, Button, Checkbox, Loader, SidePanel, Tabs, UserDatePipe],
+  imports: [
+    StickyMarkdownRendererComponent,
+    AppIcon,
+    Badge,
+    Button,
+    Checkbox,
+    Loader,
+    SidePanel,
+    Tabs,
+    UserDatePipe,
+  ],
   templateUrl: './overdue-notes-panel.html',
   styleUrl: './overdue-notes-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverdueNotesPanel {
+  readonly plainText = stickyMarkdownToPlainText;
   readonly columnTypes = STICKY_NOTE_COLUMN_TYPES;
   readonly open = input(false);
   readonly data = input<any>(null);

@@ -1,3 +1,4 @@
+import { stickyMarkdownToPlainText } from '../utils/sticky-markdown/markdown-plain-text';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import type { BadgeVariant } from '../components/badge/badge';
 import type { SidePanelTone } from '../components/side-panel/side-panel';
@@ -167,7 +168,7 @@ export function validateNoteChecklists(checklists?: any, limits: any = {}): stri
       const list = checklists[i];
       const title = String(list?.title ?? '').trim();
 
-      if (!title) {
+      if (!stickyMarkdownToPlainText(title).trim()) {
         return `Enter a title for checklist ${i + 1}.`;
       }
 
@@ -175,7 +176,7 @@ export function validateNoteChecklists(checklists?: any, limits: any = {}): stri
         return `Checklist titles must be at most ${maxTitleLength} characters.`;
       }
 
-      const normalizedTitle = title.toLowerCase();
+      const normalizedTitle = stickyMarkdownToPlainText(title).toLowerCase();
       if (listTitles.has(normalizedTitle)) {
         return `Checklist "${title}" is repeated. Use a different title.`;
       }
@@ -190,7 +191,7 @@ export function validateNoteChecklists(checklists?: any, limits: any = {}): stri
       for (let j = 0; j < items.length; j++) {
         const itemTitle = String(items[j]?.title ?? '').trim();
 
-        if (!itemTitle) {
+        if (!stickyMarkdownToPlainText(itemTitle).trim()) {
           return `Fill or remove empty items from "${title}" before saving.`;
         }
 
@@ -198,7 +199,7 @@ export function validateNoteChecklists(checklists?: any, limits: any = {}): stri
           return `Checklist items must be at most ${maxItemLength} characters.`;
         }
 
-        const normalizedItem = itemTitle.toLowerCase();
+        const normalizedItem = stickyMarkdownToPlainText(itemTitle).toLowerCase();
         if (itemTitles.has(normalizedItem)) {
           return `"${itemTitle}" is repeated inside "${title}".`;
         }
@@ -261,7 +262,7 @@ export function validateNoteForm(input: any): string | null {
     }
 
     const content = String(input.content ?? '').trim();
-    if (!content) {
+    if (!stickyMarkdownToPlainText(content).trim()) {
       return 'Write some details before saving your note.';
     }
 

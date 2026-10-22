@@ -750,10 +750,18 @@
   background: transparent;
 }
 
-.checklist-item.is-completed ::ng-deep .app-input-control {
+.checklist-item.is-completed ::ng-deep .sticky-markdown-surface {
   color: var(--editor-muted);
   text-decoration: line-through;
   opacity: 0.7;
+}
+
+.checklist-group ::ng-deep .sticky-markdown-surface {
+  min-height: 30px;
+  padding: 4px 6px;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  font-size: 13px;
 }
 
 .remove-item {

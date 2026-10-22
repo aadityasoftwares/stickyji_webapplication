@@ -20,16 +20,28 @@ export function focusAtEnd(element: HTMLElement | null | undefined): boolean {
   if (!element) return false;
 
   let target: HTMLInputElement | HTMLTextAreaElement | HTMLElement | null = null;
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+  if (
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLTextAreaElement ||
+    element.getAttribute('contenteditable') === 'true'
+  ) {
     target = element;
   } else {
     target = element.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([disabled]), textarea:not([disabled])',
+      '[contenteditable="true"], input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([disabled]), textarea:not([disabled])',
     );
   }
 
   if (target) {
     target.focus({ preventScroll: false });
+    if (target.getAttribute('contenteditable') === 'true') {
+      const range = target.ownerDocument.createRange();
+      range.selectNodeContents(target);
+      range.collapse(false);
+      const selection = target.ownerDocument.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
       const len = target.value?.length ?? 0;
       try {
@@ -90,7 +102,7 @@ export class FocusNavigationDirective {
 
   @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (this.enabled === false) return;
+    if (this.enabled === false || event.defaultPrevented) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 
     const key = event.key;
@@ -105,6 +117,18 @@ export class FocusNavigationDirective {
 
     const target = event.target as HTMLElement | null;
     if (!target) return;
+    if (target.getAttribute('contenteditable') === 'true') {
+      if (target.getAttribute('aria-multiline') === 'true') return;
+      const selection = target.ownerDocument.getSelection();
+      if (!selection?.isCollapsed) return;
+      const range = target.ownerDocument.createRange();
+      range.selectNodeContents(target);
+      if (selection.anchorNode && target.contains(selection.anchorNode))
+        range.setEnd(selection.anchorNode, selection.anchorOffset);
+      const offset = range.toString().length;
+      if (isArrowUp && offset !== 0) return;
+      if (isArrowDown && offset !== (target.textContent?.length ?? 0)) return;
+    }
 
     // Handle multiline textarea
     if (target instanceof HTMLTextAreaElement) {

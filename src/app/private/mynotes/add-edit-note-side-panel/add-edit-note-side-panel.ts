@@ -47,7 +47,7 @@ import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
-import { Input as AppInput } from '../../../shared/components/input/input';
+import { StickyMarkdownEditorComponent } from '../../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
 import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
 import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
@@ -111,7 +111,7 @@ import {
     FormsModule,
     ReactiveFormsModule,
     AppIcon,
-    AppInput,
+    StickyMarkdownEditorComponent,
     Badge,
     Button,
     Checkbox,
@@ -422,6 +422,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     if (this.isBusy) return;
     this.error.set('');
     this.form.controls[controlName].setValue(String(value ?? ''));
+    this.form.controls[controlName].markAsDirty();
     this.saveState.set('editing');
     this.cdr.markForCheck();
   }
@@ -596,7 +597,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     event.preventDefault();
     const group = (event.target as HTMLElement)?.closest('.checklist-group');
     const firstTaskInput = group?.querySelector(
-      '.checklist-items input:not([disabled])',
+      '.checklist-items [contenteditable="true"], .checklist-items input:not([disabled])',
     ) as HTMLInputElement | null;
     if (firstTaskInput) {
       focusAtEnd(firstTaskInput);
@@ -685,7 +686,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   private focusFirstInput(container: Element | null): void {
     if (!container) return;
     const input = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      'input:not([disabled]):not([type="checkbox"]):not([type="radio"]), textarea:not([disabled])',
+      '[contenteditable="true"], input:not([disabled]):not([type="checkbox"]):not([type="radio"]), textarea:not([disabled])',
     );
     if (input) {
       focusAtEnd(input);

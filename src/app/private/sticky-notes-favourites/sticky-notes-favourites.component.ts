@@ -1,3 +1,5 @@
+import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -72,6 +74,7 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
   selector: 'app-sticky-notes-favourites',
   standalone: true,
   imports: [
+    StickyMarkdownRendererComponent,
     FormsModule,
     MatDividerModule,
     MatMenuModule,
@@ -95,6 +98,7 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNotesFavouritesComponent implements OnInit {
+  readonly plainText = stickyMarkdownToPlainText;
   private readonly destroyRef = inject(DestroyRef);
   private readonly favouriteApi = inject(StickyNotesFavouriteService);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
@@ -240,8 +244,10 @@ export class StickyNotesFavouritesComponent implements OnInit {
 
         if (!search) return true;
 
-        const title = this.noteTitle(note).toLowerCase();
-        const content = (note?.content ?? note?.description ?? '').toLowerCase();
+        const title = stickyMarkdownToPlainText(this.noteTitle(note)).toLowerCase();
+        const content = stickyMarkdownToPlainText(
+          note?.content ?? note?.description ?? '',
+        ).toLowerCase();
         const key = (note?.noteKey ?? '').toLowerCase();
 
         return title.includes(search) || content.includes(search) || key.includes(search);

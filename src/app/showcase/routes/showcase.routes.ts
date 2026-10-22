@@ -6,6 +6,13 @@ export const SHOWCASE_ROUTES: Routes = [
     loadComponent: () => import('../showcase/showcase').then((m) => m.Showcase),
     children: [
       {
+        path: 'markdown-editor',
+        loadComponent: () =>
+          import('../markdown-editor-showcase/markdown-editor-showcase').then(
+            (m) => m.MarkdownEditorShowcase,
+          ),
+      },
+      {
         path: '',
         redirectTo: 'buttons',
         pathMatch: 'full',

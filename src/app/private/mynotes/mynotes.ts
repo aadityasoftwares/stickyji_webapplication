@@ -1,3 +1,5 @@
+import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
+import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -134,6 +136,7 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
   selector: 'app-mynotes',
   providers: [OverdueNotesStore],
   imports: [
+    StickyMarkdownRendererComponent,
     FormsModule,
     MatDividerModule,
     MatMenuModule,
@@ -162,6 +165,7 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyNotes implements OnInit, OnChanges {
+  readonly plainText = stickyMarkdownToPlainText;
   readonly overdue = inject(OverdueNotesStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -359,7 +363,7 @@ export class MyNotes implements OnInit, OnChanges {
           this.noteContent(note),
           this.noteColumnName(note),
           this.noteKey(note),
-        ].some((value) => value.toLowerCase().includes(search));
+        ].some((value) => stickyMarkdownToPlainText(value).toLowerCase().includes(search));
       })
       .sort((first, second) => {
         if (sort === 'title' || sort === 'name-asc') {
