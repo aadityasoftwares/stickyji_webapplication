@@ -127,6 +127,8 @@ import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.st
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { WorkspaceDropdownStore } from '../workspace/services/workspace-dropdown.store';
+import { WorkspaceDropdownItem } from '../workspace/models/workspace-dropdown.models';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import {
@@ -192,6 +194,7 @@ export class Today {
 
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
+  private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly stickyNoteColumnStore = inject(StickyNoteColumnStore);
 
@@ -205,6 +208,7 @@ export class Today {
   private folderRequestVersion = 0;
   private workspaceMemberRequestVersion = 0;
   private notesRequestVersion = 0;
+  private readonly pendingWorkspaceActivation = signal(false);
   private readonly stickyNoteDataCache = new Map<string, { key: string; value: any }>();
 
   readonly LucideAArrowUp = LucideAArrowUp;
@@ -320,25 +324,59 @@ export class Today {
     return Math.min(Math.max(calculated, 155), 215);
   });
 
-  readonly workspaceOptions = computed<any[]>(() =>
-    this.workspaceStore.workspaces().map((workspace) => ({
+  readonly workspaceOptions = computed<any[]>(() => {
+    const dropdownItems = this.workspaceDropdownStore.items();
+    if (dropdownItems.length > 0) {
+      return dropdownItems.map((workspace) => ({
+        label: entityNameOf(workspace, 'Untitled workspace'),
+        value: idOf(workspace),
+        icon: LucidePanelsTopLeft,
+      }));
+    }
+    return this.workspaceStore.workspaces().map((workspace) => ({
       label: entityNameOf(workspace, 'Untitled workspace'),
       value: idOf(workspace),
       icon: LucidePanelsTopLeft,
-    })),
-  );
+    }));
+  });
 
-  readonly activeWorkspaceId = this.workspaceStore.selectedId;
-  readonly loadingWorkspaces = this.workspaceStore.loading;
-  readonly workspaceError = this.workspaceStore.error;
-  readonly workspacesLoaded = this.workspaceStore.loaded;
-  readonly hasWorkspaces = computed(() => this.workspaceStore.workspaces().length > 0);
+  readonly activeWorkspaceId = computed<string | null>(() => {
+    if (!this.hasWorkspaces()) return null;
+    return this.workspaceDropdownStore.selectedWorkspaceId() ?? this.workspaceStore.selectedId();
+  });
+  readonly loadingWorkspaces = computed(
+    () => this.workspaceDropdownStore.loading(),
+  );
+  readonly workspaceError = computed(
+    () => this.workspaceDropdownStore.error(),
+  );
+  readonly workspacesLoaded = computed(
+    () => this.workspaceDropdownStore.loaded() || this.workspaceStore.loaded(),
+  );
+  readonly hasWorkspaces = computed(
+    () =>
+      this.workspaceDropdownStore.hasWorkspaces() || this.workspaceStore.workspaces().length > 0,
+  );
   readonly workspaceErrorKind = signal<TodayLoadErrorKind>('server');
 
-  readonly activeFolder = this.workspaceFolderStore.selectedId;
-  readonly loadingFolders = this.workspaceFolderStore.loading;
-  readonly folders = this.workspaceFolderStore.activeFolders;
-  readonly foldersError = this.workspaceFolderStore.error;
+  readonly activeFolder = computed<string | null>(() => {
+    if (!this.activeWorkspaceId()) return null;
+    return this.workspaceDropdownStore.selectedFolderId() ?? this.workspaceFolderStore.selectedId();
+  });
+  readonly loadingFolders = computed(
+    () => !this.workspaceDropdownStore.loaded() && this.workspaceFolderStore.loading(),
+  );
+  readonly folders = computed<readonly any[]>(() => {
+    const dropdownFolders = this.workspaceDropdownStore.folders();
+    if (dropdownFolders.length > 0) {
+      return dropdownFolders;
+    }
+    return this.workspaceFolderStore.activeFolders();
+  });
+  readonly foldersError = computed<string | null>(() => {
+    if (this.workspaceDropdownStore.loaded()) return null;
+    return this.workspaceFolderStore.error();
+  });
   readonly foldersErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly folderOptions = computed<any[]>(() =>
@@ -513,30 +551,28 @@ export class Today {
   readonly viewTabs = STICKY_NOTE_VIEW_OPTIONS;
 
   private readonly syncPreferredWorkspace = effect(() => {
-    if (!this.userPreferenceStore.loaded() || !this.workspaceStore.loaded()) return;
+    if (this.userPreferenceStore.loading()) return;
+    if (this.pendingWorkspaceActivation()) {
+      untracked(() => {
+        this.pendingWorkspaceActivation.set(false);
+        const workspaceId = this.resolveWorkspaceSelection();
+        if (workspaceId) this.activateWorkspace(workspaceId);
+      });
+      return;
+    }
+    if (!this.userPreferenceStore.loaded() || !this.workspacesLoaded()) return;
 
     const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
     if (!preferredWorkspaceId) return;
 
-    const exists = this.workspaceStore
-      .workspaces()
-      .some((workspace) => workspace.id === preferredWorkspaceId);
+    const exists = this.workspaceOptions().some((opt) => opt.value === preferredWorkspaceId);
     if (!exists) return;
 
     const currentWorkspaceId = this.activeWorkspaceId();
 
     if (currentWorkspaceId !== preferredWorkspaceId) {
-      this.workspaceStore.select(preferredWorkspaceId);
-      this.workspaceFolderStore.clear();
-      this.stickyNoteColumnStore.clear();
-      this.clearWorkspaceMembers();
-      this.clearBoard();
+      untracked(() => this.activateWorkspace(preferredWorkspaceId));
     }
-
-    untracked(() => {
-      this.loadWorkspaceMembers(preferredWorkspaceId);
-      this.getWorkspaceFolders(preferredWorkspaceId);
-    });
   });
 
   ngOnInit(): void {
@@ -642,7 +678,7 @@ export class Today {
   }
 
   getWorkspaces(force = false): void {
-    if (this.workspaceStore.loaded() && !force) {
+    if (this.workspaceDropdownStore.loaded() && !force) {
       const workspaceId = this.resolveWorkspaceSelection();
 
       if (!workspaceId) {
@@ -657,28 +693,26 @@ export class Today {
       return;
     }
 
-    if (this.workspaceStore.loading()) return;
+    if (this.workspaceDropdownStore.loading()) return;
 
-    this.workspaceStore.setLoading(true);
-    this.workspaceStore.clearError();
+    this.workspaceDropdownStore.setLoading(true);
+    this.workspaceDropdownStore.clearError();
     this.workspaceErrorKind.set('server');
 
     this.workspaceApiService
-      .getAll({
-        page: DEFAULT_PAGE,
-        limit: 100,
-        status: ACTIVE_STATUS,
-      })
+      .getWorkspaceDropdown()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.workspaceStore.setLoading(false)),
+        finalize(() => this.workspaceDropdownStore.setLoading(false)),
       )
       .subscribe({
         next: (response: any) => {
-          const workspaces = extractList(response);
-          const pagination = response?.data?.meta ?? response?.meta ?? null;
+          const workspaces: WorkspaceDropdownItem[] = Array.isArray(response?.data)
+            ? response.data
+            : extractList(response);
 
-          this.workspaceStore.setWorkspaces(workspaces, pagination);
+          this.workspaceDropdownStore.setItems(workspaces);
+          this.syncLegacyStores(workspaces);
 
           const workspaceId = this.resolveWorkspaceSelection();
 
@@ -694,9 +728,9 @@ export class Today {
         },
         error: (error: any) => {
           this.workspaceErrorKind.set(this.errorKind(error));
-          this.workspaceStore.setError(
-            extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED),
-          );
+          const message = extractErrorMessage(error, TODAY_MESSAGES.ERROR.WORKSPACES_LOAD_FAILED);
+          this.workspaceDropdownStore.setError(message);
+          this.workspaceStore.setError(message);
           this.workspaceFolderStore.clear();
           this.stickyNoteColumnStore.clear();
           this.clearWorkspaceMembers();
@@ -709,16 +743,13 @@ export class Today {
     const workspaceId = String(value ?? '').trim();
     if (!workspaceId || workspaceId === this.activeWorkspaceId()) return;
 
-    this.workspaceStore.select(workspaceId);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, workspaceId);
 
-    this.workspaceFolderStore.clear();
     this.stickyNoteColumnStore.clear();
     this.clearWorkspaceMembers();
     this.clearBoard();
 
-    this.loadWorkspaceMembers(workspaceId);
-    this.getWorkspaceFolders(workspaceId);
+    this.activateWorkspace(workspaceId);
   }
 
   loadWorkspaceMembers(workspaceId: string): void {
@@ -842,6 +873,7 @@ export class Today {
     const folderId = value ? String(value).trim() : null;
     if (folderId === this.activeFolder()) return;
 
+    this.workspaceDropdownStore.selectFolder(folderId);
     this.workspaceFolderStore.select(folderId);
     if (folderId) {
       this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, folderId);
@@ -1842,30 +1874,58 @@ export class Today {
   }
 
   private resolveWorkspaceSelection(): string | null {
-    const workspaces = this.workspaceStore.workspaces();
+    const workspaces = this.workspaceOptions();
     if (!workspaces.length) return null;
 
     const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
 
     if (
       preferredWorkspaceId &&
-      workspaces.some((workspace) => workspace.id === preferredWorkspaceId)
+      workspaces.some((workspace) => workspace.value === preferredWorkspaceId)
     ) {
       return preferredWorkspaceId;
     }
 
-    const currentWorkspaceId = this.workspaceStore.selectedId();
+    const currentWorkspaceId = this.activeWorkspaceId();
 
-    if (currentWorkspaceId && workspaces.some((workspace) => workspace.id === currentWorkspaceId)) {
+    if (
+      currentWorkspaceId &&
+      workspaces.some((workspace) => workspace.value === currentWorkspaceId)
+    ) {
       return currentWorkspaceId;
     }
 
-    return workspaces[0]?.id ?? null;
+    return workspaces[0]?.value ?? null;
   }
 
   private activateWorkspace(workspaceId: string): void {
+    // Resolve the saved selection before loading members and board data.
+    if (this.userPreferenceStore.loading()) {
+      this.pendingWorkspaceActivation.set(true);
+      return;
+    }
+    const preferredFolderId = this.userPreferenceStore.selectedFolderId();
+    this.workspaceDropdownStore.selectWorkspace(workspaceId, preferredFolderId);
     this.workspaceStore.select(workspaceId);
     this.loadWorkspaceMembers(workspaceId);
+
+    const activeWs = this.workspaceDropdownStore.selectedWorkspace();
+    if (activeWs && activeWs.folders.length > 0) {
+      this.workspaceFolderStore.setFolders(
+        workspaceId,
+        activeWs.folders.map((f, i) => ({
+          id: f.id,
+          name: f.name,
+          workspaceId,
+          status: 'ACTIVE',
+          isDefault: i === 0,
+          position: i,
+        })) as any,
+      );
+      this.selectFolderAndLoad();
+      return;
+    }
+
     this.getWorkspaceFolders(workspaceId);
   }
 
@@ -1892,6 +1952,7 @@ export class Today {
   private selectFolderAndLoad(): void {
     const folders = this.folders();
     if (!folders.length) {
+      this.workspaceDropdownStore.selectFolder(null);
       this.workspaceFolderStore.select(null);
       this.stickyNoteColumnStore.clear();
       this.clearBoard();
@@ -1899,6 +1960,7 @@ export class Today {
     }
 
     const folderId = this.resolveFolderSelection();
+    this.workspaceDropdownStore.selectFolder(folderId);
     this.workspaceFolderStore.select(folderId);
 
     const preferredFolderId = this.userPreferenceStore.selectedFolderId();
@@ -1907,6 +1969,16 @@ export class Today {
     }
 
     this.loadBoard();
+  }
+
+  private syncLegacyStores(workspaces: WorkspaceDropdownItem[]): void {
+    this.workspaceStore.setWorkspaces(
+      workspaces.map((w) => ({
+        id: w.id,
+        name: w.name,
+        status: ACTIVE_STATUS,
+      })),
+    );
   }
 
   private loadBoard(forceColumns = false): void {

@@ -1,14 +1,43 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, finalize, shareReplay } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
+import {
+  WorkspaceDropdownQuery,
+  WorkspaceDropdownResponse,
+} from '../models/workspace-dropdown.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkspaceService {
   private readonly http = inject(HttpClient);
+  private readonly dropdownRequests = new Map<string, Observable<WorkspaceDropdownResponse>>();
+
+  getWorkspaceDropdown(
+    query: WorkspaceDropdownQuery | string = {},
+  ): Observable<WorkspaceDropdownResponse> {
+    const search = typeof query === 'string' ? query : query?.search;
+    const key = search?.trim() ?? '';
+    const pending = this.dropdownRequests.get(key);
+    if (pending) return pending;
+    const params = key ? buildHttpParams({ search: key }) : undefined;
+
+    const request$ = this.http.get<WorkspaceDropdownResponse>(API_ENDPOINTS.workspaces.dropdown, {
+      params,
+      withCredentials: true,
+    }).pipe(
+      finalize(() => this.dropdownRequests.delete(key)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.dropdownRequests.set(key, request$);
+    return request$;
+  }
+
+  getDropdown(search?: string): Observable<WorkspaceDropdownResponse> {
+    return this.getWorkspaceDropdown(search);
+  }
 
   getAll(query: any = {}): Observable<any> {
     return this.getAllWorkspaces(query);

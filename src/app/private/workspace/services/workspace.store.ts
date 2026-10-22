@@ -1,14 +1,17 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WorkspaceService } from './workspace.service';
+import { WorkspaceDropdownStore } from './workspace-dropdown.store';
 import { WORKSPACE_MESSAGES } from '../messages/workspace.messages';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
+import { entityNameOf, idOf } from '../../../shared/functions/common.function';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkspaceStore {
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
 
   private readonly _workspaces = signal<readonly any[]>([]);
   private readonly _selectedId = signal<string | null>(null);
@@ -40,6 +43,15 @@ export class WorkspaceStore {
       return;
     }
 
+    if (!force && this.workspaceDropdownStore.loaded()) {
+      const items = this.workspaceDropdownStore.items();
+      this._workspaces.set([...items]);
+      this._loaded.set(true);
+      this._error.set(null);
+      this.ensureSelectedWorkspace();
+      return;
+    }
+
     if (this._loading()) {
       return;
     }
@@ -48,16 +60,21 @@ export class WorkspaceStore {
     this._error.set(null);
 
     const request$ =
-      typeof this.workspaceService.getAll === 'function'
-        ? this.workspaceService.getAll({ status: 'ACTIVE' })
-        : typeof this.workspaceService.getAllWorkspaces === 'function'
-          ? this.workspaceService.getAllWorkspaces({ status: 'ACTIVE' })
-          : this.workspaceService.getMyWorkspaces();
+      typeof this.workspaceService.getWorkspaceDropdown === 'function'
+        ? this.workspaceService.getWorkspaceDropdown()
+        : typeof this.workspaceService.getMyWorkspaces === 'function'
+          ? this.workspaceService.getMyWorkspaces()
+          : this.workspaceService.getAllWorkspaces({ status: 'ACTIVE' });
 
     request$.pipe(finalize(() => this._loading.set(false))).subscribe({
       next: (response: any) => {
-        const workspaces =
-          response?.data?.workspaces ?? response?.data?.items ?? response?.data ?? [];
+        const rawList =
+          response?.data?.workspaces ??
+          response?.data?.items ??
+          response?.data ??
+          [];
+
+        const workspaces = Array.isArray(rawList) ? rawList : [];
 
         const pagination =
           response?.data?.pagination ??
@@ -66,10 +83,20 @@ export class WorkspaceStore {
           response?.meta ??
           null;
 
-        this._workspaces.set(Array.isArray(workspaces) ? [...workspaces] : []);
-
+        this._workspaces.set([...workspaces]);
         this._pagination.set(pagination);
         this._loaded.set(true);
+
+        if (!this.workspaceDropdownStore.loaded() || this.workspaceDropdownStore.items().length === 0) {
+          this.workspaceDropdownStore.setItems(
+            workspaces.map((w: any) => ({
+              id: idOf(w) || w.id,
+              name: entityNameOf(w) || w.name,
+              folders: Array.isArray(w.folders) ? w.folders : [],
+            })),
+            this._selectedId(),
+          );
+        }
 
         this.ensureSelectedWorkspace();
       },
@@ -83,6 +110,7 @@ export class WorkspaceStore {
   select(id: string | null): void {
     if (!id) {
       this._selectedId.set(null);
+      this.workspaceDropdownStore.selectWorkspace(null);
       return;
     }
 
@@ -93,6 +121,9 @@ export class WorkspaceStore {
     }
 
     this._selectedId.set(id);
+    if (this.workspaceDropdownStore.selectedWorkspaceId() !== id) {
+      this.workspaceDropdownStore.selectWorkspace(id);
+    }
   }
 
   selectFirst(): void {
@@ -150,6 +181,28 @@ export class WorkspaceStore {
     this._pagination.set(pagination);
     this._loaded.set(true);
     this._error.set(null);
+
+    try {
+      if (workspaces.length === 0) {
+        this.workspaceDropdownStore.setItems([]);
+      } else {
+        const hasFolders = workspaces.some(
+          (w: any) => Array.isArray(w.folders) && w.folders.length > 0,
+        );
+        if (hasFolders) {
+          this.workspaceDropdownStore.setItems(
+            workspaces.map((w: any) => ({
+              id: idOf(w) || w.id,
+              name: entityNameOf(w) || w.name,
+              folders: Array.isArray(w.folders) ? w.folders : [],
+            })),
+            this._selectedId(),
+          );
+        }
+      }
+    } catch {
+      // safe fallback
+    }
 
     this.ensureSelectedWorkspace();
   }

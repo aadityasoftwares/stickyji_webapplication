@@ -13,6 +13,7 @@ export const TODAY_MESSAGES = {
   },
   EMPTY: {
     NO_WORKSPACE: 'Create a workspace to start organizing your notes.',
+    NO_WORKSPACES_WITH_FOLDERS: 'No workspaces with folders found.',
     NO_WORKSPACE_SELECTED: "Select a workspace to see today's notes.",
     NO_FOLDERS: 'Create a folder to organize your notes.',
     NO_FOLDER_SELECTED: 'Select a folder to see its Kanban board and list.',

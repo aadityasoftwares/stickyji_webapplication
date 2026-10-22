@@ -498,7 +498,7 @@
   min-width: 0;
   min-height: 0;
   gap: 1.125rem;
-  padding: 0.15rem 0.15rem 0.5rem;
+  padding: 0.15rem 0.15rem 0;
   overflow: hidden;
 }
 
@@ -511,7 +511,8 @@
   min-height: 0;
   overflow: hidden;
   border: 1px solid $border-light;
-  border-radius: 0.8rem;
+  border-bottom: 0;
+  border-radius: 0.8rem 0.8rem 0 0;
   box-shadow: 0 3px 12px rgba($heading, 0.025);
   background-color: color-mix(in srgb, $paper 97%, $note-yellow);
   background-image: radial-gradient(rgba($heading, 0.065) 0.65px, transparent 0.65px);
@@ -529,7 +530,8 @@
   overflow: hidden;
   background: color-mix(in srgb, $paper 98%, #83b68a);
   border: 1px solid color-mix(in srgb, $border-light 75%, #83b68a);
-  border-radius: 0.8rem;
+  border-bottom: 0;
+  border-radius: 0.8rem 0.8rem 0 0;
   box-shadow: 0 3px 12px rgba($heading, 0.025);
 }
 
@@ -877,7 +879,7 @@
   min-width: 0;
   min-height: 0;
   gap: 0.625rem;
-  padding: 0.05rem 0.05rem 0.65rem;
+  padding: 0.05rem 0.05rem 0;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -928,7 +930,8 @@
   overflow: hidden;
   background: transparent;
   border: 1px solid $border-light;
-  border-radius: $radius-xs;
+  border-bottom: 0;
+  border-radius: $radius-xs $radius-xs 0 0;
   box-shadow: none;
 }
 
@@ -1132,7 +1135,6 @@
 
 /* Reference workspace shell. Table rows retain their existing styles. */
 .today-page.today-workspace {
-  padding: clamp(14px, 1.8vw, 26px) clamp(14px, 2vw, 30px) 0;
   background: #fcfaf6;
 
   .today-main {
@@ -1143,7 +1145,7 @@
     grid-template-columns: minmax(18rem, 1fr) auto;
     align-items: center;
     gap: 16px 24px;
-    padding: 0 0 20px;
+    padding: 0 0 14px;
     background: transparent;
   }
   .today-intro {
@@ -1233,7 +1235,7 @@
     background: #fffefa;
     border: 1px solid #eae6dd;
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 
     &.has-search-expanded {
       .today-toolbar-team {
@@ -1323,25 +1325,26 @@
   .today-kanban {
     --today-column-width: clamp(14.5rem, calc((100cqw - 14rem) / 3), 22rem);
     gap: 14px;
-    padding: 0 1px 14px;
+    padding: 0 1px;
   }
   .today-kanban-columns {
     gap: 14px;
   }
   .today-kanban-column {
     padding: 0;
-    background: color-mix(in srgb, var(--column-accent) 2%, #f6f5f0);
+    background: color-mix(in srgb, var(--column-accent) 1%, #fdfcf8);
     border: 1px solid #eae7df;
-    border-radius: 14px;
+    border-bottom: 0;
+    border-radius: 14px 14px 0 0;
     box-shadow: none;
     overflow: hidden;
   }
   .today-column-header {
     min-height: 52px;
     padding: 9px 12px;
-    background: color-mix(in srgb, var(--column-accent) 7%, #fffefa);
+    background: color-mix(in srgb, var(--column-accent) 3%, #fdfcf8);
     border: 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 10%, #eae7df);
+    border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 5%, #eae7df);
     border-radius: 0;
   }
   .today-column-title {
@@ -1453,7 +1456,8 @@
   }
   .today-grouped-table {
     border: 1px solid #eae6dd;
-    border-radius: 12px;
+    border-bottom: 0;
+    border-radius: 12px 12px 0 0;
     background: #fffefa;
   }
 
@@ -1461,7 +1465,7 @@
     .today-header {
       grid-template-columns: minmax(0, 1fr);
       gap: 12px;
-      padding-bottom: 16px;
+      padding-bottom: 12px;
     }
     .today-header-actions {
       grid-template-columns: minmax(0, 1fr) auto;

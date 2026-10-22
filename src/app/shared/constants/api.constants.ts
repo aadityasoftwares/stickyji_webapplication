@@ -58,6 +58,7 @@ export const API_ENDPOINTS = {
   workspaces: {
     ...resourceEndpoints('workspaces'),
     my: `${API_BASE_URL}/workspaces/my`,
+    dropdown: `${API_BASE_URL}/workspaces/dropdown`,
   },
   workspaceFolders: {
     ...resourceEndpoints('workspacefolders'),

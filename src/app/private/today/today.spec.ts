@@ -5,10 +5,12 @@ import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { Today } from './today';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { WorkspaceDropdownStore } from '../workspace/services/workspace-dropdown.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { StickyNoteColumnStore } from '../mynotes/services/sticky-note-column.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { USER_PREFERENCE_KEYS, VIEW } from '../../shared/constants/common.constants';
+import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { of, Subject, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
@@ -579,5 +581,116 @@ describe('Today', () => {
     component.getNotesForToday();
     expect(component.stickyNotes().map((note) => note.id)).toEqual(ids);
     expect(component.loadingNotes()).toBe(false);
+  });
+
+  it('updates cascading workspace and folder options from workspaceDropdownStore and resets folder on workspace change', async () => {
+    vi.spyOn(component as any, 'loadWorkspaceMembers').mockImplementation(() => {});
+    vi.spyOn(component as any, 'loadBoard').mockImplementation(() => {});
+
+    const dropdownStore = TestBed.inject(WorkspaceDropdownStore);
+    dropdownStore.setItems([
+      {
+        id: 'ws-alpha',
+        name: 'Alpha Workspace',
+        folders: [
+          { id: 'f-alpha-1', name: 'Alpha Default' },
+          { id: 'f-alpha-2', name: 'Alpha Secondary' },
+        ],
+      },
+      {
+        id: 'ws-beta',
+        name: 'Beta Workspace',
+        folders: [{ id: 'f-beta-1', name: 'Beta Default' }],
+      },
+    ]);
+
+    await fixture.whenStable();
+
+    expect(component.workspaceOptions().map((opt) => opt.value)).toEqual(['ws-alpha', 'ws-beta']);
+    expect(component.activeWorkspaceId()).toBe('ws-alpha');
+    expect(component.activeFolder()).toBe('f-alpha-1');
+    expect(component.folderOptions().map((opt) => opt.value)).toEqual(['f-alpha-1', 'f-alpha-2']);
+
+    component.onWorkspaceSelection('ws-beta');
+    await fixture.whenStable();
+
+    expect(component.activeWorkspaceId()).toBe('ws-beta');
+    expect(component.activeFolder()).toBe('f-beta-1');
+    expect(component.folderOptions().map((opt) => opt.value)).toEqual(['f-beta-1']);
+  });
+
+  it('reflects empty state when no workspaces with folders are found', async () => {
+    const dropdownStore = TestBed.inject(WorkspaceDropdownStore);
+    dropdownStore.setItems([]);
+    TestBed.inject(WorkspaceStore).setWorkspaces([]);
+    TestBed.inject(WorkspaceFolderStore).clear();
+
+    await fixture.whenStable();
+
+    expect(component.hasWorkspaces()).toBe(false);
+    expect(component.activeWorkspaceId()).toBeNull();
+    expect(component.activeFolder()).toBeNull();
+  });
+
+  it('shares the session dropdown request and waits for preferences before loading the board', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const preferences = TestBed.inject(UserPreferenceStore);
+    TestBed.inject(WorkspaceDropdownStore).reset();
+    const members = vi.spyOn(component, 'loadWorkspaceMembers').mockImplementation(() => {});
+    const board = vi.spyOn(component as any, 'loadBoard').mockImplementation(() => {});
+
+    preferences.load(true);
+    TestBed.inject(WorkspaceStore).load(true);
+    component.getWorkspaces(true);
+    http.expectOne(API_ENDPOINTS.workspaces.dropdown).flush({
+      data: [
+        { id: 'first', name: 'First', folders: [{ id: 'f-first', name: 'First' }] },
+        { id: 'saved', name: 'Saved', folders: [{ id: 'f-saved', name: 'Saved' }] },
+      ],
+    });
+    await fixture.whenStable();
+    expect(board).not.toHaveBeenCalled();
+    http.expectOne(API_ENDPOINTS.userPreferences.my).flush({
+      data: {
+        [USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID]: 'saved',
+        [USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID]: 'f-saved',
+      },
+    });
+    await fixture.whenStable();
+    expect(members).toHaveBeenCalledExactlyOnceWith('saved');
+    expect(board).toHaveBeenCalledTimes(1);
+    expect(component.activeFolder()).toBe('f-saved');
+  });
+
+  it('calls GET /workspaces/dropdown and never calls POST /workspaces/getall when loading workspaces', async () => {
+    const httpMock = TestBed.inject(HttpTestingController);
+    const dropdownStore = TestBed.inject(WorkspaceDropdownStore);
+    dropdownStore.reset();
+
+    vi.spyOn(component, 'loadWorkspaceMembers').mockImplementation(() => {});
+    vi.spyOn(component as any, 'loadBoard').mockImplementation(() => {});
+
+    component.getWorkspaces(true);
+
+    const req = httpMock.expectOne(API_ENDPOINTS.workspaces.dropdown);
+    expect(req.request.method).toBe('GET');
+    httpMock.expectNone(API_ENDPOINTS.workspaces.getAll);
+
+    req.flush({
+      success: true,
+      data: [
+        {
+          id: 'ws-new',
+          name: 'New Workspace',
+          folders: [{ id: 'f-new', name: 'General' }],
+        },
+      ],
+    });
+
+    await fixture.whenStable();
+
+    expect(component.activeWorkspaceId()).toBe('ws-new');
+    expect(component.activeFolder()).toBe('f-new');
+    httpMock.expectNone(API_ENDPOINTS.workspaces.getAll);
   });
 });
