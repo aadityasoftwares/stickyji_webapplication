@@ -40,6 +40,7 @@ import { Tabs, type TabItem, type TabValue } from '../../../shared/components/ta
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
 import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.constants';
+import { UI } from '../../../shared/constants/ui.constants';
 import { WORKSPACE_MESSAGES } from '../messages/workspace.messages';
 import { WorkspaceService } from '../services/workspace.service';
 import { WorkspaceStore } from '../services/workspace.store';
@@ -85,6 +86,7 @@ export class WorkspaceTrash implements OnInit {
   readonly LucideSearch = LucideSearch;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideX = LucideX;
+  readonly UI = UI;
 
   readonly workspaces = signal<any[]>([]);
   readonly loading = signal(false);

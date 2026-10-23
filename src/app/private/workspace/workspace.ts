@@ -41,6 +41,7 @@ import {
   LucideFolderOpen,
   LucideGlobe,
   LucideHistory,
+  LucideLayers,
   LucideLightbulb,
   LucideLock,
   LucideMegaphone,
@@ -67,11 +68,13 @@ import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
+import { Switch } from '../../shared/components/switch/switch';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { Highlight } from '../../shared/directives/highlight.directive';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { WORKSPACE_MESSAGES } from './messages/workspace.messages';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { UI } from '../../shared/constants/ui.constants';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
 import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
@@ -128,6 +131,7 @@ type WorkspaceStatusFilter = 'ALL' | 'ACTIVE' | 'ARCHIVED';
     Highlight,
     UserDatePipe,
     WorkspaceFolderWrapper,
+    Switch,
   ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
@@ -149,6 +153,7 @@ export class Workspace implements OnInit {
   readonly LucideClock3 = LucideClock3;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideGlobe = LucideGlobe;
+  readonly LucideLayers = LucideLayers;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
   readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
@@ -290,6 +295,7 @@ export class Workspace implements OnInit {
   readonly deleteTarget = signal<any | null>(null);
   readonly deleting = signal(false);
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
+  readonly UI = UI;
 
   readonly sortOptions = [
     { ...SORT_OPTIONS[0], icon: LucideClock3 },
@@ -972,6 +978,15 @@ export class Workspace implements OnInit {
 
   activateWorkspace(workspace: any): void {
     this.updateWorkspaceStatus(workspace, 'ACTIVE');
+  }
+
+  toggleWorkspaceStatus(workspace: any, active: boolean, event?: Event): void {
+    event?.stopPropagation();
+    if (active) {
+      this.activateWorkspace(workspace);
+    } else {
+      this.archiveWorkspace(workspace);
+    }
   }
 
   moveToTrash(workspace: any): void {

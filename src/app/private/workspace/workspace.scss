@@ -1824,3 +1824,77 @@
 }
 
 @include explorer.responsive;
+
+/* ==========================================================
+   WORKSPACE TITLE & HEADER META (Matching Today Component)
+   ========================================================== */
+
+.workspace-intro {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.75rem;
+
+  > div {
+    min-width: 0;
+  }
+
+  h1 {
+    margin-top: 5px;
+    font-family: $font-heading;
+    font-size: clamp(21px, 1.8vw, 28px);
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    white-space: normal;
+    color: $heading;
+  }
+}
+
+.workspace-intro-mark {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 3.25rem;
+  min-width: 3.25rem;
+  height: 3.35rem;
+  color: $heading;
+  background: #fff;
+  border: 1px solid rgba($accent, 0.28);
+  border-radius: $radius-xs;
+  box-shadow: 0 2px 6px rgba($heading, 0.04);
+  place-items: center;
+}
+
+.workspace-heading-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.workspace-kicker {
+  color: #b6760a;
+  font: 700 23px/1 $font-note;
+  transform: rotate(-2deg);
+  display: inline-block;
+  line-height: 1;
+}
+
+.workspace-count-slot {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.workspace-note-count,
+.workspace-count-placeholder {
+  white-space: nowrap;
+}
+
+.workspace-count-placeholder {
+  width: 4.75rem;
+  height: 1.5rem;
+  visibility: hidden;
+}
+

@@ -283,13 +283,14 @@
   position: fixed;
   z-index: 2147483000;
   top: 90px;
-  right: 720px;
-  width: min(320px, calc(100vw - 760px));
+  right: calc(45vw + 24px);
+  width: min(320px, calc(55vw - 48px));
   max-height: calc(100dvh - 120px);
   overflow: hidden;
   display: grid;
   gap: 12px;
   pointer-events: none;
+  transition: right 200ms ease;
 }
 
 .column-external-preview app-badge {
@@ -438,6 +439,10 @@
     grid-template-columns: 1fr;
   }
 
+  .column-context-slash {
+    display: none;
+  }
+
   .column-color-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -447,12 +452,25 @@
   .column-field,
   .column-appearance,
   .column-position-section {
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 6px;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 8px;
   }
 
   .column-meta {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .column-field,
+  .column-appearance,
+  .column-position-section {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .column-field > app-label {
+    padding-top: 0;
   }
 }
 

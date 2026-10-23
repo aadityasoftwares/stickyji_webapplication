@@ -3,11 +3,27 @@
     <header class="workspace-header">
       <div class="workspace-intro">
         <span class="workspace-intro-mark" aria-hidden="true">
-          <span class="workspace-mini-folder"></span>
+          <app-icon [icon]="LucideLayers" size="md" />
         </span>
 
         <div>
-          <span class="workspace-kicker">Your sticky spaces</span>
+          <div class="workspace-heading-meta">
+            <span class="workspace-kicker">Your sticky spaces</span>
+            <div class="workspace-count-slot" aria-live="polite">
+              @if (preferencesReady() && !loading() && !error()) {
+                <app-badge
+                  class="workspace-note-count"
+                  [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')"
+                  variant="noteYellow"
+                  size="sm"
+                  shape="pill"
+                  [ariaLabel]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')"
+                />
+              } @else {
+                <span class="workspace-count-placeholder" aria-hidden="true"></span>
+              }
+            </div>
+          </div>
           <h1 id="workspace-page-title">
             Organise notes across
             <span>personal and shared spaces.</span>
@@ -16,19 +32,6 @@
       </div>
 
       <div class="workspace-header-actions">
-        <div class="workspace-count-slot" aria-live="polite">
-          @if (preferencesReady() && !loading() && !error()) {
-            <app-badge
-              [label]="totalCount() + (totalCount() === 1 ? ' space' : ' spaces')"
-              variant="noteYellow"
-              size="sm"
-              shape="pill"
-            />
-          } @else {
-            <span class="workspace-count-placeholder" aria-hidden="true"></span>
-          }
-        </div>
-
         <app-button
           [icon]="LucideRefreshCw"
           [iconOnly]="true"
@@ -66,12 +69,13 @@
             [items]="filterTabs()"
             [value]="accessFilter()"
             variant="segmented"
+            activeVariant="noteYellow"
             shape="rounded"
-            size="sm"
+            size="md"
             density="compact"
             ariaLabel="Filter workspaces by access"
             [fullWidth]="false"
-            [scrollable]="true"
+            [scrollable]="false"
             (valueChange)="onAccessChange($event)"
           />
 
@@ -80,12 +84,13 @@
             [items]="statusTabs()"
             [value]="statusFilter()"
             variant="segmented"
+            activeVariant="noteYellow"
             shape="rounded"
-            size="sm"
+            size="md"
             density="compact"
             ariaLabel="Filter workspaces by status"
             [fullWidth]="false"
-            [scrollable]="true"
+            [scrollable]="false"
             (valueChange)="onStatusChange($event)"
           />
         </div>
@@ -98,9 +103,12 @@
               labelMode="hidden"
               placeholder="Search spaces"
               variant="paper"
-              appearance="outlined"
+              appearance="simple"
               shape="rounded"
-              size="sm"
+              shadow="upside"
+              [height]="UI.button.height.md"
+              [radius]="UI.radius.xs"
+              size="xs"
               [leadingIcon]="LucideSearch"
               [clearable]="true"
               [value]="searchTerm()"
@@ -122,6 +130,10 @@
             variant="paper"
             shape="rounded"
             size="sm"
+            appearance="simple"
+            shadow="upside"
+            [height]="UI.button.height.md"
+            [radius]="UI.radius.xs"
             [clearable]="false"
             [searchable]="false"
             [fullWidth]="true"
@@ -132,8 +144,9 @@
             [items]="viewTabs"
             [value]="view()"
             variant="segmented"
+            activeVariant="noteYellow"
             shape="rounded"
-            size="sm"
+            size="md"
             density="compact"
             ariaLabel="Choose grid or list view"
             [scrollable]="false"
@@ -250,9 +263,14 @@
                   [tooltipTone]="workspaceTheme(workspace).variant"
                   [interactive]="!isInlineRenaming(workspace)"
                   [busy]="isBusy(workspace)"
+                  [showStatusSwitch]="true"
+                  [statusSwitchDisabled]="!can(workspace, 'canArchive') || isBusy(workspace)"
+                  [statusSwitchLoading]="isBusy(workspace)"
+                  [statusSwitchAriaLabel]="'Toggle status for ' + workspaceName(workspace)"
                   (opened)="handleWorkspaceClick(workspace, $event)"
                   (edited)="handleWorkspaceDoubleClick(workspace, $event)"
                   (keyboardOpened)="handleWorkspaceClick(workspace)"
+                  (statusSwitchChange)="toggleWorkspaceStatus(workspace, $event)"
                 >
                   <div folder-title>
                     @if (isInlineRenaming(workspace)) {
@@ -620,16 +638,28 @@
                                   }
                                 </td>
 
-                                <td class="workspace-gt-status" data-label="Status">
-                                  <app-badge
+                                <td
+                                  class="workspace-gt-status"
+                                  data-label="Status"
+                                  (click)="$event.stopPropagation()"
+                                  (dblclick)="$event.stopPropagation()"
+                                >
+                                  <app-switch
+                                    [checked]="isActive(workspace)"
+                                    [disabled]="!can(workspace, 'canArchive') || isBusy(workspace)"
+                                    [loading]="isBusy(workspace)"
+                                    [ariaLabel]="'Toggle status for ' + workspaceName(workspace)"
+                                    [title]="
+                                      isActive(workspace)
+                                        ? 'Active · Click to archive'
+                                        : 'Archived · Click to activate'
+                                    "
                                     [label]="workspaceStatusLabel(workspace)"
-                                    [variant]="isActive(workspace) ? 'success' : 'neutral'"
-                                    size="xs"
-                                    shape="pill"
-                                    [appTooltip]="'Status: ' + workspaceStatusLabel(workspace)"
-                                    [tooltipTone]="isActive(workspace) ? 'success' : 'paper'"
-                                    tooltipPosition="top"
-                                    tooltipSize="sm"
+                                    size="sm"
+                                    variant="noteGreen"
+                                    (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
+                                    (checkedChange)="toggleWorkspaceStatus(workspace, $event)"
                                   />
                                 </td>
 

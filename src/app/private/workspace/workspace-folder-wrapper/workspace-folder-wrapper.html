@@ -127,14 +127,41 @@
       >
         <app-icon [icon]="visibilityIcon" size="xs" />{{ visibilityLabel }}
       </span>
-      <span
-        [appTooltip]="'Status: ' + statusLabel"
-        [tooltipTone]="status === 'ACTIVE' ? 'success' : tooltipTone"
-        tooltipPosition="top"
-        tooltipSize="sm"
-      >
-        <i class="folder__status-dot" aria-hidden="true"></i>{{ statusLabel }}
-      </span>
+      @if (showStatusSwitch) {
+        <div
+          class="folder__status-switch"
+          (click)="$event.stopPropagation()"
+          (dblclick)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+        >
+          <app-switch
+            [checked]="status === 'ACTIVE'"
+            [disabled]="statusSwitchDisabled"
+            [loading]="statusSwitchLoading"
+            [ariaLabel]="statusSwitchAriaLabel || ('Toggle status for ' + name)"
+            [title]="
+              status === 'ACTIVE'
+                ? 'Active · Click to archive'
+                : 'Archived · Click to activate'
+            "
+            [label]="statusLabel"
+            size="sm"
+            variant="noteGreen"
+            (click)="$event.stopPropagation()"
+            (keydown)="$event.stopPropagation()"
+            (checkedChange)="statusSwitchChange.emit($event)"
+          />
+        </div>
+      } @else {
+        <span
+          [appTooltip]="'Status: ' + statusLabel"
+          [tooltipTone]="status === 'ACTIVE' ? 'success' : tooltipTone"
+          tooltipPosition="top"
+          tooltipSize="sm"
+        >
+          <i class="folder__status-dot" aria-hidden="true"></i>{{ statusLabel }}
+        </span>
+      }
     </div>
   </div>
 </div>

@@ -22,10 +22,11 @@ import { AppIcon } from '../../../shared/components/icon/icon';
 import { MembersStack } from '../../workspace-members/members-stack/members-stack';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 import { Tooltip, TooltipTone } from '../../../shared/components/tooltip/tooltip';
+import { Switch } from '../../../shared/components/switch/switch';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, AppIcon, MembersStack, Tooltip],
+  imports: [CommonModule, AppIcon, MembersStack, Tooltip, Switch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-workspace-folder-wrapper',
   styleUrl: './workspace-folder-wrapper.scss',
@@ -55,9 +56,14 @@ export class WorkspaceFolderWrapper {
   @Input() interactive = false;
   @Input() busy = false;
   @Input() tooltipTone: TooltipTone = 'paper';
+  @Input() showStatusSwitch = false;
+  @Input() statusSwitchDisabled = false;
+  @Input() statusSwitchLoading = false;
+  @Input() statusSwitchAriaLabel?: string;
   @Output() readonly opened = new EventEmitter<MouseEvent>();
   @Output() readonly edited = new EventEmitter<MouseEvent>();
   @Output() readonly keyboardOpened = new EventEmitter<void>();
+  @Output() readonly statusSwitchChange = new EventEmitter<boolean>();
 
   readonly Folder = LucideFolder;
   readonly Calendar = LucideCalendarDays;
