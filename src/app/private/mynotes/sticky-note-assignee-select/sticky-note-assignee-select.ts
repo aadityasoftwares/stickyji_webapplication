@@ -56,6 +56,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
 
   @Output() readonly selectedAssigneeIdsChange = new EventEmitter<string[]>();
   @Output() readonly selectedAssigneesChange = new EventEmitter<AssigneePreviewItem[]>();
+  @Output() readonly hasMembersChange = new EventEmitter<boolean>();
 
   readonly LucideUsers = LucideUsers;
   readonly LucideUserPlus = LucideUserPlus;
@@ -73,31 +74,33 @@ export class StickyNoteAssigneeSelect implements OnChanges {
    * Transformed options for app-select
    */
   readonly memberOptions = computed<SelectOption[]>(() => {
-    return this.members().map((member) => {
-      const user = member.user;
-      const userId = user?.id || idOf(member);
-      const displayName =
-        user?.displayName ||
-        [(user as any)?.firstName, (user as any)?.lastName].filter(Boolean).join(' ') ||
-        (member as any)?.profile?.displayName ||
-        (member as any)?.displayName ||
-        (member as any)?.name ||
-        'Member';
-      const email = user?.email || (member as any)?.email || '';
-      const initials = getInitials(displayName, 'M');
+    return this.members()
+      .map((member) => {
+        const user = member.user || (member as any).userId;
+        const userId = user?.id || user?._id || (typeof user === 'string' ? user : idOf(member));
+        const displayName =
+          user?.displayName ||
+          [(user as any)?.firstName, (user as any)?.lastName].filter(Boolean).join(' ') ||
+          (member as any)?.profile?.displayName ||
+          (member as any)?.displayName ||
+          (member as any)?.name ||
+          'Member';
+        const email = user?.email || (member as any)?.email || '';
+        const initials = getInitials(displayName, 'M');
 
-      return {
-        label: displayName,
-        value: userId,
-        description: email,
-        avatar: {
-          name: displayName,
-          initials,
-          tone: 'neutral',
-          shape: 'circle',
-        },
-      };
-    });
+        return {
+          label: displayName,
+          value: userId,
+          description: email,
+          avatar: {
+            name: displayName,
+            initials,
+            tone: 'neutral' as const,
+            shape: 'circle' as const,
+          },
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
   });
 
   get currentValues(): readonly string[] {
@@ -124,6 +127,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
       this.loading.set(false);
       this.loadError.set(null);
       this.emitChanges([], []);
+      this.hasMembersChange.emit(false);
       return;
     }
 
@@ -150,14 +154,26 @@ export class StickyNoteAssigneeSelect implements OnChanges {
           const list = (extractList(response) as WorkspaceMemberListItem[]) || [];
           this.members.set(list);
           this.loadError.set(null);
+          this.hasMembersChange.emit(list.length > 0);
 
-          // Filter out any selectedAssigneeIds that don't exist in the new workspace
-          const availableUserIds = new Set(list.map((m) => m.user?.id || idOf(m)));
-          const validSelectedIds = this.currentValues.filter((id) => availableUserIds.has(id));
+          if (list.length > 0) {
+            const availableUserIds = new Set(
+              list
+                .map((m) => {
+                  const u = m.user || (m as any).userId;
+                  return u?.id || u?._id || (typeof u === 'string' ? u : idOf(m));
+                })
+                .filter(Boolean),
+            );
+            const validSelectedIds = this.currentValues.filter((id) => availableUserIds.has(id));
 
-          if (validSelectedIds.length !== this.currentValues.length) {
-            const previewItems = this.buildPreviewItems(validSelectedIds, list);
-            this.emitChanges(validSelectedIds, previewItems);
+            if (validSelectedIds.length !== this.currentValues.length) {
+              const previewItems = this.buildPreviewItems(validSelectedIds, list);
+              this.emitChanges(validSelectedIds, previewItems);
+            } else {
+              const previewItems = this.buildPreviewItems(this.currentValues, list);
+              this.selectedAssigneesChange.emit(previewItems);
+            }
           } else {
             const previewItems = this.buildPreviewItems(this.currentValues, list);
             this.selectedAssigneesChange.emit(previewItems);
@@ -165,6 +181,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         },
         error: (error) => {
           this.loadError.set(extractErrorMessage(error, 'Unable to load workspace members.'));
+          this.hasMembersChange.emit(false);
         },
       });
   }
@@ -191,15 +208,17 @@ export class StickyNoteAssigneeSelect implements OnChanges {
   ): AssigneePreviewItem[] {
     const membersMap = new Map<string, WorkspaceMemberListItem>();
     for (const m of membersList) {
-      const uId = m.user?.id || idOf(m);
+      const u = m.user || (m as any).userId;
+      const uId = u?.id || u?._id || (typeof u === 'string' ? u : idOf(m));
       if (uId) membersMap.set(uId, m);
     }
 
     return ids.map((id) => {
       const member = membersMap.get(id);
+      const user = member?.user || (member as any)?.userId;
       const name =
-        member?.user?.displayName ||
-        [(member?.user as any)?.firstName, (member?.user as any)?.lastName]
+        user?.displayName ||
+        [(user as any)?.firstName, (user as any)?.lastName]
           .filter(Boolean)
           .join(' ') ||
         (member as any)?.profile?.displayName ||
@@ -210,9 +229,9 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         id,
         name,
         displayName: name,
-        email: member?.user?.email || (member as any)?.email || '',
+        email: user?.email || (member as any)?.email || '',
         initials: getInitials(name, 'M'),
-        roleName: member?.role?.name,
+        roleName: member?.role?.name || (member as any)?.roleName,
       };
     });
   }

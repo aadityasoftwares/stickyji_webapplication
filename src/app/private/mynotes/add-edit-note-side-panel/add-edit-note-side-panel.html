@@ -201,7 +201,12 @@
           />
         </div>
       </section>
-      <section class="note-assignees-row" aria-label="Note assignees">
+      <section
+        class="note-assignees-row"
+        [hidden]="!hasAssignees()"
+        [class.is-hidden]="!hasAssignees()"
+        aria-label="Note assignees"
+      >
         <app-label forId="note-assignees-select" text="Assignees" />
         <div class="note-assignees-control">
           <app-sticky-note-assignee-select
@@ -210,6 +215,7 @@
             [disabled]="isBusy"
             (selectedAssigneeIdsChange)="onAssigneeIdsChange($event)"
             (selectedAssigneesChange)="onAssigneeObjectsChange($event)"
+            (hasMembersChange)="onHasWorkspaceMembersChange($event)"
           />
         </div>
       </section>

@@ -253,28 +253,32 @@
           </div>
           <div class="today-toolbar-utilities" role="group" aria-label="Note utilities">
             <app-button
-              size="xs"
+              size="sm"
               [iconLeft]="LucideTrash2"
               [disabled]="!activeWorkspaceId()"
               label="Trash"
-              appearance="flat"
-              variant="ghost"
+              appearance="standard"
+              variant="noteRed"
               [hasIcon]="true"
-              [height]="UI.button.height.md"
               ariaLabel="Open recently deleted sticky notes"
-              title="Trash · Notes can be restored for 60 days"
+              appTooltip="Trash · Notes can be restored for 60 days"
+              tooltipTone="noteRed"
+              tooltipPosition="bottom"
+              tooltipSize="sm"
               (buttonClick)="openStickyNoteTrash()"
             />
             @if (overdueButtonVisible()) {
               <app-button
-                size="xs"
+                size="sm"
                 [iconLeft]="LucideClockAlert"
                 [label]="'Overdue (' + overdue.data().total + ')'"
-                appearance="flat"
+                appearance="standard"
                 variant="noteOrange"
-                [height]="UI.button.height.md"
                 [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'"
-                title="Review overdue notes"
+                appTooltip="Review overdue notes"
+                tooltipTone="noteOrange"
+                tooltipPosition="bottom"
+                tooltipSize="sm"
                 [ariaExpanded]="overdue.open()"
                 (buttonClick)="overdue.open.set(true)"
               />
@@ -1086,6 +1090,7 @@
                                     !!searchTerm() || !!movingNoteId() || movingColumn()
                                   "
                                   [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
+                                  [attr.data-note-id]="note?.id || note?._id"
                                   [attr.data-note-color]="note?.color || 'YELLOW'"
                                   [class.is-completed]="isNoteCompleted(note)"
                                   [class.is-selected]="isNoteSelected(note)"

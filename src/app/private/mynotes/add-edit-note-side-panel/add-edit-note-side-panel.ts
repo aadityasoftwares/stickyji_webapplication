@@ -210,6 +210,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly selectedAssigneeIds = signal<string[]>([]);
   readonly originalAssigneeIds = signal<string[]>([]);
   readonly selectedAssignees = signal<AssigneePreviewItem[]>([]);
+  readonly hasWorkspaceMembers = signal(false);
+  readonly hasAssignees = computed(
+    () => this.hasWorkspaceMembers() || this.selectedAssigneeIds().length > 0,
+  );
 
   private savedNoteId = '';
   private savedNoteKey = '';
@@ -508,6 +512,11 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   onAssigneeObjectsChange(items: AssigneePreviewItem[]): void {
     this.selectedAssignees.set(items);
+    this.cdr.markForCheck();
+  }
+
+  onHasWorkspaceMembersChange(hasMembers: boolean): void {
+    this.hasWorkspaceMembers.set(hasMembers);
     this.cdr.markForCheck();
   }
 
@@ -1382,6 +1391,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.selectedAssigneeIds.set([]);
     this.originalAssigneeIds.set([]);
     this.selectedAssignees.set([]);
+    this.hasWorkspaceMembers.set(false);
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
     this.panelFolders.set([]);

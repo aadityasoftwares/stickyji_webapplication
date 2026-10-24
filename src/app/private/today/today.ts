@@ -3,6 +3,7 @@ import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-
 import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   computed,
@@ -201,6 +202,7 @@ export class Today {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
   private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly stickyNoteColumnStore = inject(StickyNoteColumnStore);
 
@@ -565,15 +567,28 @@ export class Today {
     if (!this.userPreferenceStore.loaded() || !this.workspacesLoaded()) return;
 
     const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
-    if (!preferredWorkspaceId) return;
-
-    const exists = this.workspaceOptions().some((opt) => opt.value === preferredWorkspaceId);
-    if (!exists) return;
-
+    const preferredFolderId = this.userPreferenceStore.selectedFolderId();
     const currentWorkspaceId = this.activeWorkspaceId();
+    const currentFolderId = this.activeFolder();
 
-    if (currentWorkspaceId !== preferredWorkspaceId) {
-      untracked(() => this.activateWorkspace(preferredWorkspaceId));
+    if (
+      preferredWorkspaceId &&
+      this.workspaceOptions().some((opt) => opt.value === preferredWorkspaceId)
+    ) {
+      if (currentWorkspaceId !== preferredWorkspaceId) {
+        untracked(() => this.activateWorkspace(preferredWorkspaceId));
+        return;
+      }
+    }
+
+    if (preferredFolderId && this.folders().some((f) => idOf(f) === preferredFolderId)) {
+      if (currentFolderId !== preferredFolderId) {
+        untracked(() => {
+          this.workspaceDropdownStore.selectFolder(preferredFolderId);
+          this.workspaceFolderStore.select(preferredFolderId);
+          this.loadBoard();
+        });
+      }
     }
   });
 
@@ -713,7 +728,17 @@ export class Today {
             ? response.data
             : extractList(response);
 
-          this.workspaceDropdownStore.setItems(workspaces);
+          const preferredWorkspaceId = this.userPreferenceStore.selectedWorkspaceId();
+          const preferredFolderId = this.userPreferenceStore.selectedFolderId();
+          const hasPreferredWs =
+            !!preferredWorkspaceId && workspaces.some((w) => idOf(w) === preferredWorkspaceId);
+          const initialWsId = hasPreferredWs ? preferredWorkspaceId : idOf(workspaces[0]);
+
+          this.workspaceDropdownStore.setItems(
+            workspaces,
+            initialWsId || undefined,
+            preferredFolderId || undefined,
+          );
           this.syncLegacyStores(workspaces);
 
           const workspaceId = this.resolveWorkspaceSelection();
@@ -752,6 +777,11 @@ export class Today {
     this.clearBoard();
 
     this.activateWorkspace(workspaceId);
+
+    const activeFolder = this.activeFolder();
+    if (activeFolder) {
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, activeFolder);
+    }
   }
 
   loadWorkspaceMembers(workspaceId: string): void {
@@ -1101,18 +1131,25 @@ export class Today {
     this.tableTitleDraft.set(String(note?.title ?? ''));
 
     const sourceElement = event?.currentTarget as HTMLElement | null;
+    this.cdr.markForCheck();
     setTimeout(() => {
-      const row = sourceElement?.closest('tr');
-      const input = row?.querySelector<HTMLElement>('[data-inline-note-title] [contenteditable]');
-      input?.focus();
-      if (input) {
+      const row =
+        (sourceElement?.isConnected ? sourceElement.closest('tr') : null) ||
+        document.querySelector(`tr[data-note-id="${noteId}"]`) ||
+        document.querySelector('tr:has([data-inline-note-title])');
+      const editor = (row || document).querySelector<HTMLElement>('[data-inline-note-title]');
+      const surface =
+        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') || editor;
+      surface?.focus();
+      if (surface && surface.isContentEditable) {
         const range = document.createRange();
-        range.selectNodeContents(input);
+        range.selectNodeContents(surface);
+        range.collapse(false);
         const selection = document.getSelection();
         selection?.removeAllRanges();
         selection?.addRange(range);
       }
-    });
+    }, 0);
   }
 
   onTableEditorBlur(event: FocusEvent, note: any): void {
@@ -1927,7 +1964,7 @@ export class Today {
       this.workspaceFolderStore.setFolders(
         workspaceId,
         activeWs.folders.map((f, i) => ({
-          id: f.id,
+          id: idOf(f),
           name: f.name,
           workspaceId,
           status: 'ACTIVE',
@@ -1975,11 +2012,6 @@ export class Today {
     const folderId = this.resolveFolderSelection();
     this.workspaceDropdownStore.selectFolder(folderId);
     this.workspaceFolderStore.select(folderId);
-
-    const preferredFolderId = this.userPreferenceStore.selectedFolderId();
-    if (folderId && folderId !== preferredFolderId) {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, folderId);
-    }
 
     this.loadBoard();
   }

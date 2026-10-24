@@ -205,4 +205,34 @@ describe('AddEditNoteSidePanel', () => {
       closed.unsubscribe();
     },
   );
+
+  it('controls assignees row visibility based on workspace members availability and selected assignees', async () => {
+    fixture.componentRef.setInput('mode', 'create');
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+
+    // Default mock returns data: [], no assignees selected -> row is hidden
+    const row: HTMLElement = fixture.nativeElement.querySelector('.note-assignees-row');
+    expect(row).toBeTruthy();
+    expect(component.hasAssignees()).toBe(false);
+    expect(row.hidden).toBe(true);
+    expect(row.classList.contains('is-hidden')).toBe(true);
+
+    // When members exist, row becomes visible
+    component.onHasWorkspaceMembersChange(true);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.hasAssignees()).toBe(true);
+    expect(row.hidden).toBe(false);
+    expect(row.classList.contains('is-hidden')).toBe(false);
+
+    // If members become false but assignees are selected, row remains visible
+    component.onHasWorkspaceMembersChange(false);
+    component.selectedAssigneeIds.set(['user-1']);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.hasAssignees()).toBe(true);
+    expect(row.hidden).toBe(false);
+  });
 });

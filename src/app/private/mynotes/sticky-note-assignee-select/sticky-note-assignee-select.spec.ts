@@ -50,4 +50,32 @@ describe('StickyNoteAssigneeSelect', () => {
     fixture.componentRef.setInput('selectedAssigneeIds', null);
     expect(component.currentValues).toBe(component.currentValues);
   });
+
+  it('emits hasMembersChange with true when workspace members exist and false when empty', async () => {
+    const component = fixture.componentInstance;
+    const emitted: boolean[] = [];
+    component.hasMembersChange.subscribe((hasMembers) => emitted.push(hasMembers));
+
+    const api = TestBed.inject(WorkspaceMemberApiService);
+    vi.spyOn(api, 'getAll').mockReturnValue(
+      of({
+        data: [
+          {
+            id: 'mem-1',
+            user: { id: 'user-1', displayName: 'Jane Doe', email: 'jane@example.com' },
+            status: 'ACTIVE',
+          },
+        ],
+      } as any),
+    );
+
+    component.fetchMembers('ws-1');
+    expect(emitted).toEqual([true]);
+    expect(component.memberOptions().length).toBe(1);
+    expect(component.memberOptions()[0].value).toBe('user-1');
+
+    vi.spyOn(api, 'getAll').mockReturnValue(of({ data: [] } as any));
+    component.fetchMembers('ws-2');
+    expect(emitted).toEqual([true, false]);
+  });
 });

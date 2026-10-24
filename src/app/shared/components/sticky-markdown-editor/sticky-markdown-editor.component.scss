@@ -69,6 +69,8 @@ app-sticky-markdown-editor {
     border: 0;
     padding: 0;
     background: transparent;
+    width: max-content;
+    max-width: calc(100vw - 16px);
   }
   .markdown-error {
     display: block;

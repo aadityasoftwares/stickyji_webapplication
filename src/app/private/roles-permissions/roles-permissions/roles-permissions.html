@@ -319,8 +319,18 @@
                     variant="noteGreen"
                     size="sm"
                     [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
+                    [loading]="isRoleBusy(role)"
                     [label]="roleStatusLabel(role)"
                     [ariaLabel]="'Status for ' + roleDisplayName(role)"
+                    [title]="
+                      role.isDefault
+                        ? 'Default role status cannot be changed'
+                        : role.isSystem
+                          ? 'System role status cannot be changed'
+                          : role.isActive === false
+                            ? 'Inactive · Click to activate'
+                            : 'Active · Click to deactivate'
+                    "
                     (click)="$event.stopPropagation()"
                     (keydown)="$event.stopPropagation()"
                     (checkedChange)="changeRoleStatus(role, $event)"
@@ -646,12 +656,18 @@
                                     >
                                   </div>
                                 </td>
-                                <td class="workspace-gt-status" data-label="Status">
+                                <td
+                                  class="workspace-gt-status"
+                                  data-label="Status"
+                                  (click)="$event.stopPropagation()"
+                                  (dblclick)="$event.stopPropagation()"
+                                >
                                   <app-switch
                                     [checked]="role.isActive !== false"
                                     variant="noteGreen"
                                     size="sm"
                                     [disabled]="role.isDefault || role.isSystem || isRoleBusy(role)"
+                                    [loading]="isRoleBusy(role)"
                                     [ariaLabel]="
                                       (role.isActive === false ? 'Activate ' : 'Deactivate ') +
                                       roleDisplayName(role)
@@ -662,9 +678,12 @@
                                         : role.isSystem
                                           ? 'System role status cannot be changed'
                                           : role.isActive === false
-                                            ? 'Activate role'
-                                            : 'Deactivate role'
+                                            ? 'Inactive · Click to activate'
+                                            : 'Active · Click to deactivate'
                                     "
+                                    [label]="roleStatusLabel(role)"
+                                    (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
                                     (checkedChange)="changeRoleStatus(role, $event)"
                                   />
                                 </td>
@@ -1082,13 +1101,39 @@
                                     shape="pill"
                                   />
                                 </td>
-                                <td data-label="Status">
-                                  <app-badge
-                                    [label]="permission.isActive === false ? 'Inactive' : 'Active'"
-                                    [variant]="permissionStatusVariant(permission)"
-                                    size="xs"
-                                    shape="pill"
-                                    [dot]="true"
+                                <td
+                                  class="workspace-gt-status"
+                                  data-label="Status"
+                                  (click)="$event.stopPropagation()"
+                                  (dblclick)="$event.stopPropagation()"
+                                >
+                                  <app-switch
+                                    [checked]="permission.isActive !== false"
+                                    [disabled]="
+                                      permission.isSystem ||
+                                      !canManageGlobalPermissions() ||
+                                      isPermissionBusy(permission)
+                                    "
+                                    [loading]="isPermissionBusy(permission)"
+                                    [ariaLabel]="
+                                      (permission.isActive === false ? 'Activate ' : 'Deactivate ') +
+                                      (permission.displayName || permission.code)
+                                    "
+                                    [title]="
+                                      permission.isSystem
+                                        ? 'System permission status cannot be changed'
+                                        : !canManageGlobalPermissions()
+                                          ? 'Manage global permissions required'
+                                          : permission.isActive === false
+                                            ? 'Inactive · Click to activate'
+                                            : 'Active · Click to deactivate'
+                                    "
+                                    [label]="permissionStatusLabel(permission)"
+                                    size="sm"
+                                    variant="noteGreen"
+                                    (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
+                                    (checkedChange)="changePermissionStatus(permission, $event)"
                                   />
                                 </td>
                                 <td data-label="Actions">

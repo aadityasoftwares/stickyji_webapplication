@@ -66,6 +66,10 @@ export type StickyCommand =
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
+        width: max-content;
+        min-width: max-content;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         gap: 2px;
         padding: 4px;
         background: var(--markdown-toolbar-bg, var(--app-paper, #fffdf7));
@@ -73,6 +77,10 @@ export type StickyCommand =
         border: 1px solid #d9d4c8;
         border-radius: 8px;
         box-shadow: 0 3px 12px #302b1812;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
       }
       button {
         display: grid;

@@ -643,6 +643,10 @@ export class StickyNotesFavouritesComponent implements OnInit {
     return isNoteActive(note);
   }
 
+  noteStatusLabel(note: any): string {
+    return this.isActive(note) ? 'Active' : 'Archived';
+  }
+
   isArchived(note: any): boolean {
     return isNoteArchived(note);
   }

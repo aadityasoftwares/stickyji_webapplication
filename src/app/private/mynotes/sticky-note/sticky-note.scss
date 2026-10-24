@@ -473,6 +473,21 @@
 .sticky-note__inline-editor {
   display: block;
   width: 100%;
+
+  ::ng-deep .sticky-markdown-surface {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    padding: 6px 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    &:focus,
+    &:focus-visible {
+      border-color: #ab8420;
+      box-shadow: 0 0 0 2px rgba(171, 132, 32, 0.25);
+    }
+  }
 }
 
 .sticky-note__inline-editor app-input {

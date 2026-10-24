@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
   Input,
   Output,
@@ -112,6 +114,8 @@ export class StickyNote {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /* -------------------------------------------------------------------------- */
   /*                               Inputs / Outputs                             */
@@ -577,6 +581,24 @@ export class StickyNote {
       return;
     this.titleDraft = this.title === 'Untitled note' ? '' : this.title;
     this.editingTitle = true;
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      const editor = this.host.nativeElement.querySelector<HTMLElement>(
+        '.sticky-note__inline-editor--title',
+      );
+      const surface =
+        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') ||
+        editor;
+      surface?.focus();
+      if (surface && surface.isContentEditable) {
+        const range = document.createRange();
+        range.selectNodeContents(surface);
+        range.collapse(false);
+        const selection = document.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }, 0);
   }
 
   saveTitle(): void {
@@ -650,6 +672,24 @@ export class StickyNote {
       return;
     this.descriptionDraft = this.description;
     this.editingDescription = true;
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      const editor = this.host.nativeElement.querySelector<HTMLElement>(
+        '.sticky-note__inline-editor--description',
+      );
+      const surface =
+        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') ||
+        editor;
+      surface?.focus();
+      if (surface && surface.isContentEditable) {
+        const range = document.createRange();
+        range.selectNodeContents(surface);
+        range.collapse(false);
+        const selection = document.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }, 0);
   }
 
   saveDescription(): void {

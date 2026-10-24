@@ -101,6 +101,19 @@ export class StickyMarkdownEditorComponent
   private static nextId = 0;
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    Object.defineProperty(this.host.nativeElement, 'value', {
+      get: () => this.value,
+      set: (val: string) => {
+        this.value = val;
+      },
+      configurable: true,
+    });
+    this.host.nativeElement.focus = (_options?: FocusOptions) => {
+      this.focus('end');
+    };
+  }
   @ViewChild('surface', { static: true }) surface!: ElementRef<HTMLElement>;
   @ViewChild('popoverPanel') popoverElement?: ElementRef<HTMLElement>;
   private toolbarElement?: HTMLElement;
@@ -710,9 +723,11 @@ export class StickyMarkdownEditorComponent
     this.cdr.markForCheck();
   }
   private panelBounds(): DOMRect {
-    return (
-      this.host.nativeElement.closest('.app-side-panel') ?? this.host.nativeElement
-    ).getBoundingClientRect();
+    const sidePanel = this.host.nativeElement.closest('.app-side-panel');
+    if (sidePanel) {
+      return sidePanel.getBoundingClientRect();
+    }
+    return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
   }
   private positionFloating(): void {
     if (!this.ready || !this.toolbarFloating) return;
@@ -723,10 +738,18 @@ export class StickyMarkdownEditorComponent
         ? range.getBoundingClientRect()
         : this.surface.nativeElement.getBoundingClientRect();
     const bounds = this.panelBounds();
-    const left = Math.max(8, bounds.left + 8);
-    const right = Math.min(window.innerWidth - 8, bounds.right - 8);
-    this.floatingWidth = Math.min(340, Math.max(0, right - left));
-    this.floatingLeft = Math.max(left, Math.min(rect.left, right - this.floatingWidth));
+    const requiredWidth = this.mode === 'MULTI_LINE' ? 346 : 290;
+    const maxAvailableWidth = Math.max(0, window.innerWidth - 16);
+    this.floatingWidth = Math.min(requiredWidth, maxAvailableWidth);
+
+    const panelLeft = Math.max(8, bounds.left + 8);
+    const panelRight = Math.min(window.innerWidth - 8, bounds.right - 8);
+    if (panelRight - panelLeft >= this.floatingWidth) {
+      this.floatingLeft = Math.max(panelLeft, Math.min(rect.left, panelRight - this.floatingWidth));
+    } else {
+      this.floatingLeft = Math.max(8, Math.min(rect.left, window.innerWidth - this.floatingWidth - 8));
+    }
+
     const height = this.toolbarElement?.getBoundingClientRect().height || 38;
     const top = rect.top - height - 4;
     this.floatingTop = Math.max(

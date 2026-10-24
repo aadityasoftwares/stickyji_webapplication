@@ -1344,6 +1344,10 @@ export class MyNotes implements OnInit, OnChanges {
     return isNoteActive(note);
   }
 
+  noteStatusLabel(note: any): string {
+    return this.isActive(note) ? 'Active' : 'Archived';
+  }
+
   /** Delegates to shared isNoteArchived from sticky-note.function.ts */
   isArchived(note: any): boolean {
     return isNoteArchived(note);

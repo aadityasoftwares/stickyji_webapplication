@@ -306,9 +306,14 @@
                   [tooltipTone]="folderTheme(folder).variant"
                   [interactive]="!isInlineRenaming(folder)"
                   [busy]="isBusy(folder)"
+                  [showStatusSwitch]="true"
+                  [statusSwitchDisabled]="!canAction(folder, 'canArchive') || isBusy(folder)"
+                  [statusSwitchLoading]="isBusy(folder)"
+                  [statusSwitchAriaLabel]="'Toggle status for ' + folderName(folder)"
                   (opened)="handleFolderClick(folder, $event)"
                   (edited)="handleFolderDoubleClick(folder, $event)"
                   (keyboardOpened)="handleFolderClick(folder)"
+                  (statusSwitchChange)="toggleFolderStatus(folder, $event)"
                 >
                   <div folder-title>
                     @if (isInlineRenaming(folder)) {
@@ -637,16 +642,30 @@
                                   />
                                 </td>
 
-                                <td class="workspace-gt-status" data-label="Status">
-                                  <app-badge
+                                <td
+                                  class="workspace-gt-status"
+                                  data-label="Status"
+                                  (click)="$event.stopPropagation()"
+                                  (dblclick)="$event.stopPropagation()"
+                                >
+                                  <app-switch
+                                    [checked]="isActive(folder)"
+                                    [disabled]="!canAction(folder, 'canArchive') || isBusy(folder)"
+                                    [loading]="isBusy(folder)"
+                                    [ariaLabel]="'Toggle status for ' + folderName(folder)"
+                                    [title]="
+                                      isDefault(folder)
+                                        ? 'Default folder must remain active'
+                                        : isActive(folder)
+                                          ? 'Active · Click to archive'
+                                          : 'Archived · Click to activate'
+                                    "
                                     [label]="folderStatusLabel(folder)"
-                                    [variant]="isActive(folder) ? 'success' : 'neutral'"
-                                    size="xs"
-                                    shape="pill"
-                                    [appTooltip]="'Status: ' + folderStatusLabel(folder)"
-                                    [tooltipTone]="isActive(folder) ? 'success' : 'paper'"
-                                    tooltipPosition="top"
-                                    tooltipSize="sm"
+                                    size="sm"
+                                    variant="noteGreen"
+                                    (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
+                                    (checkedChange)="toggleFolderStatus(folder, $event)"
                                   />
                                 </td>
 

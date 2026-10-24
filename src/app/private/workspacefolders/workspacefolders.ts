@@ -80,6 +80,7 @@ import { Loader } from '../../shared/components/loader/loader';
 import { Select, type SelectOption, type SelectValue } from '../../shared/components/select/select';
 import { Tabs, type TabItem, type TabValue } from '../../shared/components/tabs/tabs';
 import { type CardVariant, StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { Switch } from '../../shared/components/switch/switch';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { WorkspaceFolderWrapper } from '../workspace/workspace-folder-wrapper/workspace-folder-wrapper';
@@ -182,6 +183,7 @@ interface FolderTheme {
     Tooltip,
     Highlight,
     WorkspaceFolderWrapper,
+    Switch,
     UserDatePipe,
   ],
   templateUrl: './workspacefolders.html',
@@ -1108,6 +1110,15 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   activateFolder(folder: WorkspaceFolder): void {
     this.updateFolderStatus(folder, 'ACTIVE');
+  }
+
+  toggleFolderStatus(folder: WorkspaceFolder, active: boolean, event?: Event): void {
+    event?.stopPropagation();
+    if (active) {
+      this.activateFolder(folder);
+    } else {
+      this.archiveFolder(folder);
+    }
   }
 
   requestDelete(folder: WorkspaceFolder): void {

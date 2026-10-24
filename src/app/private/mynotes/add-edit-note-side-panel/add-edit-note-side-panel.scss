@@ -366,6 +366,11 @@
   gap: 10px;
   align-items: center;
   min-width: 0;
+
+  &[hidden],
+  &.is-hidden {
+    display: none !important;
+  }
 }
 
 .note-assignees-row > app-label {

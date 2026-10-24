@@ -37,7 +37,7 @@ export class WorkspaceDropdownStore {
   readonly selectedWorkspace = computed<WorkspaceDropdownItem | null>(() => {
     const selectedId = this._selectedWorkspaceId();
     if (!selectedId) return null;
-    return this._items().find((workspace) => workspace.id === selectedId) ?? null;
+    return this._items().find((workspace) => idOf(workspace) === selectedId) ?? null;
   });
 
   readonly folders = computed<readonly WorkspaceDropdownFolder[]>(() => {
@@ -49,7 +49,7 @@ export class WorkspaceDropdownStore {
   readonly selectedFolder = computed<WorkspaceDropdownFolder | null>(() => {
     const folderId = this._selectedFolderId();
     if (!folderId) return null;
-    return this.folders().find((folder) => folder.id === folderId) ?? null;
+    return this.folders().find((folder) => idOf(folder) === folderId) ?? null;
   });
 
   readonly workspaceOptions = computed(() =>
@@ -109,11 +109,11 @@ export class WorkspaceDropdownStore {
 
     if (selectedWorkspaceId !== undefined) {
       this._selectedWorkspaceId.set(selectedWorkspaceId);
-      if (selectedFolderId !== undefined) {
+      if (selectedFolderId !== undefined && selectedFolderId !== null) {
         this._selectedFolderId.set(selectedFolderId);
       } else {
-        const ws = items.find((w) => w.id === selectedWorkspaceId);
-        this._selectedFolderId.set(ws?.folders?.[0]?.id ?? null);
+        const ws = items.find((w) => idOf(w) === selectedWorkspaceId);
+        this._selectedFolderId.set(ws?.folders?.[0] ? idOf(ws.folders[0]) : null);
       }
     } else {
       this.ensureSelection();
@@ -127,7 +127,7 @@ export class WorkspaceDropdownStore {
       return;
     }
 
-    const workspace = this._items().find((w) => w.id === workspaceId);
+    const workspace = this._items().find((w) => idOf(w) === workspaceId);
     if (!workspace) {
       this._selectedWorkspaceId.set(null);
       this._selectedFolderId.set(null);
@@ -137,10 +137,10 @@ export class WorkspaceDropdownStore {
     this._selectedWorkspaceId.set(workspaceId);
 
     const folders = workspace.folders ?? [];
-    if (preferredFolderId && folders.some((f) => f.id === preferredFolderId)) {
+    if (preferredFolderId && folders.some((f) => idOf(f) === preferredFolderId)) {
       this._selectedFolderId.set(preferredFolderId);
     } else {
-      this._selectedFolderId.set(folders[0]?.id ?? null);
+      this._selectedFolderId.set(folders[0] ? idOf(folders[0]) : null);
     }
   }
 
@@ -151,7 +151,7 @@ export class WorkspaceDropdownStore {
     }
 
     const currentFolders = this.folders();
-    if (currentFolders.some((f) => f.id === folderId)) {
+    if (currentFolders.some((f) => idOf(f) === folderId)) {
       this._selectedFolderId.set(folderId);
     }
   }
@@ -195,18 +195,18 @@ export class WorkspaceDropdownStore {
     }
 
     const currentWsId = this._selectedWorkspaceId();
-    const currentWs = items.find((w) => w.id === currentWsId);
+    const currentWs = items.find((w) => idOf(w) === currentWsId);
 
     if (currentWs) {
       const currentFolderId = this._selectedFolderId();
-      if (!currentWs.folders.some((f) => f.id === currentFolderId)) {
-        this._selectedFolderId.set(currentWs.folders[0]?.id ?? null);
+      if (!currentWs.folders.some((f) => idOf(f) === currentFolderId)) {
+        this._selectedFolderId.set(currentWs.folders[0] ? idOf(currentWs.folders[0]) : null);
       }
       return;
     }
 
     const firstWs = items[0];
-    this._selectedWorkspaceId.set(firstWs.id);
-    this._selectedFolderId.set(firstWs.folders?.[0]?.id ?? null);
+    this._selectedWorkspaceId.set(idOf(firstWs));
+    this._selectedFolderId.set(firstWs.folders?.[0] ? idOf(firstWs.folders[0]) : null);
   }
 }

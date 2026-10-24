@@ -344,18 +344,27 @@
                                   <span class="workspace-table-muted">—</span>
                                 }
                               </td>
-                              <td class="workspace-gt-status" data-label="Status">
+                              <td
+                                class="workspace-gt-status"
+                                data-label="Status"
+                                (click)="$event.stopPropagation()"
+                                (dblclick)="$event.stopPropagation()"
+                              >
                                 <app-switch
                                   [checked]="isActive(note)"
-                                  variant="noteGreen"
-                                  size="sm"
-                                  [loading]="isBusy(note)"
                                   [disabled]="isBusy(note)"
-                                  [ariaLabel]="
-                                    (isActive(note) ? 'Archive ' : 'Activate ') +
-                                    plainText(noteTitle(note))
+                                  [loading]="isBusy(note)"
+                                  [ariaLabel]="'Toggle status for ' + plainText(noteTitle(note))"
+                                  [title]="
+                                    isActive(note)
+                                      ? 'Active · Click to archive'
+                                      : 'Archived · Click to activate'
                                   "
+                                  [label]="noteStatusLabel(note)"
+                                  size="sm"
+                                  variant="noteGreen"
                                   (click)="$event.stopPropagation()"
+                                  (keydown)="$event.stopPropagation()"
                                   (checkedChange)="changeNoteStatus(note, $event)"
                                 />
                               </td>

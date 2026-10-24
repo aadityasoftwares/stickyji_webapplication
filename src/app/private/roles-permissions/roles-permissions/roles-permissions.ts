@@ -944,6 +944,10 @@ export class RolesPermissions implements OnInit, OnChanges {
     return permission.isActive === false ? 'warning' : 'success';
   }
 
+  permissionStatusLabel(permission: Permission): string {
+    return permission.isActive === false ? 'Inactive' : 'Active';
+  }
+
   permissionAccessLabel(permission: Permission): string {
     const access = String(permission.access ?? 'GENERAL').toUpperCase();
     if (access === 'OWN') return 'Own only';
