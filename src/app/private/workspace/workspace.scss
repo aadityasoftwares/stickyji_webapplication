@@ -1,7 +1,10 @@
 @use '../../styles/variables' as *;
 @use '../../styles/explorer' as explorer;
+@use '../../styles/workspace-theme';
 
 @include explorer.shell;
+
+@include workspace-theme.shell;
 
 /* ==========================================================
    WORKSPACE MARK
@@ -1897,4 +1900,3 @@
   height: 1.5rem;
   visibility: hidden;
 }
-

@@ -115,8 +115,8 @@ app-topbar {
     min-height: 58px;
     padding: 8px 16px;
     box-sizing: border-box;
-    background: #fcfaf6;
-    border-bottom: 1px solid #eeeae2;
+    background: $paper;
+    border-bottom: 1px solid $border-light;
 
     img {
       width: 116px;

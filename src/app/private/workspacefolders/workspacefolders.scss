@@ -1,3 +1,4 @@
+@use '../../styles/workspace-theme';
 @use '../../styles/variables' as *;
 
 .workspace-context-menu-origin {
@@ -2464,3 +2465,5 @@ $folder-table-grid-columns: 2.75rem minmax(14rem, 2.5fr) minmax(7rem, 0.8fr) min
     transition: none;
   }
 }
+
+@include workspace-theme.shell('workspace');

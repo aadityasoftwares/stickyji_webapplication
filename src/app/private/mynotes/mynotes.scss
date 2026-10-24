@@ -1,5 +1,6 @@
 @use '../../styles/variables' as *;
 @use '../../styles/explorer' as explorer;
+@use '../../styles/workspace-theme';
 
 @include explorer.shell;
 @include explorer.grouped-table(
@@ -14,9 +15,9 @@
    ========================================================== */
 
 .folder-workspace-picker {
-  flex: 0 1 15rem;
-  width: 15rem;
-  min-width: 10rem;
+  flex: 0 1 16rem;
+  width: 16rem;
+  min-width: 11rem;
 
   app-select {
     display: block;
@@ -549,6 +550,20 @@
    ========================================================== */
 
 @include explorer.responsive;
+
+@include workspace-theme.shell;
+
+// The two context pickers need room before the header stacks on tablet.
+@media (max-width: 90rem) {
+  .workspace-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .folder-header-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
 
 @media (max-width: 62rem) {
   .notes-grid {

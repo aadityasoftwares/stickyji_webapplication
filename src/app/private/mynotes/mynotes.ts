@@ -78,6 +78,7 @@ import { Switch } from '../../shared/components/switch/switch';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { UI } from '../../shared/constants/ui.constants';
 import { STICKY_NOTE_MESSAGES } from './messages/sticky-note.messages';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
@@ -165,6 +166,8 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyNotes implements OnInit, OnChanges {
+  readonly UI = UI;
+
   readonly plainText = stickyMarkdownToPlainText;
   readonly overdue = inject(OverdueNotesStore);
   private readonly destroyRef = inject(DestroyRef);

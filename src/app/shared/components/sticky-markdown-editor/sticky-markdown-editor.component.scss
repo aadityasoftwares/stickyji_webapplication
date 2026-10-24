@@ -8,10 +8,18 @@ app-sticky-markdown-editor {
   position: relative;
   font: inherit;
   color: inherit;
+  .sticky-markdown-surface,
+  .markdown-source {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--sticky-editor-height, 110px);
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
   .sticky-markdown-surface {
     min-height: 110px;
     padding: 9px 11px;
-    border: 1px solid var(--app-border, #d8d1bf);
+    border: 1px solid var(--app-border, #c5cdd8);
     border-radius: 8px;
     background: transparent;
     outline: none;
@@ -27,14 +35,31 @@ app-sticky-markdown-editor {
     color: var(--app-text-muted, #827966);
     pointer-events: none;
   }
-  &.is-single-line .sticky-markdown-surface {
-    min-height: 39px;
+  &.is-single-line .sticky-markdown-surface,
+  &.is-single-line .markdown-source {
+    height: var(--sticky-editor-height, calc(1.5em + 20px));
+    min-height: var(--sticky-editor-height, 39px);
+    white-space: pre;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: auto;
+    // Match native text inputs: the caret scrolls horizontally without a scrollbar row.
+    scrollbar-width: none;
+  }
+  &.is-single-line .sticky-markdown-surface p {
+    min-height: 0;
+    text-wrap: nowrap;
   }
   &.is-disabled {
     opacity: 0.55;
   }
   app-sticky-markdown-toolbar {
     margin-bottom: 4px;
+  }
+  // Only the explicitly always-visible toolbar reserves a row in source view.
+  app-sticky-markdown-toolbar.is-inactive {
+    visibility: hidden;
+    pointer-events: none;
   }
   app-sticky-markdown-toolbar.is-floating {
     position: fixed;
@@ -59,9 +84,14 @@ app-sticky-markdown-editor {
     text-decoration: underline;
   }
   .markdown-source {
-    width: 100%;
-    min-height: 100px;
-    font: 12px monospace;
+    display: block;
+    resize: none;
+    padding: 9px 11px;
+    border: 1px solid var(--app-border, #c5cdd8);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: inherit;
+    line-height: 1.5;
   }
 }
 .sticky-markdown-popover {
@@ -71,7 +101,7 @@ app-sticky-markdown-editor {
   z-index: 1300;
   max-width: calc(100vw - 24px);
   padding: 28px 12px 12px;
-  border: 1px solid #d9d4c8;
+  border: 1px solid var(--app-border, #c5cdd8);
   border-radius: 10px;
   background: var(--app-paper, #fffdf7);
   color: var(--app-text, #333);

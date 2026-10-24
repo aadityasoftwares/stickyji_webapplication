@@ -6,24 +6,26 @@
           <app-icon [icon]="LucideStar" size="md" />
         </span>
         <div>
-          <span class="workspace-kicker">Notes library · Favourites</span>
+          <div class="workspace-heading-meta">
+            <span class="workspace-kicker">Notes library · Favourites</span>
+            <div class="workspace-count-slot" aria-live="polite">
+              @if (!loading()) {
+                <app-badge
+                  [label]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')"
+                  variant="noteYellow"
+                  size="sm"
+                  shape="pill"
+                />
+              } @else {
+                <span class="workspace-count-placeholder" aria-hidden="true"></span>
+              }
+            </div>
+          </div>
           <h1 id="favourites-page-title">Keep important notes <span>close at hand.</span></h1>
         </div>
       </div>
 
       <div class="workspace-header-actions">
-        <div class="workspace-count-slot" aria-live="polite">
-          @if (!loading()) {
-            <app-badge
-              [label]="totalCount() + (totalCount() === 1 ? ' favourite' : ' favourites')"
-              variant="noteYellow"
-              size="sm"
-              shape="pill"
-            />
-          } @else {
-            <span class="workspace-count-placeholder" aria-hidden="true"></span>
-          }
-        </div>
         <app-button
           [icon]="LucideRefreshCw"
           [iconOnly]="true"
@@ -51,10 +53,11 @@
             variant="segmented"
             activeVariant="noteYellow"
             shape="rounded"
-            size="sm"
+            size="md"
             density="compact"
             ariaLabel="Filter favourites by status"
-            [scrollable]="false"
+            [fullWidth]="false"
+            [scrollable]="true"
             (valueChange)="setNoteTab($event)"
           />
         </div>
@@ -67,9 +70,12 @@
               labelMode="hidden"
               placeholder="Search favourites..."
               variant="paper"
-              appearance="outlined"
+              appearance="simple"
               shape="rounded"
-              size="sm"
+              shadow="upside"
+              [height]="UI.button.height.md"
+              [radius]="UI.radius.xs"
+              size="xs"
               [leadingIcon]="LucideSearch"
               [clearable]="true"
               [value]="searchTerm()"
@@ -88,7 +94,11 @@
             placeholder="Sort favourites"
             ariaLabel="Sort favourite notes"
             variant="paper"
+            appearance="simple"
             shape="rounded"
+            shadow="upside"
+            [height]="UI.button.height.md"
+            [radius]="UI.radius.xs"
             size="sm"
             [iconLeft]="LucideClock3"
             [clearable]="false"
@@ -100,8 +110,9 @@
             [items]="viewTabs"
             [value]="view()"
             variant="segmented"
+            activeVariant="noteYellow"
             shape="rounded"
-            size="sm"
+            size="md"
             density="compact"
             ariaLabel="Choose grid or list view"
             [scrollable]="false"

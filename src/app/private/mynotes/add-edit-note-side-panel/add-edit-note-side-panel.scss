@@ -259,6 +259,11 @@
   min-width: 0;
 }
 
+.note-field-control ::ng-deep .sticky-markdown-surface {
+  background: #ffffff;
+  color: $text-primary;
+}
+
 .note-details-field ::ng-deep .app-input-textarea {
   min-height: 108px;
   line-height: 1.6;
@@ -668,6 +673,66 @@
   font-size: 12px;
 }
 
+.note-block-card[data-block-type='CHECKLIST'] {
+  --editor-ink: #1f2937;
+  --editor-muted: #64748b;
+  --editor-rule: #e5e7eb;
+  padding: 14px;
+  gap: 12px;
+  border-color: #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba($heading, 0.06);
+  color: var(--editor-ink);
+
+  .note-block-header {
+    padding-bottom: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .note-block-title-group {
+    gap: 10px;
+  }
+
+  .note-block-icon {
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    color: #956000;
+    background: #fff6da;
+  }
+
+  .note-block-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .note-block-header-actions {
+    margin-left: auto;
+  }
+
+  ::ng-deep .app-badge {
+    min-width: 26px;
+    min-height: 26px;
+    padding: 3px 7px;
+    border: 0;
+    background: #fff0cd;
+    color: #805300;
+    box-shadow: none;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .checklist-add-another ::ng-deep .app-button {
+    background: #fff6da;
+    border-radius: 10px;
+    color: #654500;
+    padding-inline: 12px;
+    min-height: 32px;
+  }
+}
+
 .checklist-empty {
   display: flex;
   align-items: center;
@@ -707,7 +772,8 @@
 
 .checklist-group {
   display: grid;
-  gap: 5px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .checklist-group + .checklist-group {
@@ -717,9 +783,9 @@
 
 .checklist-title-row {
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) 24px;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .checklist-number {
@@ -730,15 +796,31 @@
 
 .checklist-items {
   display: grid;
-  gap: 4px;
-  padding-left: 22px;
+  gap: 7px;
+  min-width: 0;
+  max-height: min(44dvh, 360px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  padding: 3px;
 }
 
 .checklist-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 24px;
+  grid-template-columns: 22px minmax(0, 1fr) 28px;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 4px 8px;
+  border: 1px solid #e6eaf0;
+  border-radius: 10px;
+  background: #fff;
+
+  &:focus-within {
+    border-color: #dfbd68;
+    box-shadow: 0 0 0 2px #f5e8b544;
+  }
 }
 
 .checklist-toggle {
@@ -757,26 +839,62 @@
 }
 
 .checklist-group ::ng-deep .sticky-markdown-surface {
+  --sticky-editor-height: 32px;
   min-height: 30px;
-  padding: 4px 6px;
-  border-width: 0 0 1px;
-  border-radius: 0;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 5px;
   font-size: 13px;
+  line-height: 20px;
+}
+
+.checklist-item ::ng-deep .sticky-markdown-surface:focus {
+  box-shadow: none;
+}
+
+.checklist-title-row ::ng-deep .sticky-markdown-surface {
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .remove-item {
-  opacity: 0.6;
-  transition: opacity 0.15s ease;
+  ::ng-deep .app-button {
+    color: #6b7280;
+    background: #f3f4f6;
+    border-radius: 8px;
+  }
 
-  &:hover,
-  &:focus-within {
-    opacity: 1;
+  ::ng-deep .app-button:hover:not(:disabled) {
+    color: #a52424;
+    background: #fcecec;
   }
 }
 
 .add-item {
-  justify-self: start;
-  margin-left: 22px;
+  min-width: 0;
+
+  ::ng-deep .app-button {
+    justify-content: flex-start;
+    min-height: 42px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #fff7df;
+    color: #956000;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 10px;
+  }
+
+  ::ng-deep .app-button-icon {
+    width: 26px;
+    height: 26px;
+    border: 1px dashed #bf8a26;
+    border-radius: 8px;
+  }
+
+  ::ng-deep .app-button:hover:not(:disabled) {
+    background: #ffefbf;
+  }
 }
 
 /* ==========================================================================
@@ -869,10 +987,6 @@
 
   .note-date-control {
     max-width: none;
-  }
-
-  .checklist-items {
-    padding-left: 0;
   }
 }
 

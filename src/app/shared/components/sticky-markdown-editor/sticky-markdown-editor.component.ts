@@ -103,17 +103,17 @@ export class StickyMarkdownEditorComponent
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   @ViewChild('surface', { static: true }) surface!: ElementRef<HTMLElement>;
   @ViewChild('popoverPanel') popoverElement?: ElementRef<HTMLElement>;
+  private toolbarElement?: HTMLElement;
   @ViewChild('floatingToolbar', { read: ElementRef }) set floatingToolbar(
     ref: ElementRef<HTMLElement> | undefined,
   ) {
-    if (ref && this.toolbar === 'selection')
+    this.toolbarElement = ref?.nativeElement;
+    if (ref && this.toolbarFloating)
       queueMicrotask(() => {
-        if (
-          !this.destroyed &&
-          ref.nativeElement.isConnected &&
-          typeof ref.nativeElement.showPopover === 'function'
-        )
-          ref.nativeElement.showPopover();
+        if (this.destroyed || !ref.nativeElement.isConnected) return;
+        ref.nativeElement.showPopover?.();
+        this.positionFloating();
+        this.cdr.markForCheck();
       });
   }
   @Input() mode: StickyMarkdownEditorMode = 'MULTI_LINE';
@@ -166,7 +166,7 @@ export class StickyMarkdownEditorComponent
   private readonly selectionListener = () => this.refreshSelection();
   private readonly scrollListener = () => {
     if (this.popover) this.closePopover(false);
-    if (this.toolbar === 'selection') {
+    if (this.toolbarFloating) {
       this.positionFloating();
       this.cdr.markForCheck();
     }
@@ -184,7 +184,10 @@ export class StickyMarkdownEditorComponent
     return !documentText(this.doc);
   }
   get activeList(): string {
-    return this.doc.blocks[locate(this.doc, this.selection.start).index]?.type ?? '';
+    const first = locate(this.doc, this.selection.start).index;
+    const last = locate(this.doc, Math.max(this.selection.start, this.selection.end - 1)).index;
+    const type = this.doc.blocks[first]?.type ?? '';
+    return this.doc.blocks.slice(first, last + 1).every((block) => block.type === type) ? type : '';
   }
   get toolbarVisible(): boolean {
     return (
@@ -197,6 +200,9 @@ export class StickyMarkdownEditorComponent
             this.selection.start !== this.selection.end ||
             !!this.popover)))
     );
+  }
+  get toolbarFloating(): boolean {
+    return this.toolbar === 'focus' || this.toolbar === 'selection';
   }
   ngAfterViewInit(): void {
     this.ready = true;
@@ -231,6 +237,7 @@ export class StickyMarkdownEditorComponent
     this.history.reset();
     this.pendingMarks = null;
     this.selection = { start: 0, end: 0 };
+    this.updateActiveMarks();
     this.error = '';
     if (this.ready) this.render();
     this.cdr.markForCheck();
@@ -321,6 +328,8 @@ export class StickyMarkdownEditorComponent
     this.cdr.markForCheck();
   }
   private updateActiveMarks(): void {
+    // Selection listeners and programmatic edits also run outside template events.
+    this.cdr.markForCheck();
     if (this.pendingMarks) {
       this.activeMarks = { ...this.pendingMarks };
       return;
@@ -336,6 +345,7 @@ export class StickyMarkdownEditorComponent
   }
   onFocus(): void {
     this.focused = true;
+    this.positionFloating();
     this.cdr.markForCheck();
   }
   onFocusOut(event: FocusEvent): void {
@@ -615,7 +625,7 @@ export class StickyMarkdownEditorComponent
     if (!this.editable) return;
     if (this.selection.start === this.selection.end) {
       this.pendingMarks = change(this.pendingMarks ?? marksAt(this.doc, this.selection.start));
-      this.activeMarks = { ...this.pendingMarks };
+      this.updateActiveMarks();
       this.restore();
     } else this.commit(formatSelection(this.doc, this.selection, change), this.selection);
   }
@@ -705,24 +715,29 @@ export class StickyMarkdownEditorComponent
     ).getBoundingClientRect();
   }
   private positionFloating(): void {
-    if (!this.ready || this.toolbar !== 'selection') return;
+    if (!this.ready || !this.toolbarFloating) return;
     const selection = this.surface.nativeElement.ownerDocument.getSelection();
     const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
     const rect =
-      range && typeof range.getBoundingClientRect === 'function'
+      this.toolbar === 'selection' && range && typeof range.getBoundingClientRect === 'function'
         ? range.getBoundingClientRect()
         : this.surface.nativeElement.getBoundingClientRect();
     const bounds = this.panelBounds();
-    this.floatingWidth = Math.min(340, Math.max(180, bounds.width - 24));
-    this.floatingLeft = Math.max(
-      bounds.left + 8,
-      Math.min(rect.left, bounds.right - this.floatingWidth - 8),
-    );
+    const left = Math.max(8, bounds.left + 8);
+    const right = Math.min(window.innerWidth - 8, bounds.right - 8);
+    this.floatingWidth = Math.min(340, Math.max(0, right - left));
+    this.floatingLeft = Math.max(left, Math.min(rect.left, right - this.floatingWidth));
+    const height = this.toolbarElement?.getBoundingClientRect().height || 38;
+    const top = rect.top - height - 4;
     this.floatingTop = Math.max(
       8,
-      bounds.top + 4,
-      Math.min(rect.top - 42, window.innerHeight - 80),
+      Math.min(top >= 8 ? top : rect.bottom + 4, window.innerHeight - height - 8),
     );
+  }
+  @HostListener('window:resize') onResize(): void {
+    this.positionFloating();
+    if (this.popoverElement) this.positionPopover(this.popoverElement.nativeElement);
+    this.cdr.markForCheck();
   }
   private positionPopover(element: HTMLElement): void {
     const rect = this.surface.nativeElement.getBoundingClientRect(),
@@ -816,6 +831,8 @@ export class StickyMarkdownEditorComponent
     this.history.record(before, 'source');
     this.markdown = input.value;
     this.doc = doc;
+    this.pendingMarks = null;
+    this.updateActiveMarks();
     this.render();
     this.error = '';
     this.onChange(this.markdown);

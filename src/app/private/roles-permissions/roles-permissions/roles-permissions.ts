@@ -1,3 +1,4 @@
+import { UI } from '../../../shared/constants/ui.constants';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -134,6 +135,8 @@ const ROLE_SORT_PREFERENCES: Record<RoleSort, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolesPermissions implements OnInit, OnChanges {
+  readonly UI = UI;
+
   private readonly roleApi = inject(WorkspaceRoleApiService);
   private readonly permissionApi = inject(PermissionApiService);
   private readonly workspaceStore = inject(WorkspaceStore);

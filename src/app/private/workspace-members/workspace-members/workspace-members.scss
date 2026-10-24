@@ -1,3 +1,4 @@
+@use '../../../styles/workspace-theme';
 @use '../../../styles/variables' as *;
 
 /* ==========================================================
@@ -1569,7 +1570,11 @@ input {
   }
 
   .workspace-members-sort {
-    display: none;
+    width: 100%;
+  }
+
+  .workspace-members-search {
+    grid-column: 1 / -1;
   }
 
   .workspace-member-grid,
@@ -2320,3 +2325,5 @@ $member-table-grid-columns: 36px minmax(200px, 1.8fr) minmax(165px, 1.2fr) minma
   outline: 2px solid var(--app-focus-color, #{$primary});
   outline-offset: 2px;
 }
+
+@include workspace-theme.shell('workspace-members');

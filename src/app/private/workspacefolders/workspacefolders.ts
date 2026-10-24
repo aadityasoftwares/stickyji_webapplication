@@ -1,3 +1,4 @@
+import { UI } from '../../shared/constants/ui.constants';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -188,6 +189,8 @@ interface FolderTheme {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Workspacefolders implements OnInit, OnChanges {
+  readonly UI = UI;
+
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly folderApi = inject(WorkspaceFolderService);

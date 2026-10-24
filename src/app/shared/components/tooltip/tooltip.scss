@@ -110,7 +110,7 @@
 .app-tooltip-paper {
   --app-tooltip-bg: #ffffff;
   --app-tooltip-color: #1f2937;
-  --app-tooltip-border: #e2e8f0;
+  --app-tooltip-border: #{$border};
 }
 
 .app-tooltip-accent {

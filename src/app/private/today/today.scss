@@ -510,17 +510,11 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid #e9e2cf;
+  border: 1px solid $border-light;
   border-bottom: 0;
   border-radius: 0.8rem 0.8rem 0 0;
-  box-shadow: 0 4px 16px rgba(125, 99, 41, 0.035);
-  background-color: rgba(#fffdf9, 0.72);
-  background-image:
-    radial-gradient(rgba(#8e7b4e, 0.07) 0.65px, transparent 0.65px),
-    radial-gradient(ellipse at 15% 0%, rgba(#fff0ac, 0.3), transparent 65%);
-  background-size:
-    24px 24px,
-    100% 100%;
+  box-shadow: 0 4px 16px rgba(#182230, 0.025);
+  background: $paper;
 }
 
 .today-completed-section {
@@ -532,9 +526,8 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 100% 0%, rgba(#d9edba, 0.35), transparent 70%), rgba(#fbfdf6, 0.8);
-  border: 1px solid #dfe6d2;
+  background: $paper;
+  border: 1px solid $border-light;
   border-bottom: 0;
   border-radius: 0.8rem 0.8rem 0 0;
   box-shadow: 0 3px 12px rgba($heading, 0.025);
@@ -549,12 +542,12 @@
   min-height: 3rem;
   gap: 0.5rem;
   padding: 0.375rem 0.75rem;
-  background: rgba(#fffdf5, 0.94);
-  border-bottom: 1px solid #e9e2cf;
+  background: $paper-dark;
+  border-bottom: 1px solid $border-light;
 
   &.is-completed-header {
-    background: rgba(#f5f9ed, 0.96);
-    border-bottom: 1px solid #dfe6d2;
+    background: color-mix(in srgb, $success 4%, $paper);
+    border-bottom: 1px solid $border-light;
   }
 }
 
@@ -1153,39 +1146,11 @@
   text-align: center;
 }
 
-/* Reference workspace shell. Table rows retain their existing styles. */
+/* White workspace shell with subtle separation between working surfaces. */
 .today-page.today-workspace {
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(ellipse at 18% 4%, rgba(#fff0ac, 0.48), transparent 52%),
-    radial-gradient(ellipse at 96% 78%, rgba(#e2efcd, 0.32), transparent 48%), #fffdf9;
-
-  // Hero-inspired brush curves stay behind the workspace and never capture input.
-  &::before,
-  &::after {
-    position: absolute;
-    z-index: 0;
-    content: '';
-    pointer-events: none;
-    width: clamp(24rem, 45vw, 48rem);
-    height: clamp(9rem, 16vw, 17rem);
-    border: clamp(1.75rem, 3vw, 3.5rem) solid rgba(#ffe48b, 0.15);
-    border-radius: 50%;
-    transform: rotate(-38deg);
-  }
-
-  &::before {
-    right: -16rem;
-    bottom: 1rem;
-  }
-
-  &::after {
-    left: -20rem;
-    bottom: -7rem;
-    border-color: rgba(#d8e7bd, 0.17);
-    transform: rotate(-28deg);
-  }
+  background: $page-bg;
 
   .today-main {
     position: relative;
@@ -1284,9 +1249,9 @@
     align-items: center;
     padding: 10px 12px;
     gap: 8px 12px;
-    background: rgba(#fffefa, 0.94);
-    border: 1px solid #e9e2cf;
-    box-shadow: 0 3px 12px rgba(125, 99, 41, 0.035);
+    background: $paper;
+    border: 1px solid $border-light;
+    box-shadow: 0 3px 12px rgba(#182230, 0.025);
     border-radius: 12px;
     margin-bottom: 12px;
 
@@ -1359,7 +1324,7 @@
   }
   .today-toolbar-utilities {
     padding-left: 10px;
-    border-left: 1px solid #eae6dd;
+    border-left: 1px solid $border-light;
   }
   .today-toolbar-controls app-button {
     width: auto;
@@ -1385,8 +1350,8 @@
   }
   .today-kanban-column {
     padding: 0;
-    background: color-mix(in srgb, var(--column-accent) 2%, rgba(#fffdf9, 0.82));
-    border: 1px solid #eae7df;
+    background: $paper-light;
+    border: 1px solid $border-light;
     border-bottom: 0;
     border-radius: 14px 14px 0 0;
     box-shadow: none;
@@ -1395,9 +1360,9 @@
   .today-column-header {
     min-height: 52px;
     padding: 9px 12px;
-    background: color-mix(in srgb, var(--column-accent) 3%, #fdfcf8);
+    background: color-mix(in srgb, var(--column-accent) 4%, $paper);
     border: 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--column-accent) 5%, #eae7df);
+    border-bottom: 1px solid $border-light;
     border-radius: 0;
   }
   .today-column-title {
@@ -1465,14 +1430,14 @@
   }
   .today-empty-column-visual::before {
     inset: 3px 0;
-    background: color-mix(in srgb, var(--column-accent) 10%, #fffefa);
+    background: color-mix(in srgb, var(--column-accent) 10%, $paper);
     transform: rotate(-10deg);
   }
   .today-empty-column-visual::after {
     inset: 0;
     width: auto;
     height: auto;
-    background: color-mix(in srgb, var(--column-accent) 5%, #fffefa);
+    background: color-mix(in srgb, var(--column-accent) 5%, $paper);
     transform: rotate(4deg);
     border: 1px solid rgba(90, 80, 55, 0.08);
     box-shadow: 0 3px 4px rgba(90, 80, 55, 0.05);
@@ -1486,9 +1451,9 @@
     width: 11rem;
     min-width: 11rem;
     padding: 24px 12px;
-    border: 1px dashed #ddd8cb;
+    border: 1px dashed $border;
     border-radius: 14px;
-    background: rgba(255, 254, 250, 0.5);
+    background: $paper-light;
   }
   .today-add-column-inner {
     gap: 12px;
@@ -1499,7 +1464,7 @@
     width: 40px;
     height: 40px;
     color: #898371;
-    background: #f0ede4;
+    background: $paper-dark;
     border-radius: 10px;
   }
   .today-add-column-inner small {
@@ -1508,10 +1473,10 @@
     font: 12px/1.5 $font-body;
   }
   .today-grouped-table {
-    border: 1px solid #eae6dd;
+    border: 1px solid $border-light;
     border-bottom: 0;
     border-radius: 12px 12px 0 0;
-    background: #fffefa;
+    background: $paper;
   }
 
   @container today-workspace (max-width: 72rem) {
@@ -2737,14 +2702,7 @@ section.today-group.cdk-drag-placeholder {
   }
 }
 
-/* Keep small screens quiet and respect system contrast colors. */
-@media (max-width: 52rem), (forced-colors: active) {
-  .today-page.today-workspace::before,
-  .today-page.today-workspace::after {
-    display: none;
-  }
-}
-
+/* Respect system contrast colors. */
 @media (forced-colors: active) {
   .today-page.today-workspace,
   .today-notes-section,

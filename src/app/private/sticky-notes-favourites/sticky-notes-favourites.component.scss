@@ -1,5 +1,6 @@
 @use '../../styles/variables' as *;
 @use '../../styles/explorer' as explorer;
+@use '../../styles/workspace-theme';
 
 @include explorer.shell;
 @include explorer.grouped-table(
@@ -296,6 +297,8 @@
 }
 
 @include explorer.responsive;
+
+@include workspace-theme.shell;
 
 @media (max-width: 62rem) {
   .notes-grid {

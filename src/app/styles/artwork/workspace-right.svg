@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" opacity="0.65">
+      <path
+        d="M205 360C203 252 242 193 330 178S458 175 497 103S574 35 640 23V360Z"
+        fill="#fff2c9"
+      />
+      <path
+        d="M332 360C345 279 397 254 461 240S540 179 563 146S610 114 640 108V360Z"
+        fill="#ffe8a3"
+      />
+      <path
+        d="M18 360C54 279 139 297 184 233S258 134 341 144S506 213 541 274S560 324 568 354"
+        fill="none"
+        stroke="#edbf55"
+        stroke-dasharray="8 10"
+        stroke-linecap="round"
+      />
+    </svg>

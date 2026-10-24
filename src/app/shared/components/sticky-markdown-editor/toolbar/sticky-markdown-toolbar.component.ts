@@ -64,7 +64,8 @@ export type StickyCommand =
       }
       .markdown-toolbar {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
         gap: 2px;
         padding: 4px;
         background: var(--markdown-toolbar-bg, var(--app-paper, #fffdf7));
@@ -78,14 +79,19 @@ export type StickyCommand =
         place-items: center;
         width: 28px;
         height: 28px;
+        flex: 0 0 28px;
         border: 0;
         border-radius: 5px;
         background: transparent;
         color: inherit;
       }
-      button:hover,
+      button:hover:not(:disabled) {
+        background: #f5e8b5;
+      }
       button[aria-pressed='true'] {
         background: #f5e8b5;
+        color: #604900;
+        box-shadow: inset 0 0 0 2px #8b6900;
       }
       button:focus-visible {
         outline: 2px solid #8b6900;
@@ -121,7 +127,8 @@ export class StickyMarkdownToolbarComponent {
   ] as const;
   isActive(command: StickyCommand): boolean | null {
     if (command === 'bullet' || command === 'number') return this.list === command;
-    return command in this.marks ? !!this.marks[command as keyof StickyMarks] : null;
+    if (command === 'undo' || command === 'redo' || command === 'clear') return null;
+    return !!this.marks[command];
   }
   preserve(event: PointerEvent): void {
     if ((event.target as HTMLElement).closest('button')) event.preventDefault();

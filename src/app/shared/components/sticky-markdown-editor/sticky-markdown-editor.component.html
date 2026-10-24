@@ -5,14 +5,17 @@
   (focusin)="onFocus()"
   (focusout)="onFocusOut($event)"
 >
-  @if (toolbarVisible) {
+  @if (toolbarVisible || (mode !== 'PLAIN' && toolbar === 'always')) {
     <app-sticky-markdown-toolbar
       #floatingToolbar
-      [class.is-floating]="toolbar === 'selection'"
-      [attr.popover]="toolbar === 'selection' ? 'manual' : null"
-      [style.left.px]="toolbar === 'selection' ? floatingLeft : null"
-      [style.top.px]="toolbar === 'selection' ? floatingTop : null"
-      [style.width.px]="toolbar === 'selection' ? floatingWidth : null"
+      [class.is-inactive]="!toolbarVisible"
+      [attr.inert]="!toolbarVisible ? '' : null"
+      [attr.aria-hidden]="!toolbarVisible ? 'true' : null"
+      [class.is-floating]="toolbarFloating"
+      [attr.popover]="toolbarFloating ? 'manual' : null"
+      [style.left.px]="toolbarFloating ? floatingLeft : null"
+      [style.top.px]="toolbarFloating ? floatingTop : null"
+      [style.width.px]="toolbarFloating ? floatingWidth : null"
       [marks]="activeMarks"
       [list]="activeList"
       [multiline]="mode === 'MULTI_LINE'"
@@ -54,9 +57,6 @@
     (drop)="onDrop($event)"
   ></div>
   @if (showSource) {
-    <button type="button" class="markdown-source-toggle" (click)="toggleSource()">
-      {{ sourceVisible ? 'Visual view' : 'Markdown source' }}
-    </button>
     @if (sourceVisible) {
       <textarea
         class="markdown-source"
@@ -67,6 +67,9 @@
         (input)="sourceInput($event)"
       ></textarea>
     }
+    <button type="button" class="markdown-source-toggle" (click)="toggleSource()">
+      {{ sourceVisible ? 'Visual view' : 'Markdown source' }}
+    </button>
   }
   @if (error) {
     <small class="markdown-error" role="status" [id]="inputId + '-error'">{{ error }}</small>

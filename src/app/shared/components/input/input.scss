@@ -468,12 +468,12 @@ $input-note-black: #252525;
 }
 
 .app-input-auth {
-  @include input-palette(#ffffff, #e5e7eb, #111827);
+  @include input-palette(#ffffff, $border, #111827);
 
   .app-input-control-shell {
     background-color: #ffffff;
     background-image: none;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid $border;
     border-radius: 12px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transform: none;
@@ -495,7 +495,7 @@ $input-note-black: #252525;
 
   &:hover:not(.app-input-disabled, .app-input-focused, .app-input-status-danger)
     .app-input-control-shell {
-    border-color: #d1d5db;
+    border-color: color.adjust($border, $lightness: -8%);
     transform: none;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }

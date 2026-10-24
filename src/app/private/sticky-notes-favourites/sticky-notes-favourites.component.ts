@@ -52,6 +52,7 @@ import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
 
 import { VIEW_TABS } from '../../shared/constants/common.constants';
+import { UI } from '../../shared/constants/ui.constants';
 import { extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
 import {
   getNoteContent,
@@ -98,6 +99,8 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StickyNotesFavouritesComponent implements OnInit {
+  readonly UI = UI;
+
   readonly plainText = stickyMarkdownToPlainText;
   private readonly destroyRef = inject(DestroyRef);
   private readonly favouriteApi = inject(StickyNotesFavouriteService);

@@ -1,3 +1,4 @@
+import { UI } from '../../../shared/constants/ui.constants';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -162,6 +163,8 @@ type BadgeVariant = 'success' | 'noteYellow' | 'danger';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceMembers implements OnInit, OnChanges {
+  readonly UI = UI;
+
   private readonly memberApi = inject(WorkspaceMemberApiService);
   private readonly invitationApi = inject(WorkspaceInvitationApiService);
   private readonly roleApi = inject(WorkspaceRoleApiService);

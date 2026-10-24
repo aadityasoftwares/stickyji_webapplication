@@ -58,6 +58,169 @@ describe('StickyMarkdownEditorComponent', () => {
     editor.command('redo');
     expect(editor.markdown).toBe('hello **world**');
   });
+  const button = (label: string): HTMLButtonElement =>
+    fixture.nativeElement.querySelector(`button[title="${label}"]`);
+
+  it.each([
+    ['bold', 'Bold (Ctrl/Cmd+B)', '**text**'],
+    ['italic', 'Italic (Ctrl/Cmd+I)', '*text*'],
+    ['underline', 'Underline (Ctrl/Cmd+U)', '++text++'],
+    ['strike', 'Strikethrough', '~~text~~'],
+  ] as const)(
+    'updates %s on the first click, toggle and native selection change',
+    async (_, label, markdown) => {
+      fixture.componentRef.setInput('toolbar', 'always');
+      editor.writeValue('text plain');
+      select(0, 4);
+      await fixture.whenStable();
+      button(label).click();
+      await fixture.whenStable();
+      expect(button(label).getAttribute('aria-pressed')).toBe('true');
+      expect(editor.markdown).toBe(`${markdown} plain`);
+      expect(captureStickySelection(editor.surface.nativeElement)).toMatchObject({
+        start: 0,
+        end: 4,
+      });
+      button(label).click();
+      await fixture.whenStable();
+      expect(button(label).getAttribute('aria-pressed')).toBe('false');
+      editor.writeValue(`${markdown} plain`);
+      for (const [start, end, active] of [
+        [0, 4, true],
+        [2, 2, true],
+        [7, 7, false],
+      ] as const) {
+        restoreStickySelection(editor.surface.nativeElement, { start, end });
+        document.dispatchEvent(new Event('selectionchange'));
+        await fixture.whenStable();
+        expect(button(label).getAttribute('aria-pressed')).toBe(String(active));
+      }
+    },
+  );
+
+  it('clears stale toolbar marks when the form replaces the document', async () => {
+    fixture.componentRef.setInput('toolbar', 'always');
+    editor.writeValue('**bold**');
+    select(2);
+    await fixture.whenStable();
+    expect(button('Bold (Ctrl/Cmd+B)').getAttribute('aria-pressed')).toBe('true');
+    editor.writeValue('plain');
+    await fixture.whenStable();
+    expect(button('Bold (Ctrl/Cmd+B)').getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('updates pending marks through typing, clear, shortcuts and caret movement', async () => {
+    fixture.componentRef.setInput('toolbar', 'always');
+    editor.writeValue('plain ');
+    editor.surface.nativeElement.focus();
+    select(6);
+    await fixture.whenStable();
+    const bold = button('Bold (Ctrl/Cmd+B)');
+    const pointer = new MouseEvent('pointerdown', { bubbles: true, cancelable: true });
+    bold.dispatchEvent(pointer);
+    expect(pointer.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(editor.surface.nativeElement);
+    bold.click();
+    await fixture.whenStable();
+    expect(bold.getAttribute('aria-pressed')).toBe('true');
+    editor.surface.nativeElement.dispatchEvent(
+      new InputEvent('beforeinput', {
+        inputType: 'insertText',
+        data: 'X',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await fixture.whenStable();
+    expect(editor.markdown).toBe('plain **X**');
+    expect(bold.getAttribute('aria-pressed')).toBe('true');
+    button('Clear inline formatting').click();
+    await fixture.whenStable();
+    expect(bold.getAttribute('aria-pressed')).toBe('false');
+    editor.surface.nativeElement.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'b',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await fixture.whenStable();
+    expect(bold.getAttribute('aria-pressed')).toBe('true');
+    select(2);
+    await fixture.whenStable();
+    expect(bold.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('synchronizes highlight, link, lists, clear, undo and redo with selection', async () => {
+    fixture.componentRef.setInput('toolbar', 'always');
+    editor.writeValue('text\nplain');
+    select(0, 4);
+    editor.applyHighlight({ color: 'green', style: 'soft' });
+    editor.applyLink({ label: 'text', url: 'https://example.com/' });
+    await fixture.whenStable();
+    expect(button('Highlight').getAttribute('aria-pressed')).toBe('true');
+    expect(button('Link (Ctrl/Cmd+K)').getAttribute('aria-pressed')).toBe('true');
+    button('Bullet list').click();
+    await fixture.whenStable();
+    expect(button('Bullet list').getAttribute('aria-pressed')).toBe('true');
+    select(0, 10);
+    await fixture.whenStable();
+    expect(button('Bullet list').getAttribute('aria-pressed')).toBe('false');
+    expect(button('Highlight').getAttribute('aria-pressed')).toBe('false');
+    expect(button('Link (Ctrl/Cmd+K)').getAttribute('aria-pressed')).toBe('false');
+    select(0, 4);
+    button('Numbered list').click();
+    await fixture.whenStable();
+    expect(button('Numbered list').getAttribute('aria-pressed')).toBe('true');
+    expect(button('Bullet list').getAttribute('aria-pressed')).toBe('false');
+    button('Clear inline formatting').click();
+    await fixture.whenStable();
+    expect(button('Highlight').getAttribute('aria-pressed')).toBe('false');
+    expect(button('Link (Ctrl/Cmd+K)').getAttribute('aria-pressed')).toBe('false');
+    button('Undo (Ctrl/Cmd+Z)').click();
+    await fixture.whenStable();
+    expect(button('Highlight').getAttribute('aria-pressed')).toBe('true');
+    expect(button('Link (Ctrl/Cmd+K)').getAttribute('aria-pressed')).toBe('true');
+    button('Redo (Ctrl/Cmd+Shift+Z)').click();
+    await fixture.whenStable();
+    expect(button('Highlight').getAttribute('aria-pressed')).toBe('false');
+    expect(button('Link (Ctrl/Cmd+K)').getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('floats the focus toolbar without leaving a blank toolbar row', async () => {
+    fixture.componentRef.setInput('showSource', true);
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-sticky-markdown-toolbar')).toBeNull();
+    editor.surface.nativeElement.focus();
+    await fixture.whenStable();
+    const toolbar = fixture.nativeElement.querySelector('app-sticky-markdown-toolbar');
+    expect(toolbar.getAttribute('popover')).toBe('manual');
+    expect(getComputedStyle(toolbar).position).toBe('fixed');
+    editor.surface.nativeElement.blur();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-sticky-markdown-toolbar')).toBeNull();
+    editor.surface.nativeElement.focus();
+    await fixture.whenStable();
+    editor.toggleSource();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-sticky-markdown-toolbar')).toBeNull();
+  });
+
+  it('allows upright note fonts to display italic and keeps single-line inputs scrollable horizontally', async () => {
+    fixture.componentRef.setInput('mode', 'SINGLE_LINE');
+    editor.writeValue('text');
+    select(0, 4);
+    editor.command('italic');
+    await fixture.whenStable();
+    const surface = editor.surface.nativeElement;
+    const italic = surface.querySelector('em')!;
+    expect(editor.markdown).toBe('*text*');
+    expect(getComputedStyle(italic).fontStyle).toBe('italic');
+    expect(getComputedStyle(surface).fontSynthesis).toBe('style');
+    expect(getComputedStyle(surface).overflowY).toBe('hidden');
+    expect(getComputedStyle(surface).overflowX).toBe('auto');
+  });
   it('supports pending marks and removes them for subsequent typing', () => {
     editor.writeValue('hello ');
     select(6);

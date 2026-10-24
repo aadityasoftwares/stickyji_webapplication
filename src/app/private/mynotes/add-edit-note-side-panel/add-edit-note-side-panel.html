@@ -359,6 +359,7 @@
                     <div class="note-block-header-actions">
                       @if (checklists.length > 0) {
                         <app-button
+                          class="checklist-add-another"
                           label="Add another"
                           [iconLeft]="LucidePlus"
                           variant="ghost"
@@ -420,6 +421,7 @@
                               />
                               <app-sticky-markdown-editor
                                 mode="CHECKLIST_ITEM"
+                                toolbar="selection"
                                 label="Checklist title"
                                 placeholder="Checklist title"
                                 [maxMarkdownLength]="checklistTitleMaxLength"
@@ -474,6 +476,7 @@
                                   />
                                   <app-sticky-markdown-editor
                                     mode="CHECKLIST_ITEM"
+                                    toolbar="selection"
                                     label="Checklist item"
                                     placeholder="Add a task"
                                     [maxMarkdownLength]="checklistItemTitleMaxLength"
@@ -502,6 +505,7 @@
                             <app-button
                               class="add-item"
                               label="Add task"
+                              [fullWidth]="true"
                               [iconLeft]="LucidePlus"
                               variant="ghost"
                               appearance="standard"

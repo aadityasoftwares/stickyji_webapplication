@@ -1,3 +1,5 @@
+@use '../../styles/variables' as *;
+
 :host {
   display: block;
   width: 100%;
@@ -10,8 +12,8 @@
   height: 100%;
   min-height: 0;
   color: #34383d;
-  background: #fcfaf6;
-  border-right: 1px solid #eeeae2;
+  background: $sidebar-bg;
+  border-right: 1px solid $border-light;
   box-sizing: border-box;
 }
 .brand-row {
@@ -52,7 +54,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #d9d3c7 transparent;
+  scrollbar-color: $border transparent;
   overscroll-behavior: contain;
 }
 .navigation-group + .navigation-group {
@@ -105,7 +107,7 @@
     background-color 140ms ease,
     color 140ms ease;
   &:hover:not(:disabled) {
-    background: #f2efe7;
+    background: $sidebar-hover;
   }
   &.is-active {
     color: #936307;
@@ -146,7 +148,7 @@
 }
 .workspace-item.is-selected {
   color: #34383d;
-  background: #f0ede4;
+  background: $paper-dark;
   font-weight: 550;
 }
 .workspace-current {
@@ -177,7 +179,7 @@
 .sidebar-footer {
   flex: 0 0 auto;
   padding: 8px 14px max(12px, env(safe-area-inset-bottom));
-  border-top: 1px solid #eeeae2;
+  border-top: 1px solid $border-light;
 }
 .sidebar-footer .nav-item {
   min-height: 38px;
@@ -218,7 +220,7 @@
   }
   .navigation-group + .navigation-group {
     padding-top: 12px;
-    border-top: 1px solid #eeeae2;
+    border-top: 1px solid $border-light;
   }
   .nav-item {
     justify-content: center;

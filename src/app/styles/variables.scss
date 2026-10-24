@@ -14,15 +14,15 @@ $secondary: #7a6e5b;
 $accent: #d97706;
 
 /* ==========================
-   Notebook / Paper Colors
+   Product Surfaces
    ========================== */
 
-$app-bg: #f7f2e8;
-$page-bg: #fdf9f2;
+$app-bg: #f8f9fb;
+$page-bg: #ffffff;
 
-$paper: #fffdf8;
-$paper-light: #fffcf7;
-$paper-dark: #f4eee2;
+$paper: #ffffff;
+$paper-light: #fafbfc;
+$paper-dark: #f4f6f8;
 
 /* ==========================
    Text
@@ -38,8 +38,8 @@ $heading: #111111;
    Borders
    ========================== */
 
-$border: #ddd5c8;
-$border-light: #eee7dc;
+$border: #c5cdd8;
+$border-light: #d9dfe7;
 
 /* ==========================
    Shadows
@@ -76,8 +76,8 @@ $note-red: #ffd7d7;
    Sidebar
    ========================== */
 
-$sidebar-bg: #f5efe4;
-$sidebar-hover: #ece4d7;
+$sidebar-bg: #ffffff;
+$sidebar-hover: #f4f6f8;
 $sidebar-active: #111111;
 $sidebar-active-text: #ffffff;
 
@@ -86,7 +86,7 @@ $sidebar-active-text: #ffffff;
    ========================== */
 
 $header-bg: rgba(255, 255, 255, 0.65);
-$header-border: rgba(0, 0, 0, 0.05);
+$header-border: $border-light;
 
 /* ==========================
    Buttons
@@ -97,7 +97,7 @@ $btn-primary-hover: #000000;
 $btn-primary-text: white;
 
 $btn-secondary-bg: white;
-$btn-secondary-border: #d7d0c4;
+$btn-secondary-border: $border;
 $btn-secondary-text: #222;
 
 /* ==========================================================
