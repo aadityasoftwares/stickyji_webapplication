@@ -72,7 +72,6 @@
             [fullWidth]="true"
             autocomplete="off"
             inputMode="email"
-            [errorText]="emailInputError() ?? ''"
             (valueChange)="updateEmailDraft($event)"
             (enterKey)="addEmail($event)"
           />
@@ -355,11 +354,6 @@
           </small>
         </div>
       </section>
-    }
-
-    <!-- ERROR -->
-    @if (error()) {
-      <div class="invite-error" role="alert">{{ error() }}</div>
     }
   </form>
 

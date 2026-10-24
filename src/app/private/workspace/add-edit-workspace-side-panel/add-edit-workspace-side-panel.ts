@@ -280,9 +280,12 @@ export class AddEditWorkspaceSidePanel implements OnChanges, AfterViewInit {
   submit(): void {
     if (this.isBusy || this.loadFailed()) return;
     if (!this.canSubmit) {
-      this.error.set(
-        `Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`,
-      );
+      const message = `Workspace name must contain ${this.nameMinLength}–${this.nameMaxLength} characters.`;
+      this.error.set(message);
+      this.toastService.error(message, {
+        title: 'Validation error',
+        dedupeKey: 'workspace-validation-error',
+      });
       return;
     }
     const id = this.editorId;

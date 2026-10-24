@@ -313,9 +313,16 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   submit(): void {
     if (this.isBusy || this.loadFailed() || !this.authorized) return;
     if (!this.canSubmit) {
-      this.error.set(
-        VALIDATION_MESSAGES.LENGTH_RANGE('Folder name', this.nameMinLength, this.nameMaxLength),
+      const message = VALIDATION_MESSAGES.LENGTH_RANGE(
+        'Folder name',
+        this.nameMinLength,
+        this.nameMaxLength,
       );
+      this.error.set(message);
+      this.toastService.error(message, {
+        title: 'Validation error',
+        dedupeKey: 'workspace-folder-validation-error',
+      });
       this.focusName();
       return;
     }

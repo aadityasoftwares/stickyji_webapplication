@@ -234,17 +234,32 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     if (!email) return false;
 
     if (this.emails().length >= this.maxInviteEmails) {
-      this.emailInputError.set(`You can invite up to ${this.maxInviteEmails} people at once.`);
+      const msg = `You can invite up to ${this.maxInviteEmails} people at once.`;
+      this.emailInputError.set(msg);
+      this.toastService.error(msg, {
+        title: 'Invitation error',
+        dedupeKey: 'invite-email-max',
+      });
       return false;
     }
 
     if (!this.isEmail(email)) {
-      this.emailInputError.set('Enter a valid email address.');
+      const msg = 'Enter a valid email address.';
+      this.emailInputError.set(msg);
+      this.toastService.error(msg, {
+        title: 'Validation error',
+        dedupeKey: 'invite-email-invalid',
+      });
       return false;
     }
 
     if (this.emails().includes(email)) {
-      this.emailInputError.set('This email has already been added.');
+      const msg = 'This email has already been added.';
+      this.emailInputError.set(msg);
+      this.toastService.error(msg, {
+        title: 'Validation error',
+        dedupeKey: 'invite-email-duplicate',
+      });
       return false;
     }
 
@@ -316,7 +331,7 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
 
     const workspaceId = this.workspaceId.trim();
     if (!this.isObjectId(workspaceId)) {
-      this.error.set('Choose a valid workspace.');
+      this.setError('Choose a valid workspace.', 'invite-workspace-error');
       return;
     }
 
@@ -329,16 +344,17 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
 
     const invitations = this.buildInvitations();
     if (!invitations.length) {
-      this.error.set('Add at least one email address.');
+      this.setError('Add at least one email address.', 'invite-emails-empty');
       return;
     }
 
     const invalidRole = invitations.find((item) => !this.isObjectId(item.roleId));
     if (invalidRole) {
-      this.error.set(
+      this.setError(
         this.invitationMode() === 'individual'
           ? `Choose a workspace role for ${invalidRole.email}.`
           : 'Choose a workspace role.',
+        'invite-role-invalid',
       );
       return;
     }
@@ -393,12 +409,12 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     const roleId = this.roleId().trim();
 
     if (!this.isObjectId(memberId)) {
-      this.error.set('This workspace member is invalid.');
+      this.setError('This workspace member is invalid.', 'member-id-invalid');
       return;
     }
 
     if (!this.isObjectId(roleId)) {
-      this.error.set('Choose a valid workspace role.');
+      this.setError('Choose a valid workspace role.', 'member-role-invalid');
       return;
     }
 
@@ -539,7 +555,10 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
           this.availableRoleOptions.set(fallback);
 
           if (!fallback.length) {
-            this.error.set(extractErrorMessage(error, 'Unable to load workspace roles.'));
+            this.setError(
+              extractErrorMessage(error, 'Unable to load workspace roles.'),
+              'roles-load-error',
+            );
           }
         },
       });
@@ -621,6 +640,14 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
 
   private isEmail(value: unknown): boolean {
     return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  private setError(message: string, dedupeKey?: string): void {
+    this.error.set(message);
+    this.toastService.error(message, {
+      title: 'Invitation error',
+      dedupeKey: dedupeKey ?? 'workspace-member-error',
+    });
   }
 
   private handleError(error: any, fallback: string, title: string): void {

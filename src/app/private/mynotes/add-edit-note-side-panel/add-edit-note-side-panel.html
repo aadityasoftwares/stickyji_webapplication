@@ -618,9 +618,6 @@
         <app-badge label="Live preview" variant="neutral" size="sm" />
         <app-sticky-note [data]="livePreviewData" [preview]="true" />
       </section>
-      @if (error()) {
-        <div class="note-editor-error" role="alert">{{ error() }}</div>
-      }
     }
   </form>
   <div panel-footer class="note-editor-footer">

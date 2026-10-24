@@ -270,8 +270,8 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
     return getColumnTypeLabel(this.columnMeta()?.type);
   }
 
-  get canSubmit(): boolean {
-    const validationError = validateColumnForm(
+  private get validationError(): string | null {
+    return validateColumnForm(
       {
         name: this.controlString('name'),
         workspaceId: this.controlString('workspaceId'),
@@ -282,8 +282,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
         NAME_MAX_LENGTH: this.nameMaxLength,
       },
     );
+  }
 
-    return !this.isBusy && !validationError;
+  get canSubmit(): boolean {
+    return !this.isBusy && !this.validationError;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -395,7 +397,17 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   submit(): void {
-    if (!this.canSubmit) return;
+    if (!this.canSubmit) {
+      const err = this.validationError;
+      if (err) {
+        this.error.set(err);
+        this.toastService.error(err, {
+          title: 'Validation error',
+          dedupeKey: 'column-validation-error',
+        });
+      }
+      return;
+    }
 
     const workspaceId = this.controlString('workspaceId');
     const workspaceFolderId = this.controlString('workspaceFolderId');
@@ -674,7 +686,12 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
           this.panelWorkspaces.set(list.filter((item: any) => item?.status !== 'DELETED'));
         },
         error: (error) => {
-          this.error.set(extractErrorMessage(error, 'Unable to load workspaces.'));
+          const message = extractErrorMessage(error, 'Unable to load workspaces.');
+          this.error.set(message);
+          this.toastService.error(message, {
+            title: 'Workspace error',
+            dedupeKey: 'column-workspaces-load-error',
+          });
         },
       });
   }
@@ -718,9 +735,15 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
           this.setFoldersAndSelect(workspaceId, active, preferredFolderId);
         },
         error: (error) => {
-          this.error.set(
-            extractErrorMessage(error, COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders')),
+          const message = extractErrorMessage(
+            error,
+            COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders'),
           );
+          this.error.set(message);
+          this.toastService.error(message, {
+            title: 'Folders error',
+            dedupeKey: 'column-folders-load-error',
+          });
         },
       });
   }

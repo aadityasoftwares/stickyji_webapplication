@@ -553,6 +553,10 @@ export class AddEditWorkspaceRoleSidePanel implements OnChanges, AfterViewInit {
 
   private setError(message: string): void {
     this.error.set(message);
+    this.toastService.error(message, {
+      title: 'Role error',
+      dedupeKey: 'workspace-role-validation-error',
+    });
   }
 
   private handleSubmitError(error: unknown, fallback: string, title: string): void {

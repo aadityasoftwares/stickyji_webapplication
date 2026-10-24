@@ -262,7 +262,12 @@ export class AddEditPermissionSidePanel implements OnChanges {
   submit(): void {
     if (!this.canSubmit) {
       if (!this.isReadOnly) {
-        this.error.set('Please fill in all required permission fields with valid values.');
+        const message = 'Please fill in all required permission fields with valid values.';
+        this.error.set(message);
+        this.toastService.error(message, {
+          title: 'Validation error',
+          dedupeKey: 'permission-validation-error',
+        });
       }
       return;
     }
@@ -323,7 +328,12 @@ export class AddEditPermissionSidePanel implements OnChanges {
     const permissionId = idOf(this.permission);
     if (!permissionId) {
       this.saving.set(false);
-      this.error.set('Invalid permission ID.');
+      const message = 'Invalid permission ID.';
+      this.error.set(message);
+      this.toastService.error(message, {
+        title: 'Permission error',
+        dedupeKey: 'permission-invalid-id',
+      });
       return;
     }
 
