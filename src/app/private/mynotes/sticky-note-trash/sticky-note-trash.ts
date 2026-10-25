@@ -39,11 +39,10 @@ import {
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
-import { getLocalStorageItem } from '../../../shared/functions/storage.functions';
 import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
-import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import { APP_ROUTES, routeCommands } from '../../../shared/constants/route.constants';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
+import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
 import { StickyNote } from '../sticky-note/sticky-note';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
@@ -79,6 +78,7 @@ export class StickyNoteTrash implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly toastService = inject(ToastService);
 
@@ -345,8 +345,8 @@ export class StickyNoteTrash implements OnInit {
       showMoveActions: false,
       actionsDisabled: true,
       layout: 'detail',
-      font: this.readStoredStickyNoteFont(),
-      fontSize: this.readStoredStickyNoteFontSize(),
+      font: this.userPreferenceStore.stickyNoteFont() || 'DM_SANS',
+      fontSize: this.userPreferenceStore.stickyNoteFontSize() || 14,
     };
   }
 
@@ -409,22 +409,5 @@ export class StickyNoteTrash implements OnInit {
 
     const time = new Date(String(value)).getTime();
     return Number.isFinite(time) ? time : 0;
-  }
-
-  private readStoredStickyNoteFont(): string {
-    try {
-      return getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT, 'dmSans') || 'dmSans';
-    } catch {
-      return 'dmSans';
-    }
-  }
-
-  private readStoredStickyNoteFontSize(): number {
-    try {
-      const value = Number(getLocalStorageItem(STORAGE_KEYS.STICKY_NOTE_FONT_SIZE));
-      return [13, 14, 15, 16].includes(value) ? value : 14;
-    } catch {
-      return 14;
-    }
   }
 }

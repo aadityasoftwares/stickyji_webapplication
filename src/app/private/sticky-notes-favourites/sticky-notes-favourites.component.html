@@ -25,7 +25,29 @@
         </div>
       </div>
 
-      <div class="workspace-header-actions">
+      <div class="workspace-header-actions folder-header-actions">
+        <div class="folder-workspace-picker" aria-label="Workspace selection">
+          <app-select
+            [options]="workspaceOptions()"
+            [ngModel]="selectedWorkspaceId()"
+            (ngModelChange)="onWorkspaceChange($event)"
+            name="favourites-workspace"
+            [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
+            ariaLabel="Choose workspace"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            shadow="upside"
+            [height]="UI.button.height.md"
+            [radius]="UI.radius.xs"
+            size="sm"
+            [iconLeft]="LucidePanelsTopLeft"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
+        </div>
+
         <app-button
           [icon]="LucideRefreshCw"
           [iconOnly]="true"
@@ -304,18 +326,24 @@
                                 }}</span>
                               </td>
                               <td class="workspace-gt-folder" data-label="Folder">
-                                <span class="notes-table-column-pill"
-                                  ><app-icon [icon]="LucideFolderOpen" size="xs" />{{
-                                    noteFolderName(note)
-                                  }}</span
-                                >
+                                <app-badge
+                                  [label]="noteFolderName(note)"
+                                  variant="neutral"
+                                  size="xs"
+                                  shape="pill"
+                                  [icon]="LucideFolderOpen"
+                                  [title]="noteFolderName(note)"
+                                />
                               </td>
                               <td class="workspace-gt-column" data-label="Column">
-                                <span class="notes-table-column-pill"
-                                  ><app-icon [icon]="LucideColumns3" size="xs" />{{
-                                    noteColumnName(note)
-                                  }}</span
-                                >
+                                <app-badge
+                                  [label]="noteColumnName(note)"
+                                  variant="neutral"
+                                  size="xs"
+                                  shape="pill"
+                                  [icon]="LucideColumns3"
+                                  [title]="noteColumnName(note)"
+                                />
                               </td>
                               <td class="workspace-gt-assignees" data-label="Assignees">
                                 @if (noteAssignees(note).length > 0) {

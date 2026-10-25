@@ -564,7 +564,7 @@
                 </div>
                 <div class="today-section-actions">
                   <app-button
-                    appearance="flat"
+                    appearance="standard"
                     label="New note"
                     [iconLeft]="LucidePlus"
                     variant="noteYellow"
@@ -632,10 +632,10 @@
                       />
                     } @else {
                       <app-button
-                        appearance="flat"
+                        appearance="standard"
                         label="Add note"
                         [iconLeft]="LucidePlus"
-                        variant="outline"
+                        variant="noteYellow"
                         size="sm"
                         (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
                       />

@@ -32,6 +32,8 @@ export const API_ENDPOINTS = {
     changePassword: `${API_BASE_URL}/auth/changepassword`,
     logout: `${API_BASE_URL}/auth/logout`,
     logoutAll: `${API_BASE_URL}/auth/logoutall`,
+    userLogout: `${API_BASE_URL}/user/logout`,
+    userLogoutAll: `${API_BASE_URL}/user/logoutall`,
     sessions: `${API_BASE_URL}/auth/sessions`,
   },
   stickyNotes: {

@@ -167,10 +167,9 @@
 }
 
 .today-header-actions {
-  display: grid;
-  grid-template-columns: auto minmax(19rem, 24rem) auto;
-  align-items: end;
-  justify-content: end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   min-width: 0;
   gap: 0.625rem;
 }
@@ -196,10 +195,22 @@
 
 .today-header-context-picker {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
-  align-items: end;
+  grid-template-columns: minmax(14.5rem, 19rem) 0.75rem minmax(14.5rem, 19rem);
+  align-items: center;
   min-width: 0;
   gap: 0.5rem;
+}
+
+.today-workspace-picker,
+.today-folder-picker {
+  min-width: 0;
+  width: 100%;
+
+  app-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .today-header-picker-field,
@@ -1216,7 +1227,9 @@
     font-weight: 700;
   }
   .today-header-actions {
-    grid-template-columns: minmax(17rem, 21rem) auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: 12px;
   }
   .today-note-count-slot {
@@ -1225,8 +1238,10 @@
     min-height: 0;
   }
   .today-header-context-picker {
-    width: 100%;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(14.5rem, 19rem) 0.75rem minmax(14.5rem, 19rem);
+    align-items: center;
+    gap: 8px;
   }
   .today-header-context-separator {
     opacity: 0.45;
@@ -1490,7 +1505,8 @@
       width: 100%;
     }
     .today-header-context-picker {
-      width: min(100%, 26rem);
+      width: min(100%, 42rem);
+      grid-template-columns: minmax(0, 1fr) 0.75rem minmax(0, 1fr);
     }
     .today-toolbar-controls {
       flex: 1 1 100%;
@@ -2318,7 +2334,8 @@ section.today-group.cdk-drag-placeholder {
   }
 
   .today-header-actions {
-    grid-template-columns: minmax(21rem, 28rem) auto;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .today-note-count-slot {

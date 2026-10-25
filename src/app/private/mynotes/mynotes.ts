@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  filter,
   finalize,
   forkJoin,
   from,
@@ -27,6 +28,7 @@ import {
   Observable,
   of,
   switchMap,
+  take,
   toArray,
 } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
@@ -445,8 +447,60 @@ export class MyNotes implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.userPreferenceStore.load();
+    this.initPreferences();
+
+    this.userPreferenceStore.ready$
+      .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.initPreferences();
+        this.selectInitialWorkspace();
+      });
+
     this.initialized = true;
     this.loadWorkspaces();
+  }
+
+  private initPreferences(): void {
+    const statusPref = String(
+      this.userPreferenceStore.myNotesStatusFilter() ?? '',
+    ).toLowerCase();
+    if (statusPref === 'active' || statusPref === 'archived' || statusPref === 'all') {
+      this.activeTab.set(statusPref);
+    }
+
+    const viewPref = String(
+      this.userPreferenceStore.myNotesView() ?? '',
+    ).toLowerCase();
+    if (viewPref === 'grid' || viewPref === 'list') {
+      this.view.set(viewPref as 'grid' | 'list');
+    } else if (viewPref === 'table') {
+      this.view.set('list');
+    }
+
+    const sortPref = String(
+      this.userPreferenceStore.myNotesSortOrder() ?? '',
+    ).toUpperCase();
+    const sortMap: Record<string, string> = {
+      RECENTLY_UPDATED: 'updatedAt',
+      UPDATED_AT: 'updatedAt',
+      UPDATEDAT: 'updatedAt',
+      RECENTLY_CREATED: 'createdAt',
+      CREATED_AT: 'createdAt',
+      CREATEDAT: 'createdAt',
+      TITLE_ASC: 'title',
+      TITLE_A_Z: 'title',
+      NAME_ASC: 'title',
+      TITLE: 'title',
+      TITLE_DESC: 'name-desc',
+      TITLE_Z_A: 'name-desc',
+      NAME_DESC: 'name-desc',
+      OLDEST_FIRST: 'oldest',
+      POSITION: 'rank',
+      RANK: 'rank',
+    };
+    if (sortMap[sortPref]) {
+      this.sortBy.set(sortMap[sortPref]);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -731,14 +785,32 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   setNoteTab(value: any): void {
-    if (value === 'all' || value === 'active' || value === 'archived') this.activeTab.set(value);
+    if (value === 'all' || value === 'active' || value === 'archived') {
+      this.activeTab.set(value);
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.MY_NOTES_STATUS_FILTER,
+        String(value).toUpperCase(),
+      );
+    }
   }
 
   setNoteView(value: any): void {
     // `table` was used by the old template even though the shared view control emits `list`.
     // Keep accepting it for existing callers while exposing one consistent list-view state.
-    if (value === 'grid') this.view.set('grid');
-    if (value === 'list' || value === 'table') this.view.set('list');
+    if (value === 'grid') {
+      this.view.set('grid');
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.MY_NOTES_VIEW,
+        'GRID',
+      );
+    }
+    if (value === 'list' || value === 'table') {
+      this.view.set('list');
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.MY_NOTES_VIEW,
+        'LIST',
+      );
+    }
   }
 
   updateSearch(value: any): void {
@@ -757,8 +829,21 @@ export class MyNotes implements OnInit, OnChanges {
       value === 'title' ||
       value === 'rank' ||
       value === 'position'
-    )
+    ) {
       this.sortBy.set(value);
+      const sortMap: Record<string, string> = {
+        updatedAt: 'RECENTLY_UPDATED',
+        createdAt: 'RECENTLY_CREATED',
+        title: 'TITLE_ASC',
+        rank: 'POSITION',
+        position: 'POSITION',
+      };
+      const pref = sortMap[value] ?? 'RECENTLY_UPDATED';
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.MY_NOTES_SORT_ORDER,
+        pref,
+      );
+    }
   }
 
   setFromDate(value: any): void {
@@ -1384,7 +1469,7 @@ export class MyNotes implements OnInit, OnChanges {
     const changed = id !== this.selectedWorkspaceId();
     this.workspaceStore.select(id);
     if (changed) {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_WORKSPACE, id);
       this.workspaceFolderStore.clear();
       this.clearNotesState();
     }
@@ -1397,10 +1482,10 @@ export class MyNotes implements OnInit, OnChanges {
     const changed = id !== this.selectedFolderId();
     this.workspaceFolderStore.select(id);
     if (changed) {
-      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_FOLDER_ID, id);
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_FOLDER, id);
     }
     this.clearNotesState(false);
-    this.activeTab.set('all');
+    this.initPreferences();
     this.searchTerm.set('');
     if (emitChange && changed) this.workspaceFolderChange.emit(id);
     this.loadSelectedFolder();
@@ -1416,7 +1501,9 @@ export class MyNotes implements OnInit, OnChanges {
     }
     const requestedId = this.workspaceId.trim();
     const currentId = this.selectedWorkspaceId();
-    const preferredId = this.userPreferenceStore.selectedWorkspaceId();
+    const preferredId =
+      this.userPreferenceStore.myNotesSelectedWorkspace() ||
+      this.userPreferenceStore.selectedWorkspaceId();
     const exists = (id: string) => !!id && workspaces.some((item) => idOf(item) === id);
     const nextId = exists(requestedId)
       ? requestedId
@@ -1437,7 +1524,9 @@ export class MyNotes implements OnInit, OnChanges {
     }
     const requestedId = this.workspaceFolderId.trim();
     const currentId = this.selectedFolderId();
-    const preferredId = this.userPreferenceStore.selectedFolderId();
+    const preferredId =
+      this.userPreferenceStore.myNotesSelectedFolder() ||
+      this.userPreferenceStore.selectedFolderId();
     const exists = (id: string) => !!id && folders.some((item) => idOf(item) === id);
     const defaultFolder = folders.find((folder) => Boolean(folder.isDefault));
     const nextId = exists(requestedId)

@@ -4,7 +4,6 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
-import { buildHttpParams } from '../../../shared/functions/api.functions';
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
@@ -23,6 +22,7 @@ export class StickyNotesFavouriteService {
   readonly busyIds = signal<ReadonlySet<string>>(new Set());
   readonly loading = signal(false);
   private loaded = false;
+  private lastLoadedWorkspaceId: string | undefined = undefined;
 
   /**
    * Check if a note is currently favorited
@@ -69,9 +69,22 @@ export class StickyNotesFavouriteService {
   populateFavorites(list: any[]): void {
     const nextMap = new Map<string, string>();
     for (const item of list) {
-      const noteDoc = item?.stickyNoteId ?? item?.stickyNote ?? item?.noteDoc ?? item?.note;
-      const noteId = idOf(noteDoc);
-      const favId = idOf(item);
+      if (!item) continue;
+      const noteDoc =
+        item?.stickyNote && typeof item.stickyNote === 'object'
+          ? item.stickyNote
+          : item?.stickyNoteId && typeof item.stickyNoteId === 'object'
+            ? item.stickyNoteId
+            : item;
+      const noteId =
+        (typeof item?.stickyNoteId === 'string' && item.stickyNoteId) ||
+        idOf(noteDoc) ||
+        (typeof item?.id === 'string' && item.id) ||
+        '';
+      const favId =
+        (typeof item?.favoriteId === 'string' && item.favoriteId) ||
+        (item?._id ? idOf(item._id) : '') ||
+        idOf(item);
       if (noteId && favId) {
         nextMap.set(noteId, favId);
       }
@@ -80,18 +93,23 @@ export class StickyNotesFavouriteService {
   }
 
   /**
-   * Load all active favorites into memory
+   * Load all active favorites into memory with optional workspace filter.
    */
-  loadFavorites(force = false): Observable<ReadonlyMap<string, string>> {
-    if (this.loaded && !force) {
+  loadFavorites(force = false, workspaceId?: string): Observable<ReadonlyMap<string, string>> {
+    if (this.loaded && !force && this.lastLoadedWorkspaceId === workspaceId) {
       return of(this.favoriteMap());
     }
     this.loading.set(true);
-    return this.getAll({ status: 'ACTIVE', limit: 500 }).pipe(
+    const payload: any = { status: 'ACTIVE', limit: 500 };
+    if (workspaceId) {
+      payload.workspaceId = workspaceId;
+    }
+    return this.getAll(payload).pipe(
       tap((res) => {
         const list = extractList(res);
         this.populateFavorites(list);
         this.loaded = true;
+        this.lastLoadedWorkspaceId = workspaceId;
       }),
       map(() => this.favoriteMap()),
       catchError(() => of(this.favoriteMap())),
@@ -176,11 +194,10 @@ export class StickyNotesFavouriteService {
 
   /**
    * Fetch all favourite sticky notes with optional filters and pagination.
-   * Query params: stickyNoteId, status, page, limit, sortBy, sortOrder
+   * Body payload: stickyNoteId, workspaceId, status, page, limit, sortBy, sortOrder
    */
   getAll(payload: any = {}): Observable<any> {
-    return this.http.get<any>(`${this.favoriteBaseUrl}/getall`, {
-      params: buildHttpParams(payload),
+    return this.http.post<any>(`${this.favoriteBaseUrl}/getall`, payload, {
       withCredentials: true,
     });
   }

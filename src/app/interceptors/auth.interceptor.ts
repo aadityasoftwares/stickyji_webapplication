@@ -31,6 +31,12 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     request.url.includes(endpoint),
   );
 
+  const isLogoutRequest =
+    request.url.startsWith(API_ENDPOINTS.auth.logout) ||
+    request.url.startsWith(API_ENDPOINTS.auth.logoutAll) ||
+    request.url.includes('/auth/logout') ||
+    request.url.includes('/user/logout');
+
   const accessToken = authStore.accessToken();
 
   let authenticatedRequest = request;
@@ -46,6 +52,11 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     authenticatedRequest = request.clone({
       withCredentials: true,
     });
+  }
+
+  // Bypass 401 token refresh on logout so requests proceed directly to backend logoutAuthMiddleware
+  if (isLogoutRequest) {
+    return next(authenticatedRequest);
   }
 
   return next(authenticatedRequest).pipe(

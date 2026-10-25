@@ -1251,11 +1251,12 @@ export class Today {
 
   readonly canDropColumn = (drag: any) => isColumnDragItem(drag?.data);
   readonly canDropNote = (drag: any) => isNoteDragItem(drag?.data);
-  // Note ranks belong to a column. A canvas drop must not use another column's neighbors.
+  // Canvas cards span workflow columns. Resolve the destination column on drop,
+  // just as Kanban does, rather than blocking positions in a different column.
   readonly canSortCanvasNote = (index: number, drag: any, drop: any): boolean => {
     if (drag.dropContainer !== drop) return true;
     const target = drop.data?.[index];
-    return !!target && idOf(target.columnId) === idOf(drag.data?.columnId);
+    return !!target && this.stickyNoteColumnById().has(idOf(target.columnId));
   };
 
   dropColumn(event: CdkDragDrop<any[]>): void {
@@ -1344,7 +1345,29 @@ export class Today {
 
     // Moving across sections (Today Notes <-> Completed)
     if (event.previousContainer !== event.container) {
-      this.toggleNoteCompletion(noteId, targetIsCompleted);
+      const destination = targetIsCompleted
+        ? this.todayCompletedNotes()
+        : this.todayIncompleteNotes();
+      const index = Math.max(0, Math.min(event.currentIndex ?? 0, destination.length));
+      const anchor = destination[index] ?? destination[index - 1];
+      const columns = this.stickyNoteColumns();
+      const candidates = columns.filter(
+        (column) => (column.type === 'COMPLETED') === targetIsCompleted,
+      );
+      const fallback = targetIsCompleted
+        ? (candidates.find((column) => column.isDefault) ?? candidates[0])
+        : (candidates.find((column) => column.type === 'TODO') ?? candidates[0]);
+      const columnId = idOf(anchor?.columnId) || idOf(fallback);
+      if (!columnId) {
+        this.toastService.warning(
+          'The destination column is unavailable. Refresh the board and try again.',
+        );
+        return;
+      }
+      const columnNotes = this.notesInColumn(columnId).filter((item) => idOf(item) !== noteId);
+      const anchorIndex = anchor ? columnNotes.findIndex((item) => idOf(item) === idOf(anchor)) : 0;
+      const insertionIndex = anchorIndex + (anchor && index === destination.length ? 1 : 0);
+      this.moveNote(note, columnId, Math.max(0, insertionIndex));
       return;
     }
 
@@ -1357,13 +1380,16 @@ export class Today {
       ? this.todayCompletedNotes()
       : this.todayIncompleteNotes();
     const targetNote = currentList[event.currentIndex];
-    const columnId = idOf(note.columnId);
-    if (!targetNote || !columnId || idOf(targetNote.columnId) !== columnId) return;
+    const columnId = idOf(targetNote?.columnId);
+    if (!targetNote || !columnId) return;
 
-    const targetIndex = this.notesInColumn(columnId).findIndex(
-      (item) => idOf(item) === idOf(targetNote),
-    );
-    if (targetIndex >= 0) this.moveNote(note, columnId, targetIndex);
+    const targetIndex = this.notesInColumn(columnId)
+      .filter((item) => idOf(item) !== noteId)
+      .findIndex((item) => idOf(item) === idOf(targetNote));
+    if (targetIndex >= 0) {
+      const insertionIndex = targetIndex + (event.currentIndex > event.previousIndex ? 1 : 0);
+      this.moveNote(note, columnId, insertionIndex);
+    }
   }
 
   toggleNoteCompletion(noteId: string, isCompleted: boolean): void {
@@ -1874,7 +1900,20 @@ export class Today {
     const { beforeId, afterId } = getNeighborNoteIds(targetColumnNotes, boundedIndex, noteId);
 
     const optimisticTargetNotes = [...targetColumnNotes];
-    optimisticTargetNotes.splice(boundedIndex, 0, { ...note, columnId: targetColId });
+    const targetColumn = this.stickyNoteColumnById().get(targetColId)!;
+    const changedColumn = idOf(note.columnId) !== targetColId;
+    const completion = targetColumn.type === 'COMPLETED';
+    const moveFields = changedColumn
+      ? {
+          columnId: targetColId,
+          columnName: targetColumn.label,
+          isCompleted: completion,
+          completed: completion,
+          completedAt: completion ? new Date().toISOString() : null,
+          completedBy: completion ? this.currentUserId() : null,
+        }
+      : { columnId: targetColId };
+    optimisticTargetNotes.splice(boundedIndex, 0, { ...note, ...moveFields });
 
     const otherNotes = previousNotes.filter(
       (item) => idOf(item) !== noteId && idOf(item.columnId ?? item?.columnId) !== targetColId,
@@ -1918,7 +1957,14 @@ export class Today {
           const previousOrder = new Map(previousNotes.map((item, index) => [idOf(item), index]));
           this.stickyNotes.update((notes) =>
             notes
-              .map((item) => (idOf(item) === noteId ? { ...item, columnId: note.columnId } : item))
+              .map((item) =>
+                idOf(item) === noteId
+                  ? {
+                      ...item,
+                      ...Object.fromEntries(Object.keys(moveFields).map((key) => [key, note[key]])),
+                    }
+                  : item,
+              )
               .sort(
                 (a, b) =>
                   (previousOrder.get(idOf(a)) ?? previousNotes.length) -

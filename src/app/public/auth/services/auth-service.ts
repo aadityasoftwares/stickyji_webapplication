@@ -1,7 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, finalize, map, of, tap, switchMap, throwError } from 'rxjs';
+import { UserPreferenceService } from '../../../private/user-preferences/services/user-preference.service';
+import {
+  USER_PREFERENCE_KEYS,
+  DEFAULT_USER_PREFERENCES,
+} from '../../../shared/constants/common.constants';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { STORAGE_KEYS } from '../../../shared/constants/app.constants';
 import {
@@ -50,6 +55,7 @@ export class AuthService {
   private readonly authStore = inject(AuthStore);
   private readonly refreshService = inject(AuthRefreshService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly userPreferenceService = inject(UserPreferenceService);
 
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     const payload: LoginRequest = {
@@ -85,6 +91,22 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.storeSessionResponse(response);
+        }),
+        switchMap((response) => {
+          if (!response?.success || !response.data?.tokens?.accessToken) return of(response);
+          // Only initialize new accounts; login must retain the user's chosen view.
+          const key = USER_PREFERENCE_KEYS.TODAY_VIEW;
+          const value = DEFAULT_USER_PREFERENCES[key];
+          return this.userPreferenceService.updatePreference(key, value).pipe(
+            catchError((error) =>
+              error?.status === 404
+                ? this.userPreferenceService.createPreference(key, value)
+                : throwError(() => error),
+            ),
+            map(() => response),
+            // A preference failure must not turn successful registration into an error.
+            catchError(() => of(response)),
+          );
         }),
       );
   }
@@ -184,38 +206,48 @@ export class AuthService {
       );
   }
 
-  logout(): Observable<LogoutResponse> {
-    return this.http
-      .post<LogoutResponse>(
-        API_ENDPOINTS.auth.logout,
-        {},
-        {
-          withCredentials: true,
-        },
-      )
-      .pipe(
-        tap((response) => {
-          if (response?.success) {
-            this.authStore.clearSession();
-          }
-        }),
-      );
+  logout(payload?: {
+    sessionId?: string;
+    method?: 'POST' | 'GET';
+    endpoint?: string;
+  }): Observable<LogoutResponse> {
+    const sessionId = payload?.sessionId ?? this.authStore.sessionId() ?? undefined;
+    const body: Record<string, any> = {};
+    if (sessionId) {
+      body['sessionId'] = sessionId;
+    }
+
+    const targetUrl = payload?.endpoint ?? API_ENDPOINTS.auth.logout;
+    const request$ =
+      payload?.method === 'GET'
+        ? this.http.get<LogoutResponse>(targetUrl, {
+            params: body,
+            withCredentials: true,
+          })
+        : this.http.post<LogoutResponse>(targetUrl, body, {
+            withCredentials: true,
+          });
+
+    return request$.pipe(
+      finalize(() => {
+        this.authStore.clearSession();
+      }),
+    );
   }
 
-  logoutAll(): Observable<LogoutResponse> {
+  logoutAll(payload?: { endpoint?: string }): Observable<LogoutResponse> {
+    const targetUrl = payload?.endpoint ?? API_ENDPOINTS.auth.logoutAll;
     return this.http
       .post<LogoutResponse>(
-        API_ENDPOINTS.auth.logoutAll,
+        targetUrl,
         {},
         {
           withCredentials: true,
         },
       )
       .pipe(
-        tap((response) => {
-          if (response?.success) {
-            this.authStore.clearSession();
-          }
+        finalize(() => {
+          this.authStore.clearSession();
         }),
       );
   }

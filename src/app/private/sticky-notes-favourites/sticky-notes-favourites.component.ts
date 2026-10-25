@@ -4,14 +4,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  EventEmitter,
+  Input,
   OnInit,
+  Output,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { filter, finalize, take } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -22,6 +27,7 @@ import {
   LucideCopy,
   LucideFolderOpen,
   LucideMoreHorizontal,
+  LucidePanelsTopLeft,
   LucidePencil,
   LucideRefreshCw,
   LucideRotateCcw,
@@ -40,21 +46,22 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
-import { Select } from '../../shared/components/select/select';
+import { Select, type SelectOption, type SelectValue } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { Switch } from '../../shared/components/switch/switch';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-edit-note-side-panel';
 import { StickyNote as StickyNoteCardComponent } from '../mynotes/sticky-note/sticky-note';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
 
-import { VIEW_TABS } from '../../shared/constants/common.constants';
+import { USER_PREFERENCE_KEYS, VIEW_TABS } from '../../shared/constants/common.constants';
 import { UI } from '../../shared/constants/ui.constants';
-import { extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
+import { entityNameOf, extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
 import {
   getNoteContent,
   getNoteTimestamp,
@@ -110,8 +117,12 @@ export class StickyNotesFavouritesComponent implements OnInit {
   private readonly favouriteApi = inject(StickyNotesFavouriteService);
   private readonly stickyNoteApi = inject(StickyNoteApiService);
   private readonly userPreferenceStore = inject(UserPreferenceStore);
+  private readonly workspaceStore = inject(WorkspaceStore);
   private readonly toastService = inject(ToastService);
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
+
+  @Input() workspaceId = '';
+  @Output() readonly workspaceChange = new EventEmitter<string>();
 
   /* -------------------------------------------------------------------------- */
   /*                                    Icons                                   */
@@ -123,6 +134,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   readonly LucideCopy = LucideCopy;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideMoreHorizontal = LucideMoreHorizontal;
+  readonly LucidePanelsTopLeft = LucidePanelsTopLeft;
   readonly LucidePencil = LucidePencil;
   readonly LucideRefreshCw = LucideRefreshCw;
   readonly LucideRotateCcw = LucideRotateCcw;
@@ -134,6 +146,21 @@ export class StickyNotesFavouritesComponent implements OnInit {
   readonly LucideType = LucideType;
   readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
+
+  /* -------------------------------------------------------------------------- */
+  /*                                 Workspaces                                 */
+  /* -------------------------------------------------------------------------- */
+  readonly workspaces = this.workspaceStore.workspaces;
+  readonly loadingWorkspaces = this.workspaceStore.loading;
+  readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
+
+  readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
+    this.workspaces().map((workspace) => ({
+      label: entityNameOf(workspace, 'Untitled workspace'),
+      value: idOf(workspace),
+      icon: LucidePanelsTopLeft,
+    })),
+  );
 
   /* -------------------------------------------------------------------------- */
   /*                               Preferences                                  */
@@ -188,19 +215,33 @@ export class StickyNotesFavouritesComponent implements OnInit {
 
     for (const item of list) {
       if (!item) continue;
-      // Backend populates stickyNoteId
-      const noteDoc = item?.stickyNoteId ?? item?.stickyNote ?? item;
-      if (!noteDoc || typeof noteDoc !== 'object') continue;
 
-      const noteId = idOf(noteDoc);
+      const noteDoc =
+        item?.stickyNote && typeof item.stickyNote === 'object'
+          ? item.stickyNote
+          : item?.stickyNoteId && typeof item.stickyNoteId === 'object'
+            ? item.stickyNoteId
+            : item;
+
+      const noteId =
+        (typeof item?.stickyNoteId === 'string' && item.stickyNoteId) ||
+        idOf(noteDoc) ||
+        (typeof item?.id === 'string' && item.id) ||
+        '';
+
       if (!noteId) continue;
 
-      const favoriteId = idOf(item);
+      const favoriteId =
+        (typeof item?.favoriteId === 'string' && item.favoriteId) ||
+        (item?._id ? idOf(item._id) : '') ||
+        idOf(item) ||
+        noteId;
 
       result.push({
+        ...item,
         ...noteDoc,
         id: noteId,
-        favoriteId: favoriteId || noteId,
+        favoriteId,
         isFavorite: true,
         favoritedAt: item?.createdAt ?? noteDoc?.createdAt,
       });
@@ -300,12 +341,80 @@ export class StickyNotesFavouritesComponent implements OnInit {
       .map((group) => ({ ...group, count: group.items.length }));
   });
 
+  private loadedWorkspaceId: string | null = null;
+  private hasInitialLoaded = false;
+
+  constructor() {
+    effect(() => {
+      const isLoaded = this.workspaceStore.loaded();
+      const hasError = !!this.workspaceStore.error();
+      const workspaceId = this.workspaceStore.selectedId();
+
+      if (!isLoaded && !hasError) return;
+
+      if (this.hasInitialLoaded && this.loadedWorkspaceId === workspaceId) return;
+
+      this.hasInitialLoaded = true;
+      this.loadedWorkspaceId = workspaceId;
+      untracked(() => {
+        this.loadFavourites(true);
+      });
+    });
+  }
+
   /* -------------------------------------------------------------------------- */
   /*                                 Lifecycle                                  */
   /* -------------------------------------------------------------------------- */
   ngOnInit(): void {
     this.userPreferenceStore.load();
-    this.loadFavourites();
+    this.initPreferences();
+
+    this.userPreferenceStore.ready$
+      .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.initPreferences();
+        this.ensureWorkspaceSelection();
+      });
+
+    if (!this.workspaceStore.loaded() && !this.workspaceStore.loading()) {
+      this.workspaceStore.load();
+    } else {
+      this.ensureWorkspaceSelection();
+    }
+  }
+
+  private initPreferences(): void {
+    const statusPref = String(
+      this.userPreferenceStore.favouriteStatusFilter() ?? '',
+    ).toLowerCase();
+    if (statusPref === 'active' || statusPref === 'archived' || statusPref === 'all') {
+      this.activeTab.set(statusPref as FavouriteFilter);
+    }
+
+    const viewPref = String(
+      this.userPreferenceStore.favouriteView() ?? '',
+    ).toLowerCase();
+    if (viewPref === 'grid' || viewPref === 'list') {
+      this.view.set(viewPref as FavouriteView);
+    } else if (viewPref === 'table') {
+      this.view.set('list');
+    }
+
+    const sortPref = String(
+      this.userPreferenceStore.favouriteSortOrder() ?? '',
+    ).toUpperCase();
+    const sortMap: Record<string, FavouriteSort> = {
+      FAVORITEDAT: 'favoritedAt',
+      FAVORITED_AT: 'favoritedAt',
+      UPDATEDAT: 'updatedAt',
+      UPDATED_AT: 'updatedAt',
+      CREATEDAT: 'createdAt',
+      CREATED_AT: 'createdAt',
+      TITLE: 'title',
+    };
+    if (sortMap[sortPref]) {
+      this.sortBy.set(sortMap[sortPref]);
+    }
   }
 
   /* -------------------------------------------------------------------------- */
@@ -317,8 +426,19 @@ export class StickyNotesFavouritesComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    const workspaceId = this.selectedWorkspaceId();
+    const payload: any = {
+      status: 'ACTIVE',
+      limit: 500,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    };
+    if (workspaceId) {
+      payload.workspaceId = workspaceId;
+    }
+
     this.favouriteApi
-      .getAll({ status: 'ACTIVE', limit: 500, sortBy: 'createdAt', sortOrder: 'desc' })
+      .getAll(payload)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
@@ -336,6 +456,45 @@ export class StickyNotesFavouritesComponent implements OnInit {
           this.toastService.error(message);
         },
       });
+  }
+
+  onWorkspaceChange(value: SelectValue | SelectValue[] | null): void {
+    if (typeof value !== 'string' || !value.trim()) return;
+
+    const id = value.trim();
+    if (id === this.selectedWorkspaceId()) return;
+
+    this.workspaceStore.select(id);
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.FAVORITE_SELECTED_WORKSPACE, id);
+    this.workspaceChange.emit(id);
+    this.loadFavourites(true);
+  }
+
+  private ensureWorkspaceSelection(): void {
+    const workspaces = this.workspaces();
+    if (!workspaces.length) {
+      this.workspaceStore.select(null);
+      return;
+    }
+
+    const requestedId = this.workspaceId.trim();
+    const currentId = this.selectedWorkspaceId();
+    const preferredId =
+      this.userPreferenceStore.favouriteSelectedWorkspace() ||
+      this.userPreferenceStore.selectedWorkspaceId();
+    const valid = (id: string) => !!id && workspaces.some((workspace) => idOf(workspace) === id);
+
+    const nextId = valid(requestedId)
+      ? requestedId
+      : valid(preferredId)
+        ? preferredId
+        : valid(currentId)
+          ? currentId
+          : idOf(workspaces[0]);
+
+    if (nextId && nextId !== currentId) {
+      this.workspaceStore.select(nextId);
+    }
   }
 
   refresh(): void {
@@ -535,12 +694,30 @@ export class StickyNotesFavouritesComponent implements OnInit {
   /*                              Toolbar / Filtering                           */
   /* -------------------------------------------------------------------------- */
   setNoteTab(tab: unknown): void {
-    if (tab === 'all' || tab === 'active' || tab === 'archived') this.activeTab.set(tab);
+    if (tab === 'all' || tab === 'active' || tab === 'archived') {
+      this.activeTab.set(tab);
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.FAVOURITE_STATUS_FILTER,
+        tab.toUpperCase(),
+      );
+    }
   }
 
   setNoteView(view: unknown): void {
-    if (view === 'grid') this.view.set('grid');
-    if (view === 'list' || view === 'table') this.view.set('list');
+    if (view === 'grid') {
+      this.view.set('grid');
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.FAVOURITE_VIEW,
+        'GRID',
+      );
+    }
+    if (view === 'list' || view === 'table') {
+      this.view.set('list');
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.FAVOURITE_VIEW,
+        'LIST',
+      );
+    }
   }
 
   updateSearch(value: any): void {
@@ -554,6 +731,17 @@ export class StickyNotesFavouritesComponent implements OnInit {
   setSort(sort: unknown): void {
     if (this.sortOptions.some((option) => option.value === sort)) {
       this.sortBy.set(sort as FavouriteSort);
+      const prefMap: Record<FavouriteSort, string> = {
+        favoritedAt: 'FAVORITED_AT',
+        updatedAt: 'UPDATED_AT',
+        createdAt: 'CREATED_AT',
+        title: 'TITLE',
+      };
+      const pref = prefMap[sort as FavouriteSort] ?? String(sort).toUpperCase();
+      this.userPreferenceStore.setAndSave(
+        USER_PREFERENCE_KEYS.FAVOURITE_SORT_ORDER,
+        pref,
+      );
     }
   }
 

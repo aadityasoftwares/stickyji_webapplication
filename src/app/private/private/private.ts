@@ -1,11 +1,9 @@
-import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
   Injector,
-  PLATFORM_ID,
   ViewChild,
   afterNextRender,
   computed,
@@ -21,17 +19,13 @@ import { Sidebar, type SidebarWorkspace } from '../sidebar/sidebar';
 import { Button } from '../../shared/components/button/button';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { AppSessionStore } from '../../shared/functions/app-session.store';
 import { AuthService } from '../../public/auth/services/auth-service';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
-import { STORAGE_KEYS } from '../../shared/constants/app.constants';
-import {
-  getLocalStorageItem,
-  removeLocalStorageItem,
-  setLocalStorageItem,
-} from '../../shared/functions/storage.functions';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 
 @Component({
   selector: 'app-private',
@@ -47,16 +41,14 @@ export class Private {
   private mobileMenuButton?: ElementRef<HTMLElement>;
   @ViewChild(Sidebar, { read: ElementRef }) private sidebarElement?: ElementRef<HTMLElement>;
   readonly LucideMenu = LucideMenu;
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
   private readonly authService = inject(AuthService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
-
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly sidebarCollapsed = signal(false);
   readonly mobileSidebarOpen = signal(false);
@@ -84,9 +76,9 @@ export class Private {
   );
 
   constructor() {
-    if (this.isBrowser) {
-      this.sidebarCollapsed.set(getLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true');
-    }
+    effect(() => {
+      this.sidebarCollapsed.set(this.userPreferenceStore.sidebarCollapsed());
+    });
 
     effect(() => {
       const loaded = this.workspaceStore.loaded();
@@ -120,10 +112,7 @@ export class Private {
 
   setSidebarCollapsed(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
-
-    if (this.isBrowser) {
-      setLocalStorageItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, String(collapsed));
-    }
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SIDEBAR_COLLAPSED, collapsed);
   }
 
   openMobileSidebar(): void {
@@ -168,10 +157,7 @@ export class Private {
 
     this.workspaceStore.select(workspaceId);
     this.workspaceFolderStore.resetForWorkspace(workspaceId);
-
-    if (this.isBrowser) {
-      setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, workspaceId);
-    }
+    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, workspaceId);
 
     this.closeMobileSidebar();
   }
@@ -191,10 +177,8 @@ export class Private {
           this.authStore.clearSession();
           this.appSessionStore.reset();
           this.workspaceFolderStore.clear();
-
-          if (this.isBrowser) {
-            removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
-          }
+          this.workspaceStore.reset();
+          this.userPreferenceStore.reset();
 
           this.loggingOut.set(false);
           void this.router.navigate(routeCommands(APP_ROUTES.LOGIN));
@@ -215,11 +199,6 @@ export class Private {
   private ensureWorkspaceSelected(workspaces: readonly any[]): void {
     if (!workspaces.length) {
       this.workspaceStore.select(null);
-
-      if (this.isBrowser) {
-        removeLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID);
-      }
-
       return;
     }
 
@@ -229,17 +208,13 @@ export class Private {
       return;
     }
 
-    const storedId = this.isBrowser ? getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID) : null;
+    const preferredId = this.userPreferenceStore.selectedWorkspaceId();
 
     const selectedWorkspace =
-      workspaces.find((workspace) => workspace.id === storedId) ??
+      workspaces.find((workspace) => workspace.id === preferredId) ??
       workspaces.find((workspace) => workspace.isPersonal) ??
       workspaces[0];
 
     this.workspaceStore.select(selectedWorkspace.id);
-
-    if (this.isBrowser) {
-      setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, selectedWorkspace.id);
-    }
   }
 }

@@ -530,12 +530,11 @@
                     <div class="workspace-group-header-actions">
                       @if (group.status === 'ACTIVE') {
                         <app-button
-                          [icon]="LucidePlus"
-                          [iconOnly]="true"
-                          variant="ghost"
+                          appearance="standard"
+                          label="New note"
+                          [iconLeft]="LucidePlus"
+                          variant="noteYellow"
                           size="xs"
-                          ariaLabel="New note"
-                          title="New note"
                           [disabled]="!canCreateNote()"
                           (buttonClick)="openCreateEditor()"
                         />
@@ -702,11 +701,14 @@
                                 </td>
 
                                 <td class="workspace-gt-column" data-label="Column">
-                                  <span class="notes-table-column-pill">
-                                    <app-icon [icon]="LucideColumns3" size="xs" />{{
-                                      noteColumnName(note)
-                                    }}
-                                  </span>
+                                  <app-badge
+                                    [label]="noteColumnName(note)"
+                                    variant="neutral"
+                                    size="xs"
+                                    shape="pill"
+                                    [icon]="LucideColumns3"
+                                    [title]="noteColumnName(note)"
+                                  />
                                 </td>
 
                                 <td class="workspace-gt-assignees" data-label="Assignees">
@@ -952,9 +954,10 @@
                           }}</span>
                           @if (!searchTerm() && group.status === 'ACTIVE') {
                             <app-button
+                              appearance="standard"
                               label="New note"
                               [iconLeft]="LucidePlus"
-                              variant="outline"
+                              variant="noteYellow"
                               size="xs"
                               [disabled]="!canCreateNote()"
                               (buttonClick)="openCreateEditor()"

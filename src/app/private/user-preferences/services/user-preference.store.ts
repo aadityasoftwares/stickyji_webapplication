@@ -39,6 +39,10 @@ export class UserPreferenceStore {
   readonly saving = computed(() => this._savingKeys().length > 0);
 
   readonly theme = computed(() => this._preferences()[USER_PREFERENCE_KEYS.THEME]);
+  readonly sidebarCollapsed = computed(() => {
+    const val = this._preferences()[USER_PREFERENCE_KEYS.SIDEBAR_COLLAPSED];
+    return val === true || val === 'true';
+  });
 
   readonly selectedWorkspaceId = computed(() =>
     String(this._preferences()[USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID] ?? '').trim(),
@@ -117,6 +121,69 @@ export class UserPreferenceStore {
   readonly workspaceRoleSortOrder = computed(
     () => this._preferences()[USER_PREFERENCE_KEYS.WORKSPACE_ROLE_SORT_ORDER],
   );
+
+  readonly favouriteStatusFilter = computed(
+    () =>
+      this._preferences()[USER_PREFERENCE_KEYS.FAVOURITE_STATUS_FILTER] ??
+      this._preferences()[USER_PREFERENCE_KEYS.FAVORITE_STATUS_FILTER],
+  );
+
+  readonly favouriteSortOrder = computed(
+    () =>
+      this._preferences()[USER_PREFERENCE_KEYS.FAVOURITE_SORT_ORDER] ??
+      this._preferences()[USER_PREFERENCE_KEYS.FAVORITE_SORT_ORDER],
+  );
+
+  readonly favouriteView = computed(
+    () =>
+      this._preferences()[USER_PREFERENCE_KEYS.FAVOURITE_VIEW] ??
+      this._preferences()[USER_PREFERENCE_KEYS.FAVORITE_VIEW],
+  );
+
+  readonly favoriteStatusFilter = this.favouriteStatusFilter;
+  readonly favoriteSortOrder = this.favouriteSortOrder;
+  readonly favoriteView = this.favouriteView;
+
+  readonly favouriteSelectedWorkspace = computed(() =>
+    String(
+      this._preferences()[USER_PREFERENCE_KEYS.FAVOURITE_SELECTED_WORKSPACE] ??
+      this._preferences()[USER_PREFERENCE_KEYS.FAVORITE_SELECTED_WORKSPACE] ??
+      '',
+    ).trim(),
+  );
+
+  readonly favoriteSelectedWorkspace = this.favouriteSelectedWorkspace;
+
+  readonly myNotesStatusFilter = computed(
+    () =>
+      this._preferences()[USER_PREFERENCE_KEYS.MY_NOTES_STATUS_FILTER] ??
+      this._preferences()[USER_PREFERENCE_KEYS.MY_NOTE_STATUS_FILTER],
+  );
+
+  readonly myNotesSortOrder = computed(
+    () => this._preferences()[USER_PREFERENCE_KEYS.MY_NOTES_SORT_ORDER],
+  );
+
+  readonly myNotesView = computed(
+    () =>
+      this._preferences()[USER_PREFERENCE_KEYS.MY_NOTES_VIEW] ??
+      this._preferences()[USER_PREFERENCE_KEYS.MY_NOTE_VIEW],
+  );
+
+  readonly myNoteStatusFilter = this.myNotesStatusFilter;
+  readonly myNoteSortOrder = this.myNotesSortOrder;
+  readonly myNoteView = this.myNotesView;
+
+  readonly myNotesSelectedWorkspace = computed(() =>
+    String(this._preferences()[USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_WORKSPACE] ?? '').trim(),
+  );
+
+  readonly myNotesSelectedFolder = computed(() =>
+    String(this._preferences()[USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_FOLDER] ?? '').trim(),
+  );
+
+  readonly myNoteSelectedWorkspace = this.myNotesSelectedWorkspace;
+  readonly myNoteSelectedFolder = this.myNotesSelectedFolder;
 
   readonly autosaveEnabled = computed(
     () => this._preferences()[USER_PREFERENCE_KEYS.AUTOSAVE_ENABLED],

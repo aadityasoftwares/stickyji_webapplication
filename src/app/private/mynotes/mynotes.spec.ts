@@ -274,4 +274,57 @@ describe('MyNotes', () => {
     expect(component.toDate()).toBe('2026-10-20');
     expect(component.fromDate()).toBeNull();
   });
+
+  it('updates and persists status tab, view mode, and sort order to userPreferenceStore', () => {
+    const preferences = TestBed.inject(UserPreferenceStore);
+    const saveSpy = vi.spyOn(preferences, 'setAndSave');
+
+    component.setNoteTab('active');
+    expect(component.activeTab()).toBe('active');
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.MY_NOTES_STATUS_FILTER, 'ACTIVE');
+
+    component.setNoteView('list');
+    expect(component.view()).toBe('list');
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.MY_NOTES_VIEW, 'LIST');
+
+    component.setSort('createdAt');
+    expect(component.sortBy()).toBe('createdAt');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.MY_NOTES_SORT_ORDER,
+      'RECENTLY_CREATED',
+    );
+
+    component.setSort('title');
+    expect(component.sortBy()).toBe('title');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.MY_NOTES_SORT_ORDER,
+      'TITLE_ASC',
+    );
+
+    component.setSort('rank');
+    expect(component.sortBy()).toBe('rank');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.MY_NOTES_SORT_ORDER,
+      'POSITION',
+    );
+  });
+
+  it('persists selected workspace and folder under MY_NOTES_SELECTED_WORKSPACE and MY_NOTES_SELECTED_FOLDER', () => {
+    const preferences = TestBed.inject(UserPreferenceStore);
+    const saveSpy = vi.spyOn(preferences, 'setAndSave');
+    vi.spyOn(component, 'loadFolders').mockImplementation(() => {});
+    vi.spyOn(component, 'loadSelectedFolder').mockImplementation(() => {});
+
+    component.onWorkspaceChange('ws-mynotes-123');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_WORKSPACE,
+      'ws-mynotes-123',
+    );
+
+    component.onFolderChange('folder-mynotes-456');
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.MY_NOTES_SELECTED_FOLDER,
+      'folder-mynotes-456',
+    );
+  });
 });

@@ -6,8 +6,4 @@ export const PAGINATION = {
 
 export const STORAGE_KEYS = {
   DEVICE_ID: 'mysticky_device_id',
-  SIDEBAR_COLLAPSED: 'mystickynotes.sidebar-collapsed',
-  WORKSPACE_ID: 'mystickynotes.workspace-id',
-  STICKY_NOTE_FONT: 'mystickynotes.note-font',
-  STICKY_NOTE_FONT_SIZE: 'mystickynotes.note-font-size',
 } as const;

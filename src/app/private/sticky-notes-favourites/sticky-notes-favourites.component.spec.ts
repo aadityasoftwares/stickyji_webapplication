@@ -6,6 +6,8 @@ import { vi } from 'vitest';
 
 import { StickyNotesFavouritesComponent } from './sticky-notes-favourites.component';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 
 describe('StickyNotesFavouritesComponent', () => {
   let component: StickyNotesFavouritesComponent;
@@ -97,4 +99,57 @@ describe('StickyNotesFavouritesComponent', () => {
     expect(service.isFavorite('note-1')).toBe(false);
     expect(service.getFavoriteId('note-2')).toBe('fav-2');
   });
+
+  it('normalizes backend payload when stickyNoteId is string ID and stickyNote is an object', () => {
+    const backendPayload = [
+      {
+        id: '6adc8eca8f5dc13dcc656e76',
+        _id: '6ade06e558a6f9d98d66db82',
+        favoriteId: '6ade06e558a6f9d98d66db82',
+        isFavorite: true,
+        stickyNoteId: '6adc8eca8f5dc13dcc656e76',
+        userId: '6ad59682326dc5646c51e557',
+        status: 'ACTIVE',
+        stickyNote: {
+          id: '6adc8eca8f5dc13dcc656e76',
+          noteKey: 'ST-000004',
+          workspaceId: '6ad7a2bd96699829b7562a7b',
+          workspaceFolderId: '6ada340d2a6b308c0a904019',
+          folderName: 'Bugs Solutions',
+          title: 'Test',
+          content: 'Testing',
+          color: 'YELLOW',
+          shape: 'STRIP',
+          status: 'ACTIVE',
+        },
+        title: 'Test',
+        content: 'Testing',
+      },
+    ];
+
+    component.rawFavorites.set(backendPayload);
+    expect(component.notes().length).toBe(1);
+    const note = component.notes()[0];
+    expect(note.id).toBe('6adc8eca8f5dc13dcc656e76');
+    expect(note.favoriteId).toBe('6ade06e558a6f9d98d66db82');
+    expect(note.isFavorite).toBe(true);
+    expect(note.title).toBe('Test');
+    expect(note.content).toBe('Testing');
+    expect(component.totalCount()).toBe(1);
+    expect(component.activeCount()).toBe(1);
+  });
+
+  it('persists selected workspace under FAVORITE_SELECTED_WORKSPACE', () => {
+    const userPrefStore = TestBed.inject(UserPreferenceStore);
+    const saveSpy = vi.spyOn(userPrefStore, 'setAndSave');
+    vi.spyOn(component, 'loadFavourites').mockImplementation(() => {});
+
+    component.onWorkspaceChange('ws-fav-999');
+
+    expect(saveSpy).toHaveBeenCalledWith(
+      USER_PREFERENCE_KEYS.FAVORITE_SELECTED_WORKSPACE,
+      'ws-fav-999',
+    );
+  });
 });
+

@@ -3,19 +3,22 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import { Private } from './private';
 import { AuthService } from '../../public/auth/services/auth-service';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
-import { STORAGE_KEYS } from '../../shared/constants/app.constants';
-import { setLocalStorageItem, getLocalStorageItem } from '../../shared/functions/storage.functions';
+import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
+import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 
 describe('Private', () => {
   let component: Private;
   let fixture: ComponentFixture<Private>;
   let authService: AuthService;
   let authStore: AuthStore;
+  let userPreferenceStore: UserPreferenceStore;
   let router: Router;
   let toastService: ToastService;
 
@@ -29,6 +32,7 @@ describe('Private', () => {
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
     authStore = TestBed.inject(AuthStore);
+    userPreferenceStore = TestBed.inject(UserPreferenceStore);
     router = TestBed.inject(Router);
     toastService = TestBed.inject(ToastService);
     await fixture.whenStable();
@@ -58,25 +62,37 @@ describe('Private', () => {
     await fixture.whenStable();
     expect(component.mobileSidebarOpen()).toBe(false);
   });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should handle successful logout: calls service, clears session and workspace storage, and navigates to login', () => {
+  it('updates and saves sidebarCollapsed in userPreferenceStore', () => {
+    const saveSpy = vi.spyOn(userPreferenceStore, 'setAndSave');
+
+    component.setSidebarCollapsed(true);
+
+    expect(component.sidebarCollapsed()).toBe(true);
+    expect(saveSpy).toHaveBeenCalledWith(USER_PREFERENCE_KEYS.SIDEBAR_COLLAPSED, true);
+  });
+
+  it('should handle successful logout: calls service, clears session and preferences, and navigates to login', () => {
     const logoutResponse = { success: true, message: 'You have been logged out' };
     vi.spyOn(authService, 'logout').mockReturnValue(of(logoutResponse as any));
     const clearSessionSpy = vi.spyOn(authStore, 'clearSession');
+    const resetPreferencesSpy = vi.spyOn(userPreferenceStore, 'reset');
     const navigateSpy = vi.spyOn(router, 'navigate').mockReturnValue(Promise.resolve(true));
     const toastSpy = vi.spyOn(toastService, 'success');
 
-    setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, 'ws-123');
-    expect(getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID)).toBe('ws-123');
+    const workspaceStore = TestBed.inject(WorkspaceStore);
+    const resetWorkspaceSpy = vi.spyOn(workspaceStore, 'reset');
 
     component.logout();
 
     expect(authService.logout).toHaveBeenCalledTimes(1);
     expect(clearSessionSpy).toHaveBeenCalled();
-    expect(getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID)).toBeNull();
+    expect(resetWorkspaceSpy).toHaveBeenCalled();
+    expect(resetPreferencesSpy).toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(routeCommands(APP_ROUTES.LOGIN));
     expect(toastSpy).toHaveBeenCalledWith('You have been logged out', {
       title: 'See you soon!',
@@ -84,19 +100,18 @@ describe('Private', () => {
     expect(component.loggingOut()).toBe(false);
   });
 
-  it('should handle error during logout: still clears session, removes workspace, and navigates to login', () => {
+  it('should handle error during logout: still clears session, resets preferences, and navigates to login', () => {
     vi.spyOn(authService, 'logout').mockReturnValue(throwError(() => new Error('Network error')));
     const clearSessionSpy = vi.spyOn(authStore, 'clearSession');
+    const resetPreferencesSpy = vi.spyOn(userPreferenceStore, 'reset');
     const navigateSpy = vi.spyOn(router, 'navigate').mockReturnValue(Promise.resolve(true));
     const toastSpy = vi.spyOn(toastService, 'info');
-
-    setLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID, 'ws-456');
 
     component.logout();
 
     expect(authService.logout).toHaveBeenCalledTimes(1);
     expect(clearSessionSpy).toHaveBeenCalled();
-    expect(getLocalStorageItem(STORAGE_KEYS.WORKSPACE_ID)).toBeNull();
+    expect(resetPreferencesSpy).toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(routeCommands(APP_ROUTES.LOGIN));
     expect(toastSpy).toHaveBeenCalledWith('You have been logged out.');
     expect(component.loggingOut()).toBe(false);
