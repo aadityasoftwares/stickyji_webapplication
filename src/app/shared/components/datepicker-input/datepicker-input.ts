@@ -35,6 +35,8 @@ import {
 import { UI } from '../../constants/ui.constants';
 import { AppIcon, type AppIconDefinition, type AppIconSize, type AppIconTone } from '../icon/icon';
 export type DatepickerValue = string | null;
+export type DatepickerShadow = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'upside' | 'subtle' | 'soft';
+export type DatepickerDisplayFormat = 'DD MMM YYYY' | 'DD/MM/YYYY' | 'DD-MM-YYYY' | 'YYYY-MM-DD';
 export type DatepickerInputValue = string | Date | null;
 export type DatepickerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type DatepickerVariant =
@@ -90,6 +92,31 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
   @Input()
   appearance: DatepickerAppearance = 'outlined';
   @Input()
+  shadow: DatepickerShadow | boolean = 'none';
+  @Input()
+  get displayFormat(): DatepickerDisplayFormat {
+    return this.dateDisplayFormat;
+  }
+  set displayFormat(value: DatepickerDisplayFormat) {
+    this.dateDisplayFormat = value;
+    if (this.selectedDate) this.displayValue = this.formatDisplayDate(this.selectedDate);
+  }
+  private dateDisplayFormat: DatepickerDisplayFormat = 'DD MMM YYYY';
+  private readonly monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  @Input()
   decoration: DatepickerDecoration = 'standard';
   @Input()
   shape: DatepickerShape = 'rounded';
@@ -112,7 +139,7 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
   @Input()
   requiredText = 'Required';
   @Input()
-  placeholder = 'dd-mm-yyyy';
+  placeholder = 'DD MMM YYYY';
   @Input()
   hint = '';
   @Input()
@@ -122,7 +149,7 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
   @Input()
   warningText = '';
   @Input()
-  invalidDateText = 'Enter a valid date in dd-mm-yyyy format.';
+  invalidDateText = 'Enter a valid date, for example 25 Oct 2026 or 25/10/2026.';
   @Input()
   minDateText = 'The selected date is earlier than allowed.';
   @Input()
@@ -379,7 +406,10 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
     }
   }
   get wrapperClasses(): Record<string, boolean> {
+    const shadow = this.shadow === true ? 'sm' : this.shadow || 'none';
     return {
+      [`app-datepicker-shadow-${shadow}`]: shadow !== 'none',
+      'app-datepicker-has-shadow': shadow !== 'none',
       [`app-datepicker-${this.variant}`]: true,
       [`app-datepicker-appearance-${this.appearance}`]: true,
       [`app-datepicker-decoration-${this.decoration}`]: true,
@@ -524,6 +554,24 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
     }
     picker.open();
   }
+  get canSelectToday(): boolean {
+    const today = new Date();
+    return (
+      !this.isDisabled &&
+      !this.readonly &&
+      (!this.resolvedMinDate || this.compareDateOnly(today, this.resolvedMinDate) >= 0) &&
+      (!this.resolvedMaxDate || this.compareDateOnly(today, this.resolvedMaxDate) <= 0) &&
+      this.dateFilter(today)
+    );
+  }
+  selectToday(picker: MatDatepicker<Date>): void {
+    if (!this.canSelectToday) return;
+    this.parseInvalid = false;
+    this.commitDate(new Date(), true);
+    this.dateSelected.emit(this.internalUtcValue);
+    this.onTouched();
+    picker.close();
+  }
   clear(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -582,6 +630,14 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
   }
   private parseDisplayDate(value: string): Date | null {
     const normalized = value.trim();
+    const named = normalized.match(/^(\d{1,2})\s+([a-z]{3})\s+(\d{4})$/i);
+    if (named) {
+      const month =
+        this.monthNames.findIndex((name) => name.toLowerCase() === named[2].toLowerCase()) + 1;
+      return this.createLocalDate(Number(named[3]), month, Number(named[1]));
+    }
+    const iso = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (iso) return this.createLocalDate(Number(iso[1]), Number(iso[2]), Number(iso[3]));
     const match = normalized.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
     if (!match) {
       return null;
@@ -638,7 +694,16 @@ export class DatepickerInput implements ControlValueAccessor, Validator {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = String(date.getFullYear());
-    return `${day}-${month}-${year}`;
+    switch (this.displayFormat) {
+      case 'DD/MM/YYYY':
+        return `${day}/${month}/${year}`;
+      case 'DD-MM-YYYY':
+        return `${day}-${month}-${year}`;
+      case 'YYYY-MM-DD':
+        return `${year}-${month}-${day}`;
+      default:
+        return `${day} ${this.monthNames[date.getMonth()]} ${year}`;
+    }
   }
   private toUtcIso(date: Date): string {
     return new Date(

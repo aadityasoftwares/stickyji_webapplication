@@ -2,6 +2,7 @@
 @use '@angular/material' as mat;
 @use './app/styles/variables' as *;
 @use './app/shared/components/tooltip/tooltip';
+@use './app/styles/calendar';
 
 /*
  * UI fonts + 11 handwriting choices. DM Sans is also available as the clean

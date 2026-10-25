@@ -21,11 +21,12 @@ import {
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
+import { Avatar } from '../../shared/components/avatar/avatar';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [AppIcon, Badge, Button],
+  imports: [AppIcon, Badge, Button, Avatar],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +37,7 @@ export class Topbar {
   @Input() pageTitle = 'Today';
   @Input() workspaceLabel = 'My workspace';
   @Input() userName = 'Aaditya';
+  @Input() avatarUrl?: string | null = null;
   @Input() notificationCount = 0;
   @Input() syncMessage = 'All changes saved';
 

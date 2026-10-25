@@ -5,7 +5,7 @@
 @include explorer.shell;
 @include explorer.grouped-table(
   36px minmax(170px, 1.45fr) minmax(180px, 1.8fr) minmax(90px, 0.75fr) minmax(105px, 0.9fr)
-    minmax(100px, 0.85fr) minmax(82px, 0.7fr) minmax(115px, 0.9fr) 130px
+    minmax(95px, 0.8fr) minmax(100px, 0.85fr) minmax(82px, 0.7fr) minmax(115px, 0.9fr) 130px
 );
 @include explorer.table-details;
 @include explorer.actions-menu;
@@ -90,16 +90,15 @@
 }
 
 .notes-grid {
-  display: block;
+  display: grid;
   flex: 0 0 auto;
   width: 100%;
   min-height: min-content;
 
-  // A height-free multi-column layout gives the compact masonry effect without
-  // creating hidden horizontal columns. The explorer body owns vertical scrolling.
-  columns: 16.5rem;
-  column-gap: 0.875rem;
-  column-fill: balance;
+  // Row-first placement uses every available column even when one note is tall.
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+  gap: 0.875rem;
+  align-items: start;
   overflow: visible;
 
   padding: 0.25rem 0.5rem 1.5rem;
@@ -110,7 +109,7 @@
   position: relative;
   display: inline-block;
   width: 100%;
-  margin: 0 0 0.875rem;
+  margin: 0;
   min-width: 0;
   vertical-align: top;
   break-inside: avoid;
@@ -176,7 +175,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin: 0 0 0.875rem;
+  margin: 0;
   min-width: 0;
   min-height: 12rem;
   vertical-align: top;
@@ -553,6 +552,75 @@
 
 @include workspace-theme.shell;
 
+// Keep search and status together, with a predictable second row for filters.
+.workspace-toolbar {
+  grid-template-columns: minmax(20rem, 1fr) minmax(12rem, 0.65fr) auto;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  align-items: center;
+}
+
+.workspace-toolbar-actions {
+  display: contents;
+}
+.workspace-toolbar-filters {
+  grid-column: 1;
+}
+.workspace-search {
+  grid-column: 2 / -1;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+.notes-date-range {
+  grid-column: 1;
+  width: 100%;
+  app-datepicker-input {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+  }
+}
+.workspace-sort {
+  width: 100%;
+  min-width: 0;
+}
+.notes-toolbar-utilities {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 75rem) {
+  .workspace-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.7fr);
+  }
+  .workspace-search {
+    grid-column: 2;
+  }
+  .notes-toolbar-utilities {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 43.75rem) {
+  .workspace-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-toolbar-filters,
+  .workspace-search,
+  .notes-date-range,
+  .workspace-sort,
+  .notes-toolbar-utilities {
+    grid-column: 1;
+  }
+  .notes-toolbar-utilities {
+    justify-content: flex-start;
+  }
+}
+
 // The two context pickers need room before the header stacks on tablet.
 @media (max-width: 90rem) {
   .workspace-header {
@@ -567,7 +635,7 @@
 
 @media (max-width: 62rem) {
   .notes-grid {
-    columns: 15rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
     column-gap: 0.75rem;
   }
 }
@@ -594,7 +662,7 @@
   }
 
   .notes-grid {
-    columns: 2 14rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
     column-gap: 0.625rem;
     padding: 0.125rem 0.25rem 0.5rem;
   }
@@ -611,7 +679,7 @@
   }
 
   .notes-grid {
-    columns: 1 auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .note-create-card {

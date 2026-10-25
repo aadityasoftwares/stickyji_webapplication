@@ -437,6 +437,7 @@
                               <td class="workspace-access-primary" data-label="Invitation">
                                 <div class="workspace-access-person">
                                   <app-avatar
+                                    [src]="invitationAvatar(invitation)"
                                     [name]="invitationName(invitation)"
                                     size="sm"
                                     shape="rounded"
@@ -920,6 +921,7 @@
                                       "
                                     >
                                       <app-avatar
+                                        [src]="memberAvatar(member)"
                                         [name]="memberName(member)"
                                         size="sm"
                                         shape="rounded"
@@ -1241,7 +1243,16 @@
         [footerDivider]="true"
       >
         <span card-icon class="workspace-members-dialog-icon is-view" aria-hidden="true">
-          <app-icon [icon]="LucideEye" size="sm" />
+          @if (memberAvatar(member)) {
+            <app-avatar
+              [src]="memberAvatar(member)"
+              [name]="memberName(member)"
+              size="sm"
+              shape="rounded"
+            />
+          } @else {
+            <app-icon [icon]="LucideEye" size="sm" />
+          }
         </span>
 
         <span card-eyebrow class="workspace-members-dialog-kicker is-view"> Workspace member </span>
@@ -1280,7 +1291,17 @@
 
           <div class="is-wide">
             <span>Added by</span>
-            <strong>{{ addedByLabel(member) }}</strong>
+            <div class="workspace-member-view-person">
+              @if (addedByAvatar(member)) {
+                <app-avatar
+                  [src]="addedByAvatar(member)"
+                  [name]="addedByLabel(member)"
+                  size="xs"
+                  shape="rounded"
+                />
+              }
+              <strong>{{ addedByLabel(member) }}</strong>
+            </div>
           </div>
 
           <div class="is-wide">

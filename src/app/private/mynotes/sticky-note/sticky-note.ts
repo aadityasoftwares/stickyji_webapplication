@@ -54,6 +54,7 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { getNoteColorBadgeVariant } from '../../../shared/functions/sticky-note.function';
 import { STICKY_NOTE_FONT_OPTIONS, VIEW, View } from '../../../shared/constants/common.constants';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
+import { getWorkspaceMemberAvatar } from '../../../shared/functions/workspace-member.function';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Constants                                 */
@@ -866,12 +867,15 @@ export class StickyNote {
   }
 
   avatarImage(assignee: any): string {
+    const direct = getWorkspaceMemberAvatar(assignee);
+    if (direct) return direct;
+
     const user = this.resolveAssigneeUser(assignee);
-    const profile = user?.profile;
+    const fromUser = getWorkspaceMemberAvatar(user);
+    if (fromUser) return fromUser;
+
     return String(
-      profile?.avatarUrl ??
-        user?.avatarUrl ??
-        assignee?.src ??
+      assignee?.src ??
         assignee?.avatarUrl ??
         assignee?.imageUrl ??
         '',

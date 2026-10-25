@@ -22,7 +22,13 @@
   <!-- Avatar with mail mark (overlaps the band) -->
   <div class="invitation-card__avatar-zone">
     <div class="invitation-card__avatar-frame">
-      <app-avatar [name]="resolvedName" [size]="56" shape="circle" tone="blue" />
+      <app-avatar
+        [src]="resolvedAvatar"
+        [name]="resolvedName"
+        [size]="56"
+        shape="circle"
+        tone="blue"
+      />
     </div>
     <span
       class="invitation-card__envelope-mark"

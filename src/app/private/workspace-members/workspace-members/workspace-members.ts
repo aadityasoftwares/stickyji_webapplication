@@ -90,7 +90,10 @@ import { UserDateTimeFormatterService } from '../../../shared/services/user-date
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
 
-import { getWorkspaceMemberName } from '../../../shared/functions/workspace-member.function';
+import {
+  getWorkspaceMemberAvatar,
+  getWorkspaceMemberName,
+} from '../../../shared/functions/workspace-member.function';
 import {
   WORKSPACE_MEMBER_STATUS_PREFERENCES,
   WORKSPACE_MEMBER_SORT_OPTIONS,
@@ -1488,6 +1491,18 @@ export class WorkspaceMembers implements OnInit, OnChanges {
 
   memberName(member: WorkspaceMemberListItem): string {
     return getWorkspaceMemberName(member);
+  }
+
+  memberAvatar(member: WorkspaceMemberListItem): string | null {
+    return getWorkspaceMemberAvatar(member);
+  }
+
+  addedByAvatar(member: WorkspaceMemberListItem): string | null {
+    return getWorkspaceMemberAvatar(member.addedBy);
+  }
+
+  invitationAvatar(invitation: WorkspaceInvitation): string | null {
+    return getWorkspaceMemberAvatar(invitation);
   }
 
   memberEmail(member: WorkspaceMemberListItem): string {

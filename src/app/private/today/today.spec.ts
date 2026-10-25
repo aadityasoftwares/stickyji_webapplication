@@ -124,7 +124,7 @@ describe('Today', () => {
   it('preserves detail metadata and compact view columns', async () => {
     expect(
       fixture.nativeElement.querySelectorAll('.today-gtable')[0].querySelectorAll('th'),
-    ).toHaveLength(9);
+    ).toHaveLength(10);
     expect(fixture.nativeElement.querySelector('.today-gt-owner').textContent).toContain(
       'owner@example.test',
     );

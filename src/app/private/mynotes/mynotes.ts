@@ -61,6 +61,7 @@ import {
   LucideStickyNote,
   LucideTrash2,
   LucideType,
+  LucideUsers,
   LucideX,
 } from '@lucide/angular';
 import { AppIcon } from '../../shared/components/icon/icon';
@@ -119,6 +120,7 @@ import {
   NOTE_SORT_OPTIONS,
   sortNotesByRank,
   toColorCssClass,
+  mapNoteAssignees,
 } from '../../shared/functions/sticky-note.function';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
@@ -131,6 +133,7 @@ import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note
 import { StickyNoteApiService } from './services/sticky-notes.service';
 import { StickyNoteColumnApiService } from './services/sticky-note-column.service';
 import { StickyNoteChecklistItemApiService } from './services/sticky-note-checklist-item.service';
+import { MembersStack } from '../workspace-members/members-stack/members-stack';
 
 @Component({
   standalone: true,
@@ -158,6 +161,7 @@ import { StickyNoteChecklistItemApiService } from './services/sticky-note-checkl
     Switch,
     Tabs,
     Tooltip,
+    MembersStack,
     UserDatePipe,
     UserTimePipe,
   ],
@@ -231,6 +235,7 @@ export class MyNotes implements OnInit, OnChanges {
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
+  readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
 
   /* Typography and layout preferences matching Today */
@@ -985,6 +990,10 @@ export class MyNotes implements OnInit, OnChanges {
   /** Delegates to shared getNotePreview from sticky-note.function.ts */
   notePreview(note: any): string {
     return getNotePreview(note);
+  }
+
+  noteAssignees(note: any): any[] {
+    return mapNoteAssignees(note);
   }
 
   noteColumn(note: any): any {

@@ -230,6 +230,7 @@
                             <th class="workspace-gt-date" scope="col">Date</th>
                             <th class="workspace-gt-folder" scope="col">Folder</th>
                             <th class="workspace-gt-column" scope="col">Column</th>
+                            <th class="workspace-gt-assignees" scope="col">Assignees</th>
                             <th class="workspace-gt-progress" scope="col">Progress</th>
                             <th class="workspace-gt-status" scope="col">Status</th>
                             <th class="workspace-gt-updated" scope="col">Modified</th>
@@ -315,6 +316,18 @@
                                     noteColumnName(note)
                                   }}</span
                                 >
+                              </td>
+                              <td class="workspace-gt-assignees" data-label="Assignees">
+                                @if (noteAssignees(note).length > 0) {
+                                  <app-members-stack
+                                    [members]="noteAssignees(note)"
+                                    [maxVisible]="3"
+                                    size="xs"
+                                    [overlap]="6"
+                                  />
+                                } @else {
+                                  <span class="workspace-table-muted">—</span>
+                                }
                               </td>
                               <td class="workspace-gt-progress" data-label="Progress">
                                 @if (noteChecklistTotal(note) > 0) {

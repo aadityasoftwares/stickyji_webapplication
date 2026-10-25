@@ -1036,6 +1036,7 @@
                               <col class="today-gt-date" />
                               @if (isDetailLayout()) {
                                 <col class="today-gt-folder" />
+                                <col class="today-gt-assignees" />
                                 <col class="today-gt-progress" />
                                 <col class="today-gt-updated" />
                               }
@@ -1068,6 +1069,9 @@
                                 @if (isDetailLayout()) {
                                   <th class="today-gt-folder" scope="col">
                                     <app-icon [icon]="LucideFolderOpen" size="xs" /> Folder
+                                  </th>
+                                  <th class="today-gt-assignees" scope="col">
+                                    <app-icon [icon]="LucideUsers" size="xs" /> Assignees
                                   </th>
                                   <th class="today-gt-progress" scope="col">
                                     <app-icon [icon]="LucideList" size="xs" /> Progress
@@ -1224,6 +1228,18 @@
                                         [icon]="LucideFolderOpen"
                                         [title]="noteFolderName(note)"
                                       />
+                                    </td>
+                                    <td class="today-gt-assignees" data-label="Assignees">
+                                      @if (noteAssignees(note).length > 0) {
+                                        <app-members-stack
+                                          [members]="noteAssignees(note)"
+                                          [maxVisible]="3"
+                                          size="xs"
+                                          [overlap]="6"
+                                        />
+                                      } @else {
+                                        <span class="today-table-muted">—</span>
+                                      }
                                     </td>
                                     <td class="today-gt-progress" data-label="Progress">
                                       @if (noteChecklistTotal(note) > 0) {

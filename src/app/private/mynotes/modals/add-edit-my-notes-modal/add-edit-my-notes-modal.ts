@@ -56,6 +56,7 @@ import { Label } from '../../../../shared/components/label/label';
 import { Loader } from '../../../../shared/components/loader/loader';
 import { Select, type SelectOption } from '../../../../shared/components/select/select';
 import { Switch } from '../../../../shared/components/switch/switch';
+import { USER_PREFERENCE_KEYS } from '../../../../shared/constants/common.constants';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 
 import { StickyNoteColumnApiService } from '../../services/sticky-note-column.service';
@@ -65,7 +66,9 @@ import { StickyNoteApiService } from '../../services/sticky-notes.service';
 
 import type { WorkspaceMemberListItem } from '../../../workspace-members/models/workspace-member.models';
 import { WorkspaceMemberApiService } from '../../../workspace-members/services/workspace-member.service';
+import { UserPreferenceStore } from '../../../user-preferences/services/user-preference.store';
 import { extractList, idOf } from '../../../../shared/functions/common.function';
+import { getWorkspaceMemberAvatar } from '../../../../shared/functions/workspace-member.function';
 
 @Component({
   selector: 'app-add-edit-my-notes-modal',
@@ -96,6 +99,7 @@ export class AddEditMyNotesModal implements OnChanges {
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
   private readonly workspaceMemberApi = inject(WorkspaceMemberApiService);
   private readonly toastService = inject(ToastService);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
 
   private workspaceId = '';
   private workspaceFolderId = '';
@@ -269,7 +273,11 @@ export class AddEditMyNotesModal implements OnChanges {
     if (typeof value !== 'string') return;
 
     if (controlName === 'color') {
-      this.form.get(controlName)?.setValue(this.normalizeColor(value));
+      const normalized = this.normalizeColor(value);
+      this.form.get(controlName)?.setValue(normalized);
+      if (this.mode === 'create' && normalized) {
+        this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR, normalized);
+      }
       return;
     }
 
@@ -419,6 +427,10 @@ export class AddEditMyNotesModal implements OnChanges {
 
     this.loading.set(true);
 
+    if (this.mode === 'create' && color) {
+      this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR, color);
+    }
+
     this.saveNote(createPayload, updatePayload)
       .pipe(
         tap((response) => {
@@ -550,9 +562,12 @@ export class AddEditMyNotesModal implements OnChanges {
           this.workspaceLabel.set(this.referenceLabel(column?.workspaceId));
           this.folderLabel.set(this.referenceLabel(column?.workspaceFolderId));
 
+          const defaultColor =
+            this.userPreferenceStore.defaultNoteColor() || this.normalizeColor(column?.color) || 'YELLOW';
+
           this.form.patchValue({
             columnId: this.idOf(column) || columnId,
-            color: this.normalizeColor(column?.color),
+            color: defaultColor,
           });
 
           if (!this.workspaceId || !this.workspaceFolderId) {
@@ -1098,7 +1113,7 @@ export class AddEditMyNotesModal implements OnChanges {
       title: '',
       content: '',
       columnId: '',
-      color: 'YELLOW',
+      color: this.userPreferenceStore.defaultNoteColor() || 'YELLOW',
       noteDate: '',
       workspaceMemberId: '',
       withChecklist: false,
@@ -1145,22 +1160,7 @@ export class AddEditMyNotesModal implements OnChanges {
   }
 
   private workspaceMemberAvatar(member: WorkspaceMemberListItem): string | null {
-    /*
-     * The lightweight member contract currently does not require an avatar,
-     * but this fallback makes the dropdown automatically use one if the API
-     * starts returning it later. Otherwise app-select shows initials.
-     */
-    const user = member.user as unknown as Record<string, unknown>;
-    const profile = user?.['profile'] as Record<string, unknown> | undefined;
-
-    const value =
-      user?.['avatarUrl'] ??
-      user?.['profileImage'] ??
-      user?.['imageUrl'] ??
-      profile?.['avatarUrl'] ??
-      profile?.['profileImage'];
-
-    return typeof value === 'string' && value.trim() ? value.trim() : null;
+    return getWorkspaceMemberAvatar(member);
   }
 
   private toDateKey(value: unknown): string | null {

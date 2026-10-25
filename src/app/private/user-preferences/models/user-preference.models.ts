@@ -5,6 +5,9 @@ export const USER_PREFERENCE_KEYS = {
   SELECTED_WORKSPACE_ID: 'selectedWorkspaceId',
   SELECTED_FOLDER_ID: 'selectedFolderId',
   DEFAULT_NOTE_COLOR: 'defaultNoteColor',
+  DEFAULT_NOTE_SHAPE: 'defaultNoteShape',
+  DEFAULT_NOTE_VARIANT: 'defaultNoteVariant',
+  DEFAULT_NOTE_BACKGROUND_PATTERN: 'defaultNoteBackgroundPattern',
   NOTE_VIEW: 'noteView',
   TODAY_VIEW: 'todayView',
   OVERDUE_VIEW: 'overdueView',
@@ -45,6 +48,15 @@ export type UserTheme = 'SYSTEM' | 'LIGHT' | 'DARK';
 
 export type DefaultNoteColor =
   'YELLOW' | 'ORANGE' | 'PINK' | 'RED' | 'GREEN' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK';
+
+export type DefaultNoteShape =
+  'STRIP' | 'SQUARE' | 'RECTANGLE' | 'PORTRAIT' | 'LANDSCAPE' | string;
+
+export type DefaultNoteVariant =
+  'PLAIN' | 'ROUNDED' | 'SOFT' | 'FOLDED' | 'CUT_CORNER' | 'TICKET' | string;
+
+export type DefaultNoteBackgroundPattern =
+  'NONE' | 'HORIZONTAL_LINES' | 'VERTICAL_LINES' | 'GRID' | string;
 
 export type NoteView = 'GRID' | 'LIST' | 'TABLE' | 'KANBAN';
 
@@ -123,6 +135,9 @@ export interface UserPreferencesM {
   workspaceRoleStatusFilter?: WorkspaceRolePreferenceStatusFilter;
   workspaceRoleSortOrder?: WorkspaceRolePreferenceSortOrder;
   defaultNoteColor: DefaultNoteColor;
+  defaultNoteShape?: DefaultNoteShape;
+  defaultNoteVariant?: DefaultNoteVariant;
+  defaultNoteBackgroundPattern?: DefaultNoteBackgroundPattern;
   noteView: NoteView;
   todayView: TodayPreferenceView;
   overdueView: OverduePreferenceView;
@@ -184,6 +199,9 @@ export const DEFAULT_USER_PREFERENCES: Readonly<UserPreferencesM> = {
   workspaceRoleStatusFilter: 'ALL',
   workspaceRoleSortOrder: 'PRIORITY',
   defaultNoteColor: 'YELLOW',
+  defaultNoteShape: 'SQUARE',
+  defaultNoteVariant: 'PLAIN',
+  defaultNoteBackgroundPattern: 'NONE',
   noteView: 'GRID',
   todayView: 'NOTES',
   overdueView: 'BAR',

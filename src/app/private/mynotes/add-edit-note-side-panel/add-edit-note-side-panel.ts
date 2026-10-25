@@ -64,6 +64,7 @@ import {
   STICKY_NOTE_COLOR_OPTIONS,
   STICKY_NOTE_SHAPE_OPTIONS,
   STICKY_NOTE_VARIANT_OPTIONS,
+  USER_PREFERENCE_KEYS,
 } from '../../../shared/constants/common.constants';
 import { toDateKey, todayDateKey } from '../../../shared/functions/date.function';
 import {
@@ -99,6 +100,7 @@ import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
+import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
 import {
   FocusNavigationDirective,
   focusAtEnd,
@@ -146,6 +148,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   private readonly checklistItemApi = inject(StickyNoteChecklistItemApiService);
   private readonly assigneeApi = inject(StickyNoteAssigneeApiService);
   readonly favoriteService = inject(StickyNotesFavouriteService);
+  private readonly userPreferenceStore = inject(UserPreferenceStore);
 
   @Input() open = false;
   @Input() mode: 'create' | 'edit' = 'create';
@@ -438,15 +441,30 @@ export class AddEditNoteSidePanel implements OnChanges {
     switch (controlName) {
       case 'color':
         this.form.controls.color.setValue(value);
+        if (this.mode === 'create') {
+          this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR, value);
+        }
         break;
       case 'shape':
         this.form.controls.shape.setValue(value);
+        if (this.mode === 'create') {
+          this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_SHAPE, value);
+        }
         break;
       case 'variant':
         this.form.controls.variant.setValue(value);
+        if (this.mode === 'create') {
+          this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT, value);
+        }
         break;
       case 'backgroundPattern':
         this.form.controls.backgroundPattern.setValue(value);
+        if (this.mode === 'create') {
+          this.userPreferenceStore.setAndSave(
+            USER_PREFERENCE_KEYS.DEFAULT_NOTE_BACKGROUND_PATTERN,
+            value,
+          );
+        }
         break;
       default:
         this.form.controls.columnId.setValue(value);
@@ -808,6 +826,30 @@ export class AddEditNoteSidePanel implements OnChanges {
         next: () => {
           this.error.set('');
           this.saveState.set('saved');
+
+          if (this.mode === 'create') {
+            const color = this.form.controls.color.value;
+            const shape = this.form.controls.shape.value;
+            const variant = this.form.controls.variant.value;
+            const backgroundPattern = this.form.controls.backgroundPattern.value;
+
+            if (color) {
+              this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR, color);
+            }
+            if (shape) {
+              this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_SHAPE, shape);
+            }
+            if (variant) {
+              this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT, variant);
+            }
+            if (backgroundPattern) {
+              this.userPreferenceStore.setAndSave(
+                USER_PREFERENCE_KEYS.DEFAULT_NOTE_BACKGROUND_PATTERN,
+                backgroundPattern,
+              );
+            }
+          }
+
           this.originalAssigneeIds.set([...this.selectedAssigneeIds()]);
           this.form.markAsPristine();
           this.toastService.success(
@@ -970,11 +1012,19 @@ export class AddEditNoteSidePanel implements OnChanges {
     columnId: string,
     color?: string,
   ): void {
+    const prefColor = this.userPreferenceStore.defaultNoteColor() || color || 'YELLOW';
+    const prefShape = this.userPreferenceStore.defaultNoteShape() || 'SQUARE';
+    const prefVariant = this.userPreferenceStore.defaultNoteVariant() || 'PLAIN';
+    const prefPattern = this.userPreferenceStore.defaultNoteBackgroundPattern() || 'NONE';
+
     this.form.patchValue({
       workspaceId,
       workspaceFolderId: folderId,
       columnId,
-      color: color || 'YELLOW',
+      color: prefColor,
+      shape: prefShape,
+      variant: prefVariant,
+      backgroundPattern: prefPattern,
       noteDate: todayDateKey(),
     });
 
@@ -1404,6 +1454,11 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.loadingChecklist.set(false);
     this.error.set('');
     this.checklists.clear();
+    const defaultColor = this.userPreferenceStore.defaultNoteColor() || 'YELLOW';
+    const defaultShape = this.userPreferenceStore.defaultNoteShape() || 'SQUARE';
+    const defaultVariant = this.userPreferenceStore.defaultNoteVariant() || 'PLAIN';
+    const defaultPattern = this.userPreferenceStore.defaultNoteBackgroundPattern() || 'NONE';
+
     this.form.reset(
       {
         workspaceId: '',
@@ -1412,10 +1467,10 @@ export class AddEditNoteSidePanel implements OnChanges {
         title: '',
         content: '',
         noteDate: this.mode === 'create' ? todayDateKey() : null,
-        color: 'YELLOW',
-        shape: 'SQUARE',
-        variant: 'PLAIN',
-        backgroundPattern: 'NONE',
+        color: defaultColor,
+        shape: defaultShape,
+        variant: defaultVariant,
+        backgroundPattern: defaultPattern,
         withChecklist: false,
       },
       { emitEvent: false },

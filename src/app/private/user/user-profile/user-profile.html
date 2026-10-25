@@ -1,13 +1,24 @@
 <main class="profile-page" aria-labelledby="profile-page-title">
   <header class="page-header">
+    <span class="page-header__mark" aria-hidden="true">
+      <app-icon [icon]="LucideCircleUserRound" size="lg" />
+    </span>
     <div class="page-header__copy">
-      <app-badge
-        label="Account profile"
-        variant="noteYellow"
-        size="sm"
-        shape="pill"
-        [icon]="LucideSparkles"
-      />
+      <div class="page-header__badges">
+        <app-badge
+          label="Account profile"
+          variant="noteYellow"
+          size="sm"
+          shape="pill"
+          [icon]="LucideSparkles"
+        />
+        @if (lastUpdatedText()) {
+          <span class="last-updated-chip">
+            <app-icon [icon]="LucideClock3" size="xs" />
+            Last updated {{ lastUpdatedText() }}
+          </span>
+        }
+      </div>
 
       <h1 id="profile-page-title">Your profile</h1>
 
@@ -50,7 +61,7 @@
       <div class="feedback-banner feedback-banner--success" role="status">
         <app-icon [icon]="LucideCheck" size="sm" tone="success" />
 
-        <span>Your profile has been saved.</span>
+        <span>Your profile has been saved successfully.</span>
       </div>
     }
 
@@ -61,9 +72,10 @@
     }
 
     <form class="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
-      <!-- Compact profile overview -->
+      <!-- Profile Overview Card -->
       <app-sticky-card
-        variant="paper"
+        class="profile-summary-card"
+        variant="noteYellow"
         appearance="outlined"
         shape="rounded"
         shadow="sm"
@@ -71,18 +83,77 @@
       >
         <section class="profile-overview" aria-label="Profile overview">
           <div class="profile-identity">
-            <app-avatar
-              [name]="previewName()"
-              size="xl"
-              shape="rounded"
-              tone="yellow"
-              status="online"
-            />
+            <div class="profile-avatar-wrapper">
+              <app-avatar
+                [src]="currentAvatarUrl()"
+                [name]="previewName()"
+                size="2xl"
+                shape="circle"
+                tone="yellow"
+                [elevated]="true"
+                (imageError)="onAvatarImageError()"
+              />
+
+              <button
+                type="button"
+                class="avatar-camera-btn"
+                aria-label="Upload profile photo"
+                title="Upload or change image"
+                [disabled]="uploading() || removing()"
+                (click)="fileInput.click()"
+              >
+                <app-icon [icon]="LucideCamera" size="xs" />
+              </button>
+
+              <input
+                #fileInput
+                type="file"
+                class="visually-hidden"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event)"
+              />
+            </div>
 
             <div class="profile-identity__copy">
-              <span>Profile preview</span>
+              <span>Your workspace identity</span>
               <h2>{{ previewName() }}</h2>
-              <p>{{ previewOccupation() }}</p>
+              <div class="profile-identity__meta">
+                <span class="profile-meta-item">{{ previewOccupation() }}</span>
+                @if (userEmail()) {
+                  <span class="profile-meta-sep" aria-hidden="true">•</span>
+                  <span class="profile-meta-item profile-meta-email">
+                    <app-icon [icon]="LucideMail" size="xs" />
+                    {{ userEmail() }}
+                  </span>
+                }
+              </div>
+
+              <div class="profile-avatar-actions">
+                <app-button
+                  variant="ghost"
+                  appearance="standard"
+                  size="xs"
+                  [iconLeft]="LucideCamera"
+                  [icon]="LucideCamera"
+                  [label]="currentAvatarUrl() ? 'Change photo' : 'Upload photo'"
+                  [disabled]="uploading() || removing()"
+                  (buttonClick)="fileInput.click()"
+                />
+
+                @if (currentAvatarUrl()) {
+                  <app-button
+                    variant="danger"
+                    appearance="flat"
+                    size="xs"
+                    [iconLeft]="LucideTrash2"
+                    [icon]="LucideTrash2"
+                    label="Remove photo"
+                    [disabled]="uploading() || removing()"
+                    (buttonClick)="openRemoveConfirm()"
+                  />
+                }
+              </div>
+              <p class="profile-photo-hint">JPG, PNG or WebP · Up to 5 MB</p>
             </div>
 
             <app-badge
@@ -128,14 +199,14 @@
               <span [style.width.%]="completionPercent()"></span>
             </div>
 
-            <p>Complete optional details to help collaborators recognize you.</p>
+            <p>{{ completionMessage() }}</p>
           </div>
         </section>
       </app-sticky-card>
 
       <div class="profile-editor">
         <div class="profile-editor__main">
-          <!-- Personal information -->
+          <!-- Personal Information Section -->
           <app-sticky-card
             variant="paper"
             appearance="outlined"
@@ -155,8 +226,7 @@
 
                 <div>
                   <h2 id="personal-details-title">Personal information</h2>
-
-                  <p>Your name and basic profile details.</p>
+                  <p>Your name and primary profile details.</p>
                 </div>
               </header>
 
@@ -167,8 +237,17 @@
                   label="First name"
                   placeholder="Enter your first name"
                   formControlName="firstName"
-                  [maxLength]="50"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
+                  [leadingIcon]="LucideUser"
                   [required]="true"
+                  [clearable]="true"
+                  [maxLength]="50"
+                  [fullWidth]="true"
+                  [status]="isInvalid('firstName') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('firstName')"
                 />
 
@@ -176,50 +255,80 @@
                   label="Last name"
                   placeholder="Enter your last name"
                   formControlName="lastName"
-                  [maxLength]="50"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
+                  [leadingIcon]="LucideUser"
                   [required]="true"
+                  [clearable]="true"
+                  [maxLength]="50"
+                  [fullWidth]="true"
+                  [status]="isInvalid('lastName') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('lastName')"
                 />
 
                 <app-input
                   class="form-grid__wide"
                   label="Display name"
-                  placeholder="How should we address you?"
+                  labelDescription="Shown to workspace collaborators instead of your full name."
+                  placeholder="e.g. Alex M."
                   formControlName="displayName"
-                  [maxLength]="80"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
+                  [leadingIcon]="LucideSparkles"
                   [optional]="true"
-                  hint="Shown instead of your full name when provided."
+                  [clearable]="true"
+                  [maxLength]="80"
+                  [fullWidth]="true"
+                  [status]="isInvalid('displayName') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('displayName')"
                 />
 
                 <app-select
                   label="Profile type"
+                  labelDescription="Define how you primarily use Sticky Ji."
+                  dropdownTitle="Profile type"
+                  dropdownDescription="Choose your account role and usage context."
                   placeholder="Choose a profile type"
                   formControlName="profileType"
                   [options]="profileTypeOptions"
+                  [iconLeft]="LucideShield"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
                   [searchable]="false"
                   [clearable]="false"
-                  variant="paper"
-                  size="md"
+                  [fullWidth]="true"
                 />
 
                 <app-datepicker-input
                   label="Date of birth"
-                  placeholder="DD/MM/YYYY"
+                  labelDescription="Optional. Only visible to you."
+                  placeholder="DD MMM YYYY"
                   formControlName="dateOfBirth"
                   variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
                   size="md"
                   [optional]="true"
                   [clearable]="true"
                   [minDate]="minimumDateOfBirth"
                   [maxDate]="maximumDateOfBirth"
-                  hint="Choose your date of birth."
+                  [fullWidth]="true"
                 />
               </div>
             </section>
           </app-sticky-card>
 
-          <!-- About -->
+          <!-- About You Section -->
           <app-sticky-card
             variant="paper"
             appearance="outlined"
@@ -239,8 +348,7 @@
 
                 <div>
                   <h2 id="about-title">About you</h2>
-
-                  <p>Optional information for your profile.</p>
+                  <p>Optional bio and occupation details for your workspaces.</p>
                 </div>
               </header>
 
@@ -249,69 +357,134 @@
               <div class="form-grid">
                 <app-input
                   label="Occupation"
-                  placeholder="For example, Product designer"
+                  labelDescription="Your current job title, role or profession."
+                  placeholder="e.g. Senior Product Designer"
                   formControlName="occupation"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
                   [leadingIcon]="LucideBriefcaseBusiness"
                   [maxLength]="100"
                   [optional]="true"
+                  [clearable]="true"
+                  [fullWidth]="true"
+                  [status]="isInvalid('occupation') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('occupation')"
                 />
 
                 <app-input
                   label="Education"
-                  placeholder="Course, school or institution"
+                  labelDescription="Your school, college, university or qualification."
+                  placeholder="e.g. Stanford University, B.S. Design"
                   formControlName="education"
-                  [leadingIcon]="LucideBookOpen"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
+                  [leadingIcon]="LucideGraduationCap"
                   [maxLength]="150"
                   [optional]="true"
+                  [clearable]="true"
+                  [fullWidth]="true"
+                  [status]="isInvalid('education') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('education')"
                 />
 
                 <app-input
                   class="form-grid__wide"
                   label="Bio"
-                  placeholder="Write a short introduction about yourself…"
+                  labelDescription="A short introduction about yourself for workspace members."
+                  placeholder="Write a brief intro, working style, or what inspires you…"
                   formControlName="bio"
+                  variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
+                  size="md"
                   [multiline]="true"
                   [rows]="4"
                   [maxLength]="280"
                   [showCounter]="true"
                   [optional]="true"
+                  [clearable]="true"
+                  [fullWidth]="true"
                   resize="vertical"
+                  [status]="isInvalid('bio') ? 'danger' : 'default'"
                   [errorText]="fieldMessage('bio')"
                 />
               </div>
 
+              <!-- Interests & Topics -->
               <div class="interest-field">
                 <div class="interest-field__header">
                   <div>
-                    <label for="interest-input"> Interests </label>
-
-                    <p>Add topics you enjoy or work with.</p>
+                    <span class="interest-field__title">Interests & Topics</span>
+                    <p class="interest-field__desc">
+                      Add up to 10 topics or tags you enjoy or work with.
+                    </p>
                   </div>
 
-                  <span> {{ interests().length }}/10 </span>
+                  <span
+                    class="interest-counter"
+                    [class.interest-counter--full]="interests().length >= 10"
+                  >
+                    {{ interests().length }}/10
+                  </span>
                 </div>
 
                 <div class="interest-input-row">
-                  <input
-                    #interestInput
-                    id="interest-input"
+                  <app-input
                     type="text"
-                    maxlength="40"
-                    autocomplete="off"
-                    placeholder="Type an interest and press Enter"
-                    (keydown)="handleInterestKeydown($event, interestInput)"
+                    ariaLabel="Add an interest or topic"
+                    variant="paper"
+                    appearance="simple"
+                    shadow="upside"
+                    shape="rounded"
+                    size="md"
+                    [leadingIcon]="LucideTag"
+                    placeholder="Type a topic (e.g. Productivity, Design) and press Enter"
+                    [disabled]="interests().length >= 10"
+                    [maxLength]="40"
+                    [fullWidth]="true"
+                    [value]="interestInputValue()"
+                    (valueChange)="onInterestInputChange($event)"
+                    (enterKey)="addCurrentInterest()"
                   />
 
                   <app-button
-                    label="Add interest"
+                    label="Add"
                     variant="secondary"
+                    appearance="standard"
                     size="md"
-                    [disabled]="interests().length >= 10"
-                    (buttonClick)="addInterest(interestInput)"
+                    [iconLeft]="LucidePlus"
+                    [disabled]="interests().length >= 10 || !interestInputValue().trim()"
+                    (buttonClick)="addCurrentInterest()"
                   />
                 </div>
+
+                @if (interests().length < 10) {
+                  <div class="interest-suggestions" aria-label="Suggested topics">
+                    <span class="interest-suggestions__label">Quick add:</span>
+                    <div class="interest-suggestions__chips">
+                      @for (topic of popularInterests; track topic) {
+                        @if (!interests().includes(topic)) {
+                          <button
+                            type="button"
+                            class="suggestion-chip"
+                            (click)="addSuggestedInterest(topic)"
+                            [title]="'Add ' + topic"
+                          >
+                            <app-icon [icon]="LucidePlus" size="xs" />
+                            {{ topic }}
+                          </button>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
 
                 @if (interests().length) {
                   <div class="interest-list" aria-label="Your interests">
@@ -328,7 +501,7 @@
                   </div>
                 } @else {
                   <p class="interest-empty">
-                    For example: Productivity, design, reading or side projects.
+                    No topics added yet. Add tags to highlight your skills and hobbies.
                   </p>
                 }
               </div>
@@ -336,8 +509,8 @@
           </app-sticky-card>
         </div>
 
-        <!-- Regional settings -->
-        <aside class="profile-editor__aside" aria-label="Regional settings">
+        <!-- Regional Settings (Aside) -->
+        <aside class="profile-editor__aside" aria-label="Regional settings and tips">
           <app-sticky-card
             variant="paper"
             appearance="outlined"
@@ -360,8 +533,7 @@
 
                 <div>
                   <h2 id="regional-settings-title">Regional settings</h2>
-
-                  <p>Control dates, times and currency.</p>
+                  <p>Control dates, times and currency formats.</p>
                 </div>
               </header>
 
@@ -369,57 +541,107 @@
 
               <div class="regional-note">
                 <app-icon [icon]="LucideClock3" size="sm" tone="accent" />
-
-                <p>Your timezone determines when reminders and scheduled notes are delivered.</p>
+                <p>
+                  Your timezone determines when note reminders and scheduled notifications fire.
+                </p>
               </div>
 
               <div class="regional-fields">
                 <app-select
                   label="Country"
+                  labelDescription="Sets your primary locale and region format."
+                  dropdownTitle="Country"
+                  dropdownDescription="Search and select your primary country."
                   placeholder="Search country"
+                  searchPlaceholder="Search countries..."
                   formControlName="countryId"
                   [options]="countryOptions()"
                   [searchable]="true"
                   [clearable]="true"
                   [iconLeft]="LucideMapPin"
                   variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
                   size="md"
+                  [fullWidth]="true"
                 />
 
                 <app-select
                   label="Timezone"
+                  labelDescription="Localizes scheduled reminders and alerts."
+                  dropdownTitle="Timezone"
+                  dropdownDescription="Choose your local timezone for notes and alerts."
                   placeholder="Search timezone"
+                  searchPlaceholder="Search timezones..."
                   formControlName="timezoneId"
                   [options]="timezoneOptions()"
                   [searchable]="true"
                   [clearable]="true"
                   [iconLeft]="LucideClock3"
                   variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
                   size="md"
+                  [fullWidth]="true"
                 />
 
                 <app-select
                   label="Language"
+                  labelDescription="Interface display language for notes."
+                  dropdownTitle="Language"
+                  dropdownDescription="Choose your preferred interface language."
                   placeholder="Choose language"
+                  searchPlaceholder="Search languages..."
                   formControlName="languageId"
                   [options]="languageOptions()"
                   [searchable]="true"
                   [clearable]="true"
                   [iconLeft]="LucideLanguages"
                   variant="paper"
+                  appearance="simple"
+                  shadow="upside"
+                  shape="rounded"
                   size="md"
+                  [fullWidth]="true"
                 />
               </div>
             </section>
           </app-sticky-card>
+
+          <!-- Privacy & visibility card -->
+          <app-sticky-card
+            class="aside-privacy-card"
+            variant="paper"
+            appearance="outlined"
+            shape="rounded"
+            shadow="sm"
+            [fullWidth]="true"
+          >
+            <div class="aside-privacy-content">
+              <div class="aside-privacy-header">
+                <app-icon [icon]="LucideInfo" size="sm" tone="accent" />
+                <h3>Privacy & visibility</h3>
+              </div>
+              <p>
+                Your display name and bio are visible to members in workspaces you collaborate in.
+                Personal details such as date of birth remain private to your account.
+              </p>
+            </div>
+          </app-sticky-card>
         </aside>
       </div>
 
+      <!-- Floating Save Bar -->
       <footer class="floating-save-bar" aria-label="Profile save actions">
         <div class="floating-save-bar__status" aria-live="polite">
           @if (profileForm.dirty) {
             <span class="floating-save-bar__dot"></span>
-            <span>You have unsaved changes</span>
+            <span class="floating-save-bar__text">
+              <strong>Unsaved changes</strong>
+              <small class="floating-save-bar__shortcut">Press Ctrl + S</small>
+            </span>
           } @else {
             <app-icon [icon]="LucideCheck" size="xs" tone="success" />
             <span>Everything is saved</span>
@@ -430,6 +652,7 @@
           <app-button
             label="Reset"
             variant="secondary"
+            appearance="standard"
             size="md"
             [iconLeft]="LucideRotateCcw"
             [disabled]="profileForm.pristine || saving()"
@@ -438,7 +661,8 @@
 
           <app-button
             label="Save profile"
-            variant="primary"
+            variant="noteYellow"
+            appearance="standard"
             size="md"
             [iconLeft]="LucideSave"
             [loading]="saving()"
@@ -449,4 +673,79 @@
       </footer>
     </form>
   }
+
+  <!-- Photo Preview & Upload Modal -->
+  <app-modal
+    [open]="previewModalOpen()"
+    title="Preview Profile Photo"
+    description="Review your photo before uploading it to your profile."
+    [icon]="LucideCamera"
+    tone="paper"
+    size="sm"
+    [busy]="uploading()"
+    (closed)="cancelPreview()"
+  >
+    <div modal-body class="avatar-preview-modal-body">
+      <div class="preview-avatar-circle">
+        @if (pendingPreviewUrl()) {
+          <img [src]="pendingPreviewUrl()" alt="Selected profile preview" />
+        }
+      </div>
+
+      @if (selectedFile(); as file) {
+        <div class="preview-file-info">
+          <span class="preview-file-name">{{ file.name }}</span>
+          <span class="preview-file-meta">
+            {{ (file.size / (1024 * 1024)).toFixed(2) }} MB •
+            {{ file.type.replace('image/', '').toUpperCase() }}
+          </span>
+        </div>
+      }
+
+      @if (uploading()) {
+        <div class="upload-progress-box">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" [style.width.%]="uploadProgress() ?? 30"></div>
+          </div>
+          <div class="upload-step-row">
+            <app-icon [icon]="LucideLoaderCircle" size="xs" [spin]="true" />
+            <span>{{ uploadStep() }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div modal-footer class="avatar-preview-modal-footer">
+      <app-button
+        label="Cancel"
+        variant="ghost"
+        size="sm"
+        [disabled]="uploading()"
+        (buttonClick)="cancelPreview()"
+      />
+      <app-button
+        label="Upload photo"
+        variant="primary"
+        size="sm"
+        [iconLeft]="LucideUpload"
+        [icon]="LucideUpload"
+        [loading]="uploading()"
+        loadingText="Uploading..."
+        (buttonClick)="confirmUpload()"
+      />
+    </div>
+  </app-modal>
+
+  <!-- Photo Removal Confirmation Modal -->
+  <app-delete-confirm-modal
+    [open]="removeConfirmOpen()"
+    title="Remove profile photo?"
+    message="Are you sure you want to remove your profile photo? Your profile will revert to displaying your name initials."
+    confirmLabel="Remove photo"
+    cancelLabel="Keep photo"
+    mode="permanent"
+    [busy]="removing()"
+    (confirmed)="confirmRemove()"
+    (closed)="closeRemoveConfirm()"
+  />
 </main>

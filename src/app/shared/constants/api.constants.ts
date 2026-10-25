@@ -87,6 +87,11 @@ export const API_ENDPOINTS = {
     me: `${API_BASE_URL}/userprofile/me`,
     create: `${API_BASE_URL}/userprofile/create`,
     update: `${API_BASE_URL}/userprofile/update`,
+    image: `${API_BASE_URL}/userprofile/image`,
+    uploadRequest: `${API_BASE_URL}/userprofile/image/upload-request`,
+  },
+  media: {
+    complete: (id: string) => `${API_BASE_URL}/media/${encodeURIComponent(id)}/complete`,
   },
   referenceData: {
     countries: `${API_BASE_URL}/countries/getall`,

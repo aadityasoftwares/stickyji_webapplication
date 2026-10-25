@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Input,
   Output,
   type OnChanges,
@@ -10,6 +11,12 @@ import {
 import { NgClass } from '@angular/common';
 
 import { AppIcon, type AppIconDefinition } from '../icon/icon';
+import {
+  Tooltip,
+  type TooltipPosition,
+  type TooltipTone,
+  type TooltipSize,
+} from '../tooltip/tooltip';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | number;
 
@@ -33,12 +40,14 @@ export type AvatarStatus = 'none' | 'online' | 'offline' | 'away' | 'busy';
 @Component({
   selector: 'app-avatar',
   standalone: true,
-  imports: [NgClass, AppIcon],
+  imports: [NgClass, AppIcon, Tooltip],
   templateUrl: './avatar.html',
   styleUrl: './avatar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Avatar implements OnChanges {
+  private readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   @Input() src?: string | null;
   @Input() alt = '';
   @Input() name = '';
@@ -61,6 +70,12 @@ export class Avatar implements OnChanges {
 
   @Input() ariaLabel?: string;
   @Input() title?: string;
+
+  @Input() tooltip?: string | boolean | null;
+  @Input() tooltipPosition: TooltipPosition = 'top';
+  @Input() tooltipTone: TooltipTone = 'paper';
+  @Input() tooltipSize: TooltipSize = 'sm';
+  @Input() tooltipDisabled = false;
 
   @Output() imageLoad = new EventEmitter<Event>();
   @Output() imageError = new EventEmitter<Event>();
@@ -124,6 +139,36 @@ export class Avatar implements OnChanges {
     const statusLabel = this.resolvedStatusLabel;
 
     return statusLabel ? `${identity}, ${statusLabel}` : identity;
+  }
+
+  get resolvedTooltip(): string {
+    if (this.tooltipDisabled || this.decorative || this.tooltip === false || Boolean(this.hostTooltip)) {
+      return '';
+    }
+
+    if (typeof this.tooltip === 'string' && this.tooltip.trim()) {
+      return this.tooltip.trim();
+    }
+
+    if (this.title && this.title.trim()) {
+      return this.title.trim();
+    }
+
+    if (this.tooltip === true) {
+      return this.accessibleLabel ?? '';
+    }
+
+    return this.accessibleLabel ?? '';
+  }
+
+  get hasCustomTooltip(): boolean {
+    return (
+      !this.tooltipDisabled &&
+      !this.decorative &&
+      this.tooltip !== false &&
+      !this.hostTooltip &&
+      Boolean(this.resolvedTooltip.trim())
+    );
   }
 
   get resolvedStatusLabel(): string | null {

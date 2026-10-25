@@ -151,6 +151,7 @@ export class Workspace implements OnInit {
   readonly LucideChevronDown = LucideChevronDown;
   readonly LucideChevronRight = LucideChevronRight;
   readonly LucideClock3 = LucideClock3;
+  readonly LucideFolder = LucideFolder;
   readonly LucideFolderOpen = LucideFolderOpen;
   readonly LucideGlobe = LucideGlobe;
   readonly LucideLayers = LucideLayers;

@@ -1,49 +1,60 @@
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  HostListener,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { finalize, forkJoin } from 'rxjs';
+import { filter, finalize, forkJoin, map, switchMap, tap } from 'rxjs';
 
 import {
   LucideBookOpen,
   LucideBriefcaseBusiness,
   LucideCalendarDays,
+  LucideCamera,
   LucideCheck,
   LucideCircleUserRound,
   LucideClock3,
   LucideCoins,
   LucideGlobe2,
+  LucideGraduationCap,
+  LucideInfo,
   LucideLanguages,
+  LucideLoaderCircle,
+  LucideMail,
   LucideMapPin,
+  LucidePlus,
   LucideRotateCcw,
   LucideSave,
+  LucideShield,
   LucideSparkles,
+  LucideTag,
+  LucideTrash2,
+  LucideUpload,
+  LucideUser,
   LucideUserRound,
+  LucideX,
 } from '@lucide/angular';
 
 import { Avatar } from '../../../shared/components/avatar/avatar';
-
 import { Badge } from '../../../shared/components/badge/badge';
-
 import { Button } from '../../../shared/components/button/button';
-
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
-
 import { Divider } from '../../../shared/components/divider/divider';
-
 import { AppIcon } from '../../../shared/components/icon/icon';
-
 import { Input as AppInput } from '../../../shared/components/input/input';
-
 import { Select, type SelectOption } from '../../../shared/components/select/select';
+import { Modal } from '../../../shared/components/modal/modal';
+import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
 import {
   ProfileReferenceData,
@@ -84,6 +95,8 @@ type ProfileControlName =
     AppInput,
     DatepickerInput,
     Select,
+    Modal,
+    DeleteConfirmModal,
   ],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
@@ -93,22 +106,47 @@ export class UserProfileComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly profileService = inject(UserProfileService);
   private readonly authStore = inject(AuthStore);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly LucideBookOpen = LucideBookOpen;
   readonly LucideBriefcaseBusiness = LucideBriefcaseBusiness;
   readonly LucideCalendarDays = LucideCalendarDays;
+  readonly LucideCamera = LucideCamera;
   readonly LucideCheck = LucideCheck;
   readonly LucideCircleUserRound = LucideCircleUserRound;
   readonly LucideClock3 = LucideClock3;
   readonly LucideCoins = LucideCoins;
   readonly LucideGlobe2 = LucideGlobe2;
+  readonly LucideGraduationCap = LucideGraduationCap;
+  readonly LucideInfo = LucideInfo;
   readonly LucideLanguages = LucideLanguages;
+  readonly LucideLoaderCircle = LucideLoaderCircle;
+  readonly LucideMail = LucideMail;
   readonly LucideMapPin = LucideMapPin;
+  readonly LucidePlus = LucidePlus;
   readonly LucideRotateCcw = LucideRotateCcw;
   readonly LucideSave = LucideSave;
+  readonly LucideShield = LucideShield;
   readonly LucideSparkles = LucideSparkles;
+  readonly LucideTag = LucideTag;
+  readonly LucideTrash2 = LucideTrash2;
+  readonly LucideUpload = LucideUpload;
+  readonly LucideUser = LucideUser;
   readonly LucideUserRound = LucideUserRound;
+  readonly LucideX = LucideX;
+
+  readonly currentAvatarUrl = computed(() => this.profileService.currentUserAvatarUrl());
+  readonly selectedFile = signal<File | null>(null);
+  readonly pendingPreviewUrl = signal<string | null>(null);
+  readonly previewModalOpen = signal(false);
+  readonly removeConfirmOpen = signal(false);
+  readonly uploading = signal(false);
+  readonly uploadProgress = signal<number | null>(null);
+  readonly uploadStep = signal<string>('');
+  readonly removing = signal(false);
+  readonly imageErrorCount = signal(0);
+
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -120,10 +158,53 @@ export class UserProfileComponent implements OnInit {
   readonly profileExists = signal(false);
 
   readonly interests = signal<string[]>([]);
+  readonly interestInputValue = signal('');
   readonly completionPercent = signal(0);
+
+  readonly popularInterests: readonly string[] = [
+    'Productivity',
+    'Design',
+    'Engineering',
+    'Reading',
+    'Writing',
+    'Research',
+    'Side Projects',
+  ];
 
   readonly previewName = signal('Your profile');
   readonly previewOccupation = signal('Sticky Ji member');
+
+  readonly userEmail = computed(() => this.authStore.user()?.email ?? '');
+
+  readonly completionMessage = computed(() => {
+    const percent = this.completionPercent();
+    if (percent >= 100) {
+      return 'All done! Your profile details are completely up to date.';
+    }
+    if (percent >= 75) {
+      return 'Almost there! Add remaining details to complete your profile.';
+    }
+    if (percent >= 50) {
+      return 'Good progress! Add a bio and interests to connect with peers.';
+    }
+    return 'Complete optional details to help collaborators recognize you.';
+  });
+
+  readonly lastUpdatedText = computed(() => {
+    const p = this.profile();
+    if (!p?.updatedAt) return null;
+    try {
+      const date = new Date(p.updatedAt);
+      if (isNaN(date.getTime())) return null;
+      return date.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return null;
+    }
+  });
 
   readonly countryOptions = signal<SelectOption[]>([]);
   readonly timezoneOptions = signal<SelectOption[]>([]);
@@ -134,18 +215,26 @@ export class UserProfileComponent implements OnInit {
     {
       label: 'Personal',
       value: 'PERSONAL',
+      description: 'Personal notes, daily journaling and habits',
+      icon: LucideUser,
     },
     {
       label: 'Student',
       value: 'STUDENT',
+      description: 'Lectures, study schedules and exam checklists',
+      icon: LucideGraduationCap,
     },
     {
       label: 'Professional',
       value: 'PROFESSIONAL',
+      description: 'Work projects, meeting minutes and career notes',
+      icon: LucideBriefcaseBusiness,
     },
     {
       label: 'Business',
       value: 'BUSINESS',
+      description: 'Team operations, clients and shared workspaces',
+      icon: LucideShield,
     },
   ];
 
@@ -176,9 +265,182 @@ export class UserProfileComponent implements OnInit {
 
   readonly maximumDateOfBirth = new Date();
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      const pending = this.pendingPreviewUrl();
+      if (pending) {
+        URL.revokeObjectURL(pending);
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.watchFormChanges();
     this.loadScreen();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      this.toast.error('Unsupported format. Please select a JPEG, PNG, or WebP image.');
+      input.value = '';
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+      this.toast.error('File size exceeds 5 MB. Please choose a smaller image.');
+      input.value = '';
+      return;
+    }
+
+    const oldUrl = this.pendingPreviewUrl();
+    if (oldUrl) {
+      URL.revokeObjectURL(oldUrl);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    this.selectedFile.set(file);
+    this.pendingPreviewUrl.set(objectUrl);
+    this.uploadProgress.set(null);
+    this.uploadStep.set('');
+    this.previewModalOpen.set(true);
+
+    input.value = '';
+  }
+
+  cancelPreview(): void {
+    if (this.uploading()) return;
+
+    const oldUrl = this.pendingPreviewUrl();
+    if (oldUrl) {
+      URL.revokeObjectURL(oldUrl);
+    }
+
+    this.pendingPreviewUrl.set(null);
+    this.selectedFile.set(null);
+    this.uploadProgress.set(null);
+    this.uploadStep.set('');
+    this.previewModalOpen.set(false);
+  }
+
+  confirmUpload(): void {
+    const file = this.selectedFile();
+    if (!file || this.uploading()) return;
+
+    this.uploading.set(true);
+    this.uploadStep.set('Requesting secure upload...');
+    this.uploadProgress.set(10);
+
+    this.profileService
+      .requestProfileImageUpload({
+        fileName: file.name,
+        mimeType: file.type,
+        size: file.size,
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap((uploadRes) => {
+          this.uploadStep.set('Uploading photo to cloud storage...');
+          this.uploadProgress.set(25);
+
+          return this.profileService.uploadToR2(uploadRes.uploadUrl, file).pipe(
+            filter(
+              (event): event is HttpEvent<unknown> =>
+                event.type === HttpEventType.UploadProgress ||
+                event.type === HttpEventType.Response,
+            ),
+            tap((event) => {
+              if (event.type === HttpEventType.UploadProgress && event.total) {
+                const percent = Math.round(25 + (event.loaded / event.total) * 55);
+                this.uploadProgress.set(percent);
+              }
+            }),
+            filter((event) => event.type === HttpEventType.Response),
+            map(() => uploadRes.mediaId),
+          );
+        }),
+        switchMap((mediaId) => {
+          this.uploadStep.set('Verifying uploaded photo...');
+          this.uploadProgress.set(85);
+          return this.profileService.completeMediaUpload(mediaId).pipe(map(() => mediaId));
+        }),
+        switchMap((mediaId) => {
+          this.uploadStep.set('Updating profile...');
+          this.uploadProgress.set(95);
+          return this.profileService.setProfileImage(mediaId);
+        }),
+        finalize(() => {
+          this.uploading.set(false);
+        }),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.profile.set(profile);
+          this.cancelPreview();
+          this.toast.success('Profile photo updated successfully.');
+        },
+        error: (error) => {
+          this.uploadProgress.set(null);
+          this.uploadStep.set('');
+          this.toast.error(
+            extractErrorMessage(
+              error,
+              'Failed to update profile photo. Please try again.',
+            ),
+          );
+        },
+      });
+  }
+
+  openRemoveConfirm(): void {
+    this.removeConfirmOpen.set(true);
+  }
+
+  closeRemoveConfirm(): void {
+    if (!this.removing()) {
+      this.removeConfirmOpen.set(false);
+    }
+  }
+
+  confirmRemove(): void {
+    if (this.removing()) return;
+
+    this.removing.set(true);
+
+    this.profileService
+      .removeProfileImage()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.removing.set(false);
+          this.removeConfirmOpen.set(false);
+        }),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.profile.set(profile);
+          this.toast.success('Profile photo removed.');
+        },
+        error: (error) => {
+          this.toast.error(
+            extractErrorMessage(error, 'Could not remove profile photo. Please try again.'),
+          );
+        },
+      });
+  }
+
+  onAvatarImageError(): void {
+    if (this.imageErrorCount() < 2) {
+      this.imageErrorCount.update((count) => count + 1);
+      this.profileService.refreshProfileImageIfStale(true).subscribe({
+        error: () => {},
+      });
+    }
   }
 
   saveProfile(): void {
@@ -242,8 +504,9 @@ export class UserProfileComponent implements OnInit {
     this.loadScreen();
   }
 
-  addInterest(input: HTMLInputElement): void {
-    const interest = input.value.trim();
+  addInterest(inputOrValue: HTMLInputElement | string): void {
+    const rawValue = typeof inputOrValue === 'string' ? inputOrValue : inputOrValue.value;
+    const interest = rawValue.trim();
     const currentInterests = this.interests();
 
     const alreadyExists = currentInterests.some(
@@ -257,19 +520,41 @@ export class UserProfileComponent implements OnInit {
     this.interests.set([...currentInterests, interest]);
 
     this.profileForm.markAsDirty();
-    input.value = '';
+    if (typeof inputOrValue !== 'string') {
+      inputOrValue.value = '';
+    }
+    this.interestInputValue.set('');
 
     this.saved.set(false);
     this.updateCompletion();
   }
 
-  handleInterestKeydown(event: KeyboardEvent, input: HTMLInputElement): void {
+  addCurrentInterest(): void {
+    const value = this.interestInputValue();
+    if (value) {
+      this.addInterest(value);
+    }
+  }
+
+  addSuggestedInterest(interest: string): void {
+    this.addInterest(interest);
+  }
+
+  onInterestInputChange(value: string | number | null): void {
+    this.interestInputValue.set(typeof value === 'string' ? value : '');
+  }
+
+  handleInterestKeydown(event: KeyboardEvent, input?: HTMLInputElement): void {
     if (event.key !== 'Enter' && event.key !== ',') {
       return;
     }
 
     event.preventDefault();
-    this.addInterest(input);
+    if (input) {
+      this.addInterest(input);
+    } else {
+      this.addCurrentInterest();
+    }
   }
 
   removeInterest(interest: string): void {
@@ -278,6 +563,16 @@ export class UserProfileComponent implements OnInit {
     this.profileForm.markAsDirty();
     this.saved.set(false);
     this.updateCompletion();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardSave(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      if (!this.profileForm.pristine && !this.saving()) {
+        this.saveProfile();
+      }
+    }
   }
 
   fieldMessage(controlName: ProfileControlName): string {
@@ -518,6 +813,8 @@ export class UserProfileComponent implements OnInit {
       return;
     }
 
+    const avatarUrl = profile.profileImage?.url ?? profile.avatarUrl ?? null;
+
     // Keeping `id` in the patch makes this compatible even when the
     // profile fields are optional additions on AuthenticatedUser.
     const userPatch = {
@@ -525,6 +822,8 @@ export class UserProfileComponent implements OnInit {
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',
       displayName: profile.displayName ?? '',
+      avatarUrl,
+      profileImage: profile.profileImage ?? null,
     };
 
     this.authStore.patchUser(userPatch);

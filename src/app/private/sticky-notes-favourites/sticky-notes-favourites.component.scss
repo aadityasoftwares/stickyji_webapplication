@@ -5,7 +5,7 @@
 @include explorer.shell;
 @include explorer.grouped-table(
   minmax(170px, 1.35fr) minmax(180px, 1.6fr) minmax(90px, 0.7fr) minmax(110px, 0.85fr)
-    minmax(110px, 0.85fr) minmax(100px, 0.8fr) minmax(82px, 0.65fr) minmax(115px, 0.9fr) 130px
+    minmax(110px, 0.85fr) minmax(95px, 0.75fr) minmax(100px, 0.8fr) minmax(82px, 0.65fr) minmax(115px, 0.9fr) 130px
 );
 @include explorer.table-details;
 @include explorer.actions-menu;

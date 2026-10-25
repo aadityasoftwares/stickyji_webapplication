@@ -613,14 +613,14 @@
 
 .today-notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: max-content;
   align-items: start;
   align-content: start;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 1.25rem;
   overflow-x: hidden;
   overflow-y: auto;
@@ -694,8 +694,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: max(13rem, 100cqi);
-    min-height: 13rem;
+    height: max(12.5rem, min(22rem, 88cqi));
+    min-height: 12.5rem;
     flex: 0 0 auto;
   }
 
@@ -1715,7 +1715,7 @@
 }
 
 $today-table-detail-columns: 32px 36px minmax(150px, 1.5fr) minmax(180px, 2fr) minmax(90px, 0.8fr)
-  minmax(110px, 1fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px;
+  minmax(110px, 1fr) minmax(95px, 0.8fr) minmax(100px, 0.9fr) minmax(120px, 1.1fr) 144px;
 $today-table-compact-columns: 32px 36px minmax(170px, 1.8fr) minmax(240px, 2.6fr)
   minmax(95px, 0.9fr) 144px;
 

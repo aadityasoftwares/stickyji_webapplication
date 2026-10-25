@@ -44,7 +44,7 @@
       class="app-datepicker-control"
       [id]="resolvedId"
       type="text"
-      inputmode="numeric"
+      [attr.inputmode]="displayFormat === 'DD MMM YYYY' ? 'text' : 'numeric'"
       [name]="name || ''"
       [value]="displayValue"
       [attr.title]="displayValue || placeholder"
@@ -56,7 +56,7 @@
       [attr.aria-required]="required ? 'true' : null"
       aria-haspopup="dialog"
       [attr.aria-expanded]="pickerIsOpen"
-      maxlength="10"
+      maxlength="11"
       [required]="required"
       [readOnly]="readonly"
       [disabled]="isDisabled"
@@ -128,7 +128,27 @@
       panelClass="app-common-datepicker-panel"
       (opened)="handlePickerOpened()"
       (closed)="handlePickerClosed()"
-    />
+    >
+      <mat-datepicker-actions>
+        <button
+          type="button"
+          class="app-calendar-today"
+          [disabled]="!canSelectToday"
+          (click)="selectToday(picker)"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="app-calendar-clear"
+          [disabled]="!showClearButton"
+          (click)="clear($event); picker.close()"
+        >
+          Clear
+        </button>
+        <button type="button" class="app-calendar-apply" matDatepickerApply>Apply</button>
+      </mat-datepicker-actions>
+    </mat-datepicker>
   </div>
   @if (displayedMessage) {
     <div class="app-datepicker-support-row">

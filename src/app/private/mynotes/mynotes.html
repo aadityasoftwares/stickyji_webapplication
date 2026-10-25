@@ -165,11 +165,13 @@
           <div class="notes-date-range" aria-label="Filter notes by date">
             <app-datepicker-input
               inputId="notes-from-date"
+              [showLeadingIcon]="false"
               placeholder="From date"
               label="From date"
               labelMode="hidden"
               variant="paper"
-              appearance="outlined"
+              appearance="simple"
+              shadow="upside"
               shape="rounded"
               [height]="UI.button.height.md"
               [radius]="UI.radius.xs"
@@ -183,11 +185,13 @@
             <span class="notes-date-separator" aria-hidden="true">—</span>
             <app-datepicker-input
               inputId="notes-to-date"
+              [showLeadingIcon]="false"
               placeholder="To date"
               label="To date"
               labelMode="hidden"
               variant="paper"
-              appearance="outlined"
+              appearance="simple"
+              shadow="upside"
               shape="rounded"
               [height]="UI.button.height.md"
               [radius]="UI.radius.xs"
@@ -221,55 +225,57 @@
             [fullWidth]="true"
           />
 
-          <app-tabs
-            class="workspace-view-tabs"
-            [items]="viewTabs"
-            [value]="view()"
-            variant="segmented"
-            activeVariant="noteYellow"
-            shape="rounded"
-            size="md"
-            density="compact"
-            ariaLabel="Choose grid or table view"
-            [scrollable]="false"
-            [minTabWidth]="64"
-            (valueChange)="setNoteView($event)"
-          />
+          <div class="notes-toolbar-utilities">
+            <app-tabs
+              class="workspace-view-tabs"
+              [items]="viewTabs"
+              [value]="view()"
+              variant="segmented"
+              activeVariant="noteYellow"
+              shape="rounded"
+              size="md"
+              density="compact"
+              ariaLabel="Choose grid or table view"
+              [scrollable]="false"
+              [minTabWidth]="64"
+              (valueChange)="setNoteView($event)"
+            />
 
-          <span class="workspace-toolbar-utility-divider" aria-hidden="true"></span>
+            <span class="workspace-toolbar-utility-divider" aria-hidden="true"></span>
 
-          <app-button
-            size="sm"
-            [iconLeft]="LucideTrash2"
-            [disabled]="!selectedWorkspaceId()"
-            label="Trash"
-            appearance="standard"
-            variant="noteRed"
-            [hasIcon]="true"
-            ariaLabel="Open recently deleted sticky notes"
-            appTooltip="Trash · Notes can be restored for 60 days"
-            tooltipTone="noteRed"
-            tooltipPosition="bottom"
-            tooltipSize="sm"
-            (buttonClick)="openStickyNoteTrash()"
-          />
-
-          @if (overdueButtonVisible()) {
             <app-button
               size="sm"
-              [iconLeft]="LucideClockAlert"
-              [label]="'Overdue (' + overdue.data().total + ')'"
+              [iconLeft]="LucideTrash2"
+              [disabled]="!selectedWorkspaceId()"
+              label="Trash"
               appearance="standard"
-              variant="noteOrange"
-              [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'"
-              appTooltip="Review overdue notes"
-              tooltipTone="noteOrange"
+              variant="noteRed"
+              [hasIcon]="true"
+              ariaLabel="Open recently deleted sticky notes"
+              appTooltip="Trash · Notes can be restored for 60 days"
+              tooltipTone="noteRed"
               tooltipPosition="bottom"
               tooltipSize="sm"
-              [ariaExpanded]="overdue.open()"
-              (buttonClick)="overdue.open.set(true)"
+              (buttonClick)="openStickyNoteTrash()"
             />
-          }
+
+            @if (overdueButtonVisible()) {
+              <app-button
+                size="sm"
+                [iconLeft]="LucideClockAlert"
+                [label]="'Overdue (' + overdue.data().total + ')'"
+                appearance="standard"
+                variant="noteOrange"
+                [ariaLabel]="'Review ' + overdue.data().total + ' overdue notes'"
+                appTooltip="Review overdue notes"
+                tooltipTone="noteOrange"
+                tooltipPosition="bottom"
+                tooltipSize="sm"
+                [ariaExpanded]="overdue.open()"
+                (buttonClick)="overdue.open.set(true)"
+              />
+            }
+          </div>
         </div>
       </div>
 
@@ -553,6 +559,7 @@
                             <col class="workspace-gt-description" />
                             <col class="workspace-gt-date" />
                             <col class="workspace-gt-column" />
+                            <col class="workspace-gt-assignees" />
                             <col class="workspace-gt-progress" />
                             <col class="workspace-gt-status" />
                             <col class="workspace-gt-updated" />
@@ -584,6 +591,10 @@
                               <th class="workspace-gt-column" scope="col">
                                 <app-icon [icon]="LucideColumns3" size="xs" />
                                 Column
+                              </th>
+                              <th class="workspace-gt-assignees" scope="col">
+                                <app-icon [icon]="LucideUsers" size="xs" />
+                                Assignees
                               </th>
                               <th class="workspace-gt-progress" scope="col">
                                 <app-icon [icon]="LucideListChecks" size="xs" />
@@ -696,6 +707,19 @@
                                       noteColumnName(note)
                                     }}
                                   </span>
+                                </td>
+
+                                <td class="workspace-gt-assignees" data-label="Assignees">
+                                  @if (noteAssignees(note).length > 0) {
+                                    <app-members-stack
+                                      [members]="noteAssignees(note)"
+                                      [maxVisible]="3"
+                                      size="xs"
+                                      [overlap]="6"
+                                    />
+                                  } @else {
+                                    <span class="workspace-table-muted">—</span>
+                                  }
                                 </td>
 
                                 <td class="workspace-gt-progress" data-label="Progress">

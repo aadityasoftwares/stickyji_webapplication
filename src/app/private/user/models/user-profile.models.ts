@@ -6,6 +6,11 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface IProfileImageSummary {
+  id: string;
+  url: string;
+}
+
 export interface UserProfile {
   _id: string;
   userId: string;
@@ -22,8 +27,33 @@ export interface UserProfile {
   timezoneId: string | null;
   languageId: string | null;
   currencyId: string | null;
+  profileImage?: IProfileImageSummary | null;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface RequestProfileImageUploadPayload {
+  fileName: string;
+  mimeType: string;
+  size: number;
+}
+
+export interface RequestProfileImageUploadResponse {
+  mediaId: string;
+  uploadUrl: string;
+  storageKey?: string;
+  expiresAt?: string | Date;
+  media?: unknown;
+}
+
+export interface ProfileImageResponseData {
+  profileImage: IProfileImageSummary | null;
+  avatarUrl: string | null;
+}
+
+export interface SetProfileImagePayload {
+  mediaId: string;
 }
 
 export interface UpdateUserProfilePayload {

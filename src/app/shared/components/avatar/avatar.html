@@ -5,7 +5,11 @@
   [attr.role]="decorative ? null : 'img'"
   [attr.aria-label]="accessibleLabel"
   [attr.aria-hidden]="decorative ? 'true' : null"
-  [attr.title]="title || accessibleLabel"
+  [appTooltip]="resolvedTooltip"
+  [tooltipDisabled]="!hasCustomTooltip"
+  [tooltipPosition]="tooltipPosition"
+  [tooltipTone]="tooltipTone"
+  [tooltipSize]="tooltipSize"
 >
   @if (hasImage) {
     <img

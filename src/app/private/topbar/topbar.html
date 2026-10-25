@@ -119,7 +119,14 @@
       (click)="profileClick.emit()"
       [attr.aria-label]="'Open profile for ' + userName"
     >
-      <span class="profile-avatar" aria-hidden="true">{{ userName.charAt(0).toUpperCase() }}</span>
+      <app-avatar
+        [src]="avatarUrl"
+        [name]="userName"
+        [size]="34"
+        shape="rounded"
+        tone="blue"
+        [decorative]="true"
+      />
       <span class="profile-name">{{ userName }}</span>
       <app-icon class="profile-arrow" [icon]="LucideChevronDown" size="xs" aria-hidden="true" />
     </button>

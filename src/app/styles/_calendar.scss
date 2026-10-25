@@ -1,0 +1,111 @@
+// The calendar lives in the CDK overlay, outside the input's component styles.
+.mat-datepicker-content:has(.app-common-datepicker-panel) {
+  --mat-datepicker-calendar-container-background-color: #fffcf3;
+  --mat-datepicker-calendar-container-text-color: #27251f;
+  --mat-datepicker-calendar-date-selected-state-background-color: #ffc83d;
+  --mat-datepicker-calendar-date-selected-state-text-color: #302500;
+  --mat-datepicker-calendar-date-today-outline-color: #e9b94b;
+  --mat-datepicker-calendar-date-hover-state-background-color: #fff0bf;
+  --mat-datepicker-calendar-date-focus-state-background-color: #ffe8a0;
+
+  & {
+    border: 1px solid #f2d99b;
+    border-radius: 16px;
+    box-shadow:
+      0 16px 40px #62470c26,
+      0 3px 8px #62470c0d;
+    overflow: hidden;
+  }
+
+  .mat-calendar {
+    width: min(352px, calc(100vw - 40px));
+    height: auto;
+    font-family: var(--app-font-body, sans-serif);
+  }
+
+  .mat-calendar-header {
+    padding: 12px 12px 0;
+  }
+  .mat-calendar-controls {
+    margin: 0 0 14px;
+    gap: 6px;
+  }
+  .mat-calendar-period-button {
+    background: #fff;
+    border: 1px solid #eee9dd;
+    border-radius: 12px;
+    font-weight: 700;
+  }
+  .mat-calendar-previous-button,
+  .mat-calendar-next-button {
+    background: #fff6df;
+    border: 1px solid #f6e9c8;
+  }
+  .mat-calendar-content {
+    padding: 0 12px 12px;
+  }
+  .mat-calendar-table-header th {
+    padding-bottom: 10px;
+    color: #807b70;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .mat-calendar-table-header-divider::after {
+    display: none;
+  }
+  .mat-calendar-body-cell-content {
+    border-radius: 10px;
+    border: 1px solid #eeeae1;
+    background: #fff;
+    font-size: 14px;
+  }
+  .mat-calendar-body-selected {
+    background: #ffc83d;
+    border-color: #ffc83d;
+    color: #302500;
+    font-weight: 700;
+    box-shadow: 0 3px 8px #f4b91f26;
+  }
+  .mat-calendar-body-disabled .mat-calendar-body-cell-content {
+    background: #f7f5ef;
+    opacity: 0.5;
+  }
+  .mat-datepicker-actions {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid #eee6d3;
+  }
+  .mat-datepicker-actions button {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid #dfe1e5;
+    border-radius: 10px;
+    background: #fff;
+    color: #413d33;
+    font: 600 14px var(--app-font-body, sans-serif);
+    cursor: pointer;
+    &:focus-visible {
+      outline: 2px solid #b66e00;
+      outline-offset: 2px;
+    }
+    &:hover:not(:disabled) {
+      filter: brightness(0.97);
+    }
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+  button.app-calendar-today {
+    margin-right: auto;
+    background: #fff0bd;
+    border-color: #ffe09a;
+  }
+  button.app-calendar-apply {
+    flex: 1;
+    background: linear-gradient(#ffdb75, #ffc637);
+    border-color: #ffbe25;
+    color: #302500;
+  }
+}

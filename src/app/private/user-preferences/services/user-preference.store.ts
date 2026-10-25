@@ -49,7 +49,19 @@ export class UserPreferenceStore {
   );
 
   readonly defaultNoteColor = computed(
-    () => this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR],
+    () => this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_COLOR] || 'YELLOW',
+  );
+
+  readonly defaultNoteShape = computed(
+    () => this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_SHAPE] || 'SQUARE',
+  );
+
+  readonly defaultNoteVariant = computed(
+    () => this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT] || 'PLAIN',
+  );
+
+  readonly defaultNoteBackgroundPattern = computed(
+    () => this._preferences()[USER_PREFERENCE_KEYS.DEFAULT_NOTE_BACKGROUND_PATTERN] || 'NONE',
   );
 
   readonly todayView = computed(() => this._preferences()[USER_PREFERENCE_KEYS.TODAY_VIEW]);

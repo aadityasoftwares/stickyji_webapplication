@@ -1406,6 +1406,8 @@ input {
   color: $text-secondary;
   background: rgba($note-blue, 0.3);
   border-color: rgba($text-secondary, 0.14);
+  overflow: hidden;
+  padding: 0;
 }
 
 .workspace-members-dialog-kicker {
@@ -1514,6 +1516,20 @@ input {
   color: $text-secondary;
   font-size: var(--members-font-13);
   font-weight: 650;
+}
+
+.workspace-member-view-person {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 /* ==========================================================

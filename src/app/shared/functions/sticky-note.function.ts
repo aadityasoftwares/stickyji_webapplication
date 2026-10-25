@@ -8,6 +8,8 @@ import {
   STICKY_NOTE_COLUMN_COLOR_OPTIONS,
 } from '../constants/common.constants';
 import { idOf } from './common.function';
+import { getWorkspaceMemberAvatar } from './workspace-member.function';
+import { getInitials } from './string.functions';
 import { LucideClock3, LucideType } from '@lucide/angular';
 
 /**
@@ -988,4 +990,108 @@ export function getNeighborNoteIds(
     beforeId,
     afterId: beforeId === afterId ? null : afterId,
   };
+}
+
+/**
+ * UI representation of an assigned member on a sticky note.
+ */
+export interface NoteAssigneeItem {
+  id: string;
+  name: string;
+  src?: string | null;
+  alt?: string;
+  initials?: string;
+  tooltip?: string;
+}
+
+/**
+ * Safely maps a sticky note's assignees to NoteAssigneeItem[] for display in UI stacks.
+ *
+ * @param noteOrAssignees A sticky note object containing `assignees`, or an array of assignees.
+ * @param workspaceMembers Optional list of workspace members to enrich assignee names if unpopulated.
+ * @returns Array of NoteAssigneeItem.
+ */
+export function mapNoteAssignees(
+  noteOrAssignees: any,
+  workspaceMembers?: readonly any[],
+): NoteAssigneeItem[] {
+  try {
+    const rawList: any[] = Array.isArray(noteOrAssignees)
+      ? noteOrAssignees
+      : Array.isArray(noteOrAssignees?.assignees)
+        ? noteOrAssignees.assignees
+        : [];
+
+    if (!rawList.length) return [];
+
+    const activeList: any[] = rawList.filter(
+      (item: any) => !item?.status || String(item.status).toUpperCase() === 'ACTIVE',
+    );
+
+    return activeList.map((assignee: any, index: number) => {
+      const user =
+        assignee?.userId && typeof assignee.userId === 'object'
+          ? assignee.userId
+          : assignee?.user && typeof assignee.user === 'object'
+            ? assignee.user
+            : assignee;
+
+      const rawId =
+        idOf(user) ||
+        (typeof assignee?.userId === 'string' ? assignee.userId : '') ||
+        idOf(assignee) ||
+        `assignee-${index}`;
+
+      let matchedMember: any = null;
+      if (workspaceMembers && workspaceMembers.length > 0 && rawId) {
+        matchedMember = workspaceMembers.find(
+          (m) =>
+            idOf(m) === rawId ||
+            idOf(m?.user) === rawId ||
+            idOf(m?.userId) === rawId ||
+            m?.id === rawId,
+        );
+      }
+
+      const entity = matchedMember || user;
+      const profile = entity?.profile || user?.profile || assignee?.profile;
+
+      const name =
+        profile?.displayName ||
+        entity?.displayName ||
+        user?.displayName ||
+        assignee?.displayName ||
+        entity?.name ||
+        assignee?.name ||
+        (entity?.firstName
+          ? `${entity.firstName} ${entity?.lastName ?? ''}`.trim()
+          : user?.firstName
+            ? `${user.firstName} ${user?.lastName ?? ''}`.trim()
+            : '') ||
+        (entity?.email ? String(entity.email).split('@')[0] : '') ||
+        (user?.email ? String(user.email).split('@')[0] : '') ||
+        (assignee?.email ? String(assignee.email).split('@')[0] : '') ||
+        'Member';
+
+      const src =
+        getWorkspaceMemberAvatar(assignee) ||
+        getWorkspaceMemberAvatar(entity) ||
+        getWorkspaceMemberAvatar(user) ||
+        null;
+
+      const initials = getInitials(name, '');
+
+      return {
+        id: String(rawId),
+        name: String(name).trim(),
+        src: src || null,
+        alt: String(name).trim(),
+        initials,
+        tooltip: String(name).trim(),
+      };
+    });
+  } catch (error) {
+    console.error('Error in mapNoteAssignees:', error);
+    return [];
+  }
 }

@@ -25,6 +25,7 @@ import { extractErrorMessage, extractList, idOf } from '../../../shared/function
 import { getInitials } from '../../../shared/functions/string.functions';
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
 import type { WorkspaceMemberListItem } from '../../workspace-members/models/workspace-member.models';
+import { getWorkspaceMemberAvatar } from '../../../shared/functions/workspace-member.function';
 
 export interface AssigneePreviewItem {
   id: string;
@@ -93,6 +94,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
           value: userId,
           description: email,
           avatar: {
+            src: getWorkspaceMemberAvatar(member),
             name: displayName,
             initials,
             tone: 'neutral' as const,
@@ -231,6 +233,7 @@ export class StickyNoteAssigneeSelect implements OnChanges {
         displayName: name,
         email: user?.email || (member as any)?.email || '',
         initials: getInitials(name, 'M'),
+        avatarUrl: member ? (getWorkspaceMemberAvatar(member) ?? undefined) : undefined,
         roleName: member?.role?.name || (member as any)?.roleName,
       };
     });

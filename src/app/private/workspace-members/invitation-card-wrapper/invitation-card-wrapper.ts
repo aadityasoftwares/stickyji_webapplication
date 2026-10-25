@@ -23,6 +23,7 @@ import {
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Avatar } from '../../../shared/components/avatar/avatar';
 import { Badge } from '../../../shared/components/badge/badge';
+import { getWorkspaceMemberAvatar } from '../../../shared/functions/workspace-member.function';
 import { idOf } from '../../../shared/functions/common.function';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 import type {
@@ -42,6 +43,7 @@ export class InvitationCardWrapper {
   private readonly dateTimeFormatter = inject(UserDateTimeFormatterService);
 
   @Input() invitation: WorkspaceInvitation | any = null;
+  @Input() avatarUrl: string | null = null;
   @Input() email = '';
   @Input() roleName = '';
   @Input() status: WorkspaceInvitationStatus | string = 'PENDING';
@@ -109,6 +111,13 @@ export class InvitationCardWrapper {
       return prefix.charAt(0).toUpperCase() + prefix.slice(1);
     }
     return email || 'Invited User';
+  }
+
+  get resolvedAvatar(): string | null {
+    if (this.avatarUrl !== null && this.avatarUrl !== undefined) {
+      return this.avatarUrl;
+    }
+    return getWorkspaceMemberAvatar(this.invitation);
   }
 
   get resolvedRole(): string {

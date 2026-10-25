@@ -35,6 +35,7 @@
           [bordered]="bordered"
           [elevated]="elevated"
           [decorative]="true"
+          [tooltipDisabled]="true"
         />
       </button>
     } @else {
@@ -58,6 +59,8 @@
           [status]="member.status ?? 'none'"
           [bordered]="bordered"
           [elevated]="elevated"
+          [decorative]="true"
+          [tooltipDisabled]="true"
         />
       </span>
     }

@@ -13,10 +13,21 @@ export interface WorkspaceMemberUserSummary {
   displayName?: string;
   firstName?: string;
   lastName?: string;
+  avatarUrl?: string | null;
+  profileImage?: {
+    id: string;
+    url: string;
+  } | string | null;
+  imageUrl?: string | null;
   profile?: {
     displayName?: string;
     firstName?: string;
     lastName?: string;
+    avatarUrl?: string | null;
+    profileImage?: {
+      id: string;
+      url: string;
+    } | string | null;
   } | null;
 }
 
@@ -68,6 +79,11 @@ export interface WorkspaceMemberListPerson {
   id: string;
   displayName: string;
   email: string;
+  avatarUrl?: string | null;
+  profileImage?: {
+    id: string;
+    url: string;
+  } | string | null;
 }
 
 /**

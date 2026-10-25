@@ -31,6 +31,7 @@ import {
   LucideStickyNote,
   LucideTrash2,
   LucideType,
+  LucideUsers,
   LucideX,
 } from '@lucide/angular';
 
@@ -62,7 +63,9 @@ import {
   isNoteArchived,
   isNoteDeleted,
   toColorCssClass,
+  mapNoteAssignees,
 } from '../../shared/functions/sticky-note.function';
+import { MembersStack } from '../workspace-members/members-stack/members-stack';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
@@ -91,6 +94,7 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     Switch,
     Tabs,
     Tooltip,
+    MembersStack,
     UserDatePipe,
     UserTimePipe,
   ],
@@ -128,6 +132,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   readonly LucideStickyNote = LucideStickyNote;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
+  readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
 
   /* -------------------------------------------------------------------------- */
@@ -572,6 +577,10 @@ export class StickyNotesFavouritesComponent implements OnInit {
 
   noteContent(note: any): string {
     return getNoteContent(note);
+  }
+
+  noteAssignees(note: any): any[] {
+    return mapNoteAssignees(note);
   }
 
   noteKey(note: any): string {

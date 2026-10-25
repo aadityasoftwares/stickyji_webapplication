@@ -81,17 +81,47 @@ export function getWorkspaceMemberRole(member: any, fallback: any = 'Member'): s
  */
 export function getWorkspaceMemberAvatar(member: any): string | null {
   try {
-    const user = member?.user;
-    const profile = user?.profile;
-    const value =
-      user?.avatarUrl ??
-      user?.profileImage ??
-      user?.imageUrl ??
-      profile?.avatarUrl ??
-      profile?.profileImage ??
-      member?.avatarUrl;
+    if (!member) return null;
 
-    return typeof value === 'string' && value.trim() ? value.trim() : null;
+    const extractUrl = (target: any): string | null => {
+      if (!target) return null;
+      if (typeof target === 'string') {
+        const trimmed = target.trim();
+        return trimmed.length > 0 ? trimmed : null;
+      }
+      if (typeof target === 'object') {
+        if (typeof target.url === 'string' && target.url.trim()) {
+          return target.url.trim();
+        }
+      }
+      return null;
+    };
+
+    const userCandidate =
+      member?.user ??
+      (typeof member?.userId === 'object' ? member?.userId : null);
+
+    const candidates = [
+      userCandidate,
+      userCandidate?.profile,
+      member?.profile,
+      member,
+    ];
+
+    for (const c of candidates) {
+      if (!c) continue;
+      const url =
+        extractUrl(c.profileImage) ??
+        extractUrl(c.avatarUrl) ??
+        extractUrl(c.imageUrl) ??
+        extractUrl(c.src) ??
+        extractUrl(c.profile?.profileImage) ??
+        extractUrl(c.profile?.avatarUrl);
+
+      if (url) return url;
+    }
+
+    return null;
   } catch (error) {
     console.error('Error in getWorkspaceMemberAvatar:', error);
     return null;

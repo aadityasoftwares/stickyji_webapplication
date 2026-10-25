@@ -54,6 +54,7 @@ import {
   LucideStickyNote,
   LucideTrash2,
   LucideType,
+  LucideUsers,
   LucideX,
 } from '@lucide/angular';
 
@@ -111,6 +112,7 @@ import {
   mapStickyNoteChecklists,
   mapStickyNoteColumn,
   sortNotesByRank,
+  mapNoteAssignees,
 } from '../../shared/functions/sticky-note.function';
 import {
   getWorkspaceMemberAvatar,
@@ -248,6 +250,7 @@ export class Today {
   readonly LucideStarOff = LucideStarOff;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideType = LucideType;
+  readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
   readonly LucideGrip = LucideGrip;
 
@@ -1227,6 +1230,10 @@ export class Today {
 
   visibleNotesFor(columnId: string): any[] {
     return this.visibleNotesByColumn().get(idOf(columnId)) ?? [];
+  }
+
+  noteAssignees(note: any): any[] {
+    return mapNoteAssignees(note, this.workspaceMembers());
   }
 
   openWorkspaceCreatePage(): void {

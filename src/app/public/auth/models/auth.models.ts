@@ -42,6 +42,15 @@ export interface AuthenticatedUser {
   isEmailVerified: boolean;
   isPhoneVerified?: boolean;
   isMfaEnabled: boolean;
+
+  firstName?: string;
+  lastName?: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  profileImage?: {
+    id: string;
+    url: string;
+  } | null;
 }
 
 export interface AuthTokens {
