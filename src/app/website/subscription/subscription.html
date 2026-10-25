@@ -1,89 +1,10 @@
 <section id="pricing" class="subscription" aria-labelledby="subscription-title">
-  <!-- Background Symbols & Playful Doodles -->
-  <div class="subscription-decorations" aria-hidden="true">
-    <!-- Ambient Paint Swooshes -->
-    <div class="paint-swoosh swoosh-left"></div>
-    <div class="paint-swoosh swoosh-right"></div>
-
-    <!-- Top Left Title Rays -->
-    <svg class="sub-doodle doodle-title-rays" viewBox="0 0 60 50" fill="none">
-      <path
-        d="M15 36L6 24M28 22L24 6M44 32L54 22"
-        stroke="#0F766E"
-        stroke-width="3"
-        stroke-linecap="round"
-      />
-    </svg>
-
-    <!-- Top Right Sparkle Star -->
-    <svg class="sub-doodle doodle-sparkle-top" viewBox="0 0 44 44" fill="none">
-      <path
-        d="M22 4V40M4 22H40M10 10L34 34M10 34L34 10"
-        stroke="#F59E0B"
-        stroke-width="2.5"
-        stroke-linecap="round"
-      />
-    </svg>
-
-    <!-- Floating Mini Sticky Note (Left Flank) -->
-    <div class="mini-floating-note note-left">
-      <span class="mini-tape"></span>
-      <span class="mini-text">Start small.<br />Think big.</span>
-      <svg class="mini-smile" viewBox="0 0 32 32" fill="none">
-        <path
-          d="M8 8V12M24 8V12M6 18Q16 30 26 18"
-          stroke="#1F2937"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
-      </svg>
-    </div>
-
-    <!-- Left Flank Curly Noodle Doodle -->
-    <svg class="sub-doodle doodle-curly-left" viewBox="0 0 54 64" fill="none">
-      <path
-        d="M44 8C20 12 8 28 14 48C18 60 36 58 40 44C44 32 32 20 18 26"
-        stroke="#F97316"
-        stroke-width="3"
-        stroke-linecap="round"
-      />
-    </svg>
-
-    <!-- Floating Mini Sticky Note (Right Flank) -->
-    <div class="mini-floating-note note-right">
-      <span class="mini-tape"></span>
-      <span class="mini-text">No stress.<br />Just flow.</span>
-      <svg class="mini-heart" viewBox="0 0 36 36" fill="none">
-        <path
-          d="M18 30C-2 15 9 2 18 12C27-2 38 15 18 30Z"
-          stroke="#EA580C"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </div>
-
-    <!-- Right Flank Curved Idea Arrow pointing to cards -->
-    <svg class="sub-doodle doodle-arrow-right" viewBox="0 0 95 80" fill="none">
-      <path
-        d="M12 16C42 12 78 24 84 58M70 54L84 58L88 42"
-        stroke="#16A34A"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-
-    <!-- Double Tick Marks (Bottom Left) -->
-    <svg class="sub-doodle doodle-ticks-left" viewBox="0 0 40 40" fill="none">
-      <path d="M10 28L20 8M20 28L30 8" stroke="#0F766E" stroke-width="3.5" stroke-linecap="round" />
-    </svg>
-  </div>
-
   <div class="subscription-shell">
     <!-- Header Section -->
     <header class="subscription-heading">
+      <span class="heading-badge"
+        ><app-icon [icon]="LucideSparkles" size="sm" />A plan for your next chapter</span
+      >
       <h2 id="subscription-title" class="pricing-title">
         <span class="title-line-1">A little space to start.</span>
         <span class="title-line-2">Room to grow from there.</span>
@@ -95,27 +16,29 @@
 
       <!-- Billing Cycle Selector (Segmented Pill) -->
       <div class="billing-cycle-wrap">
-        <div class="billing-cycle-pill" role="radiogroup" aria-label="Billing interval">
+        <div class="billing-cycle-pill" role="group" aria-label="Billing interval">
           <button
             type="button"
-            role="radio"
-            [attr.aria-checked]="selectedCycle() === 'MONTHLY'"
+            [attr.aria-pressed]="selectedCycle() === 'MONTHLY'"
             class="cycle-toggle-btn"
             [class.is-active]="selectedCycle() === 'MONTHLY'"
+            [disabled]="!billingIntervals().includes('MONTHLY')"
             (click)="onCycleChange('MONTHLY')"
           >
             Monthly billing
           </button>
           <button
             type="button"
-            role="radio"
-            [attr.aria-checked]="selectedCycle() === 'YEARLY'"
+            [attr.aria-pressed]="selectedCycle() === 'YEARLY'"
             class="cycle-toggle-btn"
             [class.is-active]="selectedCycle() === 'YEARLY'"
+            [disabled]="!billingIntervals().includes('YEARLY')"
             (click)="onCycleChange('YEARLY')"
           >
             <span>Yearly billing</span>
-            <span class="save-badge">Save 15%</span>
+            @if (yearlySavings() > 0) {
+              <span class="save-badge">Save up to {{ yearlySavings() }}%</span>
+            }
           </button>
         </div>
       </div>
@@ -146,19 +69,23 @@
           @for (card of [1, 2, 3]; track card) {
             <div class="plan-card-shell">
               <div class="sticky-tape-strip"></div>
-              <div class="plan-card plan-skeleton">
-                <span class="skel-badge"></span>
-                <span class="skel-title"></span>
-                <span class="skel-price"></span>
-                <div class="skel-lines">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <span class="skel-button"></span>
-              </div>
-              <span class="sticky-corner-shadow"></span>
-              <span class="sticky-corner"></span>
+              <app-sticky-card
+                shape="stickyFold"
+                variant="noteYellow"
+                [padding]="28"
+                [foldSize]="28"
+                [fullWidth]="true"
+                ><div class="plan-skeleton">
+                  <span class="skel-badge"></span>
+                  <span class="skel-title"></span>
+                  <span class="skel-price"></span>
+                  <div class="skel-lines">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span class="skel-button"></span></div
+              ></app-sticky-card>
             </div>
           }
         </div>
@@ -180,7 +107,7 @@
           <button type="button" class="btn-retry" (click)="loadPlans()">Refresh catalog</button>
         </div>
       } @else {
-        <!-- The 3 Sticky Note Pricing Cards Grid -->
+        <!-- Pricing cards use the shared folded-paper surface. -->
         <div class="pricing-cards-grid">
           @for (plan of plans(); track plan.id) {
             <div
@@ -192,130 +119,133 @@
               <!-- Washi Tape Strip at Top Center -->
               <div class="sticky-tape-strip" aria-hidden="true"></div>
 
-              <article
-                class="plan-card"
-                [class.is-popular]="plan.isPopular"
-                [class.is-current]="plan.isCurrent"
-                [attr.aria-labelledby]="'plan-' + plan.id"
+              <app-sticky-card
+                class="plan-note"
+                shape="stickyFold"
+                [variant]="
+                  plan.code === 'FREE' ? 'noteYellow' : plan.isPopular ? 'noteGreen' : 'noteBlue'
+                "
+                appearance="flat"
+                shadow="md"
+                [padding]="0"
+                [bodyFlush]="true"
+                [foldSize]="32"
+                [fullWidth]="true"
+                [ariaLabelledBy]="'plan-' + plan.id"
               >
-                <!-- Subtle Paper Fiber Grain Overlay -->
-                <div class="paper-grain-overlay" aria-hidden="true"></div>
-
-                <!-- Upper Code, Badges & Heading -->
-                <div class="plan-topline">
-                  <span class="plan-code">{{ plan.code }}</span>
-                  <div class="topline-badges">
-                    @if (plan.isCurrent) {
-                      <app-badge
-                        label="Current Plan"
-                        variant="success"
-                        size="xs"
-                        shape="pill"
-                        [icon]="LucideCheck"
-                      />
-                    }
-                    @if (plan.isPopular) {
-                      <app-badge
-                        label="Popular"
-                        variant="accent"
-                        size="xs"
-                        shape="pill"
-                        [icon]="LucideSparkles"
-                      />
-                    }
-                  </div>
-                </div>
-
-                <h3 [id]="'plan-' + plan.id" class="plan-name">{{ plan.name }}</h3>
-                <p class="plan-description">{{ plan.description }}</p>
-
-                <!-- Price Box -->
-                <div class="plan-price">
-                  <div class="price-main">
-                    <span class="price-val">{{ priceDisplay(plan) }}</span>
-                    @if (intervalDisplay(plan)) {
-                      <span class="price-interval">{{ intervalDisplay(plan) }}</span>
-                    }
+                <div class="plan-card" [class.is-current]="plan.isCurrent">
+                  <!-- Upper Code, Badges & Heading -->
+                  <div class="plan-topline">
+                    <span class="plan-code">{{ plan.code }}</span>
+                    <div class="topline-badges">
+                      @if (plan.isCurrent) {
+                        <app-badge
+                          label="Current Plan"
+                          variant="success"
+                          size="xs"
+                          shape="pill"
+                          [icon]="LucideCheck"
+                        />
+                      }
+                      @if (plan.isPopular) {
+                        <app-badge
+                          label="Popular"
+                          variant="accent"
+                          size="xs"
+                          shape="pill"
+                          [icon]="LucideSparkles"
+                        />
+                      }
+                    </div>
                   </div>
 
-                  @if (selectedCycle() === 'YEARLY' && getPrice(plan); as yrPrice) {
-                    @if (yrPrice.savingsPercentage && yrPrice.savingsPercentage > 0) {
-                      <div class="price-extras">
-                        <span class="save-pill">Save {{ yrPrice.savingsPercentage }}%</span>
-                        @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
-                          <span class="price-per-month">
-                            Billed annually ({{ yrPrice.currencySymbol || '₹'
-                            }}{{ yrPrice.monthlyEquivalent }}/mo)
+                  <h3 [id]="'plan-' + plan.id" class="plan-name">{{ plan.name }}</h3>
+                  <p class="plan-description">{{ plan.description }}</p>
+
+                  <!-- Price Box -->
+                  <div class="plan-price">
+                    <div class="price-main">
+                      <span class="price-val">{{ priceDisplay(plan) }}</span>
+                      @if (intervalDisplay(plan)) {
+                        <span class="price-interval">{{ intervalDisplay(plan) }}</span>
+                      }
+                    </div>
+
+                    @if (selectedCycle() === 'YEARLY' && getPrice(plan); as yrPrice) {
+                      @if (yrPrice.savingsPercentage && yrPrice.savingsPercentage > 0) {
+                        <div class="price-extras">
+                          <span class="save-pill">Save {{ yrPrice.savingsPercentage }}%</span>
+                          @if (yrPrice.monthlyEquivalent && yrPrice.monthlyEquivalent > 0) {
+                            <span class="price-per-month">
+                              Billed annually ({{ yrPrice.currencySymbol || '₹'
+                              }}{{ yrPrice.monthlyEquivalent }}/mo)
+                            </span>
+                          } @else if (yrPrice.pricePerMonthFormatted) {
+                            <span class="price-per-month">
+                              Billed annually ({{ yrPrice.pricePerMonthFormatted }}/mo)
+                            </span>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+
+                  <!-- Features Checklist with Circular Color-Coded Check Badges -->
+                  <ul class="plan-features-list" aria-label="Key plan features">
+                    @if (plan.highlights && plan.highlights.length) {
+                      @for (highlight of plan.highlights; track highlight) {
+                        <li class="feature-item">
+                          <span
+                            class="feature-check-circle"
+                            [class]="'check-' + plan.code.toLowerCase()"
+                            aria-hidden="true"
+                          >
+                            <app-icon [icon]="LucideCheck" size="xs" />
                           </span>
-                        } @else if (yrPrice.pricePerMonthFormatted) {
-                          <span class="price-per-month">
-                            Billed annually ({{ yrPrice.pricePerMonthFormatted }}/mo)
+                          <span class="feature-text">{{ highlight }}</span>
+                        </li>
+                      }
+                    } @else if (plan.features && plan.features.length) {
+                      @for (feat of plan.features; track feat.code) {
+                        <li class="feature-item">
+                          <span
+                            class="feature-check-circle"
+                            [class]="'check-' + plan.code.toLowerCase()"
+                            aria-hidden="true"
+                          >
+                            <app-icon [icon]="LucideCheck" size="xs" />
                           </span>
-                        }
+                          <span class="feature-text"
+                            >{{ feat.name }}: {{ feat.formattedLimit || feat.displayValue }}</span
+                          >
+                        </li>
+                      }
+                    }
+                  </ul>
+
+                  <!-- Action Button & Trust Badge Footer -->
+                  <div class="plan-action-box">
+                    <button
+                      type="button"
+                      class="plan-btn"
+                      [class.btn-outline]="plan.code === 'FREE'"
+                      [class.btn-forest]="plan.code !== 'FREE'"
+                      [disabled]="isButtonDisabled(plan)"
+                      (click)="choosePlan(plan)"
+                    >
+                      <span>{{ getButtonLabel(plan) }}</span>
+                      <app-icon [icon]="LucideArrowRight" size="sm" />
+                    </button>
+
+                    @if (plan.code !== 'FREE') {
+                      <div class="secure-checkout-caption">
+                        <app-icon [icon]="LucideLock" size="xs" class="lock-icon" />
+                        <span>Secure checkout powered by Razorpay</span>
                       </div>
                     }
-                  }
+                  </div>
                 </div>
-
-                <!-- Features Checklist with Circular Color-Coded Check Badges -->
-                <ul class="plan-features-list" aria-label="Key plan features">
-                  @if (plan.highlights && plan.highlights.length) {
-                    @for (highlight of plan.highlights; track highlight) {
-                      <li class="feature-item">
-                        <span
-                          class="feature-check-circle"
-                          [class]="'check-' + plan.code.toLowerCase()"
-                          aria-hidden="true"
-                        >
-                          <app-icon [icon]="LucideCheck" size="xs" />
-                        </span>
-                        <span class="feature-text">{{ highlight }}</span>
-                      </li>
-                    }
-                  } @else if (plan.features && plan.features.length) {
-                    @for (feat of plan.features; track feat.code) {
-                      <li class="feature-item">
-                        <span
-                          class="feature-check-circle"
-                          [class]="'check-' + plan.code.toLowerCase()"
-                          aria-hidden="true"
-                        >
-                          <app-icon [icon]="LucideCheck" size="xs" />
-                        </span>
-                        <span class="feature-text"
-                          >{{ feat.name }}: {{ feat.formattedLimit || feat.displayValue }}</span
-                        >
-                      </li>
-                    }
-                  }
-                </ul>
-
-                <!-- Action Button & Trust Badge Footer -->
-                <div class="plan-action-box">
-                  <button
-                    type="button"
-                    class="plan-btn"
-                    [class.btn-outline]="plan.code === 'FREE'"
-                    [class.btn-forest]="plan.code !== 'FREE'"
-                    [disabled]="isButtonDisabled(plan)"
-                    (click)="choosePlan(plan)"
-                  >
-                    <span>{{ getButtonLabel(plan) }}</span>
-                    <app-icon [icon]="LucideArrowRight" size="sm" />
-                  </button>
-
-                  @if (plan.code !== 'FREE') {
-                    <div class="secure-checkout-caption">
-                      <app-icon [icon]="LucideLock" size="xs" class="lock-icon" />
-                      <span>Secure checkout powered by Razorpay</span>
-                    </div>
-                  }
-                </div>
-              </article>
-
-              <!-- Curled Bottom-Right Corner Flap -->
-              <span class="sticky-corner-shadow" aria-hidden="true"></span>
-              <span class="sticky-corner" aria-hidden="true"></span>
+              </app-sticky-card>
             </div>
           }
         </div>
@@ -346,7 +276,9 @@
                         [class.is-current-col]="plan.isCurrent"
                       >
                         <div class="plan-col-name">{{ plan.name }}</div>
-                        <div class="plan-col-price">{{ priceDisplay(plan) }}</div>
+                        <div class="plan-col-price">
+                          {{ priceDisplay(plan) }} {{ intervalDisplay(plan) }}
+                        </div>
                         @if (plan.isPopular) {
                           <span class="plan-col-badge">Popular</span>
                         }

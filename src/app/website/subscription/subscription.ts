@@ -26,6 +26,7 @@ import {
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
+import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 import { TabItem, TabValue } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { AuthStore } from '../../public/auth/state/auth.store';
@@ -290,7 +291,7 @@ export const DEFAULT_PLANS: PlanCardDTO[] = [
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [AppIcon, Badge],
+  imports: [AppIcon, Badge, StickyCard],
   templateUrl: './subscription.html',
   styleUrl: './subscription.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -321,17 +322,19 @@ export class Subscription implements OnInit {
   readonly error = signal(false);
   readonly selectedCycle = signal<BillingInterval>('MONTHLY');
   readonly processingPlanId = signal<string | null>(null);
+  readonly yearlySavings = computed(() =>
+    Math.max(
+      0,
+      ...this.plans().map(
+        (plan) => this.getPlanIntervalPrice(plan, 'YEARLY')?.savingsPercentage ?? 0,
+      ),
+    ),
+  );
 
   @Output() planSelected = new EventEmitter<PlanCardDTO>();
 
   // Computed state
-  readonly plans = computed<PlanCardDTO[]>(() => {
-    const catPlans = this.catalog()?.plans;
-    if (catPlans && catPlans.length > 0) {
-      return catPlans;
-    }
-    return DEFAULT_PLANS;
-  });
+  readonly plans = computed<PlanCardDTO[]>(() => this.catalog()?.plans ?? []);
 
   readonly comparisonMatrix = computed<ComparisonMatrixRow[]>(
     () => this.catalog()?.comparisonMatrix ?? [],
@@ -359,14 +362,14 @@ export class Subscription implements OnInit {
     const yearlySavings = plansList.reduce((max, plan) => {
       const yrPrice = this.getPlanIntervalPrice(plan, 'YEARLY');
       return Math.max(max, yrPrice?.savingsPercentage ?? 0);
-    }, 15);
+    }, 0);
 
     return intervals.map((interval) => {
       if (interval === 'YEARLY') {
         return {
           value: 'YEARLY',
           label: 'Yearly billing',
-          count: yearlySavings > 0 ? `Save ${yearlySavings}%` : 'Save 15%',
+          count: yearlySavings > 0 ? `Save up to ${yearlySavings}%` : undefined,
         };
       }
       return {
@@ -485,7 +488,7 @@ export class Subscription implements OnInit {
     ) {
       return '';
     }
-    return this.selectedCycle() === 'YEARLY' ? '/ month' : '/ month';
+    return this.selectedCycle() === 'YEARLY' ? '/ year' : '/ month';
   }
 
   getButtonLabel(plan: PlanCardDTO): string {

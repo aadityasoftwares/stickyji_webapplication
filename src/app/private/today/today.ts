@@ -1369,6 +1369,25 @@ export class Today {
 
     if (this.isNoteCompleted(targetNote) === isCompleted) return;
 
+    const columns = this.stickyNoteColumns();
+    const completedColumns = columns.filter((column) => column.type === 'COMPLETED');
+    const currentColumn = this.stickyNoteColumnById().get(idOf(targetNote.columnId));
+    const targetColumn = isCompleted
+      ? (completedColumns.find((column) => column.isDefault) ?? completedColumns[0])
+      : currentColumn && currentColumn.type !== 'COMPLETED'
+        ? currentColumn
+        : (columns.find((column) => column.type === 'TODO') ??
+          columns.find((column) => column.type !== 'COMPLETED'));
+    if (!targetColumn) {
+      this.toastService.warning(
+        isCompleted
+          ? 'The completed column is unavailable. Refresh the board and try again.'
+          : 'No active column is available to reopen this note.',
+      );
+      return;
+    }
+    const columnId = idOf(targetColumn);
+    const columnName = targetColumn.label;
     const completedAt = isCompleted ? new Date().toISOString() : null;
     const completedBy = isCompleted ? this.currentUserId() : null;
     const requestVersion = this.notesRequestVersion;
@@ -1380,6 +1399,8 @@ export class Today {
         idOf(item) === id
           ? {
               ...item,
+              columnId,
+              columnName,
               isCompleted,
               completed: isCompleted,
               completedAt,
@@ -1390,6 +1411,7 @@ export class Today {
     );
 
     const updatePayload: any = {
+      columnId,
       isCompleted,
       completedAt,
       completedBy,
@@ -1415,6 +1437,8 @@ export class Today {
                   ? {
                       ...item,
                       ...this.mapNote({ ...item, ...updated }),
+                      columnId,
+                      columnName,
                       isCompleted,
                       completed: isCompleted,
                     }
@@ -1439,6 +1463,8 @@ export class Today {
               idOf(item) === id
                 ? {
                     ...item,
+                    columnId: targetNote.columnId,
+                    columnName: targetNote.columnName,
                     isCompleted: this.isNoteCompleted(targetNote),
                     completed: this.isNoteCompleted(targetNote),
                     completedAt: targetNote.completedAt,

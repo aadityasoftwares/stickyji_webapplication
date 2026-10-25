@@ -20,6 +20,7 @@ import {
   LucideUsers,
 } from '@lucide/angular';
 import { AppIcon } from '../../shared/components/icon/icon';
+import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
 
 export interface FooterLink {
   label: string;
@@ -96,7 +97,7 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
 
 @Component({
   standalone: true,
-  imports: [AppIcon],
+  imports: [AppIcon, StickyCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-website-footer',
   styleUrl: './website-footer.scss',
@@ -161,7 +162,8 @@ export class WebsiteFooter {
   scrollToTop(event: Event): void {
     event.preventDefault();
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reducedMotion ? 'instant' : 'smooth' });
     }
   }
 }

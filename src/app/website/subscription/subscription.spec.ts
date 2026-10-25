@@ -230,6 +230,12 @@ describe('Subscription Component', { timeout: 20000 }, () => {
     expect(fixture.nativeElement.textContent).toContain('$10');
     expect(fixture.nativeElement.textContent).toContain('Current Plan');
     expect(fixture.nativeElement.textContent).toContain('Popular');
+    expect(
+      fixture.nativeElement.querySelectorAll('.plan-note [data-card-shape="stickyFold"]').length,
+    ).toBe(2);
+    expect(fixture.nativeElement.querySelector('.save-badge').textContent).toContain(
+      'Save up to 20%',
+    );
   });
 
   it('toggles billing cycle between monthly and yearly correctly', () => {
@@ -248,6 +254,7 @@ describe('Subscription Component', { timeout: 20000 }, () => {
 
     expect(component.selectedCycle()).toBe('YEARLY');
     expect(component.priceDisplay(mockCatalog.plans[1])).toBe('$96');
+    expect(component.intervalDisplay(mockCatalog.plans[1])).toBe('/ year');
     expect(fixture.nativeElement.textContent).toContain('Save 20%');
     expect(fixture.nativeElement.textContent).toContain('Billed annually ($8/mo)');
   });

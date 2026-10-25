@@ -1,114 +1,48 @@
 <footer class="site-footer" aria-labelledby="footer-brand-name">
   <div class="footer-shell">
-    <!-- Top Sticky Note CTA Card Container -->
     <div class="footer-cta-container">
-      <!-- Decorative Doodles Outside the Note -->
-      <svg class="doodle-tick doodle-top-left" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path
-          d="M12 30L22 10M22 30L32 10"
-          stroke="#0F766E"
-          stroke-width="3.5"
-          stroke-linecap="round"
-        />
-      </svg>
-      <svg class="doodle-loop doodle-left" viewBox="0 0 54 64" fill="none" aria-hidden="true">
-        <path
-          d="M44 8C20 12 8 28 14 48C18 60 36 58 40 44C44 32 32 20 18 26"
-          stroke="#F97316"
-          stroke-width="3.5"
-          stroke-linecap="round"
-          fill="none"
-        />
-      </svg>
-      <svg class="doodle-tick doodle-top-right" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path
-          d="M8 28L18 8M18 28L28 8"
-          stroke="#0F766E"
-          stroke-width="3.5"
-          stroke-linecap="round"
-        />
-      </svg>
-
-      <!-- Main Yellow Sticky Note Card -->
-      <section class="footer-cta-note" aria-labelledby="footer-cta-title">
-        <!-- Translucent Adhesive Tape -->
-        <span class="cta-tape" aria-hidden="true"></span>
-
-        <!-- Left Copy Section -->
-        <div class="cta-copy">
-          <div class="cta-badge">
-            <app-icon [icon]="LucideSparkles" size="xs" />
-            <span>{{ ctaBadgeText }}</span>
-          </div>
-
-          <h2 id="footer-cta-title" class="cta-title">
-            <span>{{ ctaHeadingLine1 }}</span>
-            <span class="cta-highlight">
-              {{ ctaHeadingHighlight }}
-              <!-- Brush scribble underline -->
-              <svg class="brush-underline" viewBox="0 0 170 18" fill="none" aria-hidden="true">
-                <path
-                  d="M4 11C40 4 110 5 166 11C125 15 50 16 12 13"
-                  stroke="#F97316"
-                  stroke-width="4.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <!-- Orange double tick doodle -->
-              <span class="accent-ticks" aria-hidden="true"></span>
-            </span>
-          </h2>
-
-          <p class="cta-subtitle">{{ ctaDescription }}</p>
-        </div>
-
-        <!-- Right Action Side (Buttons, Mascot, Checklist) -->
-        <div class="cta-action-side">
-          <!-- Mascot Smiling Sticky Note with Joy Ticks -->
-          <div class="cta-mascot-wrapper" aria-hidden="true">
-            <svg class="mascot-joy-ticks" viewBox="0 0 32 22" fill="none">
-              <path
-                d="M8 18L14 4M20 18L26 4"
-                stroke="#1F2937"
-                stroke-width="2.5"
-                stroke-linecap="round"
-              />
-            </svg>
-            <div class="cta-mascot-note">
-              <img [src]="mascotSrc" alt="Sticky Ji Mascot" class="mascot-img" />
+      <span class="cta-tape" aria-hidden="true"></span>
+      <app-sticky-card
+        shape="stickyFold"
+        variant="noteYellow"
+        appearance="flat"
+        shadow="md"
+        [padding]="0"
+        [bodyFlush]="true"
+        [foldSize]="36"
+        [fullWidth]="true"
+        ariaLabelledBy="footer-cta-title"
+      >
+        <div class="footer-cta-note">
+          <div class="cta-copy">
+            <div class="cta-badge">
+              <app-icon [icon]="LucideSparkles" size="sm" /><span>{{ ctaBadgeText }}</span>
             </div>
+            <h2 id="footer-cta-title" class="cta-title">
+              <span>{{ ctaHeadingLine1 }}</span
+              ><span class="cta-highlight">{{ ctaHeadingHighlight }}</span>
+            </h2>
+            <p class="cta-subtitle">{{ ctaDescription }}</p>
           </div>
-
-          <!-- Buttons Group -->
-          <div class="cta-buttons">
-            <button type="button" class="btn-start-free" (click)="primaryActionClick.emit()">
-              <span>{{ primaryActionLabel }}</span>
-              <app-icon [icon]="LucideArrowRight" size="sm" />
-            </button>
-
-            <button type="button" class="btn-sign-in" (click)="secondaryActionClick.emit()">
-              {{ secondaryActionLabel }}
-            </button>
-          </div>
-
-          <!-- Perks Checklist -->
-          <div class="cta-perks">
-            <div class="perk-item">
-              <span class="perk-check">✓</span>
-              <span>Free forever</span>
+          <div class="cta-action-side">
+            <img [src]="mascotSrc" alt="" class="mascot-img" aria-hidden="true" />
+            <p class="cta-handwritten" aria-hidden="true">Good things start with a note.</p>
+            <div class="cta-buttons">
+              <button type="button" class="btn-start-free" (click)="primaryActionClick.emit()">
+                <span>{{ primaryActionLabel }}</span
+                ><app-icon [icon]="LucideArrowRight" size="sm" />
+              </button>
+              <button type="button" class="btn-sign-in" (click)="secondaryActionClick.emit()">
+                {{ secondaryActionLabel }}
+              </button>
             </div>
-            <div class="perk-item">
-              <span class="perk-check">✓</span>
-              <span>No credit card</span>
-            </div>
-            <div class="perk-item">
-              <span class="perk-check">✓</span>
-              <span>Set up in seconds</span>
+            <div class="cta-perks">
+              <span><app-icon [icon]="LucideCheck" size="xs" />Free to get started</span
+              ><span><app-icon [icon]="LucideCheck" size="xs" />Your ideas, organized</span>
             </div>
           </div>
         </div>
-      </section>
+      </app-sticky-card>
     </div>
 
     <!-- Dashed Separator Line -->
@@ -207,6 +141,9 @@
           <form class="newsletter-form" (submit)="onSubscribe($event)">
             <input
               type="email"
+              aria-label="Email address for product updates"
+              autocomplete="email"
+              name="newsletterEmail"
               class="newsletter-input"
               placeholder="Enter your email"
               [value]="newsletterEmail()"
@@ -216,16 +153,16 @@
             <button type="submit" class="newsletter-submit">Subscribe</button>
           </form>
           @if (subscribeSuccess()) {
-            <p class="newsletter-success">Thanks for subscribing!</p>
+            <p class="newsletter-success" role="status">Thanks for subscribing!</p>
           }
         </div>
       </div>
 
       <!-- Navigation Columns -->
       @for (group of linkGroups; track group.title) {
-        <div class="footer-nav-col">
+        <nav class="footer-nav-col" [attr.aria-label]="group.title">
           <!-- Colorful Sticky Note Pill Header -->
-          <div class="col-pill-badge" [class]="'badge-' + group.badgeColor">
+          <h3 class="col-pill-badge" [class]="'badge-' + group.badgeColor">
             @if (group.icon === 'sparkles') {
               <app-icon [icon]="LucideSparkles" size="xs" />
             } @else if (group.icon === 'home') {
@@ -236,7 +173,7 @@
               <app-icon [icon]="LucideUsers" size="xs" />
             }
             <span>{{ group.title }}</span>
-          </div>
+          </h3>
 
           <ul class="col-links-list">
             @for (link of group.links; track link.label) {
@@ -255,7 +192,7 @@
               </li>
             }
           </ul>
-        </div>
+        </nav>
       }
     </div>
 

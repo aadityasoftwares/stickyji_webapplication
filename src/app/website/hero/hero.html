@@ -1,7 +1,7 @@
 ﻿<section id="top" class="hero" aria-labelledby="hero-title">
   <div class="hero-decorations" aria-hidden="true">
     <div class="paper-note note-yellow">
-      <span>Notes<br />Tasks<br />Plans<br />All in one<br />place.</span>
+      <span>Today.<br />Notes.<br />Boards.<br />All in<br />one place.</span>
       <svg class="note-smile" viewBox="0 0 40 40"><path d="M12 9v4m15-4v4M8 21q12 17 24-1" /></svg>
       <svg class="note-rays" viewBox="0 0 64 64">
         <path d="M13 28 18 8m10 27L45 17M38 47l21-3" />
@@ -38,13 +38,13 @@
     <div class="hero-copy">
       <div class="hero-eyebrow">
         <app-icon [icon]="LucideSparkles" size="sm" /><span
-          >Sticky notes for a clearer, brighter you.</span
+          >Notes, tasks and plans — in one place.</span
         >
       </div>
       <h1 id="hero-title" class="hero-title">
         Big ideas. Clear next steps.
         <span class="hero-title-note"
-          >One happy workspace.
+          >One workspace that moves with you.
           <svg class="title-underline" viewBox="0 0 310 18" aria-hidden="true">
             <path d="M4 13Q130-5 302 9" />
           </svg>
@@ -54,10 +54,9 @@
         </span>
       </h1>
       <p class="hero-description">
-        Bring your notes, tasks, and everyday plans together in one simple,<br
-          class="desktop-break"
-        />
-        visual workspace to get things out of your head and into motion.
+        Plan your day on a board, organise work into workspaces and folders, and keep every idea in
+        sight — <br class="desktop-break" />
+        without losing the things that make it yours.
       </p>
       <div class="hero-actions">
         <button class="hero-primary" type="button" (click)="startFree.emit()">
@@ -73,101 +72,297 @@
         ><span><app-icon [icon]="LucideCheck" size="sm" /> Your ideas, organized</span>
       </div>
       <div class="hero-use-cases">
-        <span>MADE FOR YOUR EVERYDAY</span>
+        <span>BUILT FOR YOUR EVERYDAY</span>
         <p>
-          <span>Personal projects</span><i></i><span>Work notes</span><i></i><span>Fresh ideas</span
-          ><i></i><span>Team plans</span>
+          <span>Daily planning</span><i></i><span>Project boards</span><i></i
+          ><span>Idea capture</span><i></i><span>Team workspaces</span>
         </p>
       </div>
     </div>
-    <div id="features" class="hero-visual" role="group" aria-label="Sticky Ji workspace preview">
-      <div class="preview-caption" aria-hidden="true">
-        A workspace<br />that moves<br />with you.<svg viewBox="0 0 60 70">
-          <path d="M49 7C25 12 37 44 7 57m31-48 12-3-1 13M9 46 5 59l14-1" />
-        </svg>
-      </div>
+    <div
+      id="features"
+      class="hero-visual"
+      role="group"
+      aria-label="Interactive Today workspace preview"
+    >
       <div class="workspace-window">
-        <aside class="workspace-sidebar" aria-hidden="true">
-          <img src="StickyJiHorizontalLogo.png" alt="" class="workspace-logo" />
-          <div class="sidebar-links">
-            <span class="is-active"><app-icon [icon]="LucideHouse" size="sm" />Home</span
-            ><span><app-icon [icon]="LucideNotebook" size="sm" />My Notes</span
-            ><span><app-icon [icon]="LucideCircleCheck" size="sm" />Tasks</span
-            ><span><app-icon [icon]="LucidePanelsTopLeft" size="sm" />Workspaces</span>
-          </div>
-          <div class="sidebar-spaces">
-            <small>MY WORKSPACES</small><span><i></i>Personal</span
-            ><span><i></i>Work &amp; ideas</span>
+        <aside class="preview-sidebar" aria-hidden="true">
+          <img src="StickyJiLogo.png" alt="" class="preview-logo" />
+          <span class="preview-collapse"><app-icon [icon]="LucidePanelLeftClose" size="sm" /></span>
+          @for (group of previewNav; track group.label) {
+            <div class="preview-nav-group">
+              @for (item of group.items; track item.label) {
+                <span class="preview-nav-item" [class.is-active]="item.active" [title]="item.label"
+                  ><app-icon [icon]="item.icon" size="sm"
+                /></span>
+              }
+            </div>
+          }
+          <div class="preview-sidebar-footer">
+            @for (item of previewAccount; track item.label) {
+              <span class="preview-nav-item" [title]="item.label"
+                ><app-icon [icon]="item.icon" size="sm"
+              /></span>
+            }
           </div>
         </aside>
-        <div class="workspace-main">
-          <div class="workspace-toolbar">
-            <app-icon [icon]="LucidePanelLeft" size="sm" />
-            <div class="workspace-tools">
-              <button
-                class="preview-search"
-                type="button"
-                (click)="startFree.emit()"
-                aria-label="Sign up to search your notes"
+        <div class="preview-main">
+          <header class="preview-today-header">
+            <div class="preview-today-intro">
+              <span class="preview-calendar" aria-hidden="true"
+                ><span>OCT</span><strong>25</strong></span
               >
-                <app-icon [icon]="LucideSearch" size="sm" /><span>Search notes, tasks...</span>
-              </button>
-              <button
-                class="preview-bell"
-                type="button"
-                (click)="startFree.emit()"
-                aria-label="Sign up to manage notifications"
-              >
-                <app-icon [icon]="LucideBell" size="sm" /></button
-              ><span class="preview-avatar" aria-hidden="true">S</span>
+              <div>
+                <div class="preview-today-meta">
+                  <span class="preview-kicker">Today</span><span>Sunday · 25/10/2026</span
+                  ><span class="preview-count-badge">{{ previewNotes.length }} notes</span>
+                </div>
+                <h2>Your day, one note at a time.</h2>
+              </div>
             </div>
-          </div>
-          <div class="workspace-content">
-            <h2>Good morning! <span aria-hidden="true">☀️</span></h2>
-            <p>Ideas, tasks and plans — all in one happy workspace.</p>
-            <div class="workspace-categories">
-              @for (category of previewCategories; track category.title) {
+            <div class="preview-header-actions" aria-hidden="true">
+              <span class="preview-picker"
+                ><app-icon [icon]="LucidePanelsTopLeft" size="sm" />Sticky Ji<app-icon
+                  [icon]="LucideChevronDown"
+                  size="xs"
+              /></span>
+              <span>/</span>
+              <span class="preview-picker"
+                ><app-icon [icon]="LucideFolderOpen" size="sm" />Bugs Solutions<app-icon
+                  [icon]="LucideChevronDown"
+                  size="xs"
+              /></span>
+              <span class="preview-refresh"><app-icon [icon]="LucideRefreshCw" size="sm" /></span>
+              <span class="preview-new-note"
+                ><app-icon [icon]="LucidePlus" size="sm" />New note</span
+              >
+            </div>
+          </header>
+          <div class="preview-toolbar">
+            <div class="preview-tabs" role="group" aria-label="Preview view">
+              @for (view of previewViews; track view.id) {
                 <button
                   type="button"
-                  [class]="'category-card category-' + category.color"
-                  (click)="startFree.emit()"
+                  [attr.aria-pressed]="previewView() === view.id"
+                  [class.is-active]="previewView() === view.id"
+                  (click)="previewView.set(view.id)"
+                  aria-controls="hero-preview-content"
                 >
-                  <span class="category-icon"><app-icon [icon]="category.icon" size="md" /></span
-                  ><span
-                    ><strong>{{ category.title }}</strong
-                    ><small>{{ category.count }}</small></span
-                  >
+                  <app-icon [icon]="view.icon" size="xs" />{{ view.label }}
                 </button>
               }
             </div>
-            <div class="notes-heading">
-              <h3>Your recent notes</h3>
-              <button type="button" (click)="startFree.emit()">
-                View all <app-icon [icon]="LucideArrowRight" size="sm" />
-              </button>
+            <label class="preview-search-field"
+              ><app-icon [icon]="LucideSearch" size="sm" /><input
+                type="search"
+                aria-label="Search preview notes"
+                placeholder="Search notes"
+                [value]="previewSearch()"
+                (input)="previewSearch.set($any($event.target).value)"
+            /></label>
+            <div class="preview-display-settings" aria-hidden="true">
+              <span class="preview-member">AP</span>
+              <span class="preview-select"
+                ><app-icon [icon]="LucideType" size="xs" />Comic Neue<app-icon
+                  [icon]="LucideChevronDown"
+                  size="xs"
+              /></span>
+              <span class="preview-select"
+                ><app-icon [icon]="LucideAArrowUp" size="xs" />16 px</span
+              >
+              <span class="preview-select"
+                ><app-icon [icon]="LucidePanelsTopLeft" size="xs" />Detail</span
+              >
+              <span class="preview-tool-button is-danger"
+                ><app-icon [icon]="LucideTrash2" size="xs" />Trash</span
+              >
+              <span class="preview-tool-button is-warning"
+                ><app-icon [icon]="LucideClockAlert" size="xs" />Overdue (2)</span
+              >
             </div>
-            <div class="preview-notes" aria-hidden="true">
-              <article>
-                <small>A LITTLE INSPIRATION</small>
-                <h4>Make room for big ideas.</h4>
-                <p>Every great thing starts with a little note.</p>
-                <span>Ideas worth keeping ✨</span>
-              </article>
-              <article>
-                <small>TODAY’S LITTLE WINS</small>
-                <h4>One step at a time.</h4>
-                <p>✓ Plan the day<br />✓ Make something you love<br />○ Leave room to dream</p>
-              </article>
-              <article>
-                <small>PERSONAL</small>
-                <h4>More of what matters.</h4>
-                <p>A fresh thought. A new plan.<br />A little space for you.</p>
-                <span>You’ve got this ♡</span>
-              </article>
-            </div>
+          </div>
+          <div
+            id="hero-preview-content"
+            class="preview-canvas"
+            [attr.aria-label]="previewView() + ' view'"
+          >
+            @switch (previewView()) {
+              @case ('notes') {
+                <div class="preview-notes-layout">
+                  <section class="preview-panel">
+                    <header class="preview-section-header">
+                      <span
+                        ><app-icon [icon]="LucideStickyNote" size="sm" />Today Notes
+                        <small>{{ visiblePreviewNotes().length }}</small></span
+                      ><span class="preview-new-note" aria-hidden="true"
+                        ><app-icon [icon]="LucidePlus" size="xs" />New note</span
+                      >
+                    </header>
+                    <div class="preview-notes-grid">
+                      @for (note of visiblePreviewNotes(); track note.key) {
+                        <ng-container *ngTemplateOutlet="noteCard; context: { $implicit: note }" />
+                      } @empty {
+                        <p class="preview-no-results">No matching notes. Try another search.</p>
+                      }
+                    </div>
+                  </section>
+                  <section class="preview-panel is-completed">
+                    <header class="preview-section-header">
+                      <span
+                        ><app-icon [icon]="LucideCheckCircle2" size="sm" />Completed
+                        <small>0</small></span
+                      >
+                    </header>
+                    <div class="preview-empty">
+                      <span class="preview-empty-icon"
+                        ><app-icon [icon]="LucideCheckCircle2" size="lg"
+                      /></span>
+                      <h3>No completed notes yet</h3>
+                      <p>Drag notes here or mark them complete when done.</p>
+                    </div>
+                  </section>
+                </div>
+              }
+              @case ('kanban') {
+                <div class="preview-kanban">
+                  @for (group of previewGroups(); track group.label) {
+                    <section class="preview-panel">
+                      <header class="preview-section-header">
+                        <span
+                          ><i class="preview-column-dot"></i>{{ group.label }}
+                          <small>{{ group.notes.length }}</small></span
+                        ><app-icon [icon]="LucidePlus" size="xs" aria-hidden="true" />
+                      </header>
+                      <div class="preview-column-notes">
+                        @for (note of group.notes; track note.key) {
+                          <ng-container
+                            *ngTemplateOutlet="noteCard; context: { $implicit: note }"
+                          />
+                        } @empty {
+                          <p class="preview-no-results">
+                            {{
+                              previewSearch() ? 'No matching notes' : 'No notes in this column yet'
+                            }}
+                          </p>
+                        }
+                      </div>
+                    </section>
+                  }
+                </div>
+              }
+              @case ('table') {
+                <div class="preview-table-view">
+                  @for (group of previewGroups(); track group.label) {
+                    @if (group.notes.length) {
+                      <section class="preview-table-group">
+                        <header class="preview-section-header">
+                          <span
+                            ><app-icon [icon]="LucideChevronDown" size="xs" /><i
+                              class="preview-column-dot"
+                            ></i
+                            >{{ group.label }} <small>{{ group.notes.length }}</small></span
+                          ><app-icon [icon]="LucidePlus" size="xs" aria-hidden="true" />
+                        </header>
+                        <table>
+                          <caption class="preview-sr-only">
+                            {{
+                              group.label
+                            }}
+                            notes
+                          </caption>
+                          <thead>
+                            <tr>
+                              <th scope="col">Note</th>
+                              <th scope="col">Description</th>
+                              <th scope="col">Date</th>
+                              <th scope="col">Folder</th>
+                              <th scope="col">Progress</th>
+                              <th scope="col">Updated</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (note of group.notes; track note.key) {
+                              <tr>
+                                <td>
+                                  <span class="preview-note-key">{{ note.key }}</span
+                                  ><strong>{{ note.title }}</strong>
+                                </td>
+                                <td>{{ note.description }}</td>
+                                <td>{{ note.due }}</td>
+                                <td><span class="preview-folder">Bugs Solutions</span></td>
+                                <td>
+                                  @if (note.checklist) {
+                                    <div class="preview-checklist-heading">
+                                      <span
+                                        >{{ note.checklist.done }}/{{ note.checklist.total }}</span
+                                      ><span>{{ note.progress }}%</span>
+                                    </div>
+                                    <span class="preview-checklist-track"
+                                      ><span [style.width.%]="note.progress"></span
+                                    ></span>
+                                  } @else {
+                                    —
+                                  }
+                                </td>
+                                <td>25/10/2026<br />07:44 AM</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </section>
+                    }
+                  }
+                  @if (!visiblePreviewNotes().length) {
+                    <p class="preview-no-results">No matching notes. Try another search.</p>
+                  }
+                </div>
+              }
+            }
           </div>
         </div>
       </div>
+      <ng-template #noteCard let-note>
+        <article [class]="'preview-note is-' + note.color">
+          <span class="preview-note-tape" aria-hidden="true"></span>
+          <header class="preview-note-header">
+            <span class="preview-note-key">{{ note.key }}</span
+            ><span class="preview-note-actions" aria-hidden="true"
+              ><app-icon [icon]="LucidePencil" size="xs" /><app-icon
+                [icon]="LucideMoreHorizontal"
+                size="xs"
+            /></span>
+          </header>
+          <h3>{{ note.title }}</h3>
+          <p>{{ note.description }}</p>
+          <div class="preview-note-meta">
+            <span class="preview-note-badge is-column"><i></i>{{ note.column }}</span
+            ><span class="preview-note-badge"
+              ><app-icon [icon]="LucideCalendarDays" size="xs" />{{ note.due }}</span
+            >
+          </div>
+          @if (note.checklist) {
+            <div class="preview-note-checklist">
+              <div class="preview-checklist-heading">
+                <span>{{ note.checklist.done }} of {{ note.checklist.total }} complete</span
+                ><strong>{{ note.progress }}%</strong>
+              </div>
+              <span class="preview-checklist-track"
+                ><span [style.width.%]="note.progress"></span
+              ></span>
+            </div>
+          }
+          @if (note.assignees) {
+            <div class="preview-note-assignees">
+              @for (assignee of note.assignees; track assignee) {
+                <span>{{ assignee }}</span>
+              }
+            </div>
+          }
+        </article>
+      </ng-template>
+      <p class="preview-hint">
+        One workspace, three ways to see your day. Try Notes, Kanban or Table.
+      </p>
     </div>
   </div>
 </section>
