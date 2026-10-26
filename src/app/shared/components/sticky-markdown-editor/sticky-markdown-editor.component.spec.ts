@@ -59,7 +59,7 @@ describe('StickyMarkdownEditorComponent', () => {
     expect(editor.markdown).toBe('hello **world**');
   });
   const button = (label: string): HTMLButtonElement =>
-    fixture.nativeElement.querySelector(`button[title="${label}"]`);
+    fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
 
   it.each([
     ['bold', 'Bold (Ctrl/Cmd+B)', '**text**'],

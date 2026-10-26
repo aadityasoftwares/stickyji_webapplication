@@ -66,7 +66,10 @@ import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../services/workspace-folder.store';
-import type { WorkspaceFolder, WorkspaceFolderQuery } from '../models/workspace-folder.models';
+import type {
+  WorkspaceFolder,
+  WorkspaceFolderQuery,
+} from '../interfaces/workspace-folder.interface';
 
 @Component({
   selector: 'app-workspace-folder-trash',

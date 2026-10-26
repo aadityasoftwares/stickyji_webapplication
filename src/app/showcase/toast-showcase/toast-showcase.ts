@@ -18,7 +18,10 @@ import {
 import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Toast } from '../../shared/components/toast/toast';
-import { ToastPosition, ToastVariant } from '../../shared/components/toast/models/toast.model';
+import type {
+  ToastPosition,
+  ToastVariant,
+} from '../../shared/components/toast/interfaces/toast.interface';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 
 @Component({

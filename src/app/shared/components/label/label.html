@@ -4,7 +4,7 @@
   [attr.for]="htmlFor"
   [attr.id]="labelId"
   [attr.aria-label]="accessibleLabel"
-  [attr.title]="title"
+  [appTooltip]="hostTooltip ? '' : title"
   [style.max-width.px]="maxWidth"
 >
   <span class="app-label-main">

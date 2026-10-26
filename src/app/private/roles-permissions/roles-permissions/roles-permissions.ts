@@ -69,14 +69,14 @@ import { toTimestamp } from '../../../shared/functions/date.function';
 import { GROUP_ACCENTS, VIEW_TABS } from '../../../shared/constants/common.constants';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
-import { USER_PREFERENCE_KEYS } from '../../user-preferences/models/user-preference.models';
+import { USER_PREFERENCE_KEYS } from '../../../shared/constants/common.constants';
 import { AuthStore } from '../../../public/auth/state/auth.store';
 import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
 import { AddEditPermissionSidePanel } from '../add-edit-permission-side-panel/add-edit-permission-side-panel';
 import { ViewRolePermissionsModal } from '../view-role-permissions-modal/view-role-permissions-modal';
 import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
-import type { PermissionGroup, Permission } from '../models/permission.models';
-import type { WorkspaceRole } from '../models/workspace-role.models';
+import type { PermissionGroup, Permission } from '../interfaces/permission.interface';
+import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
 import { PermissionApiService } from '../services/permission.service';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 

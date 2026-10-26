@@ -37,7 +37,7 @@
       #trigger
       class="app-select-trigger"
       [id]="selectId"
-      [appTooltip]="selectedLabel || placeholder"
+      [appTooltip]="hostTooltip ? '' : (selectedLabel || placeholder)"
       tooltipTone="paper"
       tooltipPosition="top"
       tooltipSize="sm"

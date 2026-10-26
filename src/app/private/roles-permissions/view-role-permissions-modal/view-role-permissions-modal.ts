@@ -33,9 +33,9 @@ import { Input as AppInput, type InputValue } from '../../../shared/components/i
 import { Loader } from '../../../shared/components/loader/loader';
 import { Modal } from '../../../shared/components/modal/modal';
 
-import type { Permission, PermissionGroup } from '../models/permission.models';
+import type { Permission, PermissionGroup } from '../interfaces/permission.interface';
 
-import type { WorkspaceRole } from '../models/workspace-role.models';
+import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
 
 interface ViewPermissionGroup {
   module: string;

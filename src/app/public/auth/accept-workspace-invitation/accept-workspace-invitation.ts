@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -36,7 +37,7 @@ import { ToastService } from '../../../shared/components/toast/services/toast.se
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 
 import { AuthService } from '../services/auth-service';
-import { LoginCredentials, RegisterCredentials } from '../models/auth.models';
+import type { LoginCredentials, RegisterCredentials } from '../interfaces/auth.interface';
 import {
   WorkspaceInvitationAcceptResult,
   WorkspaceInvitationApiResponse,
@@ -58,6 +59,7 @@ interface BrowserRegistrationContext {
   selector: 'app-accept-workspace-invitation',
   standalone: true,
   imports: [
+    Tooltip,
     ReactiveFormsModule,
     RouterLink,
     AppIcon,

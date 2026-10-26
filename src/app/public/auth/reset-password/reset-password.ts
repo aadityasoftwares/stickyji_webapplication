@@ -41,7 +41,7 @@ import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
-import { ResetPasswordResponse } from '../models/auth.models';
+import type { ResetPasswordResponse } from '../interfaces/auth.interface';
 
 const passwordsMatchValidator: ValidatorFn = (
   control: AbstractControl,

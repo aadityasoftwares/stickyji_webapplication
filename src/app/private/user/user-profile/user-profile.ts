@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {
@@ -56,12 +57,12 @@ import { Modal } from '../../../shared/components/modal/modal';
 import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
-import {
+import type {
   ProfileReferenceData,
   UpdateUserProfilePayload,
   UserProfile,
   UserProfileType,
-} from '../models/user-profile.models';
+} from '../interfaces/user-profile.interface';
 
 import { UserProfileService } from '../services/user-profile.service';
 import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
@@ -84,6 +85,7 @@ type ProfileControlName =
   selector: 'app-user-profile',
   standalone: true,
   imports: [
+    Tooltip,
     CommonModule,
     ReactiveFormsModule,
     AppIcon,
@@ -146,7 +148,6 @@ export class UserProfileComponent implements OnInit {
   readonly uploadStep = signal<string>('');
   readonly removing = signal(false);
   readonly imageErrorCount = signal(0);
-
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -388,10 +389,7 @@ export class UserProfileComponent implements OnInit {
           this.uploadProgress.set(null);
           this.uploadStep.set('');
           this.toast.error(
-            extractErrorMessage(
-              error,
-              'Failed to update profile photo. Please try again.',
-            ),
+            extractErrorMessage(error, 'Failed to update profile photo. Please try again.'),
           );
         },
       });

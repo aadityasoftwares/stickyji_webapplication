@@ -42,15 +42,7 @@ export type SelectAppearance = 'standard' | 'inline' | 'transparent' | 'outlined
 export type SelectShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type SelectStatus = 'default' | 'success' | 'warning' | 'danger';
 export type SelectPlacement = 'auto' | 'top' | 'bottom';
-export type SelectShadow =
-  | 'none'
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'upside'
-  | 'subtle'
-  | 'soft';
+export type SelectShadow = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'upside' | 'subtle' | 'soft';
 export interface SelectOptionAvatar {
   src?: string | null;
   alt?: string;
@@ -94,6 +86,8 @@ export interface SelectOption {
   ],
 })
 export class Select implements ControlValueAccessor, AfterViewInit, OnDestroy {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   @ViewChild('trigger', {
     static: true,
   })

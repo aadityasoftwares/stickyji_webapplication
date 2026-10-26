@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { EMPTY, Observable, expand, reduce } from 'rxjs';
+import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
 import type {
-  ApiResponse,
   PaginatedApiResponse,
   WorkspaceFolder,
   WorkspaceFolderQuery,
   WorkspaceFolderCreateRequest,
   WorkspaceFolderUpdateRequest,
   WorkspaceFolderStatus,
-} from '../models/workspace-folder.models';
+} from '../interfaces/workspace-folder.interface';
 
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';

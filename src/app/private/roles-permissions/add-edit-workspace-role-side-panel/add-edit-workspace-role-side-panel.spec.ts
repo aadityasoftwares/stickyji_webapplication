@@ -4,7 +4,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { SimpleChange } from '@angular/core';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 import { of, Subject, throwError } from 'rxjs';
-import type { ApiResponse, WorkspaceRole } from '../models/workspace-role.models';
+import type { ApiResult as ApiResponse } from '../../../shared/interfaces/api.interface';
+import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
 
 describe('AddEditWorkspaceRoleSidePanel', () => {
   let component: AddEditWorkspaceRoleSidePanel;

@@ -3,7 +3,7 @@ import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { WorkspaceFolderStore } from './workspace-folder.store';
 import { WorkspaceFolderService } from './workspace-folder.service';
-import type { WorkspaceFolder } from '../models/workspace-folder.models';
+import type { WorkspaceFolder } from '../interfaces/workspace-folder.interface';
 
 describe('WorkspaceFolderStore request isolation', () => {
   const api = { getFolderOptions: vi.fn() };

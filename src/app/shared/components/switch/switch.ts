@@ -1,4 +1,6 @@
+import { Tooltip } from '../tooltip/tooltip';
 import {
+  inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -38,7 +40,7 @@ let nextSwitchId = 0;
 @Component({
   selector: 'app-switch',
   standalone: true,
-  imports: [NgClass, AppIcon],
+  imports: [Tooltip, NgClass, AppIcon],
   templateUrl: './switch.html',
   styleUrl: './switch.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,10 +52,13 @@ let nextSwitchId = 0;
     },
   ],
   host: {
+    '[attr.title]': 'null',
     '[class.app-switch-host-full]': 'fullWidth',
   },
 })
 export class Switch implements ControlValueAccessor {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   private readonly generatedId = `app-switch-${++nextSwitchId}`;
   private formDisabled = false;
 

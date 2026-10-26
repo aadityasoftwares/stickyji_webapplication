@@ -98,7 +98,7 @@
                 type="button"
                 class="avatar-camera-btn"
                 aria-label="Upload profile photo"
-                title="Upload or change image"
+                appTooltip="Upload or change image"
                 [disabled]="uploading() || removing()"
                 (click)="fileInput.click()"
               >
@@ -475,7 +475,7 @@
                             type="button"
                             class="suggestion-chip"
                             (click)="addSuggestedInterest(topic)"
-                            [title]="'Add ' + topic"
+                            [appTooltip]="'Add ' + topic"
                           >
                             <app-icon [icon]="LucidePlus" size="xs" />
                             {{ topic }}

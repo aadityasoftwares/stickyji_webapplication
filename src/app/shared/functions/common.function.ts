@@ -149,3 +149,13 @@ export function sortItemsByPosition<T = any>(items: any): T[] {
     return Array.isArray(items) ? [...items] : [];
   }
 }
+
+export function buildStatusTabs(
+  counts: { all?: number; active?: number; archived?: number } = {},
+): any[] {
+  return [
+    { value: 'all', label: 'All', count: counts.all ?? 0 },
+    { value: 'active', label: 'Active', count: counts.active ?? 0 },
+    { value: 'archived', label: 'Archived', count: counts.archived ?? 0 },
+  ];
+}

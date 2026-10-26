@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,12 +30,12 @@ import { UserDateTimeFormatterService } from '../../../shared/services/user-date
 import type {
   WorkspaceInvitation,
   WorkspaceInvitationStatus,
-} from '../models/workspace-invitation.models';
+} from '../interfaces/workspace-invitation.interface';
 
 @Component({
   selector: 'app-invitation-card-wrapper',
   standalone: true,
-  imports: [CommonModule, AppIcon, Avatar, Badge],
+  imports: [Tooltip, CommonModule, AppIcon, Avatar, Badge],
   templateUrl: './invitation-card-wrapper.html',
   styleUrl: './invitation-card-wrapper.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

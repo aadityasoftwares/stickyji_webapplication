@@ -149,6 +149,9 @@ export class WorkspaceStore {
     if (!this._selectedId()) {
       this._selectedId.set(workspace.id);
     }
+
+    // Refresh dropdown store so all workspace/folder selects app-wide pick up the new data
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   updateWorkspace(id: string, values: any): void {
@@ -162,6 +165,9 @@ export class WorkspaceStore {
           : workspace,
       ),
     );
+
+    // Re-fetch dropdown so workspace name changes appear everywhere
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   remove(id: string): void {
@@ -170,6 +176,9 @@ export class WorkspaceStore {
     if (this._selectedId() === id) {
       this.selectFirst();
     }
+
+    // Re-fetch dropdown so removed workspace disappears from all selects
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   setLoading(loading: boolean): void {

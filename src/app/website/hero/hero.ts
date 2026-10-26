@@ -1,4 +1,5 @@
-﻿import { NgTemplateOutlet } from '@angular/common';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -65,7 +66,7 @@ interface PreviewNote {
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [AppIcon, NgTemplateOutlet],
+  imports: [Tooltip, AppIcon, NgTemplateOutlet],
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

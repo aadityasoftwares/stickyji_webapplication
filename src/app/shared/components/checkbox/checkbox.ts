@@ -1,4 +1,6 @@
+import { Tooltip } from '../tooltip/tooltip';
 import {
+  inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -35,7 +37,7 @@ export type CheckboxLabelPosition = 'left' | 'right';
 @Component({
   selector: 'app-checkbox',
   standalone: true,
-  imports: [NgClass],
+  imports: [Tooltip, NgClass],
   templateUrl: './checkbox.html',
   styleUrl: './checkbox.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,10 +49,13 @@ export type CheckboxLabelPosition = 'left' | 'right';
     },
   ],
   host: {
+    '[attr.title]': 'null',
     '[class.app-checkbox-host-full]': 'fullWidth',
   },
 })
 export class Checkbox implements ControlValueAccessor {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   private static nextId = 0;
 
   private internalChecked = false;

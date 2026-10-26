@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { ToastOptions, ToastItem, ToastVariant } from '../models/toast.model';
+import type { ToastOptions, ToastItem, ToastVariant } from '../interfaces/toast.interface';
 
 type VariantToastOptions = Omit<ToastOptions, 'variant'>;
 

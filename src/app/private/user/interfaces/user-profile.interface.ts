@@ -1,11 +1,5 @@
 export type UserProfileType = 'PERSONAL' | 'STUDENT' | 'PROFESSIONAL' | 'BUSINESS';
 
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
 export interface IProfileImageSummary {
   id: string;
   url: string;

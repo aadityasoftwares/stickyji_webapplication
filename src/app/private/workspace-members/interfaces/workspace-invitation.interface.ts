@@ -97,23 +97,3 @@ export interface WorkspaceInvitationQuery {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
-
-export interface ApiResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: T;
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages?: number;
-}
-
-export interface PaginatedApiResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: T[];
-  pagination: Pagination;
-}

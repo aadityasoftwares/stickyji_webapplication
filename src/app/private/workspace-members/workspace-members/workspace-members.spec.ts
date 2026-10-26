@@ -6,7 +6,7 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { of, Subject, throwError } from 'rxjs';
 import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.service';
-import type { WorkspaceRole } from '../../roles/models/workspace-role.models';
+import type { WorkspaceRole } from '../../roles/interfaces/workspace-role.interface';
 import { WorkspaceMemberApiService } from '../services/workspace-member.service';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
@@ -15,8 +15,8 @@ import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-re
 import { USER_PREFERENCE_KEYS } from '../../../shared/constants/common.constants';
 import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
-import type { WorkspaceMemberListItem } from '../models/workspace-member.models';
-import type { WorkspaceInvitation } from '../models/workspace-invitation.models';
+import type { WorkspaceMemberListItem } from '../interfaces/workspace-member.interface';
+import type { WorkspaceInvitation } from '../interfaces/workspace-invitation.interface';
 
 describe('WorkspaceMembers', () => {
   let component: WorkspaceMembers;

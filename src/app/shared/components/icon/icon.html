@@ -7,7 +7,7 @@
   [attr.role]="isDecorative ? null : 'img'"
   [attr.aria-label]="accessibleLabel"
   [attr.aria-hidden]="isDecorative ? 'true' : null"
-  [attr.title]="title"
+  [appTooltip]="hostTooltip ? '' : title"
 >
   <span class="app-icon-transform" [style.transform]="iconTransform">
     <span class="app-icon-glyph" [class.app-icon-spin]="spin">

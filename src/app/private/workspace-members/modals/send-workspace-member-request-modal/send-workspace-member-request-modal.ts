@@ -36,11 +36,11 @@ import {
 } from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../../shared/functions/api.functions';
-import type { WorkspaceMember } from '../../models/workspace-member.models';
+import type { WorkspaceMember } from '../../interfaces/workspace-member.interface';
 import { WorkspaceInvitationApiService } from '../../services/workspace-invitation.service';
 import { WorkspaceMemberApiService } from '../../services/workspace-member.service';
 import { WorkspaceRoleApiService } from '../../../roles/services/workspace-role.service';
-import { WorkspaceRole } from '../../../roles/models/workspace-role.models';
+import type { WorkspaceRole } from '../../../roles/interfaces/workspace-role.interface';
 
 type UnknownRecord = Record<string, unknown>;
 

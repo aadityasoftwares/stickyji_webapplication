@@ -1,8 +1,8 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { WorkspaceRoleApiService } from '../../../private/roles-permissions/services/workspace-role.service';
-import type { WorkspaceRole } from '../../../private/roles-permissions/models/workspace-role.models';
+import type { WorkspaceRole } from '../../../private/roles-permissions/interfaces/workspace-role.interface';
 import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
-import { AuthSession, AuthenticatedUser } from '../models/auth.models';
+import type { AuthSession, AuthenticatedUser } from '../interfaces/auth.interface';
 
 @Injectable({
   providedIn: 'root',

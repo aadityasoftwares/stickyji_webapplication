@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Tooltip } from '../tooltip/tooltip';
+import {
+  inject,
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { NgClass } from '@angular/common';
 import { LucideX } from '@lucide/angular';
 
@@ -31,14 +39,17 @@ export type BadgeIconPosition = 'left' | 'right';
 export type BadgeRole = 'status' | 'note' | null;
 
 @Component({
+  host: { '[attr.title]': 'null' },
   selector: 'app-badge',
   standalone: true,
-  imports: [NgClass, AppIcon],
+  imports: [Tooltip, NgClass, AppIcon],
   templateUrl: './badge.html',
   styleUrl: './badge.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Badge {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   @Input() label = '';
   @Input() variant: BadgeVariant = 'neutral';
   @Input() size: BadgeSize = 'sm';

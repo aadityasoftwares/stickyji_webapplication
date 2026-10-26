@@ -1,12 +1,8 @@
-import type { ApiResponse } from '../../../shared/models/api.models';
-export type { ApiResponse } from '../../../shared/models/api.models';
+import type { SESSION_TYPES } from '../constants/auth.constants';
+import type { ApiResponse } from '../../../shared/interfaces/api.interface';
+export type { ApiResponse } from '../../../shared/interfaces/api.interface';
 
-export enum SessionType {
-  WEB = 'WEB',
-  MOBILE = 'MOBILE',
-  DESKTOP = 'DESKTOP',
-  API = 'API',
-}
+export type SessionType = (typeof SESSION_TYPES)[keyof typeof SESSION_TYPES];
 
 export interface AuthRole {
   _id: string;

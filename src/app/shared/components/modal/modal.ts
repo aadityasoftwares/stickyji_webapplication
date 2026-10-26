@@ -30,6 +30,7 @@ let savedBodyOverflow = '';
 let savedBodyPaddingRight = '';
 
 @Component({
+  host: { '[attr.title]': 'null' },
   selector: 'app-modal',
   standalone: true,
   imports: [AppIcon, Button],

@@ -1,3 +1,5 @@
+import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
+import type { PaginationMeta as Pagination } from '../../../shared/interfaces/api.interface';
 export type WorkspaceFolderStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'DELETED';
 
 export interface WorkspaceFolderUserSummary {
@@ -73,19 +75,6 @@ export interface WorkspaceFolderQuery {
   createdBy?: string;
   sortBy?: 'name' | 'position' | 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages?: number;
 }
 
 export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {

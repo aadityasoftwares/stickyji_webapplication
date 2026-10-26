@@ -8,7 +8,7 @@
 
         <div>
           <span class="workspace-kicker">Workspace Folders</span>
-          <h1 id="workspace-folder-page-title" [attr.title]="selectedWorkspaceLabel() + ' folders'">
+          <h1 id="workspace-folder-page-title" [appTooltip]="selectedWorkspaceLabel() + ' folders'">
             {{ selectedWorkspaceLabel() }}
             <span>folders</span>
           </h1>
@@ -325,7 +325,7 @@
                         maxlength="100"
                         aria-label="Rename folder"
                         [attr.aria-invalid]="!!inlineRenameError()"
-                        [attr.title]="inlineRenameError()"
+                        [appTooltip]="inlineRenameError()"
                         [value]="inlineRenameName()"
                         (click)="$event.stopPropagation()"
                         (dblclick)="$event.stopPropagation()"
@@ -586,7 +586,7 @@
                                             maxlength="100"
                                             aria-label="Rename folder"
                                             [attr.aria-invalid]="!!inlineRenameError()"
-                                            [attr.title]="inlineRenameError()"
+                                            [appTooltip]="inlineRenameError()"
                                             [value]="inlineRenameName()"
                                             (click)="$event.stopPropagation()"
                                             (dblclick)="$event.stopPropagation()"

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, switchMap, of } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
-import { ApiResponse, PaginatedApiResponse } from '../../../shared/models/api.models';
+import type { ApiResponse, PaginatedApiResponse } from '../../../shared/interfaces/api.interface';
 
 export type BillingInterval = 'MONTHLY' | 'YEARLY';
 export type BillingCycle = BillingInterval;

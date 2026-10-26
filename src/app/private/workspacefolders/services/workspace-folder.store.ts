@@ -2,13 +2,16 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Subscription, finalize } from 'rxjs';
 import { idOf } from '../../../shared/functions/common.function';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
-import { Pagination, WorkspaceFolder } from '../models/workspace-folder.models';
+import type { PaginationMeta as Pagination } from '../../../shared/interfaces/api.interface';
+import type { WorkspaceFolder } from '../interfaces/workspace-folder.interface';
 import { WorkspaceFolderService } from './workspace-folder.service';
+import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceFolderStore {
   private loadSubscription?: Subscription;
   private readonly workspaceFolderService = inject(WorkspaceFolderService);
+  private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
 
   private readonly _folders = signal<readonly WorkspaceFolder[]>([]);
   private readonly _workspaceId = signal<string | null>(null);
@@ -126,6 +129,9 @@ export class WorkspaceFolderStore {
     });
 
     this.ensureSelectedFolder();
+
+    // Refresh dropdown store so all workspace+folder selects pick up the change
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   updateFolder(id: string, values: Partial<WorkspaceFolder>): void {
@@ -139,6 +145,9 @@ export class WorkspaceFolderStore {
           : folder,
       ),
     );
+
+    // Re-fetch dropdown so folder name/status changes appear in all selects
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   remove(id: string): void {
@@ -147,6 +156,9 @@ export class WorkspaceFolderStore {
     if (this._selectedId() === id) {
       this.ensureSelectedFolder();
     }
+
+    // Re-fetch dropdown so removed folder disappears from all selects
+    this.workspaceDropdownStore.refresh().subscribe();
   }
 
   setLoading(loading: boolean): void {

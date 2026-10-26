@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
-import { ApiResponse } from '../../../shared/models/api.models';
+import type { ApiResponse } from '../../../shared/interfaces/api.interface';
 
 export interface RazorpayCheckoutDetails {
   orderId: string;

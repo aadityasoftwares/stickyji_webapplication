@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { AuthService } from '../services/auth-service';
-import { ResetPasswordResponse } from '../models/auth.models';
+import type { ResetPasswordResponse } from '../interfaces/auth.interface';
 import { ResetPassword } from './reset-password';
 
 describe('ResetPassword', () => {

@@ -1,4 +1,4 @@
-import type { WorkspaceFolder } from '../../private/workspacefolders/models/workspace-folder.models';
+import type { WorkspaceFolder } from '../../private/workspacefolders/interfaces/workspace-folder.interface';
 import { canWorkspaceAction } from './workspace-access.function';
 
 export type FolderAction =

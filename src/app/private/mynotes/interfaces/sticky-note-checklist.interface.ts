@@ -1,3 +1,5 @@
+import type { ApiResult as ApiItemResponse } from '../../../shared/interfaces/api.interface';
+
 export type StickyNoteChecklistStatus = 'ACTIVE' | 'ARCHIVED' | 'DELETED';
 
 export type StickyNoteChecklistItemStatus = 'ACTIVE' | 'ARCHIVED' | 'DELETED';
@@ -81,12 +83,6 @@ export interface StickyNoteChecklistItemFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface ApiItemResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: T;
-}
-
 export interface ApiListEnvelope<T> {
   items?: T[];
   docs?: T[];
@@ -103,12 +99,6 @@ export interface ApiListResponse<T> {
   success?: boolean;
   message?: string;
   data: T[] | ApiListEnvelope<T>;
-}
-
-export interface ApiDeleteResponse {
-  success?: boolean;
-  message?: string;
-  data?: unknown;
 }
 
 export type StickyNoteChecklistResponse = ApiItemResponse<StickyNoteChecklist>;

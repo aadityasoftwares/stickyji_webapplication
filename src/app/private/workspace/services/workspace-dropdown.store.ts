@@ -1,11 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of } from 'rxjs';
 import { WorkspaceService } from './workspace.service';
-import {
+import type {
   WorkspaceDropdownFolder,
   WorkspaceDropdownItem,
   WorkspaceDropdownResponse,
-} from '../models/workspace-dropdown.models';
+} from '../interfaces/workspace-dropdown.interface';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { entityNameOf, idOf } from '../../../shared/functions/common.function';
 

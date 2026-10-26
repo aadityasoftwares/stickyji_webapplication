@@ -103,7 +103,7 @@ import type {
   WorkspaceFolderQuery,
   PaginatedApiResponse,
   WorkspaceFolderStickyNoteSummary,
-} from './models/workspace-folder.models';
+} from './interfaces/workspace-folder.interface';
 import { WORKSPACE_FOLDER_MESSAGES } from './messages/workspace-folder.messages';
 import { VALIDATION_MESSAGES } from '../../shared/constants/common.messages';
 

@@ -1,46 +1,4 @@
-import { DEFAULT_USER_PREFERENCES as SHARED_DEFAULT_USER_PREFERENCES } from '../../../shared/constants/common.constants';
-
-export const USER_PREFERENCE_KEYS = {
-  THEME: 'theme',
-  SELECTED_WORKSPACE_ID: 'selectedWorkspaceId',
-  SELECTED_FOLDER_ID: 'selectedFolderId',
-  DEFAULT_NOTE_COLOR: 'defaultNoteColor',
-  DEFAULT_NOTE_SHAPE: 'defaultNoteShape',
-  DEFAULT_NOTE_VARIANT: 'defaultNoteVariant',
-  DEFAULT_NOTE_BACKGROUND_PATTERN: 'defaultNoteBackgroundPattern',
-  NOTE_VIEW: 'noteView',
-  TODAY_VIEW: 'todayView',
-  OVERDUE_VIEW: 'overdueView',
-  WORKSPACE_VIEW: 'workspaceView',
-  WORKSPACE_STATUS_FILTER: 'workspaceStatusFilter',
-  WORKSPACE_ACCESS_FILTER: 'workspaceAccessFilter',
-  WORKSPACE_SORT_ORDER: 'workspaceSortOrder',
-  WORKSPACE_FOLDER_STATUS_FILTER: 'workspaceFolderStatusFilter',
-  WORKSPACE_FOLDER_SORT_ORDER: 'workspaceFolderSortOrder',
-  WORKSPACE_FOLDER_VIEW: 'workspaceFolderView',
-  WORKSPACE_MEMBER_STATUS_FILTER: 'workspaceMemberStatusFilter',
-  WORKSPACE_MEMBER_SORT_ORDER: 'workspaceMemberSortOrder',
-  WORKSPACE_MEMBER_VIEW: 'workspaceMemberView',
-  WORKSPACE_ROLE_STATUS_FILTER: 'workspaceRoleStatusFilter',
-  WORKSPACE_ROLE_SORT_ORDER: 'workspaceRoleSortOrder',
-  WORKSPACE_ROLE_VIEW: 'workspaceRoleView',
-  AUTOSAVE_ENABLED: 'autosaveEnabled',
-  AUTOSAVE_INTERVAL: 'autosaveInterval',
-  EMAIL_NOTIFICATIONS: 'emailNotifications',
-  PUSH_NOTIFICATIONS: 'pushNotifications',
-  IN_APP_NOTIFICATIONS: 'inAppNotifications',
-  MARKETING_EMAILS: 'marketingEmails',
-  PROFILE_VISIBLE: 'profileVisible',
-  SHOW_ONLINE_STATUS: 'showOnlineStatus',
-  REDUCE_MOTION: 'reduceMotion',
-  HIGH_CONTRAST: 'highContrast',
-  DATE_FORMAT: 'dateFormat',
-  LANGUAGE: 'language',
-  LOCALE: 'locale',
-  TIME_FORMAT: 'timeFormat',
-  TIMEZONE: 'timezone',
-  WEEK_STARTS_ON: 'weekStartsOn',
-} as const;
+import type { USER_PREFERENCE_KEYS } from '../../../shared/constants/common.constants';
 
 export type UserPreferenceKey = (typeof USER_PREFERENCE_KEYS)[keyof typeof USER_PREFERENCE_KEYS];
 
@@ -49,8 +7,7 @@ export type UserTheme = 'SYSTEM' | 'LIGHT' | 'DARK';
 export type DefaultNoteColor =
   'YELLOW' | 'ORANGE' | 'PINK' | 'RED' | 'GREEN' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK';
 
-export type DefaultNoteShape =
-  'STRIP' | 'SQUARE' | 'RECTANGLE' | 'PORTRAIT' | 'LANDSCAPE' | string;
+export type DefaultNoteShape = 'STRIP' | 'SQUARE' | 'RECTANGLE' | 'PORTRAIT' | 'LANDSCAPE' | string;
 
 export type DefaultNoteVariant =
   'PLAIN' | 'ROUNDED' | 'SOFT' | 'FOLDED' | 'CUT_CORNER' | 'TICKET' | string;
@@ -120,7 +77,7 @@ export interface UserPreferenceRecord {
   updatedAt?: string;
 }
 
-export interface UserPreferencesM {
+export interface UserPreferences {
   theme: UserTheme;
   selectedWorkspaceId?: string;
   selectedFolderId?: string;
@@ -168,59 +125,12 @@ export interface UpdateUserPreferencesPayload {
   preferences: UpdateUserPreferenceItem[];
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
 export type UserPreferencesResponseData =
   | UserPreferenceRecord[]
-  | Partial<UserPreferencesM>
+  | Partial<UserPreferences>
   | {
       preferences?: UserPreferenceRecord[];
       items?: UserPreferenceRecord[];
       rows?: UserPreferenceRecord[];
       records?: UserPreferenceRecord[];
     };
-
-export const DEFAULT_USER_PREFERENCES: Readonly<UserPreferencesM> = {
-  theme: 'SYSTEM',
-  selectedWorkspaceId: '',
-  selectedFolderId: '',
-  workspaceView: 'GRID',
-  workspaceStatusFilter: 'ALL',
-  workspaceAccessFilter: 'ALL',
-  workspaceSortOrder: 'RECENTLY_UPDATED',
-  workspaceMemberView: 'GRID',
-  workspaceMemberStatusFilter: 'ALL',
-  workspaceMemberSortOrder: 'RECENTLY_UPDATED',
-  workspaceRoleView: 'GRID',
-  workspaceRoleStatusFilter: 'ALL',
-  workspaceRoleSortOrder: 'PRIORITY',
-  defaultNoteColor: 'YELLOW',
-  defaultNoteShape: 'SQUARE',
-  defaultNoteVariant: 'PLAIN',
-  defaultNoteBackgroundPattern: 'NONE',
-  noteView: 'GRID',
-  todayView: 'NOTES',
-  overdueView: 'BAR',
-  autosaveEnabled: true,
-  autosaveInterval: 5,
-  emailNotifications: true,
-  pushNotifications: true,
-  inAppNotifications: true,
-  marketingEmails: false,
-  profileVisible: true,
-  showOnlineStatus: true,
-  reduceMotion: false,
-  highContrast: false,
-  dateFormat: 'DD/MM/YYYY',
-  language: 'en',
-  locale: 'en-US',
-  timeFormat: '12h',
-  timezone: SHARED_DEFAULT_USER_PREFERENCES['timezone'],
-  weekStartsOn: 'monday',
-};
-
-export const USER_PREFERENCE_KEY_LIST = Object.values(USER_PREFERENCE_KEYS) as UserPreferenceKey[];

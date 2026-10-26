@@ -1,3 +1,7 @@
+import type { LEGACY_STICKY_NOTE_SHAPES } from '../constants/sticky-note.constants';
+
+import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
+import type { PaginatedDataResponse as PaginatedApiResponse } from '../../../shared/interfaces/api.interface';
 import type { AvatarTone } from '../../../shared/components/avatar/avatar';
 
 import type { BadgeVariant } from '../../../shared/components/badge/badge';
@@ -13,15 +17,8 @@ export type StickyNoteStatus = 'ACTIVE' | 'ARCHIVED' | 'TRASHED';
 export type StickyNoteColor =
   'YELLOW' | 'BLUE' | 'GREEN' | 'PINK' | 'PURPLE' | 'ORANGE' | 'RED' | 'BROWN' | 'BLACK';
 
-export enum StickyNoteShape {
-  NOTE = 'NOTE',
-  ROUNDED = 'ROUNDED',
-  SOFT = 'SOFT',
-  SQUARE = 'SQUARE',
-  CUT = 'CUT',
-  TICKET = 'TICKET',
-  FOLDED = 'FOLDED',
-}
+export type StickyNoteShape =
+  (typeof LEGACY_STICKY_NOTE_SHAPES)[keyof typeof LEGACY_STICKY_NOTE_SHAPES];
 
 export type StickyNoteColumnType = 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'CUSTOM';
 
@@ -220,26 +217,6 @@ export interface StickyNoteFilters {
   sortBy?: 'createdAt' | 'updatedAt' | 'position' | 'title';
 
   sortOrder?: 'asc' | 'desc';
-}
-
-export interface StickyNotePagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages?: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export interface PaginatedApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T[];
-  pagination: StickyNotePagination;
 }
 
 export type StickyNoteColumnResponse = ApiResponse<StickyNoteColumn>;

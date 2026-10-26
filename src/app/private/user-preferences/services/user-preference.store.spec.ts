@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { AuthStore } from '../../../public/auth/state/auth.store';
-import { AuthSession } from '../../../public/auth/models/auth.models';
+import type { AuthSession } from '../../../public/auth/interfaces/auth.interface';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 import { UserPreferenceService } from './user-preference.service';
 import { UserPreferenceStore } from './user-preference.store';

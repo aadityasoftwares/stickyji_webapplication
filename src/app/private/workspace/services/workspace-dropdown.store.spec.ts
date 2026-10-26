@@ -5,7 +5,7 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceStore } from './workspace.store';
 import { WorkspaceDropdownStore } from './workspace-dropdown.store';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
-import { WorkspaceDropdownResponse } from '../models/workspace-dropdown.models';
+import type { WorkspaceDropdownResponse } from '../interfaces/workspace-dropdown.interface';
 
 describe('WorkspaceDropdownStore & WorkspaceService dropdown API', () => {
   let service: WorkspaceService;

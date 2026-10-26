@@ -1,3 +1,4 @@
+import { Tooltip } from '../../tooltip/tooltip';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   HighlightColor,
@@ -6,6 +7,7 @@ import {
   StickyMarks,
 } from '../../../utils/sticky-markdown/markdown.types';
 @Component({
+  imports: [Tooltip],
   selector: 'app-sticky-highlight-picker',
   standalone: true,
   template: `<div role="group" aria-label="Highlight color" class="swatches">
@@ -14,7 +16,7 @@ import {
           type="button"
           [style.background]="palette[color]"
           [attr.aria-label]="color"
-          [title]="color"
+          [appTooltip]="color"
           [attr.aria-pressed]="selected === color"
           (click)="selected = color"
         >

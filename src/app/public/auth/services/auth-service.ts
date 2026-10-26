@@ -13,7 +13,7 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../shared/functions/storage.functions';
-import {
+import type {
   ApiResponse,
   AuthSession,
   AuthSessionResponse,
@@ -31,9 +31,9 @@ import {
   RegisterResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
-  SessionType,
   VerifyEmailResponse,
-} from '../models/auth.models';
+} from '../interfaces/auth.interface';
+import { SESSION_TYPES } from '../constants/auth.constants';
 
 import { AuthStore } from '../state/auth.store';
 import { AuthRefreshService } from './auth-refresh.service';
@@ -268,7 +268,7 @@ export class AuthService {
 
   private clientContext(): ClientContext {
     return {
-      sessionType: SessionType.WEB,
+      sessionType: SESSION_TYPES.WEB,
       deviceId: this.getOrCreateDeviceId(),
       deviceName: this.getDeviceName(),
     };

@@ -1,3 +1,4 @@
+import { Tooltip } from '../tooltip/tooltip';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -64,21 +65,13 @@ export type InputDecoration = 'standard' | 'tape';
 export type InputShape = 'rounded' | 'soft' | 'square' | 'pill';
 export type InputStatus = 'default' | 'success' | 'warning' | 'danger';
 export type InputLabelMode = 'top' | 'floating' | 'hidden';
-export type InputShadow =
-  | 'none'
-  | 'xs'
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'upside'
-  | 'subtle'
-  | 'soft';
+export type InputShadow = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'upside' | 'subtle' | 'soft';
 export type TextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
 
 @Component({
   selector: 'app-input',
   standalone: true,
-  imports: [CommonModule, AppIcon],
+  imports: [Tooltip, CommonModule, AppIcon],
   templateUrl: './input.html',
   styleUrl: './input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

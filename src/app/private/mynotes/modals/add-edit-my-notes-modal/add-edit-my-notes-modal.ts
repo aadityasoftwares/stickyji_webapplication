@@ -64,7 +64,7 @@ import { StickyNoteChecklistItemApiService } from '../../services/sticky-note-ch
 import { StickyNoteChecklistApiService } from '../../services/sticky-note-checklist.service';
 import { StickyNoteApiService } from '../../services/sticky-notes.service';
 
-import type { WorkspaceMemberListItem } from '../../../workspace-members/models/workspace-member.models';
+import type { WorkspaceMemberListItem } from '../../../workspace-members/interfaces/workspace-member.interface';
 import { WorkspaceMemberApiService } from '../../../workspace-members/services/workspace-member.service';
 import { UserPreferenceStore } from '../../../user-preferences/services/user-preference.store';
 import { extractList, idOf } from '../../../../shared/functions/common.function';

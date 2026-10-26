@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/shared/components/tooltip/tooltip.spec.ts",
+    "src/app/shared/components/button/button.spec.ts",
+    "src/app/shared/components/sticky-markdown-editor/sticky-markdown-editor.component.spec.ts"
+  ]
+}

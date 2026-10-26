@@ -4,8 +4,10 @@ import { Observable, catchError, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import type {
-  ApiResponse,
-  PaginatedApiResponse,
+  ApiResult as ApiResponse,
+  ApiCollectionResponse as PaginatedApiResponse,
+} from '../../../shared/interfaces/api.interface';
+import type {
   Permission,
   PermissionCollection,
   PermissionCreateRequest,
@@ -13,7 +15,7 @@ import type {
   PermissionListResponse,
   PermissionQuery,
   PermissionUpdateRequest,
-} from '../models/permission.models';
+} from '../interfaces/permission.interface';
 
 @Injectable({ providedIn: 'root' })
 export class PermissionApiService {

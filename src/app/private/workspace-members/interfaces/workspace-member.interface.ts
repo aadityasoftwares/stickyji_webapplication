@@ -14,20 +14,26 @@ export interface WorkspaceMemberUserSummary {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string | null;
-  profileImage?: {
-    id: string;
-    url: string;
-  } | string | null;
+  profileImage?:
+    | {
+        id: string;
+        url: string;
+      }
+    | string
+    | null;
   imageUrl?: string | null;
   profile?: {
     displayName?: string;
     firstName?: string;
     lastName?: string;
     avatarUrl?: string | null;
-    profileImage?: {
-      id: string;
-      url: string;
-    } | string | null;
+    profileImage?:
+      | {
+          id: string;
+          url: string;
+        }
+      | string
+      | null;
   } | null;
 }
 
@@ -80,10 +86,13 @@ export interface WorkspaceMemberListPerson {
   displayName: string;
   email: string;
   avatarUrl?: string | null;
-  profileImage?: {
-    id: string;
-    url: string;
-  } | string | null;
+  profileImage?:
+    | {
+        id: string;
+        url: string;
+      }
+    | string
+    | null;
 }
 
 /**
@@ -138,29 +147,4 @@ export interface WorkspaceMemberQuery {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-/**
- * Backend list responses currently use `meta`.
- * `pagination` is kept optional for compatibility with any older deployment.
- */
-export interface PaginatedApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: readonly T[];
-  meta: Pagination;
-  pagination?: Pagination | null;
 }

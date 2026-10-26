@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,6 +8,7 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -38,14 +40,14 @@ import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 
-import type { WorkspaceRole } from '../../roles/models/workspace-role.models';
+import type { WorkspaceRole } from '../../roles/interfaces/workspace-role.interface';
 import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.service';
-import type { WorkspaceMember } from '../models/workspace-member.models';
+import type { WorkspaceMember } from '../interfaces/workspace-member.interface';
 import type {
   WorkspaceInvitationBatchCreateRequest,
   WorkspaceInvitationBatchCreateResult,
   WorkspaceInvitationCreateItem,
-} from '../models/workspace-invitation.models';
+} from '../interfaces/workspace-invitation.interface';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 import { WorkspaceMemberApiService } from '../services/workspace-member.service';
 
@@ -54,7 +56,7 @@ type InvitationRoleMode = 'same' | 'individual';
 @Component({
   selector: 'app-send-workspace-member-request-side-panel',
   standalone: true,
-  imports: [FormsModule, AppIcon, AppInput, Badge, Button, Label, Select, SidePanel, Tabs],
+  imports: [Tooltip, FormsModule, AppIcon, AppInput, Badge, Button, Label, Select, SidePanel, Tabs],
   templateUrl: './send-workspace-member-request-side-panel.html',
   styleUrl: './send-workspace-member-request-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,6 +102,8 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       ariaLabel: 'Choose a different role for each recipient',
     },
   ];
+
+  @ViewChild('emailInput') emailInput?: AppInput;
 
   readonly emailDraft = signal('');
   readonly emailInputError = signal<string | null>(null);
@@ -153,7 +157,8 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
   get submitLabel(): string {
     if (this.isEdit) return 'Update role';
 
-    const count = this.emails().length;
+    const draft = this.emailDraft().trim().toLowerCase();
+    const count = this.emails().length || (this.isEmail(draft) ? 1 : 0);
     return count > 1 ? `Send ${count} invitations` : 'Send invitation';
   }
 
@@ -180,13 +185,16 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     if (this.isEdit) return this.isObjectId(this.roleId());
 
     const emails = this.emails();
-    if (!emails.length) return false;
+    const hasEmails = emails.length > 0 || this.isEmail(this.emailDraft().trim().toLowerCase());
+    if (!hasEmails) return false;
 
     if (this.invitationMode() === 'same') {
       return this.isObjectId(this.roleId());
     }
 
-    return emails.every((email) => this.isObjectId(this.individualRoleId(email)));
+    return (
+      emails.length > 0 && emails.every((email) => this.isObjectId(this.individualRoleId(email)))
+    );
   }
 
   private readonly contextChanged = new Subject<void>();
@@ -226,25 +234,104 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.emailInputError.set(null);
   }
 
+  onEmailBlur(event?: FocusEvent): void {
+    if (this.isBusy || !this.open) return;
+
+    const draft = this.emailDraft().trim().toLowerCase();
+    if (!draft) return;
+
+    // Check if blur was triggered by clicking cancel, close, or a chip action
+    const relatedTarget = event?.relatedTarget as HTMLElement | null;
+    if (
+      relatedTarget &&
+      (relatedTarget.closest('.side-panel-close') ||
+        relatedTarget.closest('.invite-cancel-btn') ||
+        relatedTarget.closest('.invite-chip-btn'))
+    ) {
+      if (this.isEmail(draft)) {
+        this.addEmail();
+      }
+      return;
+    }
+
+    this.addEmail();
+  }
+
   addEmail(event?: KeyboardEvent): boolean {
     event?.preventDefault();
     if (this.isBusy) return false;
 
-    const email = this.emailDraft().trim().toLowerCase();
-    if (!email) return false;
+    const raw = this.emailDraft().trim();
+    if (!raw) return false;
 
-    if (this.emails().length >= this.maxInviteEmails) {
-      const msg = `You can invite up to ${this.maxInviteEmails} people at once.`;
-      this.emailInputError.set(msg);
-      this.toastService.error(msg, {
-        title: 'Invitation error',
-        dedupeKey: 'invite-email-max',
-      });
-      return false;
+    const entries = raw
+      .split(/[,;\s]+/)
+      .map((item) => item.trim().toLowerCase())
+      .filter((item) => item.length > 0);
+
+    if (entries.length === 0) return false;
+
+    if (entries.length === 1) {
+      const email = entries[0];
+      if (this.emails().length >= this.maxInviteEmails) {
+        const msg = `You can invite up to ${this.maxInviteEmails} people at once.`;
+        this.emailInputError.set(msg);
+        this.toastService.error(msg, {
+          title: 'Invitation error',
+          dedupeKey: 'invite-email-max',
+        });
+        return false;
+      }
+
+      if (!this.isEmail(email)) {
+        const msg = 'Enter a valid email address.';
+        this.emailInputError.set(msg);
+        this.toastService.error(msg, {
+          title: 'Validation error',
+          dedupeKey: 'invite-email-invalid',
+        });
+        return false;
+      }
+
+      if (this.emails().includes(email)) {
+        const msg = 'This email has already been added.';
+        this.emailInputError.set(msg);
+        this.toastService.error(msg, {
+          title: 'Validation error',
+          dedupeKey: 'invite-email-duplicate',
+        });
+        return false;
+      }
+
+      this.emails.update((current) => [...current, email]);
+      this.emailDraft.set('');
+      this.emailInputError.set(null);
+      this.error.set(null);
+      this.syncIndividualRoles();
+      return true;
     }
 
-    if (!this.isEmail(email)) {
-      const msg = 'Enter a valid email address.';
+    // Multiple entries
+    let addedCount = 0;
+    const currentEmails = [...this.emails()];
+
+    for (const email of entries) {
+      if (currentEmails.length >= this.maxInviteEmails) break;
+      if (this.isEmail(email) && !currentEmails.includes(email)) {
+        currentEmails.push(email);
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      this.emails.set(currentEmails);
+      this.emailDraft.set('');
+      this.emailInputError.set(null);
+      this.error.set(null);
+      this.syncIndividualRoles();
+      return true;
+    } else {
+      const msg = 'Enter valid email addresses.';
       this.emailInputError.set(msg);
       this.toastService.error(msg, {
         title: 'Validation error',
@@ -252,23 +339,6 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
       });
       return false;
     }
-
-    if (this.emails().includes(email)) {
-      const msg = 'This email has already been added.';
-      this.emailInputError.set(msg);
-      this.toastService.error(msg, {
-        title: 'Validation error',
-        dedupeKey: 'invite-email-duplicate',
-      });
-      return false;
-    }
-
-    this.emails.update((current) => [...current, email]);
-    this.emailDraft.set('');
-    this.emailInputError.set(null);
-    this.error.set(null);
-    this.syncIndividualRoles();
-    return true;
   }
 
   removeEmail(email: string): void {
@@ -290,6 +360,9 @@ export class SendWorkspaceMemberRequestSidePanel implements OnChanges {
     this.emailDraft.set(email.trim().toLowerCase());
     this.emailInputError.set(null);
     this.error.set(null);
+    queueMicrotask(() => {
+      this.emailInput?.focus('end');
+    });
   }
 
   updateRoleId(value: SelectValue | SelectValue[] | null): void {

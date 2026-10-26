@@ -5,7 +5,7 @@ import { of, throwError } from 'rxjs';
 import { AddEditPermissionSidePanel } from './add-edit-permission-side-panel';
 import { PermissionApiService } from '../services/permission.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import type { Permission } from '../models/permission.models';
+import type { Permission } from '../interfaces/permission.interface';
 
 describe('AddEditPermissionSidePanel', () => {
   let component: AddEditPermissionSidePanel;

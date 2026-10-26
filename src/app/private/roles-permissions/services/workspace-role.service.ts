@@ -4,15 +4,15 @@ import { Observable, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
+import type { ApiResult as ApiResponse } from '../../../shared/interfaces/api.interface';
 import type {
-  ApiResponse,
   WorkspaceRole,
   WorkspaceRoleCollection,
   WorkspaceRoleCreateRequest,
   WorkspaceRoleListResponse,
   WorkspaceRoleQuery,
   WorkspaceRoleUpdateRequest,
-} from '../models/workspace-role.models';
+} from '../interfaces/workspace-role.interface';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceRoleApiService {

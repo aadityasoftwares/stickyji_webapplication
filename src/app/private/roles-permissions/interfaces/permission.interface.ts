@@ -1,3 +1,6 @@
+import type { PartialPaginationMeta as Pagination } from '../../../shared/interfaces/api.interface';
+import type { ApiResult as ApiResponse } from '../../../shared/interfaces/api.interface';
+
 export type PermissionAction =
   | 'CREATE'
   | 'READ'
@@ -77,13 +80,6 @@ export interface PermissionQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface Pagination {
-  page?: number;
-  limit?: number;
-  total?: number;
-  totalPages?: number;
-}
-
 export interface PermissionCollection {
   permissions?: readonly Permission[];
   items?: readonly Permission[];
@@ -98,17 +94,3 @@ export type PermissionListResponse = ApiResponse<readonly Permission[] | Permiss
   meta?: Pagination | null;
   pagination?: Pagination | null;
 };
-
-export interface ApiResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: T;
-}
-
-export interface PaginatedApiResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: readonly T[];
-  pagination?: Pagination | null;
-  meta?: Pagination | null;
-}

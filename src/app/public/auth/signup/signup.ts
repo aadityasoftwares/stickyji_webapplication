@@ -42,7 +42,7 @@ import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
-import { RegisterCredentials, RegisterResponse } from '../models/auth.models';
+import type { RegisterCredentials, RegisterResponse } from '../interfaces/auth.interface';
 
 type SignUpControl = 'firstName' | 'lastName' | 'email' | 'password' | 'acceptTerms';
 

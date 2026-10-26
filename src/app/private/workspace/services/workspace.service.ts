@@ -3,10 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, finalize, shareReplay } from 'rxjs';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
-import {
+import type {
   WorkspaceDropdownQuery,
   WorkspaceDropdownResponse,
-} from '../models/workspace-dropdown.models';
+} from '../interfaces/workspace-dropdown.interface';
 
 @Injectable({
   providedIn: 'root',

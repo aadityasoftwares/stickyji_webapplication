@@ -5,7 +5,7 @@
   [attr.role]="role"
   [attr.aria-label]="accessibleLabel"
   [attr.aria-disabled]="disabled ? 'true' : null"
-  [attr.title]="title"
+  [appTooltip]="hostTooltip ? '' : title"
 >
   @if (dot) {
     <span class="app-badge-dot" [class.app-badge-dot-pulse]="dotPulse" aria-hidden="true"></span>

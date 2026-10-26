@@ -2,7 +2,7 @@
   class="app-switch"
   [ngClass]="switchClasses"
   [attr.for]="resolvedInputId"
-  [attr.title]="title"
+  [appTooltip]="hostTooltip ? '' : title"
 >
   @if ((label || description) && labelPosition === 'left') {
     <span class="app-switch-content">

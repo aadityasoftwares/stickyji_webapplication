@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { AuthStore } from './auth.store';
 import { WorkspaceRoleApiService } from '../../../private/roles-permissions/services/workspace-role.service';
 import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
-import type { AuthenticatedUser } from '../models/auth.models';
+import type { AuthenticatedUser } from '../interfaces/auth.interface';
 
 const account = (roleId = 'global-role'): AuthenticatedUser => ({
   id: 'user',

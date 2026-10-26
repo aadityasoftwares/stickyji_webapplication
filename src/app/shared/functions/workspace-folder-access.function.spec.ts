@@ -1,5 +1,5 @@
 import { canFolderAction, type FolderAction } from './workspace-folder-access.function';
-import type { WorkspaceFolder } from '../../private/workspacefolders/models/workspace-folder.models';
+import type { WorkspaceFolder } from '../../private/workspacefolders/interfaces/workspace-folder.interface';
 
 describe('Folder permissions and lifecycle', () => {
   const owner = { id: 'w', isOwner: true, status: 'ACTIVE' };

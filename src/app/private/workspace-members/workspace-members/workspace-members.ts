@@ -112,20 +112,22 @@ import type {
   WorkspaceMember,
   WorkspaceMemberListItem,
   WorkspaceMemberStatus,
-  Pagination as MemberPagination,
-} from '../models/workspace-member.models';
+} from '../interfaces/workspace-member.interface';
+import type { CompletePaginationMeta as MemberPagination } from '../../../shared/interfaces/api.interface';
 import { WorkspaceMemberApiService } from '../services/workspace-member.service';
 
 import type {
   WorkspaceInvitation,
   WorkspaceInvitationRef,
   WorkspaceInvitationStatus,
-  Pagination as InvitationPagination,
-  PaginatedApiResponse as InvitationPaginatedApiResponse,
-} from '../models/workspace-invitation.models';
+} from '../interfaces/workspace-invitation.interface';
+import type {
+  PaginationMeta as InvitationPagination,
+  PaginatedResult as InvitationPaginatedApiResponse,
+} from '../../../shared/interfaces/api.interface';
 import { WorkspaceInvitationApiService } from '../services/workspace-invitation.service';
 
-import type { WorkspaceRole } from '../../roles/models/workspace-role.models';
+import type { WorkspaceRole } from '../../roles/interfaces/workspace-role.interface';
 import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.service';
 
 import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-request-side-panel/send-workspace-member-request-side-panel';

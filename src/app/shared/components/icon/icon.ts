@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { Tooltip } from '../tooltip/tooltip';
+import { inject, ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 import { NgClass, NgComponentOutlet } from '@angular/common';
 
@@ -48,15 +49,18 @@ export type AppIconFlip = 'none' | 'horizontal' | 'vertical' | 'both';
 @Component({
   selector: 'app-icon',
   standalone: true,
-  imports: [NgClass, NgComponentOutlet],
+  imports: [Tooltip, NgClass, NgComponentOutlet],
   templateUrl: './icon.html',
   styleUrl: './icon.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    '[attr.title]': 'null',
     '[class.app-icon-host-fit]': 'isFit',
   },
 })
 export class AppIcon {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   /**
    * Pass an imported Lucide icon component:
    * [icon]="LucidePlus"

@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -16,7 +17,7 @@ import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge
 @Component({
   selector: 'app-workspace-role-wrapper',
   standalone: true,
-  imports: [CommonModule, AppIcon, Badge],
+  imports: [Tooltip, CommonModule, AppIcon, Badge],
   templateUrl: './workspace-role-wrapper.html',
   styleUrl: './workspace-role-wrapper.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

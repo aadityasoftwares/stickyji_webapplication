@@ -32,7 +32,7 @@
     </div>
     <span
       class="invitation-card__envelope-mark"
-      title="Workspace Invitation"
+      appTooltip="Workspace Invitation"
       aria-label="Workspace Invitation"
     >
       <app-icon [icon]="LucideMail" size="xs" />
@@ -42,7 +42,7 @@
   <!-- Identity (name / user + role) -->
   <div class="invitation-card__identity">
     <div class="invitation-card__name-row">
-      <h3 class="invitation-card__name" [title]="resolvedName">{{ resolvedName }}</h3>
+      <h3 class="invitation-card__name" [appTooltip]="resolvedName">{{ resolvedName }}</h3>
       <span class="invitation-card__invite-pill">Invite</span>
     </div>
 
@@ -65,14 +65,14 @@
           <app-icon [icon]="LucideMail" size="xs" />
           Email
         </span>
-        <span class="invitation-card__field-value" [title]="resolvedEmail">{{
+        <span class="invitation-card__field-value" [appTooltip]="resolvedEmail">{{
           resolvedEmail
         }}</span>
         <button
           class="invitation-card__copy-btn"
           [class.is-copied]="emailCopied"
           (click)="copyEmail($event)"
-          [title]="emailCopied ? 'Copied!' : 'Copy email'"
+          [appTooltip]="emailCopied ? 'Copied!' : 'Copy email'"
           aria-label="Copy email address"
         >
           <app-icon [icon]="emailCopied ? LucideCheck : LucideCopy" size="xs" />
@@ -85,7 +85,7 @@
         <app-icon [icon]="LucideUserCheck" size="xs" />
         Invited by
       </span>
-      <span class="invitation-card__field-value" [title]="invitedByLabel">{{
+      <span class="invitation-card__field-value" [appTooltip]="invitedByLabel">{{
         invitedByLabel
       }}</span>
     </div>
@@ -95,7 +95,7 @@
         <app-icon [icon]="LucideCalendar" size="xs" />
         Sent
       </span>
-      <span class="invitation-card__field-value" [title]="createdDateLabel">{{
+      <span class="invitation-card__field-value" [appTooltip]="createdDateLabel">{{
         createdDateLabel
       }}</span>
     </div>
@@ -108,7 +108,7 @@
       <span
         class="invitation-card__field-value"
         [class.is-muted]="isExpired"
-        [title]="expiresDateLabel"
+        [appTooltip]="expiresDateLabel"
         >{{ expiresDateLabel }}</span
       >
     </div>
@@ -121,7 +121,7 @@
         </span>
         <span
           class="invitation-card__field-value invitation-card__message-val"
-          [title]="resolvedMessage"
+          [appTooltip]="resolvedMessage"
         >
           {{ resolvedMessage }}
         </span>

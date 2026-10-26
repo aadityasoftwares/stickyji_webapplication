@@ -1,3 +1,4 @@
+import { Tooltip } from '../../tooltip/tooltip';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { AppIcon } from '../../icon/icon';
 import {
@@ -29,7 +30,7 @@ export type StickyCommand =
 @Component({
   selector: 'app-sticky-markdown-toolbar',
   standalone: true,
-  imports: [AppIcon],
+  imports: [Tooltip, AppIcon],
   template: `<div
     class="markdown-toolbar"
     role="toolbar"
@@ -41,7 +42,7 @@ export type StickyCommand =
       @if (multiline || (control.command !== 'bullet' && control.command !== 'number')) {
         <button
           type="button"
-          [title]="control.label"
+          [appTooltip]="control.label"
           [attr.aria-label]="control.label"
           [attr.aria-pressed]="isActive(control.command)"
           [disabled]="

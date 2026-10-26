@@ -1,0 +1,76 @@
+<form
+  class="sticky-note is-notes-canvas is-shape-square is-variant-plain is-detail quick-note"
+  [class]="'sticky-note is-notes-canvas is-shape-square is-variant-plain is-detail quick-note is-color-' + color.toLowerCase()"
+  [style.--note-font-family]="fontFamily"
+  [style.--note-font-size]="fontSize + 'px'"
+  aria-label="Quick add note"
+  [attr.aria-busy]="saving"
+  (ngSubmit)="save()"
+  (keydown)="onKeydown($event)"
+>
+  <span class="sticky-note__paper" aria-hidden="true">
+    <span class="sticky-note__surface"></span>
+  </span>
+  <span class="sticky-note__tape" aria-hidden="true"></span>
+  <header class="quick-note__header">
+    <span>New note</span>
+    <app-button
+      [icon]="LucideX"
+      [iconOnly]="true"
+      ariaLabel="Discard new note"
+      title="Discard new note"
+      variant="ghost"
+      appearance="flat"
+      size="xs"
+      [disabled]="saving"
+      (buttonClick)="cancelled.emit()"
+    />
+  </header>
+  <input
+    #titleInput
+    class="quick-note__title"
+    name="quickNoteTitle"
+    aria-label="Note title"
+    placeholder="Title"
+    autocomplete="off"
+    [maxLength]="limits.TITLE_MAX_LENGTH"
+    [ngModel]="draft.title"
+    (ngModelChange)="update('title', $event)"
+    [disabled]="saving"
+  />
+  <textarea
+    class="quick-note__description"
+    name="quickNoteDescription"
+    aria-label="Note description"
+    placeholder="Write a note…"
+    rows="5"
+    [maxLength]="limits.CONTENT_MAX_LENGTH"
+    [ngModel]="draft.content"
+    (ngModelChange)="update('content', $event)"
+    [disabled]="saving"
+  ></textarea>
+  @if (error) {
+    <p class="quick-note__error" role="alert">{{ error }}</p>
+  }
+  <footer class="quick-note__actions">
+    <app-button
+      label="Save & new"
+      title="Save and add another note (Ctrl/⌘ + Shift + Enter)"
+      variant="ghost"
+      appearance="flat"
+      size="xs"
+      [disabled]="!canSave"
+      (buttonClick)="save(true)"
+    />
+    <app-button
+      type="submit"
+      label="Save note"
+      title="Save note (Ctrl/⌘ + Enter)"
+      variant="noteYellow"
+      size="xs"
+      [loading]="saving"
+      loadingText="Saving…"
+      [disabled]="!canSave"
+    />
+  </footer>
+</form>

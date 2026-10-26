@@ -64,7 +64,12 @@ let nextTooltipId = 0;
   exportAs: 'appTooltip',
 })
 export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
-  @Input({ alias: 'appTooltip', required: true }) text = '';
+  @Input({
+    alias: 'appTooltip',
+    required: true,
+    transform: (value: unknown) => String(value ?? ''),
+  })
+  text = '';
 
   @Input() tooltipPosition: TooltipPosition = 'top';
   @Input() tooltipTone: TooltipTone = 'dark';
@@ -85,7 +90,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
   private readonly isBrowser: boolean;
 
   private anchorElement?: HTMLElement;
-  private nativeTitle?: string;
+  private titleObserver?: MutationObserver;
   private tooltipElement?: HTMLDivElement;
   private arrowElement?: HTMLSpanElement;
 
@@ -135,6 +140,7 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
 
     this.anchorElement = this.resolveAnchorElement();
     this.suppressNativeTooltip();
+    this.observeNativeTitles();
     this.bindAnchorEvents();
     this.bindViewportEvents();
     this.initialized = true;
@@ -181,7 +187,8 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
     this.removeAnchorListeners.length = 0;
     this.unbindViewportEvents();
     this.removeAriaDescription();
-    this.restoreNativeTooltip();
+    this.titleObserver?.disconnect();
+    this.titleObserver = undefined;
     this.destroyTooltip();
   }
 
@@ -708,23 +715,28 @@ export class Tooltip implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private suppressNativeTooltip(): void {
-    const anchor = this.anchorElement;
-
-    if (!anchor?.hasAttribute('title')) {
-      return;
+    const host = this.elementRef.nativeElement;
+    // Component host titles are inherited by rendered controls.
+    for (const element of [host, ...Array.from(host.querySelectorAll('[title]'))]) {
+      if (element.hasAttribute('title')) {
+        this.renderer.removeAttribute(element, 'title');
+      }
     }
-
-    this.nativeTitle = anchor.getAttribute('title') ?? '';
-    this.renderer.removeAttribute(anchor, 'title');
   }
 
-  private restoreNativeTooltip(): void {
-    if (!this.anchorElement || this.nativeTitle === undefined) {
-      return;
-    }
+  private observeNativeTitles(): void {
+    const Observer = this.document.defaultView?.MutationObserver;
+    if (!Observer) return;
 
-    this.renderer.setAttribute(this.anchorElement, 'title', this.nativeTitle);
-    this.nativeTitle = undefined;
+    this.ngZone.runOutsideAngular(() => {
+      this.titleObserver = new Observer(() => this.suppressNativeTooltip());
+      this.titleObserver.observe(this.elementRef.nativeElement, {
+        attributes: true,
+        attributeFilter: ['title'],
+        childList: true,
+        subtree: true,
+      });
+    });
   }
 
   private canShow(): boolean {

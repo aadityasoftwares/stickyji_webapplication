@@ -40,7 +40,7 @@ import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
-import { LoginCredentials, LoginResponse } from '../models/auth.models';
+import type { LoginCredentials, LoginResponse } from '../interfaces/auth.interface';
 import { AuthService } from '../services/auth-service';
 
 type LoginControl = 'email' | 'password';

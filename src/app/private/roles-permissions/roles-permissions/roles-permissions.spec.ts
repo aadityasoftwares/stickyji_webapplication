@@ -9,8 +9,8 @@ import { AuthStore } from '../../../public/auth/state/auth.store';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 import { PermissionApiService } from '../services/permission.service';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import type { WorkspaceRole } from '../models/workspace-role.models';
-import type { Permission } from '../models/permission.models';
+import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
+import type { Permission } from '../interfaces/permission.interface';
 
 const role = (id: string, isSystem = false): WorkspaceRole => ({
   id,

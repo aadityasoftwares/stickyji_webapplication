@@ -1,3 +1,4 @@
+import { Tooltip } from '../tooltip/tooltip';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideArrowRight, LucideCheckSquare, LucideTrash2, LucideX } from '@lucide/angular';
@@ -20,7 +21,7 @@ export type BulkActionPanelVariant = 'floating' | 'paper' | 'dark';
 @Component({
   selector: 'app-bulk-action-panel',
   standalone: true,
-  imports: [CommonModule, AppIcon, Button],
+  imports: [Tooltip, CommonModule, AppIcon, Button],
   templateUrl: './bulk-action-panel.html',
   styleUrl: './bulk-action-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

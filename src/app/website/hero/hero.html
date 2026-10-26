@@ -92,7 +92,7 @@
           @for (group of previewNav; track group.label) {
             <div class="preview-nav-group">
               @for (item of group.items; track item.label) {
-                <span class="preview-nav-item" [class.is-active]="item.active" [title]="item.label"
+                <span class="preview-nav-item" [class.is-active]="item.active" [appTooltip]="item.label"
                   ><app-icon [icon]="item.icon" size="sm"
                 /></span>
               }
@@ -100,7 +100,7 @@
           }
           <div class="preview-sidebar-footer">
             @for (item of previewAccount; track item.label) {
-              <span class="preview-nav-item" [title]="item.label"
+              <span class="preview-nav-item" [appTooltip]="item.label"
                 ><app-icon [icon]="item.icon" size="sm"
               /></span>
             }

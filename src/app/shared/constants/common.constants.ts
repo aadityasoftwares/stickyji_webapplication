@@ -86,7 +86,9 @@ export const USER_PREFERENCE_KEYS = {
   STICKY_NOTE_LAYOUT: 'stickyNoteLayout',
 } as const;
 
-export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
+export const USER_PREFERENCE_KEY_LIST = Object.values(USER_PREFERENCE_KEYS);
+
+export const DEFAULT_USER_PREFERENCES = {
   theme: 'SYSTEM',
   sidebarCollapsed: false,
   selectedWorkspaceId: '',
@@ -139,7 +141,7 @@ export const DEFAULT_USER_PREFERENCES: Readonly<any> = {
   stickyNoteFont: 'DM_SANS',
   stickyNoteFontSize: 14,
   stickyNoteLayout: 'DETAIL',
-};
+} as const;
 
 export const WORKSPACE_SORT_PREFERENCES = {
   recent: 'RECENTLY_UPDATED',
@@ -234,15 +236,7 @@ export const COMMON_STATUS_TABS: any[] = [
 
 export const STATUS_TABS = COMMON_STATUS_TABS;
 
-export function buildStatusTabs(
-  counts: { all?: number; active?: number; archived?: number } = {},
-): any[] {
-  return [
-    { value: 'all', label: 'All', count: counts.all ?? 0 },
-    { value: 'active', label: 'Active', count: counts.active ?? 0 },
-    { value: 'archived', label: 'Archived', count: counts.archived ?? 0 },
-  ];
-}
+
 
 export const STICKY_NOTE_LAYOUT_OPTIONS: any[] = [
   {

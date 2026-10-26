@@ -9,7 +9,7 @@ import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceFolderService } from '../services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../services/workspace-folder.store';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import type { WorkspaceFolder } from '../models/workspace-folder.models';
+import type { WorkspaceFolder } from '../interfaces/workspace-folder.interface';
 
 describe('Folder trash', () => {
   const folder = (id = 'f', workspaceId = 'a') =>

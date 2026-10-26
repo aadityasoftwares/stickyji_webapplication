@@ -1,4 +1,6 @@
+import { Tooltip } from '../tooltip/tooltip';
 import {
+  inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -47,7 +49,7 @@ export interface RadioChange {
 @Component({
   selector: 'app-radio',
   standalone: true,
-  imports: [NgClass],
+  imports: [Tooltip, NgClass],
   templateUrl: './radio.html',
   styleUrl: './radio.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,10 +61,13 @@ export interface RadioChange {
     },
   ],
   host: {
+    '[attr.title]': 'null',
     '[class.app-radio-host-full]': 'fullWidth',
   },
 })
 export class Radio implements ControlValueAccessor, OnChanges, OnInit, OnDestroy {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   private static nextId = 0;
   private static readonly groups = new Map<string, Set<Radio>>();
 

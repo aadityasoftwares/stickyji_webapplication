@@ -1,3 +1,4 @@
+import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -34,13 +35,13 @@ import {
   getWorkspaceMemberRole,
 } from '../../../shared/functions/workspace-member.function';
 import { idOf } from '../../../shared/functions/common.function';
-import type { WorkspaceMemberStatus } from '../models/workspace-member.models';
+import type { WorkspaceMemberStatus } from '../interfaces/workspace-member.interface';
 import { UserDateTimeFormatterService } from '../../../shared/services/user-date-time-formatter.service';
 
 @Component({
   selector: 'app-member-card-wrapper',
   standalone: true,
-  imports: [CommonModule, AppIcon, Avatar, Badge],
+  imports: [Tooltip, CommonModule, AppIcon, Avatar, Badge],
   templateUrl: './member-card-wrapper.html',
   styleUrl: './member-card-wrapper.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

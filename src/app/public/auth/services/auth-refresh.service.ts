@@ -4,7 +4,7 @@ import { Observable, catchError, finalize, map, shareReplay, tap, throwError } f
 
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
-import { AuthSession, AuthSessionResponse } from '../models/auth.models';
+import type { AuthSession, AuthSessionResponse } from '../interfaces/auth.interface';
 import { AuthStore } from '../state/auth.store';
 
 @Injectable({

@@ -444,10 +444,10 @@
                                   />
 
                                   <div class="workspace-access-person-copy">
-                                    <strong [title]="invitationEmail(invitation)">
+                                    <strong [appTooltip]="invitationEmail(invitation)">
                                       {{ invitationEmail(invitation) }}
                                     </strong>
-                                    <small [title]="invitationMessage(invitation)">
+                                    <small [appTooltip]="invitationMessage(invitation)">
                                       {{ invitationSecondaryLabel(invitation) }}
                                     </small>
                                   </div>
@@ -666,7 +666,7 @@
                         size="xs"
                         [iconLeft]="LucideShield"
                         [disabled]="isBusy(member) || !canManageMember(member) || loadingRoles()"
-                        [title]="
+                        [appTooltip]="
                           canManageMember(member)
                             ? 'Change workspace role'
                             : memberManageBlockedReason(member)
@@ -931,7 +931,7 @@
                                         <div class="workspace-table-title-row">
                                           <strong
                                             class="workspace-name-editable"
-                                            [title]="memberName(member)"
+                                            [appTooltip]="memberName(member)"
                                           >
                                             {{ memberName(member) }}
                                           </strong>
@@ -944,7 +944,7 @@
                                             type="button"
                                             class="workspace-gt-key-copy"
                                             [attr.aria-label]="'Copy ID for ' + memberName(member)"
-                                            [title]="
+                                            [appTooltip]="
                                               isKeyCopied(memberId(member))
                                                 ? 'Copied!'
                                                 : 'Copy member ID'
@@ -963,7 +963,7 @@
                                           </button>
                                         </div>
 
-                                        <small [title]="memberEmail(member)">{{
+                                        <small [appTooltip]="memberEmail(member)">{{
                                           memberEmail(member) || 'Workspace member'
                                         }}</small>
                                       </div>
@@ -1020,7 +1020,7 @@
                                           !canManageMember(member) ||
                                           loadingRoles()
                                         "
-                                        [title]="
+                                        [appTooltip]="
                                           canManageMember(member)
                                             ? 'Change workspace role'
                                             : memberManageBlockedReason(member)
@@ -1068,7 +1068,7 @@
                                   <td class="workspace-gt-added-by" data-label="Added by">
                                     <span
                                       class="workspace-access-truncate"
-                                      [title]="member.addedBy?.email || addedByLabel(member)"
+                                      [appTooltip]="member.addedBy?.email || addedByLabel(member)"
                                     >
                                       {{ addedByLabel(member) }}
                                     </span>

@@ -1,3 +1,4 @@
+import { Tooltip } from '../tooltip/tooltip';
 import { isPlatformBrowser, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -19,7 +20,7 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon, type AppIconDefinition } from '../icon/icon';
-import { ToastPosition, ToastItem } from './models/toast.model';
+import type { ToastPosition, ToastItem } from './interfaces/toast.interface';
 import { ToastService } from './services/toast.service';
 
 interface ToastTimer {
@@ -31,7 +32,7 @@ interface ToastTimer {
 
 @Component({
   standalone: true,
-  imports: [NgClass, AppIcon],
+  imports: [Tooltip, NgClass, AppIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-toast',
   styleUrl: './toast.scss',

@@ -74,6 +74,7 @@
             inputMode="email"
             (valueChange)="updateEmailDraft($event)"
             (enterKey)="addEmail($event)"
+            (inputBlur)="onEmailBlur($event)"
           />
 
           <div class="invite-email-meta">
@@ -84,30 +85,40 @@
           @if (emails().length) {
             <div class="invite-email-chips" aria-label="Added recipients">
               @for (email of emails(); track email) {
-                <span class="invite-chip" [attr.title]="email">
-                  <span class="invite-chip-label">{{ email }}</span>
+                <span class="invite-chip">
+                  <span class="invite-chip-icon" aria-hidden="true">
+                    <app-icon [icon]="LucideMail" [size]="14" />
+                  </span>
 
-                  <!-- Edit button -->
-                  <button
-                    type="button"
-                    class="invite-chip-btn invite-chip-edit"
-                    [attr.aria-label]="'Edit ' + email"
-                    [disabled]="isBusy"
-                    (click)="editEmail(email)"
-                  >
-                    <app-icon [icon]="LucidePencil" size="inherit" />
-                  </button>
+                  <span class="invite-chip-label" [appTooltip]="email">{{ email }}</span>
 
-                  <!-- Remove button -->
-                  <button
-                    type="button"
-                    class="invite-chip-btn invite-chip-remove"
-                    [attr.aria-label]="'Remove ' + email"
-                    [disabled]="saving()"
-                    (click)="removeEmail(email)"
-                  >
-                    <app-icon [icon]="LucideX" size="inherit" />
-                  </button>
+                  <span class="invite-chip-divider" aria-hidden="true"></span>
+
+                  <span class="invite-chip-actions">
+                    <!-- Edit button -->
+                    <button
+                      type="button"
+                      class="invite-chip-btn invite-chip-btn-edit invite-chip-edit"
+                      [attr.aria-label]="'Edit ' + email"
+                      [appTooltip]="'Edit ' + email"
+                      [disabled]="isBusy"
+                      (click)="editEmail(email)"
+                    >
+                      <app-icon [icon]="LucidePencil" [size]="14" />
+                    </button>
+
+                    <!-- Remove button -->
+                    <button
+                      type="button"
+                      class="invite-chip-btn invite-chip-btn-remove invite-chip-remove"
+                      [attr.aria-label]="'Remove ' + email"
+                      [appTooltip]="'Remove ' + email"
+                      [disabled]="saving()"
+                      (click)="removeEmail(email)"
+                    >
+                      <app-icon [icon]="LucideX" [size]="14" />
+                    </button>
+                  </span>
                 </span>
               }
             </div>
@@ -204,26 +215,37 @@
                 @for (email of emails(); track email) {
                   <div class="invite-role-row">
                     <div class="invite-role-email">
-                      <span class="invite-chip" [attr.title]="email">
-                        <span class="invite-chip-label">{{ email }}</span>
-                        <button
-                          type="button"
-                          class="invite-chip-btn invite-chip-edit"
-                          [attr.aria-label]="'Edit ' + email"
-                          [disabled]="isBusy"
-                          (click)="editEmail(email)"
-                        >
-                          <app-icon [icon]="LucidePencil" size="inherit" />
-                        </button>
-                        <button
-                          type="button"
-                          class="invite-chip-btn invite-chip-remove"
-                          [attr.aria-label]="'Remove ' + email"
-                          [disabled]="saving()"
-                          (click)="removeEmail(email)"
-                        >
-                          <app-icon [icon]="LucideX" size="inherit" />
-                        </button>
+                      <span class="invite-chip">
+                        <span class="invite-chip-icon" aria-hidden="true">
+                          <app-icon [icon]="LucideMail" [size]="14" />
+                        </span>
+
+                        <span class="invite-chip-label" [appTooltip]="email">{{ email }}</span>
+
+                        <span class="invite-chip-divider" aria-hidden="true"></span>
+
+                        <span class="invite-chip-actions">
+                          <button
+                            type="button"
+                            class="invite-chip-btn invite-chip-btn-edit invite-chip-edit"
+                            [attr.aria-label]="'Edit ' + email"
+                            [appTooltip]="'Edit ' + email"
+                            [disabled]="isBusy"
+                            (click)="editEmail(email)"
+                          >
+                            <app-icon [icon]="LucidePencil" [size]="14" />
+                          </button>
+                          <button
+                            type="button"
+                            class="invite-chip-btn invite-chip-btn-remove invite-chip-remove"
+                            [attr.aria-label]="'Remove ' + email"
+                            [appTooltip]="'Remove ' + email"
+                            [disabled]="saving()"
+                            (click)="removeEmail(email)"
+                          >
+                            <app-icon [icon]="LucideX" [size]="14" />
+                          </button>
+                        </span>
                       </span>
                     </div>
 
@@ -359,9 +381,10 @@
 
   <!-- FOOTER -->
   <div panel-footer class="invite-footer">
-    <span class="invite-status" [title]="statusText">{{ statusText }}</span>
+    <span class="invite-status" [appTooltip]="statusText">{{ statusText }}</span>
     <div class="invite-actions">
       <app-button
+        class="invite-cancel-btn"
         label="Cancel"
         variant="secondary"
         appearance="standard"

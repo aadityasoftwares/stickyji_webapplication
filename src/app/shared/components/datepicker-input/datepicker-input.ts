@@ -1,3 +1,4 @@
+import { Tooltip } from '../tooltip/tooltip';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -63,7 +64,7 @@ export type DatepickerStartView = 'month' | 'year' | 'multi-year';
 @Component({
   selector: 'app-datepicker-input',
   standalone: true,
-  imports: [CommonModule, MatDatepickerModule, MatNativeDateModule, AppIcon],
+  imports: [Tooltip, CommonModule, MatDatepickerModule, MatNativeDateModule, AppIcon],
   templateUrl: './datepicker-input.html',
   styleUrl: './datepicker-input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,4 +1,4 @@
-<label class="app-radio" [ngClass]="radioClasses" [attr.for]="inputId" [attr.title]="title">
+<label class="app-radio" [ngClass]="radioClasses" [attr.for]="inputId" [appTooltip]="hostTooltip ? '' : title">
   <input
     class="app-radio-native"
     type="radio"

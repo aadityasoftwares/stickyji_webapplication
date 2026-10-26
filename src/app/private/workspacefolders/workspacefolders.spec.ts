@@ -8,7 +8,7 @@ import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceFolderService } from './services/workspace-folder.service';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
-import type { WorkspaceFolder } from './models/workspace-folder.models';
+import type { WorkspaceFolder } from './interfaces/workspace-folder.interface';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 

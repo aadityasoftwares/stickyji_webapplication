@@ -1,4 +1,5 @@
-﻿import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import {
   LucideArrowRight,
   LucideBriefcaseBusiness,
@@ -44,7 +45,7 @@ interface UserPersona {
 
 @Component({
   standalone: true,
-  imports: [AppIcon, Avatar],
+  imports: [Tooltip, AppIcon, Avatar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-use-cases',
   styleUrl: './use-cases.scss',

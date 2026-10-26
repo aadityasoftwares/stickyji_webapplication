@@ -36,12 +36,12 @@ import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
 import { humanize } from '../../../shared/functions/string.functions';
-import { PermissionGroup, Permission } from '../models/permission.models';
-import {
+import type { PermissionGroup, Permission } from '../interfaces/permission.interface';
+import type {
   WorkspaceRole,
   WorkspaceRoleCreateRequest,
   WorkspaceRoleUpdateRequest,
-} from '../models/workspace-role.models';
+} from '../interfaces/workspace-role.interface';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
 import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
 

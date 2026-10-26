@@ -1,3 +1,4 @@
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -291,7 +292,7 @@ export const DEFAULT_PLANS: PlanCardDTO[] = [
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [AppIcon, Badge, StickyCard],
+  imports: [Tooltip, AppIcon, Badge, StickyCard],
   templateUrl: './subscription.html',
   styleUrl: './subscription.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

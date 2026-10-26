@@ -5,15 +5,17 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
 import type {
-  ApiResponse,
-  PaginatedApiResponse,
+  ApiDataResponse as ApiResponse,
+  MetaPaginatedResponse as PaginatedApiResponse,
+} from '../../../shared/interfaces/api.interface';
+import type {
   WorkspaceMember,
   WorkspaceMemberAssignRoleRequest,
   WorkspaceMemberCreateRequest,
   WorkspaceMemberListItem,
   WorkspaceMemberQuery,
   WorkspaceMemberUpdateRequest,
-} from '../models/workspace-member.models';
+} from '../interfaces/workspace-member.interface';
 
 @Injectable({
   providedIn: 'root',

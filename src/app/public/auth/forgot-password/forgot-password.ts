@@ -35,7 +35,7 @@ import { SeoService } from '../../../shared/services/seo.service';
 import { AUTH_MESSAGES } from '../messages/auth.messages';
 
 import { AuthService } from '../services/auth-service';
-import { ForgotPasswordResponse } from '../models/auth.models';
+import type { ForgotPasswordResponse } from '../interfaces/auth.interface';
 
 @Component({
   selector: 'app-forgot-password',

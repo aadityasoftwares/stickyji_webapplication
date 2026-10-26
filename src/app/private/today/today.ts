@@ -134,15 +134,15 @@ import { UserPreferenceStore } from '../user-preferences/services/user-preferenc
 import { WorkspaceService } from '../workspace/services/workspace.service';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceDropdownStore } from '../workspace/services/workspace-dropdown.store';
-import { WorkspaceDropdownItem } from '../workspace/models/workspace-dropdown.models';
+import type { WorkspaceDropdownItem } from '../workspace/interfaces/workspace-dropdown.interface';
 import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
-import {
+import type {
   WorkspaceFolder,
   WorkspaceFolderQuery,
-} from '../workspacefolders/models/workspace-folder.models';
+} from '../workspacefolders/interfaces/workspace-folder.interface';
 import { WorkspaceMemberApiService } from '../workspace-members/services/workspace-member.service';
-import { WorkspaceMemberQuery } from '../workspace-members/models/workspace-member.models';
+import type { WorkspaceMemberQuery } from '../workspace-members/interfaces/workspace-member.interface';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { TODAY_MESSAGES } from './messages/today.messages';
 

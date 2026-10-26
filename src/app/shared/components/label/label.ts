@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { Tooltip } from '../tooltip/tooltip';
+import { inject, ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 import { AppIcon, type AppIconDefinition } from '../icon/icon';
@@ -32,15 +33,18 @@ export type LabelIconPosition = 'left' | 'right';
 @Component({
   selector: 'app-label',
   standalone: true,
-  imports: [NgClass, AppIcon],
+  imports: [Tooltip, NgClass, AppIcon],
   templateUrl: './label.html',
   styleUrl: './label.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    '[attr.title]': 'null',
     '[class.app-label-host-full]': 'fullWidth',
   },
 })
 export class Label {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   @Input() text = '';
   @Input() description = '';
   @Input() hint = '';

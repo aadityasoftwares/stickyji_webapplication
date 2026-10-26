@@ -655,7 +655,7 @@
                                             type="button"
                                             class="workspace-gt-key-copy"
                                             [attr.aria-label]="'Copy key ' + key"
-                                            [title]="isKeyCopied(key) ? 'Copied!' : 'Copy key'"
+                                            [appTooltip]="isKeyCopied(key) ? 'Copied!' : 'Copy key'"
                                             (click)="copyNoteKey(key, $event)"
                                             (dblclick)="$event.stopPropagation()"
                                           >
@@ -667,7 +667,7 @@
                                         </div>
                                       }
 
-                                      <strong class="workspace-name-editable" title="Click to edit">
+                                      <strong class="workspace-name-editable" appTooltip="Click to edit">
                                         <app-sticky-markdown-renderer
                                           [markdown]="noteTitle(note)"
                                           [config]="{
@@ -684,7 +684,7 @@
                                 <td
                                   class="workspace-gt-description"
                                   data-label="Description"
-                                  [title]="plainText(noteContent(note)) || 'No description'"
+                                  [appTooltip]="plainText(noteContent(note)) || 'No description'"
                                 >
                                   <span class="notes-table-description-text">
                                     <app-sticky-markdown-renderer

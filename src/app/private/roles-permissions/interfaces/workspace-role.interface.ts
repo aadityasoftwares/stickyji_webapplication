@@ -1,4 +1,6 @@
-import type { Permission } from './permission.models';
+import type { PartialPaginationMeta as WorkspaceRolePagination } from '../../../shared/interfaces/api.interface';
+import type { ApiResult as ApiResponse } from '../../../shared/interfaces/api.interface';
+import type { Permission } from './permission.interface';
 
 export type WorkspaceRoleType = 'SYSTEM' | 'CUSTOM' | string;
 export type WorkspaceRoleScope = 'GLOBAL' | 'WORKSPACE' | string;
@@ -64,19 +66,6 @@ export interface WorkspaceRoleQuery {
   isSystem?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}
-
-export interface WorkspaceRolePagination {
-  page?: number;
-  limit?: number;
-  total?: number;
-  totalPages?: number;
-}
-
-export interface ApiResponse<T> {
-  success?: boolean;
-  message?: string;
-  data: T;
 }
 
 export interface WorkspaceRoleCollection {

@@ -24,7 +24,7 @@ import { Select, SelectOption, SelectValue } from '../../../shared/components/se
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import { getInitials } from '../../../shared/functions/string.functions';
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
-import type { WorkspaceMemberListItem } from '../../workspace-members/models/workspace-member.models';
+import type { WorkspaceMemberListItem } from '../../workspace-members/interfaces/workspace-member.interface';
 import { getWorkspaceMemberAvatar } from '../../../shared/functions/workspace-member.function';
 
 export interface AssigneePreviewItem {

@@ -1,4 +1,4 @@
-import { AppIconDefinition } from '../../icon/icon';
+import type { AppIconDefinition } from '../../icon/icon';
 
 export type ToastVariant =
   | 'neutral'

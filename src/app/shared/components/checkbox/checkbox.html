@@ -1,4 +1,4 @@
-<label class="app-checkbox" [ngClass]="checkboxClasses" [attr.for]="inputId" [attr.title]="title">
+<label class="app-checkbox" [ngClass]="checkboxClasses" [attr.for]="inputId" [appTooltip]="hostTooltip ? '' : title">
   <input
     class="app-checkbox-native"
     type="checkbox"

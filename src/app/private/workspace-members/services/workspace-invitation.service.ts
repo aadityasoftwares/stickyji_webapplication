@@ -2,18 +2,20 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { API_BASE_URL } from '../../../shared/constants/api.constants';
+import { API_BASE_URL, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { buildHttpParams } from '../../../shared/functions/api.functions';
 import type {
-  ApiResponse,
-  PaginatedApiResponse,
+  ApiResult as ApiResponse,
+  PaginatedResult as PaginatedApiResponse,
+} from '../../../shared/interfaces/api.interface';
+import type {
   WorkspaceInvitation,
   WorkspaceInvitationBatchCreateRequest,
   WorkspaceInvitationBatchCreateResult,
   WorkspaceInvitationQuery,
   WorkspaceInvitationSingleCreateRequest,
   WorkspaceInvitationUpdateRequest,
-} from '../models/workspace-invitation.models';
+} from '../interfaces/workspace-invitation.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +35,8 @@ export class WorkspaceInvitationApiService {
 
   private readonly getUrl = `${this.invitationBaseUrl}/get`;
 
-  private readonly getAllUrl = `${this.invitationBaseUrl}/getall`;
+  private readonly getAllUrl =
+    API_ENDPOINTS?.workspaceInvitations?.getAll || `${this.invitationBaseUrl}/getall`;
 
   private readonly updateUrl = `${this.invitationBaseUrl}/update`;
 
@@ -72,13 +75,32 @@ export class WorkspaceInvitationApiService {
     );
   }
 
+  /**
+   * Get all workspace member invitations.
+   * Calls POST /api/v1/workspacememberinvitations/getall matching the workspace getAll pattern.
+   * Supports optional method override if needed.
+   */
   getAll(
     query: WorkspaceInvitationQuery = {},
+    method: 'post' | 'get' = 'post',
   ): Observable<PaginatedApiResponse<WorkspaceInvitation>> {
-    return this.http.get<PaginatedApiResponse<WorkspaceInvitation>>(this.getAllUrl, {
-      params: buildHttpParams(query),
+    if (method === 'get') {
+      return this.http.get<PaginatedApiResponse<WorkspaceInvitation>>(this.getAllUrl, {
+        params: buildHttpParams(query),
+        withCredentials: true,
+      });
+    }
+
+    return this.http.post<PaginatedApiResponse<WorkspaceInvitation>>(this.getAllUrl, query, {
       withCredentials: true,
     });
+  }
+
+  getAllInvitations(
+    query: WorkspaceInvitationQuery = {},
+    method: 'post' | 'get' = 'post',
+  ): Observable<PaginatedApiResponse<WorkspaceInvitation>> {
+    return this.getAll(query, method);
   }
 
   update(

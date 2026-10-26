@@ -42,7 +42,8 @@ import { Select, type SelectOption } from '../../../shared/components/select/sel
 import { StickyCard } from '../../../shared/components/sticky-card/sticky-card';
 import { Switch } from '../../../shared/components/switch/switch';
 
-import { DEFAULT_USER_PREFERENCES, UserPreferencesM } from '../models/user-preference.models';
+import { DEFAULT_USER_PREFERENCES } from '../../../shared/constants/common.constants';
+import type { UserPreferences as UserPreferenceValues } from '../interfaces/user-preference.interface';
 
 import { UserPreferenceStore } from '../services/user-preference.store';
 
@@ -168,7 +169,7 @@ export class UserPreferences implements OnInit {
    * Workspace-specific values such as workspaceView, workspaceStatusFilter and workspaceSortOrder
    * are kept here even though they are not fields on this settings form.
    */
-  private readonly savedPreferences = signal<UserPreferencesM>({
+  private readonly savedPreferences = signal<UserPreferenceValues>({
     ...DEFAULT_USER_PREFERENCES,
   });
 
@@ -447,7 +448,7 @@ export class UserPreferences implements OnInit {
      ========================================================================== */
 
   private patchForm(
-    preferences: Readonly<UserPreferencesM>,
+    preferences: Readonly<UserPreferenceValues>,
 
     markAsDirty = false,
   ): void {
@@ -483,7 +484,7 @@ export class UserPreferences implements OnInit {
      * workspaceView/workspaceStatusFilter/workspaceSortOrder are intentionally not counted here
      * because those values are controlled from Workspace itself.
      */
-    const formKeys: readonly (keyof UserPreferencesM)[] = [
+    const formKeys: readonly (keyof UserPreferenceValues)[] = [
       'theme',
 
       'defaultNoteColor',
@@ -521,7 +522,7 @@ export class UserPreferences implements OnInit {
      Preference -> Form
      ========================================================================== */
 
-  private toFormValue(preferences: Readonly<UserPreferencesM>): UserPreferencesFormValue {
+  private toFormValue(preferences: Readonly<UserPreferenceValues>): UserPreferencesFormValue {
     return {
       theme: preferences.theme,
 
@@ -559,7 +560,7 @@ export class UserPreferences implements OnInit {
      Form -> Complete Preferences
      ========================================================================== */
 
-  private toPreferences(value: UserPreferencesFormValue): UserPreferencesM {
+  private toPreferences(value: UserPreferencesFormValue): UserPreferenceValues {
     /**
      * Start with the complete saved object.
      *
@@ -574,15 +575,15 @@ export class UserPreferences implements OnInit {
     return {
       ...this.savedPreferences(),
 
-      theme: value.theme as UserPreferencesM['theme'],
+      theme: value.theme as UserPreferenceValues['theme'],
 
-      defaultNoteColor: value.defaultNoteColor as UserPreferencesM['defaultNoteColor'],
+      defaultNoteColor: value.defaultNoteColor as UserPreferenceValues['defaultNoteColor'],
 
-      noteView: value.noteView as UserPreferencesM['noteView'],
+      noteView: value.noteView as UserPreferenceValues['noteView'],
 
-      todayView: value.todayView as UserPreferencesM['todayView'],
+      todayView: value.todayView as UserPreferenceValues['todayView'],
 
-      overdueView: value.overdueView as UserPreferencesM['overdueView'],
+      overdueView: value.overdueView as UserPreferenceValues['overdueView'],
 
       autosaveEnabled: value.autosaveEnabled,
 

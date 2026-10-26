@@ -149,7 +149,7 @@
         type="button"
         class="app-input-action"
         aria-label="Clear input"
-        title="Clear"
+        appTooltip="Clear"
         (mousedown)="$event.preventDefault()"
         (click)="clear($event)"
       >
@@ -162,7 +162,7 @@
         type="button"
         class="app-input-action"
         [attr.aria-label]="passwordButtonLabel"
-        [attr.title]="passwordButtonLabel"
+        [appTooltip]="passwordButtonLabel"
         [attr.aria-pressed]="passwordVisible"
         (mousedown)="$event.preventDefault()"
         (click)="togglePassword($event)"

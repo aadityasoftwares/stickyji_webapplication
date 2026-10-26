@@ -12,6 +12,7 @@ import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
 
 @Component({
+  host: { '[attr.title]': 'null' },
   selector: 'app-delete-confirm-modal',
   standalone: true,
   imports: [CommonModule, Button, AppIcon],

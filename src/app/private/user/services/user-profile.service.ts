@@ -14,8 +14,8 @@ import {
 
 import { API_BASE_URL, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { AuthStore } from '../../../public/auth/state/auth.store';
-import {
-  ApiResponse,
+import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
+import type {
   CountryReference,
   CurrencyReference,
   IProfileImageSummary,
@@ -27,7 +27,7 @@ import {
   TimezoneReference,
   UpdateUserProfilePayload,
   UserProfile,
-} from '../models/user-profile.models';
+} from '../interfaces/user-profile.interface';
 
 const PROFILE_ENDPOINTS = {
   create: '/userprofile/create',

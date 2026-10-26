@@ -57,6 +57,7 @@ import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-c
 import { StickyNoteColumnStore } from '../../mynotes/services/sticky-note-column.store';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
+import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
 import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
 import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
 
@@ -89,6 +90,7 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   private readonly columnStore = inject(StickyNoteColumnStore);
   private readonly workspaceApi = inject(WorkspaceService);
   private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
   private readonly workspaceFolderApi = inject(WorkspaceFolderService);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
 
@@ -667,23 +669,30 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   private loadWorkspaces(): void {
+    // Prefer the dropdown store (cached from GET /workspaces/dropdown)
+    const dropdownItems = this.workspaceDropdownStore.items();
+    if (dropdownItems.length > 0) {
+      this.panelWorkspaces.set([...dropdownItems]);
+      return;
+    }
+
     const stored = this.workspaceStore.workspaces();
     if (stored.length > 0) {
       this.panelWorkspaces.set(stored.filter((item) => item?.status !== 'DELETED'));
       return;
     }
 
+    // Fetch via dropdown store so results are shared and cached app-wide
     this.loadingWorkspaces.set(true);
-    this.workspaceApi
-      .getAll({ page: 1, limit: 100, status: 'ACTIVE' })
+    this.workspaceDropdownStore
+      .load()
       .pipe(
         finalize(() => this.loadingWorkspaces.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (response) => {
-          const list = extractList(response);
-          this.panelWorkspaces.set(list.filter((item: any) => item?.status !== 'DELETED'));
+        next: (items) => {
+          this.panelWorkspaces.set(items ? [...items] : []);
         },
         error: (error) => {
           const message = extractErrorMessage(error, 'Unable to load workspaces.');
@@ -699,6 +708,13 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   private loadFolders(workspaceId: string, preferredFolderId?: string): void {
     if (!workspaceId) {
       this.panelFolders.set([]);
+      return;
+    }
+
+    // Try dropdown store first – it holds nested folders per workspace
+    const dropdownWorkspace = this.workspaceDropdownStore.items().find((w) => w.id === workspaceId);
+    if (dropdownWorkspace?.folders?.length) {
+      this.setFoldersAndSelect(workspaceId, dropdownWorkspace.folders, preferredFolderId);
       return;
     }
 

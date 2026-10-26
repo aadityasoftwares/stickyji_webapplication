@@ -1,5 +1,13 @@
+import { Tooltip } from '../tooltip/tooltip';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  inject,
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 
 import { UI } from '../../constants/ui.constants';
 import { AppIcon, type AppIconDefinition } from '../icon/icon';
@@ -37,15 +45,18 @@ export type ButtonIconPosition = 'left' | 'right';
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [CommonModule, AppIcon],
+  imports: [Tooltip, CommonModule, AppIcon],
   templateUrl: './button.html',
   styleUrl: './button.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    '[attr.title]': 'null',
     '[class.app-button-host-full]': 'isFullWidth',
   },
 })
 export class Button {
+  protected readonly hostTooltip = inject(Tooltip, { optional: true, self: true });
+
   @Input() type: ButtonType = 'button';
   @Input() variant: ButtonVariant = 'primary';
   @Input() appearance: ButtonAppearance = 'standard';

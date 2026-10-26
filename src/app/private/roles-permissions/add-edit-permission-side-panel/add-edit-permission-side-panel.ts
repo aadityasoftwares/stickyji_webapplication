@@ -32,13 +32,13 @@ import { Switch } from '../../../shared/components/switch/switch';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
 import { humanize } from '../../../shared/functions/string.functions';
-import {
+import type {
   Permission,
   PermissionAccess,
   PermissionAction,
   PermissionCreateRequest,
   PermissionUpdateRequest,
-} from '../models/permission.models';
+} from '../interfaces/permission.interface';
 import { PermissionApiService } from '../services/permission.service';
 
 export type PermissionEditorMode = 'create' | 'edit' | 'view';

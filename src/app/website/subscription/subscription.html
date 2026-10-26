@@ -305,11 +305,11 @@
                           @if (getFeatureValue(row, plan); as val) {
                             @if (row.type === 'BOOLEAN') {
                               @if (val.included ?? val.isEnabled) {
-                                <span class="indicator-enabled" title="Included">
+                                <span class="indicator-enabled" appTooltip="Included">
                                   <app-icon [icon]="LucideCheck" size="sm" />
                                 </span>
                               } @else {
-                                <span class="indicator-disabled" title="Not included">
+                                <span class="indicator-disabled" appTooltip="Not included">
                                   <app-icon [icon]="LucideMinus" size="sm" />
                                 </span>
                               }

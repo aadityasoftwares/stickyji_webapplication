@@ -25,6 +25,7 @@ export type SidePanelTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'pu
 let sidePanelInstance = 0;
 
 @Component({
+  host: { '[attr.title]': 'null' },
   selector: 'app-side-panel',
   standalone: true,
   imports: [AppIcon, Button],

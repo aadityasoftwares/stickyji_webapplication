@@ -1,3 +1,4 @@
+import { Tooltip } from '../tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,7 +14,7 @@ import { AppIcon } from '../icon/icon';
 @Component({
   selector: 'app-email-chip-input',
   standalone: true,
-  imports: [AppIcon],
+  imports: [Tooltip, AppIcon],
   templateUrl: './email-chip-input.html',
   styleUrl: './email-chip-input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -37,16 +37,16 @@
           <app-icon [icon]="shieldIcon" size="md" />
         </span>
         @if (isDefault) {
-          <span class="role-wrapper__star-badge" title="Default role">
+          <span class="role-wrapper__star-badge" appTooltip="Default role">
             <app-icon [icon]="Star" size="xs" />
           </span>
         }
       </div>
-      <h3 class="role-wrapper__title" [title]="displayName">
+      <h3 class="role-wrapper__title" [appTooltip]="displayName">
         <ng-content select="[role-title]">{{ displayName }}</ng-content>
       </h3>
       @if (description) {
-        <p class="role-wrapper__desc" [title]="description">{{ description }}</p>
+        <p class="role-wrapper__desc" [appTooltip]="description">{{ description }}</p>
       }
       <div class="role-wrapper__facts">
         @if (permissionCount) {

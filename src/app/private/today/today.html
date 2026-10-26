@@ -748,7 +748,7 @@
                     <div
                       class="today-column-title today-column-drag-handle"
                       cdkDragHandle
-                      [title]="'Hold to rearrange ' + column.label + ' column'"
+                      [appTooltip]="'Hold to rearrange ' + column.label + ' column'"
                     >
                       <span class="today-column-dot" aria-hidden="true"></span>
                       <h3 [id]="column.id + '-heading'">{{ column.label }}</h3>
@@ -978,7 +978,7 @@
                           class="today-group-drag-handle"
                           cdkDragHandle
                           [attr.aria-label]="'Hold to rearrange ' + group.label + ' stage'"
-                          [title]="'Hold to rearrange ' + group.label + ' stage'"
+                          [appTooltip]="'Hold to rearrange ' + group.label + ' stage'"
                         >
                           <app-icon [icon]="LucideGrip" size="xs" />
                         </button>
@@ -1108,7 +1108,7 @@
                                       [attr.aria-label]="
                                         'Hold to reorder ' + (plainText(note?.title) || 'note')
                                       "
-                                      [title]="
+                                      [appTooltip]="
                                         'Hold to reorder ' + (plainText(note?.title) || 'note')
                                       "
                                     >
@@ -1135,7 +1135,7 @@
                                             type="button"
                                             class="today-gt-key-copy"
                                             [attr.aria-label]="'Copy key ' + note?.noteKey"
-                                            [title]="
+                                            [appTooltip]="
                                               isKeyCopied(note?.noteKey) ? 'Copied!' : 'Copy key'
                                             "
                                             (click)="copyNoteKey(note?.noteKey, $event)"
@@ -1171,7 +1171,7 @@
                                         <button
                                           type="button"
                                           class="today-gt-title"
-                                          [title]="plainText(note?.title) || 'Untitled note'"
+                                          [appTooltip]="plainText(note?.title) || 'Untitled note'"
                                           [attr.aria-label]="
                                             'Rename ' + (plainText(note?.title) || 'note')
                                           "
@@ -1192,7 +1192,7 @@
                                       @if (isDetailLayout() && note?.creatorEmail) {
                                         <small
                                           class="today-gt-owner"
-                                          [title]="note?.creatorEmail"
+                                          [appTooltip]="note?.creatorEmail"
                                           >{{ note?.creatorEmail }}</small
                                         >
                                       }
@@ -1201,7 +1201,7 @@
                                   <td
                                     class="today-gt-description"
                                     data-label="Description"
-                                    [title]="
+                                    [appTooltip]="
                                       plainText(note?.content) ||
                                       plainText(note?.description) ||
                                       '-'

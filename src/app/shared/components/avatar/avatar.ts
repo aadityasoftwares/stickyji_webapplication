@@ -38,6 +38,7 @@ export type AvatarTone =
 export type AvatarStatus = 'none' | 'online' | 'offline' | 'away' | 'busy';
 
 @Component({
+  host: { '[attr.title]': 'null' },
   selector: 'app-avatar',
   standalone: true,
   imports: [NgClass, AppIcon, Tooltip],

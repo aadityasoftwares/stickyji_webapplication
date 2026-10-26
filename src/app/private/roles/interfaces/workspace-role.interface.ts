@@ -1,3 +1,5 @@
+import type { PaginationMeta as Pagination } from '../../../shared/interfaces/api.interface';
+import type { ApiDataResponse } from '../../../shared/interfaces/api.interface';
 export interface WorkspaceRole {
   id?: string;
   _id?: string;
@@ -39,17 +41,7 @@ export interface WorkspaceRoleQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages?: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
+export interface ApiResponse<T> extends ApiDataResponse<T> {
   pagination?: Pagination;
 }
 

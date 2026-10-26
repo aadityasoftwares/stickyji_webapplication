@@ -1,7 +1,7 @@
 import type {
-  ApiResponse,
-  PaginatedApiResponse,
-} from '../../workspace-members/models/workspace-member.models';
+  ApiDataResponse as ApiResponse,
+  MetaPaginatedResponse as PaginatedApiResponse,
+} from '../../../shared/interfaces/api.interface';
 
 export type StickyNoteAssigneeStatus = 'ACTIVE' | 'REMOVED';
 
