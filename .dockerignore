@@ -1,0 +1,44 @@
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+coverage
+.angular
+.cache
+
+# Environment secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Git
+.git
+.github
+
+# Editor settings
+.vscode
+.idea
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+tmp
+temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs
+*.md
+
+# Tests and test artifacts
+coverage
+test-results
