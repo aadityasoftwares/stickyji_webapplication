@@ -133,6 +133,7 @@ export class WorkspaceStore {
   }
 
   upsert(workspace: any): void {
+    this.workspaceDropdownStore.updateWorkspace(idOf(workspace), workspace);
     this._workspaces.update((current) => {
       const index = current.findIndex((item) => item.id === workspace.id);
 
@@ -155,6 +156,7 @@ export class WorkspaceStore {
   }
 
   updateWorkspace(id: string, values: any): void {
+    this.workspaceDropdownStore.updateWorkspace(id, values);
     this._workspaces.update((current) =>
       current.map((workspace) =>
         workspace.id === id
@@ -171,6 +173,7 @@ export class WorkspaceStore {
   }
 
   remove(id: string): void {
+    this.workspaceDropdownStore.updateWorkspace(id, { status: 'DELETED' });
     this._workspaces.update((current) => current.filter((workspace) => workspace.id !== id));
 
     if (this._selectedId() === id) {

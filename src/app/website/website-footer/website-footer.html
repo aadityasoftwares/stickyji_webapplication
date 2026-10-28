@@ -53,7 +53,8 @@
       <!-- Left Column: Brand, Tagline, Socials, Newsletter -->
       <div class="footer-brand-col">
         <a
-          [attr.href]="brandHref"
+          [routerLink]="brandHref.split('#')[0]"
+          [fragment]="brandHref.split('#')[1]"
           class="footer-brand"
           [attr.aria-label]="brandName + ' home'"
           id="footer-brand-name"
@@ -178,17 +179,30 @@
           <ul class="col-links-list">
             @for (link of group.links; track link.label) {
               <li>
-                <a
-                  [attr.href]="link.href"
-                  [attr.target]="link.external ? '_blank' : null"
-                  [attr.rel]="link.external ? 'noopener noreferrer' : null"
-                  (click)="onLinkSelected(link)"
-                >
-                  <span>{{ link.label }}</span>
-                  @if (link.badge) {
-                    <span class="pill-new">{{ link.badge }}</span>
-                  }
-                </a>
+                @if (link.external) {
+                  <a
+                    [attr.href]="link.href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    (click)="onLinkSelected(link)"
+                  >
+                    <span>{{ link.label }}</span>
+                    @if (link.badge) {
+                      <span class="pill-new">{{ link.badge }}</span>
+                    }
+                  </a>
+                } @else {
+                  <a
+                    [routerLink]="link.href.split('#')[0]"
+                    [fragment]="link.href.split('#')[1]"
+                    (click)="onLinkSelected(link)"
+                  >
+                    <span>{{ link.label }}</span>
+                    @if (link.badge) {
+                      <span class="pill-new">{{ link.badge }}</span>
+                    }
+                  </a>
+                }
               </li>
             }
           </ul>

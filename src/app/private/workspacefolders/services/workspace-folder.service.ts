@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, Observable, expand, reduce } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
 import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
 import type {
   PaginatedApiResponse,
@@ -19,25 +20,20 @@ import { buildHttpParams } from '../../../shared/functions/api.functions';
 })
 export class WorkspaceFolderService {
   private readonly http = inject(HttpClient);
+  private readonly dropdownStore = inject(WorkspaceDropdownStore);
 
-  // Navigation needs all active folders, independently of the explorer's current page.
-  getFolderOptions(workspaceId: string): Observable<WorkspaceFolder[]> {
-    const query: WorkspaceFolderQuery = {
-      workspaceId,
-      page: 1,
-      limit: 100,
-      status: 'ACTIVE',
-      sortBy: 'position',
-      sortOrder: 'asc',
-    };
-    return this.getAllWorkspaceFolders(query).pipe(
-      expand((response) => {
-        const meta = response.meta;
-        return meta && meta.page < (meta.totalPages ?? Math.ceil(meta.total / meta.limit))
-          ? this.getAllWorkspaceFolders({ ...query, page: meta.page + 1 })
-          : EMPTY;
+  // All selectors use the same accessible workspace/folder tree as Today.
+  getFolderOptions(workspaceId: string, force = false): Observable<WorkspaceFolder[]> {
+    return this.dropdownStore.load(undefined, force).pipe(
+      map((items) => {
+        if (items === null) throw new Error(this.dropdownStore.error() || 'Unable to load folders.');
+        return (items.find((workspace) => workspace.id === workspaceId)?.folders ?? []).map(
+          (folder, position) => ({
+            ...folder, workspaceId, position, status: 'ACTIVE' as const,
+            slug: '', isDefault: false, createdAt: '', updatedAt: '',
+          }),
+        );
       }),
-      reduce((folders, response) => [...folders, ...response.data], [] as WorkspaceFolder[]),
     );
   }
 

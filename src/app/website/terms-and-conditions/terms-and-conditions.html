@@ -1,0 +1,40 @@
+<app-company-shell active="terms">
+  <header class="legal-hero">
+    <span class="eyebrow">A clear understanding</span>
+    <h1>{{ page.title }}</h1>
+    <p class="intro">{{ page.intro }}</p>
+    <p class="meta">Draft updated {{ company.updated }} · {{ company.name }} · {{ company.location }}</p>
+  </header>
+  <div class="legal-summary" aria-label="At a glance">
+    <div><span>01</span><strong>Your work stays yours</strong><p>A limited licence to operate the service.</p></div>
+    <div><span>02</span><strong>Clear responsibilities</strong><p>Accounts, sharing, and acceptable use.</p></div>
+    <div><span>03</span><strong>Rights stay protected</strong><p>Mandatory legal protections still apply.</p></div>
+  </div>
+  @if (!company.policiesApproved) {
+    <aside class="draft-notice" aria-label="Policy status">
+      <strong>Draft for review — not yet effective</strong>
+      <p>Postal and grievance details, refund terms, retention periods, and provider details are being finalised. This draft does not establish a final agreement or certify compliance.</p>
+    </aside>
+  }
+  <div class="legal-layout">
+    <aside class="legal-toc">
+      <h2>In this document</h2>
+      <nav aria-label="Document contents">
+        @for (section of page.sections; track section.id) {
+          <a [routerLink]="[]" [fragment]="section.id">{{ section.title }}</a>
+        }
+      </nav>
+    </aside>
+    <article class="legal-body">
+      @for (section of page.sections; track section.id) {
+        <section [id]="section.id" [attr.aria-labelledby]="section.id + '-title'">
+          <h2 [id]="section.id + '-title'">{{ section.title }}</h2>
+          @for (paragraph of section.paragraphs; track $index) {
+            <p>{{ paragraph }}</p>
+          }
+        </section>
+      }
+      <footer class="legal-end">Questions about this document? <a routerLink="/contact-us">Contact stickyji →</a></footer>
+    </article>
+  </div>
+</app-company-shell>

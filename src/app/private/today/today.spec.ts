@@ -81,6 +81,75 @@ describe('Today', () => {
     vi.restoreAllMocks();
   });
 
+  it('opens the inline quick card from Today Notes New note, including an empty board', async () => {
+    component.setView('notes');
+    await fixture.whenStable();
+    const button = fixture.nativeElement.querySelector('.today-section-actions button') as HTMLButtonElement;
+    expect(button).toBeTruthy();
+    button.click();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.today-notes-grid app-quick-note-card')).toBeTruthy();
+    expect(component.notePanelOpen()).toBe(false);
+    component.cancelQuickNote();
+    component.stickyNotes.set([]);
+    await fixture.whenStable();
+    const emptyButton = fixture.nativeElement.querySelector('.today-empty-state app-button button') as HTMLButtonElement;
+    emptyButton.click();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.today-notes-grid app-quick-note-card')).toBeTruthy();
+  });
+
+  it('continues to use the side panel outside Notes view', () => {
+    component.openNoteCreatePanel('todo');
+    expect(component.notePanelOpen()).toBe(true);
+    expect(component.quickNoteContext()).toBeNull();
+  });
+
+  it('keeps the header create action opening the sidebar in Notes view', () => {
+    component.setView('notes');
+    component.openNoteCreatePanel('todo');
+    expect(component.notePanelOpen()).toBe(true);
+    expect(component.notePanelId()).toBe('todo');
+    expect(component.quickNoteContext()).toBeNull();
+  });
+
+  it('keeps the draft on save failure and prevents duplicate requests', () => {
+    component.setView('notes');
+    component.openNoteCreatePanel('todo', true);
+    component.quickNoteDraft.set({ title: ' Idea ', content: ' Details ' });
+    const request = new Subject<any>();
+    const create = vi.spyOn(TestBed.inject(StickyNoteApiService), 'create').mockReturnValue(request);
+    component.saveQuickNote(false);
+    component.saveQuickNote(false);
+    component.cancelQuickNote();
+    expect(create).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({
+      workspaceId: 'workspace', workspaceFolderId: 'folder', columnId: 'todo',
+      title: 'Idea', content: 'Details',
+    }));
+    request.error(new Error('Offline'));
+    expect(component.quickNoteSaving()).toBe(false);
+    expect(component.quickNoteError()).toBeTruthy();
+    expect(component.quickNoteDraft().title).toBe(' Idea ');
+    expect(component.quickNoteVisible()).toBe(true);
+  });
+
+  it('saves a quick note and keeps the card ready for another note', () => {
+    component.setView('notes');
+    component.openNoteCreatePanel('todo', true);
+    component.quickNoteDraft.set({ title: 'Idea', content: '' });
+    vi.spyOn(TestBed.inject(StickyNoteApiService), 'create').mockReturnValue(of({
+      data: { id: 'created', title: 'Idea', columnId: 'todo' },
+    }));
+    const refresh = vi.spyOn(component, 'getNotesForToday').mockImplementation(() => {});
+    component.saveQuickNote(true);
+    expect(component.quickNoteDraft()).toEqual({ title: '', content: '' });
+    expect(component.quickNoteVisible()).toBe(true);
+    expect(component.quickNoteSaving()).toBe(false);
+    expect(component.stickyNotes().some((note) => note.id === 'created')).toBe(true);
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+
   it('groups notes in column and rank order, retaining empty stages', () => {
     expect(component.tableGroups().map((group) => [group.id, group.count])).toEqual([
       ['todo', 2],

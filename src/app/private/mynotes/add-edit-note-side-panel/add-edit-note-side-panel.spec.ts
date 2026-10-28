@@ -13,6 +13,8 @@ import { StickyNoteAssigneeApiService } from '../services/sticky-note-assignee.s
 import { StickyNoteColumnStore } from '../services/sticky-note-column.store';
 import { StickyNotesFavouriteService } from '../../sticky-notes-favourites/services/sticky-notes-favourite.service';
 import { WorkspaceStore } from '../../workspace/services/workspace.store';
+import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-folder.store';
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
 
@@ -84,6 +86,9 @@ describe('AddEditNoteSidePanel', () => {
       }),
     );
 
+    TestBed.inject(WorkspaceDropdownStore).setItems([
+      { id: 'workspace-1', name: 'Workspace', folders: [{ id: 'folder-1', name: 'Notes' }] },
+    ]);
     fixture = TestBed.createComponent(AddEditNoteSidePanel);
     component = fixture.componentInstance;
     await fixture.whenStable();
@@ -96,6 +101,36 @@ describe('AddEditNoteSidePanel', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('shows id/name-only dropdown folders and accepts empty workspaces', () => {
+    const dropdown = TestBed.inject(WorkspaceDropdownStore);
+    component.form.controls.workspaceId.setValue('workspace-1');
+    (component as any).loadFolders('workspace-1', 'folder-1');
+    expect(component.folderOptions()).toEqual([{ label: 'Notes', value: 'folder-1' }]);
+    dropdown.setItems([{ id: 'workspace-1', name: 'Workspace', folders: [] }]);
+    (component as any).loadFolders('workspace-1');
+    expect(component.folderOptions()).toEqual([]);
+    expect(component.form.controls.workspaceFolderId.value).toBe('');
+    expect(component.form.controls.columnId.value).toBe('');
+    TestBed.inject(HttpTestingController).expectNone(API_ENDPOINTS.workspaceFolders.getAll);
+  });
+
+  it('shares a cold dropdown request and ignores folders for a previous workspace', () => {
+    TestBed.inject(WorkspaceDropdownStore).reset();
+    component.form.controls.workspaceId.setValue('old');
+    (component as any).loadWorkspaces();
+    (component as any).loadFolders('old');
+    component.form.controls.workspaceId.setValue('new');
+    (component as any).loadFolders('new');
+    TestBed.inject(HttpTestingController).expectOne(API_ENDPOINTS.workspaces.dropdown).flush({
+      data: [
+        { id: 'old', name: 'Old', folders: [{ id: 'old-folder', name: 'Old folder' }] },
+        { id: 'new', name: 'New', folders: [] },
+      ],
+    });
+    expect(component.folderOptions()).toEqual([]);
+    expect(component.form.controls.workspaceFolderId.value).toBe('');
   });
 
   it.each(['create', 'edit'] as const)(

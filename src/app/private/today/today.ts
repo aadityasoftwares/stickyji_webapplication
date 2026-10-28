@@ -78,6 +78,8 @@ import { OverdueNotesPanel } from '../mynotes/overdue-notes-panel/overdue-notes-
 import { OverdueNotesStore } from '../mynotes/services/overdue-notes.store';
 import { AddEditStickyNoteColumnSidePanel } from '../sticky-note-columns/add-edit-sticky-note-column-side-panel/add-edit-sticky-note-column-side-panel';
 import { StickyNote } from '../mynotes/sticky-note/sticky-note';
+import { QuickNoteCard, QuickNoteDraft } from '../mynotes/quick-note-card/quick-note-card';
+import { todayDateKey } from '../../shared/functions/date.function';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import {
   BulkActionPanel,
@@ -181,6 +183,7 @@ type OverdueView = 'bar' | 'button';
     MembersStack,
     Select,
     StickyNote,
+    QuickNoteCard,
     Tabs,
     Tooltip,
     UserDatePipe,
@@ -337,7 +340,7 @@ export class Today {
 
   readonly workspaceOptions = computed<any[]>(() => {
     const dropdownItems = this.workspaceDropdownStore.items();
-    if (dropdownItems.length > 0) {
+    if (this.workspaceDropdownStore.loaded()) {
       return dropdownItems.map((workspace) => ({
         label: entityNameOf(workspace, 'Untitled workspace'),
         value: idOf(workspace),
@@ -353,7 +356,8 @@ export class Today {
 
   readonly activeWorkspaceId = computed<string | null>(() => {
     if (!this.hasWorkspaces()) return null;
-    return this.workspaceDropdownStore.selectedWorkspaceId() ?? this.workspaceStore.selectedId();
+    return this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.selectedWorkspaceId() : this.workspaceStore.selectedId();
   });
   readonly loadingWorkspaces = computed(() => this.workspaceDropdownStore.loading());
   readonly workspaceError = computed(() => this.workspaceDropdownStore.error());
@@ -362,20 +366,22 @@ export class Today {
   );
   readonly hasWorkspaces = computed(
     () =>
-      this.workspaceDropdownStore.hasWorkspaces() || this.workspaceStore.workspaces().length > 0,
+      this.workspaceDropdownStore.loaded()
+        ? this.workspaceDropdownStore.hasWorkspaces() : this.workspaceStore.workspaces().length > 0,
   );
   readonly workspaceErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly activeFolder = computed<string | null>(() => {
     if (!this.activeWorkspaceId()) return null;
-    return this.workspaceDropdownStore.selectedFolderId() ?? this.workspaceFolderStore.selectedId();
+    return this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.selectedFolderId() : this.workspaceFolderStore.selectedId();
   });
   readonly loadingFolders = computed(
     () => !this.workspaceDropdownStore.loaded() && this.workspaceFolderStore.loading(),
   );
   readonly folders = computed<readonly any[]>(() => {
     const dropdownFolders = this.workspaceDropdownStore.folders();
-    if (dropdownFolders.length > 0) {
+    if (this.workspaceDropdownStore.loaded()) {
       return dropdownFolders;
     }
     return this.workspaceFolderStore.activeFolders();
@@ -395,6 +401,22 @@ export class Today {
   );
 
   readonly stickyNotes = signal<any[]>([]);
+  readonly quickNoteDraft = signal<QuickNoteDraft>({ title: '', content: '' });
+  readonly quickNoteSaving = signal(false);
+  readonly quickNoteError = signal('');
+  readonly quickNoteContext = signal<{
+    workspaceId: string;
+    workspaceFolderId: string;
+    columnId: string;
+    color: string;
+  } | null>(null);
+  readonly quickNoteVisible = computed(() => {
+    const context = this.quickNoteContext();
+    return !!context && this.isNotesView() &&
+      context.workspaceId === this.activeWorkspaceId() &&
+      context.workspaceFolderId === this.activeFolder();
+  });
+  private readonly quickNoteCard = viewChild(QuickNoteCard);
   readonly loadingNotes = signal(false);
   readonly workspaceMembers = signal<readonly any[]>([]);
   readonly loadingWorkspaceMembers = signal(false);
@@ -862,33 +884,13 @@ export class Today {
     this.workspaceFolderStore.setLoading(true);
     this.foldersErrorKind.set('server');
 
-    const query: WorkspaceFolderQuery = {
-      workspaceId: id,
-      page: DEFAULT_PAGE,
-      limit: DEFAULT_LIMIT,
-      status: ACTIVE_STATUS,
-      sortBy: 'position',
-      sortOrder: SORT_ASC,
-    };
-
     this.workspaceFolderApiService
-      .getAllWorkspaceFolders(query)
+      .getFolderOptions(id, force)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: any) => {
-          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id) {
-            return;
-          }
-
-          const folders = extractList<WorkspaceFolder>(response);
-          const pagination =
-            response?.meta ??
-            response?.data?.meta ??
-            response?.pagination ??
-            response?.data?.pagination ??
-            null;
-
-          this.workspaceFolderStore.setFolders(id, folders, pagination);
+        next: (folders) => {
+          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id) return;
+          this.workspaceFolderStore.setFolders(id, folders);
           this.selectFolderAndLoad();
         },
         error: (error: any) => {
@@ -1842,11 +1844,69 @@ export class Today {
     this.loadBoard(true);
   }
 
-  openNoteCreatePanel(columnId: string): void {
+  openNoteCreatePanel(columnId: string, quickAdd = false): void {
     if (!columnId || this.movingNoteId()) return;
+    if (quickAdd && this.isNotesView()) {
+      if (this.quickNoteSaving()) return;
+      const workspaceId = this.activeWorkspaceId();
+      const workspaceFolderId = this.activeFolder();
+      if (!workspaceId || !workspaceFolderId || this.boardLoading()) return;
+      if (this.quickNoteVisible()) {
+        this.quickNoteCard()?.focusTitle();
+        return;
+      }
+      this.quickNoteError.set('');
+      this.quickNoteContext.set({
+        workspaceId, workspaceFolderId, columnId,
+        color: this.userPreferenceStore.defaultNoteColor() || 'YELLOW',
+      });
+      this.clearSearch();
+      return;
+    }
     this.notePanelMode.set('create');
     this.notePanelId.set(columnId);
     this.notePanelOpen.set(true);
+  }
+
+  cancelQuickNote(): void {
+    if (this.quickNoteSaving()) return;
+    this.quickNoteContext.set(null);
+    this.quickNoteDraft.set({ title: '', content: '' });
+    this.quickNoteError.set('');
+  }
+
+  saveQuickNote(continueAdding: boolean): void {
+    const context = this.quickNoteContext();
+    const title = this.quickNoteDraft().title.trim();
+    const content = this.quickNoteDraft().content.trim();
+    if (!context || this.quickNoteSaving() || (!title && !content)) return;
+    this.quickNoteSaving.set(true);
+    this.quickNoteError.set('');
+    this.stickyNoteApiService.create({
+      ...context, title, content, noteDate: todayDateKey(),
+      shape: 'SQUARE', variant: 'PLAIN', backgroundPattern: 'NONE',
+    }).pipe(
+      finalize(() => this.quickNoteSaving.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (response) => {
+        this.quickNoteDraft.set({ title: '', content: '' });
+        if (!continueAdding) this.quickNoteContext.set(null);
+        if (context.workspaceId === this.activeWorkspaceId() &&
+            context.workspaceFolderId === this.activeFolder()) {
+          if (idOf(response.data)) {
+            const note = this.mapNote(response.data);
+            this.stickyNotes.update((notes) => [note, ...notes.filter((item) => idOf(item) !== idOf(note))]);
+          }
+          this.getNotesForToday();
+        }
+        this.toastService.success('Note saved', { title: 'Quick note' });
+        if (continueAdding) setTimeout(() => this.quickNoteCard()?.focusTitle());
+      },
+      error: (error) => {
+        this.quickNoteError.set(extractErrorMessage(error, 'Could not save your note. Try again.'));
+      },
+    });
   }
 
   openNoteEditPanel(note: any, event?: Event): void {

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { AuthService } from '../services/auth-service';
 import {
@@ -59,6 +59,40 @@ describe('AcceptWorkspaceInvitation', () => {
     expect(fixture.nativeElement.querySelector('.invitation-state')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
+
+  it('redirects only after workspace acceptance succeeds, preserving its ID', () => {
+    showInvitation();
+    const response = new Subject<any>();
+    vi.mocked(TestBed.inject(WorkspaceInvitationPublicService).accept).mockReturnValue(response);
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    component.authCompleted.set(true);
+    component.retryAccept();
+    expect(navigate).not.toHaveBeenCalled();
+    response.next({ success: true, data: {
+      invitationId: 'invite-1', workspaceId: 'workspace-1',
+      workspaceName: 'Design team', roleName: 'Editor',
+    } });
+    response.complete();
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(router.serializeUrl(navigate.mock.calls[0][0] as import('@angular/router').UrlTree))
+      .toBe('/app?workspaceId=workspace-1');
+  });
+
+  it('stays on the invitation when acceptance fails', () => {
+    showInvitation();
+    const response = new Subject<any>();
+    vi.mocked(TestBed.inject(WorkspaceInvitationPublicService).accept).mockReturnValue(response);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    component.authCompleted.set(true);
+    component.retryAccept();
+    response.next({ success: false, message: 'Unable to accept' });
+    response.complete();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(component.pageError()).toBe('Unable to accept');
+  });
+
+  afterEach(() => vi.restoreAllMocks());
 
   it('keeps invitation details and the locked email in the new-account card', () => {
     showInvitation();

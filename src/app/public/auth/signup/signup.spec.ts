@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from '../services/auth-service';
 import { Signup } from './signup';
@@ -25,6 +25,29 @@ describe('Signup', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('redirects successful registration into the app like login', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    component.signUpForm.setValue({
+      firstName: 'Test', lastName: 'User', email: 'test@example.com',
+      password: 'StrongPassword123!', acceptTerms: true,
+    });
+    component.submit();
+    expect(navigate).toHaveBeenCalledWith('/app');
+  });
+
+  it('does not redirect when registration is unsuccessful', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    mockAuthService.register.mockReturnValueOnce(of({ success: false, message: 'Unable to register' }));
+    component.signUpForm.setValue({
+      firstName: 'Test', lastName: 'User', email: 'test@example.com',
+      password: 'StrongPassword123!', acceptTerms: true,
+    });
+    component.submit();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  afterEach(() => vi.restoreAllMocks());
 
   it('should not show validation errors before submit is clicked', () => {
     // Controls are invalid initially

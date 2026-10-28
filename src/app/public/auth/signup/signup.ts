@@ -13,7 +13,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { safeAuthRedirect } from '../../../shared/functions/auth-redirect.function';
 import { finalize } from 'rxjs';
 
 import {
@@ -74,6 +75,7 @@ export class Signup implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seoService = inject(SeoService);
 
@@ -94,7 +96,7 @@ export class Signup implements OnInit {
   @Input() logoSrc?: string | null = 'StickyJiHorizontalLogo.png';
   @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
-  @Input() redirectUrl = '/auth/verify-email';
+  @Input() redirectUrl = '/app';
   @Input() showGoogleSignUp = true;
 
   @Output()
@@ -343,17 +345,11 @@ export class Signup implements OnInit {
       return;
     }
 
-    const email = this.emailControl.value.trim().toLowerCase();
-
     this.toastService.success(response.message || AUTH_MESSAGES.SUCCESS.ACCOUNT_CREATED, {
       title: 'Welcome to Sticky Ji!',
     });
 
-    void this.router.navigate([this.safeRedirectUrl()], {
-      queryParams: {
-        email,
-      },
-    });
+    void this.router.navigateByUrl(this.safeRedirectUrl());
   }
 
   private handleFailure(error: HttpErrorResponse): void {
@@ -446,9 +442,7 @@ export class Signup implements OnInit {
   }
 
   private safeRedirectUrl(): string {
-    return this.redirectUrl.startsWith('/') && !this.redirectUrl.startsWith('//')
-      ? this.redirectUrl
-      : '/auth/verify-email';
+    return safeAuthRedirect(this.route.snapshot.queryParamMap.get('redirectUrl') || this.redirectUrl);
   }
 
   private shouldShowError(control: AbstractControl): boolean {

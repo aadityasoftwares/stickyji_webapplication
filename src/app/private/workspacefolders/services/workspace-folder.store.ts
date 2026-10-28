@@ -67,7 +67,7 @@ export class WorkspaceFolderStore {
     this._error.set(null);
 
     this.loadSubscription = this.workspaceFolderService
-      .getFolderOptions(id)
+      .getFolderOptions(id, force)
       .pipe(finalize(() => this._loading.set(false)))
       .subscribe({
         next: (folders) => {
@@ -111,7 +111,11 @@ export class WorkspaceFolderStore {
   }
 
   upsert(folder: WorkspaceFolder): void {
-    if (idOf(folder.workspaceId) !== this._workspaceId()) return;
+    this.workspaceDropdownStore.updateFolder(idOf(folder.workspaceId), folder);
+    if (idOf(folder.workspaceId) !== this._workspaceId()) {
+      this.workspaceDropdownStore.refresh().subscribe();
+      return;
+    }
     if (folder.status === 'DELETED') {
       this.remove(folder.id);
       return;
@@ -135,6 +139,8 @@ export class WorkspaceFolderStore {
   }
 
   updateFolder(id: string, values: Partial<WorkspaceFolder>): void {
+    const folder = this._folders().find((item) => item.id === id);
+    if (folder) this.workspaceDropdownStore.updateFolder(idOf(folder.workspaceId), { ...folder, ...values });
     this._folders.update((current) =>
       current.map((folder) =>
         folder.id === id
@@ -146,11 +152,13 @@ export class WorkspaceFolderStore {
       ),
     );
 
+    this.ensureSelectedFolder();
     // Re-fetch dropdown so folder name/status changes appear in all selects
     this.workspaceDropdownStore.refresh().subscribe();
   }
 
   remove(id: string): void {
+    this.workspaceDropdownStore.removeFolder(id);
     this._folders.update((current) => current.filter((item) => item.id !== id));
 
     if (this._selectedId() === id) {

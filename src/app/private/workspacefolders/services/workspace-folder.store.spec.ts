@@ -3,6 +3,7 @@ import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { WorkspaceFolderStore } from './workspace-folder.store';
 import { WorkspaceFolderService } from './workspace-folder.service';
+import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
 import type { WorkspaceFolder } from '../interfaces/workspace-folder.interface';
 
 describe('WorkspaceFolderStore request isolation', () => {
@@ -13,7 +14,10 @@ describe('WorkspaceFolderStore request isolation', () => {
   beforeEach(() => {
     api.getFolderOptions.mockReset();
     TestBed.configureTestingModule({
-      providers: [{ provide: WorkspaceFolderService, useValue: api }],
+      providers: [{ provide: WorkspaceFolderService, useValue: api }, {
+        provide: WorkspaceDropdownStore,
+        useValue: { updateFolder: vi.fn(), removeFolder: vi.fn(), refresh: () => of([]) },
+      }],
     });
     store = TestBed.inject(WorkspaceFolderStore);
   });

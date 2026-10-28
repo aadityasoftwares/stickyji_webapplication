@@ -121,8 +121,8 @@ export class WebsiteHeader {
     { label: 'Features', href: '/home#features' },
     { label: 'How it works', href: '/home#how-it-works' },
     { label: 'Use cases', href: '/home#use-cases' },
-    { label: 'Pricing', href: '/home#pricing' },
     { label: 'Stories', href: '/home#reviews' },
+    { label: 'Pricing', href: '/home#pricing' },
   ];
 
   @Output() brandClick = new EventEmitter<void>();

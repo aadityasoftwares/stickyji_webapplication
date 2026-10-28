@@ -17,32 +17,20 @@ describe('Folder API contract', () => {
   });
   afterEach(() => http.verify());
 
-  it('fetches every active folder page for navigation', () => {
+  it('loads folder options from the shared dropdown and caches empty folders', () => {
     const result: string[] = [];
     api
       .getFolderOptions('w')
       .subscribe((folders) => result.push(...folders.map((folder) => folder.id)));
-    const first = http.expectOne(`${base}/getall`);
-    expect(first.request.body).toEqual({
-      workspaceId: 'w',
-      page: 1,
-      limit: 100,
-      status: 'ACTIVE',
-      sortBy: 'position',
-      sortOrder: 'asc',
-    });
+    const first = http.expectOne(API_ENDPOINTS.workspaces.dropdown);
+    expect(first.request.method).toBe('GET');
     first.flush({
-      data: [{ id: 'first' }],
-      meta: { page: 1, limit: 100, total: 101, totalPages: 2 },
-    });
-    expect(result).toEqual([]);
-    const second = http.expectOne(`${base}/getall`);
-    expect(second.request.body.page).toBe(2);
-    second.flush({
-      data: [{ id: 'last' }],
-      meta: { page: 2, limit: 100, total: 101, totalPages: 2 },
+      data: [{ id: 'w', name: 'Workspace', folders: [{ id: 'first', name: 'First' }, { id: 'last', name: 'Last' }] }, { id: 'empty', name: 'Empty', folders: [] }],
     });
     expect(result).toEqual(['first', 'last']);
+    api.getFolderOptions('empty').subscribe((folders) => expect(folders).toEqual([]));
+    http.expectNone(API_ENDPOINTS.workspaces.dropdown);
+    http.expectNone(`${base}/getall`);
   });
 
   it('uses distinct canonical routes for trash, restore, and permanent deletion', () => {

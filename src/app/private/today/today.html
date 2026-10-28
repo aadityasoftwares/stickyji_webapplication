@@ -502,7 +502,7 @@
               (buttonClick)="openColumnCreateSidePanel()"
             />
           </div>
-        } @else if (!hasNotes()) {
+        } @else if (!hasNotes() && !quickNoteVisible()) {
           <div class="today-empty-state">
             <span class="today-empty-icon"><app-icon [icon]="LucidePlus" size="lg" /></span>
             <span class="today-empty-note">A clear day</span>
@@ -514,10 +514,10 @@
               [iconLeft]="LucidePlus"
               variant="noteYellow"
               size="sm"
-              (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
+              (buttonClick)="openNoteCreatePanel(firstActionColumnId(), true)"
             />
           </div>
-        } @else if (hasSearch() && !hasVisibleNotes()) {
+        } @else if (hasSearch() && !hasVisibleNotes() && !quickNoteVisible()) {
           <div class="today-empty-state is-compact">
             <span class="today-empty-icon"><app-icon [icon]="LucideSearch" size="lg" /></span>
             <span class="today-empty-note">Nothing matches your search</span>
@@ -569,7 +569,7 @@
                     [iconLeft]="LucidePlus"
                     variant="noteYellow"
                     size="xs"
-                    (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
+                    (buttonClick)="openNoteCreatePanel(firstActionColumnId(), true)"
                   />
                 </div>
               </header>
@@ -580,7 +580,7 @@
                 cdkDropList
                 cdkDropListOrientation="mixed"
                 [cdkDropListSortPredicate]="canSortCanvasNote"
-                [class.is-empty]="incompleteNoteCount() === 0"
+                [class.is-empty]="incompleteNoteCount() === 0 && !quickNoteVisible()"
                 aria-label="Today Notes. Drop a completed note here to reopen it."
                 [cdkDropListData]="todayIncompleteNotes()"
                 [cdkDropListConnectedTo]="['today-completed-drop-list']"
@@ -588,6 +588,19 @@
                 [cdkDropListEnterPredicate]="canDropNote"
                 (cdkDropListDropped)="onNotesDrop($event, false)"
               >
+                @if (quickNoteVisible()) {
+                  <app-quick-note-card
+                    [draft]="quickNoteDraft()"
+                    [color]="quickNoteContext()!.color"
+                    [fontFamily]="fontFamilyFor(stickyNoteFont())"
+                    [fontSize]="stickyNoteFontSize()"
+                    [saving]="quickNoteSaving()"
+                    [error]="quickNoteError()"
+                    (draftChange)="quickNoteDraft.set($event)"
+                    (saveRequested)="saveQuickNote($event)"
+                    (cancelled)="cancelQuickNote()"
+                  />
+                }
                 @for (note of todayIncompleteNotes(); track note.id) {
                   <app-sticky-note
                     class="today-canvas-note"
@@ -604,7 +617,7 @@
                     (completionToggled)="toggleNoteCompletion($event.noteId, $event.isCompleted)"
                   />
                 } @empty {
-                  <div class="today-notes-empty">
+                  <div class="today-notes-empty" [hidden]="quickNoteVisible()">
                     <span class="today-notes-empty-visual" aria-hidden="true">
                       <app-icon
                         [icon]="searchTerm() ? LucideSearch : LucideSparkles"
@@ -637,7 +650,7 @@
                         [iconLeft]="LucidePlus"
                         variant="noteYellow"
                         size="sm"
-                        (buttonClick)="openNoteCreatePanel(firstActionColumnId())"
+                        (buttonClick)="openNoteCreatePanel(firstActionColumnId(), true)"
                       />
                     }
                   </div>

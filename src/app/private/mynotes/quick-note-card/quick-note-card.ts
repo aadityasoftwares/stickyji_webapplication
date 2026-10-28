@@ -45,7 +45,10 @@ export class QuickNoteCard {
   }
 
   get canSave(): boolean {
-    return !this.saving && !!(this.draft.title.trim() || this.draft.content.trim());
+    return !this.saving &&
+      this.draft.title.length <= this.limits.TITLE_MAX_LENGTH &&
+      this.draft.content.length <= this.limits.CONTENT_MAX_LENGTH &&
+      !!(this.draft.title.trim() || this.draft.content.trim());
   }
 
   focusTitle(): void {

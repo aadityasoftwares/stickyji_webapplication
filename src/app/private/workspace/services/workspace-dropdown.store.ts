@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, finalize, map, of } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { WorkspaceService } from './workspace.service';
 import type {
   WorkspaceDropdownFolder,
@@ -13,6 +13,8 @@ import { entityNameOf, idOf } from '../../../shared/functions/common.function';
   providedIn: 'root',
 })
 export class WorkspaceDropdownStore {
+  private readonly requests = new Map<string, Observable<readonly WorkspaceDropdownItem[] | null>>();
+  private refreshPending = false;
   private readonly workspaceService = inject(WorkspaceService);
 
   private readonly _items = signal<readonly WorkspaceDropdownItem[]>([]);
@@ -73,14 +75,13 @@ export class WorkspaceDropdownStore {
       return of(this._items());
     }
 
-    if (this._loading()) {
-      return of(this._items());
-    }
+    const pending = this.requests.get(normalizedSearch);
+    if (pending) return pending;
 
     this._loading.set(true);
     this._error.set(null);
 
-    return this.workspaceService.getWorkspaceDropdown(normalizedSearch).pipe(
+    const request$ = this.workspaceService.getWorkspaceDropdown(normalizedSearch).pipe(
       map((response) => {
         const items = Array.isArray(response?.data) ? response.data : [];
         this._items.set(items);
@@ -93,8 +94,18 @@ export class WorkspaceDropdownStore {
         this._error.set(extractErrorMessage(error, 'Unable to load workspace dropdown data.'));
         return of(null);
       }),
-      finalize(() => this._loading.set(false)),
+      finalize(() => {
+        this.requests.delete(normalizedSearch);
+        this._loading.set(this.requests.size > 0);
+        if (this.refreshPending && this.requests.size === 0) {
+          this.refreshPending = false;
+          this.refresh().subscribe();
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
+    this.requests.set(normalizedSearch, request$);
+    return request$;
   }
 
   setItems(
@@ -169,10 +180,43 @@ export class WorkspaceDropdownStore {
   }
 
   refresh(search?: string): Observable<readonly WorkspaceDropdownItem[] | null> {
+    if (this.requests.size > 0) this.refreshPending = true;
     return this.load(search, true);
   }
 
+  updateWorkspace(id: string, values: any): void {
+    this._items.update((items) => {
+      if (values.status && values.status !== 'ACTIVE') return items.filter((item) => item.id !== id);
+      const existing = items.find((item) => item.id === id);
+      if (!existing && !values.name) return items;
+      const updated = { ...existing, ...values, id, folders: values.folders ?? existing?.folders ?? [] };
+      return existing ? items.map((item) => item.id === id ? updated : item) : [...items, updated];
+    });
+    this.ensureSelection();
+  }
+
+  updateFolder(workspaceId: string, folder: any): void {
+    this._items.update((items) => items.map((workspace) => {
+      if (workspace.id !== workspaceId) return workspace;
+      const folders = workspace.folders ?? [];
+      const exists = folders.some((item) => item.id === folder.id);
+      return { ...workspace, folders: folder.status && folder.status !== 'ACTIVE'
+        ? folders.filter((item) => item.id !== folder.id)
+        : exists ? folders.map((item) => item.id === folder.id ? { ...item, ...folder } : item)
+        : [...folders, folder] };
+    }));
+    this.ensureSelection();
+  }
+
+  removeFolder(id: string): void {
+    this._items.update((items) => items.map((workspace) => ({
+      ...workspace, folders: (workspace.folders ?? []).filter((folder) => folder.id !== id),
+    })));
+    this.ensureSelection();
+  }
+
   reset(): void {
+    this.refreshPending = false;
     this._items.set([]);
     this._selectedWorkspaceId.set(null);
     this._selectedFolderId.set(null);

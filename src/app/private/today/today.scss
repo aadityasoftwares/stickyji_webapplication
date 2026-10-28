@@ -622,6 +622,10 @@
   gap: 0.35rem;
 }
 
+.today-notes-empty[hidden] {
+  display: none;
+}
+
 .today-notes-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

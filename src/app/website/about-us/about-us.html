@@ -1,0 +1,33 @@
+<app-company-shell active="about">
+  <header class="about-hero">
+    <div>
+      <span class="eyebrow">Built around the way ideas happen</span>
+      <h1>A little less clutter.<br /><span>A lot more clarity.</span></h1>
+      <p class="intro">{{ page.intro }}</p>
+      <a class="button-link" routerLink="/auth/signup">Find a home for your ideas →</a>
+      <p class="meta">Made by {{ company.name }} · {{ company.location }}</p>
+    </div>
+    <div class="idea-board" aria-label="Capture an idea, make a plan, and move forward">
+      <div class="board-label">A little space to think</div>
+      <div class="idea-note yellow"><span class="tape"></span><span class="note-number">01 / CAPTURE</span><strong>That little idea?<br />Write it down.</strong><span class="scribble">It might become something great.</span></div>
+      <div class="idea-note blue"><span class="note-number">02 / ORGANISE</span><strong>One step<br />at a time.</strong><span class="checkline">✓ Make a plan</span><span class="checkline">✓ Find your focus</span></div>
+      <div class="idea-note pink"><span class="note-number">03 / TOGETHER</span><strong>Good things<br />grow together.</strong></div>
+    </div>
+  </header>
+  <section class="mission" aria-labelledby="mission-heading">
+    <span class="eyebrow">Why Sticky Ji exists</span>
+    <h2 id="mission-heading">Your tools should make room for thinking.</h2>
+    <p>{{ page.sections[0].paragraphs[0] }}</p>
+  </section>
+  <section class="values-grid" aria-label="What you can do with Sticky Ji">
+    @for (section of page.sections.slice(1, 3); track section.id) {
+      <article><span class="value-number">0{{ $index + 1 }}</span><h2>{{ section.title }}</h2>
+        @for (paragraph of section.paragraphs; track $index) { <p>{{ paragraph }}</p> }
+      </article>
+    }
+  </section>
+  <section class="origin">
+    <div><span class="eyebrow">Our corner of the world</span><h2>From Vadodara,<br />for your everyday ideas.</h2></div>
+    <div><p>{{ page.sections[3].paragraphs[0] }}</p><p>Have an idea for making Sticky Ji better? We would love to hear how you work.</p><a routerLink="/contact-us">Say hello to stickyji →</a></div>
+  </section>
+</app-company-shell>

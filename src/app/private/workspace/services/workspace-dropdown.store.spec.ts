@@ -103,6 +103,34 @@ describe('WorkspaceDropdownStore & WorkspaceService dropdown API', () => {
   });
 
   describe('WorkspaceDropdownStore', () => {
+    it('waits for the same response for concurrent callers', () => {
+      const results: unknown[] = [];
+      store.load().subscribe((items) => results.push(items));
+      store.load().subscribe((items) => results.push(items));
+      expect(results).toEqual([]);
+      httpMock.expectOne(API_ENDPOINTS.workspaces.dropdown).flush(mockResponse);
+      expect(results).toEqual([mockResponse.data, mockResponse.data]);
+    });
+
+    it('refreshes again when a mutation occurs during a pending load', () => {
+      store.load().subscribe();
+      const pending = httpMock.expectOne(API_ENDPOINTS.workspaces.dropdown);
+      store.refresh().subscribe();
+      pending.flush(mockResponse);
+      httpMock.expectOne(API_ENDPOINTS.workspaces.dropdown).flush({ ...mockResponse, data: [] });
+      expect(store.items()).toEqual([]);
+    });
+
+    it('updates names and removes inactive selections immediately', () => {
+      store.setItems(mockResponse.data);
+      store.updateWorkspace('ws-1', { name: 'Renamed' });
+      expect(store.selectedWorkspace()?.name).toBe('Renamed');
+      expect(store.folders()).toHaveLength(2);
+      store.updateFolder('ws-1', { id: 'f-1', name: 'Renamed folder' });
+      expect(store.selectedFolder()?.name).toBe('Renamed folder');
+      store.updateFolder('ws-1', { id: 'f-1', status: 'ARCHIVED' });
+      expect(store.selectedFolderId()).toBe('f-2');
+    });
     it('initializes with empty signals and unselected states', () => {
       expect(store.items()).toEqual([]);
       expect(store.hasWorkspaces()).toBe(false);

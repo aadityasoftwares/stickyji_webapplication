@@ -1,4 +1,5 @@
 import { DOCUMENT, ViewportScroller } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -86,18 +87,18 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'users',
     badgeColor: 'green',
     links: [
-      { label: 'About us', href: '/home#how-it-works' },
+      { label: 'About us', href: '/about-us' },
       { label: 'Careers', href: '/home' },
-      { label: 'Contact', href: 'mailto:hello@stickyji.app', external: true },
-      { label: 'Privacy policy', href: '/home' },
-      { label: 'Terms & conditions', href: '/home' },
+      { label: 'Contact us', href: '/contact-us' },
+      { label: 'Privacy policy', href: '/privacy-policy' },
+      { label: 'Terms & conditions', href: '/terms-and-conditions' },
     ],
   },
 ];
 
 @Component({
   standalone: true,
-  imports: [AppIcon, StickyCard],
+  imports: [AppIcon, StickyCard, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-website-footer',
   styleUrl: './website-footer.scss',

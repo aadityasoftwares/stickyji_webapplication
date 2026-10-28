@@ -1,4 +1,5 @@
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
+import { safeAuthRedirect } from '../../../shared/functions/auth-redirect.function';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -372,9 +373,9 @@ export class AcceptWorkspaceInvitation implements OnInit {
   openWorkspace(): void {
     const workspaceId = this.accepted()?.workspaceId || this.invitation()?.workspace?.id || '';
 
-    void this.router.navigate([this.safeRedirectUrl()], {
-      queryParams: workspaceId ? { workspaceId } : undefined,
-    });
+    const target = this.router.parseUrl(this.safeRedirectUrl());
+    if (workspaceId) target.queryParams = { ...target.queryParams, workspaceId };
+    void this.router.navigateByUrl(target);
   }
 
   private submitExistingUser(): void {
@@ -589,6 +590,7 @@ export class AcceptWorkspaceInvitation implements OnInit {
       title: 'Invitation accepted',
       dedupeKey: 'workspace-invitation-accepted',
     });
+    this.openWorkspace();
   }
 
   private handleSubmitError(error: unknown, existingUser: boolean): void {
@@ -838,8 +840,6 @@ export class AcceptWorkspaceInvitation implements OnInit {
   }
 
   private safeRedirectUrl(): string {
-    return this.redirectUrl.startsWith('/') && !this.redirectUrl.startsWith('//')
-      ? this.redirectUrl
-      : '/app';
+    return safeAuthRedirect(this.route.snapshot.queryParamMap.get('redirectUrl') || this.redirectUrl);
   }
 }

@@ -1,0 +1,31 @@
+<app-company-shell active="contact">
+  <header class="contact-hero"><span class="eyebrow">You bring the question. We’ll listen.</span><h1>Let’s make your<br /><span>day a little easier.</span></h1><p class="intro">{{ page.intro }}</p></header>
+  <div class="contact-layout">
+    <aside class="email-panel">
+      <img src="StickyJiLogo.png" alt="" width="70" height="70" />
+      <h2>A hello goes a long way.</h2>
+      <p>For help, feedback, or a conversation about Sticky Ji, write to us directly.</p>
+      <a class="direct-email" [href]="emailLink('Sticky Ji enquiry')">{{ company.email }} ↗</a>
+      <div class="location"><span>BASED IN</span><strong>{{ company.location }}</strong></div>
+      <p class="email-hint">These links open your mail app. No message is sent until you send it.</p>
+    </aside>
+    <section class="topic-grid" aria-label="Choose your contact topic">
+      @for (topic of topics; track topic.subject) {
+        <a [class]="'topic-card ' + topic.tone" [href]="emailLink(topic.subject)">
+          <div class="topic-top"><span>{{ topic.number }}</span><span aria-hidden="true">↗</span></div>
+          <h2>{{ topic.title }}</h2><p>{{ topic.text }}</p><span class="topic-action">Start a conversation →</span>
+        </a>
+      }
+    </section>
+  </div>
+  <section class="contact-details" aria-labelledby="before-heading">
+    <div><span class="eyebrow">Before you hit send</span><h2 id="before-heading">A few details help<br />us help you.</h2><p>Keep sensitive information out of email.</p><a routerLink="/privacy-policy">Read our privacy policy →</a></div>
+    <div class="questions">
+      @for (section of page.sections; track section.id) {
+        <details [open]="$index === 0"><summary>{{ section.title }}</summary>
+          @for (paragraph of section.paragraphs; track $index) { <p>{{ paragraph }}</p> }
+        </details>
+      }
+    </div>
+  </section>
+</app-company-shell>

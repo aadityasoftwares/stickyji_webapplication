@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { safeAuthRedirect } from '../../../shared/functions/auth-redirect.function';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -219,7 +220,7 @@ export class Signin implements OnInit {
     const email = this.emailControl.value.trim().toLowerCase();
 
     void this.router.navigate(['/auth/signup'], {
-      queryParams: email ? { email } : undefined,
+      queryParams: { email: email || undefined, redirectUrl: this.safeRedirectUrl() },
     });
   }
 
@@ -331,22 +332,7 @@ export class Signin implements OnInit {
   }
 
   private safeRedirectUrl(): string {
-    const requestedUrl = this.routeRedirectUrl || this.redirectUrl;
-
-    if (!requestedUrl.startsWith('/') || requestedUrl.startsWith('//')) {
-      return '/app';
-    }
-
-    if (
-      requestedUrl.startsWith('/auth/login') ||
-      requestedUrl.startsWith('/auth/signup') ||
-      requestedUrl.startsWith('/auth/forgot-password') ||
-      requestedUrl.startsWith('/auth/reset-password')
-    ) {
-      return '/app';
-    }
-
-    return requestedUrl;
+    return safeAuthRedirect(this.routeRedirectUrl || this.redirectUrl);
   }
 
   private focusControl(control: LoginControl): void {
