@@ -32,9 +32,12 @@
     </nav>
 
     <div class="desktop-actions">
-      <button class="header-sign-in" type="button" (click)="onSignIn()">{{ signInLabel }}</button>
+      @if (!isAuthenticated()) {
+        <button class="header-sign-in" type="button" (click)="onSignIn()">{{ signInLabel }}</button>
+      }
       <button class="header-start" type="button" (click)="onPrimaryAction()">
-        {{ primaryActionLabel }} <app-icon [icon]="LucideArrowRight" size="md" />
+        {{ isAuthenticated() ? 'Continue to app' : primaryActionLabel }}
+        <app-icon [icon]="LucideArrowRight" size="md" />
       </button>
     </div>
 
@@ -78,16 +81,18 @@
       </nav>
 
       <div class="mobile-actions">
-        <app-button
-          [label]="signInLabel"
-          variant="outline"
-          size="lg"
-          [fullWidth]="true"
-          (buttonClick)="onSignIn()"
-        />
+        @if (!isAuthenticated()) {
+          <app-button
+            [label]="signInLabel"
+            variant="outline"
+            size="lg"
+            [fullWidth]="true"
+            (buttonClick)="onSignIn()"
+          />
+        }
 
         <app-button
-          [label]="primaryActionLabel"
+          [label]="isAuthenticated() ? 'Continue to app' : primaryActionLabel"
           variant="primary"
           size="lg"
           [fullWidth]="true"
@@ -101,7 +106,7 @@
 
       <app-label
         class="mobile-reassurance"
-        [text]="reassuranceText"
+        [text]="isAuthenticated() ? 'Your workspace is ready' : reassuranceText"
         [icon]="LucideCheck"
         variant="noteGreen"
         appearance="soft"

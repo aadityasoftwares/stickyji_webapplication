@@ -250,7 +250,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     workspaceId: ['', Validators.required],
     workspaceFolderId: ['', Validators.required],
     columnId: ['', Validators.required],
-    title: ['', Validators.maxLength(this.titleMaxLength)],
+    title: ['', [Validators.required, Validators.maxLength(this.titleMaxLength)]],
     content: ['', [Validators.required, Validators.maxLength(this.contentMaxLength)]],
     noteDate: [null as string | null],
     color: ['YELLOW', Validators.required],

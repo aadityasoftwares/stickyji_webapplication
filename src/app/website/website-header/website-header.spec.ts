@@ -1,18 +1,50 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { WebsiteHeader } from './website-header';
+import { AuthStore } from '../../public/auth/state/auth.store';
 
 @Component({ template: '' })
 class EmptyPage {}
 
 describe('WebsiteHeader navigation', () => {
+  const isAuthenticated = signal(false);
   beforeEach(async () => {
+    isAuthenticated.set(false);
     TestBed.configureTestingModule({
       imports: [WebsiteHeader],
-      providers: [provideRouter([{ path: 'home', component: EmptyPage }])],
+      providers: [
+        provideRouter([{ path: 'home', component: EmptyPage }]),
+        { provide: AuthStore, useValue: { isAuthenticated } },
+      ],
     });
     await TestBed.inject(Router).navigateByUrl('/home');
+  });
+
+  it('offers continued app access on desktop and mobile for a restored session', () => {
+    const fixture = TestBed.createComponent(WebsiteHeader);
+    fixture.componentInstance.mobileMenuOpen = true;
+    isAuthenticated.set(true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.header-sign-in')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.header-start').textContent).toContain(
+      'Continue to app',
+    );
+    expect(fixture.nativeElement.querySelector('.mobile-actions').textContent).toContain(
+      'Continue to app',
+    );
+    expect(fixture.nativeElement.querySelectorAll('.mobile-actions app-button').length).toBe(1);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const signup = vi.spyOn(fixture.componentInstance.primaryActionClick, 'emit');
+    fixture.componentInstance.onPrimaryAction();
+    expect(navigate).toHaveBeenCalledWith('/app');
+    expect(signup).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.mobileMenuOpen).toBe(false);
+    isAuthenticated.set(false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.header-sign-in')).not.toBeNull();
+    fixture.componentInstance.onPrimaryAction();
+    expect(signup).toHaveBeenCalled();
   });
 
   it('marks the current section in desktop and mobile navigation', () => {

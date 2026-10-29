@@ -1,8 +1,7 @@
 @use '../../styles/variables' as *;
 
 :host {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: $z-header;
   display: block;
   width: 100%;

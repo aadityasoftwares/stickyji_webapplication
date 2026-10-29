@@ -212,7 +212,7 @@
 
 .note-context {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
+  grid-template-columns: minmax(0, 0.8fr) auto minmax(0, 0.8fr) auto minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   min-width: 0;
@@ -976,6 +976,10 @@
 @media (max-width: 640px) {
   .note-context {
     grid-template-columns: 1fr;
+  }
+
+  .note-context-slash {
+    display: none;
   }
 
   .note-appearance {

@@ -127,7 +127,7 @@
       </section>
       <section class="note-fields" appFocusNavigation aria-label="Note details">
         <div class="note-field note-title-field">
-          <app-label forId="note-title" text="Title" />
+          <app-label forId="note-title" text="Title" [required]="true" />
           <div class="note-field-control">
             <app-sticky-markdown-editor
               #noteTitleInput
@@ -135,6 +135,7 @@
               mode="SINGLE_LINE"
               toolbar="focus"
               label="Title"
+              [required]="true"
               placeholder="Give your note a title"
               [maxMarkdownLength]="titleMaxLength"
               formControlName="title"

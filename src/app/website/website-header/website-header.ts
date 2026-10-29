@@ -23,6 +23,8 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
+import { AuthStore } from '../../public/auth/state/auth.store';
+import { APP_ROUTES } from '../../shared/constants/route.constants';
 
 export interface HeaderNavItem {
   label: string;
@@ -44,6 +46,7 @@ export interface HeaderNavItem {
   templateUrl: './website-header.html',
 })
 export class WebsiteHeader {
+  readonly isAuthenticated = inject(AuthStore).isAuthenticated;
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly scroller = inject(ViewportScroller);
@@ -159,6 +162,10 @@ export class WebsiteHeader {
 
   onPrimaryAction(): void {
     this.closeMobileMenu();
+    if (this.isAuthenticated()) {
+      void this.router.navigateByUrl(APP_ROUTES.APP);
+      return;
+    }
     this.primaryActionClick.emit();
   }
 
