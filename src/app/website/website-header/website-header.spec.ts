@@ -9,6 +9,7 @@ class EmptyPage {}
 
 describe('WebsiteHeader navigation', () => {
   const isAuthenticated = signal(false);
+  afterEach(() => vi.unstubAllGlobals());
   beforeEach(async () => {
     isAuthenticated.set(false);
     TestBed.configureTestingModule({
@@ -55,6 +56,28 @@ describe('WebsiteHeader navigation', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('a[aria-current="location"]').length).toBe(2);
     expect(fixture.nativeElement.querySelector('a.is-active').textContent).toContain('Pricing');
+  });
+
+  it('hides on downward scroll and returns on upward scroll or near the top', () => {
+    const fixture = TestBed.createComponent(WebsiteHeader);
+    fixture.detectChanges();
+    const moveTo = (y: number) => {
+      vi.stubGlobal('scrollY', y);
+      window.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+    };
+    moveTo(200);
+    expect(fixture.nativeElement.classList.contains('header-hidden')).toBe(true);
+    moveTo(198);
+    expect(fixture.nativeElement.classList.contains('header-hidden')).toBe(true);
+    moveTo(180);
+    expect(fixture.nativeElement.classList.contains('header-hidden')).toBe(false);
+    moveTo(300);
+    moveTo(0);
+    expect(fixture.nativeElement.classList.contains('header-hidden')).toBe(false);
+    fixture.componentInstance.mobileMenuOpen = true;
+    moveTo(400);
+    expect(fixture.nativeElement.classList.contains('header-hidden')).toBe(false);
   });
 
   it('uses router navigation and preserves modified clicks', () => {

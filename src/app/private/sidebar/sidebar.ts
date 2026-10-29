@@ -19,15 +19,14 @@ import {
   LucidePanelLeftOpen,
   LucidePanelsTopLeft,
   LucideShieldCheck,
-  LucideSlidersHorizontal,
   LucideStar,
   LucideStickyNote,
   LucideUsersRound,
-  LucideX,
+  LucideX
 } from '@lucide/angular';
+import { Button } from '../../shared/components/button/button';
 import { AppIcon, type AppIconDefinition } from '../../shared/components/icon/icon';
 import { type SelectOption, type SelectValue } from '../../shared/components/select/select';
-import { Button } from '../../shared/components/button/button';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
 
@@ -105,7 +104,7 @@ export class Sidebar {
       label: 'Account',
       items: [
         { label: 'Profile', route: APP_ROUTES.PROFILE, icon: LucideCircleUserRound },
-        { label: 'Preferences', route: APP_ROUTES.PREFERENCES, icon: LucideSlidersHorizontal },
+        // { label: 'Preferences', route: APP_ROUTES.PREFERENCES, icon: LucideSlidersHorizontal },
       ],
     },
   ];

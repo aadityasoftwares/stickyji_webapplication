@@ -8,9 +8,19 @@ import { UseCases } from '../use-cases/use-cases';
 import { Reviews } from '../reviews/reviews';
 import { Subscription } from '../subscription/subscription';
 import { WebsiteFooter } from '../website-footer/website-footer';
+import { ScrollReveal } from '../scroll-reveal';
 
 @Component({
-  imports: [Hero, WebsiteHeader, ThoughtFlow, UseCases, Reviews, Subscription, WebsiteFooter],
+  imports: [
+    Hero,
+    WebsiteHeader,
+    ThoughtFlow,
+    UseCases,
+    Reviews,
+    Subscription,
+    WebsiteFooter,
+    ScrollReveal,
+  ],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',

@@ -1,4 +1,4 @@
-﻿<section id="use-cases" class="use-cases" aria-labelledby="use-cases-title">
+<section id="use-cases" class="use-cases" aria-labelledby="use-cases-title">
   <div class="use-cases-shell">
     <header class="section-heading">
       <span class="section-eyebrow">
@@ -21,18 +21,10 @@
         />
         little more clarity, wherever you need it.
       </p>
-      <div class="thought-doodle" aria-hidden="true">
-        Same<br />thoughts,<br />more clarity.
-        <svg class="thought-rays" viewBox="0 0 40 35"><path d="m8 12 7 10m8-20-4 15" /></svg>
-        <svg class="thought-arrow" viewBox="0 0 65 52">
-          <path d="M8 6q2 29 43 35m-8-13 11 13-16 2" />
-        </svg>
-      </div>
+
       <div class="calmer-note" aria-hidden="true">
         <span>· A calmer<br />day, brighter<br />ideas.</span>
-        <svg class="calmer-rays" viewBox="0 0 45 55">
-          <path d="m8 21 12-18m-2 30 20-9m-18 22 14 6" />
-        </svg>
+
         <svg class="calmer-sparks" viewBox="0 0 40 45"><path d="m9 8 10 16M3 31l15 4" /></svg>
         <svg class="calmer-heart" viewBox="0 0 35 40">
           <path d="M17 33C-4 9 10 3 16 16 24-3 42 10 17 33Z" />
@@ -56,25 +48,11 @@
           (keydown)="onPersonaKeydown($event, personaIndex)"
         >
           <app-icon [icon]="persona.icon" [size]="27" /><span>{{ persona.label }}</span>
-          @if (selectedPersonaId === persona.id) {
-            <svg class="tab-rays" viewBox="0 0 38 38" aria-hidden="true">
-              <path d="m8 17 5-13m0 23 13-9" />
-            </svg>
-          }
         </button>
       }
     </div>
 
     <div class="board-wrap">
-      <svg class="board-spark" viewBox="0 0 50 75" aria-hidden="true">
-        <path d="M24 6q-1 31-20 32 19 1 20 31 2-30 22-31Q26 37 24 6Z" />
-      </svg>
-      <svg class="board-scribble" viewBox="0 0 100 75" aria-hidden="true">
-        <path d="M4 29C41-14 49 13 28 37S28 55 47 46s-3 26 20 15 13 7 28 2" />
-      </svg>
-      <svg class="board-loop" viewBox="0 0 85 90" aria-hidden="true">
-        <path d="M5 20C49-12 61 33 39 47s-11-28 17-17 9 47 9 47" />
-      </svg>
       <div
         id="persona-board"
         class="persona-board"
@@ -130,9 +108,6 @@
               class="persona-task-list"
               [attr.aria-label]="activePersona.label + ' example tasks'"
             >
-              <svg class="task-rays" viewBox="0 0 42 45" aria-hidden="true">
-                <path d="m9 24 7-17m3 28 13-7" />
-              </svg>
               @for (task of activePersona.tasks; track task.label; let taskIndex = $index) {
                 <label
                   class="persona-task"
@@ -171,10 +146,7 @@
             <article class="small-note reminder-note">
               <h3><app-icon [icon]="LucidePin" [size]="23" />{{ activePersona.sideNoteTitle }}</h3>
               <p>{{ activePersona.sideNoteText }}</p>
-              <span class="keep-close"><app-icon [icon]="LucideClock3" size="sm" />Keep close</span
-              ><svg class="reminder-rays" viewBox="0 0 28 38" aria-hidden="true">
-                <path d="m7 15 8-7m-7 16 9 3" />
-              </svg>
+              <span class="keep-close"><app-icon [icon]="LucideClock3" size="sm" />Keep close</span>
             </article>
             <article class="small-note outcome-note">
               <span class="outcome-check" aria-hidden="true"
@@ -201,9 +173,6 @@
                 ></span>
               </div>
               <p>Try checking off a task in this example.</p>
-              <svg class="progress-rays" viewBox="0 0 35 40" aria-hidden="true">
-                <path d="m14 7 12 2m-17 6 11 7M5 20l4 12" />
-              </svg>
             </article>
           </aside>
         </div>

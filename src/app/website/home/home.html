@@ -3,12 +3,13 @@
   (primaryActionClick)="navigateToAuth('signup')"
 ></app-website-header>
 <app-hero (startFree)="navigateToAuth('signup')"></app-hero>
-<app-thought-flow (exploreClick)="navigateToAuth('signup')"></app-thought-flow>
-<app-use-cases (startClick)="navigateToAuth('signup')"></app-use-cases>
-<app-reviews></app-reviews>
+<app-thought-flow appScrollReveal (exploreClick)="navigateToAuth('signup')"></app-thought-flow>
+<app-use-cases appScrollReveal (startClick)="navigateToAuth('signup')"></app-use-cases>
+<app-reviews appScrollReveal></app-reviews>
 <!-- <app-collaboration></app-collaboration> -->
-<app-subscription (planSelected)="choosePlan($event)"></app-subscription>
+<app-subscription appScrollReveal (planSelected)="choosePlan($event)"></app-subscription>
 <app-website-footer
+  appScrollReveal
   (primaryActionClick)="navigateToAuth('signup')"
   (secondaryActionClick)="navigateToAuth('login')"
 ></app-website-footer>

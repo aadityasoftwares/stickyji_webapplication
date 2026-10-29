@@ -1,22 +1,14 @@
-﻿<section id="how-it-works" class="thought-flow" aria-labelledby="thought-flow-title">
+<section id="how-it-works" class="thought-flow" aria-labelledby="thought-flow-title">
   <div class="thought-flow-shell">
     <header class="section-heading">
       <div class="heading-copy">
-        <span class="section-eyebrow"
-          >A SIMPLE WAY TO MOVE FORWARD
-          <svg class="eyebrow-rays" viewBox="0 0 36 32" aria-hidden="true">
-            <path d="m5 20 12-14M13 27l17-6" />
-          </svg>
-        </span>
+        <span class="section-eyebrow">A SIMPLE WAY TO MOVE FORWARD </span>
         <h2 id="thought-flow-title">
           From a passing thought<br />to a
           <span class="heading-highlight"
             >little progress.
             <svg class="heading-underline" viewBox="0 0 150 32" aria-hidden="true">
               <path d="M3 13Q80-1 111 6L61 26l76-7" />
-            </svg>
-            <svg class="heading-rays" viewBox="0 0 40 62" aria-hidden="true">
-              <path d="m6 15 12-9M12 30l19-2M8 45l16 8" />
             </svg>
           </span>
         </h2>
@@ -25,10 +17,6 @@
         Capture the idea. Give it a next step. Enjoy getting it done. A familiar workflow that makes
         room for the way you think.
       </p>
-      <div class="heading-doodle" aria-hidden="true">
-        <svg viewBox="0 0 70 55"><path d="M62 33C59 1 31 3 13 32m0-14-2 17 16-5" /></svg
-        ><span>IDEAS<br />TURN INTO<br />REAL PROGRESS.</span>
-      </div>
     </header>
 
     <div class="flow-layout">
@@ -53,9 +41,6 @@
           >
             <span class="step-number" aria-hidden="true">{{ stage.number }}</span>
             <span [class]="'step-icon step-icon-' + stage.id" aria-hidden="true">
-              <svg class="icon-rays" viewBox="0 0 60 40">
-                <path d="m8 28-6-4m18-8-2-9m17 10 2-10" />
-              </svg>
               <app-icon [icon]="stage.icon" [size]="36" [strokeWidth]="1.8" />
             </span>
             <span class="step-copy"
@@ -71,9 +56,6 @@
       </div>
 
       <div class="preview-wrap" [attr.data-stage]="selectedStage">
-        <svg class="window-rays" viewBox="0 0 45 45" aria-hidden="true">
-          <path d="m9 20 4-13m5 26 15-13" />
-        </svg>
         <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
         <div
           id="thought-flow-panel"
@@ -99,21 +81,10 @@
                   <span
                     ><small>QUICK CAPTURE</small><strong>Saved before it slipped away</strong></span
                   ><span class="time-badge">Just now</span>
-                  <svg class="source-rays" viewBox="0 0 30 35" aria-hidden="true">
-                    <path d="m5 14 7-8m-2 17 10-2" />
-                  </svg>
                 </div>
                 <article class="preview-note capture-note">
                   <span class="note-eyebrow">NEW THOUGHT</span>
-                  <h4>
-                    What if planning felt lighter?<svg
-                      class="note-rays"
-                      viewBox="0 0 40 40"
-                      aria-hidden="true"
-                    >
-                      <path d="m8 18 8-12m-1 23 16-5" />
-                    </svg>
-                  </h4>
+                  <h4>What if planning felt lighter?</h4>
                   <p class="note-body">
                     Build a homepage that feels like clearing a desk—not opening another complicated
                     tool.
@@ -233,19 +204,10 @@
         <div>
           <strong>Less to keep in your head. More room to create.</strong>
           <p>Start with one note and make it your own.</p>
-          <svg class="footer-copy-rays" viewBox="0 0 36 36" aria-hidden="true">
-            <path d="m7 17 8-10m-1 19 13-4" />
-          </svg>
         </div>
       </div>
       <button class="create-note-button" type="button" (click)="exploreClick.emit()">
-        Create your first note <app-icon [icon]="LucideArrowRight" [size]="25" /><svg
-          class="button-rays"
-          viewBox="0 0 40 45"
-          aria-hidden="true"
-        >
-          <path d="m8 15 7-10m0 21 10-5m-8 16 12-1" />
-        </svg>
+        Create your first note <app-icon [icon]="LucideArrowRight" [size]="25" />
       </button>
     </footer>
   </div>

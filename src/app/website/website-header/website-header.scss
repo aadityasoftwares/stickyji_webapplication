@@ -1,12 +1,19 @@
 @use '../../styles/variables' as *;
 
 :host {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: $z-header;
   display: block;
   width: 100%;
   padding-block: 16px 8px;
   background: linear-gradient(#fffdf9 60%, rgba(#fffdf9, 0));
+  transition: transform 220ms ease;
+}
+
+:host(.header-hidden:not(:focus-within)) {
+  transform: translateY(-100%);
+  pointer-events: none;
 }
 
 .app-site-header {
@@ -477,6 +484,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :host,
   .brand-mark-note,
   .header-brand-logo,
   .desktop-actions button,

@@ -40,6 +40,7 @@ export interface HeaderNavItem {
   imports: [AppIcon, Badge, Button, Label],
   host: {
     '[class.app-header-menu-open]': 'mobileMenuOpen',
+    '[class.header-hidden]': 'headerHidden() && !mobileMenuOpen',
   },
   selector: 'app-website-header',
   styleUrl: './website-header.scss',
@@ -51,10 +52,14 @@ export class WebsiteHeader {
   private readonly document = inject(DOCUMENT);
   private readonly scroller = inject(ViewportScroller);
   readonly activeSection = signal(this.router.parseUrl(this.router.url).fragment ?? 'top');
+  readonly headerHidden = signal(false);
+  private previousScrollY = 0;
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
+        this.headerHidden.set(false);
+        this.previousScrollY = this.document.defaultView?.scrollY ?? 0;
         this.activeSection.set(this.router.parseUrl(event.urlAfterRedirects).fragment ?? 'top');
       }
     });
@@ -93,6 +98,18 @@ export class WebsiteHeader {
   }
 
   @HostListener('window:scroll')
+  onScroll(): void {
+    const scrollY = Math.max(0, this.document.defaultView?.scrollY ?? 0);
+    const delta = scrollY - this.previousScrollY;
+    if (scrollY <= 120 || this.mobileMenuOpen) {
+      this.headerHidden.set(false);
+    } else if (Math.abs(delta) >= 6) {
+      this.headerHidden.set(delta > 0);
+    }
+    if (Math.abs(delta) >= 6 || scrollY <= 120) this.previousScrollY = scrollY;
+    this.updateActiveSection();
+  }
+
   updateActiveSection(): void {
     if (this.router.url.split(/[?#]/)[0] !== '/home') return;
     let active = 'top';
