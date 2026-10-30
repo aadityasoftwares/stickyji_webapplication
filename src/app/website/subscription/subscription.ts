@@ -17,7 +17,6 @@ import {
   LucideArrowRight,
   LucideCheck,
   LucideInfo,
-  LucideLock,
   LucideMinus,
   LucideRefreshCw,
   LucideShield,
@@ -315,7 +314,6 @@ export class Subscription implements OnInit {
   readonly LucideInfo = LucideInfo;
   readonly LucideAlertCircle = LucideAlertCircle;
   readonly LucideRefreshCw = LucideRefreshCw;
-  readonly LucideLock = LucideLock;
 
   // Catalog State Signals
   readonly catalog = signal<SubscriptionCatalogResponse | null>(null);
@@ -494,6 +492,7 @@ export class Subscription implements OnInit {
 
   getButtonLabel(plan: PlanCardDTO): string {
     if (plan.isCurrent) return 'Current Plan';
+    if (plan.code !== 'FREE') return 'Coming soon';
     if (this.processingPlanId() === plan.id) return 'Starting checkout...';
     if (plan.buttonText) return plan.buttonText;
     if (plan.code === 'FREE') return 'Get started free';
@@ -501,6 +500,7 @@ export class Subscription implements OnInit {
   }
 
   isButtonDisabled(plan: PlanCardDTO): boolean {
+    if (plan.code !== 'FREE') return true;
     if (this.processingPlanId() !== null) return true;
     if (plan.isCurrent) return true;
     if (plan.buttonDisabled) return true;

@@ -1421,105 +1421,9 @@ export class Today {
       );
       return;
     }
-    const columnId = idOf(targetColumn);
-    const columnName = targetColumn.label;
-    const completedAt = isCompleted ? new Date().toISOString() : null;
-    const completedBy = isCompleted ? this.currentUserId() : null;
-    const requestVersion = this.notesRequestVersion;
-
-    this.movingNoteId.set(id);
-    this.stickyNoteDataCache.delete(id);
-    this.stickyNotes.update((notes) =>
-      notes.map((item) =>
-        idOf(item) === id
-          ? {
-              ...item,
-              columnId,
-              columnName,
-              isCompleted,
-              completed: isCompleted,
-              completedAt,
-              completedBy,
-            }
-          : item,
-      ),
-    );
-
-    const updatePayload: any = {
-      columnId,
-      isCompleted,
-      completedAt,
-      completedBy,
-    };
-
-    this.stickyNoteApiService
-      .update(id, updatePayload)
-      .pipe(
-        finalize(() => {
-          if (requestVersion === this.notesRequestVersion) this.movingNoteId.set(null);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (requestVersion !== this.notesRequestVersion) return;
-          const updated = response?.data ?? response;
-          if (updated && idOf(updated) === id) {
-            this.stickyNoteDataCache.delete(id);
-            this.stickyNotes.update((notes) =>
-              notes.map((item) =>
-                idOf(item) === id
-                  ? {
-                      ...item,
-                      ...this.mapNote({ ...item, ...updated }),
-                      columnId,
-                      columnName,
-                      isCompleted,
-                      completed: isCompleted,
-                    }
-                  : item,
-              ),
-            );
-          }
-          this.overdue.refresh();
-          this.toastService.success(
-            isCompleted ? 'Note marked as completed' : 'Note moved back to Today Notes',
-            {
-              title: isCompleted ? 'Completed' : 'Reopened',
-              dedupeKey: `note-completion-${id}`,
-            },
-          );
-        },
-        error: (error: any) => {
-          if (requestVersion !== this.notesRequestVersion) return;
-          this.stickyNoteDataCache.delete(id);
-          this.stickyNotes.update((notes) =>
-            notes.map((item) =>
-              idOf(item) === id
-                ? {
-                    ...item,
-                    columnId: targetNote.columnId,
-                    columnName: targetNote.columnName,
-                    isCompleted: this.isNoteCompleted(targetNote),
-                    completed: this.isNoteCompleted(targetNote),
-                    completedAt: targetNote.completedAt,
-                    completedBy: targetNote.completedBy,
-                  }
-                : item,
-            ),
-          );
-          this.toastService.error(
-            extractErrorMessage(
-              error,
-              isCompleted ? 'Failed to complete note' : 'Failed to uncomplete note',
-            ),
-            {
-              title: 'Action failed',
-              dedupeKey: `note-completion-err-${id}`,
-            },
-          );
-        },
-      });
+    // Completion follows the same column move as drag-and-drop. The server
+    // derives completion metadata from the destination column.
+    this.moveNote(targetNote, idOf(targetColumn), 0);
   }
 
   moveBackward(note: any): void {
@@ -1947,7 +1851,17 @@ export class Today {
   private moveNote(note: any, targetColumnId: string, targetIndex: number): void {
     const noteId = idOf(note);
     const targetColId = idOf(targetColumnId);
-    if (!noteId || !this.stickyNoteColumnById().has(targetColId) || this.noteDragDisabled()) return;
+    // Drag handlers separately block filtered lists; menu actions can safely
+    // use the full destination column while a search is active.
+    if (
+      !noteId ||
+      !this.stickyNoteColumnById().has(targetColId) ||
+      this.boardLoading() ||
+      this.movingNoteId() ||
+      this.movingColumn()
+    ) {
+      return;
+    }
 
     const previousNotes = [...this.stickyNotes()];
     const requestVersion = this.notesRequestVersion;
@@ -2007,7 +1921,13 @@ export class Today {
           if (updated && idOf(updated) === noteId) {
             this.stickyNotes.update((notes) =>
               notes.map((item) =>
-                idOf(item) === noteId ? this.mapNote({ ...item, ...updated }) : item,
+                idOf(item) === noteId
+                  ? {
+                      ...this.mapNote({ ...item, ...updated }),
+                      columnId: targetColId,
+                      columnName: targetColumn.label,
+                    }
+                  : item,
               ),
             );
           }

@@ -138,6 +138,9 @@
                   <div class="plan-topline">
                     <span class="plan-code">{{ plan.code }}</span>
                     <div class="topline-badges">
+                      @if (plan.code === 'FREE') {
+                        <app-badge label="Free for now" variant="success" size="xs" shape="pill" />
+                      }
                       @if (plan.isCurrent) {
                         <app-badge
                           label="Current Plan"
@@ -234,15 +237,10 @@
                       (click)="choosePlan(plan)"
                     >
                       <span>{{ getButtonLabel(plan) }}</span>
-                      <app-icon [icon]="LucideArrowRight" size="sm" />
+                      @if (plan.code === 'FREE') {
+                        <app-icon [icon]="LucideArrowRight" size="sm" />
+                      }
                     </button>
-
-                    @if (plan.code !== 'FREE') {
-                      <div class="secure-checkout-caption">
-                        <app-icon [icon]="LucideLock" size="xs" class="lock-icon" />
-                        <span>Secure checkout powered by Razorpay</span>
-                      </div>
-                    }
                   </div>
                 </div>
               </app-sticky-card>

@@ -557,7 +557,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   addBlock(type: NoteBlockType): void {
-    if (this.isBusy) return;
+    if (this.isBusy || this.noteBlockOptions.find((option) => option.type === type)?.comingSoon) return;
     if (!this.selectedBlocks().includes(type)) {
       this.selectedBlocks.update((blocks) => [...blocks, type]);
       if (type === 'CHECKLIST') {

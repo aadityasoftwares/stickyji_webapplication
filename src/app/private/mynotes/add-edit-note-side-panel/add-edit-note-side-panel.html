@@ -329,7 +329,7 @@
               mat-menu-item
               type="button"
               class="today-note-action-item note-block-menu-item"
-              [disabled]="isBusy || isBlockSelected(option.type)"
+              [disabled]="isBusy || option.comingSoon || isBlockSelected(option.type)"
               (click)="addBlock(option.type)"
             >
               <span class="today-note-menu-item-icon note-block-menu-icon" aria-hidden="true">
@@ -338,7 +338,9 @@
               <span class="today-note-menu-item-copy note-block-menu-copy">
                 <span class="note-block-menu-header-line">
                   <strong>{{ option.label }}</strong>
-                  @if (isBlockSelected(option.type)) {
+                  @if (option.comingSoon) {
+                    <span class="note-block-menu-badge">Coming soon</span>
+                  } @else if (isBlockSelected(option.type)) {
                     <span class="note-block-menu-badge">Added</span>
                   }
                 </span>

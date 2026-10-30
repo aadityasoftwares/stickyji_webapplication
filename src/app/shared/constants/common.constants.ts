@@ -511,6 +511,7 @@ export interface NoteBlockOption {
   label: string;
   description: string;
   icon: any;
+  comingSoon?: boolean;
 }
 
 export const NOTE_BLOCK_OPTIONS: readonly NoteBlockOption[] = [
@@ -522,18 +523,21 @@ export const NOTE_BLOCK_OPTIONS: readonly NoteBlockOption[] = [
   },
   {
     type: NOTE_BLOCK_TYPES.REMINDER,
+    comingSoon: true,
     label: 'Reminder',
     description: 'Get reminded about this note',
     icon: LucideBell,
   },
   {
     type: NOTE_BLOCK_TYPES.ATTACHMENT,
+    comingSoon: true,
     label: 'Attachment',
     description: 'Add files or images',
     icon: LucidePaperclip,
   },
   {
     type: NOTE_BLOCK_TYPES.LINK,
+    comingSoon: true,
     label: 'Link',
     description: 'Save a useful URL',
     icon: LucideLink,

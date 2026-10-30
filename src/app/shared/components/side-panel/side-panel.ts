@@ -46,7 +46,7 @@ export class SidePanel implements OnChanges, OnDestroy {
   @Input() tone: SidePanelTone = 'yellow';
   @Input() width = 520;
   @Input() busy = false;
-  @Input() closeOnBackdrop = true;
+  @Input() closeOnBackdrop = false;
   @Input() closeOnEscape = true;
   @Input() showFooter = true;
   @Input() ariaLabel = 'Side panel';
