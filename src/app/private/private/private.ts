@@ -174,12 +174,6 @@ export class Private {
       .logout()
       .pipe(
         finalize(() => {
-          this.authStore.clearSession();
-          this.appSessionStore.reset();
-          this.workspaceFolderStore.clear();
-          this.workspaceStore.reset();
-          this.userPreferenceStore.reset();
-
           this.loggingOut.set(false);
           void this.router.navigate(routeCommands(APP_ROUTES.LOGIN));
         }),

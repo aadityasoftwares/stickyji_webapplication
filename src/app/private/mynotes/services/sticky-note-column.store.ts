@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 
 export type StickyNoteColumnStoreItem = any;
 
@@ -6,6 +7,9 @@ export type StickyNoteColumnStoreItem = any;
   providedIn: 'root',
 })
 export class StickyNoteColumnStore {
+  constructor() {
+    inject(SessionLifecycleService).registerReset(() => this.clear());
+  }
   private readonly entitiesState = signal<readonly StickyNoteColumnStoreItem[]>([]);
 
   private readonly workspaceIdState = signal<string | null>(null);

@@ -2,6 +2,7 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { UserPreferenceStore } from '../../private/user-preferences/services/user-preference.store';
 import { WorkspaceStore } from '../../private/workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../../private/workspacefolders/services/workspace-folder.store';
+import { SessionLifecycleService } from '../services/session-lifecycle.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,7 @@ export class AppSessionStore {
   readonly error = this._error.asReadonly();
 
   constructor() {
+    inject(SessionLifecycleService).registerReset(() => this.reset());
     effect(() => {
       if (!this._initializing()) {
         return;

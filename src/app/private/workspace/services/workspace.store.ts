@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDropdownStore } from './workspace-dropdown.store';
 import { WORKSPACE_MESSAGES } from '../messages/workspace.messages';
@@ -10,6 +11,11 @@ import { entityNameOf, idOf } from '../../../shared/functions/common.function';
   providedIn: 'root',
 })
 export class WorkspaceStore {
+  private loadSubscription?: Subscription;
+
+  constructor() {
+    inject(SessionLifecycleService).registerReset(() => this.reset());
+  }
   private readonly workspaceService = inject(WorkspaceService);
   private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
 
@@ -66,13 +72,9 @@ export class WorkspaceStore {
           ? this.workspaceService.getMyWorkspaces()
           : this.workspaceService.getAllWorkspaces({ status: 'ACTIVE' });
 
-    request$.pipe(finalize(() => this._loading.set(false))).subscribe({
+    this.loadSubscription = request$.pipe(finalize(() => this._loading.set(false))).subscribe({
       next: (response: any) => {
-        const rawList =
-          response?.data?.workspaces ??
-          response?.data?.items ??
-          response?.data ??
-          [];
+        const rawList = response?.data?.workspaces ?? response?.data?.items ?? response?.data ?? [];
 
         const workspaces = Array.isArray(rawList) ? rawList : [];
 
@@ -87,7 +89,10 @@ export class WorkspaceStore {
         this._pagination.set(pagination);
         this._loaded.set(true);
 
-        if (!this.workspaceDropdownStore.loaded() || this.workspaceDropdownStore.items().length === 0) {
+        if (
+          !this.workspaceDropdownStore.loaded() ||
+          this.workspaceDropdownStore.items().length === 0
+        ) {
           this.workspaceDropdownStore.setItems(
             workspaces.map((w: any) => ({
               id: idOf(w) || w.id,
@@ -240,6 +245,7 @@ export class WorkspaceStore {
   }
 
   reset(): void {
+    this.loadSubscription?.unsubscribe();
     this._workspaces.set([]);
     this._selectedId.set(null);
     this._pagination.set(null);

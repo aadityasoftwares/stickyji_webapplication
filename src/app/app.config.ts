@@ -6,8 +6,8 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { provideRouter, withInMemoryScrolling, withPreloading } from '@angular/router';
+import { AppPreloadingStrategy } from './shared/services/app-preloading.strategy';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -25,6 +25,7 @@ export const appConfig: ApplicationConfig = {
 
     provideRouter(
       routes,
+      withPreloading(AppPreloadingStrategy),
       withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
     ),
 
@@ -34,7 +35,9 @@ export const appConfig: ApplicationConfig = {
       const authService = inject(AuthService);
       const seoService = inject(SeoService);
       seoService.initRouteListener();
-      return firstValueFrom(authService.initializeSession());
+      // Public pages can render while the cookie-based session is restored.
+      // Protected routes await the same shared request in authGuard.
+      authService.initializeSession().subscribe();
     }),
   ],
 };

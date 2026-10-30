@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Subscription, finalize } from 'rxjs';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 import { idOf } from '../../../shared/functions/common.function';
 import { extractErrorMessage } from '../../../shared/functions/api.functions';
 import type { PaginationMeta as Pagination } from '../../../shared/interfaces/api.interface';
@@ -9,6 +10,9 @@ import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropd
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceFolderStore {
+  constructor() {
+    inject(SessionLifecycleService).registerReset(() => this.reset());
+  }
   private loadSubscription?: Subscription;
   private readonly workspaceFolderService = inject(WorkspaceFolderService);
   private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
@@ -140,7 +144,8 @@ export class WorkspaceFolderStore {
 
   updateFolder(id: string, values: Partial<WorkspaceFolder>): void {
     const folder = this._folders().find((item) => item.id === id);
-    if (folder) this.workspaceDropdownStore.updateFolder(idOf(folder.workspaceId), { ...folder, ...values });
+    if (folder)
+      this.workspaceDropdownStore.updateFolder(idOf(folder.workspaceId), { ...folder, ...values });
     this._folders.update((current) =>
       current.map((folder) =>
         folder.id === id

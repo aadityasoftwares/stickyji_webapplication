@@ -104,6 +104,7 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const PUBLIC_AUTH_ENDPOINTS = [
+  API_ENDPOINTS.workspaceInvitations.validateToken,
   API_ENDPOINTS.auth.login,
   API_ENDPOINTS.auth.register,
   API_ENDPOINTS.auth.refreshToken,

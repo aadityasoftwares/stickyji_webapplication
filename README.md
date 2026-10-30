@@ -28,6 +28,33 @@ ng generate --help
 
 ## Building
 
+### VPS and container nginx
+
+`nginx/default.conf` belongs to the final Docker image. It serves the compiled Angular
+files; `ng serve` does not use it. A VPS nginx in front of this container normally
+handles TLS and proxies traffic to the container. Keep both when using that layout.
+If the VPS nginx serves `dist/mystickynotes_webapp/browser/` directly, the Angular
+container is unnecessary; configure the SPA fallback and asset headers on the VPS
+instead. Do not remove the container server while the VPS still proxies to it.
+
+The container compresses text assets, caches hashed JS/CSS files for one year,
+and requires revalidation of `index.html`. Missing assets return 404 instead of HTML.
+Ensure the outer proxy preserves these cache headers and does not cache HTML as an
+immutable asset. Rebuild/redeploy the image for configuration changes to take effect.
+
+After deployment, check a deep link, `index.html` Cache-Control, hashed JS
+Cache-Control and `Content-Encoding: gzip` (send `Accept-Encoding: gzip`). Confirm
+missing `.js` requests return 404. Test login A → logout → login B without reloading;
+workspace requests must use B's token and workspace IDs. Measure cold first load and
+first navigation separately in browser Network/Performance tools; local builds alone
+cannot establish production latency.
+
+Session regression checks:
+
+```bash
+node node_modules/@angular/cli/bin/ng.js test --watch=false --ts-config tsconfig.session-regression.json --include src/app/public/auth/services/session-regression.spec.ts --include src/app/public/auth/services/auth-service.spec.ts --include src/app/public/auth/state/auth.store.spec.ts --include src/app/private/workspace/services/workspace-dropdown.store.spec.ts --include src/app/guards/auth.guard.spec.ts --include src/app/shared/services/app-preloading.strategy.spec.ts
+```
+
 To build the project run:
 
 ```bash
