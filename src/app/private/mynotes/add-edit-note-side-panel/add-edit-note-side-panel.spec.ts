@@ -7,6 +7,9 @@ import { By } from '@angular/platform-browser';
 import { StickyMarkdownEditorComponent } from '../../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
 import { restoreStickySelection } from '../../../shared/utils/sticky-markdown/markdown-selection';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel';
+import { StickyNotePriority } from '../constants/sticky-note.constants';
+import { Select } from '../../../shared/components/select/select';
+import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
 import { StickyNoteAssigneeApiService } from '../services/sticky-note-assignee.service';
@@ -103,6 +106,87 @@ describe('AddEditNoteSidePanel', () => {
     expect(component).toBeTruthy();
   });
 
+  it.each(Object.values(StickyNotePriority))(
+    'creates, reloads and clears %s priority through the API',
+    async (priority) => {
+      fixture.componentRef.setInput('id', 'column-1');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.priority.value).toBe(StickyNotePriority.NONE);
+      component.updateText('title', 'Priority test');
+      component.updateText('content', 'Details');
+      const select = fixture.debugElement.query(By.css('app-select[name="note-priority"]'))
+        .componentInstance as Select;
+      select.selectOption(select.options.find((option) => option.value === priority)!);
+      await fixture.whenStable();
+      expect(component.livePreviewData.priority).toBe(priority);
+      const badge = fixture.nativeElement.querySelector(
+        '.note-external-preview .sticky-note__priority-badge',
+      );
+      expect(Boolean(badge)).toBe(priority !== StickyNotePriority.NONE);
+
+      component.submit();
+      const http = TestBed.inject(HttpTestingController);
+      const create = http.expectOne(API_ENDPOINTS.stickyNotes.create);
+      expect(create.request.method).toBe('POST');
+      expect(create.request.body.priority).toBe(priority);
+      const saved = { id: 'saved-note', ...create.request.body };
+      create.flush({ data: saved });
+      expect(component.saveState()).toBe('saved');
+
+      vi.mocked(TestBed.inject(StickyNoteApiService).getById).mockReturnValue(of({ data: saved }));
+      fixture.componentRef.setInput('open', false);
+      await fixture.whenStable();
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('id', 'saved-note');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.priority.value).toBe(priority);
+      component.updateSelect('priority', StickyNotePriority.NONE);
+      expect(component.saveIndicatorLabel()).toBe('Unsaved changes');
+      component.submit();
+      const update = http.expectOne(API_ENDPOINTS.stickyNotes.update('saved-note'));
+      expect(update.request.method).toBe('PUT');
+      expect(update.request.body.priority).toBe('NONE');
+      update.flush({ data: { ...saved, priority: 'NONE' } });
+      expect(component.saveState()).toBe('saved');
+      expect(component.livePreviewData.priority).toBe('NONE');
+    },
+  );
+
+  it('defaults older notes to NONE and resets priority when starting a new note', async () => {
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('id', 'note-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    expect(component.form.controls.priority.value).toBe('NONE');
+    component.updateSelect('priority', 'URGENT');
+    component.updateSelect('priority', 'INVALID');
+    expect(component.form.controls.priority.value).toBe('URGENT');
+    fixture.componentRef.setInput('mode', 'create');
+    fixture.componentRef.setInput('id', 'column-1');
+    await fixture.whenStable();
+    expect(component.form.controls.priority.value).toBe('NONE');
+  });
+
+  it('updates both save badges when the date changes', async () => {
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('id', 'note-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    const datepicker = fixture.debugElement.query(By.directive(DatepickerInput))
+      .componentInstance as DatepickerInput;
+    datepicker.valueChange.emit('2026-11-01');
+    await fixture.whenStable();
+    expect(component.form.controls.noteDate.value).toBe('2026-11-01');
+    expect(
+      fixture.nativeElement.querySelector('.app-side-panel-note .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+    expect(
+      fixture.nativeElement.querySelector('.note-editor-footer .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+  });
+
   it('shows id/name-only dropdown folders and accepts empty workspaces', () => {
     const dropdown = TestBed.inject(WorkspaceDropdownStore);
     component.form.controls.workspaceId.setValue('workspace-1');
@@ -123,12 +207,14 @@ describe('AddEditNoteSidePanel', () => {
     (component as any).loadFolders('old');
     component.form.controls.workspaceId.setValue('new');
     (component as any).loadFolders('new');
-    TestBed.inject(HttpTestingController).expectOne(API_ENDPOINTS.workspaces.dropdown).flush({
-      data: [
-        { id: 'old', name: 'Old', folders: [{ id: 'old-folder', name: 'Old folder' }] },
-        { id: 'new', name: 'New', folders: [] },
-      ],
-    });
+    TestBed.inject(HttpTestingController)
+      .expectOne(API_ENDPOINTS.workspaces.dropdown)
+      .flush({
+        data: [
+          { id: 'old', name: 'Old', folders: [{ id: 'old-folder', name: 'Old folder' }] },
+          { id: 'new', name: 'New', folders: [] },
+        ],
+      });
     expect(component.folderOptions()).toEqual([]);
     expect(component.form.controls.workspaceFolderId.value).toBe('');
   });

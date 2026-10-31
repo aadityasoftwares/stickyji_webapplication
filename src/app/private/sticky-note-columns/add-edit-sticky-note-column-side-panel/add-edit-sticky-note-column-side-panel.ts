@@ -28,7 +28,7 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
-import { Badge } from '../../../shared/components/badge/badge';
+import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
@@ -139,7 +139,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
-    (this.workspaceDropdownStore.loaded() ? this.workspaceDropdownStore.items() : this.panelWorkspaces())
+    (this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.items()
+      : this.panelWorkspaces()
+    )
       .filter((item) => item?.status !== 'DELETED')
       .map((item) => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
       .filter((item) => Boolean(item.value)),
@@ -148,7 +151,10 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   readonly folderOptions = computed<SelectOption[]>(() => {
     const fallback = this.panelFolders();
     const folders = this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.items().find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ?? []
+      ? (this.workspaceDropdownStore
+          .items()
+          .find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ??
+        [])
       : fallback;
     return folders
       .map((item) => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
@@ -266,6 +272,21 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   get isSystemColumn(): boolean {
     return this.columnMeta()?.isSystem === true;
   }
+
+  readonly saveIndicatorVariant = computed<BadgeVariant>(() => {
+    switch (this.saveState()) {
+      case 'editing':
+        return 'warning';
+      case 'saving':
+        return 'info';
+      case 'saved':
+        return 'success';
+      case 'error':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  });
 
   get columnTypeLabel(): string {
     return getColumnTypeLabel(this.columnMeta()?.type);
@@ -678,7 +699,8 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       .subscribe({
         next: (items) => {
           this.panelWorkspaces.set(items ? [...items] : []);
-          if (items === null) this.error.set(this.workspaceDropdownStore.error() || 'Unable to load workspaces.');
+          if (items === null)
+            this.error.set(this.workspaceDropdownStore.error() || 'Unable to load workspaces.');
         },
         error: (error) => {
           const message = extractErrorMessage(error, 'Unable to load workspaces.');

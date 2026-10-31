@@ -38,6 +38,10 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { Badge } from '../../../shared/components/badge/badge';
+import {
+  STICKY_NOTE_PRIORITY_OPTIONS,
+  StickyNotePriority,
+} from '../constants/sticky-note.constants';
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
 import { Divider } from '../../../shared/components/divider/divider';
@@ -349,6 +353,12 @@ export class StickyNote {
     return String(this.data?.columnLabel ?? '').trim();
   }
 
+  get priorityOption() {
+    return STICKY_NOTE_PRIORITY_OPTIONS.find(
+      (option) => option.value !== StickyNotePriority.NONE && option.value === this.data?.priority,
+    );
+  }
+
   get columnBadgeVariant(): any {
     return this.data?.columnBadgeVariant || 'neutral';
   }
@@ -588,8 +598,7 @@ export class StickyNote {
         '.sticky-note__inline-editor--title',
       );
       const surface =
-        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') ||
-        editor;
+        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') || editor;
       surface?.focus();
       if (surface && surface.isContentEditable) {
         const range = document.createRange();
@@ -679,8 +688,7 @@ export class StickyNote {
         '.sticky-note__inline-editor--description',
       );
       const surface =
-        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') ||
-        editor;
+        editor?.querySelector<HTMLElement>('.sticky-markdown-surface, [contenteditable]') || editor;
       surface?.focus();
       if (surface && surface.isContentEditable) {
         const range = document.createRange();
@@ -874,12 +882,7 @@ export class StickyNote {
     const fromUser = getWorkspaceMemberAvatar(user);
     if (fromUser) return fromUser;
 
-    return String(
-      assignee?.src ??
-        assignee?.avatarUrl ??
-        assignee?.imageUrl ??
-        '',
-    );
+    return String(assignee?.src ?? assignee?.avatarUrl ?? assignee?.imageUrl ?? '');
   }
 
   avatarInitials(assignee: any): string {

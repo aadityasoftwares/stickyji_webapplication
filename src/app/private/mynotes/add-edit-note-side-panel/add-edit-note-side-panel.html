@@ -10,6 +10,7 @@
   [eyebrow]="eyebrow"
   [description]="description"
   [headerNote]="saveIndicatorLabel()"
+  [headerNoteVariant]="saveIndicatorVariant()"
   [icon]="headerIcon"
   [tone]="panelTone"
   [width]="580"
@@ -120,7 +121,7 @@
               isBusy || !controlString('workspaceFolderId') || columnOptions().length === 0
             "
             [clearable]="false"
-            [searchable]="false"
+            [searchable]="true"
             [fullWidth]="true"
           />
         </div>
@@ -179,6 +180,7 @@
               shape="rounded"
               size="sm"
               formControlName="noteDate"
+              (valueChange)="updateNoteDate($event)"
               [showLeadingIcon]="false"
               [loading]="isBusy"
               [clearable]="true"
@@ -201,6 +203,27 @@
             (buttonClick)="toggleFavorite()"
           />
         </div>
+      </section>
+      <section class="note-date-row" aria-label="Note priority">
+        <app-label forId="note-priority" text="Priority" />
+        <app-select
+          selectId="note-priority"
+          name="note-priority"
+          [options]="priorityOptions"
+          [ngModel]="controlString('priority')"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateSelect('priority', $event)"
+          ariaLabel="Note priority"
+          dropdownTitle="Priority"
+          variant="paper"
+          appearance="simple"
+          shape="rounded"
+          size="sm"
+          [disabled]="isBusy"
+          [clearable]="false"
+          [searchable]="true"
+          [fullWidth]="true"
+        />
       </section>
       <section
         class="note-assignees-row"
@@ -237,7 +260,7 @@
           size="sm"
           [disabled]="isBusy"
           [clearable]="false"
-          [searchable]="false"
+          [searchable]="true"
           [fullWidth]="true"
           [dropdownMatchTriggerWidth]="false"
         />
@@ -256,7 +279,7 @@
           size="sm"
           [disabled]="isBusy"
           [clearable]="false"
-          [searchable]="false"
+          [searchable]="true"
           [fullWidth]="true"
           [dropdownMatchTriggerWidth]="false"
         />
@@ -275,7 +298,7 @@
           size="sm"
           [disabled]="isBusy"
           [clearable]="false"
-          [searchable]="false"
+          [searchable]="true"
           [fullWidth]="true"
           [dropdownMatchTriggerWidth]="false"
         />
@@ -295,7 +318,7 @@
           size="sm"
           [disabled]="isBusy"
           [clearable]="false"
-          [searchable]="false"
+          [searchable]="true"
           [fullWidth]="true"
           [dropdownMatchTriggerWidth]="false"
         />
@@ -579,14 +602,7 @@
                       />
                     </div>
                   </header>
-                  <div class="note-block-content note-block-placeholder-body">
-                    <div class="note-block-placeholder-row">
-                      <span class="note-block-placeholder-hint"
-                        >Add files, receipts or images directly to this sticky note.</span
-                      >
-                      <app-badge label="Coming soon" variant="neutral" size="xs" />
-                    </div>
-                  </div>
+                  <div class="note-block-content note-block-placeholder-body"><app-note-attachments [noteId]="id" /></div>
                 }
 
                 @case ('LINK') {
@@ -630,7 +646,12 @@
     }
   </form>
   <div panel-footer class="note-editor-footer">
-    <app-badge [label]="saveIndicatorLabel()" variant="neutral" size="sm" role="status" />
+    <app-badge
+      [label]="saveIndicatorLabel()"
+      [variant]="saveIndicatorVariant()"
+      size="sm"
+      role="status"
+    />
     <div class="note-editor-footer-actions">
       <app-button
         label="Cancel"

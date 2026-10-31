@@ -18,6 +18,7 @@ import {
 import { LucideX } from '@lucide/angular';
 
 import { Button } from '../button/button';
+import { Badge, type BadgeVariant } from '../badge/badge';
 import { AppIcon } from '../icon/icon';
 
 export type SidePanelTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
@@ -28,7 +29,7 @@ let sidePanelInstance = 0;
   host: { '[attr.title]': 'null' },
   selector: 'app-side-panel',
   standalone: true,
-  imports: [AppIcon, Button],
+  imports: [AppIcon, Button, Badge],
   templateUrl: './side-panel.html',
   styleUrl: './side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,7 @@ export class SidePanel implements OnChanges, OnDestroy {
   @Input() eyebrow = '';
   @Input() description = '';
   @Input() headerNote = '';
+  @Input() headerNoteVariant: BadgeVariant = 'neutral';
   @Input() icon: any = null;
   @Input() tone: SidePanelTone = 'yellow';
   @Input() width = 520;

@@ -251,8 +251,16 @@ export const STICKY_NOTE_LAYOUT_OPTIONS: any[] = [
   },
 ];
 
-export const STICKY_NOTE_FONT_OPTIONS: any[] = [
+export const STICKY_NOTE_FONT_OPTIONS = [
   { label: 'Clean · DM Sans', value: 'DM_SANS', family: '"DM Sans", sans-serif' },
+  { label: 'Inter', value: 'INTER', family: '"Inter", sans-serif' },
+  { label: 'Nunito', value: 'NUNITO', family: '"Nunito", sans-serif' },
+  { label: 'Lora', value: 'LORA', family: '"Lora", serif' },
+  {
+    label: 'JetBrains Mono',
+    value: 'JETBRAINS_MONO',
+    family: '"JetBrains Mono", monospace',
+  },
   { label: 'Caveat', value: 'CAVEAT', family: '"Caveat", cursive' },
   { label: 'Patrick Hand', value: 'PATRICK_HAND', family: '"Patrick Hand", cursive' },
   { label: 'Kalam', value: 'KALAM', family: '"Kalam", cursive' },
@@ -272,14 +280,14 @@ export const STICKY_NOTE_FONT_OPTIONS: any[] = [
   { label: 'Sriracha', value: 'SRIRACHA', family: '"Sriracha", cursive' },
   { label: 'Short Stack', value: 'SHORT_STACK', family: '"Short Stack", cursive' },
   { label: 'Gochi Hand', value: 'GOCHI_HAND', family: '"Gochi Hand", cursive' },
-];
+].map((option) => ({ ...option, fontFamily: option.family, fontSize: 18 }));
 
-export const STICKY_NOTE_FONT_SIZE_OPTIONS: any[] = [
+export const STICKY_NOTE_FONT_SIZE_OPTIONS = [
   { label: '13 px', value: 13 },
   { label: '14 px', value: 14 },
   { label: '15 px', value: 15 },
   { label: '16 px', value: 16 },
-];
+].map((option) => ({ ...option, fontSize: option.value }));
 
 export const STICKY_NOTE_COLORS = {
   WHITE: 'WHITE',

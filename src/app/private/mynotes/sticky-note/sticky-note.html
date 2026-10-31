@@ -51,6 +51,16 @@
         tooltipSize="sm"
       />
     }
+    @if (priorityOption; as priority) {
+      <app-badge
+        class="sticky-note__priority-badge"
+        [label]="priority.label"
+        [variant]="priority.badgeVariant"
+        size="xs"
+        [ariaLabel]="'Priority: ' + priority.label"
+        [appTooltip]="priority.label + ' priority'"
+      />
+    }
     @if (isSaving) {
       <span class="sticky-note__saving-label" role="status"> Saving… </span>
     }

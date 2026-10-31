@@ -1,4 +1,6 @@
 import type { LEGACY_STICKY_NOTE_SHAPES } from '../constants/sticky-note.constants';
+import type { StickyNotePriority } from '../constants/sticky-note.constants';
+export { StickyNotePriority } from '../constants/sticky-note.constants';
 
 import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
 import type { PaginatedDataResponse as PaginatedApiResponse } from '../../../shared/interfaces/api.interface';
@@ -44,6 +46,7 @@ export interface KanbanAssignee {
 
 export interface KanbanNote {
   id: string;
+  priority?: StickyNotePriority;
 
   status: KanbanStatus | StickyNoteStatus;
 
@@ -144,6 +147,7 @@ export interface StickyNote {
   title: string;
   content: string;
   color: StickyNoteColor;
+  priority?: StickyNotePriority;
   shape: StickyNoteShape;
 
   position: number;
@@ -167,6 +171,7 @@ export interface StickyNote {
 }
 
 export interface StickyNoteCreateRequest {
+  priority?: StickyNotePriority;
   workspaceId: string;
   workspaceFolderId?: string | null;
   columnId: string;
@@ -182,6 +187,7 @@ export interface StickyNoteCreateRequest {
 }
 
 export interface StickyNoteUpdateRequest {
+  priority?: StickyNotePriority;
   workspaceFolderId?: string | null;
   columnId?: string;
 

@@ -209,8 +209,14 @@ $input-note-black: #252525;
 }
 
 .app-input-control::-ms-reveal,
-.app-input-control::-ms-clear,
+.app-input-control::-ms-clear {
+  display: none;
+}
+
+// Keep vendor selectors separate so unsupported ones do not invalidate this rule.
 .app-input-control::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
   display: none;
 }
 

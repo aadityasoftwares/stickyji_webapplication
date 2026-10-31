@@ -1,3 +1,4 @@
+import { DirectUploadService } from '../../../shared/services/direct-upload.service';
 import { HttpClient, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import {
@@ -53,6 +54,7 @@ type CollectionResponse<T> = ApiResponse<
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
   private readonly http = inject(HttpClient);
+  private readonly directUpload = inject(DirectUploadService);
   private readonly authStore = inject(AuthStore);
   private readonly apiUrl = API_BASE_URL;
 
@@ -140,16 +142,7 @@ export class UserProfileService {
   }
 
   uploadToR2(uploadUrl: string, file: File): Observable<HttpEvent<unknown>> {
-    const headers = new HttpHeaders({
-      'Content-Type': file.type,
-    });
-
-    const req = new HttpRequest('PUT', uploadUrl, file, {
-      headers,
-      reportProgress: true,
-    });
-
-    return this.http.request(req);
+    return this.directUpload.upload(uploadUrl, file, { 'Content-Type': file.type, 'If-None-Match': '*' });
   }
 
   completeMediaUpload(mediaId: string): Observable<unknown> {

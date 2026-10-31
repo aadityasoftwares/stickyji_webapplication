@@ -40,6 +40,7 @@
             [ngModel]="selectedWorkspaceId()"
             (ngModelChange)="onWorkspaceChange($event)"
             name="notes-workspace"
+            dropdownTitle="Workspace"
             [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
             ariaLabel="Choose workspace"
             variant="paper"
@@ -63,6 +64,7 @@
             [ngModel]="selectedFolderId()"
             (ngModelChange)="onFolderChange($event)"
             name="notes-folder"
+            dropdownTitle="Folder"
             [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
             ariaLabel="Choose workspace folder"
             variant="paper"
@@ -221,7 +223,7 @@
             size="sm"
             [iconLeft]="LucideClock3"
             [clearable]="false"
-            [searchable]="false"
+            [searchable]="true"
             [fullWidth]="true"
           />
 

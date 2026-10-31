@@ -39,6 +39,8 @@
               [ngModel]="activeWorkspaceId()"
               (ngModelChange)="onWorkspaceSelection($event)"
               name="today-workspace"
+              dropdownTitle="Workspace"
+              dropdownDescription="Choose the workspace for today."
               [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
               ariaLabel="Choose workspace for today"
               variant="paper"
@@ -61,6 +63,8 @@
               [ngModel]="activeFolder()"
               (ngModelChange)="onFolderSelection($event)"
               name="today-folder"
+              dropdownTitle="Folder"
+              dropdownDescription="Choose a folder in the selected workspace."
               [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
               ariaLabel="Choose folder for today"
               variant="paper"
@@ -187,6 +191,7 @@
                 [ngModel]="stickyNoteFont()"
                 (ngModelChange)="chooseFont($event)"
                 name="today-note-font"
+                dropdownTitle="Note font"
                 placeholder="Note font"
                 ariaLabel="Choose note font"
                 variant="paper"
@@ -200,7 +205,8 @@
                 [maxWidth]="215"
                 [iconLeft]="LucideType"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search fonts..."
                 [fullWidth]="false"
               />
             </div>
@@ -210,6 +216,7 @@
                 [ngModel]="stickyNoteFontSize()"
                 (ngModelChange)="onStickyNoteFontSizeSelection($event)"
                 name="today-note-font-size"
+                dropdownTitle="Font size"
                 placeholder="Font size"
                 ariaLabel="Choose note font size"
                 variant="paper"
@@ -223,7 +230,8 @@
                 [maxWidth]="135"
                 [iconLeft]="LucideAArrowUp"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search sizes..."
                 [fullWidth]="false"
               />
             </div>
@@ -233,6 +241,7 @@
                 [ngModel]="stickyNoteLayout()"
                 (ngModelChange)="onStickyNoteLayoutSelection($event)"
                 name="today-sticky-note-layout"
+                dropdownTitle="Note layout"
                 placeholder="Note layout"
                 ariaLabel="Choose sticky note layout"
                 variant="paper"
@@ -246,7 +255,8 @@
                 [maxWidth]="155"
                 [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search layouts..."
                 [fullWidth]="false"
               />
             </div>

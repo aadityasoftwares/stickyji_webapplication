@@ -1,3 +1,4 @@
+import { NoteAttachments } from '../note-attachments/note-attachments';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -85,6 +86,11 @@ import {
 } from '../../../shared/functions/sticky-note.function';
 
 import { StickyNote } from '../sticky-note/sticky-note';
+import {
+  StickyNotePriority,
+  STICKY_NOTE_PRIORITY_OPTIONS,
+  isStickyNotePriority,
+} from '../constants/sticky-note.constants';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
 import { StickyNoteChecklistItemApiService } from '../services/sticky-note-checklist-item.service';
@@ -109,6 +115,7 @@ import {
   selector: 'app-add-edit-note-side-panel',
   standalone: true,
   imports: [
+    NoteAttachments,
     FormsModule,
     ReactiveFormsModule,
     AppIcon,
@@ -187,6 +194,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly checklistItemTitleMaxLength = NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
 
   readonly colorOptions: readonly SelectOption[] = STICKY_NOTE_COLOR_OPTIONS;
+  readonly priorityOptions = STICKY_NOTE_PRIORITY_OPTIONS;
   readonly shapeOptions: readonly SelectOption[] = STICKY_NOTE_SHAPE_OPTIONS;
   readonly variantOptions: readonly SelectOption[] = STICKY_NOTE_VARIANT_OPTIONS;
   readonly backgroundPatternOptions: readonly SelectOption[] =
@@ -224,7 +232,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
-    (this.workspaceDropdownStore.loaded() ? this.workspaceDropdownStore.items() : this.panelWorkspaces())
+    (this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.items()
+      : this.panelWorkspaces()
+    )
       .filter((item) => item?.status !== 'DELETED')
       .map((item) => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
       .filter((item) => Boolean(item.value)),
@@ -233,7 +244,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly folderOptions = computed<SelectOption[]>(() => {
     const fallback = this.panelFolders();
     const folders = this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.items().find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ?? []
+      ? (this.workspaceDropdownStore
+          .items()
+          .find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ??
+        [])
       : fallback;
     return folders
       .map((item) => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
@@ -254,6 +268,10 @@ export class AddEditNoteSidePanel implements OnChanges {
     content: ['', [Validators.required, Validators.maxLength(this.contentMaxLength)]],
     noteDate: [null as string | null],
     color: ['YELLOW', Validators.required],
+    priority: [
+      StickyNotePriority.NONE,
+      [Validators.required, Validators.pattern(/^(NONE|LOW|MEDIUM|HIGH|URGENT)$/)],
+    ],
     shape: ['SQUARE', Validators.required],
     variant: ['PLAIN', Validators.required],
     backgroundPattern: ['NONE', Validators.required],
@@ -351,6 +369,21 @@ export class AddEditNoteSidePanel implements OnChanges {
     }
   });
 
+  readonly saveIndicatorVariant = computed<BadgeVariant>(() => {
+    switch (this.saveState()) {
+      case 'editing':
+        return 'warning';
+      case 'saving':
+        return 'info';
+      case 'saved':
+        return 'success';
+      case 'error':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  });
+
   get livePreviewData() {
     const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const checklists = isChecklistActive
@@ -362,6 +395,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     const title = this.controlString('title');
     const content = this.controlString('content');
     const color = this.controlString('color');
+    const priority = this.form.controls.priority.value || StickyNotePriority.NONE;
     const shape = this.controlString('shape');
     const variant = this.controlString('variant');
     const backgroundPattern = this.controlString('backgroundPattern');
@@ -381,6 +415,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       title,
       content,
       color,
+      priority,
       shape,
       variant,
       backgroundPattern,
@@ -404,6 +439,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       title,
       content,
       color,
+      priority,
       shape,
       variant,
       backgroundPattern,
@@ -440,6 +476,11 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.error.set('');
 
     switch (controlName) {
+      case 'priority':
+        if (!isStickyNotePriority(value)) return;
+        this.form.controls.priority.setValue(value);
+        this.form.controls.priority.markAsDirty();
+        break;
       case 'color':
         this.form.controls.color.setValue(value);
         if (this.mode === 'create') {
@@ -557,7 +598,8 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   addBlock(type: NoteBlockType): void {
-    if (this.isBusy || this.noteBlockOptions.find((option) => option.type === type)?.comingSoon) return;
+    if (this.isBusy || this.noteBlockOptions.find((option) => option.type === type)?.comingSoon)
+      return;
     if (!this.selectedBlocks().includes(type)) {
       this.selectedBlocks.update((blocks) => [...blocks, type]);
       if (type === 'CHECKLIST') {
@@ -777,6 +819,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       content: this.controlString('content').trim(),
       noteDate: toDateKey(this.form.controls.noteDate.value) || null,
       color: this.form.controls.color.value,
+      priority: this.form.controls.priority.value,
       shape: this.form.controls.shape.value,
       variant: this.form.controls.variant.value,
       backgroundPattern: this.form.controls.backgroundPattern.value,
@@ -841,7 +884,10 @@ export class AddEditNoteSidePanel implements OnChanges {
               this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_SHAPE, shape);
             }
             if (variant) {
-              this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT, variant);
+              this.userPreferenceStore.setAndSave(
+                USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT,
+                variant,
+              );
             }
             if (backgroundPattern) {
               this.userPreferenceStore.setAndSave(
@@ -1063,6 +1109,9 @@ export class AddEditNoteSidePanel implements OnChanges {
             content: String(note?.content ?? '').trim(),
             noteDate: toDateKey(note?.noteDate) || null,
             color: note?.color || 'YELLOW',
+            priority: isStickyNotePriority(note?.priority)
+              ? note.priority
+              : StickyNotePriority.NONE,
             shape: note?.shape || 'SQUARE',
             variant: note?.variant || 'PLAIN',
             backgroundPattern: note?.backgroundPattern || 'NONE',
@@ -1179,7 +1228,11 @@ export class AddEditNoteSidePanel implements OnChanges {
       .subscribe({
         next: (items) => {
           this.panelWorkspaces.set(items ? [...items] : []);
-          if (items === null) this.notifyError(this.workspaceDropdownStore.error() || 'Unable to load workspaces.', 'Error');
+          if (items === null)
+            this.notifyError(
+              this.workspaceDropdownStore.error() || 'Unable to load workspaces.',
+              'Error',
+            );
         },
         error: (error) =>
           this.notifyError(extractErrorMessage(error, 'Unable to load workspaces.'), 'Error'),
@@ -1444,6 +1497,7 @@ export class AddEditNoteSidePanel implements OnChanges {
         content: '',
         noteDate: this.mode === 'create' ? todayDateKey() : null,
         color: defaultColor,
+        priority: StickyNotePriority.NONE,
         shape: defaultShape,
         variant: defaultVariant,
         backgroundPattern: defaultPattern,
