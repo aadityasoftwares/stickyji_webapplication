@@ -1,0 +1,231 @@
+<app-website-header
+  (signInClick)="navigateToAuth('login')"
+  (primaryActionClick)="navigateToAuth('signup')"
+></app-website-header>
+
+<main class="use-cases-page" id="top">
+  <!-- Hero Section -->
+  <section class="use-cases-hero" aria-labelledby="use-cases-hero-title">
+    <div class="hero-decorations" aria-hidden="true">
+      <div class="paint-swoosh swoosh-left"></div>
+      <div class="paint-swoosh swoosh-right"></div>
+      <div class="sticky-tag note-yellow decor-1">
+        <span class="washi-tape-mini"></span>
+        <span>For Students & Academics</span>
+      </div>
+      <div class="sticky-tag note-blue decor-2">
+        <span class="pin-mini"></span>
+        <span>For Product & Tech</span>
+      </div>
+      <div class="sticky-tag note-pink decor-3">
+        <span class="washi-tape-mini"></span>
+        <span>For Creators & Authors</span>
+      </div>
+    </div>
+
+    <div class="hero-shell">
+      <div class="hero-badge">
+        <app-icon [icon]="LucideSparkles" [size]="16" />
+        <span>CUSTOMIZED TO YOUR BRAIN</span>
+      </div>
+
+      <h1 id="use-cases-hero-title" class="hero-title">
+        One visual canvas.
+        <span class="title-highlight">
+          Endless ways to organize your world.
+          <svg class="title-underline" viewBox="0 0 290 16" aria-hidden="true">
+            <path d="M4 12Q135-3 284 8" />
+          </svg>
+        </span>
+      </h1>
+
+      <p class="hero-sub">
+        Whether you are juggling 5 university syllabi, managing software sprint backlogs, drafting a novel,
+        or keeping family life in harmony—Sticky Ji molds to your rhythm, not the other way around.
+      </p>
+
+      <div class="hero-actions">
+        <button type="button" class="btn-start" (click)="navigateToAuth('signup')">
+          <span>Find your workspace free</span>
+          <app-icon [icon]="LucideArrowRight" [size]="18" />
+        </button>
+        <a href="#templates-section" class="btn-templates">
+          <span>Browse 6 board templates</span>
+          <app-icon [icon]="LucideLayout" [size]="16" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Persona Switcher Section -->
+  <section class="personas-section" aria-labelledby="persona-heading">
+    <div class="personas-shell">
+      <header class="section-intro">
+        <span class="section-eyebrow">TAILORED SOLUTIONS</span>
+        <h2 id="persona-heading">Who are you planning for?</h2>
+        <p>Explore workflows specifically tuned for your daily challenges and goals.</p>
+
+        <!-- Persona Nav Tabs -->
+        <div class="persona-tabs" role="tablist" aria-label="Target personas">
+          @for (persona of personas; track persona.id) {
+            <button
+              type="button"
+              class="persona-btn"
+              [class.is-active]="activePersona() === persona.id"
+              (click)="setPersona(persona.id)"
+            >
+              <app-icon [icon]="persona.icon" [size]="18" />
+              <span>{{ persona.label }}</span>
+            </button>
+          }
+        </div>
+      </header>
+
+      <!-- Active Persona Showcase Panel -->
+      <article class="persona-card">
+        <div class="persona-content-col">
+          <span class="persona-badge" [class]="'badge-' + currentPersona.badgeColor">
+            {{ currentPersona.badge }}
+          </span>
+          <h3 class="persona-headline">{{ currentPersona.headline }}</h3>
+          <p class="persona-tagline">{{ currentPersona.tagline }}</p>
+          <p class="persona-story">{{ currentPersona.story }}</p>
+
+          <div class="comparison-points">
+            <div class="point-col pain-col">
+              <h4>The Common Struggle</h4>
+              <ul>
+                @for (pain of currentPersona.painPoints; track pain) {
+                  <li><span class="bullet-x">✕</span> {{ pain }}</li>
+                }
+              </ul>
+            </div>
+
+            <div class="point-col win-col">
+              <h4>The Sticky Ji Difference</h4>
+              <ul>
+                @for (win of currentPersona.breakthroughs; track win) {
+                  <li><span class="bullet-check"><app-icon [icon]="LucideCheck" [size]="14" /></span> {{ win }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+
+          <!-- Testimonial Quote -->
+          <div class="persona-testimonial-note" [class]="'note-' + currentPersona.testimonial.noteColor">
+            <span class="testimonial-tape" aria-hidden="true"></span>
+            <p class="testimonial-quote">“{{ currentPersona.testimonial.quote }}”</p>
+            <div class="testimonial-author">
+              <app-avatar
+                [name]="currentPersona.testimonial.author"
+                [initials]="currentPersona.testimonial.avatarInitials"
+                [tone]="currentPersona.testimonial.avatarTone"
+                [size]="34"
+              />
+              <div>
+                <strong>{{ currentPersona.testimonial.author }}</strong>
+                <small>{{ currentPersona.testimonial.role }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Board Column Preview -->
+        <div class="persona-board-col">
+          <div class="board-window-frame">
+            <div class="board-window-bar">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="window-title">{{ currentPersona.label }} — Active Workspace</span>
+            </div>
+
+            <div class="board-canvas-inner">
+              <div class="board-columns-row">
+                @for (col of currentPersona.boardColumns; track col.name) {
+                  <div class="preview-col">
+                    <h5 class="col-title">{{ col.name }}</h5>
+                    <div class="col-notes-list">
+                      @for (n of col.notes; track n.title) {
+                        <div class="preview-note" [class]="'note-' + n.color">
+                          @if (n.pinned) {
+                            <span class="note-pin-indicator">
+                              <app-icon [icon]="LucidePin" [size]="14" />
+                            </span>
+                          }
+                          <span class="note-tag-badge">{{ n.tag }}</span>
+                          <h6 class="preview-note-title">{{ n.title }}</h6>
+                          <p class="preview-note-details">{{ n.details }}</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Pre-built Templates Gallery -->
+  <section id="templates-section" class="templates-section" aria-labelledby="templates-title">
+    <div class="templates-shell">
+      <header class="templates-header">
+        <span class="section-eyebrow">READY TO USE</span>
+        <h2 id="templates-title">Start with a proven layout</h2>
+        <p>Pick a template or start from scratch. Duplicate into your free workspace in one click.</p>
+      </header>
+
+      <div class="templates-grid">
+        @for (tpl of templates; track tpl.title) {
+          <article class="template-card" [class]="'note-' + tpl.color">
+            <span class="template-tape" aria-hidden="true"></span>
+            <div class="template-top">
+              <span class="tpl-category">{{ tpl.category }}</span>
+              <span class="tpl-cols-count">{{ tpl.columnsCount }} Columns</span>
+            </div>
+            <h3 class="tpl-title">{{ tpl.title }}</h3>
+            <p class="tpl-desc">{{ tpl.description }}</p>
+
+            <div class="tpl-sample-flow">
+              <span class="flow-label">Included Columns:</span>
+              <div class="flow-tags">
+                @for (item of tpl.sampleItems; track item) {
+                  <span class="flow-tag">{{ item }}</span>
+                }
+              </div>
+            </div>
+
+            <button type="button" class="btn-use-template" (click)="navigateToAuth('signup')">
+              <span>Use this template free</span>
+              <app-icon [icon]="LucideArrowRight" [size]="15" />
+            </button>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="use-cases-cta">
+    <div class="cta-shell">
+      <div class="cta-sticky-box">
+        <span class="cta-washi-tape" aria-hidden="true"></span>
+        <h2>Your ideas deserve a space as flexible as you are.</h2>
+        <p>Set up your first board in 30 seconds. No credit card required.</p>
+        <div class="cta-buttons">
+          <button type="button" class="btn-cta-primary" (click)="navigateToAuth('signup')">
+            <span>Create your first board</span>
+            <app-icon [icon]="LucideArrowRight" [size]="18" />
+          </button>
+          <a routerLink="/how-it-works" class="btn-cta-secondary">See how it works →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-website-footer
+  (primaryActionClick)="navigateToAuth('signup')"
+  (secondaryActionClick)="navigateToAuth('login')"
+></app-website-footer>

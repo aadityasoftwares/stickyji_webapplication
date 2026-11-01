@@ -13,30 +13,97 @@
     </a>
 
     <nav class="desktop-navigation" aria-label="Primary navigation">
-      @for (item of navItems; track item.href) {
-        <a
-          class="nav-link"
-          [class.is-active]="isNavActive(item)"
-          [attr.href]="item.href"
-          [attr.target]="item.external ? '_blank' : null"
-          [attr.rel]="item.external ? 'noopener noreferrer' : null"
-          [attr.aria-current]="isNavActive(item) ? 'location' : null"
-          (click)="onNavSelected(item, $event)"
-        >
-          <span>{{ item.label }}</span>
-          @if (item.badge) {
-            <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
-          }
-        </a>
+      @for (item of navItems; track item.label) {
+        @if (!item.children) {
+          <a
+            class="nav-link"
+            [class.is-active]="isNavActive(item)"
+            [attr.href]="item.href"
+            [attr.target]="item.external ? '_blank' : null"
+            [attr.rel]="item.external ? 'noopener noreferrer' : null"
+            [attr.aria-current]="isNavActive(item) ? 'location' : null"
+            (click)="onNavSelected(item, $event)"
+          >
+            @if (item.icon) {
+              <app-icon
+                [icon]="item.icon"
+                size="sm"
+                class="nav-item-icon"
+              />
+            }
+            <span>{{ item.label }}</span>
+            @if (item.badge) {
+              <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
+            }
+          </a>
+        } @else {
+          <div class="nav-dropdown-wrapper" [class.is-open]="isDropdownOpen(item.label)">
+            <button
+              type="button"
+              class="nav-link nav-dropdown-trigger"
+              [class.is-active]="isNavActive(item)"
+              [attr.aria-expanded]="isDropdownOpen(item.label)"
+              aria-haspopup="true"
+              (click)="toggleDropdown(item.label, $event)"
+            >
+              @if (item.icon) {
+                <app-icon [icon]="item.icon" size="sm" class="nav-item-icon" />
+              }
+              <span>{{ item.label }}</span>
+              <app-icon
+                [icon]="LucideChevronDown"
+                size="xs"
+                class="dropdown-chevron"
+                [class.is-rotated]="isDropdownOpen(item.label)"
+              />
+            </button>
+
+            <div
+              class="nav-dropdown-menu"
+              [class.is-open]="isDropdownOpen(item.label)"
+              role="menu"
+            >
+              <div class="dropdown-header">
+                <span class="dropdown-tape" aria-hidden="true"></span>
+                <span class="dropdown-header-title">Company & Legal</span>
+              </div>
+              <div class="dropdown-items-list">
+                @for (child of item.children; track child.href) {
+                  <a
+                    class="dropdown-item"
+                    [class.is-active]="isChildActive(child)"
+                    [attr.href]="child.href"
+                    role="menuitem"
+                    (click)="onNavSelected(child, $event)"
+                  >
+                    <span class="dropdown-item-icon-box">
+                      <app-icon [icon]="child.icon" size="sm" />
+                    </span>
+                    <span class="dropdown-item-copy">
+                      <strong class="dropdown-item-title">{{ child.label }}</strong>
+                      @if (child.description) {
+                        <span class="dropdown-item-desc">{{ child.description }}</span>
+                      }
+                    </span>
+                    <app-icon [icon]="LucideArrowRight" size="xs" class="dropdown-item-arrow" />
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        }
       }
     </nav>
 
     <div class="desktop-actions">
       @if (!isAuthenticated()) {
-        <button class="header-sign-in" type="button" (click)="onSignIn()">{{ signInLabel }}</button>
+        <button class="header-sign-in" type="button" (click)="onSignIn()">
+          <app-icon [icon]="LucideLogIn" size="sm" />
+          <span>{{ signInLabel }}</span>
+        </button>
       }
       <button class="header-start" type="button" (click)="onPrimaryAction()">
-        {{ isAuthenticated() ? 'Continue to app' : primaryActionLabel }}
+        <span>{{ isAuthenticated() ? 'Continue to app' : primaryActionLabel }}</span>
         <app-icon [icon]="LucideArrowRight" size="md" />
       </button>
     </div>
@@ -59,24 +126,80 @@
   @if (mobileMenuOpen) {
     <div id="mobile-navigation" class="mobile-panel">
       <nav class="mobile-navigation" aria-label="Mobile navigation">
-        @for (item of navItems; track item.href) {
-          <a
-            class="mobile-nav-link"
-            [class.is-active]="isNavActive(item)"
-            [attr.href]="item.href"
-            [attr.target]="item.external ? '_blank' : null"
-            [attr.rel]="item.external ? 'noopener noreferrer' : null"
-            [attr.aria-current]="isNavActive(item) ? 'location' : null"
-            (click)="onNavSelected(item, $event)"
-          >
-            <span>{{ item.label }}</span>
-            <span class="mobile-link-end">
-              @if (item.badge) {
-                <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
+        @for (item of navItems; track item.label) {
+          @if (!item.children) {
+            <a
+              class="mobile-nav-link"
+              [class.is-active]="isNavActive(item)"
+              [attr.href]="item.href"
+              [attr.target]="item.external ? '_blank' : null"
+              [attr.rel]="item.external ? 'noopener noreferrer' : null"
+              [attr.aria-current]="isNavActive(item) ? 'location' : null"
+              (click)="onNavSelected(item, $event)"
+            >
+              <span class="mobile-link-start">
+                @if (item.icon) {
+                  <app-icon
+                    [icon]="item.icon"
+                    size="sm"
+                    class="nav-item-icon"
+                  />
+                }
+                <span>{{ item.label }}</span>
+              </span>
+              <span class="mobile-link-end">
+                @if (item.badge) {
+                  <app-badge [label]="item.badge" variant="notePink" size="xs" shape="pill" />
+                }
+                <app-icon [icon]="LucideArrowRight" size="sm" />
+              </span>
+            </a>
+          } @else {
+            <div class="mobile-group-card">
+              <button
+                type="button"
+                class="mobile-nav-link mobile-group-trigger"
+                [class.is-active]="isNavActive(item)"
+                (click)="toggleMobileGroup(item.label)"
+              >
+                <span class="mobile-link-start">
+                  <app-icon [icon]="item.icon" size="sm" class="nav-item-icon" />
+                  <span>{{ item.label }}</span>
+                  <span class="group-count">{{ item.children.length }}</span>
+                </span>
+                <span class="mobile-link-end">
+                  <app-icon
+                    [icon]="LucideChevronDown"
+                    size="sm"
+                    class="chevron-icon"
+                    [class.is-rotated]="isMobileGroupOpen(item.label)"
+                  />
+                </span>
+              </button>
+
+              @if (isMobileGroupOpen(item.label)) {
+                <div class="mobile-subnav-list">
+                  @for (child of item.children; track child.href) {
+                    <a
+                      class="mobile-subnav-link"
+                      [class.is-active]="isChildActive(child)"
+                      [attr.href]="child.href"
+                      (click)="onNavSelected(child, $event)"
+                    >
+                      <span class="subnav-icon-wrap">
+                        <app-icon [icon]="child.icon" size="sm" />
+                      </span>
+                      <span class="subnav-text">
+                        <strong>{{ child.label }}</strong>
+                        <small>{{ child.description }}</small>
+                      </span>
+                      <app-icon [icon]="LucideArrowRight" size="xs" class="subnav-arrow" />
+                    </a>
+                  }
+                </div>
               }
-              <app-icon [icon]="LucideArrowRight" size="sm" />
-            </span>
-          </a>
+            </div>
+          }
         }
       </nav>
 
@@ -87,8 +210,12 @@
             variant="outline"
             size="lg"
             [fullWidth]="true"
+            [hasIcon]="true"
+            iconPosition="left"
             (buttonClick)="onSignIn()"
-          />
+          >
+            <app-icon button-icon-left [icon]="LucideLogIn" size="inherit" />
+          </app-button>
         }
 
         <app-button

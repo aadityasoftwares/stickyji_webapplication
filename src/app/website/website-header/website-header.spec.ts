@@ -15,7 +15,11 @@ describe('WebsiteHeader navigation', () => {
     TestBed.configureTestingModule({
       imports: [WebsiteHeader],
       providers: [
-        provideRouter([{ path: 'home', component: EmptyPage }]),
+        provideRouter([
+          { path: 'home', component: EmptyPage },
+          { path: 'pricing', component: EmptyPage },
+          { path: 'about-us', component: EmptyPage },
+        ]),
         { provide: AuthStore, useValue: { isAuthenticated } },
       ],
     });
@@ -48,14 +52,62 @@ describe('WebsiteHeader navigation', () => {
     expect(signup).toHaveBeenCalled();
   });
 
-  it('marks the current section in desktop and mobile navigation', () => {
+  it('renders Home as the first nav item matching standard nav styling on non-active and does not include Reviews in top nav', () => {
     const fixture = TestBed.createComponent(WebsiteHeader);
     fixture.detectChanges();
-    fixture.componentInstance.activeSection.set('pricing');
+    const firstLink = fixture.nativeElement.querySelector('.desktop-navigation a');
+    expect(firstLink.textContent).toContain('Home');
+    expect(firstLink.classList.contains('nav-link')).toBe(true);
+
+    const reviewsLink = Array.from(
+      fixture.nativeElement.querySelectorAll('.desktop-navigation a'),
+    ).find((el: any) => el.textContent.includes('Reviews'));
+    expect(reviewsLink).toBeUndefined();
+  });
+
+  it('renders icons for all navigation items in desktop and mobile header including dropdown menu', () => {
+    const fixture = TestBed.createComponent(WebsiteHeader);
+    fixture.componentInstance.mobileMenuOpen = true;
+    fixture.detectChanges();
+    const desktopTopIcons = fixture.nativeElement.querySelectorAll(
+      '.desktop-navigation .nav-item-icon',
+    );
+    expect(desktopTopIcons.length).toBe(fixture.componentInstance.navItems.length);
+
+    const mobileTopIcons = fixture.nativeElement.querySelectorAll(
+      '.mobile-navigation .mobile-link-start > .nav-item-icon',
+    );
+    expect(mobileTopIcons.length).toBe(fixture.componentInstance.navItems.length);
+
+    const dropdownItems = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    expect(dropdownItems.length).toBe(4);
+    expect(dropdownItems[0].textContent).toContain('About us');
+    expect(dropdownItems[1].textContent).toContain('Contact us');
+    expect(dropdownItems[2].textContent).toContain('Privacy policy');
+    expect(dropdownItems[3].textContent).toContain('Terms & conditions');
+
+    const mobileSubnavLinks = fixture.nativeElement.querySelectorAll('.mobile-subnav-link');
+    expect(mobileSubnavLinks.length).toBe(4);
+
+    const signInIcon = fixture.nativeElement.querySelector('.header-sign-in app-icon');
+    expect(signInIcon).not.toBeNull();
+
+    const startIcon = fixture.nativeElement.querySelector('.header-start app-icon');
+    expect(startIcon).not.toBeNull();
+  });
+
+  it('marks the current section in desktop and mobile navigation including company child routes', async () => {
+    const fixture = TestBed.createComponent(WebsiteHeader);
+    await TestBed.inject(Router).navigateByUrl('/pricing');
     fixture.componentInstance.mobileMenuOpen = true;
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('a[aria-current="location"]').length).toBe(2);
     expect(fixture.nativeElement.querySelector('a.is-active').textContent).toContain('Pricing');
+
+    // Test More dropdown active state for company pages
+    const moreItem = fixture.componentInstance.navItems.find((item) => item.label === 'More')!;
+    await TestBed.inject(Router).navigateByUrl('/about-us');
+    expect(fixture.componentInstance.isNavActive(moreItem)).toBe(true);
   });
 
   it('hides on downward scroll and returns on upward scroll or near the top', () => {

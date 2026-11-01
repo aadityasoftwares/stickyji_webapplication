@@ -1,0 +1,278 @@
+<app-website-header
+  (signInClick)="navigateToAuth('login')"
+  (primaryActionClick)="navigateToAuth('signup')"
+></app-website-header>
+
+<main class="pricing-page" id="top">
+  <!-- Hero Section -->
+  <section class="pricing-hero" aria-labelledby="pricing-hero-title">
+    <div class="pricing-decorations" aria-hidden="true">
+      <div class="paint-swoosh swoosh-left"></div>
+      <div class="paint-swoosh swoosh-right"></div>
+    </div>
+
+    <div class="pricing-hero-shell">
+      <div class="pricing-badge">
+        <app-icon [icon]="LucideSparkles" [size]="16" />
+        <span>HONEST, TRANSPARENT PLANS</span>
+      </div>
+
+      <h1 id="pricing-hero-title" class="pricing-title">
+        A little space to start.
+        <span class="title-highlight">
+          Room to grow from there.
+          <svg class="title-stroke" viewBox="0 0 280 16" aria-hidden="true">
+            <path d="M4 12Q130-3 274 8" />
+          </svg>
+        </span>
+      </h1>
+
+      <p class="pricing-sub">
+        Start completely free with zero credit card required. When your thoughts, projects, or team expand,
+        upgrade seamlessly to unlock infinite boards and collaborative workspaces.
+      </p>
+
+      <!-- Billing Cycle Toggle Switch -->
+      <div class="cycle-switcher-wrap" role="group" aria-label="Choose billing interval">
+        <div class="cycle-pill">
+          <button
+            type="button"
+            class="cycle-btn"
+            [class.is-active]="billingCycle() === 'monthly'"
+            (click)="setBillingCycle('monthly')"
+          >
+            <span>Monthly billing</span>
+          </button>
+          <button
+            type="button"
+            class="cycle-btn"
+            [class.is-active]="billingCycle() === 'yearly'"
+            (click)="setBillingCycle('yearly')"
+          >
+            <span>Yearly billing</span>
+            <span class="save-tag">Save 20%</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Tactile Plan Cards Grid -->
+  <section class="plan-cards-section" aria-labelledby="plans-title">
+    <div class="plans-shell">
+      <h2 id="plans-title" class="sr-only">Available Subscription Plans</h2>
+
+      <div class="plans-grid">
+        @for (plan of plans; track plan.id) {
+          <article
+            class="plan-card"
+            [class]="'note-' + plan.color"
+            [class.is-popular]="plan.isPopular"
+          >
+            <!-- Physical Washi Tape decoration -->
+            <span class="plan-tape" aria-hidden="true"></span>
+
+            @if (plan.badge) {
+              <div class="popular-ribbon">
+                <app-icon [icon]="LucideSparkles" [size]="13" />
+                <span>{{ plan.badge }}</span>
+              </div>
+            }
+
+            <header class="plan-header">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <p class="plan-tagline">{{ plan.tagline }}</p>
+            </header>
+
+            <div class="plan-price-box">
+              <div class="price-figure">
+                <span class="amount">
+                  {{ billingCycle() === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice }}
+                </span>
+                <span class="period">/ {{ plan.period }}</span>
+              </div>
+              <span class="billed-note">{{ plan.billedNote }}</span>
+            </div>
+
+            <div class="plan-divider" aria-hidden="true"></div>
+
+            <ul class="plan-features-list">
+              @for (feat of plan.highlights; track feat) {
+                <li>
+                  <span class="feat-check"><app-icon [icon]="LucideCheck" [size]="15" /></span>
+                  <span>{{ feat }}</span>
+                </li>
+              }
+            </ul>
+
+            <div class="plan-cta-box">
+              <button
+                type="button"
+                class="btn-plan-select"
+                [class.btn-popular]="plan.isPopular"
+                (click)="choosePlan(plan.planCode)"
+              >
+                <span>{{ plan.ctaLabel }}</span>
+                <app-icon [icon]="LucideArrowRight" [size]="16" />
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <!-- Trust & Guarantee Bar -->
+      <div class="guarantee-bar">
+        <div class="guarantee-item">
+          <app-icon [icon]="LucideShieldCheck" [size]="20" class="guarantee-icon" />
+          <div>
+            <strong>14-Day Money Back Guarantee</strong>
+            <small>If Pro isn't right for you, we refund 100% with no questions asked.</small>
+          </div>
+        </div>
+
+        <div class="guarantee-item">
+          <app-icon [icon]="LucideRefreshCw" [size]="20" class="guarantee-icon" />
+          <div>
+            <strong>Cancel or Switch Anytime</strong>
+            <small>One-click management from settings. No lock-in, ever.</small>
+          </div>
+        </div>
+
+        <div class="guarantee-item">
+          <app-icon [icon]="LucideShield" [size]="20" class="guarantee-icon" />
+          <div>
+            <strong>Data Portability & Privacy</strong>
+            <small>Export clean PDF and JSON data anytime. Zero tracking.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comprehensive Comparison Matrix Table -->
+  <section class="comparison-matrix-section" aria-labelledby="matrix-title">
+    <div class="matrix-shell">
+      <header class="matrix-header">
+        <span class="section-eyebrow">DEEP FEATURE MATRIX</span>
+        <h2 id="matrix-title">Compare plan capabilities side-by-side</h2>
+        <p>Everything you get in Free, Pro, and Team down to the finest detail.</p>
+      </header>
+
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th scope="col" class="th-feature">Feature Overview</th>
+              <th scope="col" class="th-plan">Free Starter</th>
+              <th scope="col" class="th-plan th-popular">Pro Thinker ⭐</th>
+              <th scope="col" class="th-plan">Team Studio</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cat of comparisonCategories; track cat.title) {
+              <tr class="category-divider-row">
+                <th colspan="4" scope="colgroup">{{ cat.title }}</th>
+              </tr>
+              @for (row of cat.rows; track row.name) {
+                <tr class="feature-data-row">
+                  <td class="cell-feature-name">{{ row.name }}</td>
+
+                  <!-- Free Col -->
+                  <td class="cell-value">
+                    @if (row.free === true) {
+                      <span class="icon-check"><app-icon [icon]="LucideCheck" [size]="16" /></span>
+                    } @else if (row.free === false) {
+                      <span class="icon-minus"><app-icon [icon]="LucideMinus" [size]="16" /></span>
+                    } @else {
+                      <span class="text-val">{{ row.free }}</span>
+                    }
+                  </td>
+
+                  <!-- Pro Col -->
+                  <td class="cell-value cell-highlight">
+                    @if (row.pro === true) {
+                      <span class="icon-check"><app-icon [icon]="LucideCheck" [size]="16" /></span>
+                    } @else if (row.pro === false) {
+                      <span class="icon-minus"><app-icon [icon]="LucideMinus" [size]="16" /></span>
+                    } @else {
+                      <span class="text-val bold">{{ row.pro }}</span>
+                    }
+                  </td>
+
+                  <!-- Team Col -->
+                  <td class="cell-value">
+                    @if (row.team === true) {
+                      <span class="icon-check"><app-icon [icon]="LucideCheck" [size]="16" /></span>
+                    } @else if (row.team === false) {
+                      <span class="icon-minus"><app-icon [icon]="LucideMinus" [size]="16" /></span>
+                    } @else {
+                      <span class="text-val bold">{{ row.team }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive FAQ Accordion -->
+  <section class="faq-section" aria-labelledby="faq-title">
+    <div class="faq-shell">
+      <header class="faq-header">
+        <span class="section-eyebrow">COMMON QUESTIONS</span>
+        <h2 id="faq-title">Frequently asked questions</h2>
+        <p>Everything you need to know about plans, billing, and team seats.</p>
+      </header>
+
+      <div class="faq-accordion-list">
+        @for (item of faqs(); track item.id) {
+          <article class="faq-accordion-item" [class.is-open]="item.isOpen">
+            <button
+              type="button"
+              class="faq-question-btn"
+              [attr.aria-expanded]="item.isOpen"
+              (click)="toggleFaq(item.id)"
+            >
+              <span class="faq-q-text">{{ item.question }}</span>
+              <span class="faq-toggle-icon">
+                <app-icon [icon]="item.isOpen ? LucideChevronUp : LucideChevronDown" [size]="18" />
+              </span>
+            </button>
+
+            @if (item.isOpen) {
+              <div class="faq-answer-panel">
+                <p>{{ item.answer }}</p>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Sticky CTA -->
+  <section class="pricing-cta">
+    <div class="cta-shell">
+      <div class="cta-sticky-card">
+        <span class="cta-tape-piece" aria-hidden="true"></span>
+        <h2>Start free today. No card required.</h2>
+        <p>Experience how calm organizing feels on our tactile sticky note canvas.</p>
+        <div class="cta-actions">
+          <button type="button" class="btn-primary" (click)="choosePlan('FREE')">
+            <span>Get started for free</span>
+            <app-icon [icon]="LucideArrowRight" [size]="18" />
+          </button>
+          <a routerLink="/features" class="btn-secondary">Explore all features →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-website-footer
+  (primaryActionClick)="navigateToAuth('signup')"
+  (secondaryActionClick)="navigateToAuth('login')"
+></app-website-footer>

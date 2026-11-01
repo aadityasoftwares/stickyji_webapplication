@@ -15,8 +15,20 @@ import {
 import {
   LucideArrowRight,
   LucideCheck,
+  LucideChevronDown,
+  LucideCompass,
+  LucideFileText,
+  LucideHeart,
+  LucideHouse,
+  LucideLayers,
+  LucideLogIn,
+  LucideMail,
   LucideMenu,
+  LucideShieldCheck,
   LucideSparkles,
+  LucideStar,
+  LucideTag,
+  LucideUsers,
   LucideX,
 } from '@lucide/angular';
 import { Badge } from '../../shared/components/badge/badge';
@@ -26,12 +38,23 @@ import { Label } from '../../shared/components/label/label';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
 
-export interface HeaderNavItem {
+export interface HeaderSubNavItem {
   label: string;
   href: string;
+  icon?: any;
+  description?: string;
+  badge?: string;
+}
+
+export interface HeaderNavItem {
+  label: string;
+  href?: string;
+  icon?: any;
   active?: boolean;
   external?: boolean;
   badge?: string;
+  isHome?: boolean;
+  children?: readonly HeaderSubNavItem[];
 }
 
 @Component({
@@ -59,6 +82,7 @@ export class WebsiteHeader {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.headerHidden.set(false);
+        this.closeDropdown();
         this.previousScrollY = this.document.defaultView?.scrollY ?? 0;
         this.activeSection.set(this.router.parseUrl(event.urlAfterRedirects).fragment ?? 'top');
       }
@@ -71,10 +95,19 @@ export class WebsiteHeader {
 
   isNavActive(item: HeaderNavItem): boolean {
     if (item.external) return false;
-    const [path, fragment] = item.href.split('#');
     const currentPath = this.router.url.split(/[?#]/)[0];
+    if (item.children?.length) {
+      return item.children.some((child) => child.href.split(/[?#]/)[0] === currentPath);
+    }
+    if (!item.href) return false;
+    const [path, fragment] = item.href.split('#');
     if (fragment) return (!path || path === currentPath) && fragment === this.activeSection();
     return path === currentPath;
+  }
+
+  isChildActive(child: HeaderSubNavItem): boolean {
+    const currentPath = this.router.url.split(/[?#]/)[0];
+    return child.href.split(/[?#]/)[0] === currentPath;
   }
 
   private navigateLink(href: string, event?: MouseEvent): void {
@@ -90,10 +123,22 @@ export class WebsiteHeader {
     if (!href.startsWith('/') && !href.startsWith('#')) return;
     event.preventDefault();
     const url = href.startsWith('#') ? '/home' + href : href;
-    if (this.router.url === url) {
-      this.scroller.scrollToAnchor(url.split('#')[1] ?? 'top');
+    const isAlreadyOnPage =
+      this.router.url === url ||
+      (url === '/home' && this.router.url.split(/[?#]/)[0] === '/home');
+    if (isAlreadyOnPage) {
+      const anchor = url.split('#')[1];
+      if (anchor) {
+        this.scroller.scrollToAnchor(anchor);
+      } else if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } else {
-      void this.router.navigateByUrl(url);
+      void this.router.navigateByUrl(url).then(() => {
+        if (!url.includes('#') && typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      });
     }
   }
 
@@ -123,8 +168,20 @@ export class WebsiteHeader {
 
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheck = LucideCheck;
+  readonly LucideChevronDown = LucideChevronDown;
+  readonly LucideCompass = LucideCompass;
+  readonly LucideFileText = LucideFileText;
+  readonly LucideHeart = LucideHeart;
+  readonly LucideHouse = LucideHouse;
+  readonly LucideLayers = LucideLayers;
+  readonly LucideLogIn = LucideLogIn;
+  readonly LucideMail = LucideMail;
   readonly LucideMenu = LucideMenu;
+  readonly LucideShieldCheck = LucideShieldCheck;
   readonly LucideSparkles = LucideSparkles;
+  readonly LucideStar = LucideStar;
+  readonly LucideTag = LucideTag;
+  readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
 
   @Input() brandName = 'Sticky Ji';
@@ -138,11 +195,41 @@ export class WebsiteHeader {
   @Input() reassuranceText = 'Free forever · No credit card required';
 
   @Input() navItems: readonly HeaderNavItem[] = [
-    { label: 'Features', href: '/home#features' },
-    { label: 'How it works', href: '/home#how-it-works' },
-    { label: 'Use cases', href: '/home#use-cases' },
-    { label: 'Stories', href: '/home#reviews' },
-    { label: 'Pricing', href: '/home#pricing' },
+    { label: 'Home', href: '/home', icon: LucideHouse },
+    { label: 'Features', href: '/features', icon: LucideSparkles },
+    { label: 'How it works', href: '/how-it-works', icon: LucideCompass },
+    { label: 'Use cases', href: '/use-cases', icon: LucideUsers },
+    { label: 'Pricing', href: '/pricing', icon: LucideTag },
+    {
+      label: 'More',
+      icon: LucideLayers,
+      children: [
+        {
+          label: 'About us',
+          href: '/about-us',
+          icon: LucideHeart,
+          description: 'Our story, mission & why Sticky Ji exists',
+        },
+        {
+          label: 'Contact us',
+          href: '/contact-us',
+          icon: LucideMail,
+          description: 'Say hello, ask questions, or share feedback',
+        },
+        {
+          label: 'Privacy policy',
+          href: '/privacy-policy',
+          icon: LucideShieldCheck,
+          description: 'How we protect & safeguard your notes',
+        },
+        {
+          label: 'Terms & conditions',
+          href: '/terms-and-conditions',
+          icon: LucideFileText,
+          description: 'Guidelines and legal service agreements',
+        },
+      ],
+    },
   ];
 
   @Output() brandClick = new EventEmitter<void>();
@@ -151,6 +238,35 @@ export class WebsiteHeader {
   @Output() primaryActionClick = new EventEmitter<void>();
 
   mobileMenuOpen = false;
+  readonly openDropdown = signal<string | null>(null);
+  readonly expandedMobileGroups = signal<Record<string, boolean>>({ More: true });
+
+  toggleDropdown(label: string, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.openDropdown.update((current) => (current === label ? null : label));
+  }
+
+  closeDropdown(): void {
+    this.openDropdown.set(null);
+  }
+
+  isDropdownOpen(label: string): boolean {
+    return this.openDropdown() === label;
+  }
+
+  toggleMobileGroup(label: string): void {
+    this.expandedMobileGroups.update((groups) => ({
+      ...groups,
+      [label]: !groups[label],
+    }));
+  }
+
+  isMobileGroupOpen(label: string): boolean {
+    return !!this.expandedMobileGroups()[label];
+  }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -163,21 +279,29 @@ export class WebsiteHeader {
   onBrandClick(event?: MouseEvent): void {
     this.navigateLink(this.brandHref, event);
     this.closeMobileMenu();
+    this.closeDropdown();
     this.brandClick.emit();
   }
 
-  onNavSelected(item: HeaderNavItem, event?: MouseEvent): void {
-    if (!item.external) this.navigateLink(item.href, event);
+  onNavSelected(item: HeaderNavItem | HeaderSubNavItem, event?: MouseEvent): void {
+    if (item.href && !('external' in item && item.external)) {
+      this.navigateLink(item.href, event);
+    }
+    this.closeDropdown();
     this.closeMobileMenu();
-    this.navSelected.emit(item);
+    if ('href' in item) {
+      this.navSelected.emit(item as HeaderNavItem);
+    }
   }
 
   onSignIn(): void {
+    this.closeDropdown();
     this.closeMobileMenu();
     this.signInClick.emit();
   }
 
   onPrimaryAction(): void {
+    this.closeDropdown();
     this.closeMobileMenu();
     if (this.isAuthenticated()) {
       void this.router.navigateByUrl(APP_ROUTES.APP);
@@ -186,9 +310,18 @@ export class WebsiteHeader {
     this.primaryActionClick.emit();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.nav-dropdown-wrapper')) {
+      this.closeDropdown();
+    }
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.closeMobileMenu();
+    this.closeDropdown();
   }
 
   @HostListener('window:resize', ['$event'])

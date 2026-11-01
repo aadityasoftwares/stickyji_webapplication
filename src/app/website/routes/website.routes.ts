@@ -26,12 +26,61 @@ export const WEBSITE_ROUTES: Routes = [
           canonicalUrl: '/home',
         },
       },
-      sectionRoute('features', 'features'),
-      sectionRoute('how-it-works', 'how-it-works'),
-      sectionRoute('use-cases', 'use-cases'),
-      sectionRoute('pricing', 'pricing'),
-      sectionRoute('stories', 'reviews'),
-      sectionRoute('reviews', 'reviews'),
+      {
+        path: 'features',
+        title: 'Features | Sticky Ji — Visual Sticky Notes, Smart Folders & Today Planner',
+        loadComponent: () => import('../features/features').then((m) => m.FeaturesPage),
+        data: {
+          description:
+            'Explore Sticky Ji visual workspace features: colorful digital sticky notes, smart folders, kanban columns, daily planner, and real-time team collaboration.',
+          canonicalUrl: '/features',
+        },
+      },
+      {
+        path: 'how-it-works',
+        title: 'How It Works | Sticky Ji — 5 Simple Steps From Thought to Done',
+        loadComponent: () => import('../how-it-works/how-it-works').then((m) => m.HowItWorksPage),
+        data: {
+          description:
+            'Discover the mindful 5-step workflow of Sticky Ji. Capture without friction, organize visually, structure into columns, focus on today, and archive small wins.',
+          canonicalUrl: '/how-it-works',
+        },
+      },
+      {
+        path: 'use-cases',
+        title: 'Use Cases & Workflows | Sticky Ji — For Students, PMs, Creators & Teams',
+        loadComponent: () => import('../use-cases-page/use-cases-page').then((m) => m.UseCasesPage),
+        data: {
+          description:
+            'See how students, product managers, solo creators, and remote teams design their workspaces with Sticky Ji. Explore sample boards, templates, and everyday routines.',
+          canonicalUrl: '/use-cases',
+        },
+      },
+      {
+        path: 'reviews',
+        title: 'Reviews & Stories | Sticky Ji — A Wall of Small Wins',
+        loadComponent: () => import('../reviews-page/reviews-page').then((m) => m.ReviewsPage),
+        data: {
+          description:
+            'Read real stories and reviews from thinkers, students, creators, and teams who found daily clarity with Sticky Ji.',
+          canonicalUrl: '/reviews',
+        },
+      },
+      {
+        path: 'stories',
+        pathMatch: 'full',
+        redirectTo: 'reviews',
+      },
+      {
+        path: 'pricing',
+        title: 'Pricing & Plans | Sticky Ji — Free Forever & Flexible Upgrades',
+        loadComponent: () => import('../pricing-page/pricing-page').then((m) => m.PricingPage),
+        data: {
+          description:
+            'Simple and honest pricing for Sticky Ji. Use Sticky Ji free forever or upgrade to Pro and Team for unlimited boards, power features, and live collaboration.',
+          canonicalUrl: '/pricing',
+        },
+      },
       {
         path: 'about-us',
         title: 'About us | Sticky Ji',
