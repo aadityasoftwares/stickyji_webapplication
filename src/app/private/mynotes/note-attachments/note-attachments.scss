@@ -183,17 +183,36 @@
   }
 }
 .is-readonly {
-  gap: 8px;
+  gap: 6px;
   &:has(.attachment-list) {
     margin-top: 10px;
   }
   .attachment-card {
-    padding: 7px;
-    gap: 7px;
+    padding: 6px 8px;
+    gap: 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.55);
   }
   .attachment-thumbnail {
-    flex-basis: 48px;
-    height: 48px;
+    flex-basis: 36px;
+    height: 36px;
+    border-radius: 6px;
+  }
+  .attachment-heading {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .attachment-list {
+    gap: 6px;
+  }
+  .attachment-copy {
+    min-width: 0;
+    strong {
+      font-size: 11px;
+    }
+    small {
+      margin: 2px 0 0;
+    }
   }
   .attachment-status:not(.is-pending) {
     display: none;

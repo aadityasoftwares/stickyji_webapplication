@@ -720,13 +720,26 @@
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
-    overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--note-border) transparent;
+    overflow: hidden;
   }
 
   ::ng-deep .sticky-note__content > * {
     flex-shrink: 0;
+  }
+
+  ::ng-deep .sticky-note.is-detail {
+    min-height: 16rem;
+  }
+
+  // Keep the title visible while longer descriptions, checklists and files scroll together.
+  ::ng-deep .sticky-note__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--note-border) transparent;
+    overscroll-behavior: contain;
   }
 
   &:nth-child(3n + 2) {
