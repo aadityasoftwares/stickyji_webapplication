@@ -357,24 +357,26 @@ export class Today {
   readonly activeWorkspaceId = computed<string | null>(() => {
     if (!this.hasWorkspaces()) return null;
     return this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.selectedWorkspaceId() : this.workspaceStore.selectedId();
+      ? this.workspaceDropdownStore.selectedWorkspaceId()
+      : this.workspaceStore.selectedId();
   });
   readonly loadingWorkspaces = computed(() => this.workspaceDropdownStore.loading());
   readonly workspaceError = computed(() => this.workspaceDropdownStore.error());
   readonly workspacesLoaded = computed(
     () => this.workspaceDropdownStore.loaded() || this.workspaceStore.loaded(),
   );
-  readonly hasWorkspaces = computed(
-    () =>
-      this.workspaceDropdownStore.loaded()
-        ? this.workspaceDropdownStore.hasWorkspaces() : this.workspaceStore.workspaces().length > 0,
+  readonly hasWorkspaces = computed(() =>
+    this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.hasWorkspaces()
+      : this.workspaceStore.workspaces().length > 0,
   );
   readonly workspaceErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly activeFolder = computed<string | null>(() => {
     if (!this.activeWorkspaceId()) return null;
     return this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.selectedFolderId() : this.workspaceFolderStore.selectedId();
+      ? this.workspaceDropdownStore.selectedFolderId()
+      : this.workspaceFolderStore.selectedId();
   });
   readonly loadingFolders = computed(
     () => !this.workspaceDropdownStore.loaded() && this.workspaceFolderStore.loading(),
@@ -412,9 +414,12 @@ export class Today {
   } | null>(null);
   readonly quickNoteVisible = computed(() => {
     const context = this.quickNoteContext();
-    return !!context && this.isNotesView() &&
+    return (
+      !!context &&
+      this.isNotesView() &&
       context.workspaceId === this.activeWorkspaceId() &&
-      context.workspaceFolderId === this.activeFolder();
+      context.workspaceFolderId === this.activeFolder()
+    );
   });
   private readonly quickNoteCard = viewChild(QuickNoteCard);
   readonly loadingNotes = signal(false);
@@ -889,7 +894,8 @@ export class Today {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (folders) => {
-          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id) return;
+          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id)
+            return;
           this.workspaceFolderStore.setFolders(id, folders);
           this.selectFolderAndLoad();
         },
@@ -1602,6 +1608,7 @@ export class Today {
       note?.completedChecklistItemCount,
       note?.assignees?.length,
       note?.checklists?.length,
+      note?.attachments,
       resolvedColumn?.id,
       columnLabel,
       columnBadgeVariant,
@@ -1761,7 +1768,9 @@ export class Today {
       }
       this.quickNoteError.set('');
       this.quickNoteContext.set({
-        workspaceId, workspaceFolderId, columnId,
+        workspaceId,
+        workspaceFolderId,
+        columnId,
         color: this.userPreferenceStore.defaultNoteColor() || 'YELLOW',
       });
       this.clearSearch();
@@ -1786,31 +1795,46 @@ export class Today {
     if (!context || this.quickNoteSaving() || (!title && !content)) return;
     this.quickNoteSaving.set(true);
     this.quickNoteError.set('');
-    this.stickyNoteApiService.create({
-      ...context, title, content, noteDate: todayDateKey(),
-      shape: 'SQUARE', variant: 'PLAIN', backgroundPattern: 'NONE',
-    }).pipe(
-      finalize(() => this.quickNoteSaving.set(false)),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (response) => {
-        this.quickNoteDraft.set({ title: '', content: '' });
-        if (!continueAdding) this.quickNoteContext.set(null);
-        if (context.workspaceId === this.activeWorkspaceId() &&
-            context.workspaceFolderId === this.activeFolder()) {
-          if (idOf(response.data)) {
-            const note = this.mapNote(response.data);
-            this.stickyNotes.update((notes) => [note, ...notes.filter((item) => idOf(item) !== idOf(note))]);
+    this.stickyNoteApiService
+      .create({
+        ...context,
+        title,
+        content,
+        noteDate: todayDateKey(),
+        shape: 'SQUARE',
+        variant: 'PLAIN',
+        backgroundPattern: 'NONE',
+      })
+      .pipe(
+        finalize(() => this.quickNoteSaving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.quickNoteDraft.set({ title: '', content: '' });
+          if (!continueAdding) this.quickNoteContext.set(null);
+          if (
+            context.workspaceId === this.activeWorkspaceId() &&
+            context.workspaceFolderId === this.activeFolder()
+          ) {
+            if (idOf(response.data)) {
+              const note = this.mapNote(response.data);
+              this.stickyNotes.update((notes) => [
+                note,
+                ...notes.filter((item) => idOf(item) !== idOf(note)),
+              ]);
+            }
+            this.getNotesForToday();
           }
-          this.getNotesForToday();
-        }
-        this.toastService.success('Note saved', { title: 'Quick note' });
-        if (continueAdding) setTimeout(() => this.quickNoteCard()?.focusTitle());
-      },
-      error: (error) => {
-        this.quickNoteError.set(extractErrorMessage(error, 'Could not save your note. Try again.'));
-      },
-    });
+          this.toastService.success('Note saved', { title: 'Quick note' });
+          if (continueAdding) setTimeout(() => this.quickNoteCard()?.focusTitle());
+        },
+        error: (error) => {
+          this.quickNoteError.set(
+            extractErrorMessage(error, 'Could not save your note. Try again.'),
+          );
+        },
+      });
   }
 
   openNoteEditPanel(note: any, event?: Event): void {
@@ -2181,6 +2205,7 @@ export class Today {
     return {
       ...note,
       id: idOf(note),
+      attachments: Array.isArray(note?.attachments) ? note.attachments : [],
       noteKey:
         note?.noteKey ??
         (typeof note?.stickyNoteNumber === 'number'

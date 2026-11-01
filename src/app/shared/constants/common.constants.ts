@@ -538,7 +538,6 @@ export const NOTE_BLOCK_OPTIONS: readonly NoteBlockOption[] = [
   },
   {
     type: NOTE_BLOCK_TYPES.ATTACHMENT,
-    comingSoon: true,
     label: 'Attachment',
     description: 'Add files or images',
     icon: LucidePaperclip,

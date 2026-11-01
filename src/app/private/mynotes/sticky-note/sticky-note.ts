@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { NoteAttachments } from '../note-attachments/note-attachments';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -87,6 +88,7 @@ const FONT_TOKEN_MAP: Readonly<Record<string, string>> = {
   selector: 'app-sticky-note',
   standalone: true,
   imports: [
+    NoteAttachments,
     CommonModule,
     FormsModule,
     CdkDragHandle,

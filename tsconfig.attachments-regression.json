@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/private/mynotes/sticky-note/sticky-note.spec.ts",
+    "src/app/private/mynotes/services/sticky-note-attachment.service.spec.ts",
+    "src/app/private/mynotes/note-attachments/note-attachments.spec.ts",
+    "src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts"
+  ]
+}

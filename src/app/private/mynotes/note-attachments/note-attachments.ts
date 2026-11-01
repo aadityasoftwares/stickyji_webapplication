@@ -1,124 +1,444 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, inject, signal } from '@angular/core';
-import { HttpEventType } from '@angular/common/http';
-import { Subscription, filter, switchMap, tap, of } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  Observable,
+  Subscription,
+  concatMap,
+  defer,
+  finalize,
+  from,
+  map,
+  of,
+  tap,
+  toArray,
+} from 'rxjs';
+import {
+  LucideDownload,
+  LucideEye,
+  LucideFile,
+  LucideImage,
+  LucidePaperclip,
+  LucideTrash2,
+  LucideX,
+} from '@lucide/angular';
 import { Button } from '../../../shared/components/button/button';
-import { extractErrorMessage } from '../../../shared/functions/common.function';
-import { StickyNoteAttachmentService, NoteAttachment } from '../services/sticky-note-attachment.service';
+import { AppIcon } from '../../../shared/components/icon/icon';
+import { ToastService } from '../../../shared/components/toast/services/toast.service';
+import { StickyNoteAttachmentService } from '../services/sticky-note-attachment.service';
+import {
+  AttachmentPreview,
+  NoteAttachment,
+  PendingAttachment,
+} from '../interfaces/note-attachment.interface';
+import {
+  ATTACHMENT_ACCEPT,
+  attachmentMimeType,
+  attachmentErrorMessage,
+} from '../constants/note-attachment.constants';
 
 @Component({
-  selector: 'app-note-attachments', standalone: true, imports: [Button],
+  selector: 'app-note-attachments',
+  standalone: true,
+  imports: [Button, AppIcon],
+  templateUrl: './note-attachments.html',
+  styleUrl: './note-attachments.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <section aria-label="Note attachments" (dragover)="$event.preventDefault()" (drop)="drop($event)">
-      @if (!noteId) { <p>Save this note before adding files.</p> }
-      @else {
-        <p><strong>Attachments ({{ total() }})</strong></p>
-        <label class="picker">Choose a file or drop it here
-          <input type="file" [disabled]="busy()" accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.xlsx,.txt,.csv" (change)="choose($event)" />
-        </label>
-        <p class="hint">Your plan's file size and storage limits apply. Documents require enabled scanning.</p>
-        @if (busy()) {
-          <progress [value]="progress()" max="100" aria-label="Upload progress"></progress>
-          <p role="status">{{ status() }}</p>
-          <app-button label="Cancel upload" size="xs" variant="secondary" (buttonClick)="cancel()" />
-        }
-        @if (error()) {
-          <p role="alert">{{ error() }}</p>
-          @if (retryFile && !busy()) { <app-button label="Retry upload" size="xs" (buttonClick)="upload(retryFile, true)" /> }
-        }
-        <ul>
-          @for (file of files(); track file.attachmentId) {
-            <li>
-              <span class="file-icon" aria-hidden="true">{{ file.mimeType.startsWith('image/') ? '▧' : '▤' }}</span>
-              <span class="filename">{{ file.fileName }} <small>{{ size(file.size) }} · {{ file.mimeType }}</small></span>
-              <app-button label="Download" size="xs" variant="secondary" [disabled]="working() === file.attachmentId" (buttonClick)="download(file)" />
-              @if (confirmId() === file.attachmentId) {
-                <span role="status">Remove this attachment?</span>
-                <app-button label="Confirm removal" size="xs" [disabled]="working() === file.attachmentId" (buttonClick)="remove(file)" />
-                <app-button label="Keep file" size="xs" variant="secondary" (buttonClick)="confirmId.set('')" />
-              } @else {
-                <app-button label="Remove" size="xs" variant="secondary" [disabled]="!!working()" (buttonClick)="confirmId.set(file.attachmentId)" />
-              }
-            </li>
-          } @empty { <li>No attachments yet.</li> }
-        </ul>
-        @if (page < pages()) { <app-button label="Load more attachments" size="xs" (buttonClick)="load(true)" /> }
-      }
-    </section>`,
-  styles: [`section { padding: .75rem; } .picker { display: grid; gap: .5rem; padding: .75rem; border: 1px dashed currentColor; border-radius: .5rem; } .hint, small { font-size: .75rem; opacity: .8; } ul { padding: 0; list-style: none; } li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .5rem 0; } .filename { flex: 1; min-width: 8rem; overflow-wrap: anywhere; } small { display: block; } progress { width: 100%; }`],
 })
 export class NoteAttachments implements OnChanges, OnDestroy {
   @Input() noteId = '';
+  @Input() disabled = false;
+  @Input() readOnly = false;
+  @Input() savedFiles: NoteAttachment[] | null = null;
+  @Input() previewItems: AttachmentPreview[] | null = null;
+  @Output() readonly busyChange = new EventEmitter<boolean>();
+  @Output() readonly changed = new EventEmitter<void>();
+
   private readonly api = inject(StickyNoteAttachmentService);
+  private readonly toast = inject(ToastService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+  private destroyed = false;
   private subscriptions = new Subscription();
-  private uploadSubscription?: Subscription;
-  private operationId = '';
-  private pendingId = '';
-  private putFinished = false;
-  retryFile: File | null = null;
-  page = 1;
+  private page = 0;
+  private reloadAfterLoad = false;
   readonly files = signal<NoteAttachment[]>([]);
+  readonly pending = signal<PendingAttachment[]>([]);
   readonly total = signal(0);
-  readonly pages = signal(1);
+  readonly hasMore = signal(false);
+  readonly loading = signal(false);
   readonly busy = signal(false);
   readonly progress = signal(0);
-  readonly status = signal('');
+  readonly uploadingName = signal('');
   readonly error = signal('');
-  readonly working = signal('');
+  readonly listError = signal('');
   readonly confirmId = signal('');
-  ngOnChanges() {
-    this.subscriptions.unsubscribe(); this.subscriptions = new Subscription();
-    this.cancel(); this.files.set([]); this.total.set(0); this.error.set(''); this.retryFile = null; this.pendingId = ''; this.page = 1;
-    if (this.noteId) this.load();
-  }
-  ngOnDestroy() { this.subscriptions.unsubscribe(); this.uploadSubscription?.unsubscribe(); }
-  size(bytes: number) { return bytes < 1048576 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1048576).toFixed(1)} MB`; }
-  load(more = false) {
-    const page = more ? this.page + 1 : 1;
-    this.subscriptions.add(this.api.list(this.noteId, page).subscribe({
-      next: result => { this.page = page; this.files.set(more ? [...this.files(), ...result.data] : result.data); this.total.set(result.meta?.total ?? result.data.length); this.pages.set(result.meta?.totalPages ?? 1); },
-      error: error => this.error.set(extractErrorMessage(error)),
-    }));
-  }
-  choose(event: Event) { const input = event.target as HTMLInputElement; const file = input.files?.[0]; if (file) this.upload(file); input.value = ''; }
-  drop(event: DragEvent) { event.preventDefault(); const file = event.dataTransfer?.files[0]; if (file && this.noteId && !this.busy()) this.upload(file); }
-  upload(file: File, retry = false) {
-    if (!this.noteId || this.busy()) return;
-    if (!file.size) { this.error.set('Choose a nonempty file.'); return; }
-    if (!retry) { this.operationId = crypto.randomUUID(); this.pendingId = ''; this.putFinished = false; }
-    this.retryFile = file; this.busy.set(true); this.error.set(''); this.progress.set(0); this.status.set('Preparing upload…');
-    const noteId = this.noteId;
-    const completion = retry && this.pendingId && this.putFinished;
-    const request = completion ? this.api.complete(noteId, this.pendingId) : this.api.request(noteId, file, this.operationId).pipe(
-      switchMap(response => {
-        this.pendingId = response.data.attachmentId;
-        if (!response.data.uploadUrl) return of(response);
-        this.status.set('Uploading…');
-        return this.api.directUpload.upload(response.data.uploadUrl, file, response.data.requiredHeaders).pipe(
-          tap(event => { if (event.type === HttpEventType.UploadProgress) this.progress.set(Math.round(100 * event.loaded / (event.total || file.size))); }),
-          filter(event => event.type === HttpEventType.Response),
-          switchMap(() => { this.putFinished = true; this.status.set('Verifying file…'); return this.api.complete(noteId, this.pendingId); }),
-        );
-      }),
-    );
-    this.uploadSubscription = request.subscribe({
-      next: () => { this.busy.set(false); this.retryFile = null; this.pendingId = ''; this.status.set('Upload complete'); this.load(); },
-      error: error => { this.busy.set(false); this.error.set(extractErrorMessage(error)); },
+  readonly dragging = signal(false);
+  readonly accept = ATTACHMENT_ACCEPT;
+  readonly thumbnailUrls = signal<Record<string, string>>({});
+  readonly selectedPreview = signal<AttachmentPreview | null>(null);
+  @ViewChild('previewDialog') private previewDialog?: ElementRef<HTMLDialogElement>;
+  readonly previewFiles = computed<AttachmentPreview[]>(() => [
+    ...this.files().map((file) => ({
+      id: file.attachmentId,
+      name: file.fileName,
+      mimeType: file.mimeType,
+      size: file.size,
+      previewUrl: this.thumbnailUrls()[file.attachmentId],
+    })),
+    ...this.pending().map((item) => ({
+      id: item.idempotencyKey,
+      name: item.file.name,
+      mimeType: attachmentMimeType(item.file),
+      size: item.file.size,
+      previewUrl: item.previewUrl,
+      pending: true,
+    })),
+  ]);
+  readonly LucideEye = LucideEye;
+  readonly LucideDownload = LucideDownload;
+  readonly LucideFile = LucideFile;
+  readonly LucideImage = LucideImage;
+  readonly LucidePaperclip = LucidePaperclip;
+  readonly LucideTrash2 = LucideTrash2;
+  readonly LucideX = LucideX;
+
+  constructor() {
+    this.api.changes$.pipe(takeUntilDestroyed()).subscribe((noteId) => {
+      if (
+        !this.readOnly ||
+        this.savedFiles !== null ||
+        this.previewItems !== null ||
+        noteId !== this.noteId
+      )
+        return;
+      if (this.loading()) this.reloadAfterLoad = true;
+      else this.load();
     });
   }
-  cancel() { this.uploadSubscription?.unsubscribe(); this.busy.set(false); this.status.set('Upload cancelled. You can retry.'); }
-  download(file: NoteAttachment) {
-    this.working.set(file.attachmentId); this.error.set('');
-    this.subscriptions.add(this.api.download(this.noteId, file.attachmentId).subscribe({
-      next: response => { this.working.set(''); const anchor = document.createElement('a'); anchor.href = response.data.downloadUrl; anchor.rel = 'noopener noreferrer'; anchor.referrerPolicy = 'no-referrer'; anchor.click(); },
-      error: error => { this.working.set(''); this.error.set(extractErrorMessage(error)); },
-    }));
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['noteId'] && !changes['savedFiles']) return;
+    if (changes['noteId']?.previousValue) {
+      this.subscriptions.unsubscribe();
+      this.subscriptions = new Subscription();
+      this.files.set([]);
+      this.releasePreviews();
+      this.pending.set([]);
+      this.thumbnailUrls.set({});
+      this.closePreview();
+      this.page = 0;
+      this.listError.set('');
+      this.total.set(0);
+      this.hasMore.set(false);
+      this.confirmId.set('');
+      this.error.set('');
+    }
+    if (this.savedFiles !== null) {
+      this.files.set(this.savedFiles);
+      this.total.set(this.savedFiles.length);
+      this.hasMore.set(false);
+      this.listError.set('');
+      for (const file of this.savedFiles) this.loadThumbnail(file, this.noteId);
+    } else if (this.noteId && !this.busy()) this.load();
   }
-  remove(file: NoteAttachment) {
-    this.working.set(file.attachmentId); this.error.set('');
-    this.subscriptions.add(this.api.remove(this.noteId, file.attachmentId).subscribe({
-      next: () => { this.working.set(''); this.confirmId.set(''); this.load(); },
-      error: error => { this.working.set(''); this.error.set(extractErrorMessage(error)); },
-    }));
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    this.subscriptions.unsubscribe();
+    this.releasePreviews();
+  }
+
+  get canHide(): boolean {
+    return (
+      !this.loading() &&
+      !this.busy() &&
+      !this.total() &&
+      !this.pending().length &&
+      !this.listError()
+    );
+  }
+
+  size(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${Math.ceil(bytes / 1024)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  }
+
+  load(more = false, noteId = this.noteId): void {
+    if (this.savedFiles !== null || !noteId || this.loading()) return;
+    const page = more ? this.page + 1 : 1;
+    this.loading.set(true);
+    this.listError.set('');
+    this.subscriptions.add(
+      this.api
+        .list(noteId, page)
+        .pipe(
+          finalize(() => {
+            this.loading.set(false);
+            const reload = this.reloadAfterLoad;
+            this.reloadAfterLoad = false;
+            if (reload && !this.destroyed && noteId === this.noteId) this.load();
+          }),
+        )
+        .subscribe({
+          next: (result) => {
+            if (this.savedFiles !== null) return;
+            this.page = page;
+            this.files.set(more ? [...this.files(), ...result.data] : result.data);
+            this.total.set(result.meta?.total ?? result.data.length);
+            this.hasMore.set(page < (result.meta?.totalPages ?? 1));
+            for (const file of result.data) this.loadThumbnail(file, noteId);
+          },
+          error: (error) => {
+            if (this.savedFiles !== null) return;
+            const message = attachmentErrorMessage(error, 'Unable to load attachments.');
+            this.listError.set(message);
+            this.notify(message);
+          },
+        }),
+    );
+  }
+
+  choose(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  drop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging.set(false);
+    this.addFiles(Array.from(event.dataTransfer?.files ?? []));
+  }
+
+  addFiles(files: File[]): void {
+    if (this.readOnly || this.disabled || this.busy()) return;
+    const errors: string[] = [];
+    const queued: PendingAttachment[] = [];
+    for (const file of files) {
+      if (!file.size) errors.push(`${file.name} is empty.`);
+      else if (file.name.length > 255) errors.push('File names must be 255 characters or fewer.');
+      else if (!attachmentMimeType(file))
+        errors.push(`${file.name}: this file type is not supported.`);
+      else
+        queued.push({
+          file,
+          idempotencyKey: crypto.randomUUID(),
+          uploaded: false,
+          previewUrl: attachmentMimeType(file).startsWith('image/')
+            ? URL.createObjectURL(file)
+            : undefined,
+        });
+    }
+    this.error.set(errors.join(' '));
+    if (errors.length) this.notify(this.error());
+    this.pending.update((items) => [...items, ...queued]);
+    if (queued.length) this.changed.emit();
+  }
+
+  // The editor calls this after saving the note, so uploads always use a real note ID.
+  uploadPending(noteId: string): Observable<void> {
+    return defer(() => {
+      const queue = [...this.pending()];
+      if (!queue.length) return of(undefined);
+      this.setBusy(true);
+      this.error.set('');
+      return from(queue).pipe(
+        concatMap((item) => {
+          this.uploadingName.set(item.file.name);
+          this.progress.set(0);
+          return this.api
+            .upload(noteId, item, (percent) => this.progress.set(percent))
+            .pipe(
+              tap(() => {
+                if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+                this.pending.update((items) => items.filter((pending) => pending !== item));
+              }),
+            );
+        }),
+        toArray(),
+        tap({
+          error: (error) =>
+            this.error.set(
+              attachmentErrorMessage(error, 'Unable to upload the file. Save again to retry.'),
+            ),
+        }),
+        map(() => undefined),
+        finalize(() => {
+          this.setBusy(false);
+          this.uploadingName.set('');
+          if (!this.destroyed) this.load(false, noteId);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      );
+    });
+  }
+
+  removePending(item: PendingAttachment): void {
+    if (this.readOnly || this.disabled || this.busy()) return;
+    const remove = () => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      this.pending.update((items) => items.filter((pending) => pending !== item));
+      this.error.set('');
+      this.changed.emit();
+      if (item.attachmentId) this.load();
+    };
+    if (!item.attachmentId || !this.noteId) {
+      remove();
+      return;
+    }
+    this.setBusy(true);
+    this.subscriptions.add(
+      this.api
+        .remove(this.noteId, item.attachmentId)
+        .pipe(finalize(() => this.setBusy(false)))
+        .subscribe({
+          next: remove,
+          error: (error) => {
+            if (error.status === 404) remove();
+            else this.notify(attachmentErrorMessage(error, 'Unable to remove the pending upload.'));
+          },
+        }),
+    );
+  }
+
+  download(file: NoteAttachment): void {
+    if (this.disabled || this.busy()) return;
+    this.setBusy(true);
+    this.error.set('');
+    this.subscriptions.add(
+      this.api
+        .download(this.noteId, file.attachmentId)
+        .pipe(finalize(() => this.setBusy(false)))
+        .subscribe({
+          next: ({ data }) => {
+            const anchor = this.document.createElement('a');
+            anchor.href = data.downloadUrl;
+            anchor.download = file.fileName;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            anchor.referrerPolicy = 'no-referrer';
+            this.document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+          },
+          error: (error) =>
+            this.notify(attachmentErrorMessage(error, 'Unable to download the file.')),
+        }),
+    );
+  }
+
+  remove(file: NoteAttachment): void {
+    if (this.readOnly || this.disabled || this.busy()) return;
+    this.setBusy(true);
+    this.error.set('');
+    this.subscriptions.add(
+      this.api
+        .remove(this.noteId, file.attachmentId)
+        .pipe(finalize(() => this.setBusy(false)))
+        .subscribe({
+          next: () => {
+            this.confirmId.set('');
+            this.load();
+          },
+          error: (error) =>
+            this.notify(attachmentErrorMessage(error, 'Unable to remove the file.')),
+        }),
+    );
+  }
+
+  fileType(name: string): string {
+    return name.split('.').pop()?.toUpperCase() || 'FILE';
+  }
+
+  openPreview(item: AttachmentPreview): void {
+    if (!item.previewUrl || this.disabled || this.previewItems !== null) return;
+    this.selectedPreview.set(item);
+    this.cdr.detectChanges();
+    this.previewDialog?.nativeElement.showModal();
+  }
+
+  closePreview(): void {
+    if (this.previewDialog?.nativeElement.open) this.previewDialog.nativeElement.close();
+    this.selectedPreview.set(null);
+  }
+
+  thumbnailFailed(id: string): void {
+    const pending = this.pending().find((item) => item.idempotencyKey === id);
+    if (pending?.previewUrl) {
+      URL.revokeObjectURL(pending.previewUrl);
+      pending.previewUrl = undefined;
+      this.pending.update((items) => [...items]);
+    }
+    this.thumbnailUrls.update((urls) => {
+      const next = { ...urls };
+      delete next[id];
+      return next;
+    });
+  }
+
+  downloadItem(item: AttachmentPreview): void {
+    const file = this.files().find((file) => file.attachmentId === item.id);
+    if (file) this.download(file);
+  }
+
+  removeItem(item: AttachmentPreview): void {
+    const pending = this.pending().find((file) => file.idempotencyKey === item.id);
+    if (pending) this.removePending(pending);
+    else this.confirmId.set(item.id);
+  }
+
+  confirmRemove(id: string): void {
+    const file = this.files().find((file) => file.attachmentId === id);
+    if (file) this.remove(file);
+  }
+
+  private loadThumbnail(file: NoteAttachment, noteId: string): void {
+    if (!file.mimeType.startsWith('image/') || this.thumbnailUrls()[file.attachmentId]) return;
+    this.subscriptions.add(
+      this.api.download(noteId, file.attachmentId).subscribe({
+        next: ({ data }) =>
+          this.thumbnailUrls.update((urls) => ({ ...urls, [file.attachmentId]: data.downloadUrl })),
+        // A thumbnail is optional; the download action can retry with a fresh URL.
+        error: () => {},
+      }),
+    );
+  }
+
+  private releasePreviews(): void {
+    for (const item of this.pending()) {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    }
+  }
+
+  private notify(message: string): void {
+    this.error.set(message);
+    this.toast.error(message, {
+      title: 'Attachments',
+      dedupeKey: `attachments-${this.noteId}-${message}`,
+    });
+  }
+
+  private setBusy(value: boolean): void {
+    this.busy.set(value);
+    this.busyChange.emit(value);
   }
 }

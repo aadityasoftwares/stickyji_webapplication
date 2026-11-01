@@ -1,4 +1,5 @@
 import { NoteAttachments } from '../note-attachments/note-attachments';
+import { attachmentErrorMessage } from '../constants/note-attachment.constants';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -165,6 +166,18 @@ export class AddEditNoteSidePanel implements OnChanges {
   @ViewChild('noteTitleInput', { read: ElementRef })
   private noteTitleInput?: ElementRef<HTMLElement>;
 
+  @ViewChild(NoteAttachments) attachments?: NoteAttachments;
+  readonly attachmentsBusy = signal(false);
+
+  get attachmentNoteId(): string {
+    return this.savedNoteId || (this.mode === 'edit' ? this.id : '');
+  }
+
+  onAttachmentsChanged(): void {
+    this.form.markAsDirty();
+    this.saveState.set('editing');
+  }
+
   readonly LucideBell = LucideBell;
   readonly LucideCheck = LucideCheck;
   readonly LucideFolderOpen = LucideFolderOpen;
@@ -289,6 +302,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   get isBusy(): boolean {
     return (
+      this.attachmentsBusy() ||
       this.loading() ||
       this.loadingData() ||
       this.loadingChecklist() ||
@@ -385,6 +399,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   });
 
   get livePreviewData() {
+    const attachmentPreviews = this.attachments?.previewFiles() ?? [];
     const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const checklists = isChecklistActive
       ? formatLivePreviewChecklists(this.checklists.controls as FormGroup[])
@@ -409,6 +424,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       initials: item.initials,
     }));
     const cacheKey = JSON.stringify({
+      attachmentPreviews,
       noteKey: this.savedNoteKey,
       columnLabel,
       columnBadgeVariant,
@@ -432,6 +448,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
     this.livePreviewCacheKey = cacheKey;
     this.livePreviewCache = {
+      attachmentPreviews,
       id: 'editor-live-preview',
       noteKey: this.savedNoteKey,
       columnLabel,
@@ -616,6 +633,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   removeBlock(type: NoteBlockType): void {
     if (this.isBusy) return;
+    if (type === 'ATTACHMENT' && this.attachments && !this.attachments.canHide) return;
     this.selectedBlocks.update((blocks) => blocks.filter((b) => b !== type));
     if (type === 'CHECKLIST') {
       this.form.controls.withChecklist.setValue(false);
@@ -849,6 +867,17 @@ export class AddEditNoteSidePanel implements OnChanges {
               .pipe(catchError(() => of(null))),
           }).pipe(map(() => response.data)),
         ),
+        switchMap((noteData) => {
+          const upload = this.attachments?.uploadPending(this.savedNoteId) ?? of(undefined);
+          return upload.pipe(
+            map(() => noteData),
+            catchError((error) => {
+              throw new Error(
+                `The note was saved, but some attachments were not uploaded. ${attachmentErrorMessage(error, 'The upload could not be completed.')} Save again to retry, or remove the pending file.`,
+              );
+            }),
+          );
+        }),
         switchMap((noteData) => {
           if (this.mode === 'create' && this.isFavorite() && this.savedNoteId) {
             return this.favoriteService.addFavorite(this.savedNoteId).pipe(
@@ -1131,11 +1160,10 @@ export class AddEditNoteSidePanel implements OnChanges {
           if (note?.reminder || (Array.isArray(note?.reminders) && note.reminders.length > 0)) {
             this.selectedBlocks.update((b) => (b.includes('REMINDER') ? b : [...b, 'REMINDER']));
           }
-          if (Array.isArray(note?.attachments) && note.attachments.length > 0) {
-            this.selectedBlocks.update((b) =>
-              b.includes('ATTACHMENT') ? b : [...b, 'ATTACHMENT'],
-            );
-          }
+          // Attachments are fetched separately; the note response does not include them.
+          this.selectedBlocks.update((blocks) =>
+            blocks.includes('ATTACHMENT') ? blocks : [...blocks, 'ATTACHMENT'],
+          );
           if (Array.isArray(note?.links) && note.links.length > 0) {
             this.selectedBlocks.update((b) => (b.includes('LINK') ? b : [...b, 'LINK']));
           }
@@ -1458,6 +1486,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   private resetEditor(): void {
+    this.attachmentsBusy.set(false);
     this.savedNoteId = '';
     this.savedNoteKey = '';
     this.livePreviewCacheKey = '';

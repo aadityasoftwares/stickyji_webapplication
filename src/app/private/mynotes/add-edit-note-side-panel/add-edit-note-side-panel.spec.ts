@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { StickyMarkdownEditorComponent } from '../../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
 import { restoreStickySelection } from '../../../shared/utils/sticky-markdown/markdown-selection';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel';
+import { NoteAttachments } from '../note-attachments/note-attachments';
+import { StickyNoteAttachmentService } from '../services/sticky-note-attachment.service';
 import { StickyNotePriority } from '../constants/sticky-note.constants';
 import { Select } from '../../../shared/components/select/select';
 import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
@@ -22,6 +24,17 @@ import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
 
 describe('AddEditNoteSidePanel', () => {
+  const originalScrollTo = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTo');
+
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: vi.fn() });
+  });
+
+  afterAll(() => {
+    if (originalScrollTo) Object.defineProperty(HTMLElement.prototype, 'scrollTo', originalScrollTo);
+    else delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;
+  });
+
   let component: AddEditNoteSidePanel;
   let fixture: ComponentFixture<AddEditNoteSidePanel>;
   const column = {
@@ -73,6 +86,10 @@ describe('AddEditNoteSidePanel', () => {
       ],
     }).compileComponents();
 
+    vi.spyOn(TestBed.inject(StickyNoteAttachmentService), 'list').mockReturnValue(
+      of({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    );
+
     vi.spyOn(TestBed.inject(StickyNotesFavouriteService), 'getAll').mockReturnValue(
       of({ data: [] }),
     );
@@ -104,6 +121,94 @@ describe('AddEditNoteSidePanel', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('queues attachments using no column ID and uploads after the note is created', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.updateText('title', 'With files');
+    component.updateText('content', 'Details');
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = fixture.debugElement.query(By.directive(NoteAttachments))
+      .componentInstance as NoteAttachments;
+    expect(attachments.noteId).toBe('');
+    attachments.addFiles([new File(['hello'], 'note.txt')]);
+    const upload = vi
+      .spyOn(TestBed.inject(StickyNoteAttachmentService), 'upload')
+      .mockReturnValue(of({ attachmentId: 'file-1' } as any));
+    const saved = vi.spyOn(component.saved, 'emit');
+    component.submit();
+    expect(upload).not.toHaveBeenCalled();
+    const create = TestBed.inject(HttpTestingController).expectOne(
+      API_ENDPOINTS.stickyNotes.create,
+    );
+    create.flush({ data: { id: 'created-note' } });
+    expect(upload).toHaveBeenCalledWith(
+      'created-note',
+      expect.objectContaining({ file: expect.any(File) }),
+      expect.any(Function),
+    );
+    expect(saved).toHaveBeenCalledWith('created-note');
+    expect(attachments.pending()).toEqual([]);
+  });
+
+  it('keeps the editor open on upload failure and updates the same note on retry', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.updateText('title', 'Retry files');
+    component.updateText('content', 'Details');
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = component.attachments!;
+    attachments.addFiles([new File(['hello'], 'note.txt')]);
+    const upload = vi
+      .spyOn(TestBed.inject(StickyNoteAttachmentService), 'upload')
+      .mockReturnValue(throwError(() => new Error('Upload failed')));
+    const saved = vi.spyOn(component.saved, 'emit');
+    component.submit();
+    TestBed.inject(HttpTestingController)
+      .expectOne(API_ENDPOINTS.stickyNotes.create)
+      .flush({ data: { id: 'created-note' } });
+    await fixture.whenStable();
+    expect(saved).not.toHaveBeenCalled();
+    expect(component.saveState()).toBe('error');
+    expect(attachments.pending()).toHaveLength(1);
+    expect(component.isBusy).toBe(false);
+    expect(component.attachmentNoteId).toBe('created-note');
+
+    upload.mockReturnValue(of({ attachmentId: 'file-1' } as any));
+    component.submit();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectNone(API_ENDPOINTS.stickyNotes.create);
+    http
+      .expectOne(API_ENDPOINTS.stickyNotes.update('created-note'))
+      .flush({ data: { id: 'created-note' } });
+    expect(saved).toHaveBeenCalledWith('created-note');
+    expect(attachments.pending()).toEqual([]);
+  });
+
+  it('updates both live note previews when attachments are queued and removed', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = component.attachments!;
+    attachments.addFiles([new File(['hello'], 'preview.txt')]);
+    await fixture.whenStable();
+    expect(component.livePreviewData.attachmentPreviews[0].name).toBe('preview.txt');
+    for (const selector of ['.note-external-preview', '.note-mobile-preview']) {
+      expect(fixture.nativeElement.querySelector(selector).textContent).toContain('preview.txt');
+    }
+    attachments.removePending(attachments.pending()[0]);
+    await fixture.whenStable();
+    expect(component.livePreviewData.attachmentPreviews).toEqual([]);
+    expect(fixture.nativeElement.querySelector('.note-external-preview').textContent).not.toContain(
+      'preview.txt',
+    );
   });
 
   it.each(Object.values(StickyNotePriority))(

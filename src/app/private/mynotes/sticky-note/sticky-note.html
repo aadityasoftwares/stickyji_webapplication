@@ -409,6 +409,19 @@
     </div>
   }
 
+  @if (
+    isDetail && (preview ? data?.attachmentPreviews?.length : noteId && data?.status !== 'DELETED')
+  ) {
+    <app-note-attachments
+      class="sticky-note__attachments"
+      [noteId]="preview ? '' : noteId"
+      [readOnly]="true"
+      [savedFiles]="preview ? null : (data?.attachments ?? null)"
+      [disabled]="disabled"
+      [previewItems]="preview ? data.attachmentPreviews : null"
+    />
+  }
+
   <!-- 3. Metadata (Progress Bar) -->
   @if (isDetail && totalChecklistItems > 0) {
     <div class="sticky-note__progress" aria-label="Checklist progress">

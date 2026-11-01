@@ -595,14 +595,21 @@
                         variant="ghost"
                         appearance="standard"
                         size="xs"
-                        ariaLabel="Remove attachment block"
-                        title="Remove attachments"
-                        [disabled]="isBusy"
+                        ariaLabel="Hide empty attachment section"
+                        title="Remove files individually before hiding this section"
+                        [disabled]="isBusy || !attachments?.canHide"
                         (buttonClick)="removeBlock('ATTACHMENT')"
                       />
                     </div>
                   </header>
-                  <div class="note-block-content note-block-placeholder-body"><app-note-attachments [noteId]="id" /></div>
+                  <div class="note-block-content">
+                    <app-note-attachments
+                      [noteId]="attachmentNoteId"
+                      [disabled]="loading() || loadingData()"
+                      (busyChange)="attachmentsBusy.set($event)"
+                      (changed)="onAttachmentsChanged()"
+                    />
+                  </div>
                 }
 
                 @case ('LINK') {
