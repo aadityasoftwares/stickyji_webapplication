@@ -5,7 +5,7 @@ import { Hero } from '../hero/hero';
 import { WebsiteHeader } from '../website-header/website-header';
 import { ThoughtFlow } from '../thought-flow/thought-flow';
 import { UseCases } from '../use-cases/use-cases';
-
+import { Reviews } from '../reviews/reviews';
 import { Subscription } from '../subscription/subscription';
 import { WebsiteFooter } from '../website-footer/website-footer';
 import { ScrollReveal } from '../scroll-reveal';
@@ -16,6 +16,7 @@ import { ScrollReveal } from '../scroll-reveal';
     WebsiteHeader,
     ThoughtFlow,
     UseCases,
+    Reviews,
     RouterLink,
     Subscription,
     WebsiteFooter,
