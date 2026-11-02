@@ -40,8 +40,9 @@
       </h1>
 
       <p class="hero-sub">
-        Whether you are juggling 5 university syllabi, managing software sprint backlogs, drafting a novel,
-        or keeping family life in harmony—Sticky Ji molds to your rhythm, not the other way around.
+        Whether you are juggling 5 university syllabi, managing software sprint backlogs, drafting a
+        novel, or keeping family life in harmony—Sticky Ji molds to your rhythm, not the other way
+        around.
       </p>
 
       <div class="hero-actions">
@@ -50,7 +51,7 @@
           <app-icon [icon]="LucideArrowRight" [size]="18" />
         </button>
         <a href="#templates-section" class="btn-templates">
-          <span>Browse 6 board templates</span>
+          <span>Browse 6 board ideas</span>
           <app-icon [icon]="LucideLayout" [size]="16" />
         </a>
       </div>
@@ -66,12 +67,13 @@
         <p>Explore workflows specifically tuned for your daily challenges and goals.</p>
 
         <!-- Persona Nav Tabs -->
-        <div class="persona-tabs" role="tablist" aria-label="Target personas">
+        <div class="persona-tabs" role="group" aria-label="Workflow examples">
           @for (persona of personas; track persona.id) {
             <button
               type="button"
               class="persona-btn"
               [class.is-active]="activePersona() === persona.id"
+              [attr.aria-pressed]="activePersona() === persona.id"
               (click)="setPersona(persona.id)"
             >
               <app-icon [icon]="persona.icon" [size]="18" />
@@ -105,27 +107,12 @@
               <h4>The Sticky Ji Difference</h4>
               <ul>
                 @for (win of currentPersona.breakthroughs; track win) {
-                  <li><span class="bullet-check"><app-icon [icon]="LucideCheck" [size]="14" /></span> {{ win }}</li>
+                  <li>
+                    <span class="bullet-check"><app-icon [icon]="LucideCheck" [size]="14" /></span>
+                    {{ win }}
+                  </li>
                 }
               </ul>
-            </div>
-          </div>
-
-          <!-- Testimonial Quote -->
-          <div class="persona-testimonial-note" [class]="'note-' + currentPersona.testimonial.noteColor">
-            <span class="testimonial-tape" aria-hidden="true"></span>
-            <p class="testimonial-quote">“{{ currentPersona.testimonial.quote }}”</p>
-            <div class="testimonial-author">
-              <app-avatar
-                [name]="currentPersona.testimonial.author"
-                [initials]="currentPersona.testimonial.avatarInitials"
-                [tone]="currentPersona.testimonial.avatarTone"
-                [size]="34"
-              />
-              <div>
-                <strong>{{ currentPersona.testimonial.author }}</strong>
-                <small>{{ currentPersona.testimonial.role }}</small>
-              </div>
             </div>
           </div>
         </div>
@@ -171,9 +158,12 @@
   <section id="templates-section" class="templates-section" aria-labelledby="templates-title">
     <div class="templates-shell">
       <header class="templates-header">
-        <span class="section-eyebrow">READY TO USE</span>
-        <h2 id="templates-title">Start with a proven layout</h2>
-        <p>Pick a template or start from scratch. Duplicate into your free workspace in one click.</p>
+        <span class="section-eyebrow">WORKFLOW IDEAS</span>
+        <h2 id="templates-title">Build a layout for your routine</h2>
+        <p>
+          These are example layouts to recreate with folders, notes, and columns in your own
+          workspace.
+        </p>
       </header>
 
       <div class="templates-grid">
@@ -188,7 +178,7 @@
             <p class="tpl-desc">{{ tpl.description }}</p>
 
             <div class="tpl-sample-flow">
-              <span class="flow-label">Included Columns:</span>
+              <span class="flow-label">Suggested columns:</span>
               <div class="flow-tags">
                 @for (item of tpl.sampleItems; track item) {
                   <span class="flow-tag">{{ item }}</span>
@@ -197,7 +187,7 @@
             </div>
 
             <button type="button" class="btn-use-template" (click)="navigateToAuth('signup')">
-              <span>Use this template free</span>
+              <span>Create an account</span>
               <app-icon [icon]="LucideArrowRight" [size]="15" />
             </button>
           </article>
@@ -212,7 +202,7 @@
       <div class="cta-sticky-box">
         <span class="cta-washi-tape" aria-hidden="true"></span>
         <h2>Your ideas deserve a space as flexible as you are.</h2>
-        <p>Set up your first board in 30 seconds. No credit card required.</p>
+        <p>Create an account and organize your first notes.</p>
         <div class="cta-buttons">
           <button type="button" class="btn-cta-primary" (click)="navigateToAuth('signup')">
             <span>Create your first board</span>

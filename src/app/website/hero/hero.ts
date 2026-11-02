@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { NgTemplateOutlet } from '@angular/common';
 import {
@@ -66,7 +67,7 @@ interface PreviewNote {
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [Tooltip, AppIcon, NgTemplateOutlet],
+  imports: [Tooltip, AppIcon, NgTemplateOutlet, RouterLink],
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

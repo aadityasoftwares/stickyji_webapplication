@@ -10,7 +10,9 @@
       <div class="floating-note note-1 note-yellow">
         <span class="washi-tape"></span>
         <span class="note-quote">Ideas without the clutter</span>
-        <svg class="doodle-sparkle" viewBox="0 0 40 40"><path d="M20 0 L24 16 L40 20 L24 24 L20 40 L16 24 L0 20 L16 16 Z" /></svg>
+        <svg class="doodle-sparkle" viewBox="0 0 40 40">
+          <path d="M20 0 L24 16 L40 20 L24 24 L20 40 L16 24 L0 20 L16 16 Z" />
+        </svg>
       </div>
       <div class="floating-note note-2 note-pink">
         <span class="pushpin-dot"></span>
@@ -18,7 +20,7 @@
       </div>
       <div class="floating-note note-3 note-blue">
         <span class="washi-tape"></span>
-        <span class="note-quote">Real-time team boards</span>
+        <span class="note-quote">Shared team workspaces</span>
       </div>
       <div class="paint-swoosh swoosh-left"></div>
       <div class="paint-swoosh swoosh-right"></div>
@@ -41,8 +43,9 @@
       </h1>
 
       <p class="hero-subtitle">
-        We stripped away the endless dropdowns, heavy database schemas, and sensory-overload notifications.
-        What remains is a calm, spatial canvas where ideas feel light, tangible, and ready to become reality.
+        We stripped away the endless dropdowns, heavy database schemas, and sensory-overload
+        notifications. What remains is a calm, spatial canvas where ideas feel light, tangible, and
+        ready to become reality.
       </p>
 
       <div class="hero-ctas">
@@ -57,22 +60,28 @@
       </div>
 
       <div class="hero-reassurance">
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> Free forever</span>
+        <span><app-icon [icon]="LucideCheck" [size]="14" /> View current plans</span>
         <i>·</i>
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> No credit card needed</span>
+        <span><app-icon [icon]="LucideCheck" [size]="14" /> Browser-based workspace</span>
         <i>·</i>
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> Setup in 30 seconds</span>
+        <span><app-icon [icon]="LucideCheck" [size]="14" /> Start with one note</span>
       </div>
     </div>
   </section>
 
   <!-- Interactive Sticky Note Test Bench -->
-  <section id="interactive-playground" class="interactive-playground" aria-labelledby="playground-title">
+  <section
+    id="interactive-playground"
+    class="interactive-playground"
+    aria-labelledby="playground-title"
+  >
     <div class="playground-shell">
       <div class="playground-header">
         <span class="section-eyebrow">HANDS-ON PREVIEW</span>
         <h2 id="playground-title">Give it a try before you sign up</h2>
-        <p>Click the colors, toggle tasks, or toggle the pin to see how intuitive our notes feel.</p>
+        <p>
+          Click the colors, toggle tasks, or toggle the pin to see how intuitive our notes feel.
+        </p>
       </div>
 
       <div class="playground-layout">
@@ -119,7 +128,9 @@
                 [style.width.%]="(completedCount / totalCount) * 100"
               ></div>
             </div>
-            <span class="progress-text">{{ completedCount }} of {{ totalCount }} tasks finished</span>
+            <span class="progress-text"
+              >{{ completedCount }} of {{ totalCount }} tasks finished</span
+            >
           </div>
         </div>
 
@@ -249,7 +260,9 @@
         @for (pillar of filteredPillars; track pillar.id) {
           <article class="pillar-card" [id]="pillar.id">
             <div class="pillar-content">
-              <span class="pillar-badge" [class]="'badge-' + pillar.badgeTone">{{ pillar.badge }}</span>
+              <span class="pillar-badge" [class]="'badge-' + pillar.badgeTone">{{
+                pillar.badge
+              }}</span>
               <h3 class="pillar-title">{{ pillar.title }}</h3>
               <p class="pillar-tagline">{{ pillar.tagline }}</p>
               <p class="pillar-desc">{{ pillar.description }}</p>
@@ -386,7 +399,7 @@
           </button>
           <a routerLink="/pricing" class="btn-cta-secondary">View our plans →</a>
         </div>
-        <p class="cta-footnote">Free forever · No credit card required · Instant access</p>
+        <p class="cta-footnote">View current plans · Choose a plan that fits · Instant access</p>
       </div>
     </div>
   </section>

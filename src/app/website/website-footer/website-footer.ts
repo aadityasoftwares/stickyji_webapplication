@@ -53,8 +53,6 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
       { label: 'How it works', href: '/how-it-works' },
       { label: 'Use cases', href: '/use-cases' },
       { label: 'Pricing', href: '/pricing' },
-      { label: "What's new", href: '/features', badge: 'New' },
-      { label: 'Roadmap', href: '/features' },
     ],
   },
   {
@@ -74,12 +72,8 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'book',
     badgeColor: 'blue',
     links: [
-      { label: 'Stories & Reviews', href: '/reviews' },
       { label: 'Help center', href: '/how-it-works' },
       { label: 'Guides', href: '/how-it-works' },
-      { label: 'Templates', href: '/features' },
-      { label: 'Product updates', href: '/features' },
-      { label: 'Status', href: '/home' },
     ],
   },
   {
@@ -120,7 +114,7 @@ export class WebsiteFooter {
   @Input() brandName = 'Sticky Ji';
   @Input() logoSrc = 'StickyJiHorizontalLogo.png';
   @Input() mascotSrc = 'StickyJiLogo.png';
-  @Input() brandHref = '/home#top';
+  @Input() brandHref = '/#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
   @Input() ctaBadgeText = 'Ready to get organized?';
   @Input() ctaHeadingLine1 = 'Your next big idea needs';

@@ -6,7 +6,7 @@
       (click)="onBrandClick($event)"
       [attr.aria-label]="brandName + ' home'"
     >
-      <img [src]="logoSrc" [alt]="brandName" class="header-brand-logo" height="40" />
+      <img [src]="logoSrc" [alt]="brandName" class="header-brand-logo" width="120" height="40" />
       @if (showProductBadge && productBadge) {
         <app-badge [label]="productBadge" variant="noteYellow" size="xs" shape="pill" />
       }
@@ -25,11 +25,7 @@
             (click)="onNavSelected(item, $event)"
           >
             @if (item.icon) {
-              <app-icon
-                [icon]="item.icon"
-                size="sm"
-                class="nav-item-icon"
-              />
+              <app-icon [icon]="item.icon" size="sm" class="nav-item-icon" />
             }
             <span>{{ item.label }}</span>
             @if (item.badge) {
@@ -58,11 +54,7 @@
               />
             </button>
 
-            <div
-              class="nav-dropdown-menu"
-              [class.is-open]="isDropdownOpen(item.label)"
-              role="menu"
-            >
+            <div class="nav-dropdown-menu" [class.is-open]="isDropdownOpen(item.label)" role="menu">
               <div class="dropdown-header">
                 <span class="dropdown-tape" aria-hidden="true"></span>
                 <span class="dropdown-header-title">Company & Legal</span>
@@ -139,11 +131,7 @@
             >
               <span class="mobile-link-start">
                 @if (item.icon) {
-                  <app-icon
-                    [icon]="item.icon"
-                    size="sm"
-                    class="nav-item-icon"
-                  />
+                  <app-icon [icon]="item.icon" size="sm" class="nav-item-icon" />
                 }
                 <span>{{ item.label }}</span>
               </span>

@@ -16,14 +16,14 @@ describe('WebsiteHeader navigation', () => {
       imports: [WebsiteHeader],
       providers: [
         provideRouter([
-          { path: 'home', component: EmptyPage },
+          { path: '', component: EmptyPage },
           { path: 'pricing', component: EmptyPage },
           { path: 'about-us', component: EmptyPage },
         ]),
         { provide: AuthStore, useValue: { isAuthenticated } },
       ],
     });
-    await TestBed.inject(Router).navigateByUrl('/home');
+    await TestBed.inject(Router).navigateByUrl('/');
   });
 
   it('offers continued app access on desktop and mobile for a restored session', () => {
@@ -136,12 +136,12 @@ describe('WebsiteHeader navigation', () => {
     const fixture = TestBed.createComponent(WebsiteHeader);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     const event = new MouseEvent('click', { cancelable: true });
-    fixture.componentInstance.onNavSelected({ label: 'Pricing', href: '/home#pricing' }, event);
+    fixture.componentInstance.onNavSelected({ label: 'Pricing', href: '/#pricing' }, event);
     expect(event.defaultPrevented).toBe(true);
-    expect(navigate).toHaveBeenCalledWith('/home#pricing');
+    expect(navigate).toHaveBeenCalledWith('/#pricing');
     navigate.mockClear();
     const modified = new MouseEvent('click', { ctrlKey: true, cancelable: true });
-    fixture.componentInstance.onNavSelected({ label: 'Pricing', href: '/home#pricing' }, modified);
+    fixture.componentInstance.onNavSelected({ label: 'Pricing', href: '/#pricing' }, modified);
     expect(modified.defaultPrevented).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
   });

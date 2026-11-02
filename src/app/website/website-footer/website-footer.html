@@ -25,19 +25,27 @@
             <p class="cta-subtitle">{{ ctaDescription }}</p>
           </div>
           <div class="cta-action-side">
-            <img [src]="mascotSrc" alt="" class="mascot-img" aria-hidden="true" />
+            <img
+              [src]="mascotSrc"
+              alt=""
+              class="mascot-img"
+              width="160"
+              height="160"
+              loading="lazy"
+              aria-hidden="true"
+            />
             <p class="cta-handwritten" aria-hidden="true">Good things start with a note.</p>
             <div class="cta-buttons">
-              <button type="button" class="btn-start-free" (click)="primaryActionClick.emit()">
+              <a class="btn-start-free" routerLink="/auth/signup">
                 <span>{{ primaryActionLabel }}</span
                 ><app-icon [icon]="LucideArrowRight" size="sm" />
-              </button>
-              <button type="button" class="btn-sign-in" (click)="secondaryActionClick.emit()">
+              </a>
+              <a class="btn-sign-in" routerLink="/auth/login">
                 {{ secondaryActionLabel }}
-              </button>
+              </a>
             </div>
             <div class="cta-perks">
-              <span><app-icon [icon]="LucideCheck" size="xs" />Free to get started</span
+              <span><app-icon [icon]="LucideCheck" size="xs" />Notes and checklists</span
               ><span><app-icon [icon]="LucideCheck" size="xs" />Your ideas, organized</span>
             </div>
           </div>
@@ -59,104 +67,22 @@
           [attr.aria-label]="brandName + ' home'"
           id="footer-brand-name"
         >
-          <img [src]="logoSrc" [alt]="brandName" class="footer-brand-logo-img" />
+          <img
+            [src]="logoSrc"
+            [alt]="brandName"
+            class="footer-brand-logo-img"
+            width="180"
+            height="60"
+            loading="lazy"
+          />
         </a>
 
         <p class="footer-desc">{{ description }}</p>
 
-        <!-- Social Icons: LinkedIn, X, Instagram, YouTube -->
-        <div class="footer-socials" aria-label="Social links">
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social-btn"
-            aria-label="LinkedIn"
-          >
-            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.64c-.92 0-1.66.74-1.66 1.66 0 .92.74 1.66 1.66 1.66.92 0 1.66-.74 1.66-1.66 0-.92-.74-1.66-1.66-1.66Z"
-              />
-            </svg>
-          </a>
-
-          <a
-            href="https://x.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social-btn"
-            aria-label="X (formerly Twitter)"
-          >
-            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-              />
-            </svg>
-          </a>
-
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social-btn"
-            aria-label="Instagram"
-          >
-            <svg
-              class="social-svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
-
-          <a
-            href="https://youtube.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social-btn"
-            aria-label="YouTube"
-          >
-            <svg class="social-svg" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-              />
-            </svg>
-          </a>
-        </div>
-
-        <!-- Newsletter Subscription Box -->
-        <div class="footer-newsletter">
-          <div class="newsletter-title-row">
-            <app-icon [icon]="LucideMail" size="sm" class="newsletter-icon" />
-            <span class="newsletter-title">Get product updates</span>
-          </div>
-          <p class="newsletter-sub">New features, tips, and stories. No spam.</p>
-
-          <form class="newsletter-form" (submit)="onSubscribe($event)">
-            <input
-              type="email"
-              aria-label="Email address for product updates"
-              autocomplete="email"
-              name="newsletterEmail"
-              class="newsletter-input"
-              placeholder="Enter your email"
-              [value]="newsletterEmail()"
-              (input)="newsletterEmail.set($any($event.target).value)"
-              required
-            />
-            <button type="submit" class="newsletter-submit">Subscribe</button>
-          </form>
-          @if (subscribeSuccess()) {
-            <p class="newsletter-success" role="status">Thanks for subscribing!</p>
-          }
-        </div>
+        <p>
+          <a routerLink="/contact-us">Contact Aaditya Softwares</a> for support and product
+          feedback.
+        </p>
       </div>
 
       <!-- Navigation Columns -->
@@ -216,7 +142,7 @@
 
       <p class="footer-made-with">
         <app-icon [icon]="LucideHeart" size="xs" class="heart-icon" />
-        <span>Built with love for ideas, plans and people.</span>
+        <span>A Sticky Ji product by Aaditya Softwares.</span>
       </p>
 
       <a class="back-to-top-btn" href="#top" (click)="scrollToTop($event)">

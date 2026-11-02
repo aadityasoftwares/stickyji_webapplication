@@ -37,12 +37,7 @@ export interface SandboxNote {
 @Component({
   standalone: true,
   selector: 'app-how-it-works-page',
-  imports: [
-    RouterLink,
-    WebsiteHeader,
-    WebsiteFooter,
-    AppIcon,
-  ],
+  imports: [RouterLink, WebsiteHeader, WebsiteFooter, AppIcon],
   templateUrl: './how-it-works.html',
   styleUrl: './how-it-works.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -108,11 +103,11 @@ export class HowItWorksPage {
       number: '01',
       eyebrow: 'STEP 01 · NO FRICTION',
       title: 'Capture at the speed of thought',
-      tagline: 'When inspiration strikes, you have about 30 seconds before it evaporates.',
-      desc: 'In Sticky Ji, capturing a thought requires one click or a single keyboard shortcut. There are no mandatory tags, no required parent pages, and no complicated dropdowns. Just type your thought on a fresh paper note and let it stick.',
+      tagline: 'Give each idea a place before moving to the next task.',
+      desc: 'Choose a workspace and folder, open a new note, and write a title and description. Add a checklist when an idea needs several steps.',
       bullets: [
-        'Single-click instant note creation anywhere on the board',
-        'Auto-saving in real-time so nothing is lost',
+        'Create notes within your chosen workspace and folder',
+        'Save your note to keep it in your workspace',
         'Markdown formatting support for bullet points, bold text, and checklists',
       ],
       icon: LucideLightbulb,
@@ -123,11 +118,11 @@ export class HowItWorksPage {
       number: '02',
       eyebrow: 'STEP 02 · VISUAL PSYCHOLOGY',
       title: 'Group & color-code by energy',
-      tagline: 'Human brains process color 60,000 times faster than text.',
+      tagline: 'Use consistent colors to recognize related notes.',
       desc: 'Use our 6 curated pastel hues to categorize your board without reading a single label. Yellow for quick everyday actions, Pink for time-sensitive priorities, Blue for reference and research, Green for financial goals, and Purple for creative brainstorms.',
       bullets: [
-        'Curated soft pastel tones that prevent digital visual fatigue',
-        'Filter boards instantly with a single color-picker tap',
+        'Pastel note colors for organizing different topics',
+        'Choose colors when creating or editing notes',
         'Visual priority ribbons and dog-eared status indicators',
       ],
       icon: LucidePalette,
@@ -142,7 +137,7 @@ export class HowItWorksPage {
       desc: 'Organize notes across columns that fit your personal way of working. Move notes from Idea → To Do → In Progress → Review → Done with smooth, satisfying drag-and-drop feedback that feels like moving cards across a real pinboard.',
       bullets: [
         'Custom column names and color accents for any project',
-        'Physical inertia and micro-rotations during drag and drop',
+        'Move notes between columns as work progresses',
         'Multi-board switching for work, university, side hustles, and life',
       ],
       icon: LucideColumns3,
@@ -154,11 +149,11 @@ export class HowItWorksPage {
       eyebrow: 'STEP 04 · PROTECT YOUR HEADSPACE',
       title: 'Isolate what matters in the "Today" Sanctuary',
       tagline: 'Staring at 100 tasks causes paralysis. Staring at 3 creates focus.',
-      desc: 'Every morning, open Sticky Ji and drag 3 to 5 notes into your dedicated "Today" board. The rest of your backlogs and project boards remain peacefully tucked away. You work from a clean, single-screen workspace with zero clutter.',
+      desc: 'Open Today to review daily tasks and due dates. Choose a manageable set of priorities, then update notes and checklists as you work.',
       bullets: [
         'Dedicated Today view completely isolated from overwhelming backlogs',
         'Gentle overdue reminders that nudge without blaring red panic alarms',
-        'Morning triage prompt that takes less than 2 minutes to plan your day',
+        'Review your priorities and due dates each morning',
       ],
       icon: LucideCalendarCheck2,
       color: 'green' as SandboxColor,
@@ -169,11 +164,11 @@ export class HowItWorksPage {
       eyebrow: 'STEP 05 · MINDFUL COMPLETION',
       title: 'Peel, celebrate, and archive cleanly',
       tagline: 'Ending the day with a clean desk feels genuinely good.',
-      desc: 'When you check off a sticky note, enjoy the tactile satisfaction of completing it. Completed notes can be peeled off or archived to your board history, keeping your workspace crisp, uncluttered, and ready for tomorrow.',
+      desc: 'Mark finished notes complete and review the completed section of your workspace. Update unfinished work so the next step is clear when you return.',
       bullets: [
         'Pleasing check animations with strike-through progress bars',
-        'Archive history log keeps a record of all your small wins',
-        'End-of-day summary note for a peaceful mental sign-off',
+        'Completed notes keep finished work separate from active tasks',
+        'Create a summary note if you want to record what you learned',
       ],
       icon: LucideTrophy,
       color: 'purple' as SandboxColor,
@@ -195,7 +190,7 @@ export class HowItWorksPage {
   addSandboxNote(): void {
     const title = this.newNoteTitle().trim() || 'Untitled Note';
     const body = this.newNoteBody().trim() || 'Thoughts in motion...';
-    const angle = (Math.random() * 6 - 3);
+    const angle = Math.random() * 6 - 3;
 
     const newNote: SandboxNote = {
       id: 'custom-' + Date.now(),

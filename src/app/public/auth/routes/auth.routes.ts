@@ -13,8 +13,7 @@ export const AUTH_ROUTES: Routes = [
     data: {
       description:
         'Sign in to your Sticky Ji workspace. Access your digital sticky notes, visual boards, daily focus tasks, and collaborative workspaces.',
-      keywords:
-        'sticky ji login, sign in sticky ji, digital sticky notes, visual workspace, online sticky notes login, kanban board login, task planner',
+      robots: 'noindex, follow',
       canonicalUrl: '/auth/login',
       ogTitle: 'Sign In to Sticky Ji | Digital Sticky Notes & Visual Workspace',
       ogDescription:
@@ -28,8 +27,7 @@ export const AUTH_ROUTES: Routes = [
     data: {
       description:
         'Create your free Sticky Ji account today. Organize ideas with colorful digital sticky notes, smart folders, visual kanban boards, and team collaboration.',
-      keywords:
-        'sticky ji sign up, create sticky ji account, free digital sticky notes, visual productivity board, online note taking register',
+      robots: 'noindex, follow',
       canonicalUrl: '/auth/signup',
       ogTitle: 'Sign Up Free | Sticky Ji — Digital Sticky Notes & Visual Productivity Workspace',
       ogDescription:
@@ -43,7 +41,7 @@ export const AUTH_ROUTES: Routes = [
     data: {
       description:
         'Forgot your Sticky Ji password? Enter your email to receive secure password recovery instructions.',
-      keywords: 'sticky ji forgot password, recover sticky ji account, reset workspace password',
+      robots: 'noindex, follow',
       canonicalUrl: '/auth/forgot-password',
     },
   },
@@ -54,7 +52,7 @@ export const AUTH_ROUTES: Routes = [
     data: {
       description:
         'Set a new secure password for your Sticky Ji account and return to your calm visual note workspace.',
-      keywords: 'sticky ji reset password, update password sticky ji',
+      robots: 'noindex, follow',
       canonicalUrl: '/auth/reset-password',
     },
   },

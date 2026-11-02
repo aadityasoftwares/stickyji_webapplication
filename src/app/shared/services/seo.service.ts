@@ -1,123 +1,71 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { environment } from '../../../Environments/environments';
+import { HOME_SCHEMA, PUBLIC_PAGES, SITE_URL, SeoConfig } from '../seo/seo-config';
 
-export interface SeoConfig {
-  title?: string;
-  description?: string;
-  keywords?: string | string[];
-  canonicalUrl?: string;
-  robots?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  ogType?: string;
-  ogUrl?: string;
-  twitterCard?: 'summary' | 'summary_large_image' | 'app' | 'player';
-  twitterTitle?: string;
-  twitterDescription?: string;
-  twitterImage?: string;
-  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>> | null;
-}
-
-@Injectable({
+export type { SeoConfig } from '../seo/seo-config';
+export const SEO_INDEXING_ENABLED = new InjectionToken<boolean>('SEO_INDEXING_ENABLED', {
   providedIn: 'root',
-})
+  factory: () => environment.indexingEnabled,
+});
+
+@Injectable({ providedIn: 'root' })
 export class SeoService {
   private readonly titleService = inject(Title);
   private readonly metaService = inject(Meta);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly document = inject(DOCUMENT);
-
-  readonly defaultTitle =
-    'Sticky Ji — Visual Sticky Notes, Mindful Task Planner & Calmer Workspace';
-  readonly defaultDescription =
-    'Sticky Ji brings your notes, tasks, and everyday plans together on a calm, visual canvas with colorful sticky notes, smart folders, and a focused daily workflow.';
-  readonly defaultKeywords =
-    'sticky notes, visual notes, digital sticky notes, task manager, kanban board, personal productivity, thought organizer, workspace planner';
-  readonly defaultImage = '/StickyJiLogo.png';
-  readonly defaultRobots = 'index, follow';
-
+  private readonly indexingEnabled = inject(SEO_INDEXING_ENABLED);
   private routeListenerInitialized = false;
 
-  /**
-   * Initializes automatic route listening to apply SEO data specified in Route definition data.
-   */
   initRouteListener(): void {
     if (this.routeListenerInitialized) return;
     this.routeListenerInitialized = true;
-
-    this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe(() => {
-        let currentRoute: ActivatedRoute | null = this.activatedRoute.root;
-        while (currentRoute?.firstChild) {
-          currentRoute = currentRoute.firstChild;
-        }
-
-        const snapshot = currentRoute?.snapshot;
-        const routeData = snapshot?.data ?? {};
-        const routeTitle = snapshot?.title ?? routeData['title'];
-
-        this.update({
-          title: routeTitle,
-          description: routeData['description'],
-          keywords: routeData['keywords'],
-          canonicalUrl: routeData['canonicalUrl'] || this.router.url.split('?')[0],
-          robots: routeData['robots'],
-          ogTitle: routeData['ogTitle'] || routeTitle,
-          ogDescription: routeData['ogDescription'] || routeData['description'],
-          ogImage: routeData['ogImage'],
-          ogType: routeData['ogType'],
-          jsonLd: routeData['jsonLd'],
-        });
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      let route = this.activatedRoute.root;
+      while (route.firstChild) route = route.firstChild;
+      const path = this.path(this.router.url);
+      const key = path.slice(1);
+      const page = Object.hasOwn(PUBLIC_PAGES, key) ? PUBLIC_PAGES[key] : undefined;
+      const data = route.snapshot.data;
+      this.update({
+        title: page?.title ?? route.snapshot.title ?? 'Sticky Ji Workspace',
+        description:
+          page?.description ?? data['description'] ?? 'Sign in to access your Sticky Ji workspace.',
+        canonicalUrl: path,
+        robots: page ? 'index, follow, max-image-preview:large' : 'noindex, follow',
+        jsonLd: path === '/' ? HOME_SCHEMA : null,
       });
+    });
   }
 
-  /**
-   * Updates multiple SEO tags and structured data in one call.
-   */
   update(config: SeoConfig = {}): void {
-    const title = config.title?.trim() || this.defaultTitle;
+    const title = config.title || PUBLIC_PAGES[''].title;
+    const description = config.description || PUBLIC_PAGES[''].description;
+    this.document.documentElement.lang = 'en';
     this.setTitle(title);
-
-    const description = config.description?.trim() || this.defaultDescription;
     this.setDescription(description);
-
-    const keywords = config.keywords ?? this.defaultKeywords;
-    this.setKeywords(keywords);
-
-    const robots = config.robots || this.defaultRobots;
-    this.setRobots(robots);
-
-    const canonical =
-      config.canonicalUrl || (this.document.location ? this.document.location.pathname : '/');
-    this.setCanonicalUrl(canonical);
-
-    // Open Graph
-    this.setOpenGraph({
-      title: config.ogTitle || title,
-      description: config.ogDescription || description,
-      image: config.ogImage || this.defaultImage,
-      type: config.ogType || 'website',
-      url: config.ogUrl || this.getFullUrl(canonical),
+    this.metaService.removeTag('name="keywords"');
+    this.setRobots(config.robots || 'noindex, follow');
+    this.setCanonicalUrl(config.canonicalUrl || this.router.url || '/');
+    this.metaService.updateTag({ property: 'og:title', content: config.ogTitle || title });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: config.ogDescription || description,
     });
-
-    // Twitter
-    this.setTwitter({
-      card: config.twitterCard || 'summary_large_image',
-      title: config.twitterTitle || config.ogTitle || title,
-      description: config.twitterDescription || config.ogDescription || description,
-      image: config.twitterImage || config.ogImage || this.defaultImage,
-    });
-
-    // JSON-LD structured data
-    if (config.jsonLd !== undefined) {
-      this.setJsonLd(config.jsonLd);
-    }
+    this.metaService.updateTag({ property: 'og:type', content: config.ogType || 'website' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'Sticky Ji' });
+    const image = SITE_URL + this.path(config.ogImage || '/StickyJiLogo.png');
+    this.metaService.updateTag({ property: 'og:image', content: image });
+    this.metaService.updateTag({ property: 'og:image:alt', content: 'Sticky Ji logo' });
+    this.metaService.updateTag({ name: 'twitter:card', content: 'summary' });
+    this.metaService.updateTag({ name: 'twitter:image', content: image });
+    this.metaService.updateTag({ name: 'twitter:image:alt', content: 'Sticky Ji logo' });
+    this.setJsonLd(config.jsonLd ?? null);
   }
 
   setTitle(title: string): void {
@@ -132,86 +80,41 @@ export class SeoService {
     this.metaService.updateTag({ name: 'twitter:description', content: description });
   }
 
-  setKeywords(keywords: string | string[]): void {
-    const content = Array.isArray(keywords) ? keywords.join(', ') : keywords;
-    this.metaService.updateTag({ name: 'keywords', content });
-  }
-
   setRobots(robots: string): void {
-    this.metaService.updateTag({ name: 'robots', content: robots });
+    this.metaService.updateTag({
+      name: 'robots',
+      content: this.indexingEnabled ? robots : 'noindex, nofollow',
+    });
   }
 
   setCanonicalUrl(url: string): void {
-    const fullUrl = this.getFullUrl(url);
-    let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
-    if (!link) {
-      link = this.document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      this.document.head.appendChild(link);
-    }
-    link.setAttribute('href', fullUrl);
-    this.metaService.updateTag({ property: 'og:url', content: fullUrl });
+    const canonical = SITE_URL + this.path(url);
+    this.document.querySelectorAll('link[rel="canonical"]').forEach((tag) => tag.remove());
+    const link = this.document.createElement('link');
+    link.rel = 'canonical';
+    link.href = canonical;
+    this.document.head.appendChild(link);
+    this.metaService.updateTag({ property: 'og:url', content: canonical });
   }
 
-  setOpenGraph(data: {
-    title?: string;
-    description?: string;
-    image?: string;
-    type?: string;
-    url?: string;
-  }): void {
-    if (data.title) this.metaService.updateTag({ property: 'og:title', content: data.title });
-    if (data.description)
-      this.metaService.updateTag({ property: 'og:description', content: data.description });
-    if (data.image) {
-      const fullImg = this.getFullUrl(data.image);
-      this.metaService.updateTag({ property: 'og:image', content: fullImg });
-    }
-    if (data.type) this.metaService.updateTag({ property: 'og:type', content: data.type });
-    if (data.url) this.metaService.updateTag({ property: 'og:url', content: data.url });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'Sticky Ji' });
+  setJsonLd(schema: SeoConfig['jsonLd']): void {
+    this.document
+      .querySelectorAll('script[type="application/ld+json"]')
+      .forEach((tag) => tag.remove());
+    if (!schema) return;
+    const script = this.document.createElement('script');
+    script.id = 'stickyji-jsonld-schema';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema).replace(/</g, '\\u003c');
+    this.document.head.appendChild(script);
   }
 
-  setTwitter(data: { card?: string; title?: string; description?: string; image?: string }): void {
-    if (data.card) this.metaService.updateTag({ name: 'twitter:card', content: data.card });
-    if (data.title) this.metaService.updateTag({ name: 'twitter:title', content: data.title });
-    if (data.description)
-      this.metaService.updateTag({ name: 'twitter:description', content: data.description });
-    if (data.image) {
-      const fullImg = this.getFullUrl(data.image);
-      this.metaService.updateTag({ name: 'twitter:image', content: fullImg });
-    }
-  }
-
-  setJsonLd(schema: Record<string, unknown> | Array<Record<string, unknown>> | null): void {
-    const scriptId = 'stickyji-jsonld-schema';
-    const existing = this.document.getElementById(scriptId);
-
-    if (!schema) {
-      existing?.remove();
-      return;
-    }
-
-    let script = existing as HTMLScriptElement | null;
-    if (!script) {
-      script = this.document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      this.document.head.appendChild(script);
-    }
-
-    script.textContent = JSON.stringify(schema, null, 2);
-  }
-
-  private getFullUrl(pathOrUrl: string): string {
-    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
-      return pathOrUrl;
-    }
-    const origin =
-      this.document.location?.origin && this.document.location.origin !== 'null'
-        ? this.document.location.origin
-        : 'https://stickyji.app';
-    const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
-    return `${origin}${cleanPath}`;
+  private path(value: string): string {
+    const pathname = new URL(value, SITE_URL + '/').pathname
+      .split('/')
+      .map((segment) => segment.split(';')[0])
+      .join('/')
+      .replace(/\/+$/, '');
+    return !pathname || pathname === '/home' ? '/' : pathname;
   }
 }

@@ -9,8 +9,9 @@ RUN npm ci
 
 COPY . .
 
-# Build with staging environment
-RUN npm run build -- --configuration=staging
+# Preserve the develop workflow; select production explicitly.
+ARG BUILD_CONFIGURATION=staging
+RUN npm run build -- --configuration=${BUILD_CONFIGURATION}
 
 
 # Stage 2: Serve Angular using Nginx

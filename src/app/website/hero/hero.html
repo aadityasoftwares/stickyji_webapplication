@@ -36,29 +36,28 @@
         >
       </div>
       <h1 id="hero-title" class="hero-title">
-        Big ideas. Clear next steps.
+        Online sticky notes.
         <span class="hero-title-note"
-          >One workspace that moves with you.
+          >Organize your ideas and tasks.
           <svg class="title-underline" viewBox="0 0 310 18" aria-hidden="true">
             <path d="M4 13Q130-5 302 9" />
           </svg>
         </span>
       </h1>
       <p class="hero-description">
-        Plan your day on a board, organise work into workspaces and folders, and keep every idea in
-        sight — <br class="desktop-break" />
-        without losing the things that make it yours.
+        Sticky Ji is an online sticky notes app for capturing ideas, organizing everyday tasks, and
+        keeping checklists and important information together in one workspace.
       </p>
       <div class="hero-actions">
-        <button class="hero-primary" type="button" (click)="startFree.emit()">
-          Get started for free <app-icon [icon]="LucideArrowRight" size="md" />
-        </button>
-        <a class="preview-link" href="/home#features"
+        <a class="hero-primary" routerLink="/auth/signup">
+          Create your account <app-icon [icon]="LucideArrowRight" size="md" />
+        </a>
+        <a class="preview-link" href="/#features"
           >Explore the workspace <app-icon [icon]="LucideArrowRight" size="sm"
         /></a>
       </div>
       <div class="hero-assurance">
-        <span><app-icon [icon]="LucideCheck" size="sm" /> Free to get started</span
+        <span><app-icon [icon]="LucideCheck" size="sm" /> Notes, checklists and boards</span
         ><i aria-hidden="true">·</i
         ><span><app-icon [icon]="LucideCheck" size="sm" /> Your ideas, organized</span>
       </div>
@@ -78,7 +77,7 @@
     >
       <div class="workspace-window">
         <aside class="preview-sidebar" aria-hidden="true">
-          <img src="StickyJiLogo.png" alt="" class="preview-logo" />
+          <img src="StickyJiLogo.png" alt="" class="preview-logo" width="40" height="40" />
           <span class="preview-collapse"><app-icon [icon]="LucidePanelLeftClose" size="sm" /></span>
           @for (group of previewNav; track group.label) {
             <div class="preview-nav-group">

@@ -1,11 +1,11 @@
 import { PlanCardDTO, PublicPlan } from '../subscription/services/plans.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { Hero } from '../hero/hero';
 import { WebsiteHeader } from '../website-header/website-header';
 import { ThoughtFlow } from '../thought-flow/thought-flow';
 import { UseCases } from '../use-cases/use-cases';
-import { Reviews } from '../reviews/reviews';
+
 import { Subscription } from '../subscription/subscription';
 import { WebsiteFooter } from '../website-footer/website-footer';
 import { ScrollReveal } from '../scroll-reveal';
@@ -16,7 +16,7 @@ import { ScrollReveal } from '../scroll-reveal';
     WebsiteHeader,
     ThoughtFlow,
     UseCases,
-    Reviews,
+    RouterLink,
     Subscription,
     WebsiteFooter,
     ScrollReveal,
@@ -28,7 +28,7 @@ import { ScrollReveal } from '../scroll-reveal';
 export class Home {
   private readonly router = inject(Router);
 
-  choosePlan(plan: any): void {
+  choosePlan(plan: Pick<PlanCardDTO, 'code'>): void {
     void this.router.navigate(['/auth/signup'], { queryParams: { plan: plan.code } });
   }
 

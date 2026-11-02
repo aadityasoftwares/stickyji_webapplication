@@ -40,8 +40,9 @@
       </h1>
 
       <p class="how-intro">
-        Most productivity apps demand that you adapt to their complex database machinery.
-        Sticky Ji works in reverse: it mimics the natural way human beings brainstorm, organize, and get things done on paper.
+        Most productivity apps demand that you adapt to their complex database machinery. Sticky Ji
+        works in reverse: it mimics the natural way human beings brainstorm, organize, and get
+        things done on paper.
       </p>
 
       <div class="how-hero-actions">
@@ -63,7 +64,10 @@
       <header class="journey-header">
         <span class="section-eyebrow">STEP-BY-STEP BREAKDOWN</span>
         <h2 id="journey-title">A workflow that breathes with your day</h2>
-        <p>Click any step to see how each phase is engineered for zero friction and maximum peace of mind.</p>
+        <p>
+          Click any step to see how each phase is engineered for zero friction and maximum peace of
+          mind.
+        </p>
 
         <!-- Stepper Navigation Pills -->
         <nav class="stepper-nav" aria-label="Workflow steps">
@@ -75,7 +79,9 @@
               (click)="selectStep(step.id)"
             >
               <span class="step-num">{{ step.number }}</span>
-              <span class="step-label">{{ step.title.split(' ')[0] }} {{ step.title.split(' ')[1] }}</span>
+              <span class="step-label"
+                >{{ step.title.split(' ')[0] }} {{ step.title.split(' ')[1] }}</span
+              >
             </button>
           }
         </nav>
@@ -110,10 +116,7 @@
 
         <div class="step-visual-side">
           <div class="visual-board-canvas">
-            <div
-              class="visual-sticky-note"
-              [class]="'note-' + currentStepData.color"
-            >
+            <div class="visual-sticky-note" [class]="'note-' + currentStepData.color">
               <span class="tape-piece" aria-hidden="true"></span>
               <span class="note-step-counter">0{{ currentStepData.number }} / 05</span>
               <h4 class="visual-note-heading">{{ currentStepData.title }}</h4>
@@ -241,7 +244,7 @@
       <header class="section-heading">
         <span class="section-eyebrow">MINDFUL HABITS</span>
         <h2 id="habits-title">Three daily practices for calmer thinking</h2>
-        <p>Simple rituals recommended by the Sticky Ji community to end cognitive exhaustion.</p>
+        <p>Try these simple planning routines and adapt them to your own day.</p>
       </header>
 
       <div class="habits-grid">
@@ -249,8 +252,9 @@
           <span class="habit-num">01</span>
           <h3>The "Rule of 3 Notes"</h3>
           <p>
-            Never put more than 3 high-impact notes in your Today column at once. If everything is urgent, nothing is.
-            Finish three notes, then take a breather before pulling from your project boards.
+            Never put more than 3 high-impact notes in your Today column at once. If everything is
+            urgent, nothing is. Finish three notes, then take a breather before pulling from your
+            project boards.
           </p>
         </div>
 
@@ -258,8 +262,9 @@
           <span class="habit-num">02</span>
           <h3>The 5-Minute Evening Wind-Down</h3>
           <p>
-            At the end of your day, spend 5 minutes reviewing your board. Archive what was done, snooze what can wait,
-            and shut your laptop knowing tomorrow has a clean, organized starting place.
+            At the end of your day, spend 5 minutes reviewing your board. Mark finished notes
+            complete, update due dates for remaining work, and shut your laptop knowing tomorrow has
+            a clean, organized starting place.
           </p>
         </div>
 
@@ -267,8 +272,9 @@
           <span class="habit-num">03</span>
           <h3>The Brain-Dump Parking Lot</h3>
           <p>
-            When a distracting random thought arrives mid-deep work, don't context-switch. Create a quick pink note in the
-            "Parking Lot" folder. You protect your flow while preserving the idea.
+            When a distracting random thought arrives mid-deep work, don't context-switch. Create a
+            quick pink note in the "Parking Lot" folder. You protect your flow while preserving the
+            idea.
           </p>
         </div>
       </div>

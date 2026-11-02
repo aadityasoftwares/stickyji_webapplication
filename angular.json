@@ -26,7 +26,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "ignore": ["staging/**"]
               }
             ],
             "styles": [
@@ -34,17 +35,35 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.scss"
             ],
-            "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
+            "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"],
+            "server": "src/main.server.ts",
+            "outputMode": "static"
           },
           "configurations": {
             "staging": {
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              },
               "outputHashing": "all",
               "sourceMap": false,
               "fileReplacements": [
                 {
                   "replace": "src/Environments/environments.ts",
                   "with": "src/Environments/environments.staging.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": ["robots.txt", "sitemap.xml", "staging/**"]
+                },
+                {
+                  "glob": "*",
+                  "input": "public/staging",
+                  "output": "/"
                 }
               ]
             },
@@ -61,7 +80,18 @@
                   "maximumError": "70kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/Environments/environments.ts",
+                  "with": "src/Environments/environments.production.ts"
+                }
+              ],
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              }
             },
             "development": {
               "optimization": false,

@@ -2,12 +2,42 @@
   (signInClick)="navigateToAuth('login')"
   (primaryActionClick)="navigateToAuth('signup')"
 ></app-website-header>
-<app-hero (startFree)="navigateToAuth('signup')"></app-hero>
-<app-thought-flow appScrollReveal (exploreClick)="navigateToAuth('signup')"></app-thought-flow>
-<app-use-cases appScrollReveal (startClick)="navigateToAuth('signup')"></app-use-cases>
-<app-reviews appScrollReveal></app-reviews>
-<!-- <app-collaboration></app-collaboration> -->
-<app-subscription appScrollReveal (planSelected)="choosePlan($event)"></app-subscription>
+<main>
+  <app-hero (startFree)="navigateToAuth('signup')"></app-hero>
+  <app-thought-flow appScrollReveal (exploreClick)="navigateToAuth('signup')"></app-thought-flow>
+  <app-use-cases appScrollReveal (startClick)="navigateToAuth('signup')"></app-use-cases>
+
+  <section class="home-faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Online sticky notes, explained</h2>
+    <h3>What is Sticky Ji?</h3>
+    <p>
+      Sticky Ji is a browser-based notes app by Aaditya Softwares. Capture ideas, add checklists,
+      and organize daily tasks in workspaces and folders.
+    </p>
+    <h3>Can I use it on a desktop computer?</h3>
+    <p>
+      Yes. Open Sticky Ji in your web browser. It is a web app, so you do not need to install a
+      native desktop application.
+    </p>
+    <h3>How do I get started?</h3>
+    <p>
+      <a routerLink="/auth/signup">Create an account</a>, choose a workspace, and add your first
+      note. Use a checklist for the next steps and columns to track progress.
+      <a routerLink="/how-it-works">Explore the workflow</a>.
+    </p>
+    <h3>Which plan should I choose?</h3>
+    <p>
+      Check the <a routerLink="/pricing">current plans and usage limits</a> before signing up.
+      Available plans and billing options come from the live catalogue.
+    </p>
+    <p>
+      Explore <a routerLink="/features">note features</a>,
+      <a routerLink="/use-cases">study and work examples</a>, or
+      <a routerLink="/contact-us">contact the team</a>.
+    </p>
+  </section>
+  <app-subscription appScrollReveal (planSelected)="choosePlan($event)"></app-subscription>
+</main>
 <app-website-footer
   appScrollReveal
   (primaryActionClick)="navigateToAuth('signup')"

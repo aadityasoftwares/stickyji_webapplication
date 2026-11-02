@@ -70,13 +70,7 @@ export interface BoardTemplate {
 @Component({
   standalone: true,
   selector: 'app-use-cases-page',
-  imports: [
-    RouterLink,
-    WebsiteHeader,
-    WebsiteFooter,
-    AppIcon,
-    Avatar,
-  ],
+  imports: [RouterLink, WebsiteHeader, WebsiteFooter, AppIcon],
   templateUrl: './use-cases-page.html',
   styleUrl: './use-cases-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,20 +124,41 @@ export class UseCasesPage {
         {
           name: 'Semester Backlog',
           notes: [
-            { title: 'Macroeconomics Midterm', details: 'Chapters 4–7 review', color: 'blue', tag: 'Exam Nov 12' },
-            { title: 'Literature Essay Draft', details: 'Comparative analysis (1,500 words)', color: 'purple', tag: 'Drafting' },
+            {
+              title: 'Macroeconomics Midterm',
+              details: 'Chapters 4–7 review',
+              color: 'blue',
+              tag: 'Exam Nov 12',
+            },
+            {
+              title: 'Literature Essay Draft',
+              details: 'Comparative analysis (1,500 words)',
+              color: 'purple',
+              tag: 'Drafting',
+            },
           ],
         },
         {
           name: 'This Week Priority',
           notes: [
-            { title: 'Cognitive Science Lab', details: 'Clean survey data and export CSV', color: 'yellow', tag: 'Due Thursday', pinned: true },
+            {
+              title: 'Cognitive Science Lab',
+              details: 'Clean survey data and export CSV',
+              color: 'yellow',
+              tag: 'Due Thursday',
+              pinned: true,
+            },
           ],
         },
         {
           name: 'Today Focus',
           notes: [
-            { title: 'Read Chapter 5 Summary', details: '30 mins active recall notes', color: 'green', tag: 'High Impact' },
+            {
+              title: 'Read Chapter 5 Summary',
+              details: '30 mins active recall notes',
+              color: 'green',
+              tag: 'High Impact',
+            },
           ],
         },
       ],
@@ -180,25 +195,47 @@ export class UseCasesPage {
         {
           name: 'Sprint Backlog',
           notes: [
-            { title: 'Auth Token Refresh Bug', details: 'Reproduce on iOS Safari 17.4', color: 'pink', tag: 'P1 Critical', pinned: true },
-            { title: 'Pastel Dark Theme Wash', details: 'CSS variable tokens update', color: 'purple', tag: 'Design Polish' },
+            {
+              title: 'Auth Token Refresh Bug',
+              details: 'Reproduce on iOS Safari 17.4',
+              color: 'pink',
+              tag: 'P1 Critical',
+              pinned: true,
+            },
+            {
+              title: 'Pastel Dark Theme Wash',
+              details: 'CSS variable tokens update',
+              color: 'purple',
+              tag: 'Design Polish',
+            },
           ],
         },
         {
           name: 'Active In Review',
           notes: [
-            { title: 'Stripe Webhook Handler', details: 'Pending staging tests', color: 'blue', tag: 'PR #142' },
+            {
+              title: 'Stripe Webhook Handler',
+              details: 'Pending staging tests',
+              color: 'blue',
+              tag: 'PR #142',
+            },
           ],
         },
         {
           name: 'Ready to Ship',
           notes: [
-            { title: 'Export to PDF Engine', details: 'Validated across all boards', color: 'green', tag: 'Approved' },
+            {
+              title: 'Export to PDF Engine',
+              details: 'Validated across all boards',
+              color: 'green',
+              tag: 'Approved',
+            },
           ],
         },
       ],
       testimonial: {
-        quote: 'It shows me the work, not the machinery around it. We cut our standup time in half.',
+        quote:
+          'It shows me the work, not the machinery around it. We cut our standup time in half.',
         author: 'Arjun Mehta',
         role: 'Head of Product',
         avatarInitials: 'AM',
@@ -230,25 +267,47 @@ export class UseCasesPage {
         {
           name: 'Idea Seeds',
           notes: [
-            { title: 'Why Attention is Sacred', details: 'Essay hook on digital solitude', color: 'yellow', tag: 'Substack Draft' },
-            { title: 'Minimalist Desk Setup', details: 'Short video script outline', color: 'pink', tag: 'YouTube' },
+            {
+              title: 'Why Attention is Sacred',
+              details: 'Essay hook on digital solitude',
+              color: 'yellow',
+              tag: 'Substack Draft',
+            },
+            {
+              title: 'Minimalist Desk Setup',
+              details: 'Short video script outline',
+              color: 'pink',
+              tag: 'YouTube',
+            },
           ],
         },
         {
           name: 'In Drafting',
           notes: [
-            { title: 'Chapter 4: The Quiet Room', details: 'Rewrite the opening dialogue', color: 'purple', tag: 'Fiction Novel', pinned: true },
+            {
+              title: 'Chapter 4: The Quiet Room',
+              details: 'Rewrite the opening dialogue',
+              color: 'purple',
+              tag: 'Fiction Novel',
+              pinned: true,
+            },
           ],
         },
         {
           name: 'Scheduled',
           notes: [
-            { title: 'Weekly Newsletter #52', details: 'Assets finalized & approved', color: 'green', tag: 'Sends Friday' },
+            {
+              title: 'Weekly Newsletter #52',
+              details: 'Assets finalized & approved',
+              color: 'green',
+              tag: 'Sends Friday',
+            },
           ],
         },
       ],
       testimonial: {
-        quote: 'My book outlines finally feel alive. Moving sticky notes around unlocked my drafting speed.',
+        quote:
+          'My book outlines finally feel alive. Moving sticky notes around unlocked my drafting speed.',
         author: 'Sarah Linden',
         role: 'Author & Essayist',
         avatarInitials: 'SL',
@@ -263,7 +322,7 @@ export class UseCasesPage {
       badgeColor: 'purple',
       icon: LucideUsers,
       headline: 'Work together without endless coordination pings',
-      tagline: 'Shared workspaces with real-time sync, member roles, and total clarity.',
+      tagline: 'Shared workspaces with member roles, note assignments, and clear next steps.',
       story:
         'Small agencies and remote studios don’t need bloated enterprise software with 100 confusing sub-menus. Sticky Ji gives your team a shared room where everyone knows the plan, client deliverables stay visible, and accountability is effortless.',
       painPoints: [
@@ -280,25 +339,47 @@ export class UseCasesPage {
         {
           name: 'Client Requests',
           notes: [
-            { title: 'Brand Identity Refresh', details: 'Deliver primary logo & typography brief', color: 'yellow', tag: 'Client: Acme' },
-            { title: 'Q1 Marketing Deck', details: '10 slide investor overview', color: 'blue', tag: 'Client: Nova' },
+            {
+              title: 'Brand Identity Refresh',
+              details: 'Deliver primary logo & typography brief',
+              color: 'yellow',
+              tag: 'Client: Acme',
+            },
+            {
+              title: 'Q1 Marketing Deck',
+              details: '10 slide investor overview',
+              color: 'blue',
+              tag: 'Client: Nova',
+            },
           ],
         },
         {
           name: 'In Production',
           notes: [
-            { title: 'Figma Design System', details: 'Buttons, tokens, and dark theme variants', color: 'purple', tag: 'Assigned: Elena', pinned: true },
+            {
+              title: 'Figma Design System',
+              details: 'Buttons, tokens, and dark theme variants',
+              color: 'purple',
+              tag: 'Assigned: Elena',
+              pinned: true,
+            },
           ],
         },
         {
           name: 'Client Approved',
           notes: [
-            { title: 'Webflow Landing Page', details: 'Domain mapped & live test passed', color: 'green', tag: 'Shipped' },
+            {
+              title: 'Webflow Landing Page',
+              details: 'Domain mapped & live test passed',
+              color: 'green',
+              tag: 'Shipped',
+            },
           ],
         },
       ],
       testimonial: {
-        quote: 'Our agency ditched three separate tools for Sticky Ji. Our clients actually enjoy checking our board.',
+        quote:
+          'Our agency ditched three separate tools for Sticky Ji. Our clients actually enjoy checking our board.',
         author: 'Marcus Vance',
         role: 'Studio Founder',
         avatarInitials: 'MV',
@@ -330,25 +411,47 @@ export class UseCasesPage {
         {
           name: 'Home & Life',
           notes: [
-            { title: 'Book Annual Vet Checkup', details: 'Call Dr. Miller for Milo', color: 'yellow', tag: 'Family' },
-            { title: 'Balcony Garden Herbs', details: 'Potting soil & basil seeds', color: 'green', tag: 'Weekend Project' },
+            {
+              title: 'Book Annual Vet Checkup',
+              details: 'Call Dr. Miller for Milo',
+              color: 'yellow',
+              tag: 'Family',
+            },
+            {
+              title: 'Balcony Garden Herbs',
+              details: 'Potting soil & basil seeds',
+              color: 'green',
+              tag: 'Weekend Project',
+            },
           ],
         },
         {
           name: 'This Week',
           notes: [
-            { title: 'Sunday Meal Prep', details: 'Quinoa bowls, grilled veggies, lentil soup', color: 'pink', tag: 'Health', pinned: true },
+            {
+              title: 'Sunday Meal Prep',
+              details: 'Quinoa bowls, grilled veggies, lentil soup',
+              color: 'pink',
+              tag: 'Health',
+              pinned: true,
+            },
           ],
         },
         {
           name: 'Books to Read',
           notes: [
-            { title: 'Four Thousand Weeks', details: 'By Oliver Burkeman', color: 'blue', tag: 'Mindfulness' },
+            {
+              title: 'Four Thousand Weeks',
+              details: 'By Oliver Burkeman',
+              color: 'blue',
+              tag: 'Mindfulness',
+            },
           ],
         },
       ],
       testimonial: {
-        quote: 'It cleared the constant low-level buzz in my head. I feel completely on top of our household.',
+        quote:
+          'It cleared the constant low-level buzz in my head. I feel completely on top of our household.',
         author: 'Zoe Cooper',
         role: 'Community Lead & Mom of two',
         avatarInitials: 'ZC',
@@ -404,7 +507,8 @@ export class UseCasesPage {
       title: 'Home Renovation & Moving',
       category: 'Personal',
       color: 'yellow',
-      description: 'Track contractor quotes, paint swatches, furniture orders, and moving checklists.',
+      description:
+        'Track contractor quotes, paint swatches, furniture orders, and moving checklists.',
       columnsCount: 4,
       sampleItems: ['Room Ideas', 'Quotes & Budget', 'In Progress', 'Finished'],
     },

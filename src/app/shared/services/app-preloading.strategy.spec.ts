@@ -22,11 +22,11 @@ describe('Initial page performance', () => {
     const status = TestBed.inject(ApplicationInitStatus);
     await status.donePromise;
     expect(status.done).toBe(true);
-    expect(auth.initializeSession).toHaveBeenCalledOnce();
+    expect(auth.initializeSession).not.toHaveBeenCalled();
     pendingRefresh.complete();
   });
 
-  it('preloads public navigation, skips showcase, and waits for login before private preloading', () => {
+  it('defers guest preloading and skips showcase even after login', () => {
     let authenticated = false;
     TestBed.configureTestingModule({
       providers: [{ provide: AuthStore, useValue: { isAuthenticated: () => authenticated } }],
@@ -34,12 +34,12 @@ describe('Initial page performance', () => {
     const strategy = TestBed.inject(AppPreloadingStrategy);
     const load = vi.fn(() => EMPTY);
     strategy.preload({ path: 'auth' }, load).subscribe();
-    expect(load).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledTimes(0);
     strategy.preload({ path: 'showcase' }, load).subscribe();
     strategy.preload({ path: 'app' }, load).subscribe();
-    expect(load).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledTimes(0);
     authenticated = true;
     strategy.preload({ path: 'app' }, load).subscribe();
-    expect(load).toHaveBeenCalledTimes(2);
+    expect(load).toHaveBeenCalledTimes(1);
   });
 });

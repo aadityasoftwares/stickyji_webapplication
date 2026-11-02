@@ -1,10 +1,10 @@
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
+  afterNextRender,
   Component,
   DestroyRef,
   EventEmitter,
-  OnInit,
   Output,
   computed,
   inject,
@@ -296,7 +296,7 @@ export const DEFAULT_PLANS: PlanCardDTO[] = [
   styleUrl: './subscription.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Subscription implements OnInit {
+export class Subscription {
   private readonly plansService = inject(PlansService);
   private readonly billingService = inject(BillingService);
   private readonly authStore = inject(AuthStore);
@@ -382,8 +382,8 @@ export class Subscription implements OnInit {
     Boolean(this.userSubscription() || this.plans().some((p) => p.isCurrent)),
   );
 
-  ngOnInit(): void {
-    this.loadPlans();
+  constructor() {
+    afterNextRender(() => this.loadPlans());
   }
 
   loadPlans(): void {

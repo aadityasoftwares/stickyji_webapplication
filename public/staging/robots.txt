@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+# Non-production: HTML and Nginx X-Robots-Tag enforce noindex.

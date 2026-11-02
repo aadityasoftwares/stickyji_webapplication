@@ -122,10 +122,9 @@ export class WebsiteHeader {
       return;
     if (!href.startsWith('/') && !href.startsWith('#')) return;
     event.preventDefault();
-    const url = href.startsWith('#') ? '/home' + href : href;
+    const url = href.startsWith('#') ? '/' + href : href;
     const isAlreadyOnPage =
-      this.router.url === url ||
-      (url === '/home' && this.router.url.split(/[?#]/)[0] === '/home');
+      this.router.url === url || (url === '/' && this.router.url.split(/[?#]/)[0] === '/');
     if (isAlreadyOnPage) {
       const anchor = url.split('#')[1];
       if (anchor) {
@@ -156,7 +155,7 @@ export class WebsiteHeader {
   }
 
   updateActiveSection(): void {
-    if (this.router.url.split(/[?#]/)[0] !== '/home') return;
+    if (this.router.url.split(/[?#]/)[0] !== '/') return;
     let active = 'top';
     const ids = ['features', 'how-it-works', 'use-cases', 'reviews', 'pricing'];
     for (const id of ids) {
@@ -186,16 +185,16 @@ export class WebsiteHeader {
 
   @Input() brandName = 'Sticky Ji';
   @Input() logoSrc = 'StickyJiHorizontalLogo.png';
-  @Input() brandHref = '/home#top';
+  @Input() brandHref = '/#top';
   @Input() productBadge = 'BETA';
   @Input() showProductBadge = false;
 
   @Input() signInLabel = 'Sign in';
   @Input() primaryActionLabel = 'Start for free';
-  @Input() reassuranceText = 'Free forever · No credit card required';
+  @Input() reassuranceText = 'Plan your day with online notes';
 
   @Input() navItems: readonly HeaderNavItem[] = [
-    { label: 'Home', href: '/home', icon: LucideHouse },
+    { label: 'Home', href: '/', icon: LucideHouse },
     { label: 'Features', href: '/features', icon: LucideSparkles },
     { label: 'How it works', href: '/how-it-works', icon: LucideCompass },
     { label: 'Use cases', href: '/use-cases', icon: LucideUsers },

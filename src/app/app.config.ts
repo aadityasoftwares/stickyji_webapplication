@@ -1,11 +1,17 @@
 import {
   ApplicationConfig,
+  afterNextRender,
   ErrorHandler,
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  provideClientHydration,
+  withEventReplay,
+  withNoHttpTransferCache,
+} from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling, withPreloading } from '@angular/router';
 import { AppPreloadingStrategy } from './shared/services/app-preloading.strategy';
 
@@ -17,6 +23,7 @@ import { SeoService } from './shared/services/seo.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideClientHydration(withEventReplay(), withNoHttpTransferCache()),
     provideBrowserGlobalErrorListeners(),
     {
       provide: ErrorHandler,
@@ -37,7 +44,7 @@ export const appConfig: ApplicationConfig = {
       seoService.initRouteListener();
       // Public pages can render while the cookie-based session is restored.
       // Protected routes await the same shared request in authGuard.
-      authService.initializeSession().subscribe();
+      afterNextRender(() => authService.initializeSession().subscribe());
     }),
   ],
 };

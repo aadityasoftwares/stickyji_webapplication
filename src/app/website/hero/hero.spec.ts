@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Hero } from './hero';
 
@@ -8,6 +9,7 @@ describe('Hero', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Hero],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Hero);
@@ -34,7 +36,9 @@ describe('Hero', () => {
     buttons[2].click();
     await fixture.whenStable();
     expect(root.querySelectorAll('tbody tr').length).toBe(2);
-    expect(root.querySelector('.preview-table-view')?.textContent).toContain('Home Page Corrections');
+    expect(root.querySelector('.preview-table-view')?.textContent).toContain(
+      'Home Page Corrections',
+    );
 
     buttons[0].click();
     await fixture.whenStable();
