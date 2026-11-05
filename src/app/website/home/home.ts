@@ -1,6 +1,7 @@
 import { PlanCardDTO, PublicPlan } from '../subscription/services/plans.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Component, inject } from '@angular/core';
+import { Faq } from '../faq/faq';
 import { Hero } from '../hero/hero';
 import { WebsiteHeader } from '../website-header/website-header';
 import { ThoughtFlow } from '../thought-flow/thought-flow';
@@ -13,11 +14,11 @@ import { ScrollReveal } from '../scroll-reveal';
 @Component({
   imports: [
     Hero,
+    Faq,
     WebsiteHeader,
     ThoughtFlow,
     UseCases,
     Reviews,
-    RouterLink,
     Subscription,
     WebsiteFooter,
     ScrollReveal,
