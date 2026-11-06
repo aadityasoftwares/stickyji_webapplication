@@ -223,4 +223,18 @@ describe('Account boundaries without reloading Angular', () => {
     expect(preview.cancelled).toBe(false);
     preview.flush({ success: true });
   });
+
+  it('keeps public subscription plans alive and uncanceled when session lifecycle resets', () => {
+    let responseData: any = null;
+    TestBed.inject(HttpClient)
+      .get(API_ENDPOINTS.plans.subscriptionPlans)
+      .subscribe((data) => {
+        responseData = data;
+      });
+    const plansReq = http.expectOne(API_ENDPOINTS.plans.subscriptionPlans);
+    auth.clearSession();
+    expect(plansReq.cancelled).toBe(false);
+    plansReq.flush({ success: true, data: { plans: [] } });
+    expect(responseData).toEqual({ success: true, data: { plans: [] } });
+  });
 });

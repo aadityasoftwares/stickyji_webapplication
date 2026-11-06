@@ -17,6 +17,9 @@ import { finalize } from 'rxjs';
 
 import { Sidebar, type SidebarWorkspace } from '../sidebar/sidebar';
 import { Button } from '../../shared/components/button/button';
+import { OnboardingModal } from '../onboarding/onboarding-modal/onboarding-modal';
+import { OnboardingService } from '../onboarding/services/onboarding.service';
+import type { InitialSetupResult } from '../onboarding/interfaces/onboarding.interface';
 import { WorkspaceStore } from '../workspace/services/workspace.store';
 import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
 import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
@@ -30,7 +33,7 @@ import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
 @Component({
   selector: 'app-private',
   standalone: true,
-  imports: [RouterOutlet, Sidebar, Button],
+  imports: [RouterOutlet, Sidebar, Button, OnboardingModal],
   templateUrl: './private.html',
   styleUrl: './private.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +44,7 @@ export class Private {
   private mobileMenuButton?: ElementRef<HTMLElement>;
   @ViewChild(Sidebar, { read: ElementRef }) private sidebarElement?: ElementRef<HTMLElement>;
   readonly LucideMenu = LucideMenu;
+  readonly onboardingService = inject(OnboardingService);
   private readonly appSessionStore = inject(AppSessionStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly workspaceFolderStore = inject(WorkspaceFolderStore);
@@ -88,10 +92,24 @@ export class Private {
         return;
       }
 
+      if (workspaces.length === 0 && !this.onboardingService.completed()) {
+        this.onboardingService.checkStatus().subscribe();
+      }
+
       this.ensureWorkspaceSelected(workspaces);
     });
 
+    this.onboardingService.checkStatus().subscribe();
     this.appSessionStore.initialize();
+  }
+
+  onOnboardingComplete(result: InitialSetupResult): void {
+    this.appSessionStore.refresh();
+    if (result.workspace?.id) {
+      this.workspaceStore.select(result.workspace.id);
+      this.workspaceFolderStore.resetForWorkspace(result.workspace.id);
+    }
+    void this.router.navigate(['/app/today']);
   }
 
   @HostListener('document:keydown.escape')

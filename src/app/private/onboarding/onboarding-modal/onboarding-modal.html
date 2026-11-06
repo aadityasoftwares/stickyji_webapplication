@@ -1,0 +1,224 @@
+<app-modal
+  [open]="open"
+  tone="paper"
+  size="md"
+  [maxWidth]="540"
+  [closeOnBackdrop]="false"
+  [closeOnEscape]="false"
+  [showClose]="false"
+  [showFooter]="true"
+  ariaLabel="Workspace Initial Setup"
+>
+  <div modal-body class="onboarding-modal-body">
+    <!-- Stepper Navigation Header -->
+    <div class="onboarding-stepper" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" aria-valuemax="2">
+      <div
+        class="step-item"
+        [class.is-active]="currentStep() === 1"
+        [class.is-complete]="currentStep() > 1"
+      >
+        <span class="step-badge">
+          @if (currentStep() > 1) {
+            <app-icon [icon]="LucideCheck" size="xs" />
+          } @else {
+            1
+          }
+        </span>
+        <span class="step-label">Workspace</span>
+      </div>
+
+      <div class="step-divider" [class.is-complete]="currentStep() > 1"></div>
+
+      <div
+        class="step-item"
+        [class.is-active]="currentStep() === 2"
+        [class.is-complete]="false"
+      >
+        <span class="step-badge">2</span>
+        <span class="step-label">First Folder</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Workspace Name -->
+    @if (currentStep() === 1) {
+      <div class="step-content">
+        <div class="step-header">
+          <div class="step-icon-wrap workspace-icon-bg">
+            <app-icon [icon]="LucidePanelsTopLeft" size="md" />
+          </div>
+          <div class="step-heading-copy">
+            <app-badge label="Quick Setup • Step 1" variant="primary" size="xs" shape="pill" />
+            <h2 class="step-title">Name your workspace</h2>
+            <p class="step-subtitle">
+              Workspaces help you organize your sticky notes, folders, and team members in one place.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-form-group">
+          <label for="workspace-title-input" class="field-label">
+            Workspace name <span class="required-star">*</span>
+          </label>
+          <app-input
+            id="workspace-title-input"
+            variant="default"
+            appearance="outlined"
+            placeholder="e.g., Personal, Work, Acme HQ"
+            [autofocus]="true"
+            [maxLength]="255"
+            [errorText]="workspaceError()"
+            [status]="workspaceError() ? 'danger' : 'default'"
+            [ngModel]="workspaceTitle()"
+            (ngModelChange)="onWorkspaceInput($event)"
+            (keydown)="onWorkspaceKeydown($event)"
+          />
+
+          <!-- Quick Suggestion Chips -->
+          <div class="suggestions-row">
+            <span class="suggestions-label">Suggestions:</span>
+            <div class="chips-list">
+              @for (suggestion of workspaceSuggestions; track suggestion) {
+                <button
+                  type="button"
+                  class="suggestion-chip"
+                  [class.is-selected]="workspaceTitle() === suggestion"
+                  (click)="selectWorkspaceSuggestion(suggestion)"
+                >
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: First Folder Name -->
+    @if (currentStep() === 2) {
+      <div class="step-content">
+        <div class="step-header">
+          <div class="step-icon-wrap folder-icon-bg">
+            <app-icon [icon]="LucideFolderOpen" size="md" />
+          </div>
+          <div class="step-heading-copy">
+            <app-badge label="Quick Setup • Step 2" variant="primary" size="xs" shape="pill" />
+            <h2 class="step-title">Create your first folder</h2>
+            <p class="step-subtitle">
+              Folders group your notes and kanban boards inside <strong>{{ workspaceTitle() }}</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-form-group">
+          <label for="folder-title-input" class="field-label">
+            Folder name <span class="required-star">*</span>
+          </label>
+          <app-input
+            id="folder-title-input"
+            variant="default"
+            appearance="outlined"
+            placeholder="e.g., My Notes, Daily Tasks, Sprint 1"
+            [autofocus]="true"
+            [maxLength]="255"
+            [errorText]="folderError()"
+            [status]="folderError() ? 'danger' : 'default'"
+            [ngModel]="folderTitle()"
+            (ngModelChange)="onFolderInput($event)"
+            (keydown)="onFolderKeydown($event)"
+          />
+
+          <!-- Quick Suggestion Chips -->
+          <div class="suggestions-row">
+            <span class="suggestions-label">Suggestions:</span>
+            <div class="chips-list">
+              @for (suggestion of folderSuggestions; track suggestion) {
+                <button
+                  type="button"
+                  class="suggestion-chip"
+                  [class.is-selected]="folderTitle() === suggestion"
+                  (click)="selectFolderSuggestion(suggestion)"
+                >
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Preview Sticky Note Card -->
+        <div class="preview-card-wrap">
+          <app-sticky-card
+            variant="noteYellow"
+            shape="stickyFold"
+            [padding]="16"
+            [foldSize]="20"
+            [fullWidth]="true"
+          >
+            <div class="preview-note-body">
+              <div class="preview-note-header">
+                <span class="preview-tag">Starter Setup Preview</span>
+              </div>
+              <div class="preview-note-items">
+                <div class="preview-item">
+                  <app-icon [icon]="LucidePanelsTopLeft" size="xs" />
+                  <span>Workspace: <strong>{{ workspaceTitle() }}</strong></span>
+                </div>
+                <div class="preview-item">
+                  <app-icon [icon]="LucideFolderOpen" size="xs" />
+                  <span>Folder: <strong>{{ folderTitle() || 'My Notes' }}</strong></span>
+                </div>
+                <div class="preview-item starter-hint">
+                  <app-icon [icon]="LucideStickyNote" size="xs" />
+                  <span>Includes default TODO board and welcome starter note</span>
+                </div>
+              </div>
+            </div>
+          </app-sticky-card>
+        </div>
+      </div>
+    }
+
+    <!-- Error Message Banner -->
+    @if (errorMessage()) {
+      <div class="onboarding-error-alert" role="alert">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Modal Footer Actions -->
+  <div modal-footer class="onboarding-modal-footer">
+    @if (currentStep() === 1) {
+      <div class="footer-step-hint">Step 1 of 2</div>
+      <app-button
+        variant="primary"
+        size="md"
+        label="Continue"
+        [icon]="LucideArrowRight"
+        [iconPosition]="'right'"
+        [disabled]="!isWorkspaceValid()"
+        (buttonClick)="nextStep()"
+      />
+    } @else {
+      <app-button
+        variant="ghost"
+        size="md"
+        label="Back"
+        [icon]="LucideArrowLeft"
+        [disabled]="submitting()"
+        (buttonClick)="prevStep()"
+      />
+      <app-button
+        variant="primary"
+        size="md"
+        label="Complete Setup"
+        [icon]="LucideSparkles"
+        [iconPosition]="'right'"
+        [loading]="submitting()"
+        [disabled]="!isFolderValid() || submitting()"
+        (buttonClick)="submitSetup()"
+      />
+    }
+  </div>
+</app-modal>
+

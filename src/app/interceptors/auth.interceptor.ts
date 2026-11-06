@@ -25,10 +25,10 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  // Public catalogue failures must not redirect website visitors to sign in.
-  if (request.method === 'GET' && request.url.split('?')[0] === API_ENDPOINTS.plans.getAll) {
-    return next(request);
-  }
+  const isPublicPlanRequest =
+    request.method === 'GET' &&
+    (request.url.split('?')[0] === API_ENDPOINTS.plans.getAll ||
+      request.url.split('?')[0] === API_ENDPOINTS.plans.subscriptionPlans);
 
   const isPublicAuthRequest = PUBLIC_AUTH_ENDPOINTS.some((endpoint) =>
     request.url.includes(endpoint),
@@ -57,8 +57,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     });
   }
 
-  // Bypass 401 token refresh on logout so requests proceed directly to backend logoutAuthMiddleware
-  if (isLogoutRequest || isPublicAuthRequest) {
+  // Bypass 401 token refresh on logout, public auth, and public catalog endpoints so requests proceed directly without session abort
+  if (isLogoutRequest || isPublicAuthRequest || isPublicPlanRequest) {
     return next(authenticatedRequest);
   }
 
