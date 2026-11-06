@@ -62,6 +62,7 @@ import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.s
 import { USER_PREFERENCE_KEYS, VIEW_TABS } from '../../shared/constants/common.constants';
 import { UI } from '../../shared/constants/ui.constants';
 import { entityNameOf, extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import {
   getNoteContent,
   getNoteTimestamp,
@@ -529,7 +530,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   /*                              Note Actions                                  */
   /* -------------------------------------------------------------------------- */
   openEditEditor(note: any, event?: Event): void {
-    event?.stopPropagation();
+    closeAllMatMenus();
     const noteId = idOf(note);
     if (!noteId) return;
 
@@ -593,6 +594,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   requestDelete(note: any): void {
+    closeAllMatMenus();
     this.deleteTarget.set(note);
   }
 

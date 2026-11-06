@@ -42,9 +42,6 @@
 }
 
 .shell-sidebar {
-  position: relative;
-  z-index: $z-sidebar;
-
   display: block;
 
   flex-grow: 0;
@@ -74,6 +71,7 @@
 }
 
 .shell-main {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;

@@ -50,4 +50,16 @@ describe('closeAllMatMenus', () => {
   it('runs safely when no overlays or menus exist', () => {
     expect(() => closeAllMatMenus()).not.toThrow();
   });
+
+  it('does NOT dispatch Escape keydown to document so open modals do not close', () => {
+    const documentEscapeSpy = vi.fn();
+    document.addEventListener('keydown', documentEscapeSpy);
+    try {
+      closeAllMatMenus();
+      expect(documentEscapeSpy).not.toHaveBeenCalled();
+    } finally {
+      document.removeEventListener('keydown', documentEscapeSpy);
+    }
+  });
 });
+

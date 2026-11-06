@@ -79,6 +79,7 @@ import type { PermissionGroup, Permission } from '../interfaces/permission.inter
 import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
 import { PermissionApiService } from '../services/permission.service';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
+import { closeAllMatMenus } from '../../../shared/functions/menu.function';
 
 export interface WorkspaceRoleGroup {
   id: string;
@@ -690,6 +691,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       return;
     }
 
+    closeAllMatMenus();
     this.editorRole.set(null);
     this.roleEditorOpen.set(true);
   }
@@ -745,6 +747,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   openRole(role: WorkspaceRole): void {
     if (this.isRoleBusy(role)) return;
+    closeAllMatMenus();
     this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) : null);
 
     this.editorRole.set(role);
@@ -815,6 +818,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   requestDelete(role: WorkspaceRole): void {
     if (role.isSystem || this.isRoleBusy(role)) return;
+    closeAllMatMenus();
     this.deleteTarget.set(role);
   }
 
@@ -1043,6 +1047,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       });
       return;
     }
+    closeAllMatMenus();
     this.editorPermission.set(null);
     this.permissionReadOnly.set(false);
     this.permissionEditorOpen.set(true);
@@ -1050,6 +1055,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   openPermission(permission: Permission, readOnly = false): void {
     if (this.isPermissionBusy(permission)) return;
+    closeAllMatMenus();
     const canManage = this.canManageGlobalPermissions();
     this.editorPermission.set(permission);
     this.permissionReadOnly.set(readOnly || !canManage);
@@ -1126,6 +1132,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       return;
     }
     if (permission.isSystem || this.isPermissionBusy(permission)) return;
+    closeAllMatMenus();
     this.deletePermissionTarget.set(permission);
   }
 
