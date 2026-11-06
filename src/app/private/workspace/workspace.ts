@@ -98,6 +98,7 @@ import {
   extractList,
   idOf,
 } from '../../shared/functions/common.function';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import {
   getWorkspaceMemberAvatar,
   getWorkspaceMemberId,
@@ -741,13 +742,14 @@ export class Workspace implements OnInit {
   }
 
   openCreateEditor(): void {
+    closeAllMatMenus();
     this.workspaceEditorId.set('');
     this.workspaceEditorOpen.set(true);
   }
 
   openEditEditor(workspace: any, event?: Event): void {
     if (!this.can(workspace, 'canEdit')) return;
-    event?.stopPropagation();
+    closeAllMatMenus();
     const id = idOf(workspace);
     if (!id || this.isBusy(workspace)) return;
 
@@ -1032,6 +1034,7 @@ export class Workspace implements OnInit {
   }
 
   requestDelete(workspace: any): void {
+    closeAllMatMenus();
     if (!this.can(workspace, 'canTrash')) return;
     if (this.isBusy(workspace)) return;
     this.deleteTarget.set(workspace);

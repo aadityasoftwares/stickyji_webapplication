@@ -19,6 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { extractErrorMessage } from '../../../shared/functions/common.function';
 import { getInitials } from '../../../shared/functions/string.functions';
+import { closeAllMatMenus } from '../../../shared/functions/menu.function';
 import { STICKY_NOTE_MESSAGES } from '../messages/sticky-note.messages';
 import {
   LucideArrowLeft,
@@ -299,8 +300,7 @@ export class StickyNote {
   }
 
   toggleCompletion(event?: Event): void {
-    event?.stopPropagation();
-    event?.preventDefault();
+    closeAllMatMenus();
     this.completionToggled.emit({
       noteId: this.noteId,
       isCompleted: !this.isCompleted,
@@ -489,12 +489,13 @@ export class StickyNote {
   requestEdit(event: Event): void {
     if (this.preview) return;
     this.stop(event);
+    closeAllMatMenus();
     if (!this.disabled) this.editRequested.emit(this.data);
   }
 
   toggleFavorite(event?: Event): void {
     if (this.preview) return;
-    if (event) this.stop(event);
+    closeAllMatMenus();
     const id = this.noteId;
     if (!id || this.disabled || this.isFavoriteBusy) return;
 
@@ -521,9 +522,9 @@ export class StickyNote {
       });
   }
 
-  requestDelete(event: Event): void {
+  requestDelete(event?: Event): void {
     if (this.preview) return;
-    this.stop(event);
+    closeAllMatMenus();
     if (!this.disabled && !this.isDeleting) {
       this.showDeleteConfirm = true;
     }
@@ -570,9 +571,9 @@ export class StickyNote {
       });
   }
 
-  requestMove(direction: 'backward' | 'forward', event: Event): void {
+  requestMove(direction: 'backward' | 'forward', event?: Event): void {
     if (this.preview) return;
-    this.stop(event);
+    closeAllMatMenus();
     if (this.disabled) return;
     if (direction === 'backward' && this.canMoveBackward) {
       this.moveBackwardRequested.emit(this.data);

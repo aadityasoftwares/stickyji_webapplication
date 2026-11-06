@@ -5,11 +5,14 @@ import {
   EventEmitter,
   HostListener,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import { LucideArchiveRestore, LucideTrash2, LucideTriangleAlert, LucideX } from '@lucide/angular';
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
+import { closeAllMatMenus } from '../../functions/menu.function';
 
 @Component({
   host: { '[attr.title]': 'null' },
@@ -20,7 +23,7 @@ import { AppIcon } from '../icon/icon';
   styleUrl: './delete-confirm-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteConfirmModal {
+export class DeleteConfirmModal implements OnChanges {
   @Input() open = false;
   @Input() title = 'Move to trash?';
   @Input() message = 'You can restore this item later.';
@@ -32,6 +35,12 @@ export class DeleteConfirmModal {
   @Input() mode: 'trash' | 'permanent' = 'trash';
   @Output() readonly confirmed = new EventEmitter<void>();
   @Output() readonly closed = new EventEmitter<void>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['open'] && this.open) {
+      closeAllMatMenus();
+    }
+  }
 
   readonly LucideArchiveRestore = LucideArchiveRestore;
   readonly LucideTrash2 = LucideTrash2;

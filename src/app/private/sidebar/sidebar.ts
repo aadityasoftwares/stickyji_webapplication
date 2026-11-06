@@ -3,7 +3,9 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
   signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
@@ -29,6 +31,7 @@ import { AppIcon, type AppIconDefinition } from '../../shared/components/icon/ic
 import { type SelectOption, type SelectValue } from '../../shared/components/select/select';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 interface SidebarItem {
   label: string;
@@ -52,7 +55,7 @@ export interface SidebarWorkspace extends SelectOption {
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Sidebar {
+export class Sidebar implements OnChanges {
   @Input() collapsed = false;
   @Input() mobileOpen = false;
   @Input() workspaceId = '';
@@ -64,6 +67,12 @@ export class Sidebar {
   @Output() mobileClosed = new EventEmitter<void>();
   @Output() workspaceChange = new EventEmitter<string>();
   @Output() logout = new EventEmitter<void>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['mobileOpen'] && this.mobileOpen) || (changes['collapsed'] && !this.collapsed)) {
+      closeAllMatMenus();
+    }
+  }
 
   readonly closedGroups = signal<ReadonlySet<string>>(new Set());
   readonly routes = APP_ROUTES;
@@ -150,6 +159,7 @@ export class Sidebar {
   }
 
   toggleCollapsed(): void {
+    closeAllMatMenus();
     this.collapsedChange.emit(!this.collapsed);
   }
 

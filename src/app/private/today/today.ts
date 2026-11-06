@@ -126,6 +126,7 @@ import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimePipe } from '../../shared/pipes/user-date-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
@@ -1664,6 +1665,7 @@ export class Today {
   }
 
   deleteNote(note: any): void {
+    closeAllMatMenus();
     const noteId = idOf(note);
     if (!noteId) return;
 
@@ -1726,6 +1728,7 @@ export class Today {
   }
 
   openColumnCreateSidePanel(): void {
+    closeAllMatMenus();
     if (!this.activeWorkspaceId() || !this.activeFolder() || this.boardLoading()) return;
     this.columnPanelMode.set('create');
     this.columnPanelId.set('');
@@ -1734,8 +1737,7 @@ export class Today {
   }
 
   requestColumnEdit(column: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
+    closeAllMatMenus();
     const id = idOf(column);
     if (!id || this.boardLoading()) return;
     this.columnPanelMode.set('edit');
@@ -1756,6 +1758,7 @@ export class Today {
   }
 
   openNoteCreatePanel(columnId: string, quickAdd = false): void {
+    closeAllMatMenus();
     if (!columnId || this.movingNoteId()) return;
     if (quickAdd && this.isNotesView()) {
       if (this.quickNoteSaving()) return;
@@ -1838,9 +1841,7 @@ export class Today {
   }
 
   openNoteEditPanel(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
-
+    closeAllMatMenus();
     const noteId = idOf(note);
     if (!noteId || this.movingNoteId()) return;
 

@@ -29,6 +29,7 @@ import { AuthStore } from '../../public/auth/state/auth.store';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
 import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
 import { USER_PREFERENCE_KEYS } from '../../shared/constants/common.constants';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 @Component({
   selector: 'app-private',
@@ -129,11 +130,13 @@ export class Private {
   }
 
   setSidebarCollapsed(collapsed: boolean): void {
+    closeAllMatMenus();
     this.sidebarCollapsed.set(collapsed);
     this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SIDEBAR_COLLAPSED, collapsed);
   }
 
   openMobileSidebar(): void {
+    closeAllMatMenus();
     this.mobileSidebarOpen.set(true);
     afterNextRender(
       () => {

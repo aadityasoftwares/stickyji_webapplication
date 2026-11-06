@@ -115,6 +115,7 @@ import {
 import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { Tooltip, TooltipTone } from '../../shared/components/tooltip/tooltip';
 import { Highlight } from '../../shared/directives/highlight.directive';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 type FolderTab = 'all' | 'active' | 'archived' | 'inactive' | 'deleted';
 type FolderView = 'grid' | 'list';
@@ -946,6 +947,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     }
 
     this.cancelInlineRename();
+    closeAllMatMenus();
     this.folderEditorId.set('');
     this.folderEditorFolder.set(null);
     this.folderEditorOpen.set(true);
@@ -953,7 +955,7 @@ export class Workspacefolders implements OnInit, OnChanges {
 
   openEditEditor(folder: WorkspaceFolder, event?: Event): void {
     if (!this.canAction(folder, 'canEdit')) return;
-    event?.stopPropagation();
+    closeAllMatMenus();
     const id = this.folderId(folder);
     if (!id || this.isBusy(folder)) return;
 
@@ -1122,6 +1124,7 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   requestDelete(folder: WorkspaceFolder): void {
+    closeAllMatMenus();
     if (this.isBusy(folder) || !this.canAction(folder, 'canTrash')) return;
     if (this.isDefault(folder)) {
       this.toastService.warning(WORKSPACE_FOLDER_MESSAGES.VALIDATION.DEFAULT_CANNOT_DELETE, {

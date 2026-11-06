@@ -58,6 +58,7 @@ import { Select, type SelectOption } from '../../../../shared/components/select/
 import { Switch } from '../../../../shared/components/switch/switch';
 import { USER_PREFERENCE_KEYS } from '../../../../shared/constants/common.constants';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
+import { closeAllMatMenus } from '../../../../shared/functions/menu.function';
 
 import { StickyNoteColumnApiService } from '../../services/sticky-note-column.service';
 import { StickyNoteChecklistItemApiService } from '../../services/sticky-note-checklist-item.service';
@@ -251,6 +252,7 @@ export class AddEditMyNotesModal implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.open) return;
+    closeAllMatMenus();
 
     if (changes['open']?.currentValue === true || changes['id'] || changes['mode']) {
       this.initialize();

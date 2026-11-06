@@ -33,6 +33,7 @@ import {
 } from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../../shared/functions/api.functions';
+import { closeAllMatMenus } from '../../../../shared/functions/menu.function';
 
 import { WorkspaceService } from '../../services/workspace.service';
 
@@ -141,6 +142,10 @@ export class AddEditWorkspaceModal implements OnChanges {
     if (!this.open) this.sessionEnd$.next();
     const opened = changes['open']?.currentValue === true;
     const workspaceChangedWhileOpen = this.open && !!changes['id'];
+
+    if (opened) {
+      closeAllMatMenus();
+    }
 
     if (opened || workspaceChangedWhileOpen) {
       this.initialize();

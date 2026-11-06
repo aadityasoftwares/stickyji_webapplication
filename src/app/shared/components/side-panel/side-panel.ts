@@ -20,6 +20,7 @@ import { LucideX } from '@lucide/angular';
 import { Button } from '../button/button';
 import { Badge, type BadgeVariant } from '../badge/badge';
 import { AppIcon } from '../icon/icon';
+import { closeAllMatMenus } from '../../functions/menu.function';
 
 export type SidePanelTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
 
@@ -139,6 +140,7 @@ export class SidePanel implements OnChanges, OnDestroy {
   }
 
   private openPanel(): void {
+    closeAllMatMenus();
     this.cancelCloseTimer();
 
     if (!this.rendered()) {

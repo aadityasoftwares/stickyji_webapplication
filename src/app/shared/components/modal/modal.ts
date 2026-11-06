@@ -19,6 +19,7 @@ import { LucideX } from '@lucide/angular';
 
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
+import { closeAllMatMenus } from '../../functions/menu.function';
 
 export type ModalTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
 
@@ -138,6 +139,7 @@ export class Modal implements OnChanges, OnDestroy {
   }
 
   private openModal(): void {
+    closeAllMatMenus();
     this.cancelCloseTimer();
 
     if (!this.rendered()) {

@@ -105,6 +105,7 @@ import {
   idOf,
   sortItemsByPosition,
 } from '../../shared/functions/common.function';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import { toDateKey } from '../../shared/functions/date.function';
 import {
   compareNotesByRank,
@@ -865,6 +866,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   openCreateEditor(): void {
+    closeAllMatMenus();
     if (!this.canCreateNote()) {
       if (!this.selectedFolderId()) {
         this.toastService.error(STICKY_NOTE_MESSAGES.VALIDATION.FOLDER_REQUIRED, {
@@ -889,8 +891,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   openEditEditor(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
+    closeAllMatMenus();
     const id = idOf(note);
     if (!id || this.isBusy(note)) return;
     this.notePanelMode.set('edit');
@@ -1009,8 +1010,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   requestDelete(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
+    closeAllMatMenus();
     if (!this.isBusy(note)) this.deleteTarget.set(note);
   }
 

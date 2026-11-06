@@ -133,6 +133,7 @@ import { WorkspaceRoleApiService } from '../../roles/services/workspace-role.ser
 import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-request-side-panel/send-workspace-member-request-side-panel';
 import { MemberCardWrapper } from '../member-card-wrapper/member-card-wrapper';
 import { InvitationCardWrapper } from '../invitation-card-wrapper/invitation-card-wrapper';
+import { closeAllMatMenus } from '../../../shared/functions/menu.function';
 
 type BadgeVariant = 'success' | 'noteYellow' | 'danger';
 
@@ -1231,6 +1232,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
       return;
     }
 
+    closeAllMatMenus();
     this.memberModalMember.set(null);
     this.memberModalOpen.set(true);
   }
@@ -1238,6 +1240,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   openMemberView(member: WorkspaceMemberListItem): void {
     if (this.isBusy(member)) return;
 
+    closeAllMatMenus();
     this.viewTarget.set(member);
   }
 
@@ -1254,6 +1257,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
     if (this.isBusy(member) || this.isRemoved(member) || !this.canManageMember(member)) return;
 
     // Preserve the role editor contract using the lightweight list references.
+    closeAllMatMenus();
     this.memberModalMember.set(this.toEditorMember(member));
     this.memberModalOpen.set(true);
   }
@@ -1284,6 +1288,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   requestRemove(member: WorkspaceMemberListItem): void {
     if (this.isBusy(member) || this.isRemoved(member) || !this.canManageMember(member)) return;
 
+    closeAllMatMenus();
     this.viewTarget.set(null);
     this.removeTarget.set(member);
   }
@@ -1412,6 +1417,7 @@ export class WorkspaceMembers implements OnInit, OnChanges {
   requestCancelInvitation(invitation: WorkspaceInvitation): void {
     if (!this.canCancelInvitation(invitation) || this.isInvitationBusy(invitation)) return;
 
+    closeAllMatMenus();
     this.cancelInvitationTarget.set(invitation);
   }
 
