@@ -17,9 +17,9 @@ import {
 } from '@angular/core';
 import { LucideX } from '@lucide/angular';
 
+import { closeAllMatMenus } from '../../functions/menu.function';
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
-import { closeAllMatMenus } from '../../functions/menu.function';
 
 export type ModalTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
 
