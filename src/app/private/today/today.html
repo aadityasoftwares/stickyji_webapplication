@@ -1587,3 +1587,30 @@
   (bringToToday)="bringOverdueToToday($event)"
   (openNote)="openOverdueNote($event)"
 />
+
+<app-delete-confirm-modal
+  [open]="!!deleteTarget()"
+  title="Move this note to Trash?"
+  [itemName]="deleteTarget() ? (deleteTarget().title || 'Untitled Note') : ''"
+  message="It will disappear from here, but it is not gone permanently."
+  supportingText="You can restore it from Sticky Note Trash for up to 60 days."
+  confirmLabel="Move to trash"
+  cancelLabel="Keep note"
+  mode="trash"
+  [busy]="deleting()"
+  (confirmed)="confirmDeleteNote()"
+  (closed)="closeDeleteDialog()"
+/>
+
+<app-delete-confirm-modal
+  [open]="bulkDeleteOpen()"
+  title="Move selected notes to trash?"
+  [message]="selectedNoteIds().size === 1 ? '1 selected note will be moved to trash.' : selectedNoteIds().size + ' selected notes will be moved to trash.'"
+  supportingText="You can restore them from Sticky Note Trash for up to 60 days."
+  confirmLabel="Move to trash"
+  cancelLabel="Keep notes"
+  mode="trash"
+  [busy]="bulkBusy()"
+  (confirmed)="confirmBulkDelete()"
+  (closed)="bulkDeleteOpen.set(false)"
+/>

@@ -204,26 +204,49 @@
           />
         </div>
       </section>
-      <section class="note-date-row" aria-label="Note priority">
-        <app-label forId="note-priority" text="Priority" />
-        <app-select
-          selectId="note-priority"
-          name="note-priority"
-          [options]="priorityOptions"
-          [ngModel]="controlString('priority')"
-          [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="updateSelect('priority', $event)"
-          ariaLabel="Note priority"
-          dropdownTitle="Priority"
-          variant="paper"
-          appearance="simple"
-          shape="rounded"
-          size="sm"
-          [disabled]="isBusy"
-          [clearable]="false"
-          [searchable]="true"
-          [fullWidth]="true"
-        />
+      <section class="note-priority-status-row" aria-label="Note priority and status">
+        <div class="note-priority-status-field">
+          <app-label forId="note-priority" text="Priority" />
+          <app-select
+            selectId="note-priority"
+            name="note-priority"
+            [options]="priorityOptions"
+            [ngModel]="controlString('priority')"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="updateSelect('priority', $event)"
+            ariaLabel="Note priority"
+            dropdownTitle="Priority"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [disabled]="isBusy"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+          />
+        </div>
+        <div class="note-priority-status-field">
+          <app-label forId="note-status" text="Status" />
+          <app-select
+            selectId="note-status"
+            name="note-status"
+            [options]="statusOptions"
+            [ngModel]="controlString('status')"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="updateSelect('status', $event)"
+            ariaLabel="Note status"
+            dropdownTitle="Status"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [disabled]="isBusy"
+            [clearable]="false"
+            [searchable]="false"
+            [fullWidth]="true"
+          />
+        </div>
       </section>
       <section
         class="note-assignees-row"

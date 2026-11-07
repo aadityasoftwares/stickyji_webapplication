@@ -179,7 +179,6 @@ interface FolderTheme {
     Loader,
     AddEditWorkspaceFolderSidePanel,
     Select,
-    StickyCard,
     Tabs,
     Tooltip,
     Highlight,

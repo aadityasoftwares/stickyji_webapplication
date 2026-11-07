@@ -1,5 +1,5 @@
 @if (rendered()) {
-  <div class="modal show app-modal-layer" [class.is-closing]="closing()" role="presentation">
+  <div #layer class="modal show app-modal-layer" [class.is-closing]="closing()" role="presentation">
     <div
       class="modal-backdrop show app-modal-backdrop"
       aria-hidden="true"
@@ -25,8 +25,6 @@
         tabindex="-1"
       >
         <header class="modal-header app-modal-header">
-          <span class="app-modal-tape" aria-hidden="true"></span>
-
           <div class="app-modal-heading">
             @if (icon) {
               <span class="app-modal-icon" aria-hidden="true">
@@ -70,7 +68,7 @@
               <app-button
                 [icon]="LucideX"
                 [iconOnly]="true"
-                [variant]="'danger'"
+                variant="danger"
                 appearance="standard"
                 size="sm"
                 ariaLabel="Close modal"
@@ -81,6 +79,13 @@
             }
           </div>
         </header>
+        <app-divider
+          variant="neutral"
+          lineStyle="dashed"
+          spacing="none"
+          [thickness]="1"
+        />
+
 
         <main class="modal-body app-modal-body">
           <ng-content select="[modal-body]" />

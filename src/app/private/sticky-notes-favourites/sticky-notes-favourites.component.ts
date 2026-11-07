@@ -58,6 +58,7 @@ import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-ed
 import { StickyNote as StickyNoteCardComponent } from '../mynotes/sticky-note/sticky-note';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 import { USER_PREFERENCE_KEYS, VIEW_TABS } from '../../shared/constants/common.constants';
 import { UI } from '../../shared/constants/ui.constants';
@@ -97,7 +98,6 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     Button,
     Loader,
     Select,
-    StickyCard,
     StickyNoteCardComponent,
     Switch,
     Tabs,
@@ -105,6 +105,7 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     MembersStack,
     UserDatePipe,
     UserTimePipe,
+    DeleteConfirmModal,
   ],
   templateUrl: './sticky-notes-favourites.component.html',
   styleUrl: './sticky-notes-favourites.component.scss',

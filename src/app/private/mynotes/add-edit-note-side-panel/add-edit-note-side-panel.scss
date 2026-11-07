@@ -357,6 +357,36 @@
 }
 
 /* ==========================================================================
+   Priority & Status Row
+   ========================================================================== */
+
+.note-priority-status-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.note-priority-status-field {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.note-priority-status-field > app-label {
+  padding-top: 0;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
    Assignees Note Property
    ========================================================================== */
 

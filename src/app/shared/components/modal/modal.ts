@@ -19,9 +19,10 @@ import { LucideX } from '@lucide/angular';
 
 import { closeAllMatMenus } from '../../functions/menu.function';
 import { Button } from '../button/button';
+import { Divider } from '../divider/divider';
 import { AppIcon } from '../icon/icon';
 
-export type ModalTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple';
+export type ModalTone = 'paper' | 'yellow' | 'blue' | 'pink' | 'green' | 'purple' | 'red';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -34,7 +35,7 @@ let savedBodyPaddingRight = '';
   host: { '[attr.title]': 'null' },
   selector: 'app-modal',
   standalone: true,
-  imports: [AppIcon, Button],
+  imports: [AppIcon, Button, Divider],
   templateUrl: './modal.html',
   styleUrl: './modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,16 @@ let savedBodyPaddingRight = '';
 export class Modal implements OnChanges, OnDestroy {
   @ViewChild('dialog')
   private dialog?: ElementRef<HTMLElement>;
+
+  private layer?: ElementRef<HTMLElement>;
+
+  @ViewChild('layer')
+  set layerRef(ref: ElementRef<HTMLElement> | undefined) {
+    this.layer = ref;
+    if (ref && this.open && this.rendered()) {
+      this.attachToBody();
+    }
+  }
 
   @Input() open = false;
   @Input() title = '';
@@ -81,6 +92,7 @@ export class Modal implements OnChanges, OnDestroy {
     private readonly document: Document,
     @Inject(PLATFORM_ID)
     private readonly platformId: object,
+    private readonly hostRef: ElementRef<HTMLElement>,
   ) {}
 
   get resolvedMaxWidth(): string | null {
@@ -106,6 +118,10 @@ export class Modal implements OnChanges, OnDestroy {
     this.cancelCloseTimer();
     this.unlockBodyScroll();
     this.restoreFocus();
+    const layerEl = this.layer?.nativeElement;
+    if (layerEl && layerEl.parentElement === this.document.body) {
+      layerEl.remove();
+    }
   }
 
   requestClose(): void {
@@ -138,6 +154,22 @@ export class Modal implements OnChanges, OnDestroy {
     }
   }
 
+  private attachToBody(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const layerEl = this.layer?.nativeElement;
+    if (layerEl && layerEl.parentElement && layerEl.parentElement !== this.document.body) {
+      this.document.body.appendChild(layerEl);
+    }
+  }
+
+  private detachFromBody(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const layerEl = this.layer?.nativeElement;
+    if (layerEl && layerEl.parentElement === this.document.body) {
+      this.hostRef.nativeElement.appendChild(layerEl);
+    }
+  }
+
   private openModal(): void {
     closeAllMatMenus();
     this.cancelCloseTimer();
@@ -153,6 +185,8 @@ export class Modal implements OnChanges, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     requestAnimationFrame(() => {
+      this.attachToBody();
+
       const autofocus = this.dialog?.nativeElement.querySelector<HTMLElement>('[autofocus]');
       const firstFocusable = this.focusableElements()[0];
 
@@ -171,6 +205,7 @@ export class Modal implements OnChanges, OnDestroy {
     this.cancelCloseTimer();
 
     this.closeTimer = setTimeout(() => {
+      this.detachFromBody();
       this.rendered.set(false);
       this.closing.set(false);
       this.closeTimer = null;

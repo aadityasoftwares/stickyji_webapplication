@@ -91,6 +91,9 @@ import {
   StickyNotePriority,
   STICKY_NOTE_PRIORITY_OPTIONS,
   isStickyNotePriority,
+  StickyNoteStatus,
+  STICKY_NOTE_STATUS_OPTIONS,
+  isStickyNoteStatus,
 } from '../constants/sticky-note.constants';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
@@ -208,6 +211,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   readonly colorOptions: readonly SelectOption[] = STICKY_NOTE_COLOR_OPTIONS;
   readonly priorityOptions = STICKY_NOTE_PRIORITY_OPTIONS;
+  readonly statusOptions = STICKY_NOTE_STATUS_OPTIONS;
   readonly shapeOptions: readonly SelectOption[] = STICKY_NOTE_SHAPE_OPTIONS;
   readonly variantOptions: readonly SelectOption[] = STICKY_NOTE_VARIANT_OPTIONS;
   readonly backgroundPatternOptions: readonly SelectOption[] =
@@ -284,6 +288,10 @@ export class AddEditNoteSidePanel implements OnChanges {
     priority: [
       StickyNotePriority.NONE,
       [Validators.required, Validators.pattern(/^(NONE|LOW|MEDIUM|HIGH|URGENT)$/)],
+    ],
+    status: [
+      StickyNoteStatus.ACTIVE,
+      [Validators.required, Validators.pattern(/^(ACTIVE|ARCHIVED|TRASHED)$/)],
     ],
     shape: ['SQUARE', Validators.required],
     variant: ['PLAIN', Validators.required],
@@ -411,6 +419,7 @@ export class AddEditNoteSidePanel implements OnChanges {
     const content = this.controlString('content');
     const color = this.controlString('color');
     const priority = this.form.controls.priority.value || StickyNotePriority.NONE;
+    const status = this.form.controls.status.value || StickyNoteStatus.ACTIVE;
     const shape = this.controlString('shape');
     const variant = this.controlString('variant');
     const backgroundPattern = this.controlString('backgroundPattern');
@@ -432,6 +441,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       content,
       color,
       priority,
+      status,
       shape,
       variant,
       backgroundPattern,
@@ -457,6 +467,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       content,
       color,
       priority,
+      status,
       shape,
       variant,
       backgroundPattern,
@@ -497,6 +508,11 @@ export class AddEditNoteSidePanel implements OnChanges {
         if (!isStickyNotePriority(value)) return;
         this.form.controls.priority.setValue(value);
         this.form.controls.priority.markAsDirty();
+        break;
+      case 'status':
+        if (!isStickyNoteStatus(value)) return;
+        this.form.controls.status.setValue(value);
+        this.form.controls.status.markAsDirty();
         break;
       case 'color':
         this.form.controls.color.setValue(value);
@@ -786,7 +802,9 @@ export class AddEditNoteSidePanel implements OnChanges {
       this.scrollPanelToBottom();
       const blockCard = document.querySelector(`.note-block-card[data-block-type="${type}"]`);
       if (blockCard) {
-        blockCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (typeof blockCard.scrollIntoView === 'function') {
+          blockCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
         this.focusFirstInput(blockCard);
       }
     }, 60);
@@ -838,6 +856,7 @@ export class AddEditNoteSidePanel implements OnChanges {
       noteDate: toDateKey(this.form.controls.noteDate.value) || null,
       color: this.form.controls.color.value,
       priority: this.form.controls.priority.value,
+      status: this.form.controls.status.value,
       shape: this.form.controls.shape.value,
       variant: this.form.controls.variant.value,
       backgroundPattern: this.form.controls.backgroundPattern.value,
@@ -1141,6 +1160,9 @@ export class AddEditNoteSidePanel implements OnChanges {
             priority: isStickyNotePriority(note?.priority)
               ? note.priority
               : StickyNotePriority.NONE,
+            status: isStickyNoteStatus(note?.status)
+              ? note.status
+              : StickyNoteStatus.ACTIVE,
             shape: note?.shape || 'SQUARE',
             variant: note?.variant || 'PLAIN',
             backgroundPattern: note?.backgroundPattern || 'NONE',
@@ -1527,6 +1549,7 @@ export class AddEditNoteSidePanel implements OnChanges {
         noteDate: this.mode === 'create' ? todayDateKey() : null,
         color: defaultColor,
         priority: StickyNotePriority.NONE,
+        status: StickyNoteStatus.ACTIVE,
         shape: defaultShape,
         variant: defaultVariant,
         backgroundPattern: defaultPattern,

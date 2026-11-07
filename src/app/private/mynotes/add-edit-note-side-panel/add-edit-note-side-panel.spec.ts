@@ -9,7 +9,7 @@ import { restoreStickySelection } from '../../../shared/utils/sticky-markdown/ma
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel';
 import { NoteAttachments } from '../note-attachments/note-attachments';
 import { StickyNoteAttachmentService } from '../services/sticky-note-attachment.service';
-import { StickyNotePriority } from '../constants/sticky-note.constants';
+import { StickyNotePriority, StickyNoteStatus } from '../constants/sticky-note.constants';
 import { Select } from '../../../shared/components/select/select';
 import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
@@ -273,6 +273,50 @@ describe('AddEditNoteSidePanel', () => {
     await fixture.whenStable();
     expect(component.form.controls.priority.value).toBe('NONE');
   });
+
+  it.each(Object.values(StickyNoteStatus))(
+    'creates, reloads and updates %s status through the API',
+    async (status) => {
+      fixture.componentRef.setInput('id', 'column-1');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.status.value).toBe(StickyNoteStatus.ACTIVE);
+      component.updateText('title', 'Status test');
+      component.updateText('content', 'Details');
+      const select = fixture.debugElement.query(By.css('app-select[name="note-status"]'))
+        .componentInstance as Select;
+      select.selectOption(select.options.find((option) => option.value === status)!);
+      await fixture.whenStable();
+      expect(component.livePreviewData.status).toBe(status);
+
+      component.submit();
+      const http = TestBed.inject(HttpTestingController);
+      const create = http.expectOne(API_ENDPOINTS.stickyNotes.create);
+      expect(create.request.method).toBe('POST');
+      expect(create.request.body.status).toBe(status);
+      const saved = { id: 'saved-note-status', ...create.request.body };
+      create.flush({ data: saved });
+      expect(component.saveState()).toBe('saved');
+
+      vi.mocked(TestBed.inject(StickyNoteApiService).getById).mockReturnValue(of({ data: saved }));
+      fixture.componentRef.setInput('open', false);
+      await fixture.whenStable();
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('id', 'saved-note-status');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.status.value).toBe(status);
+      component.updateSelect('status', StickyNoteStatus.ACTIVE);
+      component.updateSelect('status', 'INVALID');
+      expect(component.form.controls.status.value).toBe(StickyNoteStatus.ACTIVE);
+      component.submit();
+      const update = http.expectOne(API_ENDPOINTS.stickyNotes.update('saved-note-status'));
+      expect(update.request.method).toBe('PUT');
+      expect(update.request.body.status).toBe('ACTIVE');
+      update.flush({ data: { ...saved, status: 'ACTIVE' } });
+      expect(component.saveState()).toBe('saved');
+    },
+  );
 
   it('updates both save badges when the date changes', async () => {
     fixture.componentRef.setInput('mode', 'edit');

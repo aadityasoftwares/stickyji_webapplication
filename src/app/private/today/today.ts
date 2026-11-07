@@ -148,6 +148,7 @@ import { WorkspaceMemberApiService } from '../workspace-members/services/workspa
 import type { WorkspaceMemberQuery } from '../workspace-members/interfaces/workspace-member.interface';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { TODAY_MESSAGES } from './messages/today.messages';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 100;
@@ -193,6 +194,7 @@ type OverdueView = 'bar' | 'button';
     OverdueTopbar,
     OverdueNotesPanel,
     AddEditStickyNoteColumnSidePanel,
+    DeleteConfirmModal,
   ],
 })
 export class Today {
@@ -315,6 +317,10 @@ export class Today {
   readonly isSearchExpanded = computed(() => this.searchExpanded() || !!this.searchTerm().trim());
   readonly todaySearchInput = viewChild<AppInput>('todaySearchInput');
   readonly movingColumn = signal(false);
+  readonly deleteTarget = signal<any | null>(null);
+  readonly deleting = signal(false);
+  readonly bulkDeleteOpen = signal(false);
+  readonly bulkBusy = signal(false);
 
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
   readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map((option) => ({
@@ -1666,12 +1672,30 @@ export class Today {
 
   deleteNote(note: any): void {
     closeAllMatMenus();
-    const noteId = idOf(note);
-    if (!noteId) return;
+    this.deleteTarget.set(note);
+  }
 
+  closeDeleteDialog(): void {
+    if (!this.deleting()) {
+      this.deleteTarget.set(null);
+    }
+  }
+
+  confirmDeleteNote(): void {
+    const note = this.deleteTarget();
+    const noteId = idOf(note);
+    if (!noteId || this.deleting()) return;
+
+    this.deleting.set(true);
     this.stickyNoteApiService
       .moveToTrash(noteId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.deleting.set(false);
+          this.deleteTarget.set(null);
+        }),
+      )
       .subscribe({
         next: (response: any) => {
           this.onNoteDeleted(noteId);
@@ -2327,7 +2351,14 @@ export class Today {
   bulkDeleteSelectedNotes(): void {
     const ids = Array.from(this.selectedNoteIds());
     if (!ids.length) return;
+    this.bulkDeleteOpen.set(true);
+  }
 
+  confirmBulkDelete(): void {
+    const ids = Array.from(this.selectedNoteIds());
+    if (!ids.length || this.bulkBusy()) return;
+
+    this.bulkBusy.set(true);
     let completed = 0;
     let deletedCount = 0;
     ids.forEach((id) => {
@@ -2340,6 +2371,8 @@ export class Today {
             completed++;
             deletedCount++;
             if (completed === ids.length) {
+              this.bulkBusy.set(false);
+              this.bulkDeleteOpen.set(false);
               this.overdue.refresh();
               this.toastService.info(
                 `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`,
@@ -2350,6 +2383,8 @@ export class Today {
           error: () => {
             completed++;
             if (completed === ids.length) {
+              this.bulkBusy.set(false);
+              this.bulkDeleteOpen.set(false);
               if (deletedCount > 0) {
                 this.overdue.refresh();
                 this.toastService.info(

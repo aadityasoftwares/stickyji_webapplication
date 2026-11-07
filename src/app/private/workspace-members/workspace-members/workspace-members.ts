@@ -134,6 +134,7 @@ import { SendWorkspaceMemberRequestSidePanel } from '../send-workspace-member-re
 import { MemberCardWrapper } from '../member-card-wrapper/member-card-wrapper';
 import { InvitationCardWrapper } from '../invitation-card-wrapper/invitation-card-wrapper';
 import { closeAllMatMenus } from '../../../shared/functions/menu.function';
+import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 type BadgeVariant = 'success' | 'noteYellow' | 'danger';
 
@@ -163,6 +164,7 @@ type BadgeVariant = 'success' | 'noteYellow' | 'danger';
     InvitationCardWrapper,
     UserDatePipe,
     UserTimePipe,
+    DeleteConfirmModal,
   ],
   templateUrl: './workspace-members.html',
   styleUrl: './workspace-members.scss',

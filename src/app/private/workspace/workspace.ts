@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,29 +10,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { AuthStore } from '../../public/auth/state/auth.store';
-import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  Subject,
-  Subscription,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  finalize,
-  take,
-  timer,
-} from 'rxjs';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { FormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import {
   LucideArchive,
-  LucideArrowRight,
   LucideArrowDownAZ,
   LucideArrowDownZA,
+  LucideArrowRight,
   LucideCalendarPlus,
   LucideCheck,
   LucideChevronDown,
@@ -57,47 +45,52 @@ import {
   LucideUsers,
   LucideX,
 } from '@lucide/angular';
+import {
+  Subject,
+  Subscription,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  take,
+  timer,
+} from 'rxjs';
+import { AuthStore } from '../../public/auth/state/auth.store';
+import { canWorkspaceAction } from '../../shared/functions/workspace-access.function';
 
-import { AppIcon } from '../../shared/components/icon/icon';
-import { Input as AppInput } from '../../shared/components/input/input';
 import { Badge } from '../../shared/components/badge/badge';
+import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
-import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { AppIcon } from '../../shared/components/icon/icon';
+import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
-import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
 import { Switch } from '../../shared/components/switch/switch';
-import { Tooltip } from '../../shared/components/tooltip/tooltip';
-import { Highlight } from '../../shared/directives/highlight.directive';
+import { TabItem, Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
-import { WORKSPACE_MESSAGES } from './messages/workspace.messages';
-import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
-import { UI } from '../../shared/constants/ui.constants';
-import { MembersStack } from '../workspace-members/members-stack/members-stack';
-import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
-import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
-import { WorkspaceService } from './services/workspace.service';
-import { WorkspaceStore } from './services/workspace.store';
-import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
-import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
-import { toTimestamp } from '../../shared/functions/date.function';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import {
-  SORT_OPTIONS,
   GROUP_ACCENTS,
-  WORKSPACE_ACCESS_FILTERS,
+  SORT_OPTIONS,
   USER_PREFERENCE_KEYS,
   VIEW_TABS,
+  WORKSPACE_ACCESS_FILTERS,
   WORKSPACE_SORT_PREFERENCES,
   WorkspaceAccessFilter,
 } from '../../shared/constants/common.constants';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { UI } from '../../shared/constants/ui.constants';
+import { Highlight } from '../../shared/directives/highlight.directive';
 import {
   entityNameOf,
   extractErrorMessage,
   extractList,
   idOf,
 } from '../../shared/functions/common.function';
+import { toTimestamp } from '../../shared/functions/date.function';
 import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import {
   getWorkspaceMemberAvatar,
@@ -105,6 +98,14 @@ import {
   getWorkspaceMemberName,
   getWorkspaceMemberRole,
 } from '../../shared/functions/workspace-member.function';
+import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
+import { MembersStack } from '../workspace-members/members-stack/members-stack';
+import { AddEditWorkspaceSidePanel } from './add-edit-workspace-side-panel/add-edit-workspace-side-panel';
+import { WORKSPACE_MESSAGES } from './messages/workspace.messages';
+import { WorkspaceService } from './services/workspace.service';
+import { WorkspaceStore } from './services/workspace.store';
+import { WorkspaceFolderWrapper } from './workspace-folder-wrapper/workspace-folder-wrapper';
 
 type WorkspaceStatusFilter = 'ALL' | 'ACTIVE' | 'ARCHIVED';
 
@@ -133,6 +134,7 @@ type WorkspaceStatusFilter = 'ALL' | 'ACTIVE' | 'ARCHIVED';
     UserDatePipe,
     WorkspaceFolderWrapper,
     Switch,
+    DeleteConfirmModal,
   ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
