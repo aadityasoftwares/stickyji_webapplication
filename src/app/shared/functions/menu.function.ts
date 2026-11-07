@@ -14,7 +14,7 @@ export function closeAllMatMenus(): void {
     // In Angular CDK Overlay, clicking the overlay backdrop directly triggers
     // OverlayRef.backdropClick(), cleanly closing active MatMenu instances.
     const backdrops = document.querySelectorAll<HTMLElement>(
-      '.cdk-overlay-container .cdk-overlay-backdrop, .cdk-overlay-backdrop',
+      '.cdk-overlay-container .cdk-overlay-backdrop, .cdk-overlay-container .cdk-overlay-backdrop-showing, .cdk-overlay-backdrop, .cdk-overlay-backdrop-showing',
     );
     backdrops.forEach((backdrop) => {
       try {

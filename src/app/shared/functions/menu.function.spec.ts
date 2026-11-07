@@ -21,7 +21,7 @@ describe('closeAllMatMenus', () => {
     overlayContainer.appendChild(backdrop1);
 
     const backdrop2 = document.createElement('div');
-    backdrop2.className = 'cdk-overlay-backdrop-showing';
+    backdrop2.className = 'cdk-overlay-backdrop cdk-overlay-backdrop-showing';
     const clickSpy2 = vi.fn();
     backdrop2.addEventListener('click', clickSpy2);
     overlayContainer.appendChild(backdrop2);

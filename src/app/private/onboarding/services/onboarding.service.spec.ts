@@ -72,8 +72,8 @@ describe('OnboardingService', () => {
 
     service.initialSetup(payload).subscribe((response) => {
       expect(response.success).toBe(true);
-      expect(response.data.workspace.name).toBe('Personal');
-      expect(response.data.folder.name).toBe('My Notes');
+      expect(response.data?.workspace.name).toBe('Personal');
+      expect(response.data?.folder.name).toBe('My Notes');
     });
 
     const req = httpMock.expectOne(API_ENDPOINTS.onboarding.initialSetup);
