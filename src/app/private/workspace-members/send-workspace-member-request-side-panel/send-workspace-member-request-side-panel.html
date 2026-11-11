@@ -14,6 +14,48 @@
   <form panel-body class="invite-editor" (ngSubmit)="submit()" novalidate>
     @if (!isEdit) {
       <!-- ================================================================
+             SECTION 0 · TARGET WORKSPACE SELECTION
+             ================================================================ -->
+
+      <section class="invite-field invite-workspace-field" aria-label="Target workspace">
+        <app-label
+          class="invite-field-label"
+          text="Workspace"
+          forId="workspace-member-workspace"
+          [required]="true"
+        />
+
+        <div class="invite-field-control">
+          <app-select
+            selectId="workspace-member-workspace"
+            id="workspace-member-workspace"
+            name="workspace-member-workspace"
+            dropdownTitle="Workspace"
+            dropdownDescription="Choose the workspace you want to add members to."
+            [options]="availableWorkspaceOptions()"
+            [ngModel]="selectedWorkspaceId()"
+            [ngModelOptions]="{ standalone: true }"
+            [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Choose workspace'"
+            ariaLabel="Choose workspace"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucidePanelsTopLeft"
+            [disabled]="saving()"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+            (ngModelChange)="updateWorkspaceId($event)"
+          />
+
+          <small class="invite-field-hint">
+            The workspace new members will be invited to join.
+          </small>
+        </div>
+      </section>
+
+      <!-- ================================================================
              SECTION 1 · ROLE ASSIGNMENT MODE TOGGLE
              ================================================================ -->
 

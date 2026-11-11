@@ -1217,6 +1217,7 @@
 <app-send-workspace-member-request-side-panel
   [open]="memberModalOpen()"
   [workspaceId]="selectedWorkspaceId()"
+  [workspaceOptions]="workspaceOptions()"
   [member]="memberModalMember()"
   [roleOptions]="availableRoleOptions()"
   (closed)="closeMemberModal()"
