@@ -199,6 +199,7 @@ export class WebsiteHeader {
     { label: 'How it works', href: '/how-it-works', icon: LucideCompass },
     { label: 'Use cases', href: '/use-cases', icon: LucideUsers },
     { label: 'Pricing', href: '/pricing', icon: LucideTag },
+    { label: 'Blog', href: '/blog', icon: LucideFileText },
     {
       label: 'More',
       icon: LucideLayers,

@@ -26,5 +26,9 @@
   "contact-us": {
     "title": "Contact Sticky Ji Support | Aaditya Softwares",
     "description": "Contact the Sticky Ji team for account help, workspace questions, billing, privacy requests, and product feedback. Find our support email and contact guidance."
+  },
+  "blog": {
+    "title": "Blog & Productivity Tips | Sticky Ji",
+    "description": "Read actionable tips and guides on productivity, digital sticky notes, task planning, and time management from Sticky Ji."
   }
 }

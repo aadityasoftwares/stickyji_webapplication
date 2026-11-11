@@ -72,6 +72,7 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'book',
     badgeColor: 'blue',
     links: [
+      { label: 'Blog & Productivity Tips', href: '/blog' },
       { label: 'Help center', href: '/how-it-works' },
       { label: 'Guides', href: '/how-it-works' },
     ],
