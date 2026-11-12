@@ -91,6 +91,10 @@
   min-width: 0;
 }
 
+.invite-workspace-field {
+  grid-template-columns: 82px minmax(0, 1fr);
+}
+
 .invite-field-control {
   display: grid;
   gap: 6px;
@@ -479,6 +483,11 @@
   .invite-field {
     grid-template-columns: 44px minmax(0, 1fr);
     gap: 6px;
+  }
+
+  .invite-workspace-field {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 10px;
   }
 
   .invite-role-list {

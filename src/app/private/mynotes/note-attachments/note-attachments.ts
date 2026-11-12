@@ -77,6 +77,8 @@ export class NoteAttachments implements OnChanges, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private destroyed = false;
   private subscriptions = new Subscription();
+  private readonly thumbnailRequests = new Set<string>();
+  private readonly previewRequestedIds = new Set<string>();
   private page = 0;
   private reloadAfterLoad = false;
   readonly files = signal<NoteAttachment[]>([]);
@@ -101,7 +103,7 @@ export class NoteAttachments implements OnChanges, OnDestroy {
       name: file.fileName,
       mimeType: file.mimeType,
       size: file.size,
-      previewUrl: this.thumbnailUrls()[file.attachmentId],
+      previewUrl: file.url || this.thumbnailUrls()[file.attachmentId],
     })),
     ...this.pending().map((item) => ({
       id: item.idempotencyKey,
@@ -156,7 +158,6 @@ export class NoteAttachments implements OnChanges, OnDestroy {
       this.total.set(this.savedFiles.length);
       this.hasMore.set(false);
       this.listError.set('');
-      for (const file of this.savedFiles) this.loadThumbnail(file, this.noteId);
     } else if (this.noteId && !this.busy()) this.load();
   }
 
@@ -205,7 +206,6 @@ export class NoteAttachments implements OnChanges, OnDestroy {
             this.files.set(more ? [...this.files(), ...result.data] : result.data);
             this.total.set(result.meta?.total ?? result.data.length);
             this.hasMore.set(page < (result.meta?.totalPages ?? 1));
-            for (const file of result.data) this.loadThumbnail(file, noteId);
           },
           error: (error) => {
             if (this.savedFiles !== null) return;
@@ -370,7 +370,16 @@ export class NoteAttachments implements OnChanges, OnDestroy {
   }
 
   openPreview(item: AttachmentPreview): void {
-    if (!item.previewUrl || this.disabled || this.previewItems !== null) return;
+    if (this.disabled || this.previewItems !== null) return;
+    if (!item.previewUrl) {
+      const file = this.files().find((file) => file.attachmentId === item.id);
+      if (file) this.loadThumbnail(file, this.noteId, true);
+      return;
+    }
+    this.showPreview(item);
+  }
+
+  private showPreview(item: AttachmentPreview): void {
     this.selectedPreview.set(item);
     this.cdr.detectChanges();
     this.previewDialog?.nativeElement.showModal();
@@ -411,16 +420,54 @@ export class NoteAttachments implements OnChanges, OnDestroy {
     if (file) this.remove(file);
   }
 
-  private loadThumbnail(file: NoteAttachment, noteId: string): void {
-    if (!file.mimeType.startsWith('image/') || this.thumbnailUrls()[file.attachmentId]) return;
-    this.subscriptions.add(
-      this.api.download(noteId, file.attachmentId).subscribe({
-        next: ({ data }) =>
-          this.thumbnailUrls.update((urls) => ({ ...urls, [file.attachmentId]: data.downloadUrl })),
-        // A thumbnail is optional; the download action can retry with a fresh URL.
-        error: () => {},
-      }),
-    );
+  private loadThumbnail(file: NoteAttachment, noteId: string, openAfterLoad = false): void {
+    const id = file.attachmentId;
+    if (file.url && file.mimeType.startsWith('image/')) {
+      this.thumbnailUrls.update((urls) => ({ ...urls, [id]: file.url! }));
+      if (openAfterLoad) {
+        this.showPreview({
+          id,
+          name: file.fileName,
+          mimeType: file.mimeType,
+          size: file.size,
+          previewUrl: file.url,
+        });
+      }
+      return;
+    }
+    if (!file.mimeType.startsWith('image/') || this.thumbnailUrls()[id] || !noteId) return;
+    if (openAfterLoad) this.previewRequestedIds.add(id);
+    if (this.thumbnailRequests.has(id)) return;
+
+    this.thumbnailRequests.add(id);
+    const subscription = this.api
+      .download(noteId, id)
+      .pipe(
+        finalize(() => {
+          this.thumbnailRequests.delete(id);
+          this.previewRequestedIds.delete(id);
+        }),
+      )
+      .subscribe({
+        next: ({ data }) => {
+          this.thumbnailUrls.update((urls) => ({ ...urls, [id]: data.downloadUrl }));
+          if (this.previewRequestedIds.has(id) && noteId === this.noteId) {
+            this.showPreview({
+              id,
+              name: file.fileName,
+              mimeType: file.mimeType,
+              size: file.size,
+              previewUrl: data.downloadUrl,
+            });
+          }
+        },
+        error: (error) => {
+          if (this.previewRequestedIds.has(id)) {
+            this.notify(attachmentErrorMessage(error, 'Unable to preview the image.'));
+          }
+        },
+      });
+    this.subscriptions.add(subscription);
   }
 
   private releasePreviews(): void {

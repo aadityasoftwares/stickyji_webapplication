@@ -94,6 +94,7 @@ import {
   STICKY_NOTE_LAYOUT_OPTIONS,
   STICKY_NOTE_VIEW_OPTIONS,
   USER_PREFERENCE_KEYS,
+  COLUMN_LIMITS,
   VIEW,
   View,
 } from '../../shared/constants/common.constants';
@@ -457,6 +458,10 @@ export class Today {
   );
   readonly tableEditingTitleId = signal<string | null>(null);
   readonly tableTitleDraft = signal('');
+  readonly editingColumnNameId = signal<string | null>(null);
+  readonly columnNameDraft = signal('');
+  readonly savingColumnNameId = signal<string | null>(null);
+  readonly columnNameMaxLength = COLUMN_LIMITS.NAME_MAX_LENGTH;
   readonly collapsedGroups = signal<Set<string>>(new Set());
 
   readonly selectedNoteIds = signal<Set<string>>(new Set());
@@ -1758,6 +1763,123 @@ export class Today {
     this.columnPanelId.set('');
     this.columnPanelColumn.set(null);
     this.columnPanelOpen.set(true);
+  }
+
+  startColumnNameEdit(column: any, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const id = idOf(column);
+    if (!id || this.boardLoading() || this.movingColumn() || this.savingColumnNameId()) return;
+    const activeEditId = this.editingColumnNameId();
+    if (activeEditId && activeEditId !== id) return;
+
+    this.editingColumnNameId.set(id);
+    this.columnNameDraft.set(
+      String(column?.name ?? column?.label ?? '').slice(0, this.columnNameMaxLength),
+    );
+    setTimeout(() => {
+      if (this.editingColumnNameId() !== id) return;
+      const input = document.querySelector<HTMLInputElement>('[data-today-column-name-editor]');
+      input?.focus();
+      const caretPosition = input?.value.length ?? 0;
+      input?.setSelectionRange(caretPosition, caretPosition);
+    });
+  }
+
+  updateColumnNameDraft(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    this.columnNameDraft.set(value.slice(0, this.columnNameMaxLength));
+  }
+
+  onColumnNameKeydown(event: KeyboardEvent, column: any): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.commitColumnNameEdit(column);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.cancelColumnNameEdit();
+    }
+  }
+
+  commitColumnNameEdit(column: any): void {
+    const id = idOf(column);
+    if (!id || this.editingColumnNameId() !== id || this.savingColumnNameId()) return;
+
+    const nextName = this.columnNameDraft().trim().replace(/\s+/g, ' ');
+    const currentColumn = this.stickyNoteColumnStore.findById(id) ?? column;
+    const currentName = String(
+      currentColumn?.name ?? currentColumn?.title ?? currentColumn?.label ?? '',
+    ).trim();
+    this.cancelColumnNameEdit();
+
+    if (!nextName) {
+      this.toastService.error('Column name cannot be empty.', { title: 'Name required' });
+      return;
+    }
+    if (nextName.length > this.columnNameMaxLength) {
+      this.toastService.error(
+        `Column names can be up to ${this.columnNameMaxLength} characters.`,
+        { title: 'Name is too long' },
+      );
+      return;
+    }
+    if (nextName === currentName) return;
+
+    const workspaceId = this.activeWorkspaceId();
+    const folderId = this.activeFolder();
+    if (!workspaceId || !folderId) return;
+
+    const previousColumn = { ...currentColumn };
+    const optimisticColumn = { ...currentColumn, name: nextName };
+    this.stickyNoteColumnStore.upsert(optimisticColumn);
+    this.savingColumnNameId.set(id);
+
+    this.stickyNoteColumnApiService
+      .update(id, {
+        name: nextName,
+        color: currentColumn?.color ?? 'YELLOW',
+        position: Number(currentColumn?.position) || 0,
+      })
+      .pipe(
+        finalize(() => this.savingColumnNameId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (
+            this.activeWorkspaceId() !== workspaceId ||
+            this.activeFolder() !== folderId
+          ) {
+            return;
+          }
+          const savedColumn = response?.data && typeof response.data === 'object'
+            ? { ...optimisticColumn, ...response.data, name: response.data.name || nextName }
+            : optimisticColumn;
+          this.stickyNoteColumnStore.upsert(savedColumn);
+          this.toastService.success('Column name updated.', {
+            title: 'Column renamed',
+            dedupeKey: `today-column-renamed-${id}`,
+          });
+        },
+        error: (error: any) => {
+          if (
+            this.activeWorkspaceId() === workspaceId &&
+            this.activeFolder() === folderId
+          ) {
+            this.stickyNoteColumnStore.upsert(previousColumn);
+          }
+          this.toastService.error(extractErrorMessage(error, 'Could not rename this column.'), {
+            title: 'Rename failed',
+            dedupeKey: `today-column-rename-error-${id}`,
+          });
+        },
+      });
+  }
+
+  cancelColumnNameEdit(): void {
+    this.editingColumnNameId.set(null);
+    this.columnNameDraft.set('');
   }
 
   requestColumnEdit(column: any, event?: Event): void {

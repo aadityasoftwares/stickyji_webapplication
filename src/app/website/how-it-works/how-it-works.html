@@ -6,28 +6,8 @@
 <main class="how-it-works-page" id="top">
   <!-- Hero Section -->
   <section class="how-hero" aria-labelledby="how-hero-title">
-    <div class="hero-canvas-decorations" aria-hidden="true">
-      <div class="sticky-paper note-yellow decor-1">
-        <span class="tape-strip"></span>
-        <span class="decor-text">Step 01: Capture fast</span>
-      </div>
-      <div class="sticky-paper note-pink decor-2">
-        <span class="pin-dot"></span>
-        <span class="decor-text">Step 02: Color code</span>
-      </div>
-      <div class="sticky-paper note-green decor-3">
-        <span class="tape-strip"></span>
-        <span class="decor-text">Step 04: Focus on Today</span>
-      </div>
-      <div class="paint-swoosh swoosh-left"></div>
-      <div class="paint-swoosh swoosh-right"></div>
-    </div>
-
     <div class="how-hero-shell">
-      <div class="hero-badge">
-        <app-icon [icon]="LucideSparkles" [size]="16" />
-        <span>THE MINDFUL 5-STEP FRAMEWORK</span>
-      </div>
+      <span class="hero-eyebrow">The mindful 5-step framework</span>
 
       <h1 id="how-hero-title" class="how-heading">
         From a fleeting thought
@@ -62,7 +42,7 @@
   <section class="steps-journey-section" aria-labelledby="journey-title">
     <div class="journey-shell">
       <header class="journey-header">
-        <span class="section-eyebrow">STEP-BY-STEP BREAKDOWN</span>
+        <span class="section-eyebrow">Step-by-step breakdown</span>
         <h2 id="journey-title">A workflow that breathes with your day</h2>
         <p>
           Click any step to see how each phase is engineered for zero friction and maximum peace of
@@ -115,22 +95,64 @@
         </div>
 
         <div class="step-visual-side">
-          <div class="visual-board-canvas">
-            <div class="visual-sticky-note" [class]="'note-' + currentStepData.color">
-              <span class="tape-piece" aria-hidden="true"></span>
-              <span class="note-step-counter">0{{ currentStepData.number }} / 05</span>
-              <h4 class="visual-note-heading">{{ currentStepData.title }}</h4>
-              <p class="visual-note-body">{{ currentStepData.tagline }}</p>
+          @if (activeStep() === 'color') {
+            <div class="workflow-preview color-workflow-preview">
+              <div class="workflow-preview-heading"><span>Choose a color that makes sense to you.</span><strong>Paper palette</strong></div>
+              <div class="paper-palette-preview">
+                <div class="palette-paper yellow-paper"><app-icon [icon]="LucideLightbulb" [size]="20" /><strong>Quick ideas</strong><small>Everyday thoughts</small></div>
+                <div class="palette-paper pink-paper"><app-icon [icon]="LucideClock3" [size]="20" /><strong>Time sensitive</strong><small>Things to remember</small></div>
+                <div class="palette-paper blue-paper"><app-icon [icon]="LucidePalette" [size]="20" /><strong>References</strong><small>Useful for later</small></div>
+                <div class="palette-paper green-paper"><app-icon [icon]="LucideCheck" [size]="20" /><strong>Progress</strong><small>Work in motion</small></div>
+              </div>
+              <div class="workflow-preview-footer">A gentle visual cue helps you find related notes at a glance.</div>
+            </div>
+          } @else if (activeStep() === 'columns') {
+            <div class="workflow-preview columns-workflow-preview">
+              <div class="workflow-preview-heading"><span>Project board</span><strong>Move work forward, one step at a time.</strong></div>
+              <div class="kanban-preview">
+                <div><strong>To do <small>2</small></strong><article>Sketch the first draft</article><article>Gather references</article></div>
+                <div><strong>In progress <small>1</small></strong><article class="blue-task">Write the project outline</article></div>
+                <div><strong>Done <small>1</small></strong><article class="green-task">Capture the idea</article></div>
+              </div>
+              <div class="workflow-preview-footer">Your notes move with the work, across a board that fits your flow.</div>
+            </div>
+          } @else if (activeStep() === 'today') {
+            <div class="workflow-preview today-workflow-preview">
+              <div class="workflow-preview-heading"><span>Today · a little focus</span><strong>Three priorities are enough.</strong></div>
+              <div class="focus-count"><span>2</span><small>of 3 small wins today</small><div><i></i></div></div>
+              <div class="focus-task is-complete"><span><app-icon [icon]="LucideCheck" [size]="13" /></span><strong>Review your notes</strong><small>Done</small></div>
+              <div class="focus-task is-complete"><span><app-icon [icon]="LucideCheck" [size]="13" /></span><strong>Pick a next step</strong><small>Done</small></div>
+              <div class="focus-task"><span></span><strong>Make one small start</strong><small>Up next</small></div>
+              <div class="workflow-preview-footer">Keep today’s view calm and leave the rest for later.</div>
+            </div>
+          } @else if (activeStep() === 'celebrate') {
+            <div class="workflow-preview celebrate-workflow-preview">
+              <div class="celebrate-mark"><app-icon [icon]="LucideTrophy" [size]="25" /></div>
+              <span class="celebrate-eyebrow">A moment to notice</span>
+              <strong class="celebrate-title">Look what you moved forward.</strong>
+              <div class="celebrate-summary"><span>Today’s notes</span><strong>3 completed</strong></div>
+              <div class="celebrate-progress"><i></i></div>
+              <div class="celebrate-stickers"><span>✓ Captured an idea</span><span>✓ Finished a task</span><span>✓ Made room for tomorrow</span></div>
+              <div class="workflow-preview-footer">A clear ending makes it easier to begin again.</div>
+            </div>
+          } @else {
+            <div class="visual-board-canvas">
+              <div class="visual-sticky-note" [class]="'note-' + currentStepData.color">
+                <span class="tape-piece" aria-hidden="true"></span>
+                <span class="note-step-counter">0{{ currentStepData.number }} / 05</span>
+                <h4 class="visual-note-heading">{{ currentStepData.title }}</h4>
+                <p class="visual-note-body">{{ currentStepData.tagline }}</p>
 
-              <div class="visual-note-meta">
-                <span class="meta-tag">
-                  <app-icon [icon]="currentStepData.icon" [size]="16" />
-                  <span>Interactive Flow</span>
-                </span>
-                <span class="meta-author">Sticky Ji Workspace</span>
+                <div class="visual-note-meta">
+                  <span class="meta-tag">
+                    <app-icon [icon]="currentStepData.icon" [size]="16" />
+                    <span>Interactive Flow</span>
+                  </span>
+                  <span class="meta-author">Sticky Ji Workspace</span>
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
       </div>
     </div>
@@ -140,7 +162,7 @@
   <section id="sandbox-section" class="sandbox-section" aria-labelledby="sandbox-title">
     <div class="sandbox-shell">
       <header class="sandbox-header">
-        <span class="section-eyebrow">INTERACTIVE PINBOARD</span>
+        <span class="section-eyebrow">Interactive pinboard</span>
         <h2 id="sandbox-title">Pin a note right here. See how it feels.</h2>
         <p>Type an idea, pick a signature color, and stick it to the live demonstration board.</p>
       </header>
@@ -242,7 +264,7 @@
   <section class="habits-section" aria-labelledby="habits-title">
     <div class="habits-shell">
       <header class="section-heading">
-        <span class="section-eyebrow">MINDFUL HABITS</span>
+        <span class="section-eyebrow">Mindful habits</span>
         <h2 id="habits-title">Three daily practices for calmer thinking</h2>
         <p>Try these simple planning routines and adapt them to your own day.</p>
       </header>

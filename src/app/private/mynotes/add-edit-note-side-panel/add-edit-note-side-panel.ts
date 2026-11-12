@@ -247,6 +247,14 @@ export class AddEditNoteSidePanel implements OnChanges {
   private livePreviewCache: any = null;
   private readonly originalChecklistIds = new Set<string>();
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
+  private readonly originalChecklistStateById = new Map<
+    string,
+    { title: string; position: number }
+  >();
+  private readonly originalItemStateByChecklist = new Map<
+    string,
+    Map<string, { title: string; position: number; isCompleted: boolean }>
+  >();
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
     (this.workspaceDropdownStore.loaded()
@@ -969,11 +977,16 @@ export class AddEditNoteSidePanel implements OnChanges {
   private syncChecklists(noteId: string): Observable<any> {
     const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const formChecklists = this.checklists.controls as FormGroup[];
+    let sync$: Observable<any>;
 
     if (!isChecklistActive || !this.withChecklist || formChecklists.length === 0) {
-      if (this.originalChecklistIds.size === 0) return of(null);
+      if (this.originalChecklistIds.size === 0) {
+        this.captureChecklistSnapshot();
+        return of(null);
+      }
       const deleteTasks = [...this.originalChecklistIds].map((id) => this.checklistApi.delete(id));
-      return forkJoin(deleteTasks);
+      sync$ = forkJoin(deleteTasks);
+      return sync$.pipe(tap(() => this.captureChecklistSnapshot()));
     }
 
     const currentListIds = new Set(formChecklists.map((g) => g.get('id')?.value).filter(Boolean));
@@ -982,15 +995,21 @@ export class AddEditNoteSidePanel implements OnChanges {
       .map((id) => this.checklistApi.delete(id));
 
     const saveListTasks = formChecklists.map((group, position) => {
-      const listId = group.get('id')?.value;
+      const listId = String(group.get('id')?.value ?? '');
       const title = (group.get('title')?.value || '').trim();
+      const original = listId ? this.originalChecklistStateById.get(listId) : undefined;
+      const changes: Record<string, unknown> = {};
+      if (!original || original.title !== title) changes['title'] = title;
+      if (!original || original.position !== position) changes['position'] = position;
 
-      const saveList$ = listId
-        ? this.checklistApi.update(listId, { title, position }).pipe(map(() => listId))
-        : this.checklistApi.create({ stickyNoteId: noteId, title, position }).pipe(
+      const saveList$ = !listId
+        ? this.checklistApi.create({ stickyNoteId: noteId, title, position }).pipe(
             map((res) => idOf(res.data)),
             tap((newId) => group.get('id')?.setValue(newId)),
-          );
+          )
+        : Object.keys(changes).length
+          ? this.checklistApi.update(listId, changes).pipe(map(() => listId))
+          : of(listId);
 
       return saveList$.pipe(
         switchMap((targetListId) =>
@@ -1000,33 +1019,39 @@ export class AddEditNoteSidePanel implements OnChanges {
     });
 
     const allTasks = [...deleteListTasks, ...saveListTasks];
-    return allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+    sync$ = allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+    return sync$.pipe(tap(() => this.captureChecklistSnapshot()));
   }
 
   private syncChecklistItems(checklistId: string, itemsArray: FormArray): Observable<any> {
     const itemGroups = itemsArray.controls as FormGroup[];
     const currentItemIds = new Set(itemGroups.map((g) => g.get('id')?.value).filter(Boolean));
     const originalItemIds = this.originalItemIdsByChecklist.get(checklistId) || new Set<string>();
+    const originalItems = this.originalItemStateByChecklist.get(checklistId) ?? new Map();
 
     const deleteItemTasks = [...originalItemIds]
       .filter((id) => !currentItemIds.has(id))
       .map((id) => this.checklistItemApi.delete(id));
 
     const saveItemTasks = itemGroups.map((itemGroup, position) => {
-      const itemId = itemGroup.get('id')?.value;
+      const itemId = String(itemGroup.get('id')?.value ?? '');
       const title = (itemGroup.get('title')?.value || '').trim();
       const isCompleted = itemGroup.get('isCompleted')?.value === true;
-      const initialCompleted = itemGroup.get('initialCompleted')?.value === true;
 
       if (itemId) {
-        const update$ = this.checklistItemApi.update(itemId, { title, position });
-        if (isCompleted !== initialCompleted) {
-          return update$.pipe(
-            switchMap(() => this.checklistItemApi.updateCompletion(itemId, isCompleted)),
-            tap(() => itemGroup.get('initialCompleted')?.setValue(isCompleted)),
-          );
+        const original = originalItems.get(itemId);
+        const changes: Record<string, unknown> = {};
+        if (!original || original.title !== title) changes['title'] = title;
+        if (!original || original.position !== position) changes['position'] = position;
+
+        const tasks: Observable<any>[] = [];
+        if (Object.keys(changes).length) {
+          tasks.push(this.checklistItemApi.update(itemId, changes));
         }
-        return update$;
+        if (!original || original.isCompleted !== isCompleted) {
+          tasks.push(this.checklistItemApi.updateCompletion(itemId, isCompleted));
+        }
+        return tasks.length ? forkJoin(tasks) : of(null);
       } else {
         return this.checklistItemApi.create({ checklistId, title, position }).pipe(
           switchMap((res) => {
@@ -1035,7 +1060,7 @@ export class AddEditNoteSidePanel implements OnChanges {
             if (isCompleted) {
               return this.checklistItemApi
                 .updateCompletion(newItemId, true)
-                .pipe(tap(() => itemGroup.get('initialCompleted')?.setValue(true)));
+                .pipe(map(() => res));
             }
             return of(res);
           }),
@@ -1045,6 +1070,46 @@ export class AddEditNoteSidePanel implements OnChanges {
 
     const allTasks = [...deleteItemTasks, ...saveItemTasks];
     return allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+  }
+
+  private captureChecklistSnapshot(): void {
+    this.originalChecklistIds.clear();
+    this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
+
+    this.checklists.controls.forEach((groupControl, position) => {
+      const group = groupControl as FormGroup;
+      const checklistId = String(group.get('id')?.value ?? '');
+      if (!checklistId) return;
+
+      this.originalChecklistIds.add(checklistId);
+      this.originalChecklistStateById.set(checklistId, {
+        title: String(group.get('title')?.value ?? '').trim(),
+        position,
+      });
+
+      const itemIds = new Set<string>();
+      const itemStates = new Map<string, { title: string; position: number; isCompleted: boolean }>();
+      const itemControls = (group.get('items') as FormArray).controls;
+      itemControls.forEach((itemControl, itemPosition) => {
+        const itemGroup = itemControl as FormGroup;
+        const itemId = String(itemGroup.get('id')?.value ?? '');
+        const isCompleted = itemGroup.get('isCompleted')?.value === true;
+        itemGroup.get('initialCompleted')?.setValue(isCompleted, { emitEvent: false });
+        if (!itemId) return;
+
+        itemIds.add(itemId);
+        itemStates.set(itemId, {
+          title: String(itemGroup.get('title')?.value ?? '').trim(),
+          position: itemPosition,
+          isCompleted,
+        });
+      });
+
+      this.originalItemIdsByChecklist.set(checklistId, itemIds);
+      this.originalItemStateByChecklist.set(checklistId, itemStates);
+    });
   }
 
   private initialize(): void {
@@ -1425,6 +1490,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.checklists.clear();
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
 
     const sortedLists = sortItemsByPosition(
       [...checklists].filter((item) => item?.status !== 'DELETED'),
@@ -1438,16 +1505,10 @@ export class AddEditNoteSidePanel implements OnChanges {
         ),
       );
 
-      if (id) {
-        this.originalChecklistIds.add(id);
-        this.originalItemIdsByChecklist.set(
-          id,
-          new Set(items.map((item) => idOf(item)).filter(Boolean)),
-        );
-      }
-
       this.checklists.push(this.createChecklistGroup({ id, title: checklist.title ?? '', items }));
     }
+
+    this.captureChecklistSnapshot();
 
     const hasLists = this.checklists.length > 0;
     this.form.controls.withChecklist.setValue(hasLists);
@@ -1524,6 +1585,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.hasWorkspaceMembers.set(false);
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
     this.panelFolders.set([]);
     this.panelColumns.set([]);
     this.loadingWorkspaces.set(false);

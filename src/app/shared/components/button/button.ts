@@ -26,6 +26,8 @@ export type ButtonVariant =
   | 'ghost'
   | 'link'
   | 'noteYellow'
+  | 'websiteYellow'
+  | 'enroll'
   | 'noteOrange'
   | 'notePink'
   | 'noteRed'

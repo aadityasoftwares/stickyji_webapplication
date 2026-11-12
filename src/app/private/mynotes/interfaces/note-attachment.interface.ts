@@ -7,6 +7,7 @@ export interface NoteAttachment {
   status: string;
   uploadedAt: string | null;
   addedBy: string;
+  url?: string | null;
 }
 
 export interface AttachmentResponse<T> {

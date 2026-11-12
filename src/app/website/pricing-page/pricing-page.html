@@ -1,31 +1,50 @@
 <app-company-shell>
-  <section class="pricing-hero">
-    <h1>Plans for your online sticky notes</h1>
-    <p>
-      Choose a plan around the notes, storage, and workspaces you need. The catalogue below shows
-      current pricing, billing options, and included features when it loads.
-    </p>
-    <p>
-      Plan availability and limits may change. Review the selected plan and checkout details before
-      making a purchase. <a routerLink="/contact-us">Contact us about pricing or billing</a>.
-    </p>
-  </section>
-  <app-subscription (planSelected)="choosePlan($event)" />
-  <section>
-    <h2>Choosing a plan</h2>
-    <h3>What should I compare?</h3>
-    <p>
-      Consider the number of workspaces and notes you need, storage limits, and the available
-      billing intervals. Use the live comparison to check features for each plan.
-    </p>
-    <h3>Where can I get billing help?</h3>
-    <p>
-      <a routerLink="/contact-us">Contact support</a> with your payment reference. Do not include
-      card details or private notes.
-    </p>
-    <p>
-      Before choosing, explore <a routerLink="/features">Sticky Ji features</a> and
-      <a routerLink="/use-cases">everyday workflows</a>.
-    </p>
-  </section>
+  <div class="pricing-page">
+    <section class="pricing-hero" aria-labelledby="pricing-hero-title">
+      <span class="section-eyebrow">Simple plans for thoughtful work</span>
+      <h1 id="pricing-hero-title">Plans for your online sticky notes</h1>
+      <p class="pricing-lead">
+        Choose a plan around the notes, storage, and workspaces you need. The catalogue below shows
+        current pricing, billing options, and included features when it loads.
+      </p>
+      <p class="pricing-note">
+        Plan availability and limits may change. Review the selected plan and checkout details before
+        making a purchase. <a routerLink="/contact-us">Contact us about pricing or billing</a>.
+      </p>
+    </section>
+
+    <app-subscription (planSelected)="choosePlan($event)" />
+
+    <section class="pricing-guidance" aria-labelledby="pricing-guidance-title">
+      <header class="pricing-guidance-header">
+        <span class="section-eyebrow">Choose with clarity</span>
+        <h2 id="pricing-guidance-title">Choosing a plan</h2>
+        <p>Compare the details that matter for your notes and the way you work.</p>
+      </header>
+
+      <div class="pricing-guidance-grid">
+        <article class="guidance-card">
+          <span class="guidance-index">01</span>
+          <h3>What should I compare?</h3>
+          <p>
+            Consider the number of workspaces and notes you need, storage limits, and the available
+            billing intervals. Use the live comparison to check features for each plan.
+          </p>
+        </article>
+        <article class="guidance-card">
+          <span class="guidance-index">02</span>
+          <h3>Where can I get billing help?</h3>
+          <p>
+            <a routerLink="/contact-us">Contact support</a> with your payment reference. Do not
+            include card details or private notes.
+          </p>
+        </article>
+      </div>
+
+      <p class="pricing-explore-links">
+        Before choosing, explore <a routerLink="/features">Sticky Ji features</a> and
+        <a routerLink="/use-cases">everyday workflows</a>.
+      </p>
+    </section>
+  </div>
 </app-company-shell>

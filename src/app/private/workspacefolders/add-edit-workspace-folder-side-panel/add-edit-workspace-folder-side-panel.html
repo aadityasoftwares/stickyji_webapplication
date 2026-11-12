@@ -45,6 +45,41 @@
         [minHeight]="280"
       />
     } @else {
+      <div class="workspace-folder-field workspace-folder-workspace-field">
+        <app-label
+          forId="workspace-folder-workspace"
+          text="Workspace"
+          [required]="!isEdit"
+        />
+        <div class="workspace-folder-field-control">
+          <app-select
+            selectId="workspace-folder-workspace"
+            id="workspace-folder-workspace"
+            name="workspace-folder-workspace"
+            dropdownTitle="Workspace"
+            dropdownDescription="Choose where this folder will be created."
+            [options]="availableWorkspaceOptions()"
+            [ngModel]="selectedWorkspaceId()"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Choose workspace"
+            ariaLabel="Workspace for this folder"
+            variant="paper"
+            appearance="simple"
+            shape="rounded"
+            size="sm"
+            [iconLeft]="LucideFolder"
+            [disabled]="isBusy || isEdit"
+            [clearable]="false"
+            [searchable]="true"
+            [fullWidth]="true"
+            (ngModelChange)="onWorkspaceChange($event)"
+          />
+          @if (isEdit) {
+            <span class="workspace-folder-field-hint">Existing folders stay in their workspace.</span>
+          }
+        </div>
+      </div>
+
       <section class="workspace-folder-fields" aria-label="Folder details">
         <div class="workspace-folder-field workspace-folder-name-field">
           <app-label forId="workspace-folder-name" text="Name" [required]="true" />

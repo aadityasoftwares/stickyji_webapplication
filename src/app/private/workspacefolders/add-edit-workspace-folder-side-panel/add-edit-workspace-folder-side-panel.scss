@@ -34,7 +34,8 @@
   font-family: $font-body;
 }
 
-.workspace-folder-editor app-input {
+.workspace-folder-editor app-input,
+.workspace-folder-editor app-select {
   display: block;
   min-width: 0;
   width: 100%;
@@ -44,6 +45,11 @@
   .app-input-wrapper {
     --app-input-background: #ffffff;
     --app-input-border: #{$border};
+  }
+
+  .app-select-wrapper {
+    --app-select-background: #ffffff;
+    --app-select-border: #{$border};
   }
 
   .app-label {
@@ -60,14 +66,19 @@
 
 .workspace-folder-field {
   display: grid;
-  grid-template-columns: 62px minmax(0, 1fr);
+  grid-template-columns: 82px minmax(0, 1fr);
   align-items: start;
-  gap: 10px;
+  gap: 14px;
   min-width: 0;
 }
 
 .workspace-folder-field > app-label {
   padding-top: 10px;
+}
+
+.workspace-folder-workspace-field {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--editor-rule);
 }
 
 .workspace-folder-field-control {
@@ -167,7 +178,7 @@
   }
 
   .workspace-folder-field {
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 6px;
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 12px;
   }
 }

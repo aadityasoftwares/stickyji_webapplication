@@ -70,7 +70,7 @@ describe('NoteAttachments', () => {
     revoke.mockRestore();
   });
 
-  it('loads saved thumbnails in read-only detail mode without upload or deletion controls', () => {
+  it('defers saved thumbnail requests in read-only detail mode without upload or deletion controls', () => {
     const image = { ...file, fileName: 'photo.jpg', mimeType: 'image/jpeg' };
     api.list.mockReturnValue(of({ data: [image] }));
     api.download.mockReturnValue(of({ data: { downloadUrl: 'https://files.example/photo.jpg' } }));
@@ -78,7 +78,8 @@ describe('NoteAttachments', () => {
     fixture.componentRef.setInput('noteId', 'note-1');
     fixture.detectChanges();
     expect(api.list).toHaveBeenCalledWith('note-1', 1);
-    expect(component.previewFiles()[0].previewUrl).toBe('https://files.example/photo.jpg');
+    expect(api.download).not.toHaveBeenCalled();
+    expect(component.previewFiles()[0].previewUrl).toBeUndefined();
     expect(fixture.nativeElement.querySelector('input[type="file"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('[aria-label="Remove photo.jpg"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('[aria-label="Download photo.jpg"]')).not.toBeNull();

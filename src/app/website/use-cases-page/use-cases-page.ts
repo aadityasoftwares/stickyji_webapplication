@@ -3,7 +3,6 @@ import { Router, RouterLink } from '@angular/router';
 import {
   LucideArrowRight,
   LucideCheck,
-  LucideSparkles,
   LucidePin,
   LucideGraduationCap,
   LucideBriefcase,
@@ -81,7 +80,6 @@ export class UseCasesPage {
   // Lucide Icons
   readonly LucideArrowRight = LucideArrowRight;
   readonly LucideCheck = LucideCheck;
-  readonly LucideSparkles = LucideSparkles;
   readonly LucidePin = LucidePin;
   readonly LucideGraduationCap = LucideGraduationCap;
   readonly LucideBriefcase = LucideBriefcase;

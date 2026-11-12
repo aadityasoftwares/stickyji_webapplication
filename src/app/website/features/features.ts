@@ -30,6 +30,7 @@ import { WebsiteHeader } from '../website-header/website-header';
 import { WebsiteFooter } from '../website-footer/website-footer';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Avatar } from '../../shared/components/avatar/avatar';
+import { Badge } from '../../shared/components/badge/badge';
 
 export type FeatureTab = 'all' | 'canvas' | 'folders' | 'today' | 'collab' | 'power';
 export type DemoColor = 'yellow' | 'pink' | 'blue' | 'green' | 'purple' | 'orange';
@@ -62,7 +63,7 @@ export interface FeatureDeepDive {
 @Component({
   standalone: true,
   selector: 'app-features-page',
-  imports: [RouterLink, WebsiteHeader, WebsiteFooter, AppIcon, Avatar],
+  imports: [RouterLink, WebsiteHeader, WebsiteFooter, AppIcon, Avatar, Badge],
   templateUrl: './features.html',
   styleUrl: './features.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

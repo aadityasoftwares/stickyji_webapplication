@@ -6,31 +6,8 @@
 <main class="features-page" id="top">
   <!-- Hero Section -->
   <section class="features-hero" aria-labelledby="features-title">
-    <div class="hero-canvas-bg" aria-hidden="true">
-      <div class="floating-note note-1 note-yellow">
-        <span class="washi-tape"></span>
-        <span class="note-quote">Ideas without the clutter</span>
-        <svg class="doodle-sparkle" viewBox="0 0 40 40">
-          <path d="M20 0 L24 16 L40 20 L24 24 L20 40 L16 24 L0 20 L16 16 Z" />
-        </svg>
-      </div>
-      <div class="floating-note note-2 note-pink">
-        <span class="pushpin-dot"></span>
-        <span class="note-quote">Pick 3 notes for Today</span>
-      </div>
-      <div class="floating-note note-3 note-blue">
-        <span class="washi-tape"></span>
-        <span class="note-quote">Shared team workspaces</span>
-      </div>
-      <div class="paint-swoosh swoosh-left"></div>
-      <div class="paint-swoosh swoosh-right"></div>
-    </div>
-
     <div class="hero-shell">
-      <div class="hero-badge">
-        <app-icon [icon]="LucideSparkles" [size]="16" />
-        <span>BUILT FOR HOW THOUGHTS ACTUALLY WORK</span>
-      </div>
+      <span class="hero-eyebrow">Built for how thoughts actually work</span>
 
       <h1 id="features-title" class="hero-heading">
         The tactile joy of paper.
@@ -60,11 +37,9 @@
       </div>
 
       <div class="hero-reassurance">
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> View current plans</span>
-        <i>·</i>
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> Browser-based workspace</span>
-        <i>·</i>
-        <span><app-icon [icon]="LucideCheck" [size]="14" /> Start with one note</span>
+        <app-badge label="View current plans" variant="noteYellow" size="sm" shape="pill" />
+        <app-badge label="Browser-based workspace" variant="noteBlue" size="sm" shape="pill" />
+        <app-badge label="Start with one note" variant="noteGreen" size="sm" shape="pill" />
       </div>
     </div>
   </section>
@@ -77,7 +52,7 @@
   >
     <div class="playground-shell">
       <div class="playground-header">
-        <span class="section-eyebrow">HANDS-ON PREVIEW</span>
+        <span class="section-eyebrow">Hands-on preview</span>
         <h2 id="playground-title">Give it a try before you sign up</h2>
         <p>
           Click the colors, toggle tasks, or toggle the pin to see how intuitive our notes feel.
@@ -194,7 +169,7 @@
   <section class="features-catalog" aria-labelledby="catalog-title">
     <div class="catalog-shell">
       <header class="catalog-header">
-        <span class="section-eyebrow">EXPLORE BY WORKFLOW</span>
+        <span class="section-eyebrow">Explore by workflow</span>
         <h2 id="catalog-title">Crafted for every phase of thinking</h2>
         <p>Filter through the core capabilities that give you complete clarity every day.</p>
 
@@ -278,26 +253,107 @@
             </div>
 
             <div class="pillar-visual">
-              <div
-                class="mock-sticky-board"
-                [style.transform]="'rotate(' + pillar.noteAngle + 'deg)'"
-              >
-                <div class="pillar-sticky-note" [class]="'note-' + pillar.noteColor">
-                  <span class="tape-corner" aria-hidden="true"></span>
-                  <div class="mock-header">
-                    <span class="mock-tag">{{ pillar.noteContent.footerTag }}</span>
-                    <span class="mock-author">{{ pillar.noteContent.author }}</span>
+              @if (pillar.id === 'folders') {
+                <div class="workspace-preview" aria-label="Workspace and folder preview">
+                  <div class="workspace-preview-heading">
+                    <span class="workspace-preview-icon"><app-icon [icon]="LucideLayers" [size]="19" /></span>
+                    <div>
+                      <div class="workspace-preview-kicker">
+                        <span>Your sticky spaces</span>
+                        <app-badge label="3 spaces" variant="noteYellow" size="xs" shape="pill" />
+                      </div>
+                      <h4>Organise notes across personal and shared spaces.</h4>
+                    </div>
                   </div>
-                  <h4 class="mock-title">{{ pillar.noteContent.heading }}</h4>
-                  <p class="mock-sub">{{ pillar.noteContent.subheading }}</p>
-                  <ul class="mock-items">
-                    @for (line of pillar.noteContent.items; track line) {
-                      <li><app-icon [icon]="LucideCheck" [size]="14" /> {{ line }}</li>
-                    }
-                  </ul>
-                  <div class="mock-fold"></div>
+
+                  <div class="workspace-preview-toolbar" aria-hidden="true">
+                    <span class="is-selected"><app-icon [icon]="LucideLayers" [size]="13" /> All spaces <b>3</b></span>
+                    <span><app-icon [icon]="LucideFolder" [size]="13" /> My spaces</span>
+                    <span><app-icon [icon]="LucideUsers" [size]="13" /> Shared</span>
+                  </div>
+
+                  <div class="workspace-preview-grid">
+                    <article class="workspace-preview-card">
+                      <span class="workspace-card-type"><app-icon [icon]="LucideUsers" [size]="13" /> Team</span>
+                      <strong>Studio workspace</strong>
+                      <small>Plan projects together</small>
+                      <div class="workspace-folder-chips">
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Launch plans</span>
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Ideas</span>
+                      </div>
+                      <footer><span>2 folders</span><span><app-icon [icon]="LucideUsers" [size]="13" /> 4 members</span></footer>
+                    </article>
+                    <article class="workspace-preview-card personal-space">
+                      <span class="workspace-card-type"><app-icon [icon]="LucideFolder" [size]="13" /> Personal</span>
+                      <strong>My Workspace</strong>
+                      <small>Your own space to think</small>
+                      <div class="workspace-folder-chips">
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> My Notes</span>
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Daily Tasks</span>
+                      </div>
+                      <footer><span>2 folders</span><span>Just you</span></footer>
+                    </article>
+                    <div class="workspace-preview-create">
+                      <span>+</span>
+                      <strong>Create a new space</strong>
+                      <small>A fresh home for your next idea</small>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              } @else if (pillar.id === 'today') {
+                <div class="feature-screen-preview today-screen">
+                  <div class="feature-screen-topline">
+                    <span class="feature-screen-icon"><app-icon [icon]="LucideCalendar" [size]="18" /></span>
+                    <div><small>Today · Wednesday</small><strong>Your day, one note at a time.</strong></div>
+                    <app-badge label="3 notes" variant="noteYellow" size="xs" shape="pill" />
+                  </div>
+                  <div class="today-progress"><span></span></div>
+                  <div class="today-task is-done"><span class="task-check"><app-icon [icon]="LucideCheck" [size]="13" /></span><span><strong>Review project notes</strong><small>Personal workspace · My Notes</small></span><em>Done</em></div>
+                  <div class="today-task"><span class="task-check"></span><span><strong>Plan the next small step</strong><small>Studio workspace · Launch plans</small></span><em>Next</em></div>
+                  <div class="today-task"><span class="task-check"></span><span><strong>Capture an idea for later</strong><small>Personal workspace · Ideas</small></span><em>Later</em></div>
+                  <div class="feature-screen-foot"><span>One calm place for today’s priorities</span><strong>1 of 3 complete</strong></div>
+                </div>
+              } @else if (pillar.id === 'collab') {
+                <div class="feature-screen-preview team-screen">
+                  <div class="team-screen-heading"><div><small>Shared workspace</small><strong>Brand Studio</strong></div><app-badge label="4 members" variant="noteGreen" size="xs" shape="pill" /></div>
+                  <p>Keep the team’s ideas and next steps together.</p>
+                  <div class="team-members" aria-label="Workspace members"><span>AM</span><span>JL</span><span>SK</span><span>+1</span><small>Members</small></div>
+                  <div class="team-task"><span class="team-task-color"></span><div><strong>Campaign launch notes</strong><small>Shared with the whole team</small></div><span class="team-assignee">AM</span></div>
+                  <div class="team-task"><span class="team-task-color blue"></span><div><strong>Packaging review</strong><small>Assigned to Jamie</small></div><span class="team-assignee blue">JL</span></div>
+                  <div class="team-screen-foot"><app-icon [icon]="LucideShield" [size]="14" /> Roles and access stay clear to everyone.</div>
+                </div>
+              } @else if (pillar.id === 'power') {
+                <div class="feature-screen-preview search-screen">
+                  <div class="search-screen-heading"><span class="feature-screen-icon"><app-icon [icon]="LucideSearch" [size]="18" /></span><div><small>Find what you need</small><strong>Search across your spaces.</strong></div></div>
+                  <div class="mock-search-field"><app-icon [icon]="LucideSearch" [size]="15" /><span>launch checklist</span><kbd>⌘ K</kbd></div>
+                  <small class="search-result-label">3 matching notes</small>
+                  <div class="search-result"><span class="result-note yellow"></span><div><strong>Product launch checklist</strong><small>Studio workspace · Launch plans</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-result"><span class="result-note blue"></span><div><strong>Launch ideas</strong><small>Personal workspace · My Notes</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-result"><span class="result-note green"></span><div><strong>Team launch tasks</strong><small>Shared workspace · Campaign</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-screen-foot">Search notes, folders, and workspaces in one place.</div>
+                </div>
+              } @else {
+                <div
+                  class="mock-sticky-board"
+                  [style.transform]="'rotate(' + pillar.noteAngle + 'deg)'"
+                >
+                  <div class="pillar-sticky-note" [class]="'note-' + pillar.noteColor">
+                    <span class="tape-corner" aria-hidden="true"></span>
+                    <div class="mock-header">
+                      <span class="mock-tag">{{ pillar.noteContent.footerTag }}</span>
+                      <span class="mock-author">{{ pillar.noteContent.author }}</span>
+                    </div>
+                    <h4 class="mock-title">{{ pillar.noteContent.heading }}</h4>
+                    <p class="mock-sub">{{ pillar.noteContent.subheading }}</p>
+                    <ul class="mock-items">
+                      @for (line of pillar.noteContent.items; track line) {
+                        <li><app-icon [icon]="LucideCheck" [size]="14" /> {{ line }}</li>
+                      }
+                    </ul>
+                    <div class="mock-fold"></div>
+                  </div>
+                </div>
+              }
             </div>
           </article>
         }
@@ -309,7 +365,7 @@
   <section class="micro-features-section" aria-labelledby="micro-title">
     <div class="micro-shell">
       <header class="section-heading">
-        <span class="section-eyebrow">ATTENTION TO CRAFT</span>
+        <span class="section-eyebrow">Attention to craft</span>
         <h2 id="micro-title">Little details that bring a smile to planning</h2>
         <p>Because the tools you look at all day should make you feel calm, not exhausted.</p>
       </header>
@@ -337,7 +393,7 @@
   <section class="comparison-strip" aria-labelledby="compare-title">
     <div class="compare-shell">
       <header class="compare-header">
-        <span class="section-eyebrow">THE STICKY JI PHILOSOPHY</span>
+        <span class="section-eyebrow">The Sticky Ji philosophy</span>
         <h2 id="compare-title">How Sticky Ji is purposefully different</h2>
       </header>
 

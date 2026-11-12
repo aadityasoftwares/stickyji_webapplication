@@ -13,10 +13,6 @@
 >
   <form panel-body class="invite-editor" (ngSubmit)="submit()" novalidate>
     @if (!isEdit) {
-      <!-- ================================================================
-             SECTION 0 · TARGET WORKSPACE SELECTION
-             ================================================================ -->
-
       <section class="invite-field invite-workspace-field" aria-label="Target workspace">
         <app-label
           class="invite-field-label"
@@ -54,6 +50,10 @@
           </small>
         </div>
       </section>
+
+      <!-- ================================================================
+             SECTION 0 · TARGET WORKSPACE SELECTION
+             ================================================================ -->
 
       <!-- ================================================================
              SECTION 1 · ROLE ASSIGNMENT MODE TOGGLE

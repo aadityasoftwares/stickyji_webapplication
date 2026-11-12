@@ -262,10 +262,10 @@ export class Workspacefolders implements OnInit, OnChanges {
   readonly selectedFolderIds = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedFolderIds().size);
 
-  readonly workspaces = this.workspaceStore.workspaces;
-  readonly loadingWorkspaces = this.workspaceStore.loading;
-  readonly workspaceError = this.workspaceStore.error;
-  readonly selectedWorkspaceId = computed(() => this.workspaceStore.selectedId() ?? '');
+  readonly workspaces = signal<readonly any[]>([]);
+  readonly loadingWorkspaces = signal(false);
+  readonly workspaceError = signal<string | null>(null);
+  readonly selectedWorkspaceId = signal('');
   readonly selectedFolderId = computed(() => this.folderStore.selectedId() ?? '');
 
   readonly workspaceOptions = computed<readonly SelectOption[]>(() =>
@@ -616,7 +616,17 @@ export class Workspacefolders implements OnInit, OnChanges {
     });
 
     effect(() => {
-      const workspaceId = this.workspaceStore.selectedId();
+      const availableWorkspaces = this.workspaces();
+      let workspaceId = this.selectedWorkspaceId();
+
+      if (
+        !workspaceId ||
+        !availableWorkspaces.some((workspace) => idOf(workspace) === workspaceId)
+      ) {
+        this.ensureWorkspaceSelection();
+        workspaceId = this.selectedWorkspaceId();
+      }
+
       if (!workspaceId) {
         this.loadedWorkspaceId = null;
         this.clearPageForNoWorkspace();
@@ -648,10 +658,11 @@ export class Workspacefolders implements OnInit, OnChanges {
         this.initPreferences();
       });
 
-    if (!this.workspaceStore.loaded() && !this.workspaceStore.loading()) {
-      this.workspaceStore.load();
-    } else {
+    if (this.workspaceStore.loaded()) {
+      this.workspaces.set(this.workspaceStore.workspaces());
       this.ensureWorkspaceSelection();
+    } else {
+      this.loadWorkspaces();
     }
   }
 
@@ -676,7 +687,23 @@ export class Workspacefolders implements OnInit, OnChanges {
   }
 
   loadWorkspaces(): void {
-    this.workspaceStore.load(true);
+    this.loadingWorkspaces.set(true);
+    this.workspaceError.set(null);
+    this.workspaceApi
+      .getWorkspaceDropdown()
+      .pipe(
+        finalize(() => this.loadingWorkspaces.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.workspaces.set(response?.data ?? []);
+          this.ensureWorkspaceSelection();
+        },
+        error: (error) => {
+          this.workspaceError.set(extractErrorMessage(error, 'Could not load workspaces.'));
+        },
+      });
   }
 
   refreshFolders(): void {
@@ -774,8 +801,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     const id = value.trim();
     if (id === this.selectedWorkspaceId()) return;
 
-    this.workspaceStore.select(id);
-    this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.SELECTED_WORKSPACE_ID, id);
+    this.selectedWorkspaceId.set(id);
     this.folderStore.resetForWorkspace(id);
     this.workspaceChange.emit(id);
   }
@@ -1415,26 +1441,25 @@ export class Workspacefolders implements OnInit, OnChanges {
   private ensureWorkspaceSelection(): void {
     const workspaces = this.workspaces();
     if (!workspaces.length) {
-      this.workspaceStore.select(null);
+      this.selectedWorkspaceId.set('');
       this.clearPageForNoWorkspace();
       return;
     }
 
     const requestedId = this.workspaceId.trim();
     const currentId = this.selectedWorkspaceId();
-    const preferredId = this.userPreferenceStore.selectedWorkspaceId();
     const valid = (id: string) => !!id && workspaces.some((workspace) => idOf(workspace) === id);
 
     const nextId = valid(requestedId)
       ? requestedId
-      : valid(preferredId)
-        ? preferredId
-        : valid(currentId)
-          ? currentId
+      : valid(currentId)
+        ? currentId
+        : valid(this.workspaceStore.selectedId() ?? '')
+          ? (this.workspaceStore.selectedId() ?? '')
           : idOf(workspaces[0]);
 
     if (nextId !== currentId) {
-      this.workspaceStore.select(nextId);
+      this.selectedWorkspaceId.set(nextId);
     }
   }
 
@@ -1443,7 +1468,7 @@ export class Workspacefolders implements OnInit, OnChanges {
     if (!id || id === this.selectedWorkspaceId()) return;
 
     if (this.workspaces().some((workspace) => idOf(workspace) === id)) {
-      this.workspaceStore.select(id);
+      this.selectedWorkspaceId.set(id);
     }
   }
 

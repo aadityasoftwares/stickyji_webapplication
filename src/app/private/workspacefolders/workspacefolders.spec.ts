@@ -52,7 +52,10 @@ describe('Workspace detail navigation authorization', () => {
     })
       .overrideComponent(Workspacefolders, { set: { template: '', imports: [] } })
       .compileComponents();
-    TestBed.inject(WorkspaceStore).setWorkspaces([{ id: 'a', name: 'Workspace' }]);
+    TestBed.inject(WorkspaceStore).setWorkspaces([
+      { id: 'a', name: 'Workspace' },
+      { id: 'b', name: 'Another workspace' },
+    ]);
     vi.spyOn(TestBed.inject(UserPreferenceStore), 'setAndSave').mockImplementation(() => {});
     fixture = TestBed.createComponent(Workspacefolders);
   });
@@ -86,7 +89,7 @@ describe('Workspace detail navigation authorization', () => {
     fixture.detectChanges();
     const store = TestBed.inject(WorkspaceStore);
     store.setWorkspaces([{ id: 'a' }, { id: 'b' }]);
-    store.select('b');
+    fixture.componentInstance.onWorkspaceChange('b');
     fixture.detectChanges();
     response.next({ data: { id: 'a', allowedActions: { canView: true } } });
     expect(folders.getAllWorkspaceFolders).toHaveBeenCalledExactlyOnceWith({

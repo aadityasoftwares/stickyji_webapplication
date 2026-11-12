@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CompanyShell } from '../company-pages/company-shell';
-import { Subscription } from '../subscription/subscription';
 import { PlanCardDTO } from '../subscription/services/plans.service';
+import { Subscription } from '../subscription/subscription';
 
 @Component({
   selector: 'app-pricing-page',

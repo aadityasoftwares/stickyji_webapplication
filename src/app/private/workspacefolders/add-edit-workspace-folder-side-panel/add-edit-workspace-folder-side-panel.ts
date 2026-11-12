@@ -36,6 +36,7 @@ import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
 import { Loader } from '../../../shared/components/loader/loader';
+import { Select, type SelectOption, type SelectValue } from '../../../shared/components/select/select';
 import { SidePanel } from '../../../shared/components/side-panel/side-panel';
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
@@ -66,6 +67,7 @@ import { WORKSPACE_FOLDER_MESSAGES } from '../messages/workspace-folder.messages
     Button,
     Label,
     Loader,
+    Select,
     SidePanel,
     Tooltip,
     WorkspaceFolderWrapper,
@@ -140,6 +142,9 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   @Input() id = '';
   @Input() workspaceId = '';
   @Input() workspaceName = '';
+  @Input() set workspaceOptions(options: readonly SelectOption[] | undefined) {
+    this._workspaceOptions.set(options ?? []);
+  }
   @Input() folder: WorkspaceFolder | null = null;
   @Input() position = 0;
 
@@ -160,8 +165,11 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
   readonly error = signal('');
   readonly name = signal('');
   readonly folderDescription = signal('');
+  readonly selectedWorkspaceId = signal('');
   readonly dirty = signal(false);
   readonly previewSource = signal<any | null>(null);
+  private readonly _workspaceOptions = signal<readonly SelectOption[]>([]);
+  readonly availableWorkspaceOptions = this._workspaceOptions.asReadonly();
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -239,6 +247,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
       this.authorized &&
       !this.isBusy &&
       !this.loadFailed() &&
+      (this.isEdit || !!this.selectedWorkspaceId().trim()) &&
       (!this.isEdit || this.dirty()) &&
       length >= this.nameMinLength &&
       length <= this.nameMaxLength &&
@@ -310,6 +319,48 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     this.markDirty();
   }
 
+  onWorkspaceChange(value: SelectValue | SelectValue[] | null): void {
+    if (this.isEdit || typeof value !== 'string' || !value.trim()) return;
+
+    const workspaceId = value.trim();
+    if (workspaceId === this.selectedWorkspaceId()) return;
+    if (!this.availableWorkspaceOptions().some((option) => option.value === workspaceId)) return;
+
+    this.sessionEnd$.next();
+    this.selectedWorkspaceId.set(workspaceId);
+    this.accessWorkspace.set(null);
+    this.loadFailed.set(false);
+    this.loadingData.set(true);
+    this.dirty.set(true);
+    this.error.set('');
+
+    this.workspaceApi
+      .getById(workspaceId)
+      .pipe(
+        takeUntil(this.sessionEnd$),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingData.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          const workspace = response?.data;
+          this.accessWorkspace.set(workspace ?? null);
+          if (workspace) this.workspaceStore.updateWorkspace(workspaceId, workspace);
+          if (!canFolderAction(workspace, null, 'canCreate')) {
+            this.loadFailed.set(true);
+            this.showError({
+              status: 403,
+              error: { message: 'Folder write permission is unavailable for this workspace.' },
+            }, 'Folder write permission is unavailable for this workspace.', false);
+          }
+        },
+        error: (error) => {
+          this.loadFailed.set(true);
+          this.showError(error, 'Unable to load this workspace. Choose another workspace.', false);
+        },
+      });
+  }
+
   submit(): void {
     if (this.isBusy || this.loadFailed() || !this.authorized) return;
     if (!this.canSubmit) {
@@ -339,7 +390,11 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
 
     const request$ = isEdit
       ? this.folderApi.update(id, payload)
-      : this.folderApi.create({ ...payload, name: payload.name!, workspaceId: this.workspaceId });
+      : this.folderApi.create({
+          ...payload,
+          name: payload.name!,
+          workspaceId: this.selectedWorkspaceId(),
+        });
 
     request$
       .pipe(
@@ -395,6 +450,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     this.previewSource.set(null);
     this.name.set('');
     this.folderDescription.set('');
+    this.selectedWorkspaceId.set(this.workspaceId.trim());
 
     this.editorId = idOf(this.id || this.folder);
 
@@ -406,12 +462,12 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     const id = this.editorId;
     this.loadingData.set(true);
     this.workspaceApi
-      .getById(this.workspaceId)
+      .getById(this.selectedWorkspaceId())
       .pipe(
         switchMap((response) => {
           const workspace = response.data;
           this.accessWorkspace.set(workspace);
-          this.workspaceStore.updateWorkspace(this.workspaceId, workspace);
+          this.workspaceStore.updateWorkspace(this.selectedWorkspaceId(), workspace);
           if (!canFolderAction(workspace, null, 'canCreate')) {
             return throwError(() => ({
               status: 403,
@@ -421,7 +477,7 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
           if (!id) {
             return of({
               data: {
-                workspaceId: this.workspaceId,
+                workspaceId: this.selectedWorkspaceId(),
                 name: '',
                 description: '',
                 position: 0,
@@ -461,13 +517,12 @@ export class AddEditWorkspaceFolderSidePanel implements OnChanges, AfterViewInit
     this.dirty.set(true);
   }
 
-  private showError(error: unknown, fallback: string): void {
+  private showError(error: unknown, fallback: string, notifyAccessDenied = true): void {
     const status = (error as { status?: number } | null)?.status;
     if (status === 401 || status === 403) {
       this.accessWorkspace.set(null);
       this.loadFailed.set(true);
-      this.workspaceStore.load(true);
-      this.accessDenied.emit();
+      if (notifyAccessDenied) this.accessDenied.emit();
     }
     const message = extractErrorMessage(
       error,

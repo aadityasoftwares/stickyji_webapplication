@@ -1,17 +1,18 @@
 import { DOCUMENT, ViewportScroller } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   afterNextRender,
-  inject,
-  signal,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   EventEmitter,
   HostListener,
+  inject,
   Input,
   Output,
+  signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -23,20 +24,35 @@ import {
   LucideLayers,
   LucideLogIn,
   LucideMail,
+  LucideMapPin,
   LucideMenu,
+  LucidePhone,
   LucideShieldCheck,
   LucideSparkles,
   LucideStar,
   LucideTag,
+  LucideUser,
   LucideUsers,
   LucideX,
 } from '@lucide/angular';
+import { AuthStore } from '../../public/auth/state/auth.store';
 import { Badge } from '../../shared/components/badge/badge';
 import { Button } from '../../shared/components/button/button';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { Label } from '../../shared/components/label/label';
-import { AuthStore } from '../../public/auth/state/auth.store';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
+
+export interface HeaderAnnouncement {
+  text: string;
+  icon?: any;
+  iconColor?: string;
+}
+
+export interface HeaderSocialLink {
+  label: string;
+  href: string;
+  type: 'linkedin' | 'facebook' | 'x' | 'instagram' | 'youtube' | 'discord';
+}
 
 export interface HeaderSubNavItem {
   label: string;
@@ -57,6 +73,15 @@ export interface HeaderNavItem {
   children?: readonly HeaderSubNavItem[];
 }
 
+/** Scroll distance (px) before the header is allowed to hide. */
+const HIDE_AFTER_SCROLL_Y = 120;
+/** Minimum scroll movement (px) to count as a direction change. */
+const SCROLL_DELTA_THRESHOLD = 6;
+/** Scroll position (px) at which the "scrolled" shadow state turns on. */
+const SCROLLED_ON_Y = 28;
+/** Scroll position (px) at which it turns off again (hysteresis avoids flicker). */
+const SCROLLED_OFF_Y = 8;
+
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +89,8 @@ export interface HeaderNavItem {
   host: {
     '[class.app-header-menu-open]': 'mobileMenuOpen',
     '[class.header-hidden]': 'headerHidden() && !mobileMenuOpen',
+    '[class.header-scrolled]': 'isScrolled()',
+    '[class.has-top-bar]': 'showTopBar',
   },
   selector: 'app-website-header',
   styleUrl: './website-header.scss',
@@ -74,9 +101,12 @@ export class WebsiteHeader {
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly scroller = inject(ViewportScroller);
+  private readonly destroyRef = inject(DestroyRef);
   readonly activeSection = signal(this.router.parseUrl(this.router.url).fragment ?? 'top');
   readonly headerHidden = signal(false);
+  readonly isScrolled = signal(false);
   private previousScrollY = 0;
+  private scrollFrame: number | null = null;
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
@@ -89,7 +119,15 @@ export class WebsiteHeader {
     });
     afterNextRender(() => {
       this.scroller.setOffset([0, 88]);
+      this.previousScrollY = Math.max(0, this.document.defaultView?.scrollY ?? 0);
+      this.isScrolled.set(this.previousScrollY > SCROLLED_ON_Y);
       if (!this.router.parseUrl(this.router.url).fragment) this.updateActiveSection();
+    });
+    this.destroyRef.onDestroy(() => {
+      this.setBodyScrollLocked(false);
+      if (this.scrollFrame !== null) {
+        this.document.defaultView?.cancelAnimationFrame(this.scrollFrame);
+      }
     });
   }
 
@@ -102,6 +140,24 @@ export class WebsiteHeader {
     if (!item.href) return false;
     const [path, fragment] = item.href.split('#');
     if (fragment) return (!path || path === currentPath) && fragment === this.activeSection();
+
+    // Nested sub-path match (e.g. /blog/post-slug keeps Blog active)
+    if (path !== '/' && (currentPath === path || currentPath.startsWith(path + '/'))) {
+      return true;
+    }
+
+    // Home page section scroll synchronization
+    if (currentPath === '/') {
+      const section = this.activeSection();
+      if (item.isHome || item.href === '/') {
+        return section === 'top' || !section;
+      }
+      const itemSlug = path.replace(/^\//, '');
+      if (itemSlug && itemSlug === section) {
+        return true;
+      }
+    }
+
     return path === currentPath;
   }
 
@@ -141,16 +197,35 @@ export class WebsiteHeader {
     }
   }
 
+  /**
+   * Scroll events can fire many times per frame. We only record that one happened
+   * and do the real work (layout reads + signal writes) once per animation frame.
+   */
   @HostListener('window:scroll')
   onScroll(): void {
+    this.handleScroll();
+  }
+
+  private handleScroll(): void {
     const scrollY = Math.max(0, this.document.defaultView?.scrollY ?? 0);
     const delta = scrollY - this.previousScrollY;
-    if (scrollY <= 120 || this.mobileMenuOpen) {
+
+    // Hysteresis: separate on/off thresholds so the state can't flicker at the boundary.
+    if (scrollY > SCROLLED_ON_Y) {
+      this.isScrolled.set(true);
+    } else if (scrollY < SCROLLED_OFF_Y) {
+      this.isScrolled.set(false);
+    }
+
+    if (scrollY <= HIDE_AFTER_SCROLL_Y || this.mobileMenuOpen) {
       this.headerHidden.set(false);
-    } else if (Math.abs(delta) >= 6) {
+    } else if (Math.abs(delta) >= SCROLL_DELTA_THRESHOLD) {
       this.headerHidden.set(delta > 0);
     }
-    if (Math.abs(delta) >= 6 || scrollY <= 120) this.previousScrollY = scrollY;
+
+    if (Math.abs(delta) >= SCROLL_DELTA_THRESHOLD || scrollY <= HIDE_AFTER_SCROLL_Y) {
+      this.previousScrollY = scrollY;
+    }
     this.updateActiveSection();
   }
 
@@ -162,7 +237,14 @@ export class WebsiteHeader {
       const section = this.document.getElementById(id);
       if (section && section.getBoundingClientRect().top <= 120) active = id;
     }
-    this.activeSection.set(active);
+    if (active !== this.activeSection()) this.activeSection.set(active);
+  }
+
+  /** Stops the page behind the mobile drawer from scrolling. */
+  private setBodyScrollLocked(locked: boolean): void {
+    const body = this.document.body;
+    if (!body) return;
+    body.style.overflow = locked ? 'hidden' : '';
   }
 
   readonly LucideArrowRight = LucideArrowRight;
@@ -175,11 +257,14 @@ export class WebsiteHeader {
   readonly LucideLayers = LucideLayers;
   readonly LucideLogIn = LucideLogIn;
   readonly LucideMail = LucideMail;
+  readonly LucideMapPin = LucideMapPin;
   readonly LucideMenu = LucideMenu;
+  readonly LucidePhone = LucidePhone;
   readonly LucideShieldCheck = LucideShieldCheck;
   readonly LucideSparkles = LucideSparkles;
   readonly LucideStar = LucideStar;
   readonly LucideTag = LucideTag;
+  readonly LucideUser = LucideUser;
   readonly LucideUsers = LucideUsers;
   readonly LucideX = LucideX;
 
@@ -189,9 +274,45 @@ export class WebsiteHeader {
   @Input() productBadge = 'BETA';
   @Input() showProductBadge = false;
 
-  @Input() signInLabel = 'Sign in';
+  @Input() signInLabel = 'Login';
   @Input() primaryActionLabel = 'Start for free';
   @Input() reassuranceText = 'Plan your day with online notes';
+
+  @Input() showTopBar = true;
+  @Input() locationText = 'Vadodara, Gujarat, India';
+  @Input() emailAddress = 'contact@aadityasoftwares.in';
+  @Input() phoneNumber = '+91 88498 63872';
+
+  @Input() socialLinks: readonly HeaderSocialLink[] = [
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/company/aaditya-softwares',
+      type: 'linkedin',
+    },
+    { label: 'Facebook', href: 'https://www.facebook.com', type: 'facebook' },
+    { label: 'X', href: 'https://x.com', type: 'x' },
+    { label: 'Instagram', href: 'https://www.instagram.com', type: 'instagram' },
+    { label: 'YouTube', href: 'https://www.youtube.com', type: 'youtube' },
+    { label: 'Discord', href: 'https://discord.gg', type: 'discord' },
+  ];
+
+  @Input() showAnnouncementBar = true;
+  @Input() announcements: readonly HeaderAnnouncement[] = [
+    {
+      text: 'Back To Planning Season! Avail Free Lifetime Access for Individuals',
+      iconColor: '#fbbf24',
+    },
+    {
+      text: 'Special Workspace Offer! Collaborate with Team Members in Real-Time',
+      iconColor: '#f43f5e',
+    },
+    { text: '+ Cloud Sync + Offline Support — Limited Period Only!', iconColor: '#38bdf8' },
+    {
+      text: 'Organize at Your Own Pace, Color Code Notes, and Build a Brighter Future!',
+      iconColor: '#4ade80',
+    },
+    { text: 'Get Started Free Today — No Credit Card Required!', iconColor: '#c084fc' },
+  ];
 
   @Input() navItems: readonly HeaderNavItem[] = [
     { label: 'Home', href: '/', icon: LucideHouse },
@@ -270,10 +391,14 @@ export class WebsiteHeader {
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+    this.setBodyScrollLocked(this.mobileMenuOpen);
+    if (this.mobileMenuOpen) this.headerHidden.set(false);
   }
 
   closeMobileMenu(): void {
+    if (!this.mobileMenuOpen) return;
     this.mobileMenuOpen = false;
+    this.setBodyScrollLocked(false);
   }
 
   onBrandClick(event?: MouseEvent): void {
@@ -284,11 +409,12 @@ export class WebsiteHeader {
   }
 
   onNavSelected(item: HeaderNavItem | HeaderSubNavItem, event?: MouseEvent): void {
+    // Unlock scrolling first so in-page anchor scrolling works after the drawer closes.
+    this.closeMobileMenu();
     if (item.href && !('external' in item && item.external)) {
       this.navigateLink(item.href, event);
     }
     this.closeDropdown();
-    this.closeMobileMenu();
     if ('href' in item) {
       this.navSelected.emit(item as HeaderNavItem);
     }

@@ -1,4 +1,5 @@
 @use '../../styles/variables' as *;
+@use '../../styles/website-typography' as website-type;
 
 :host {
   display: block;
@@ -43,77 +44,9 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 72px 24px 64px;
-  background:
-    radial-gradient(ellipse at 50% 57%, #fff6bd99, transparent 64%),
-    #fffdf9;
-  border-bottom: 1px solid #ebe5d8;
+  padding: website-type.$home-section-space 24px;
+  background: website-type.$home-section-yellow;
 }
-
-.hero-decorations {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.paint-swoosh {
-  position: absolute;
-  z-index: 1;
-  width: 440px;
-  height: 155px;
-  border: 54px solid #ffe88f40;
-  border-radius: 50%;
-  transform: rotate(-47deg);
-}
-
-.swoosh-right {
-  top: 40px;
-  right: 2%;
-}
-
-.swoosh-left {
-  bottom: 20px;
-  left: 1%;
-  transform: rotate(-40deg);
-}
-
-.sticky-tag {
-  position: absolute;
-  z-index: 2;
-  padding: 12px 18px;
-  border-radius: 4px;
-  font-family: $font-heading;
-  font-weight: 700;
-  font-size: 13px;
-  box-shadow: 0 8px 18px -4px rgba(70, 50, 20, 0.12);
-  width: 170px;
-  text-align: center;
-}
-
-.washi-tape-mini {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 16px;
-  background: rgba(228, 214, 188, 0.75);
-}
-
-.pin-mini {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ff6b6b, #b32020);
-}
-
-.decor-1 { top: 30px; left: 3%; transform: rotate(-5deg); }
-.decor-2 { top: 120px; right: 4%; transform: rotate(5deg); }
-.decor-3 { bottom: 25px; left: 5%; transform: rotate(3deg); }
 
 .hero-shell {
   max-width: 860px;
@@ -123,28 +56,19 @@
   z-index: 2;
 }
 
-.hero-badge {
+.hero-eyebrow {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 30px;
-  background: #fdf2cc;
-  border: 1px solid #ebcb62;
-  color: #6d4e08;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
   margin-bottom: 24px;
+  @include website-type.eyebrow;
 }
 
 .hero-title {
-  font-family: $font-heading;
-  font-size: clamp(34px, 5vw, 58px);
-  line-height: 1.15;
-  font-weight: 800;
+  font-family: $font-fredoka;
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.1;
+  font-weight: 500;
   color: #24221c;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
   margin-bottom: 22px;
 }
 
@@ -226,8 +150,8 @@
 
 /* 2. Personas Section */
 .personas-section {
-  padding: 80px 24px;
-  background: #ffffff;
+  padding: website-type.$home-section-space 24px;
+  background: website-type.$home-section-white;
 }
 
 .personas-shell {
@@ -248,12 +172,11 @@
   color: #8c630c;
   margin-bottom: 8px;
   text-transform: uppercase;
+  @include website-type.eyebrow;
 }
 
 .section-intro h2 {
-  font-family: $font-heading;
-  font-size: clamp(26px, 3.5vw, 38px);
-  font-weight: 800;
+  @include website-type.home-section-title;
   color: #24221c;
   margin-bottom: 12px;
 }
@@ -347,6 +270,16 @@
   line-height: 1.7;
   color: #635f56;
   margin-bottom: 24px;
+}
+
+.persona-board-col {
+  padding: 14px;
+  border: 1px solid #e2e6ed;
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at 12% 8%, #fff0bf80, transparent 38%),
+    linear-gradient(145deg, #f8fafc 0%, #fffdf8 52%, #f3f7fb 100%);
+  box-shadow: inset 0 1px 0 #ffffff, 0 10px 26px #5f64700a;
 }
 
 .comparison-points {
@@ -462,10 +395,10 @@
 /* Board Mockup Window */
 .board-window-frame {
   background: #ffffff;
-  border: 1px solid #ebe5d8;
-  border-radius: 14px;
+  border: 1px solid #dce2ec;
+  border-radius: 13px;
   overflow: hidden;
-  box-shadow: 0 12px 30px -10px rgba(60, 45, 20, 0.12);
+  box-shadow: 0 8px 22px -8px rgba(39, 53, 75, 0.15);
 }
 
 .board-window-bar {
@@ -473,8 +406,8 @@
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  background: #f4efe4;
-  border-bottom: 1px solid #e5ded0;
+  background: #f7f8fa;
+  border-bottom: 1px solid #e2e6ed;
 }
 
 .board-window-bar .dot {
@@ -495,7 +428,7 @@
 
 .board-canvas-inner {
   padding: 20px;
-  background: radial-gradient(#d6cebb 1.2px, transparent 1.2px) 0 0 / 18px 18px, #fdfbf7;
+  background: linear-gradient(145deg, #fffdf9, #f7f9fc);
   min-height: 480px;
 }
 
@@ -568,10 +501,8 @@
 
 /* 3. Templates Section */
 .templates-section {
-  padding: 80px 24px;
-  background: #f9f6ef;
-  border-top: 1px solid #ebe5d8;
-  border-bottom: 1px solid #ebe5d8;
+  padding: website-type.$home-section-space 24px;
+  background: website-type.$home-section-yellow;
 }
 
 .templates-shell {
@@ -585,9 +516,7 @@
 }
 
 .templates-header h2 {
-  font-family: $font-heading;
-  font-size: clamp(26px, 3.5vw, 38px);
-  font-weight: 800;
+  @include website-type.home-section-title;
   color: #24221c;
   margin-bottom: 10px;
 }
@@ -709,8 +638,8 @@
 
 /* 4. Bottom CTA */
 .use-cases-cta {
-  padding: 80px 24px;
-  background: radial-gradient(#d6cebb 1.2px, transparent 1.2px) 0 0 / 22px 22px, #fbf7ef;
+  padding: website-type.$home-section-space 24px;
+  background: website-type.$home-section-white;
 }
 
 .cta-shell {
@@ -740,9 +669,7 @@
 }
 
 .cta-sticky-box h2 {
-  font-family: $font-heading;
-  font-size: clamp(26px, 4vw, 38px);
-  font-weight: 800;
+  @include website-type.home-section-title;
   color: #2b2505;
   margin-bottom: 14px;
 }
@@ -803,8 +730,5 @@
   }
   .comparison-points {
     grid-template-columns: 1fr;
-  }
-  .sticky-tag {
-    display: none;
   }
 }
