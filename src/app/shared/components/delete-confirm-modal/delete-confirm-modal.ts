@@ -3,24 +3,27 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  HostListener,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
 } from '@angular/core';
-import { LucideArchiveRestore, LucideTrash2, LucideTriangleAlert, LucideX } from '@lucide/angular';
+import { LucideArchiveRestore, LucideTrash2, LucideTriangleAlert } from '@lucide/angular';
+import { closeAllMatMenus } from '../../functions/menu.function';
 import { Button } from '../button/button';
 import { AppIcon } from '../icon/icon';
+import { Modal, ModalTone } from '../modal/modal';
 
 @Component({
   host: { '[attr.title]': 'null' },
   selector: 'app-delete-confirm-modal',
   standalone: true,
-  imports: [CommonModule, Button, AppIcon],
+  imports: [CommonModule, Modal, Button, AppIcon],
   templateUrl: './delete-confirm-modal.html',
   styleUrl: './delete-confirm-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteConfirmModal {
+export class DeleteConfirmModal implements OnChanges {
   @Input() open = false;
   @Input() title = 'Move to trash?';
   @Input() message = 'You can restore this item later.';
@@ -30,32 +33,56 @@ export class DeleteConfirmModal {
   @Input() cancelLabel = 'Keep it';
   @Input() busy = false;
   @Input() mode: 'trash' | 'permanent' = 'trash';
+  @Input() eyebrow?: string;
+  @Input() icon?: any;
+  @Input() tone?: ModalTone;
+  @Input() maxWidth: number | null = 460;
+
   @Output() readonly confirmed = new EventEmitter<void>();
   @Output() readonly closed = new EventEmitter<void>();
 
   readonly LucideArchiveRestore = LucideArchiveRestore;
   readonly LucideTrash2 = LucideTrash2;
   readonly LucideTriangleAlert = LucideTriangleAlert;
-  readonly LucideX = LucideX;
+
+  get headerIcon(): any {
+    if (this.icon) return this.icon;
+    return this.mode === 'permanent' ? this.LucideTriangleAlert : this.LucideArchiveRestore;
+  }
+
+  get supportIcon(): any {
+    return this.mode === 'permanent' ? this.LucideTrash2 : this.LucideArchiveRestore;
+  }
+
+  get resolvedEyebrow(): string {
+    if (this.eyebrow) return this.eyebrow;
+    return this.mode === 'permanent' ? 'Permanent action' : 'Safe delete';
+  }
+
+  get resolvedTone(): ModalTone {
+    if (this.tone) return this.tone;
+    return this.mode === 'permanent' ? 'red' : 'yellow';
+  }
 
   get confirmVariant(): any {
     return this.mode === 'permanent' ? 'danger' : 'noteYellow';
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['open'] && this.open) {
+      closeAllMatMenus();
+    }
+  }
+
   close(): void {
-    if (!this.busy) this.closed.emit();
+    if (!this.busy) {
+      this.closed.emit();
+    }
   }
 
   confirm(): void {
-    if (!this.busy) this.confirmed.emit();
-  }
-
-  onBackdrop(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.close();
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.open) this.close();
+    if (!this.busy) {
+      this.confirmed.emit();
+    }
   }
 }

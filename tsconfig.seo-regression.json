@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/shared/services/seo.service.spec.ts",
+    "src/app/shared/services/app-preloading.strategy.spec.ts",
+    "src/app/website/routes/website.routes.spec.ts",
+    "src/app/website/home/home.spec.ts",
+    "src/app/website/hero/hero.spec.ts",
+    "src/app/website/website-header/website-header.spec.ts",
+    "src/app/website/subscription/**/*.spec.ts",
+    "src/app/public/auth/signin/signin.spec.ts",
+    "src/app/public/auth/signup/signup.spec.ts",
+    "src/app/public/auth/forgot-password/forgot-password.spec.ts",
+    "src/app/public/auth/reset-password/reset-password.spec.ts",
+    "src/app/public/auth/accept-workspace-invitation/accept-workspace-invitation.spec.ts",
+    "src/app/guards/auth.guard.spec.ts",
+    "src/app/app.config.server.spec.ts"
+  ]
+}

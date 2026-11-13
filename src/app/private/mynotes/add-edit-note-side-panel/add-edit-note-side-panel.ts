@@ -1,3 +1,5 @@
+import { NoteAttachments } from '../note-attachments/note-attachments';
+import { attachmentErrorMessage } from '../constants/note-attachment.constants';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -85,6 +87,14 @@ import {
 } from '../../../shared/functions/sticky-note.function';
 
 import { StickyNote } from '../sticky-note/sticky-note';
+import {
+  StickyNotePriority,
+  STICKY_NOTE_PRIORITY_OPTIONS,
+  isStickyNotePriority,
+  StickyNoteStatus,
+  STICKY_NOTE_STATUS_OPTIONS,
+  isStickyNoteStatus,
+} from '../constants/sticky-note.constants';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
 import { StickyNoteChecklistItemApiService } from '../services/sticky-note-checklist-item.service';
@@ -109,6 +119,7 @@ import {
   selector: 'app-add-edit-note-side-panel',
   standalone: true,
   imports: [
+    NoteAttachments,
     FormsModule,
     ReactiveFormsModule,
     AppIcon,
@@ -158,6 +169,18 @@ export class AddEditNoteSidePanel implements OnChanges {
   @ViewChild('noteTitleInput', { read: ElementRef })
   private noteTitleInput?: ElementRef<HTMLElement>;
 
+  @ViewChild(NoteAttachments) attachments?: NoteAttachments;
+  readonly attachmentsBusy = signal(false);
+
+  get attachmentNoteId(): string {
+    return this.savedNoteId || (this.mode === 'edit' ? this.id : '');
+  }
+
+  onAttachmentsChanged(): void {
+    this.form.markAsDirty();
+    this.saveState.set('editing');
+  }
+
   readonly LucideBell = LucideBell;
   readonly LucideCheck = LucideCheck;
   readonly LucideFolderOpen = LucideFolderOpen;
@@ -187,6 +210,8 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly checklistItemTitleMaxLength = NOTE_LIMITS.CHECKLIST_ITEM_TITLE_MAX_LENGTH;
 
   readonly colorOptions: readonly SelectOption[] = STICKY_NOTE_COLOR_OPTIONS;
+  readonly priorityOptions = STICKY_NOTE_PRIORITY_OPTIONS;
+  readonly statusOptions = STICKY_NOTE_STATUS_OPTIONS;
   readonly shapeOptions: readonly SelectOption[] = STICKY_NOTE_SHAPE_OPTIONS;
   readonly variantOptions: readonly SelectOption[] = STICKY_NOTE_VARIANT_OPTIONS;
   readonly backgroundPatternOptions: readonly SelectOption[] =
@@ -222,9 +247,20 @@ export class AddEditNoteSidePanel implements OnChanges {
   private livePreviewCache: any = null;
   private readonly originalChecklistIds = new Set<string>();
   private readonly originalItemIdsByChecklist = new Map<string, Set<string>>();
+  private readonly originalChecklistStateById = new Map<
+    string,
+    { title: string; position: number }
+  >();
+  private readonly originalItemStateByChecklist = new Map<
+    string,
+    Map<string, { title: string; position: number; isCompleted: boolean }>
+  >();
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
-    (this.workspaceDropdownStore.loaded() ? this.workspaceDropdownStore.items() : this.panelWorkspaces())
+    (this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.items()
+      : this.panelWorkspaces()
+    )
       .filter((item) => item?.status !== 'DELETED')
       .map((item) => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
       .filter((item) => Boolean(item.value)),
@@ -233,7 +269,10 @@ export class AddEditNoteSidePanel implements OnChanges {
   readonly folderOptions = computed<SelectOption[]>(() => {
     const fallback = this.panelFolders();
     const folders = this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.items().find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ?? []
+      ? (this.workspaceDropdownStore
+          .items()
+          .find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ??
+        [])
       : fallback;
     return folders
       .map((item) => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
@@ -250,10 +289,18 @@ export class AddEditNoteSidePanel implements OnChanges {
     workspaceId: ['', Validators.required],
     workspaceFolderId: ['', Validators.required],
     columnId: ['', Validators.required],
-    title: ['', Validators.maxLength(this.titleMaxLength)],
+    title: ['', [Validators.required, Validators.maxLength(this.titleMaxLength)]],
     content: ['', [Validators.required, Validators.maxLength(this.contentMaxLength)]],
     noteDate: [null as string | null],
     color: ['YELLOW', Validators.required],
+    priority: [
+      StickyNotePriority.NONE,
+      [Validators.required, Validators.pattern(/^(NONE|LOW|MEDIUM|HIGH|URGENT)$/)],
+    ],
+    status: [
+      StickyNoteStatus.ACTIVE,
+      [Validators.required, Validators.pattern(/^(ACTIVE|ARCHIVED|TRASHED)$/)],
+    ],
     shape: ['SQUARE', Validators.required],
     variant: ['PLAIN', Validators.required],
     backgroundPattern: ['NONE', Validators.required],
@@ -271,6 +318,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   get isBusy(): boolean {
     return (
+      this.attachmentsBusy() ||
       this.loading() ||
       this.loadingData() ||
       this.loadingChecklist() ||
@@ -351,7 +399,23 @@ export class AddEditNoteSidePanel implements OnChanges {
     }
   });
 
+  readonly saveIndicatorVariant = computed<BadgeVariant>(() => {
+    switch (this.saveState()) {
+      case 'editing':
+        return 'warning';
+      case 'saving':
+        return 'info';
+      case 'saved':
+        return 'success';
+      case 'error':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  });
+
   get livePreviewData() {
+    const attachmentPreviews = this.attachments?.previewFiles() ?? [];
     const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const checklists = isChecklistActive
       ? formatLivePreviewChecklists(this.checklists.controls as FormGroup[])
@@ -362,6 +426,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     const title = this.controlString('title');
     const content = this.controlString('content');
     const color = this.controlString('color');
+    const priority = this.form.controls.priority.value || StickyNotePriority.NONE;
+    const status = this.form.controls.status.value || StickyNoteStatus.ACTIVE;
     const shape = this.controlString('shape');
     const variant = this.controlString('variant');
     const backgroundPattern = this.controlString('backgroundPattern');
@@ -375,12 +441,15 @@ export class AddEditNoteSidePanel implements OnChanges {
       initials: item.initials,
     }));
     const cacheKey = JSON.stringify({
+      attachmentPreviews,
       noteKey: this.savedNoteKey,
       columnLabel,
       columnBadgeVariant,
       title,
       content,
       color,
+      priority,
+      status,
       shape,
       variant,
       backgroundPattern,
@@ -397,6 +466,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
     this.livePreviewCacheKey = cacheKey;
     this.livePreviewCache = {
+      attachmentPreviews,
       id: 'editor-live-preview',
       noteKey: this.savedNoteKey,
       columnLabel,
@@ -404,6 +474,8 @@ export class AddEditNoteSidePanel implements OnChanges {
       title,
       content,
       color,
+      priority,
+      status,
       shape,
       variant,
       backgroundPattern,
@@ -440,6 +512,16 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.error.set('');
 
     switch (controlName) {
+      case 'priority':
+        if (!isStickyNotePriority(value)) return;
+        this.form.controls.priority.setValue(value);
+        this.form.controls.priority.markAsDirty();
+        break;
+      case 'status':
+        if (!isStickyNoteStatus(value)) return;
+        this.form.controls.status.setValue(value);
+        this.form.controls.status.markAsDirty();
+        break;
       case 'color':
         this.form.controls.color.setValue(value);
         if (this.mode === 'create') {
@@ -557,7 +639,8 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   addBlock(type: NoteBlockType): void {
-    if (this.isBusy) return;
+    if (this.isBusy || this.noteBlockOptions.find((option) => option.type === type)?.comingSoon)
+      return;
     if (!this.selectedBlocks().includes(type)) {
       this.selectedBlocks.update((blocks) => [...blocks, type]);
       if (type === 'CHECKLIST') {
@@ -574,6 +657,7 @@ export class AddEditNoteSidePanel implements OnChanges {
 
   removeBlock(type: NoteBlockType): void {
     if (this.isBusy) return;
+    if (type === 'ATTACHMENT' && this.attachments && !this.attachments.canHide) return;
     this.selectedBlocks.update((blocks) => blocks.filter((b) => b !== type));
     if (type === 'CHECKLIST') {
       this.form.controls.withChecklist.setValue(false);
@@ -726,7 +810,9 @@ export class AddEditNoteSidePanel implements OnChanges {
       this.scrollPanelToBottom();
       const blockCard = document.querySelector(`.note-block-card[data-block-type="${type}"]`);
       if (blockCard) {
-        blockCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (typeof blockCard.scrollIntoView === 'function') {
+          blockCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
         this.focusFirstInput(blockCard);
       }
     }, 60);
@@ -777,6 +863,8 @@ export class AddEditNoteSidePanel implements OnChanges {
       content: this.controlString('content').trim(),
       noteDate: toDateKey(this.form.controls.noteDate.value) || null,
       color: this.form.controls.color.value,
+      priority: this.form.controls.priority.value,
+      status: this.form.controls.status.value,
       shape: this.form.controls.shape.value,
       variant: this.form.controls.variant.value,
       backgroundPattern: this.form.controls.backgroundPattern.value,
@@ -806,6 +894,17 @@ export class AddEditNoteSidePanel implements OnChanges {
               .pipe(catchError(() => of(null))),
           }).pipe(map(() => response.data)),
         ),
+        switchMap((noteData) => {
+          const upload = this.attachments?.uploadPending(this.savedNoteId) ?? of(undefined);
+          return upload.pipe(
+            map(() => noteData),
+            catchError((error) => {
+              throw new Error(
+                `The note was saved, but some attachments were not uploaded. ${attachmentErrorMessage(error, 'The upload could not be completed.')} Save again to retry, or remove the pending file.`,
+              );
+            }),
+          );
+        }),
         switchMap((noteData) => {
           if (this.mode === 'create' && this.isFavorite() && this.savedNoteId) {
             return this.favoriteService.addFavorite(this.savedNoteId).pipe(
@@ -841,7 +940,10 @@ export class AddEditNoteSidePanel implements OnChanges {
               this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_SHAPE, shape);
             }
             if (variant) {
-              this.userPreferenceStore.setAndSave(USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT, variant);
+              this.userPreferenceStore.setAndSave(
+                USER_PREFERENCE_KEYS.DEFAULT_NOTE_VARIANT,
+                variant,
+              );
             }
             if (backgroundPattern) {
               this.userPreferenceStore.setAndSave(
@@ -875,11 +977,16 @@ export class AddEditNoteSidePanel implements OnChanges {
   private syncChecklists(noteId: string): Observable<any> {
     const isChecklistActive = this.selectedBlocks().includes('CHECKLIST');
     const formChecklists = this.checklists.controls as FormGroup[];
+    let sync$: Observable<any>;
 
     if (!isChecklistActive || !this.withChecklist || formChecklists.length === 0) {
-      if (this.originalChecklistIds.size === 0) return of(null);
+      if (this.originalChecklistIds.size === 0) {
+        this.captureChecklistSnapshot();
+        return of(null);
+      }
       const deleteTasks = [...this.originalChecklistIds].map((id) => this.checklistApi.delete(id));
-      return forkJoin(deleteTasks);
+      sync$ = forkJoin(deleteTasks);
+      return sync$.pipe(tap(() => this.captureChecklistSnapshot()));
     }
 
     const currentListIds = new Set(formChecklists.map((g) => g.get('id')?.value).filter(Boolean));
@@ -888,15 +995,21 @@ export class AddEditNoteSidePanel implements OnChanges {
       .map((id) => this.checklistApi.delete(id));
 
     const saveListTasks = formChecklists.map((group, position) => {
-      const listId = group.get('id')?.value;
+      const listId = String(group.get('id')?.value ?? '');
       const title = (group.get('title')?.value || '').trim();
+      const original = listId ? this.originalChecklistStateById.get(listId) : undefined;
+      const changes: Record<string, unknown> = {};
+      if (!original || original.title !== title) changes['title'] = title;
+      if (!original || original.position !== position) changes['position'] = position;
 
-      const saveList$ = listId
-        ? this.checklistApi.update(listId, { title, position }).pipe(map(() => listId))
-        : this.checklistApi.create({ stickyNoteId: noteId, title, position }).pipe(
+      const saveList$ = !listId
+        ? this.checklistApi.create({ stickyNoteId: noteId, title, position }).pipe(
             map((res) => idOf(res.data)),
             tap((newId) => group.get('id')?.setValue(newId)),
-          );
+          )
+        : Object.keys(changes).length
+          ? this.checklistApi.update(listId, changes).pipe(map(() => listId))
+          : of(listId);
 
       return saveList$.pipe(
         switchMap((targetListId) =>
@@ -906,33 +1019,39 @@ export class AddEditNoteSidePanel implements OnChanges {
     });
 
     const allTasks = [...deleteListTasks, ...saveListTasks];
-    return allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+    sync$ = allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+    return sync$.pipe(tap(() => this.captureChecklistSnapshot()));
   }
 
   private syncChecklistItems(checklistId: string, itemsArray: FormArray): Observable<any> {
     const itemGroups = itemsArray.controls as FormGroup[];
     const currentItemIds = new Set(itemGroups.map((g) => g.get('id')?.value).filter(Boolean));
     const originalItemIds = this.originalItemIdsByChecklist.get(checklistId) || new Set<string>();
+    const originalItems = this.originalItemStateByChecklist.get(checklistId) ?? new Map();
 
     const deleteItemTasks = [...originalItemIds]
       .filter((id) => !currentItemIds.has(id))
       .map((id) => this.checklistItemApi.delete(id));
 
     const saveItemTasks = itemGroups.map((itemGroup, position) => {
-      const itemId = itemGroup.get('id')?.value;
+      const itemId = String(itemGroup.get('id')?.value ?? '');
       const title = (itemGroup.get('title')?.value || '').trim();
       const isCompleted = itemGroup.get('isCompleted')?.value === true;
-      const initialCompleted = itemGroup.get('initialCompleted')?.value === true;
 
       if (itemId) {
-        const update$ = this.checklistItemApi.update(itemId, { title, position });
-        if (isCompleted !== initialCompleted) {
-          return update$.pipe(
-            switchMap(() => this.checklistItemApi.updateCompletion(itemId, isCompleted)),
-            tap(() => itemGroup.get('initialCompleted')?.setValue(isCompleted)),
-          );
+        const original = originalItems.get(itemId);
+        const changes: Record<string, unknown> = {};
+        if (!original || original.title !== title) changes['title'] = title;
+        if (!original || original.position !== position) changes['position'] = position;
+
+        const tasks: Observable<any>[] = [];
+        if (Object.keys(changes).length) {
+          tasks.push(this.checklistItemApi.update(itemId, changes));
         }
-        return update$;
+        if (!original || original.isCompleted !== isCompleted) {
+          tasks.push(this.checklistItemApi.updateCompletion(itemId, isCompleted));
+        }
+        return tasks.length ? forkJoin(tasks) : of(null);
       } else {
         return this.checklistItemApi.create({ checklistId, title, position }).pipe(
           switchMap((res) => {
@@ -941,7 +1060,7 @@ export class AddEditNoteSidePanel implements OnChanges {
             if (isCompleted) {
               return this.checklistItemApi
                 .updateCompletion(newItemId, true)
-                .pipe(tap(() => itemGroup.get('initialCompleted')?.setValue(true)));
+                .pipe(map(() => res));
             }
             return of(res);
           }),
@@ -951,6 +1070,46 @@ export class AddEditNoteSidePanel implements OnChanges {
 
     const allTasks = [...deleteItemTasks, ...saveItemTasks];
     return allTasks.length > 0 ? forkJoin(allTasks) : of(null);
+  }
+
+  private captureChecklistSnapshot(): void {
+    this.originalChecklistIds.clear();
+    this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
+
+    this.checklists.controls.forEach((groupControl, position) => {
+      const group = groupControl as FormGroup;
+      const checklistId = String(group.get('id')?.value ?? '');
+      if (!checklistId) return;
+
+      this.originalChecklistIds.add(checklistId);
+      this.originalChecklistStateById.set(checklistId, {
+        title: String(group.get('title')?.value ?? '').trim(),
+        position,
+      });
+
+      const itemIds = new Set<string>();
+      const itemStates = new Map<string, { title: string; position: number; isCompleted: boolean }>();
+      const itemControls = (group.get('items') as FormArray).controls;
+      itemControls.forEach((itemControl, itemPosition) => {
+        const itemGroup = itemControl as FormGroup;
+        const itemId = String(itemGroup.get('id')?.value ?? '');
+        const isCompleted = itemGroup.get('isCompleted')?.value === true;
+        itemGroup.get('initialCompleted')?.setValue(isCompleted, { emitEvent: false });
+        if (!itemId) return;
+
+        itemIds.add(itemId);
+        itemStates.set(itemId, {
+          title: String(itemGroup.get('title')?.value ?? '').trim(),
+          position: itemPosition,
+          isCompleted,
+        });
+      });
+
+      this.originalItemIdsByChecklist.set(checklistId, itemIds);
+      this.originalItemStateByChecklist.set(checklistId, itemStates);
+    });
   }
 
   private initialize(): void {
@@ -1063,6 +1222,12 @@ export class AddEditNoteSidePanel implements OnChanges {
             content: String(note?.content ?? '').trim(),
             noteDate: toDateKey(note?.noteDate) || null,
             color: note?.color || 'YELLOW',
+            priority: isStickyNotePriority(note?.priority)
+              ? note.priority
+              : StickyNotePriority.NONE,
+            status: isStickyNoteStatus(note?.status)
+              ? note.status
+              : StickyNoteStatus.ACTIVE,
             shape: note?.shape || 'SQUARE',
             variant: note?.variant || 'PLAIN',
             backgroundPattern: note?.backgroundPattern || 'NONE',
@@ -1082,11 +1247,10 @@ export class AddEditNoteSidePanel implements OnChanges {
           if (note?.reminder || (Array.isArray(note?.reminders) && note.reminders.length > 0)) {
             this.selectedBlocks.update((b) => (b.includes('REMINDER') ? b : [...b, 'REMINDER']));
           }
-          if (Array.isArray(note?.attachments) && note.attachments.length > 0) {
-            this.selectedBlocks.update((b) =>
-              b.includes('ATTACHMENT') ? b : [...b, 'ATTACHMENT'],
-            );
-          }
+          // Attachments are fetched separately; the note response does not include them.
+          this.selectedBlocks.update((blocks) =>
+            blocks.includes('ATTACHMENT') ? blocks : [...blocks, 'ATTACHMENT'],
+          );
           if (Array.isArray(note?.links) && note.links.length > 0) {
             this.selectedBlocks.update((b) => (b.includes('LINK') ? b : [...b, 'LINK']));
           }
@@ -1179,7 +1343,11 @@ export class AddEditNoteSidePanel implements OnChanges {
       .subscribe({
         next: (items) => {
           this.panelWorkspaces.set(items ? [...items] : []);
-          if (items === null) this.notifyError(this.workspaceDropdownStore.error() || 'Unable to load workspaces.', 'Error');
+          if (items === null)
+            this.notifyError(
+              this.workspaceDropdownStore.error() || 'Unable to load workspaces.',
+              'Error',
+            );
         },
         error: (error) =>
           this.notifyError(extractErrorMessage(error, 'Unable to load workspaces.'), 'Error'),
@@ -1322,6 +1490,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.checklists.clear();
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
 
     const sortedLists = sortItemsByPosition(
       [...checklists].filter((item) => item?.status !== 'DELETED'),
@@ -1335,16 +1505,10 @@ export class AddEditNoteSidePanel implements OnChanges {
         ),
       );
 
-      if (id) {
-        this.originalChecklistIds.add(id);
-        this.originalItemIdsByChecklist.set(
-          id,
-          new Set(items.map((item) => idOf(item)).filter(Boolean)),
-        );
-      }
-
       this.checklists.push(this.createChecklistGroup({ id, title: checklist.title ?? '', items }));
     }
+
+    this.captureChecklistSnapshot();
 
     const hasLists = this.checklists.length > 0;
     this.form.controls.withChecklist.setValue(hasLists);
@@ -1405,6 +1569,7 @@ export class AddEditNoteSidePanel implements OnChanges {
   }
 
   private resetEditor(): void {
+    this.attachmentsBusy.set(false);
     this.savedNoteId = '';
     this.savedNoteKey = '';
     this.livePreviewCacheKey = '';
@@ -1420,6 +1585,8 @@ export class AddEditNoteSidePanel implements OnChanges {
     this.hasWorkspaceMembers.set(false);
     this.originalChecklistIds.clear();
     this.originalItemIdsByChecklist.clear();
+    this.originalChecklistStateById.clear();
+    this.originalItemStateByChecklist.clear();
     this.panelFolders.set([]);
     this.panelColumns.set([]);
     this.loadingWorkspaces.set(false);
@@ -1444,6 +1611,8 @@ export class AddEditNoteSidePanel implements OnChanges {
         content: '',
         noteDate: this.mode === 'create' ? todayDateKey() : null,
         color: defaultColor,
+        priority: StickyNotePriority.NONE,
+        status: StickyNoteStatus.ACTIVE,
         shape: defaultShape,
         variant: defaultVariant,
         backgroundPattern: defaultPattern,

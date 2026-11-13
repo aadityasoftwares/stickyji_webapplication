@@ -1,7 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, throwError } from 'rxjs';
+import { SessionLifecycleService } from '../shared/services/session-lifecycle.service';
 import { AuthRefreshService } from '../public/auth/services/auth-refresh.service';
 import { AuthStore } from '../public/auth/state/auth.store';
 import {
@@ -15,6 +16,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const authStore = inject(AuthStore);
   const refreshService = inject(AuthRefreshService);
   const router = inject(Router);
+  const lifecycle = inject(SessionLifecycleService);
+  const revision = lifecycle.revision;
 
   const isOurApi = request.url.startsWith(API_BASE_URL);
 
@@ -22,10 +25,10 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  // Public catalogue failures must not redirect website visitors to sign in.
-  if (request.method === 'GET' && request.url.split('?')[0] === API_ENDPOINTS.plans.getAll) {
-    return next(request);
-  }
+  const isPublicPlanRequest =
+    request.method === 'GET' &&
+    (request.url.split('?')[0] === API_ENDPOINTS.plans.getAll ||
+      request.url.split('?')[0] === API_ENDPOINTS.plans.subscriptionPlans);
 
   const isPublicAuthRequest = PUBLIC_AUTH_ENDPOINTS.some((endpoint) =>
     request.url.includes(endpoint),
@@ -54,34 +57,23 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     });
   }
 
-  // Bypass 401 token refresh on logout so requests proceed directly to backend logoutAuthMiddleware
-  if (isLogoutRequest) {
+  // Bypass 401 token refresh on logout, public auth, and public catalog endpoints so requests proceed directly without session abort
+  if (isLogoutRequest || isPublicAuthRequest || isPublicPlanRequest) {
     return next(authenticatedRequest);
   }
 
   return next(authenticatedRequest).pipe(
+    takeUntil(lifecycle.ended$),
     catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401 || isPublicAuthRequest) {
+      if (error.status !== 401 || revision !== lifecycle.revision) {
         return throwError(() => error);
       }
 
       return refreshService.refreshSession().pipe(
-        switchMap((session) => {
-          const retryRequest = request.clone({
-            setHeaders: {
-              Authorization: `Bearer ${session.tokens.accessToken}`,
-            },
-            withCredentials: true,
-          });
-
-          return next(retryRequest);
-        }),
         catchError((refreshError) => {
-          authStore.clearSession();
-
           const currentUrl = router.url;
 
-          if (!currentUrl.startsWith(APP_ROUTES.LOGIN)) {
+          if (!authStore.isAuthenticated() && !currentUrl.startsWith(APP_ROUTES.LOGIN)) {
             void router.navigate(routeCommands(APP_ROUTES.LOGIN), {
               queryParams: {
                 redirectUrl: currentUrl,
@@ -90,6 +82,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
           }
 
           return throwError(() => refreshError);
+        }),
+        switchMap((session) => {
+          if (revision !== lifecycle.revision) return throwError(() => error);
+          return next(
+            request.clone({
+              setHeaders: { Authorization: `Bearer ${session.tokens.accessToken}` },
+              withCredentials: true,
+            }),
+          ).pipe(takeUntil(lifecycle.ended$));
         }),
       );
     }),

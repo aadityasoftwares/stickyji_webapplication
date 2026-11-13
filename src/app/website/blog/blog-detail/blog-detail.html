@@ -1,0 +1,147 @@
+<div class="sticky-article-page">
+  @if (isLoading()) {
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p>Loading guide...</p>
+    </div>
+  } @else if (article(); as post) {
+    <!-- Hero Article Header -->
+    <header class="detail-hero">
+      <div class="hero-inner">
+        <!-- Breadcrumbs -->
+        <nav class="detail-breadcrumbs" aria-label="Breadcrumb">
+          <a routerLink="/" class="crumb-link">StickyJi</a>
+          <span>›</span>
+          <a routerLink="/blog" class="crumb-link">Blog</a>
+          @if (getPrimaryCategory(post); as cat) {
+            <span>›</span>
+            <a [routerLink]="['/blog/category', cat.slug]" class="crumb-link">{{ cat.name }}</a>
+          }
+          <span>›</span>
+          <span class="crumb-active">{{ post.title }}</span>
+        </nav>
+
+        <div class="detail-meta">
+          @if (getPrimaryCategory(post); as cat) {
+            <span class="badge-cat">{{ cat.name }}</span>
+          }
+          <span>⏱ {{ post.readingTime || 4 }} min read</span>
+          <span>&bull;</span>
+          <span>{{ post.publishedAt | date:'longDate' }}</span>
+        </div>
+
+        <h1 class="detail-title">{{ post.title }}</h1>
+        <p class="detail-lead">{{ post.excerpt }}</p>
+
+        @if (post.authorId; as author) {
+          <div class="author-row">
+            <div class="author-circle">{{ author.name.slice(0, 1) }}</div>
+            <div class="author-info">
+              <span class="author-name">By <strong>{{ author.name }}</strong></span>
+              <span class="author-role">{{ author.designation || 'Productivity Contributor' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- Cover Image -->
+    <div class="banner-box">
+      <div class="banner-frame">
+        <img [src]="getCoverImageUrl(post)" [alt]="post.featuredImageAlt || post.title" class="banner-img" />
+      </div>
+    </div>
+
+    <!-- Content & Sticky Sidebar Grid -->
+    <div class="article-container">
+      <div class="article-layout">
+        <!-- Main Rich Text Article Content -->
+        <main class="article-main">
+          <div class="article-html-body" [innerHTML]="safeContent()"></div>
+
+          <!-- Tags -->
+          @if (post.tagIds && post.tagIds.length > 0) {
+            <div class="tags-cluster">
+              <span class="tags-heading">Topics:</span>
+              @for (tag of post.tagIds; track tag) {
+                @if (tag && tag.slug) {
+                  <a [routerLink]="['/blog/tag', tag.slug]" class="tag-chip">#{{ tag.name }}</a>
+                }
+              }
+            </div>
+          }
+
+          <!-- Share buttons -->
+          <div class="share-strip">
+            <span class="share-text">Share this tip:</span>
+            <div class="share-links">
+              <button type="button" class="btn-share" (click)="shareOnTwitter()">Twitter / X</button>
+              <button type="button" class="btn-share" (click)="shareOnLinkedIn()">LinkedIn</button>
+              <button type="button" class="btn-share" (click)="shareOnFacebook()">Facebook</button>
+              <button type="button" class="btn-share" (click)="copyLink()">
+                {{ isCopied() ? 'Link Copied!' : 'Copy Link' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- StickyJi High-Conversion Try Free CTA -->
+          <section class="stickyji-try-cta">
+            <div class="try-card">
+              <span class="try-emoji">💡</span>
+              <h3 class="try-title">Ready To Organize Your Workflow?</h3>
+              <p class="try-desc">
+                Put these productivity ideas into practice with StickyJi. Create your first online sticky board
+                in seconds — no credit card needed.
+              </p>
+              <a routerLink="/pricing" class="btn-try-free">Start Organizing For Free</a>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right TOC Sidebar -->
+        <aside class="article-aside">
+          @if (tocItems().length > 0) {
+            <div class="aside-card toc-box">
+              <h4 class="aside-title">In This Guide</h4>
+              <nav class="toc-links">
+                @for (item of tocItems(); track item.id) {
+                  <button
+                    type="button"
+                    class="toc-btn"
+                    [class.toc-sub]="item.level === 3"
+                    (click)="scrollToSection(item.id)"
+                  >
+                    {{ item.text }}
+                  </button>
+                }
+              </nav>
+            </div>
+          }
+        </aside>
+      </div>
+
+      <!-- Related Productivity Guides -->
+      @if (relatedArticles().length > 0) {
+        <section class="related-section">
+          <h3 class="related-title">More Productivity Guides</h3>
+          <div class="related-grid">
+            @for (rel of relatedArticles(); track rel._id) {
+              <article class="related-card">
+                <a [routerLink]="['/blog', rel.slug]" class="rel-thumb">
+                  <img [src]="getCoverImageUrl(rel)" [alt]="rel.title" />
+                </a>
+                <div class="rel-body">
+                  <span class="rel-meta">{{ rel.readingTime || 3 }} min read</span>
+                  <h4 class="rel-title">
+                    <a [routerLink]="['/blog', rel.slug]">{{ rel.title }}</a>
+                  </h4>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>
+

@@ -1,0 +1,71 @@
+<section class="faq" aria-labelledby="faq-title">
+  <svg class="faq-doodle faq-doodle-left" viewBox="0 0 90 90" fill="none" stroke="#d9a016" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+    <path d="M12 62c10-24 22-34 34-30 10 3 12 18 4 30-9 13-26 12-34 4-4-4-3-12 2-16" />
+    <path d="M58 30c8-6 18-4 22 4" />
+  </svg>
+  <svg class="faq-doodle faq-doodle-right" viewBox="0 0 110 110" fill="none" stroke="#8fb8e8" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+    <circle cx="55" cy="55" r="34" />
+    <path d="M55 21v-8M55 97v-8M21 55h-8M97 55h-8" />
+    <circle cx="55" cy="55" r="8" fill="#8fb8e8" stroke="none" />
+  </svg>
+  <div class="faq-shell">
+    <header class="faq-heading">
+      <span class="section-eyebrow">Questions &amp; answers</span>
+      <h2 id="faq-title">
+        Online sticky notes,
+        <span class="title-note">
+          explained.
+          <svg viewBox="0 0 45 45" aria-hidden="true">
+            <path d="m8 18 10-14m4 31 15-4" />
+          </svg>
+        </span>
+      </h2>
+      <p class="faq-subtitle">
+        Everything you need to know about capturing thoughts, building checklists, and organizing your daily workflow with Sticky Ji.
+      </p>
+    </header>
+
+    <div class="faq-list">
+      @for (item of items; track item.question) {
+        <details [class]="'faq-note faq-note-' + item.theme">
+          <div class="card-tape" aria-hidden="true"></div>
+          <div class="card-pin" aria-hidden="true"></div>
+          <summary class="faq-summary">
+            <span class="faq-meta">
+              <span class="card-pill">
+                <app-icon [icon]="item.icon" [size]="13" />
+                {{ item.pill }}
+              </span>
+            </span>
+            <span class="faq-question">
+              <span class="question-text">{{ item.question }}</span>
+              <span class="faq-chevron" aria-hidden="true">
+                <app-icon [icon]="LucideChevronDown" [size]="18" />
+              </span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <p>{{ item.answer }}</p>
+            @if (item.actions?.length) {
+              <div class="card-actions">
+                @for (action of item.actions; track action.link) {
+                  <a
+                    [routerLink]="action.link"
+                    class="faq-btn"
+                    [class.primary]="action.primary"
+                    [class.secondary]="!action.primary"
+                  >
+                    {{ action.label }}
+                    @if (action.primary) {
+                      <span aria-hidden="true">&rarr;</span>
+                    }
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        </details>
+      }
+    </div>
+  </div>
+</section>

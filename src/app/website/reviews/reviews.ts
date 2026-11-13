@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+} from '@angular/core';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -9,8 +19,10 @@ import {
   LucideSparkles,
   LucideStar,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { AvatarTone, Avatar } from '../../shared/components/avatar/avatar';
 import { AppIcon } from '../../shared/components/icon/icon';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 export type ReviewNoteVariant =
   'noteYellow' | 'noteBlue' | 'notePink' | 'noteGreen' | 'notePurple' | 'noteOrange';
@@ -167,6 +179,65 @@ export class Reviews {
 
   selectedReviewId = this.reviewItems[0].id;
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Animate title spark SVG
+          const spark = this.element.querySelector('.title-note svg path') as SVGPathElement | null;
+          if (spark) {
+            animateHandwrittenSvg(spark, {
+              duration: 1.1,
+              delay: 0.2,
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 80%',
+                once: true,
+              },
+            });
+          }
+
+          // Animate review index cards with tactile rotation & stagger
+          gsap.from('.review-index-card', {
+            opacity: 0,
+            x: -24,
+            rotation: (i: number) => (i % 2 === 0 ? -1.5 : 1.5),
+            duration: 0.55,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.review-index',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // Animate featured review note
+          gsap.from('#featured-review, .featured-note', {
+            opacity: 0,
+            y: 35,
+            scale: 0.94,
+            duration: 0.7,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: '#featured-review, .featured-note',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
+
   get activeReview(): UserReview {
     return (
       this.reviewItems.find((review) => review.id === this.selectedReviewId) ?? this.reviewItems[0]
@@ -200,6 +271,19 @@ export class Reviews {
 
     this.selectedReviewId = review.id;
     this.reviewChange.emit(review);
+
+    if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+      setTimeout(() => {
+        const feat = this.element.querySelector('#featured-review, .featured-note');
+        if (feat) {
+          gsap.fromTo(
+            feat,
+            { opacity: 0, scale: 0.96, y: 12 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.5)' },
+          );
+        }
+      }, 0);
+    }
   }
 
   showPreviousReview(): void {

@@ -1,11 +1,12 @@
 @use '../../styles/variables' as *;
+@use '../../styles/website-typography' as website-type;
 
 :host {
   display: block;
 }
 .subscription {
-  padding: clamp(64px, 7vw, 100px) 0;
-  background: radial-gradient(ellipse at 50% 36%, #fff1b340, transparent 65%), #fffdf9;
+  padding: website-type.$home-section-space 0;
+  background: website-type.$home-section-white;
   color: #1b211c;
 }
 .subscription-shell {
@@ -17,20 +18,12 @@
   margin: 0 auto 52px;
   text-align: center;
 }
-.heading-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 15px;
-  border: 1px solid #ffdb69;
-  border-radius: 24px;
-  background: linear-gradient(#ffed9a, #ffe780);
-  font: 600 13px/1.4 $font-body;
+.section-eyebrow {
+  @include website-type.eyebrow;
 }
 .pricing-title {
-  margin: 23px 0 18px;
-  font: 700 clamp(36px, 4vw, 58px)/1.15 $font-heading;
-  letter-spacing: -0.045em;
+  margin: 8px 0 18px;
+  @include website-type.home-section-title;
   text-wrap: balance;
 }
 .title-line-1 {
@@ -41,10 +34,7 @@
   margin-top: 6px;
   padding: 3px 12px;
   color: #526344;
-  font:
-    400 1.08em/1.15 'Kalam',
-    cursive;
-  letter-spacing: -0.025em;
+  font: 600 1em/1.1 $font-fredoka;
   background: linear-gradient(transparent 72%, #ffe78b 72%, #ffe78b 92%, transparent 92%);
 }
 .pricing-subtitle {
@@ -383,7 +373,7 @@
 }
 .comparison-header h3 {
   margin: 0 0 9px;
-  font: 700 28px/1.2 $font-heading;
+  font: 600 28px/1.2 $font-fredoka;
   letter-spacing: -0.035em;
 }
 .comparison-header p {
@@ -490,9 +480,6 @@ button:focus-visible,
   }
   .subscription-heading {
     margin-bottom: 36px;
-  }
-  .pricing-title {
-    font-size: 35px;
   }
   .pricing-subtitle {
     font-size: 15px;

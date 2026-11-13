@@ -1260,123 +1260,33 @@
   (closed)="closePermissionEditor()"
   (saved)="onPermissionSaved($event)"
 />
-@if (deleteTarget(); as role) {
-  <div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeleteDialog()">
-    <section
-      class="roles-permissions-dialog-shell"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="workspace-role-delete-title"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <app-sticky-card
-        class="roles-permissions-dialog-note"
-        variant="noteRed"
-        appearance="elevated"
-        shape="note"
-        size="sm"
-        [fullWidth]="true"
-        [hoverable]="false"
-        [footerDivider]="true"
-      >
-        <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
-          <app-icon [icon]="LucideTrash2" size="sm" />
-        </span>
-        <span card-eyebrow class="roles-permissions-dialog-kicker">
-          Before you remove the role
-        </span>
-        <h2 card-title id="workspace-role-delete-title" class="roles-permissions-dialog-title">
-          Delete custom role?
-        </h2>
-        <p card-subtitle class="roles-permissions-dialog-subtitle">
-          “{{ roleDisplayName(role) }}” will be permanently removed from
-          {{ selectedWorkspaceLabel() }}.
-        </p>
-        <div class="roles-permissions-delete-message">
-          <span aria-hidden="true">
-            <app-icon [icon]="LucidePower" size="xs" />
-          </span>
-          <span> If you may need this role later, deactivate it instead of deleting it. </span>
-        </div>
-        <div card-footer class="roles-permissions-dialog-actions">
-          <app-button
-            label="Keep role"
-            variant="secondary"
-            size="sm"
-            [disabled]="deleting()"
-            (buttonClick)="closeDeleteDialog()"
-          />
-          <app-button
-            label="Delete role"
-            variant="danger"
-            size="sm"
-            [loading]="deleting()"
-            [disabled]="deleting()"
-            (buttonClick)="confirmDelete()"
-          />
-        </div>
-      </app-sticky-card>
-    </section>
-  </div>
-}
-@if (deletePermissionTarget(); as permission) {
-  <div class="roles-permissions-dialog-backdrop" (mousedown)="closeDeletePermissionDialog()">
-    <section
-      class="roles-permissions-dialog-shell"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="permission-delete-title"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <app-sticky-card
-        class="roles-permissions-dialog-note"
-        variant="noteRed"
-        appearance="elevated"
-        shape="note"
-        size="sm"
-        [fullWidth]="true"
-        [hoverable]="false"
-        [footerDivider]="true"
-      >
-        <span card-icon class="roles-permissions-dialog-icon" aria-hidden="true">
-          <app-icon [icon]="LucideTrash2" size="sm" />
-        </span>
-        <span card-eyebrow class="roles-permissions-dialog-kicker">Permission catalog</span>
-        <h2 card-title id="permission-delete-title" class="roles-permissions-dialog-title">
-          Delete permission?
-        </h2>
-        <p card-subtitle class="roles-permissions-dialog-subtitle">
-          “{{ permission.displayName || permission.code }}” will be permanently removed from the
-          application catalog.
-        </p>
-        <div class="roles-permissions-delete-message">
-          <span aria-hidden="true"><app-icon [icon]="LucidePower" size="xs" /></span>
-          <span
-            >Roles using this permission may lose access. Deactivate it instead if it may be needed
-            later.</span
-          >
-        </div>
-        <div card-footer class="roles-permissions-dialog-actions">
-          <app-button
-            label="Keep permission"
-            variant="secondary"
-            size="sm"
-            [disabled]="deletingPermission()"
-            (buttonClick)="closeDeletePermissionDialog()"
-          />
-          <app-button
-            label="Delete permission"
-            variant="danger"
-            size="sm"
-            [loading]="deletingPermission()"
-            [disabled]="deletingPermission()"
-            (buttonClick)="confirmDeletePermission()"
-          />
-        </div>
-      </app-sticky-card>
-    </section>
-  </div>
-}
+<app-delete-confirm-modal
+  [open]="!!deleteTarget()"
+  title="Delete custom role?"
+  [itemName]="deleteTarget() ? roleDisplayName(deleteTarget()!) : ''"
+  [message]="'“' + (deleteTarget() ? roleDisplayName(deleteTarget()!) : '') + '” will be permanently removed from ' + selectedWorkspaceLabel() + '.'"
+  supportingText="If you may need this role later, deactivate it instead of deleting it."
+  confirmLabel="Delete role"
+  cancelLabel="Keep role"
+  mode="permanent"
+  [busy]="deleting()"
+  (confirmed)="confirmDelete()"
+  (closed)="closeDeleteDialog()"
+/>
+
+<app-delete-confirm-modal
+  [open]="!!deletePermissionTarget()"
+  title="Delete permission?"
+  [itemName]="deletePermissionTarget() ? (deletePermissionTarget()!.displayName || deletePermissionTarget()!.code) : ''"
+  message="It will be permanently removed from the application catalog."
+  supportingText="Roles using this permission may lose access. Deactivate it instead if it may be needed later."
+  confirmLabel="Delete permission"
+  cancelLabel="Keep permission"
+  mode="permanent"
+  [busy]="deletingPermission()"
+  (confirmed)="confirmDeletePermission()"
+  (closed)="closeDeletePermissionDialog()"
+/>
 <ng-template #roleMenu let-role>
   <button
     mat-menu-item

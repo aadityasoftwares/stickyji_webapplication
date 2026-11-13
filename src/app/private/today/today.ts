@@ -94,6 +94,7 @@ import {
   STICKY_NOTE_LAYOUT_OPTIONS,
   STICKY_NOTE_VIEW_OPTIONS,
   USER_PREFERENCE_KEYS,
+  COLUMN_LIMITS,
   VIEW,
   View,
 } from '../../shared/constants/common.constants';
@@ -126,6 +127,7 @@ import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimePipe } from '../../shared/pipes/user-date-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
@@ -147,6 +149,7 @@ import { WorkspaceMemberApiService } from '../workspace-members/services/workspa
 import type { WorkspaceMemberQuery } from '../workspace-members/interfaces/workspace-member.interface';
 import { AuthStore } from '../../public/auth/state/auth.store';
 import { TODAY_MESSAGES } from './messages/today.messages';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 100;
@@ -192,6 +195,7 @@ type OverdueView = 'bar' | 'button';
     OverdueTopbar,
     OverdueNotesPanel,
     AddEditStickyNoteColumnSidePanel,
+    DeleteConfirmModal,
   ],
 })
 export class Today {
@@ -314,6 +318,10 @@ export class Today {
   readonly isSearchExpanded = computed(() => this.searchExpanded() || !!this.searchTerm().trim());
   readonly todaySearchInput = viewChild<AppInput>('todaySearchInput');
   readonly movingColumn = signal(false);
+  readonly deleteTarget = signal<any | null>(null);
+  readonly deleting = signal(false);
+  readonly bulkDeleteOpen = signal(false);
+  readonly bulkBusy = signal(false);
 
   readonly stickyNoteLayoutOptions: any[] = STICKY_NOTE_LAYOUT_OPTIONS;
   readonly stickyNoteFontOptions: any[] = STICKY_NOTE_FONT_OPTIONS.map((option) => ({
@@ -357,24 +365,26 @@ export class Today {
   readonly activeWorkspaceId = computed<string | null>(() => {
     if (!this.hasWorkspaces()) return null;
     return this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.selectedWorkspaceId() : this.workspaceStore.selectedId();
+      ? this.workspaceDropdownStore.selectedWorkspaceId()
+      : this.workspaceStore.selectedId();
   });
   readonly loadingWorkspaces = computed(() => this.workspaceDropdownStore.loading());
   readonly workspaceError = computed(() => this.workspaceDropdownStore.error());
   readonly workspacesLoaded = computed(
     () => this.workspaceDropdownStore.loaded() || this.workspaceStore.loaded(),
   );
-  readonly hasWorkspaces = computed(
-    () =>
-      this.workspaceDropdownStore.loaded()
-        ? this.workspaceDropdownStore.hasWorkspaces() : this.workspaceStore.workspaces().length > 0,
+  readonly hasWorkspaces = computed(() =>
+    this.workspaceDropdownStore.loaded()
+      ? this.workspaceDropdownStore.hasWorkspaces()
+      : this.workspaceStore.workspaces().length > 0,
   );
   readonly workspaceErrorKind = signal<TodayLoadErrorKind>('server');
 
   readonly activeFolder = computed<string | null>(() => {
     if (!this.activeWorkspaceId()) return null;
     return this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.selectedFolderId() : this.workspaceFolderStore.selectedId();
+      ? this.workspaceDropdownStore.selectedFolderId()
+      : this.workspaceFolderStore.selectedId();
   });
   readonly loadingFolders = computed(
     () => !this.workspaceDropdownStore.loaded() && this.workspaceFolderStore.loading(),
@@ -412,9 +422,12 @@ export class Today {
   } | null>(null);
   readonly quickNoteVisible = computed(() => {
     const context = this.quickNoteContext();
-    return !!context && this.isNotesView() &&
+    return (
+      !!context &&
+      this.isNotesView() &&
       context.workspaceId === this.activeWorkspaceId() &&
-      context.workspaceFolderId === this.activeFolder();
+      context.workspaceFolderId === this.activeFolder()
+    );
   });
   private readonly quickNoteCard = viewChild(QuickNoteCard);
   readonly loadingNotes = signal(false);
@@ -445,6 +458,10 @@ export class Today {
   );
   readonly tableEditingTitleId = signal<string | null>(null);
   readonly tableTitleDraft = signal('');
+  readonly editingColumnNameId = signal<string | null>(null);
+  readonly columnNameDraft = signal('');
+  readonly savingColumnNameId = signal<string | null>(null);
+  readonly columnNameMaxLength = COLUMN_LIMITS.NAME_MAX_LENGTH;
   readonly collapsedGroups = signal<Set<string>>(new Set());
 
   readonly selectedNoteIds = signal<Set<string>>(new Set());
@@ -889,7 +906,8 @@ export class Today {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (folders) => {
-          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id) return;
+          if (requestVersion !== this.folderRequestVersion || this.activeWorkspaceId() !== id)
+            return;
           this.workspaceFolderStore.setFolders(id, folders);
           this.selectFolderAndLoad();
         },
@@ -1421,105 +1439,9 @@ export class Today {
       );
       return;
     }
-    const columnId = idOf(targetColumn);
-    const columnName = targetColumn.label;
-    const completedAt = isCompleted ? new Date().toISOString() : null;
-    const completedBy = isCompleted ? this.currentUserId() : null;
-    const requestVersion = this.notesRequestVersion;
-
-    this.movingNoteId.set(id);
-    this.stickyNoteDataCache.delete(id);
-    this.stickyNotes.update((notes) =>
-      notes.map((item) =>
-        idOf(item) === id
-          ? {
-              ...item,
-              columnId,
-              columnName,
-              isCompleted,
-              completed: isCompleted,
-              completedAt,
-              completedBy,
-            }
-          : item,
-      ),
-    );
-
-    const updatePayload: any = {
-      columnId,
-      isCompleted,
-      completedAt,
-      completedBy,
-    };
-
-    this.stickyNoteApiService
-      .update(id, updatePayload)
-      .pipe(
-        finalize(() => {
-          if (requestVersion === this.notesRequestVersion) this.movingNoteId.set(null);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response: any) => {
-          if (requestVersion !== this.notesRequestVersion) return;
-          const updated = response?.data ?? response;
-          if (updated && idOf(updated) === id) {
-            this.stickyNoteDataCache.delete(id);
-            this.stickyNotes.update((notes) =>
-              notes.map((item) =>
-                idOf(item) === id
-                  ? {
-                      ...item,
-                      ...this.mapNote({ ...item, ...updated }),
-                      columnId,
-                      columnName,
-                      isCompleted,
-                      completed: isCompleted,
-                    }
-                  : item,
-              ),
-            );
-          }
-          this.overdue.refresh();
-          this.toastService.success(
-            isCompleted ? 'Note marked as completed' : 'Note moved back to Today Notes',
-            {
-              title: isCompleted ? 'Completed' : 'Reopened',
-              dedupeKey: `note-completion-${id}`,
-            },
-          );
-        },
-        error: (error: any) => {
-          if (requestVersion !== this.notesRequestVersion) return;
-          this.stickyNoteDataCache.delete(id);
-          this.stickyNotes.update((notes) =>
-            notes.map((item) =>
-              idOf(item) === id
-                ? {
-                    ...item,
-                    columnId: targetNote.columnId,
-                    columnName: targetNote.columnName,
-                    isCompleted: this.isNoteCompleted(targetNote),
-                    completed: this.isNoteCompleted(targetNote),
-                    completedAt: targetNote.completedAt,
-                    completedBy: targetNote.completedBy,
-                  }
-                : item,
-            ),
-          );
-          this.toastService.error(
-            extractErrorMessage(
-              error,
-              isCompleted ? 'Failed to complete note' : 'Failed to uncomplete note',
-            ),
-            {
-              title: 'Action failed',
-              dedupeKey: `note-completion-err-${id}`,
-            },
-          );
-        },
-      });
+    // Completion follows the same column move as drag-and-drop. The server
+    // derives completion metadata from the destination column.
+    this.moveNote(targetNote, idOf(targetColumn), 0);
   }
 
   moveBackward(note: any): void {
@@ -1698,6 +1620,7 @@ export class Today {
       note?.completedChecklistItemCount,
       note?.assignees?.length,
       note?.checklists?.length,
+      note?.attachments,
       resolvedColumn?.id,
       columnLabel,
       columnBadgeVariant,
@@ -1753,12 +1676,31 @@ export class Today {
   }
 
   deleteNote(note: any): void {
-    const noteId = idOf(note);
-    if (!noteId) return;
+    closeAllMatMenus();
+    this.deleteTarget.set(note);
+  }
 
+  closeDeleteDialog(): void {
+    if (!this.deleting()) {
+      this.deleteTarget.set(null);
+    }
+  }
+
+  confirmDeleteNote(): void {
+    const note = this.deleteTarget();
+    const noteId = idOf(note);
+    if (!noteId || this.deleting()) return;
+
+    this.deleting.set(true);
     this.stickyNoteApiService
       .moveToTrash(noteId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.deleting.set(false);
+          this.deleteTarget.set(null);
+        }),
+      )
       .subscribe({
         next: (response: any) => {
           this.onNoteDeleted(noteId);
@@ -1815,6 +1757,7 @@ export class Today {
   }
 
   openColumnCreateSidePanel(): void {
+    closeAllMatMenus();
     if (!this.activeWorkspaceId() || !this.activeFolder() || this.boardLoading()) return;
     this.columnPanelMode.set('create');
     this.columnPanelId.set('');
@@ -1822,9 +1765,125 @@ export class Today {
     this.columnPanelOpen.set(true);
   }
 
-  requestColumnEdit(column: any, event?: Event): void {
+  startColumnNameEdit(column: any, event?: Event): void {
     event?.preventDefault();
     event?.stopPropagation();
+    const id = idOf(column);
+    if (!id || this.boardLoading() || this.movingColumn() || this.savingColumnNameId()) return;
+    const activeEditId = this.editingColumnNameId();
+    if (activeEditId && activeEditId !== id) return;
+
+    this.editingColumnNameId.set(id);
+    this.columnNameDraft.set(
+      String(column?.name ?? column?.label ?? '').slice(0, this.columnNameMaxLength),
+    );
+    setTimeout(() => {
+      if (this.editingColumnNameId() !== id) return;
+      const input = document.querySelector<HTMLInputElement>('[data-today-column-name-editor]');
+      input?.focus();
+      const caretPosition = input?.value.length ?? 0;
+      input?.setSelectionRange(caretPosition, caretPosition);
+    });
+  }
+
+  updateColumnNameDraft(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    this.columnNameDraft.set(value.slice(0, this.columnNameMaxLength));
+  }
+
+  onColumnNameKeydown(event: KeyboardEvent, column: any): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.commitColumnNameEdit(column);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.cancelColumnNameEdit();
+    }
+  }
+
+  commitColumnNameEdit(column: any): void {
+    const id = idOf(column);
+    if (!id || this.editingColumnNameId() !== id || this.savingColumnNameId()) return;
+
+    const nextName = this.columnNameDraft().trim().replace(/\s+/g, ' ');
+    const currentColumn = this.stickyNoteColumnStore.findById(id) ?? column;
+    const currentName = String(
+      currentColumn?.name ?? currentColumn?.title ?? currentColumn?.label ?? '',
+    ).trim();
+    this.cancelColumnNameEdit();
+
+    if (!nextName) {
+      this.toastService.error('Column name cannot be empty.', { title: 'Name required' });
+      return;
+    }
+    if (nextName.length > this.columnNameMaxLength) {
+      this.toastService.error(
+        `Column names can be up to ${this.columnNameMaxLength} characters.`,
+        { title: 'Name is too long' },
+      );
+      return;
+    }
+    if (nextName === currentName) return;
+
+    const workspaceId = this.activeWorkspaceId();
+    const folderId = this.activeFolder();
+    if (!workspaceId || !folderId) return;
+
+    const previousColumn = { ...currentColumn };
+    const optimisticColumn = { ...currentColumn, name: nextName };
+    this.stickyNoteColumnStore.upsert(optimisticColumn);
+    this.savingColumnNameId.set(id);
+
+    this.stickyNoteColumnApiService
+      .update(id, {
+        name: nextName,
+        color: currentColumn?.color ?? 'YELLOW',
+        position: Number(currentColumn?.position) || 0,
+      })
+      .pipe(
+        finalize(() => this.savingColumnNameId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (
+            this.activeWorkspaceId() !== workspaceId ||
+            this.activeFolder() !== folderId
+          ) {
+            return;
+          }
+          const savedColumn = response?.data && typeof response.data === 'object'
+            ? { ...optimisticColumn, ...response.data, name: response.data.name || nextName }
+            : optimisticColumn;
+          this.stickyNoteColumnStore.upsert(savedColumn);
+          this.toastService.success('Column name updated.', {
+            title: 'Column renamed',
+            dedupeKey: `today-column-renamed-${id}`,
+          });
+        },
+        error: (error: any) => {
+          if (
+            this.activeWorkspaceId() === workspaceId &&
+            this.activeFolder() === folderId
+          ) {
+            this.stickyNoteColumnStore.upsert(previousColumn);
+          }
+          this.toastService.error(extractErrorMessage(error, 'Could not rename this column.'), {
+            title: 'Rename failed',
+            dedupeKey: `today-column-rename-error-${id}`,
+          });
+        },
+      });
+  }
+
+  cancelColumnNameEdit(): void {
+    this.editingColumnNameId.set(null);
+    this.columnNameDraft.set('');
+  }
+
+  requestColumnEdit(column: any, event?: Event): void {
+    closeAllMatMenus();
     const id = idOf(column);
     if (!id || this.boardLoading()) return;
     this.columnPanelMode.set('edit');
@@ -1845,6 +1904,7 @@ export class Today {
   }
 
   openNoteCreatePanel(columnId: string, quickAdd = false): void {
+    closeAllMatMenus();
     if (!columnId || this.movingNoteId()) return;
     if (quickAdd && this.isNotesView()) {
       if (this.quickNoteSaving()) return;
@@ -1857,7 +1917,9 @@ export class Today {
       }
       this.quickNoteError.set('');
       this.quickNoteContext.set({
-        workspaceId, workspaceFolderId, columnId,
+        workspaceId,
+        workspaceFolderId,
+        columnId,
         color: this.userPreferenceStore.defaultNoteColor() || 'YELLOW',
       });
       this.clearSearch();
@@ -1882,37 +1944,50 @@ export class Today {
     if (!context || this.quickNoteSaving() || (!title && !content)) return;
     this.quickNoteSaving.set(true);
     this.quickNoteError.set('');
-    this.stickyNoteApiService.create({
-      ...context, title, content, noteDate: todayDateKey(),
-      shape: 'SQUARE', variant: 'PLAIN', backgroundPattern: 'NONE',
-    }).pipe(
-      finalize(() => this.quickNoteSaving.set(false)),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (response) => {
-        this.quickNoteDraft.set({ title: '', content: '' });
-        if (!continueAdding) this.quickNoteContext.set(null);
-        if (context.workspaceId === this.activeWorkspaceId() &&
-            context.workspaceFolderId === this.activeFolder()) {
-          if (idOf(response.data)) {
-            const note = this.mapNote(response.data);
-            this.stickyNotes.update((notes) => [note, ...notes.filter((item) => idOf(item) !== idOf(note))]);
+    this.stickyNoteApiService
+      .create({
+        ...context,
+        title,
+        content,
+        noteDate: todayDateKey(),
+        shape: 'SQUARE',
+        variant: 'PLAIN',
+        backgroundPattern: 'NONE',
+      })
+      .pipe(
+        finalize(() => this.quickNoteSaving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.quickNoteDraft.set({ title: '', content: '' });
+          if (!continueAdding) this.quickNoteContext.set(null);
+          if (
+            context.workspaceId === this.activeWorkspaceId() &&
+            context.workspaceFolderId === this.activeFolder()
+          ) {
+            if (idOf(response.data)) {
+              const note = this.mapNote(response.data);
+              this.stickyNotes.update((notes) => [
+                note,
+                ...notes.filter((item) => idOf(item) !== idOf(note)),
+              ]);
+            }
+            this.getNotesForToday();
           }
-          this.getNotesForToday();
-        }
-        this.toastService.success('Note saved', { title: 'Quick note' });
-        if (continueAdding) setTimeout(() => this.quickNoteCard()?.focusTitle());
-      },
-      error: (error) => {
-        this.quickNoteError.set(extractErrorMessage(error, 'Could not save your note. Try again.'));
-      },
-    });
+          this.toastService.success('Note saved', { title: 'Quick note' });
+          if (continueAdding) setTimeout(() => this.quickNoteCard()?.focusTitle());
+        },
+        error: (error) => {
+          this.quickNoteError.set(
+            extractErrorMessage(error, 'Could not save your note. Try again.'),
+          );
+        },
+      });
   }
 
   openNoteEditPanel(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
-
+    closeAllMatMenus();
     const noteId = idOf(note);
     if (!noteId || this.movingNoteId()) return;
 
@@ -1947,7 +2022,17 @@ export class Today {
   private moveNote(note: any, targetColumnId: string, targetIndex: number): void {
     const noteId = idOf(note);
     const targetColId = idOf(targetColumnId);
-    if (!noteId || !this.stickyNoteColumnById().has(targetColId) || this.noteDragDisabled()) return;
+    // Drag handlers separately block filtered lists; menu actions can safely
+    // use the full destination column while a search is active.
+    if (
+      !noteId ||
+      !this.stickyNoteColumnById().has(targetColId) ||
+      this.boardLoading() ||
+      this.movingNoteId() ||
+      this.movingColumn()
+    ) {
+      return;
+    }
 
     const previousNotes = [...this.stickyNotes()];
     const requestVersion = this.notesRequestVersion;
@@ -2007,7 +2092,13 @@ export class Today {
           if (updated && idOf(updated) === noteId) {
             this.stickyNotes.update((notes) =>
               notes.map((item) =>
-                idOf(item) === noteId ? this.mapNote({ ...item, ...updated }) : item,
+                idOf(item) === noteId
+                  ? {
+                      ...this.mapNote({ ...item, ...updated }),
+                      columnId: targetColId,
+                      columnName: targetColumn.label,
+                    }
+                  : item,
               ),
             );
           }
@@ -2261,6 +2352,7 @@ export class Today {
     return {
       ...note,
       id: idOf(note),
+      attachments: Array.isArray(note?.attachments) ? note.attachments : [],
       noteKey:
         note?.noteKey ??
         (typeof note?.stickyNoteNumber === 'number'
@@ -2381,7 +2473,14 @@ export class Today {
   bulkDeleteSelectedNotes(): void {
     const ids = Array.from(this.selectedNoteIds());
     if (!ids.length) return;
+    this.bulkDeleteOpen.set(true);
+  }
 
+  confirmBulkDelete(): void {
+    const ids = Array.from(this.selectedNoteIds());
+    if (!ids.length || this.bulkBusy()) return;
+
+    this.bulkBusy.set(true);
     let completed = 0;
     let deletedCount = 0;
     ids.forEach((id) => {
@@ -2394,6 +2493,8 @@ export class Today {
             completed++;
             deletedCount++;
             if (completed === ids.length) {
+              this.bulkBusy.set(false);
+              this.bulkDeleteOpen.set(false);
               this.overdue.refresh();
               this.toastService.info(
                 `Moved ${deletedCount} ${deletedCount === 1 ? 'note' : 'notes'} to trash`,
@@ -2404,6 +2505,8 @@ export class Today {
           error: () => {
             completed++;
             if (completed === ids.length) {
+              this.bulkBusy.set(false);
+              this.bulkDeleteOpen.set(false);
               if (deletedCount > 0) {
                 this.overdue.refresh();
                 this.toastService.info(

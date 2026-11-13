@@ -259,33 +259,7 @@
    ========================================================== */
 
 .app-side-panel-note {
-  display: inline-flex;
-  align-items: center;
-
-  max-width: 130px;
-  min-height: 21px;
-
-  flex: 0 1 auto;
-
-  padding: 3px 7px;
-
-  overflow: hidden;
-
-  color: var(--panel-accent);
-
-  background: $paper;
-
-  border: 1px solid rgba($border, 0.72);
-  border-radius: 999px;
-
-  font-family: $font-note;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 /* ==========================================================

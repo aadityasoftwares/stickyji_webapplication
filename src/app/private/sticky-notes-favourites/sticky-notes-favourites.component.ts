@@ -58,10 +58,12 @@ import { AddEditNoteSidePanel } from '../mynotes/add-edit-note-side-panel/add-ed
 import { StickyNote as StickyNoteCardComponent } from '../mynotes/sticky-note/sticky-note';
 import { StickyNoteApiService } from '../mynotes/services/sticky-notes.service';
 import { StickyNotesFavouriteService } from './services/sticky-notes-favourite.service';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 import { USER_PREFERENCE_KEYS, VIEW_TABS } from '../../shared/constants/common.constants';
 import { UI } from '../../shared/constants/ui.constants';
 import { entityNameOf, extractErrorMessage, extractList, idOf } from '../../shared/functions/common.function';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import {
   getNoteContent,
   getNoteTimestamp,
@@ -96,7 +98,6 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     Button,
     Loader,
     Select,
-    StickyCard,
     StickyNoteCardComponent,
     Switch,
     Tabs,
@@ -104,6 +105,7 @@ type FavouriteSort = 'favoritedAt' | 'updatedAt' | 'createdAt' | 'title';
     MembersStack,
     UserDatePipe,
     UserTimePipe,
+    DeleteConfirmModal,
   ],
   templateUrl: './sticky-notes-favourites.component.html',
   styleUrl: './sticky-notes-favourites.component.scss',
@@ -529,7 +531,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   /*                              Note Actions                                  */
   /* -------------------------------------------------------------------------- */
   openEditEditor(note: any, event?: Event): void {
-    event?.stopPropagation();
+    closeAllMatMenus();
     const noteId = idOf(note);
     if (!noteId) return;
 
@@ -593,6 +595,7 @@ export class StickyNotesFavouritesComponent implements OnInit {
   }
 
   requestDelete(note: any): void {
+    closeAllMatMenus();
     this.deleteTarget.set(note);
   }
 

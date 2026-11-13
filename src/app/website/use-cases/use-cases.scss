@@ -1,14 +1,16 @@
 ﻿@use '../../styles/variables' as *;
 
+@use '../../styles/website-typography' as website-type;
+
 :host {
   display: block;
 }
 .use-cases {
   position: relative;
   overflow: hidden;
-  padding: 34px 0 28px;
+  padding: website-type.$home-section-space 0;
   color: #101526;
-  background: radial-gradient(ellipse at 51% 65%, #f2efe440, transparent 72%), #fffdf9;
+  background: website-type.$home-section-yellow;
 }
 .use-cases-shell {
   width: min(1230px, calc(100% - 80px));
@@ -34,6 +36,7 @@
   color: #596d3c;
   font: 700 15px/1.5 $font-body;
   letter-spacing: 0.13em;
+  @include website-type.eyebrow;
 }
 .section-eyebrow svg {
   width: 25px;
@@ -47,9 +50,7 @@
 .section-heading h2 {
   max-width: 900px;
   margin: 13px auto 18px;
-  color: #080e20;
-  font: 700 clamp(38px, 3.23vw, 54px)/1.045 $font-heading;
-  letter-spacing: -0.035em;
+  @include website-type.home-section-title;
 }
 .section-heading h2 > span {
   color: #566a39;
@@ -713,9 +714,6 @@
   .board-loop {
     display: none;
   }
-  .section-heading h2 {
-    font-size: 49px;
-  }
   .section-heading p {
     font-size: 18px;
   }
@@ -723,9 +721,6 @@
 @media (max-width: 1200px) {
   .use-cases-shell {
     width: calc(100% - 48px);
-  }
-  .section-heading h2 {
-    font-size: 46px;
   }
   .thought-doodle,
   .calmer-note {
@@ -787,18 +782,11 @@
   }
 }
 @media (max-width: 960px) {
-  .use-cases {
-    padding-top: 42px;
-    padding-bottom: 40px;
-  }
-  .section-heading h2 {
-    font-size: 42px;
-  }
   .section-heading p {
     font-size: 17px;
   }
   .section-eyebrow {
-    font-size: 12px;
+    font-size: 14px;
   }
   .persona-tab {
     gap: 8px;
@@ -864,8 +852,6 @@
     margin-bottom: 25px;
   }
   .section-heading h2 {
-    font-size: clamp(30px, 5.8vw, 42px);
-    line-height: 1.12;
     margin-top: 12px;
   }
   .section-heading p {
@@ -959,20 +945,13 @@
   }
 }
 @media (max-width: 460px) {
-  .use-cases {
-    padding-top: 34px;
-  }
   .section-eyebrow {
-    font-size: 10px;
     gap: 7px;
-    letter-spacing: 0.1em;
+    font-size: 14px;
   }
   .section-eyebrow svg {
     width: 20px;
     height: 25px;
-  }
-  .section-heading h2 {
-    font-size: clamp(28px, 7.4vw, 34px);
   }
   .section-heading p {
     font-size: 15px;

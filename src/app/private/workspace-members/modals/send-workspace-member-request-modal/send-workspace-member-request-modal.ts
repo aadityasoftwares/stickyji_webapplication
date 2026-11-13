@@ -36,6 +36,7 @@ import {
 } from '../../../../shared/components/select/select';
 import { ToastService } from '../../../../shared/components/toast/services/toast.service';
 import { extractErrorMessage } from '../../../../shared/functions/api.functions';
+import { closeAllMatMenus } from '../../../../shared/functions/menu.function';
 import type { WorkspaceMember } from '../../interfaces/workspace-member.interface';
 import { WorkspaceInvitationApiService } from '../../services/workspace-invitation.service';
 import { WorkspaceMemberApiService } from '../../services/workspace-member.service';
@@ -131,6 +132,7 @@ export class SendWorkspaceMemberRequestModal implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.open) return;
+    closeAllMatMenus();
 
     if (changes['open']?.currentValue === true || changes['member'] || changes['workspaceId']) {
       this.initialize();

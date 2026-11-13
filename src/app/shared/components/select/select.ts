@@ -58,6 +58,9 @@ export interface SelectOption {
   label: string;
   value: SelectValue;
   description?: string;
+  /** Typography previews for font and font-size pickers. */
+  fontFamily?: string;
+  fontSize?: number;
   color?: string;
   group?: string;
   icon?: AppIconDefinition;
@@ -245,6 +248,11 @@ export class Select implements ControlValueAccessor, AfterViewInit, OnDestroy {
   activeIndex = -1;
   resolvedPlacement: 'top' | 'bottom' = 'bottom';
   value: SelectValue | SelectValue[] | null = null;
+
+  get resolvedDropdownTitle(): string {
+    return this.dropdownTitle.trim() || this.label.trim() || this.ariaLabel?.trim() || this.placeholder.trim() || 'Options';
+  }
+
   private onChange: (value: SelectValue | SelectValue[] | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
   ngAfterViewInit(): void {

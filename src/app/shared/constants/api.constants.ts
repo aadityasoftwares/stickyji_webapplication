@@ -14,6 +14,10 @@ const resourceEndpoints = (resource: string) => ({
 });
 
 export const API_ENDPOINTS = {
+  onboarding: {
+    status: `${API_BASE_URL}/onboarding/status`,
+    initialSetup: `${API_BASE_URL}/onboarding/initial-setup`,
+  },
   plans: {
     getAll: `${API_BASE_URL}/plans/getall`,
     subscriptionPlans: `${API_BASE_URL}/plans/subscriptionplans`,
@@ -104,6 +108,7 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const PUBLIC_AUTH_ENDPOINTS = [
+  API_ENDPOINTS.workspaceInvitations.validateToken,
   API_ENDPOINTS.auth.login,
   API_ENDPOINTS.auth.register,
   API_ENDPOINTS.auth.refreshToken,

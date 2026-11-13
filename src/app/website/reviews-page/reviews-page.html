@@ -1,0 +1,368 @@
+<app-website-header
+  (signInClick)="navigateToAuth('login')"
+  (primaryActionClick)="navigateToAuth('signup')"
+></app-website-header>
+
+<main class="reviews-page" id="top">
+  <!-- Hero Section -->
+  <section class="reviews-hero" aria-labelledby="reviews-hero-title">
+    <div class="reviews-decorations" aria-hidden="true">
+      <div class="paint-swoosh swoosh-left"></div>
+      <div class="paint-swoosh swoosh-right"></div>
+    </div>
+
+    <div class="reviews-hero-shell">
+      <div class="rating-pill-badge">
+        <div class="stars-row">
+          <app-icon [icon]="LucideStar" [size]="16" class="star-gold" />
+          <app-icon [icon]="LucideStar" [size]="16" class="star-gold" />
+          <app-icon [icon]="LucideStar" [size]="16" class="star-gold" />
+          <app-icon [icon]="LucideStar" [size]="16" class="star-gold" />
+          <app-icon [icon]="LucideStar" [size]="16" class="star-gold" />
+        </div>
+        <span>4.9 / 5 OVERALL RATING ACROSS 2,400+ WORKSPACES</span>
+      </div>
+
+      <h1 id="reviews-hero-title" class="hero-title">
+        A wall of small wins.
+        <span class="title-highlight">
+          Real stories from calmer days.
+          <svg class="title-curl" viewBox="0 0 280 16" aria-hidden="true">
+            <path d="M4 12Q130-3 274 8" />
+          </svg>
+        </span>
+      </h1>
+
+      <p class="hero-desc">
+        The best productivity stories are rarely about doing more. They are about remembering less,
+        seeing your priorities clearly, and finishing the day with zero leftover mental clutter.
+      </p>
+
+      <!-- Stat Badges Row -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <strong>150,000+</strong>
+          <span>Sticky Notes Pinned</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <strong>94%</strong>
+          <span>Reported Less Daily Stress</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <strong>4.9 / 5</strong>
+          <span>Average User Score</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <strong>2,400+</strong>
+          <span>Active Thinkers & Teams</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filterable Sticky Review Wall Section -->
+  <section class="review-wall-section" aria-labelledby="wall-heading">
+    <div class="wall-shell">
+      <header class="wall-header">
+        <span class="section-eyebrow">Verified experiences</span>
+        <h2 id="wall-heading">Explore stories by workflow</h2>
+        <p>Filter through reviews from students, creators, engineers, and busy parents.</p>
+
+        <!-- Category Filters -->
+        <div class="filter-pills" role="tablist" aria-label="Review categories">
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'all'"
+            (click)="setFilter('all')"
+          >
+            <span>All Stories (12)</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'students'"
+            (click)="setFilter('students')"
+          >
+            <span>🎓 Students & Academics</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'tech'"
+            (click)="setFilter('tech')"
+          >
+            <span>💻 PMs & Tech</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'creators'"
+            (click)="setFilter('creators')"
+          >
+            <span>🎨 Creators & Writers</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'teams'"
+            (click)="setFilter('teams')"
+          >
+            <span>🚀 Small Teams</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="activeFilter() === 'life'"
+            (click)="setFilter('life')"
+          >
+            <span>🌿 Everyday Life</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- The Physical Sticky Notes Grid -->
+      <div class="notes-corkboard">
+        @for (rev of filteredReviews; track rev.id) {
+          <article
+            class="review-sticky-card"
+            [class]="'note-' + rev.noteColor"
+            [style.transform]="'rotate(' + rev.angle + 'deg)'"
+          >
+            <!-- Washi tape decoration -->
+            <span class="card-tape-piece" aria-hidden="true"></span>
+
+            <header class="card-top-meta">
+              <div class="stars-mini">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <app-icon [icon]="LucideStar" [size]="14" class="star-gold" />
+                }
+              </div>
+              <span class="user-duration">{{ rev.timeUsing }}</span>
+            </header>
+
+            <h3 class="card-headline">“{{ rev.headline }}”</h3>
+            <p class="card-quote">{{ rev.content }}</p>
+
+            <div class="breakthrough-badge">
+              <app-icon [icon]="LucideSparkles" [size]="13" />
+              <span>Win: {{ rev.breakthrough }}</span>
+            </div>
+
+            <footer class="card-reviewer-footer">
+              <app-avatar
+                [name]="rev.name"
+                [initials]="rev.avatarInitials"
+                [tone]="rev.avatarTone"
+                [size]="34"
+              />
+              <div class="reviewer-info">
+                <strong>{{ rev.name }}</strong>
+                <small>{{ rev.role }} · {{ rev.location }}</small>
+              </div>
+            </footer>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive Spotlight Stories -->
+  <section class="spotlight-section" aria-labelledby="spotlight-title">
+    <div class="spotlight-shell">
+      <header class="section-heading">
+        <span class="section-eyebrow">Customer spotlight</span>
+        <h2 id="spotlight-title">Two in-depth transformations</h2>
+        <p>How real people reconstructed their daily relationship with work.</p>
+      </header>
+
+      <div class="spotlight-grid">
+        <!-- Story 1 -->
+        <article class="spotlight-card note-blue">
+          <span class="spotlight-tape" aria-hidden="true"></span>
+          <span class="spotlight-label">CASE STUDY · DESIGN STUDIO</span>
+          <h3>How Studio Craft Saved 5 Hours Every Friday</h3>
+          <p class="spotlight-body">
+            “We were drowning in endless Jira updates and Slack threads asking for statuses. Moving our 6-person design
+            squad to a single shared Sticky Ji board brought total transparency. Our clients see deliverables in real-time,
+            leave feedback directly on sticky notes, and we completely eliminated our Friday status meetings.”
+          </p>
+          <div class="spotlight-stat-box">
+            <span class="stat-num">5 hrs</span>
+            <span class="stat-label">Saved per team member every single week</span>
+          </div>
+          <div class="spotlight-author">
+            <strong>Marcus Vance</strong>
+            <small>Founder at Studio Craft, Austin TX</small>
+          </div>
+        </article>
+
+        <!-- Story 2 -->
+        <article class="spotlight-card note-yellow">
+          <span class="spotlight-tape" aria-hidden="true"></span>
+          <span class="spotlight-label">CASE STUDY · ACADEMIC RESEARCH</span>
+          <h3>From ADHD Task Paralysis to Defending a PhD</h3>
+          <p class="spotlight-body">
+            “Linear task managers always overwhelmed me. Once a list hits 40 items, I would freeze and avoid opening the app.
+            Sticky Ji’s 'Today' sanctuary changed everything. I only look at 3 sticky notes at a time. The gentle pastel colors
+            and absence of aggressive red alarms gave me the calm environment I needed to complete my doctoral thesis.”
+          </p>
+          <div class="spotlight-stat-box">
+            <span class="stat-num">0</span>
+            <span class="stat-label">Missed deadlines across 12 intensive months</span>
+          </div>
+          <div class="spotlight-author">
+            <strong>Ananya Banerjee</strong>
+            <small>Doctoral Researcher in History, New Delhi</small>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Shoutout Sandbox -->
+  <section class="shoutout-simulator" aria-labelledby="shoutout-heading">
+    <div class="shoutout-shell">
+      <header class="shoutout-header">
+        <span class="section-eyebrow">Community pinboard</span>
+        <h2 id="shoutout-heading">Pin your note on our community wall</h2>
+        <p>Type a note or quick thought and see it stick live to our visitor board.</p>
+      </header>
+
+      <div class="shoutout-layout">
+        <!-- Form Column -->
+        <div class="shoutout-form-card">
+          <h3 class="form-title">Draft Your Shoutout</h3>
+
+          <div class="field-wrap">
+            <label for="shoutout-name" class="label-text">Your Name / Handle</label>
+            <input
+              id="shoutout-name"
+              type="text"
+              class="input-box"
+              [value]="shoutoutName()"
+              (input)="shoutoutName.set($any($event.target).value)"
+              placeholder="e.g., Alex P."
+            />
+          </div>
+
+          <div class="field-wrap">
+            <label for="shoutout-role" class="label-text">Role / Passion</label>
+            <input
+              id="shoutout-role"
+              type="text"
+              class="input-box"
+              [value]="shoutoutRole()"
+              (input)="shoutoutRole.set($any($event.target).value)"
+              placeholder="e.g., Design Student or Solo Founder"
+            />
+          </div>
+
+          <div class="field-wrap">
+            <label for="shoutout-msg" class="label-text">Your Experience / Note</label>
+            <textarea
+              id="shoutout-msg"
+              class="textarea-box"
+              rows="3"
+              [value]="shoutoutMessage()"
+              (input)="shoutoutMessage.set($any($event.target).value)"
+              placeholder="What makes your days calmer with Sticky Ji?"
+            ></textarea>
+          </div>
+
+          <div class="field-wrap">
+            <label class="label-text">Paper Color</label>
+            <div class="swatches-bar" role="radiogroup" aria-label="Choose note color">
+              @for (c of ['yellow', 'pink', 'blue', 'green', 'purple', 'orange']; track c) {
+                <button
+                  type="button"
+                  class="swatch-button"
+                  [class]="'swatch-' + c"
+                  [class.is-active]="shoutoutColor() === c"
+                  (click)="setShoutoutColor($any(c))"
+                >
+                  @if (shoutoutColor() === c) {
+                    <app-icon [icon]="LucideCheck" [size]="14" />
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="field-wrap">
+            <label class="label-text">Sticker Mood</label>
+            <div class="emoji-bar">
+              @for (e of ['✨', '🚀', '💛', '🧠', '☕', '🎯']; track e) {
+                <button
+                  type="button"
+                  class="emoji-btn"
+                  [class.is-selected]="shoutoutEmoji() === e"
+                  (click)="setShoutoutEmoji(e)"
+                >
+                  {{ e }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <button type="button" class="btn-pin-shoutout" (click)="postShoutout()">
+            <app-icon [icon]="LucidePin" [size]="18" />
+            <span>Pin Shoutout to Board</span>
+          </button>
+        </div>
+
+        <!-- Live Pinboard Preview -->
+        <div class="shoutout-board-preview">
+          <div class="preview-board-banner">
+            <app-icon [icon]="LucidePin" [size]="16" class="pin-icon-red" />
+            <span>LIVE VISITOR PINBOARD</span>
+          </div>
+
+          <div class="preview-notes-wrap">
+            @for (item of communityShoutouts(); track item.id) {
+              <article
+                class="shoutout-sticky-card"
+                [class]="'note-' + item.color"
+                [style.transform]="'rotate(' + item.angle + 'deg)'"
+              >
+                <span class="washi-small" aria-hidden="true"></span>
+                <span class="shoutout-emoji">{{ item.emoji }}</span>
+                <p class="shoutout-text">“{{ item.message }}”</p>
+                <div class="shoutout-footer">
+                  <strong>{{ item.name }}</strong>
+                  <small>{{ item.role }}</small>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="reviews-bottom-cta">
+    <div class="cta-shell">
+      <div class="cta-sticky-card">
+        <span class="cta-tape-big" aria-hidden="true"></span>
+        <h2>Join 2,400+ thinkers who found a calmer way to work.</h2>
+        <p>Set up your board in 30 seconds. No credit card required. Free forever.</p>
+        <div class="cta-actions">
+          <button type="button" class="btn-primary" (click)="navigateToAuth('signup')">
+            <span>Start your free workspace</span>
+            <app-icon [icon]="LucideArrowRight" [size]="18" />
+          </button>
+          <a routerLink="/pricing" class="btn-secondary">Explore plans →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-website-footer
+  (primaryActionClick)="navigateToAuth('signup')"
+  (secondaryActionClick)="navigateToAuth('login')"
+></app-website-footer>

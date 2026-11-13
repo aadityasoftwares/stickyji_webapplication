@@ -3,11 +3,13 @@ import { WorkspaceRoleApiService } from '../../../private/roles-permissions/serv
 import type { WorkspaceRole } from '../../../private/roles-permissions/interfaces/workspace-role.interface';
 import { UserPreferenceStore } from '../../../private/user-preferences/services/user-preference.store';
 import type { AuthSession, AuthenticatedUser } from '../interfaces/auth.interface';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthStore {
+  private readonly lifecycle = inject(SessionLifecycleService);
   private readonly roles = inject(WorkspaceRoleApiService);
   private readonly permissionsRequested = signal(false);
   private readonly resolvedGlobalRole = signal<WorkspaceRole | null>(null);
@@ -151,7 +153,7 @@ export class AuthStore {
   readonly isMfaEnabled = computed(() => Boolean(this.userState()?.isMfaEnabled));
 
   setSession(session: AuthSession): void {
-    if (this.userId() !== session?.user?.id) this.preferences.reset();
+    if (this.userId() !== session?.user?.id) this.resetAccountState();
     this.resolvedGlobalRole.set(null);
     this.userState.set(session?.user);
     this.sessionIdState.set(session?.sessionId);
@@ -160,7 +162,7 @@ export class AuthStore {
   }
 
   setUser(user: AuthenticatedUser): void {
-    if (this.userId() !== user?.id) this.preferences.reset();
+    if (this.userId() !== user?.id) this.resetAccountState();
     this.resolvedGlobalRole.set(null);
     this.userState.set(user);
   }
@@ -188,12 +190,18 @@ export class AuthStore {
   }
 
   clearSession(): void {
-    this.preferences.reset();
+    this.resetAccountState();
     this.resolvedGlobalRole.set(null);
     this.userState.set(null);
     this.accessTokenState.set(null);
     this.sessionIdState.set(null);
     this.initializedState.set(true);
+  }
+
+  private resetAccountState(): void {
+    this.permissionsRequested.set(false);
+    this.lifecycle.reset();
+    this.preferences.reset();
   }
 
   hasRole(...roles: string[]): boolean {

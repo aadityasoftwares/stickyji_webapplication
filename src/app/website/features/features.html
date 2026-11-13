@@ -1,0 +1,467 @@
+<app-website-header
+  (signInClick)="navigateToAuth('login')"
+  (primaryActionClick)="navigateToAuth('signup')"
+></app-website-header>
+
+<main class="features-page" id="top">
+  <!-- Hero Section -->
+  <section class="features-hero" aria-labelledby="features-title">
+    <div class="hero-shell">
+      <span class="hero-eyebrow">Built for how thoughts actually work</span>
+
+      <h1 id="features-title" class="hero-heading">
+        The tactile joy of paper.
+        <span class="heading-callout">
+          The velocity of a modern workspace.
+          <svg class="handdrawn-stroke" viewBox="0 0 280 18" aria-hidden="true">
+            <path d="M4 14Q130-4 274 10" />
+          </svg>
+        </span>
+      </h1>
+
+      <p class="hero-subtitle">
+        We stripped away the endless dropdowns, heavy database schemas, and sensory-overload
+        notifications. What remains is a calm, spatial canvas where ideas feel light, tangible, and
+        ready to become reality.
+      </p>
+
+      <div class="hero-ctas">
+        <button type="button" class="btn-primary" (click)="navigateToAuth('signup')">
+          <span>Start organizing free</span>
+          <app-icon [icon]="LucideArrowRight" [size]="18" />
+        </button>
+        <a href="#interactive-playground" class="btn-secondary">
+          <span>Try interactive sticky note</span>
+          <app-icon [icon]="LucideMousePointer" [size]="16" />
+        </a>
+      </div>
+
+      <div class="hero-reassurance">
+        <app-badge label="View current plans" variant="noteYellow" size="sm" shape="pill" />
+        <app-badge label="Browser-based workspace" variant="noteBlue" size="sm" shape="pill" />
+        <app-badge label="Start with one note" variant="noteGreen" size="sm" shape="pill" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Sticky Note Test Bench -->
+  <section
+    id="interactive-playground"
+    class="interactive-playground"
+    aria-labelledby="playground-title"
+  >
+    <div class="playground-shell">
+      <div class="playground-header">
+        <span class="section-eyebrow">Hands-on preview</span>
+        <h2 id="playground-title">Give it a try before you sign up</h2>
+        <p>
+          Click the colors, toggle tasks, or toggle the pin to see how intuitive our notes feel.
+        </p>
+      </div>
+
+      <div class="playground-layout">
+        <!-- Controls Side -->
+        <div class="controls-panel">
+          <div class="control-group">
+            <label class="control-label">Pick Paper Color</label>
+            <div class="color-swatches" role="radiogroup" aria-label="Choose sticky note color">
+              @for (c of ['yellow', 'pink', 'blue', 'green', 'purple', 'orange']; track c) {
+                <button
+                  type="button"
+                  class="swatch-btn"
+                  [class]="'swatch-' + c"
+                  [class.is-selected]="demoColor() === c"
+                  [attr.aria-label]="c + ' note'"
+                  (click)="setDemoColor($any(c))"
+                >
+                  @if (demoColor() === c) {
+                    <app-icon [icon]="LucideCheck" [size]="16" />
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Pin Status</label>
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.is-pinned]="demoPinned()"
+              (click)="toggleDemoPin()"
+            >
+              <app-icon [icon]="LucidePin" [size]="18" />
+              <span>{{ demoPinned() ? 'Pinned to top' : 'Unpinned note' }}</span>
+            </button>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Live Progress</label>
+            <div class="progress-bar-wrap">
+              <div
+                class="progress-bar-fill"
+                [style.width.%]="(completedCount / totalCount) * 100"
+              ></div>
+            </div>
+            <span class="progress-text"
+              >{{ completedCount }} of {{ totalCount }} tasks finished</span
+            >
+          </div>
+        </div>
+
+        <!-- Interactive Sticky Card Canvas -->
+        <div class="demo-canvas">
+          <article
+            class="interactive-sticky-note"
+            [class]="'note-' + demoColor()"
+            [class.is-pinned]="demoPinned()"
+          >
+            @if (demoPinned()) {
+              <span class="pin-graphic" aria-hidden="true">
+                <app-icon [icon]="LucidePin" [size]="22" />
+              </span>
+            } @else {
+              <span class="washi-tape-strip" aria-hidden="true"></span>
+            }
+
+            <header class="note-top-row">
+              <span class="note-badge-pill">INTERACTIVE DEMO</span>
+              <span class="note-time">Updated just now</span>
+            </header>
+
+            <h3 class="note-title">Launch My Next Big Idea 🚀</h3>
+            <p class="note-sub">A calmer workspace for everything on your mind.</p>
+
+            <ul class="note-checklist" aria-label="Demo checklist">
+              @for (item of demoChecklist(); track item.id) {
+                <li
+                  class="checklist-item"
+                  [class.is-done]="item.done"
+                  (click)="toggleChecklistItem(item.id)"
+                  role="checkbox"
+                  [attr.aria-checked]="item.done"
+                  tabindex="0"
+                >
+                  <span class="check-box">
+                    @if (item.done) {
+                      <app-icon [icon]="LucideCheck" [size]="14" />
+                    }
+                  </span>
+                  <span class="check-label">{{ item.label }}</span>
+                </li>
+              }
+            </ul>
+
+            <footer class="note-bottom-row">
+              <span class="author-tag">
+                <app-avatar initials="YOU" name="Visitor" [size]="28" tone="yellow" />
+                <span>Your Active Board</span>
+              </span>
+              <span class="dog-ear" aria-hidden="true"></span>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Nav Tabs -->
+  <section class="features-catalog" aria-labelledby="catalog-title">
+    <div class="catalog-shell">
+      <header class="catalog-header">
+        <span class="section-eyebrow">Explore by workflow</span>
+        <h2 id="catalog-title">Crafted for every phase of thinking</h2>
+        <p>Filter through the core capabilities that give you complete clarity every day.</p>
+
+        <div class="category-tabs" role="tablist" aria-label="Feature categories">
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'all'"
+            (click)="setCategory('all')"
+          >
+            <span>All Features</span>
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'canvas'"
+            (click)="setCategory('canvas')"
+          >
+            <app-icon [icon]="LucideLayout" [size]="16" />
+            <span>Sticky Canvas</span>
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'folders'"
+            (click)="setCategory('folders')"
+          >
+            <app-icon [icon]="LucideFolder" [size]="16" />
+            <span>Smart Folders & Boards</span>
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'today'"
+            (click)="setCategory('today')"
+          >
+            <app-icon [icon]="LucideCalendar" [size]="16" />
+            <span>Today Sanctuary</span>
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'collab'"
+            (click)="setCategory('collab')"
+          >
+            <app-icon [icon]="LucideUsers" [size]="16" />
+            <span>Team Collaboration</span>
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            [class.is-active]="activeCategory() === 'power'"
+            (click)="setCategory('power')"
+          >
+            <app-icon [icon]="LucideZap" [size]="16" />
+            <span>Speed & Shortcuts</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Deep Dive Pillar Cards -->
+      <div class="pillars-stack">
+        @for (pillar of filteredPillars; track pillar.id) {
+          <article class="pillar-card" [id]="pillar.id">
+            <div class="pillar-content">
+              <span class="pillar-badge" [class]="'badge-' + pillar.badgeTone">{{
+                pillar.badge
+              }}</span>
+              <h3 class="pillar-title">{{ pillar.title }}</h3>
+              <p class="pillar-tagline">{{ pillar.tagline }}</p>
+              <p class="pillar-desc">{{ pillar.description }}</p>
+
+              <ul class="pillar-highlights">
+                @for (item of pillar.highlights; track item) {
+                  <li>
+                    <span class="check-icon"><app-icon [icon]="LucideCheck" [size]="16" /></span>
+                    <span>{{ item }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <div class="pillar-visual">
+              @if (pillar.id === 'folders') {
+                <div class="workspace-preview" aria-label="Workspace and folder preview">
+                  <div class="workspace-preview-heading">
+                    <span class="workspace-preview-icon"><app-icon [icon]="LucideLayers" [size]="19" /></span>
+                    <div>
+                      <div class="workspace-preview-kicker">
+                        <span>Your sticky spaces</span>
+                        <app-badge label="3 spaces" variant="noteYellow" size="xs" shape="pill" />
+                      </div>
+                      <h4>Organise notes across personal and shared spaces.</h4>
+                    </div>
+                  </div>
+
+                  <div class="workspace-preview-toolbar" aria-hidden="true">
+                    <span class="is-selected"><app-icon [icon]="LucideLayers" [size]="13" /> All spaces <b>3</b></span>
+                    <span><app-icon [icon]="LucideFolder" [size]="13" /> My spaces</span>
+                    <span><app-icon [icon]="LucideUsers" [size]="13" /> Shared</span>
+                  </div>
+
+                  <div class="workspace-preview-grid">
+                    <article class="workspace-preview-card">
+                      <span class="workspace-card-type"><app-icon [icon]="LucideUsers" [size]="13" /> Team</span>
+                      <strong>Studio workspace</strong>
+                      <small>Plan projects together</small>
+                      <div class="workspace-folder-chips">
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Launch plans</span>
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Ideas</span>
+                      </div>
+                      <footer><span>2 folders</span><span><app-icon [icon]="LucideUsers" [size]="13" /> 4 members</span></footer>
+                    </article>
+                    <article class="workspace-preview-card personal-space">
+                      <span class="workspace-card-type"><app-icon [icon]="LucideFolder" [size]="13" /> Personal</span>
+                      <strong>My Workspace</strong>
+                      <small>Your own space to think</small>
+                      <div class="workspace-folder-chips">
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> My Notes</span>
+                        <span><app-icon [icon]="LucideFolder" [size]="12" /> Daily Tasks</span>
+                      </div>
+                      <footer><span>2 folders</span><span>Just you</span></footer>
+                    </article>
+                    <div class="workspace-preview-create">
+                      <span>+</span>
+                      <strong>Create a new space</strong>
+                      <small>A fresh home for your next idea</small>
+                    </div>
+                  </div>
+                </div>
+              } @else if (pillar.id === 'today') {
+                <div class="feature-screen-preview today-screen">
+                  <div class="feature-screen-topline">
+                    <span class="feature-screen-icon"><app-icon [icon]="LucideCalendar" [size]="18" /></span>
+                    <div><small>Today · Wednesday</small><strong>Your day, one note at a time.</strong></div>
+                    <app-badge label="3 notes" variant="noteYellow" size="xs" shape="pill" />
+                  </div>
+                  <div class="today-progress"><span></span></div>
+                  <div class="today-task is-done"><span class="task-check"><app-icon [icon]="LucideCheck" [size]="13" /></span><span><strong>Review project notes</strong><small>Personal workspace · My Notes</small></span><em>Done</em></div>
+                  <div class="today-task"><span class="task-check"></span><span><strong>Plan the next small step</strong><small>Studio workspace · Launch plans</small></span><em>Next</em></div>
+                  <div class="today-task"><span class="task-check"></span><span><strong>Capture an idea for later</strong><small>Personal workspace · Ideas</small></span><em>Later</em></div>
+                  <div class="feature-screen-foot"><span>One calm place for today’s priorities</span><strong>1 of 3 complete</strong></div>
+                </div>
+              } @else if (pillar.id === 'collab') {
+                <div class="feature-screen-preview team-screen">
+                  <div class="team-screen-heading"><div><small>Shared workspace</small><strong>Brand Studio</strong></div><app-badge label="4 members" variant="noteGreen" size="xs" shape="pill" /></div>
+                  <p>Keep the team’s ideas and next steps together.</p>
+                  <div class="team-members" aria-label="Workspace members"><span>AM</span><span>JL</span><span>SK</span><span>+1</span><small>Members</small></div>
+                  <div class="team-task"><span class="team-task-color"></span><div><strong>Campaign launch notes</strong><small>Shared with the whole team</small></div><span class="team-assignee">AM</span></div>
+                  <div class="team-task"><span class="team-task-color blue"></span><div><strong>Packaging review</strong><small>Assigned to Jamie</small></div><span class="team-assignee blue">JL</span></div>
+                  <div class="team-screen-foot"><app-icon [icon]="LucideShield" [size]="14" /> Roles and access stay clear to everyone.</div>
+                </div>
+              } @else if (pillar.id === 'power') {
+                <div class="feature-screen-preview search-screen">
+                  <div class="search-screen-heading"><span class="feature-screen-icon"><app-icon [icon]="LucideSearch" [size]="18" /></span><div><small>Find what you need</small><strong>Search across your spaces.</strong></div></div>
+                  <div class="mock-search-field"><app-icon [icon]="LucideSearch" [size]="15" /><span>launch checklist</span><kbd>⌘ K</kbd></div>
+                  <small class="search-result-label">3 matching notes</small>
+                  <div class="search-result"><span class="result-note yellow"></span><div><strong>Product launch checklist</strong><small>Studio workspace · Launch plans</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-result"><span class="result-note blue"></span><div><strong>Launch ideas</strong><small>Personal workspace · My Notes</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-result"><span class="result-note green"></span><div><strong>Team launch tasks</strong><small>Shared workspace · Campaign</small></div><app-icon [icon]="LucideArrowRight" [size]="14" /></div>
+                  <div class="search-screen-foot">Search notes, folders, and workspaces in one place.</div>
+                </div>
+              } @else {
+                <div
+                  class="mock-sticky-board"
+                  [style.transform]="'rotate(' + pillar.noteAngle + 'deg)'"
+                >
+                  <div class="pillar-sticky-note" [class]="'note-' + pillar.noteColor">
+                    <span class="tape-corner" aria-hidden="true"></span>
+                    <div class="mock-header">
+                      <span class="mock-tag">{{ pillar.noteContent.footerTag }}</span>
+                      <span class="mock-author">{{ pillar.noteContent.author }}</span>
+                    </div>
+                    <h4 class="mock-title">{{ pillar.noteContent.heading }}</h4>
+                    <p class="mock-sub">{{ pillar.noteContent.subheading }}</p>
+                    <ul class="mock-items">
+                      @for (line of pillar.noteContent.items; track line) {
+                        <li><app-icon [icon]="LucideCheck" [size]="14" /> {{ line }}</li>
+                      }
+                    </ul>
+                    <div class="mock-fold"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Micro Features Grid -->
+  <section class="micro-features-section" aria-labelledby="micro-title">
+    <div class="micro-shell">
+      <header class="section-heading">
+        <span class="section-eyebrow">Attention to craft</span>
+        <h2 id="micro-title">Little details that bring a smile to planning</h2>
+        <p>Because the tools you look at all day should make you feel calm, not exhausted.</p>
+      </header>
+
+      <div class="micro-grid">
+        @for (item of microFeatures; track item.title; let idx = $index) {
+          <div
+            class="micro-card"
+            [class]="'note-' + item.color"
+            [style.transform]="'rotate(' + (idx % 2 === 0 ? '-1.2deg' : '1.4deg') + ')'"
+          >
+            <span class="mini-tape" aria-hidden="true"></span>
+            <div class="micro-icon-wrap">
+              <app-icon [icon]="item.icon" [size]="24" />
+            </div>
+            <h3 class="micro-card-title">{{ item.title }}</h3>
+            <p class="micro-card-desc">{{ item.desc }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="comparison-strip" aria-labelledby="compare-title">
+    <div class="compare-shell">
+      <header class="compare-header">
+        <span class="section-eyebrow">The Sticky Ji philosophy</span>
+        <h2 id="compare-title">How Sticky Ji is purposefully different</h2>
+      </header>
+
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th scope="col" class="col-aspect">Aspect</th>
+              <th scope="col" class="col-traditional">Traditional Heavy Tools</th>
+              <th scope="col" class="col-stickyji">Sticky Ji</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">Time to capture a thought</td>
+              <td class="text-muted">45 seconds (Required fields, parent pages, tags)</td>
+              <td class="text-highlight">3 seconds (Click, type, sticks instantly)</td>
+            </tr>
+            <tr>
+              <td class="row-label">Everyday cognitive feel</td>
+              <td class="text-muted">Like filling out spreadsheets and Jira tickets</td>
+              <td class="text-highlight">Like peeling a fresh colorful paper note</td>
+            </tr>
+            <tr>
+              <td class="row-label">Daily focus protection</td>
+              <td class="text-muted">Drowns you in 200 backlog items and red badges</td>
+              <td class="text-highlight">Dedicated "Today" sanctuary limits noise to 3–5 goals</td>
+            </tr>
+            <tr>
+              <td class="row-label">Learning curve</td>
+              <td class="text-muted">Multi-hour tutorials, templates, certification courses</td>
+              <td class="text-highlight">Zero. If you know how paper works, you know Sticky Ji</td>
+            </tr>
+            <tr>
+              <td class="row-label">Team collaboration</td>
+              <td class="text-muted">Overwhelming notification firehose</td>
+              <td class="text-highlight">Shared live canvas with gentle presence & roles</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA Card -->
+  <section class="features-bottom-cta">
+    <div class="cta-shell">
+      <div class="cta-sticky-card">
+        <span class="big-washi-tape" aria-hidden="true"></span>
+        <span class="corner-pin" aria-hidden="true">
+          <app-icon [icon]="LucidePin" [size]="28" />
+        </span>
+        <h2>Ready to trade digital clutter for daily clarity?</h2>
+        <p>Join thousands of students, creators, and teams planning on a calmer visual canvas.</p>
+        <div class="cta-actions">
+          <button type="button" class="btn-cta-primary" (click)="navigateToAuth('signup')">
+            <span>Get started for free</span>
+            <app-icon [icon]="LucideArrowRight" [size]="20" />
+          </button>
+          <a routerLink="/pricing" class="btn-cta-secondary">View our plans →</a>
+        </div>
+        <p class="cta-footnote">View current plans · Choose a plan that fits · Instant access</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-website-footer
+  (primaryActionClick)="navigateToAuth('signup')"
+  (secondaryActionClick)="navigateToAuth('login')"
+></app-website-footer>

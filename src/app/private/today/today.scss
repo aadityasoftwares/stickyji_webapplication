@@ -720,13 +720,26 @@
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
-    overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--note-border) transparent;
+    overflow: hidden;
   }
 
   ::ng-deep .sticky-note__content > * {
     flex-shrink: 0;
+  }
+
+  ::ng-deep .sticky-note.is-detail {
+    min-height: 16rem;
+  }
+
+  // Keep the title visible while longer descriptions, checklists and files scroll together.
+  ::ng-deep .sticky-note__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--note-border) transparent;
+    overscroll-behavior: contain;
   }
 
   &:nth-child(3n + 2) {
@@ -1010,6 +1023,24 @@
   letter-spacing: 0.015em;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.today-column-name-editor {
+  width: min(100%, 15rem);
+  min-width: 0;
+  height: 2rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid $accent;
+  border-radius: $radius-xs;
+  outline: none;
+  background: $paper;
+  color: $heading;
+  font: 700 var(--today-font-13)/1.35 $font-body;
+  box-shadow: 0 0 0 3px rgba($accent, 0.12);
+}
+
+.today-column-name-editor:focus-visible {
+  border-color: $accent;
 }
 
 .today-column-dot {
@@ -1684,6 +1715,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.today-group-toggle.is-editing {
+  cursor: text;
+}
+
+.today-group-name-editor {
+  flex: 1 1 auto;
 }
 
 .today-group-toggle app-badge,

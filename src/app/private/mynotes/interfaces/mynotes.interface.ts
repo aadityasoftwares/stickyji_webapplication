@@ -1,4 +1,6 @@
 import type { LEGACY_STICKY_NOTE_SHAPES } from '../constants/sticky-note.constants';
+import type { StickyNotePriority, StickyNoteStatus } from '../constants/sticky-note.constants';
+export { StickyNotePriority, StickyNoteStatus } from '../constants/sticky-note.constants';
 
 import type { ApiDataResponse as ApiResponse } from '../../../shared/interfaces/api.interface';
 import type { PaginatedDataResponse as PaginatedApiResponse } from '../../../shared/interfaces/api.interface';
@@ -11,8 +13,6 @@ import type { CheckboxVariant } from '../../../shared/components/checkbox/checkb
 import type { CardVariant } from '../../../shared/components/sticky-card/sticky-card';
 
 export type KanbanStatus = 'todo' | 'doing' | 'done';
-
-export type StickyNoteStatus = 'ACTIVE' | 'ARCHIVED' | 'TRASHED';
 
 export type StickyNoteColor =
   'YELLOW' | 'BLUE' | 'GREEN' | 'PINK' | 'PURPLE' | 'ORANGE' | 'RED' | 'BROWN' | 'BLACK';
@@ -44,6 +44,7 @@ export interface KanbanAssignee {
 
 export interface KanbanNote {
   id: string;
+  priority?: StickyNotePriority;
 
   status: KanbanStatus | StickyNoteStatus;
 
@@ -144,6 +145,7 @@ export interface StickyNote {
   title: string;
   content: string;
   color: StickyNoteColor;
+  priority?: StickyNotePriority;
   shape: StickyNoteShape;
 
   position: number;
@@ -167,6 +169,8 @@ export interface StickyNote {
 }
 
 export interface StickyNoteCreateRequest {
+  priority?: StickyNotePriority;
+  status?: StickyNoteStatus;
   workspaceId: string;
   workspaceFolderId?: string | null;
   columnId: string;
@@ -182,6 +186,8 @@ export interface StickyNoteCreateRequest {
 }
 
 export interface StickyNoteUpdateRequest {
+  priority?: StickyNotePriority;
+  status?: StickyNoteStatus;
   workspaceFolderId?: string | null;
   columnId?: string;
 

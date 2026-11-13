@@ -1217,6 +1217,7 @@
 <app-send-workspace-member-request-side-panel
   [open]="memberModalOpen()"
   [workspaceId]="selectedWorkspaceId()"
+  [workspaceOptions]="workspaceOptions()"
   [member]="memberModalMember()"
   [roleOptions]="availableRoleOptions()"
   (closed)="closeMemberModal()"
@@ -1333,138 +1334,33 @@
   </div>
 }
 
-@if (removeTarget(); as member) {
-  <div class="workspace-members-dialog-backdrop" (mousedown)="closeRemoveDialog()">
-    <section
-      class="workspace-members-dialog-shell"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="workspace-member-remove-title"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <app-sticky-card
-        class="workspace-members-dialog-note"
-        variant="noteRed"
-        appearance="elevated"
-        shape="note"
-        size="sm"
-        [fullWidth]="true"
-        [hoverable]="false"
-        [footerDivider]="true"
-      >
-        <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
-          <app-icon [icon]="LucideTrash2" size="sm" />
-        </span>
+<app-delete-confirm-modal
+  [open]="!!removeTarget()"
+  title="Remove member?"
+  [itemName]="removeTarget() ? memberName(removeTarget()!) : ''"
+  [message]="'“' + (removeTarget() ? memberName(removeTarget()!) : '') + '” will no longer have access to ' + selectedWorkspaceLabel() + '.'"
+  supportingText="You can restore this member later from the Removed filter."
+  confirmLabel="Remove member"
+  cancelLabel="Keep member"
+  mode="permanent"
+  [busy]="removing()"
+  (confirmed)="confirmRemove()"
+  (closed)="closeRemoveDialog()"
+/>
 
-        <span card-eyebrow class="workspace-members-dialog-kicker"> Before you remove access </span>
-
-        <h2 card-title id="workspace-member-remove-title" class="workspace-members-dialog-title">
-          Remove member?
-        </h2>
-
-        <p card-subtitle class="workspace-members-dialog-subtitle">
-          “{{ memberName(member) }}” will no longer have access to {{ selectedWorkspaceLabel() }}.
-        </p>
-
-        <div class="workspace-members-dialog-message">
-          <span aria-hidden="true">
-            <app-icon [icon]="LucideRotateCcw" size="xs" />
-          </span>
-          <span>You can restore this member later from the Removed filter.</span>
-        </div>
-
-        <div card-footer class="workspace-members-dialog-actions">
-          <app-button
-            label="Keep member"
-            variant="secondary"
-            size="sm"
-            [disabled]="removing()"
-            (buttonClick)="closeRemoveDialog()"
-          />
-
-          <app-button
-            label="Remove member"
-            variant="danger"
-            size="sm"
-            [loading]="removing()"
-            [disabled]="removing()"
-            (buttonClick)="confirmRemove()"
-          />
-        </div>
-      </app-sticky-card>
-    </section>
-  </div>
-}
-
-@if (cancelInvitationTarget(); as invitation) {
-  <div class="workspace-members-dialog-backdrop" (mousedown)="closeCancelInvitationDialog()">
-    <section
-      class="workspace-members-dialog-shell"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="workspace-invitation-cancel-title"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <app-sticky-card
-        class="workspace-members-dialog-note"
-        variant="noteRed"
-        appearance="elevated"
-        shape="note"
-        size="sm"
-        [fullWidth]="true"
-        [hoverable]="false"
-        [footerDivider]="true"
-      >
-        <span card-icon class="workspace-members-dialog-icon" aria-hidden="true">
-          <app-icon [icon]="LucideMail" size="sm" />
-        </span>
-
-        <span card-eyebrow class="workspace-members-dialog-kicker">
-          Pending workspace invitation
-        </span>
-
-        <h2
-          card-title
-          id="workspace-invitation-cancel-title"
-          class="workspace-members-dialog-title"
-        >
-          Cancel invitation?
-        </h2>
-
-        <p card-subtitle class="workspace-members-dialog-subtitle">
-          {{ invitationEmail(invitation) }} will no longer be able to use this invitation to join
-          {{ selectedWorkspaceLabel() }}.
-        </p>
-
-        <div class="workspace-members-dialog-message">
-          <span aria-hidden="true">
-            <app-icon [icon]="LucideUserPlus" size="xs" />
-          </span>
-          <span>You can send a new invitation later if access is still needed.</span>
-        </div>
-
-        <div card-footer class="workspace-members-dialog-actions">
-          <app-button
-            label="Keep invitation"
-            variant="secondary"
-            size="sm"
-            [disabled]="cancellingInvitation()"
-            (buttonClick)="closeCancelInvitationDialog()"
-          />
-
-          <app-button
-            label="Cancel invitation"
-            variant="danger"
-            size="sm"
-            [loading]="cancellingInvitation()"
-            [disabled]="cancellingInvitation()"
-            (buttonClick)="confirmCancelInvitation()"
-          />
-        </div>
-      </app-sticky-card>
-    </section>
-  </div>
-}
+<app-delete-confirm-modal
+  [open]="!!cancelInvitationTarget()"
+  title="Cancel invitation?"
+  [itemName]="cancelInvitationTarget() ? invitationEmail(cancelInvitationTarget()!) : ''"
+  [message]="(cancelInvitationTarget() ? invitationEmail(cancelInvitationTarget()!) : '') + ' will no longer be able to use this invitation to join ' + selectedWorkspaceLabel() + '.'"
+  supportingText="You can send a new invitation later if access is still needed."
+  confirmLabel="Cancel invitation"
+  cancelLabel="Keep invitation"
+  mode="permanent"
+  [busy]="cancellingInvitation()"
+  (confirmed)="confirmCancelInvitation()"
+  (closed)="closeCancelInvitationDialog()"
+/>
 <span
   class="workspace-context-menu-origin"
   aria-hidden="true"

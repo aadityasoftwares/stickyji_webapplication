@@ -43,9 +43,12 @@
               </div>
 
               @if (headerNote) {
-                <span class="app-side-panel-note">
-                  {{ headerNote }}
-                </span>
+                <app-badge
+                  class="app-side-panel-note"
+                  [label]="headerNote"
+                  [variant]="headerNoteVariant"
+                  size="sm"
+                />
               }
             </div>
 

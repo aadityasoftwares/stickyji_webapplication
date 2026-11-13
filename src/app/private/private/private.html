@@ -46,4 +46,9 @@
       <router-outlet />
     </main>
   </section>
+
+  <app-onboarding-modal
+    [open]="onboardingService.showModal()"
+    (setupComplete)="onOnboardingComplete($event)"
+  />
 </div>

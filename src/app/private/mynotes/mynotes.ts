@@ -1,38 +1,22 @@
-import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
-import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
-  computed,
-  inject,
   signal,
+  SimpleChanges,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  catchError,
-  filter,
-  finalize,
-  forkJoin,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  switchMap,
-  take,
-  toArray,
-} from 'rxjs';
+import { FormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import {
   LucideAArrowUp,
   LucideArchive,
@@ -66,38 +50,46 @@ import {
   LucideUsers,
   LucideX,
 } from '@lucide/angular';
-import { AppIcon } from '../../shared/components/icon/icon';
+import {
+  catchError,
+  filter,
+  finalize,
+  forkJoin,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  take,
+  toArray,
+} from 'rxjs';
 import { Badge } from '../../shared/components/badge/badge';
 import { BulkActionPanel } from '../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../shared/components/button/button';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { DatepickerInput } from '../../shared/components/datepicker-input/datepicker-input';
+import { DeleteConfirmModal } from '../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { AppIcon } from '../../shared/components/icon/icon';
 import { Input as AppInput } from '../../shared/components/input/input';
 import { Loader } from '../../shared/components/loader/loader';
 import { Select } from '../../shared/components/select/select';
-import { Tabs } from '../../shared/components/tabs/tabs';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { StickyMarkdownRendererComponent } from '../../shared/components/sticky-markdown-renderer/sticky-markdown-renderer.component';
 import { Switch } from '../../shared/components/switch/switch';
-import { Tooltip } from '../../shared/components/tooltip/tooltip';
+import { Tabs } from '../../shared/components/tabs/tabs';
 import { ToastService } from '../../shared/components/toast/services/toast.service';
-import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
-import { UI } from '../../shared/constants/ui.constants';
-import { STICKY_NOTE_MESSAGES } from './messages/sticky-note.messages';
-import { WorkspaceService } from '../workspace/services/workspace.service';
-import { WorkspaceStore } from '../workspace/services/workspace.store';
-import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
-import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
-import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
-import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
+import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import {
   STICKY_NOTE_FONT_OPTIONS,
   STICKY_NOTE_FONT_SIZE_OPTIONS,
   STICKY_NOTE_LAYOUT_OPTIONS,
   USER_PREFERENCE_KEYS,
   VIEW,
-  VIEW_TABS,
-  View,
+  VIEW_TABS
 } from '../../shared/constants/common.constants';
+import { APP_ROUTES, routeCommands } from '../../shared/constants/route.constants';
+import { UI } from '../../shared/constants/ui.constants';
 import {
   entityNameOf,
   extractErrorMessage,
@@ -106,36 +98,44 @@ import {
   sortItemsByPosition,
 } from '../../shared/functions/common.function';
 import { toDateKey } from '../../shared/functions/date.function';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 import {
   compareNotesByRank,
-  getNoteColorAccent,
+  getNeighborNoteIds,
   getNoteColumnEyebrow,
   getNoteContent,
   getNotePreview,
   getNoteTimestamp,
   getNoteTitle,
-  getNeighborNoteIds,
   isNoteActive,
   isNoteArchived,
   isNoteDeleted,
+  mapNoteAssignees,
   mapStickyNoteChecklists,
   NOTE_SORT_OPTIONS,
   sortNotesByRank,
-  toColorCssClass,
-  mapNoteAssignees,
+  toColorCssClass
 } from '../../shared/functions/sticky-note.function';
 import { UserDatePipe } from '../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../shared/pipes/user-time.pipe';
 import { UserDateTimeFormatterService } from '../../shared/services/user-date-time-formatter.service';
-import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
-import { OverdueTopbar } from './overdue-topbar/overdue-topbar';
-import { OverdueNotesPanel } from './overdue-notes-panel/overdue-notes-panel';
-import { OverdueNotesStore } from './services/overdue-notes.store';
-import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
-import { StickyNoteApiService } from './services/sticky-notes.service';
-import { StickyNoteColumnApiService } from './services/sticky-note-column.service';
-import { StickyNoteChecklistItemApiService } from './services/sticky-note-checklist-item.service';
+import { stickyMarkdownToPlainText } from '../../shared/utils/sticky-markdown/markdown-plain-text';
+import { StickyNotesFavouriteService } from '../sticky-notes-favourites/services/sticky-notes-favourite.service';
+import { UserPreferenceStore } from '../user-preferences/services/user-preference.store';
 import { MembersStack } from '../workspace-members/members-stack/members-stack';
+import { WorkspaceService } from '../workspace/services/workspace.service';
+import { WorkspaceStore } from '../workspace/services/workspace.store';
+import { WorkspaceFolderService } from '../workspacefolders/services/workspace-folder.service';
+import { WorkspaceFolderStore } from '../workspacefolders/services/workspace-folder.store';
+import { AddEditNoteSidePanel } from './add-edit-note-side-panel/add-edit-note-side-panel';
+import { STICKY_NOTE_MESSAGES } from './messages/sticky-note.messages';
+import { OverdueNotesPanel } from './overdue-notes-panel/overdue-notes-panel';
+import { OverdueTopbar } from './overdue-topbar/overdue-topbar';
+import { OverdueNotesStore } from './services/overdue-notes.store';
+import { StickyNoteChecklistItemApiService } from './services/sticky-note-checklist-item.service';
+import { StickyNoteColumnApiService } from './services/sticky-note-column.service';
+import { StickyNoteApiService } from './services/sticky-notes.service';
+import { StickyNote as StickyNoteCardComponent } from './sticky-note/sticky-note';
 
 @Component({
   standalone: true,
@@ -166,6 +166,7 @@ import { MembersStack } from '../workspace-members/members-stack/members-stack';
     MembersStack,
     UserDatePipe,
     UserTimePipe,
+    DeleteConfirmModal,
   ],
   templateUrl: './mynotes.html',
   styleUrl: './mynotes.scss',
@@ -865,6 +866,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   openCreateEditor(): void {
+    closeAllMatMenus();
     if (!this.canCreateNote()) {
       if (!this.selectedFolderId()) {
         this.toastService.error(STICKY_NOTE_MESSAGES.VALIDATION.FOLDER_REQUIRED, {
@@ -889,8 +891,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   openEditEditor(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
+    closeAllMatMenus();
     const id = idOf(note);
     if (!id || this.isBusy(note)) return;
     this.notePanelMode.set('edit');
@@ -1009,8 +1010,7 @@ export class MyNotes implements OnInit, OnChanges {
   }
 
   requestDelete(note: any, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
+    closeAllMatMenus();
     if (!this.isBusy(note)) this.deleteTarget.set(note);
   }
 

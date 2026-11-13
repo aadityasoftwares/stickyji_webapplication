@@ -1,8 +1,11 @@
 import { DOCUMENT, ViewportScroller } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
@@ -17,11 +20,16 @@ import {
   LucideHeart,
   LucideHouse,
   LucideMail,
+  LucideMapPin,
+  LucideMessageSquare,
+  LucidePhone,
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 export interface FooterLink {
   label: string;
@@ -40,8 +48,41 @@ export interface FooterLinkGroup {
 export interface FooterSocialLink {
   label: string;
   href: string;
-  type: 'linkedin' | 'x' | 'instagram' | 'youtube';
+  type: 'linkedin' | 'facebook' | 'x' | 'instagram' | 'youtube' | 'discord';
 }
+
+export const DEFAULT_FOOTER_SOCIAL_LINKS: readonly FooterSocialLink[] = [
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/stickyji/',
+    type: 'linkedin',
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/stickyji',
+    type: 'facebook',
+  },
+  {
+    label: 'X (Twitter)',
+    href: 'https://x.com',
+    type: 'x',
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com',
+    type: 'instagram',
+  },
+  {
+    label: 'YouTube',
+    href: 'https://www.youtube.com',
+    type: 'youtube',
+  },
+  {
+    label: 'Discord',
+    href: 'https://discord.gg',
+    type: 'discord',
+  },
+];
 
 export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
   {
@@ -49,12 +90,10 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'sparkles',
     badgeColor: 'yellow',
     links: [
-      { label: 'Features', href: '/home#features' },
-      { label: 'How it works', href: '/home#how-it-works' },
-      { label: 'Use cases', href: '/home#use-cases' },
-      { label: 'Pricing', href: '/home#pricing' },
-      { label: "What's new", href: '/home#features', badge: 'New' },
-      { label: 'Roadmap', href: '/home#features' },
+      { label: 'Features', href: '/features' },
+      { label: 'How it works', href: '/how-it-works' },
+      { label: 'Use cases', href: '/use-cases' },
+      { label: 'Pricing', href: '/pricing' },
     ],
   },
   {
@@ -62,11 +101,11 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'home',
     badgeColor: 'pink',
     links: [
-      { label: 'For students', href: '/home#use-cases' },
-      { label: 'For professionals', href: '/home#use-cases' },
-      { label: 'For creators', href: '/home#use-cases' },
-      { label: 'For everyday life', href: '/home#use-cases' },
-      { label: 'Small teams', href: '/home#use-cases' },
+      { label: 'For students', href: '/use-cases' },
+      { label: 'For professionals', href: '/use-cases' },
+      { label: 'For creators', href: '/use-cases' },
+      { label: 'For everyday life', href: '/use-cases' },
+      { label: 'Small teams', href: '/use-cases' },
     ],
   },
   {
@@ -74,12 +113,9 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     icon: 'book',
     badgeColor: 'blue',
     links: [
-      { label: 'Blog', href: '/home#reviews' },
-      { label: 'Help center', href: '/home#how-it-works' },
-      { label: 'Guides', href: '/home#how-it-works' },
-      { label: 'Templates', href: '/home#features' },
-      { label: 'Product updates', href: '/home#features' },
-      { label: 'Status', href: '/home' },
+      { label: 'Blog & Productivity Tips', href: '/blog' },
+      { label: 'Help center', href: '/how-it-works' },
+      { label: 'Guides', href: '/how-it-works' },
     ],
   },
   {
@@ -88,7 +124,6 @@ export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
     badgeColor: 'green',
     links: [
       { label: 'About us', href: '/about-us' },
-      { label: 'Careers', href: '/home' },
       { label: 'Contact us', href: '/contact-us' },
       { label: 'Privacy policy', href: '/privacy-policy' },
       { label: 'Terms & conditions', href: '/terms-and-conditions' },
@@ -116,13 +151,20 @@ export class WebsiteFooter {
   readonly LucideBookOpen = LucideBookOpen;
   readonly LucideUsers = LucideUsers;
   readonly LucideMail = LucideMail;
+  readonly LucidePhone = LucidePhone;
+  readonly LucideMapPin = LucideMapPin;
+  readonly LucideMessageSquare = LucideMessageSquare;
   readonly LucideSparkles = LucideSparkles;
 
   @Input() brandName = 'Sticky Ji';
   @Input() logoSrc = 'StickyJiHorizontalLogo.png';
   @Input() mascotSrc = 'StickyJiLogo.png';
-  @Input() brandHref = '/home#top';
+  @Input() brandHref = '/#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
+  @Input() locationText = 'Vadodara, Gujarat, India';
+  @Input() emailAddress = 'contact@aadityasoftwares.in';
+  @Input() phoneNumber = '+91 88498 63872';
+  @Input() socialLinks: readonly FooterSocialLink[] = DEFAULT_FOOTER_SOCIAL_LINKS;
   @Input() ctaBadgeText = 'Ready to get organized?';
   @Input() ctaHeadingLine1 = 'Your next big idea needs';
   @Input() ctaHeadingHighlight = 'a home.';
@@ -134,7 +176,6 @@ export class WebsiteFooter {
   // Backward compatibility inputs
   @Input() ctaTitle?: string;
   @Input() statusLabel?: string;
-  @Input() socialLinks?: readonly unknown[];
 
   @Output() primaryActionClick = new EventEmitter<void>();
   @Output() secondaryActionClick = new EventEmitter<void>();
@@ -144,6 +185,50 @@ export class WebsiteFooter {
   readonly currentYear = new Date().getFullYear();
   readonly newsletterEmail = signal('');
   readonly subscribeSuccess = signal(false);
+
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Footer CTA note card entrance
+          gsap.from('.footer-cta-container', {
+            opacity: 0,
+            y: 35,
+            scale: 0.95,
+            duration: 0.75,
+            ease: 'back.out(1.2)',
+            scrollTrigger: {
+              trigger: '.footer-cta-container',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // Nav links and brand columns
+          gsap.from(['.footer-brand-side', '.footer-nav-col', '.footer-newsletter-card'], {
+            opacity: 0,
+            y: 20,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.footer-main-grid',
+              start: 'top 88%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
 
   onLinkSelected(link: FooterLink): void {
     this.linkSelected.emit(link);

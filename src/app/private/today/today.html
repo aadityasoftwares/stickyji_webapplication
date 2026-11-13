@@ -39,6 +39,8 @@
               [ngModel]="activeWorkspaceId()"
               (ngModelChange)="onWorkspaceSelection($event)"
               name="today-workspace"
+              dropdownTitle="Workspace"
+              dropdownDescription="Choose the workspace for today."
               [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
               ariaLabel="Choose workspace for today"
               variant="paper"
@@ -61,6 +63,8 @@
               [ngModel]="activeFolder()"
               (ngModelChange)="onFolderSelection($event)"
               name="today-folder"
+              dropdownTitle="Folder"
+              dropdownDescription="Choose a folder in the selected workspace."
               [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
               ariaLabel="Choose folder for today"
               variant="paper"
@@ -187,6 +191,7 @@
                 [ngModel]="stickyNoteFont()"
                 (ngModelChange)="chooseFont($event)"
                 name="today-note-font"
+                dropdownTitle="Note font"
                 placeholder="Note font"
                 ariaLabel="Choose note font"
                 variant="paper"
@@ -200,7 +205,8 @@
                 [maxWidth]="215"
                 [iconLeft]="LucideType"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search fonts..."
                 [fullWidth]="false"
               />
             </div>
@@ -210,6 +216,7 @@
                 [ngModel]="stickyNoteFontSize()"
                 (ngModelChange)="onStickyNoteFontSizeSelection($event)"
                 name="today-note-font-size"
+                dropdownTitle="Font size"
                 placeholder="Font size"
                 ariaLabel="Choose note font size"
                 variant="paper"
@@ -223,7 +230,8 @@
                 [maxWidth]="135"
                 [iconLeft]="LucideAArrowUp"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search sizes..."
                 [fullWidth]="false"
               />
             </div>
@@ -233,6 +241,7 @@
                 [ngModel]="stickyNoteLayout()"
                 (ngModelChange)="onStickyNoteLayoutSelection($event)"
                 name="today-sticky-note-layout"
+                dropdownTitle="Note layout"
                 placeholder="Note layout"
                 ariaLabel="Choose sticky note layout"
                 variant="paper"
@@ -246,7 +255,8 @@
                 [maxWidth]="155"
                 [iconLeft]="stickyNoteLayout() === 'COMPACT' ? LucideList : LucidePanelsTopLeft"
                 [clearable]="false"
-                [searchable]="false"
+                [searchable]="true"
+                searchPlaceholder="Search layouts..."
                 [fullWidth]="false"
               />
             </div>
@@ -752,7 +762,12 @@
                   class="today-kanban-column"
                   cdkDrag
                   [cdkDragData]="column"
-                  [cdkDragDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
+                  [cdkDragDisabled]="
+                    boardLoading() ||
+                    movingColumn() ||
+                    !!movingNoteId() ||
+                    editingColumnNameId() === column.id
+                  "
                   [cdkDragStartDelay]="{ touch: 150, mouse: 0 }"
                   [style.--column-accent]="column.accent"
                   [attr.aria-labelledby]="column.id + '-heading'"
@@ -764,16 +779,51 @@
                       [appTooltip]="'Hold to rearrange ' + column.label + ' column'"
                     >
                       <span class="today-column-dot" aria-hidden="true"></span>
-                      <h3 [id]="column.id + '-heading'">{{ column.label }}</h3>
-                      <app-badge
-                        [count]="visibleNotesFor(column.id).length"
-                        variant="neutral"
-                        size="xs"
-                        shape="pill"
-                        [ariaLabel]="visibleNotesFor(column.id).length + ' notes'"
-                      />
+                      @if (editingColumnNameId() === column.id) {
+                        <input
+                          [id]="column.id + '-heading'"
+                          class="today-column-name-editor"
+                          data-today-column-name-editor
+                          [attr.aria-label]="'Rename ' + column.label + ' column'"
+                          [value]="columnNameDraft()"
+                          [maxLength]="columnNameMaxLength"
+                          (input)="updateColumnNameDraft($event)"
+                          (keydown)="onColumnNameKeydown($event, column)"
+                          (blur)="commitColumnNameEdit(column)"
+                          (click)="$event.stopPropagation()"
+                          (pointerdown)="$event.stopPropagation()"
+                        />
+                      } @else {
+                        <h3
+                          [id]="column.id + '-heading'"
+                          (dblclick)="startColumnNameEdit(column, $event)"
+                          [appTooltip]="'Double-click to rename ' + column.label"
+                        >
+                          {{ column.label }}
+                        </h3>
+                      }
+                      @if (editingColumnNameId() !== column.id) {
+                        <app-badge
+                          [count]="visibleNotesFor(column.id).length"
+                          variant="neutral"
+                          size="xs"
+                          shape="pill"
+                          [ariaLabel]="visibleNotesFor(column.id).length + ' notes'"
+                        />
+                      }
                     </div>
                     <div class="today-column-actions">
+                      <app-button
+                        appearance="flat"
+                        [icon]="LucidePencil"
+                        [iconOnly]="true"
+                        variant="ghost"
+                        size="xs"
+                        [disabled]="!!movingColumn() || savingColumnNameId() === column.id"
+                        [ariaLabel]="'Rename ' + column.label"
+                        [title]="'Rename ' + column.label"
+                        (buttonClick)="startColumnNameEdit(column, $event)"
+                      />
                       <app-button
                         appearance="flat"
                         [icon]="LucidePlus"
@@ -952,21 +1002,49 @@
                     class="today-group"
                     cdkDrag
                     [cdkDragData]="group.column"
-                    [cdkDragDisabled]="boardLoading() || movingColumn() || !!movingNoteId()"
+                    [cdkDragDisabled]="
+                      boardLoading() ||
+                      movingColumn() ||
+                      !!movingNoteId() ||
+                      editingColumnNameId() === group.id
+                    "
                     [style.--group-accent]="group.accent"
                     [class.is-collapsed]="isGroupCollapsed(group.id)"
                     [attr.aria-labelledby]="'group-heading-' + group.id"
                   >
                     <header class="today-group-header">
-                      <h3>
-                        <button
-                          type="button"
-                          class="today-group-toggle"
-                          [id]="'group-heading-' + group.id"
-                          [attr.aria-expanded]="!isGroupCollapsed(group.id)"
-                          [attr.aria-controls]="'group-body-' + group.id"
-                          (click)="toggleGroup(group.id)"
-                        >
+                      <h3 [id]="'group-heading-' + group.id">
+                        @if (editingColumnNameId() === group.id) {
+                          <div class="today-group-toggle is-editing" role="group" aria-label="Rename column">
+                            <app-icon
+                              class="today-group-chevron"
+                              [icon]="
+                                isGroupCollapsed(group.id) ? LucideChevronRight : LucideChevronDown
+                              "
+                              size="sm"
+                            />
+                            <span class="today-group-accent-bar" aria-hidden="true"></span>
+                            <input
+                              class="today-column-name-editor today-group-name-editor"
+                              data-today-column-name-editor
+                              [attr.aria-label]="'Rename ' + group.label + ' column'"
+                              [value]="columnNameDraft()"
+                              [maxLength]="columnNameMaxLength"
+                              (input)="updateColumnNameDraft($event)"
+                              (keydown)="onColumnNameKeydown($event, group.column)"
+                              (blur)="commitColumnNameEdit(group.column)"
+                              (click)="$event.stopPropagation()"
+                              (pointerdown)="$event.stopPropagation()"
+                            />
+                          </div>
+                        } @else {
+                          <button
+                            type="button"
+                            class="today-group-toggle"
+                            [attr.aria-expanded]="!isGroupCollapsed(group.id)"
+                            [attr.aria-controls]="'group-body-' + group.id"
+                            (click)="toggleGroup(group.id)"
+                          >
                           <app-icon
                             class="today-group-chevron"
                             [icon]="
@@ -975,7 +1053,12 @@
                             size="sm"
                           />
                           <span class="today-group-accent-bar" aria-hidden="true"></span>
-                          <span class="today-group-label">{{ group.label }}</span>
+                          <span
+                            class="today-group-label"
+                            (dblclick)="startColumnNameEdit(group.column, $event)"
+                            [appTooltip]="'Double-click to rename ' + group.label"
+                            >{{ group.label }}</span
+                          >
                           <app-badge
                             [label]="'' + group.count"
                             variant="neutral"
@@ -983,7 +1066,8 @@
                             shape="rounded"
                             [ariaLabel]="group.count + (group.count === 1 ? ' note' : ' notes')"
                           />
-                        </button>
+                          </button>
+                        }
                       </h3>
                       <div class="today-group-header-actions">
                         <button
@@ -1002,8 +1086,19 @@
                           variant="ghost"
                           size="xs"
                           [disabled]="!!movingColumn()"
-                          [ariaLabel]="'Edit ' + group.label + ' column'"
-                          [title]="'Edit ' + group.label + ' column'"
+                          [ariaLabel]="'Rename ' + group.label"
+                          [title]="'Rename ' + group.label"
+                          (buttonClick)="startColumnNameEdit(group.column, $event)"
+                        />
+                        <app-button
+                          appearance="flat"
+                          [icon]="LucideMoreHorizontal"
+                          [iconOnly]="true"
+                          variant="ghost"
+                          size="xs"
+                          [disabled]="!!movingColumn()"
+                          [ariaLabel]="'Column settings for ' + group.label"
+                          [title]="'Column settings for ' + group.label"
                           (buttonClick)="requestColumnEdit(group.column, $event)"
                         />
                         <app-button
@@ -1576,4 +1671,31 @@
   (retry)="overdue.refresh()"
   (bringToToday)="bringOverdueToToday($event)"
   (openNote)="openOverdueNote($event)"
+/>
+
+<app-delete-confirm-modal
+  [open]="!!deleteTarget()"
+  title="Move this note to Trash?"
+  [itemName]="deleteTarget() ? (deleteTarget().title || 'Untitled Note') : ''"
+  message="It will disappear from here, but it is not gone permanently."
+  supportingText="You can restore it from Sticky Note Trash for up to 60 days."
+  confirmLabel="Move to trash"
+  cancelLabel="Keep note"
+  mode="trash"
+  [busy]="deleting()"
+  (confirmed)="confirmDeleteNote()"
+  (closed)="closeDeleteDialog()"
+/>
+
+<app-delete-confirm-modal
+  [open]="bulkDeleteOpen()"
+  title="Move selected notes to trash?"
+  [message]="selectedNoteIds().size === 1 ? '1 selected note will be moved to trash.' : selectedNoteIds().size + ' selected notes will be moved to trash.'"
+  supportingText="You can restore them from Sticky Note Trash for up to 60 days."
+  confirmLabel="Move to trash"
+  cancelLabel="Keep notes"
+  mode="trash"
+  [busy]="bulkBusy()"
+  (confirmed)="confirmBulkDelete()"
+  (closed)="bulkDeleteOpen.set(false)"
 />

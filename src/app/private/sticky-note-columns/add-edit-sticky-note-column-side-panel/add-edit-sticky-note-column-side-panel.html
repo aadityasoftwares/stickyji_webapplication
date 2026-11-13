@@ -29,6 +29,7 @@
   [eyebrow]="eyebrow"
   [description]="description"
   [headerNote]="saveIndicatorLabel()"
+  [headerNoteVariant]="saveIndicatorVariant()"
   [icon]="headerIcon"
   tone="paper"
   [width]="580"
@@ -72,7 +73,7 @@
             size="sm"
             [dropdownMatchTriggerWidth]="false"
             [iconLeft]="LucidePanelsTopLeft"
-            [disabled]="isBusy"
+            [disabled]="isBusy || isEdit"
             [clearable]="false"
             [searchable]="true"
             [fullWidth]="true"
@@ -103,7 +104,7 @@
             size="sm"
             [dropdownMatchTriggerWidth]="false"
             [iconLeft]="LucideFolderOpen"
-            [disabled]="isBusy || !controlString('workspaceId') || folderOptions().length === 0"
+            [disabled]="isBusy || isEdit || !controlString('workspaceId') || folderOptions().length === 0"
             [clearable]="false"
             [searchable]="true"
             [fullWidth]="true"
@@ -236,7 +237,12 @@
     }
   </form>
   <div panel-footer class="column-editor-footer">
-    <app-badge [label]="saveIndicatorLabel()" variant="neutral" size="sm" role="status" />
+    <app-badge
+      [label]="saveIndicatorLabel()"
+      [variant]="saveIndicatorVariant()"
+      size="sm"
+      role="status"
+    />
     <div class="column-editor-footer-actions">
       <app-button
         label="Cancel"

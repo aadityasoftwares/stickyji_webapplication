@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, finalize, map, of, shareReplay } from 'rxjs';
+import { Observable, Subject, catchError, finalize, map, of, shareReplay, takeUntil } from 'rxjs';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 import { WorkspaceService } from './workspace.service';
 import type {
   WorkspaceDropdownFolder,
@@ -13,7 +14,15 @@ import { entityNameOf, idOf } from '../../../shared/functions/common.function';
   providedIn: 'root',
 })
 export class WorkspaceDropdownStore {
-  private readonly requests = new Map<string, Observable<readonly WorkspaceDropdownItem[] | null>>();
+  private readonly reset$ = new Subject<void>();
+
+  constructor() {
+    inject(SessionLifecycleService).registerReset(() => this.reset());
+  }
+  private readonly requests = new Map<
+    string,
+    Observable<readonly WorkspaceDropdownItem[] | null>
+  >();
   private refreshPending = false;
   private readonly workspaceService = inject(WorkspaceService);
 
@@ -82,6 +91,7 @@ export class WorkspaceDropdownStore {
     this._error.set(null);
 
     const request$ = this.workspaceService.getWorkspaceDropdown(normalizedSearch).pipe(
+      takeUntil(this.reset$),
       map((response) => {
         const items = Array.isArray(response?.data) ? response.data : [];
         this._items.set(items);
@@ -186,37 +196,57 @@ export class WorkspaceDropdownStore {
 
   updateWorkspace(id: string, values: any): void {
     this._items.update((items) => {
-      if (values.status && values.status !== 'ACTIVE') return items.filter((item) => item.id !== id);
+      if (values.status && values.status !== 'ACTIVE')
+        return items.filter((item) => item.id !== id);
       const existing = items.find((item) => item.id === id);
       if (!existing && !values.name) return items;
-      const updated = { ...existing, ...values, id, folders: values.folders ?? existing?.folders ?? [] };
-      return existing ? items.map((item) => item.id === id ? updated : item) : [...items, updated];
+      const updated = {
+        ...existing,
+        ...values,
+        id,
+        folders: values.folders ?? existing?.folders ?? [],
+      };
+      return existing
+        ? items.map((item) => (item.id === id ? updated : item))
+        : [...items, updated];
     });
     this.ensureSelection();
   }
 
   updateFolder(workspaceId: string, folder: any): void {
-    this._items.update((items) => items.map((workspace) => {
-      if (workspace.id !== workspaceId) return workspace;
-      const folders = workspace.folders ?? [];
-      const exists = folders.some((item) => item.id === folder.id);
-      return { ...workspace, folders: folder.status && folder.status !== 'ACTIVE'
-        ? folders.filter((item) => item.id !== folder.id)
-        : exists ? folders.map((item) => item.id === folder.id ? { ...item, ...folder } : item)
-        : [...folders, folder] };
-    }));
+    this._items.update((items) =>
+      items.map((workspace) => {
+        if (workspace.id !== workspaceId) return workspace;
+        const folders = workspace.folders ?? [];
+        const exists = folders.some((item) => item.id === folder.id);
+        return {
+          ...workspace,
+          folders:
+            folder.status && folder.status !== 'ACTIVE'
+              ? folders.filter((item) => item.id !== folder.id)
+              : exists
+                ? folders.map((item) => (item.id === folder.id ? { ...item, ...folder } : item))
+                : [...folders, folder],
+        };
+      }),
+    );
     this.ensureSelection();
   }
 
   removeFolder(id: string): void {
-    this._items.update((items) => items.map((workspace) => ({
-      ...workspace, folders: (workspace.folders ?? []).filter((folder) => folder.id !== id),
-    })));
+    this._items.update((items) =>
+      items.map((workspace) => ({
+        ...workspace,
+        folders: (workspace.folders ?? []).filter((folder) => folder.id !== id),
+      })),
+    );
     this.ensureSelection();
   }
 
   reset(): void {
     this.refreshPending = false;
+    this.reset$.next();
+    this.requests.clear();
     this._items.set([]);
     this._selectedWorkspaceId.set(null);
     this._selectedFolderId.set(null);

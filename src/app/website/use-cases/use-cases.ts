@@ -1,5 +1,14 @@
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Output,
+} from '@angular/core';
 import {
   LucideArrowRight,
   LucideBriefcaseBusiness,
@@ -14,8 +23,10 @@ import {
   LucidePin,
   LucideUsersRound,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { AvatarTone, Avatar } from '../../shared/components/avatar/avatar';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 export type UserPersonaId = 'student' | 'professional' | 'creator' | 'life' | 'team';
 
@@ -186,6 +197,77 @@ export class UseCases {
   selectedPersonaId: UserPersonaId = 'student';
   taskChecks = this.personas[0].tasks.map((task) => task.done);
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Animate handwritten underline SVG
+          const underline = this.element.querySelector(
+            '.underlined-word svg path',
+          ) as SVGPathElement | null;
+          if (underline) {
+            animateHandwrittenSvg(underline, {
+              duration: 1.1,
+              delay: 0.25,
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 80%',
+                once: true,
+              },
+            });
+          }
+
+          // Animate calmer-note floating doodle
+          gsap.to('.calmer-note', {
+            y: '+=6',
+            rotation: '+=1',
+            yoyo: true,
+            repeat: -1,
+            duration: 3.5,
+            ease: 'sine.inOut',
+          });
+
+          // Animate persona tabs
+          gsap.from('.persona-tab', {
+            opacity: 0,
+            y: 18,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.persona-tabs',
+              start: 'top 88%',
+              once: true,
+            },
+          });
+
+          // Animate board notes entrance
+          gsap.from(['.main-note', '.side-note', '.outcome-note'], {
+            opacity: 0,
+            y: 35,
+            scale: 0.94,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: '.persona-board',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
+
   get activePersona(): UserPersona {
     return (
       this.personas.find((persona) => persona.id === this.selectedPersonaId) ?? this.personas[0]
@@ -204,6 +286,19 @@ export class UseCases {
     this.selectedPersonaId = persona.id;
     this.taskChecks = persona.tasks.map((task) => task.done);
     this.personaChange.emit(persona.id);
+
+    if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+      setTimeout(() => {
+        const boardNotes = this.element.querySelectorAll('.main-note, .side-note, .outcome-note');
+        if (boardNotes.length > 0) {
+          gsap.fromTo(
+            boardNotes,
+            { opacity: 0, scale: 0.96, y: 14 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'back.out(1.4)' },
+          );
+        }
+      }, 0);
+    }
   }
 
   updateTask(index: number, checked: boolean): void {

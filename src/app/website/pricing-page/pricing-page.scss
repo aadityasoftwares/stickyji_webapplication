@@ -1,0 +1,189 @@
+@use '../../styles/website-typography' as website-type;
+@use '../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+:host ::ng-deep {
+.pricing-page {
+  display: grid;
+  gap: 0;
+  margin-top: -32px;
+}
+
+.pricing-hero {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: clamp(40px, 6vw, 72px) clamp(24px, 5vw, 64px);
+  border-block: 1px solid #f1e4bd;
+  border-inline: 0;
+  border-radius: 0;
+  background: website-type.$home-section-yellow;
+  text-align: center;
+}
+
+.section-eyebrow {
+  @include website-type.eyebrow;
+}
+
+.pricing-hero > .section-eyebrow {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 12px;
+}
+
+.pricing-hero h1 {
+  max-width: 820px;
+  margin: 0 auto 16px;
+  color: $heading;
+  font-family: $font-fredoka;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.pricing-lead {
+  max-width: 700px;
+  margin: 0 auto 16px;
+  color: #5f615e;
+  font-size: 18px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.pricing-note {
+  max-width: 720px;
+  margin: 0 auto;
+  color: #79766c;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.pricing-note a,
+.pricing-guidance a {
+  color: #526344;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.pricing-page app-subscription {
+  display: block;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+.pricing-guidance {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: website-type.$home-section-space clamp(20px, 4vw, 48px);
+  border-block: 1px solid #f1e4bd;
+  border-inline: 0;
+  border-radius: 0;
+  background: website-type.$home-section-yellow;
+}
+
+.pricing-guidance-header {
+  max-width: 760px;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.pricing-guidance-header h2 {
+  @include website-type.home-section-title;
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+
+.pricing-guidance-header p {
+  margin: 0;
+  color: #68645c;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.pricing-guidance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.guidance-card {
+  min-height: 180px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(39, 53, 75, 0.05);
+}
+
+.guidance-index {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 12px;
+  border: 1px solid #f0dc93;
+  border-radius: 10px;
+  background: #fff4c8;
+  color: #82600d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.guidance-card h3 {
+  margin: 0 0 9px;
+  color: $heading;
+  font-family: $font-fredoka;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.guidance-card p {
+  margin: 0;
+  color: #68645c;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.pricing-explore-links {
+  margin: 24px auto 0;
+  color: #68645c;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .pricing-guidance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guidance-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .pricing-page {
+    margin-top: -20px;
+  }
+
+  .pricing-hero {
+    padding: 38px 20px;
+  }
+
+  .pricing-lead {
+    font-size: 16px;
+  }
+
+  .pricing-guidance {
+    padding: 48px 18px;
+  }
+}
+}

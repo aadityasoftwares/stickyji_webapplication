@@ -1,7 +1,18 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { Observable, catchError, finalize, map, of, tap, switchMap, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  defaultIfEmpty,
+  defer,
+  finalize,
+  map,
+  of,
+  tap,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { UserPreferenceService } from '../../../private/user-preferences/services/user-preference.service';
 import {
   USER_PREFERENCE_KEYS,
@@ -37,6 +48,7 @@ import { SESSION_TYPES } from '../constants/auth.constants';
 
 import { AuthStore } from '../state/auth.store';
 import { AuthRefreshService } from './auth-refresh.service';
+import { SessionLifecycleService } from '../../../shared/services/session-lifecycle.service';
 
 interface NavigatorUserAgentData {
   platform?: string;
@@ -51,6 +63,7 @@ interface NavigatorWithUserAgentData extends Navigator {
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly lifecycle = inject(SessionLifecycleService);
   private readonly http = inject(HttpClient);
   private readonly authStore = inject(AuthStore);
   private readonly refreshService = inject(AuthRefreshService);
@@ -65,15 +78,16 @@ export class AuthService {
       ...this.clientContext(),
     };
 
-    return this.http
-      .post<LoginResponse>(API_ENDPOINTS.auth.login, payload, {
+    return defer(() => {
+      this.authStore.clearSession();
+      return this.http.post<LoginResponse>(API_ENDPOINTS.auth.login, payload, {
         withCredentials: true,
-      })
-      .pipe(
-        tap((response) => {
-          this.storeSessionResponse(response);
-        }),
-      );
+      });
+    }).pipe(
+      tap((response) => {
+        this.storeSessionResponse(response);
+      }),
+    );
   }
 
   register(credentials: RegisterCredentials): Observable<RegisterResponse> {
@@ -84,31 +98,32 @@ export class AuthService {
       ...this.clientContext(),
     };
 
-    return this.http
-      .post<RegisterResponse>(API_ENDPOINTS.auth.register, payload, {
+    return defer(() => {
+      this.authStore.clearSession();
+      return this.http.post<RegisterResponse>(API_ENDPOINTS.auth.register, payload, {
         withCredentials: true,
-      })
-      .pipe(
-        tap((response) => {
-          this.storeSessionResponse(response);
-        }),
-        switchMap((response) => {
-          if (!response?.success || !response.data?.tokens?.accessToken) return of(response);
-          // Only initialize new accounts; login must retain the user's chosen view.
-          const key = USER_PREFERENCE_KEYS.TODAY_VIEW;
-          const value = DEFAULT_USER_PREFERENCES[key];
-          return this.userPreferenceService.updatePreference(key, value).pipe(
-            catchError((error) =>
-              error?.status === 404
-                ? this.userPreferenceService.createPreference(key, value)
-                : throwError(() => error),
-            ),
-            map(() => response),
-            // A preference failure must not turn successful registration into an error.
-            catchError(() => of(response)),
-          );
-        }),
-      );
+      });
+    }).pipe(
+      tap((response) => {
+        this.storeSessionResponse(response);
+      }),
+      switchMap((response) => {
+        if (!response?.success || !response.data?.tokens?.accessToken) return of(response);
+        // Only initialize new accounts; login must retain the user's chosen view.
+        const key = USER_PREFERENCE_KEYS.TODAY_VIEW;
+        const value = DEFAULT_USER_PREFERENCES[key];
+        return this.userPreferenceService.updatePreference(key, value).pipe(
+          catchError((error) =>
+            error?.status === 404
+              ? this.userPreferenceService.createPreference(key, value)
+              : throwError(() => error),
+          ),
+          map(() => response),
+          // A preference failure must not turn successful registration into an error.
+          catchError(() => of(response)),
+        );
+      }),
+    );
   }
 
   initializeSession(): Observable<boolean> {
@@ -124,11 +139,8 @@ export class AuthService {
 
     return this.refreshService.refreshSession().pipe(
       map(() => true),
-      catchError(() => {
-        this.authStore.clearSession();
-
-        return of(false);
-      }),
+      catchError(() => of(this.authStore.isAuthenticated())),
+      defaultIfEmpty(false),
     );
   }
 
@@ -228,28 +240,32 @@ export class AuthService {
             withCredentials: true,
           });
 
-    return request$.pipe(
-      finalize(() => {
-        this.authStore.clearSession();
-      }),
-    );
+    return this.finishLogout(request$);
   }
 
   logoutAll(payload?: { endpoint?: string }): Observable<LogoutResponse> {
     const targetUrl = payload?.endpoint ?? API_ENDPOINTS.auth.logoutAll;
-    return this.http
-      .post<LogoutResponse>(
+    return this.finishLogout(
+      this.http.post<LogoutResponse>(
         targetUrl,
         {},
         {
           withCredentials: true,
         },
-      )
-      .pipe(
+      ),
+    );
+  }
+
+  private finishLogout(request$: Observable<LogoutResponse>): Observable<LogoutResponse> {
+    return defer(() => {
+      const revision = this.lifecycle.revision;
+      this.refreshService.cancelPending();
+      return request$.pipe(
         finalize(() => {
-          this.authStore.clearSession();
+          if (revision === this.lifecycle.revision) this.authStore.clearSession();
         }),
       );
+    });
   }
 
   getSessions(): Observable<ApiResponse<unknown[]>> {

@@ -32,20 +32,7 @@ describe('Home', { timeout: 30000 }, () => {
     expect(fixture.componentInstance).toBeTruthy());
   it('preserves the selected plan code when opening signup', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    fixture.componentInstance.choosePlan({
-      _id: 'pro',
-      name: 'Pro',
-      code: 'PRO',
-      description: 'Pro',
-      type: 'PAID',
-      pricingModel: 'FIXED',
-      visibility: 'PUBLIC',
-      trialDays: 7,
-      isPopular: true,
-      sortOrder: 1,
-      isDefault: false,
-      isActive: true,
-    });
+    fixture.componentInstance.choosePlan({ code: 'PRO' });
     expect(navigate).toHaveBeenCalledWith(['/auth/signup'], { queryParams: { plan: 'PRO' } });
   });
 });

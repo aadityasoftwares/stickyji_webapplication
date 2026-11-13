@@ -3,7 +3,9 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
   signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive, type IsActiveMatchOptions } from '@angular/router';
@@ -19,17 +21,17 @@ import {
   LucidePanelLeftOpen,
   LucidePanelsTopLeft,
   LucideShieldCheck,
-  LucideSlidersHorizontal,
   LucideStar,
   LucideStickyNote,
   LucideUsersRound,
-  LucideX,
+  LucideX
 } from '@lucide/angular';
+import { Button } from '../../shared/components/button/button';
 import { AppIcon, type AppIconDefinition } from '../../shared/components/icon/icon';
 import { type SelectOption, type SelectValue } from '../../shared/components/select/select';
-import { Button } from '../../shared/components/button/button';
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import { APP_ROUTES } from '../../shared/constants/route.constants';
+import { closeAllMatMenus } from '../../shared/functions/menu.function';
 
 interface SidebarItem {
   label: string;
@@ -53,7 +55,7 @@ export interface SidebarWorkspace extends SelectOption {
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Sidebar {
+export class Sidebar implements OnChanges {
   @Input() collapsed = false;
   @Input() mobileOpen = false;
   @Input() workspaceId = '';
@@ -65,6 +67,12 @@ export class Sidebar {
   @Output() mobileClosed = new EventEmitter<void>();
   @Output() workspaceChange = new EventEmitter<string>();
   @Output() logout = new EventEmitter<void>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['mobileOpen'] && this.mobileOpen) || (changes['collapsed'] && !this.collapsed)) {
+      closeAllMatMenus();
+    }
+  }
 
   readonly closedGroups = signal<ReadonlySet<string>>(new Set());
   readonly routes = APP_ROUTES;
@@ -105,7 +113,7 @@ export class Sidebar {
       label: 'Account',
       items: [
         { label: 'Profile', route: APP_ROUTES.PROFILE, icon: LucideCircleUserRound },
-        { label: 'Preferences', route: APP_ROUTES.PREFERENCES, icon: LucideSlidersHorizontal },
+        // { label: 'Preferences', route: APP_ROUTES.PREFERENCES, icon: LucideSlidersHorizontal },
       ],
     },
   ];
@@ -151,6 +159,7 @@ export class Sidebar {
   }
 
   toggleCollapsed(): void {
+    closeAllMatMenus();
     this.collapsedChange.emit(!this.collapsed);
   }
 

@@ -40,6 +40,7 @@
             [ngModel]="selectedWorkspaceId()"
             (ngModelChange)="onWorkspaceChange($event)"
             name="notes-workspace"
+            dropdownTitle="Workspace"
             [placeholder]="loadingWorkspaces() ? 'Loading workspaces...' : 'Select workspace'"
             ariaLabel="Choose workspace"
             variant="paper"
@@ -63,6 +64,7 @@
             [ngModel]="selectedFolderId()"
             (ngModelChange)="onFolderChange($event)"
             name="notes-folder"
+            dropdownTitle="Folder"
             [placeholder]="loadingFolders() ? 'Loading folders...' : 'Select folder'"
             ariaLabel="Choose workspace folder"
             variant="paper"
@@ -221,7 +223,7 @@
             size="sm"
             [iconLeft]="LucideClock3"
             [clearable]="false"
-            [searchable]="false"
+            [searchable]="true"
             [fullWidth]="true"
           />
 
@@ -1023,59 +1025,16 @@
   (openNote)="openOverdueNote($event)"
 />
 
-@if (deleteTarget(); as note) {
-  <div class="workspace-dialog-backdrop" (mousedown)="closeDeleteDialog()">
-    <section
-      class="workspace-dialog-shell workspace-delete-shell"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="notes-delete-title"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <app-sticky-card
-        class="workspace-dialog-note workspace-delete-note"
-        variant="noteRed"
-        appearance="elevated"
-        shape="note"
-        size="sm"
-        [fullWidth]="true"
-        [hoverable]="false"
-        [footerDivider]="true"
-      >
-        <span card-icon class="workspace-dialog-icon is-danger"
-          ><app-icon [icon]="LucideTrash2" size="sm"
-        /></span>
-        <span card-eyebrow class="workspace-dialog-kicker is-danger">Before you remove it</span>
-        <h2 card-title id="notes-delete-title" class="workspace-dialog-title">
-          Move note to trash?
-        </h2>
-        <p card-subtitle class="workspace-dialog-subtitle">
-          “{{ plainText(noteTitle(note)) }}” will disappear from this folder.
-        </p>
-        <div class="workspace-delete-message">
-          <span class="workspace-delete-message-icon" aria-hidden="true"
-            ><app-icon [icon]="LucideArchive" size="xs"
-          /></span>
-          <span>If you only want it out of the way for now, archive it instead.</span>
-        </div>
-        <div card-footer class="workspace-dialog-actions">
-          <app-button
-            label="Keep note"
-            variant="secondary"
-            size="sm"
-            [disabled]="deleting()"
-            (buttonClick)="closeDeleteDialog()"
-          />
-          <app-button
-            label="Move to trash"
-            variant="danger"
-            size="sm"
-            [loading]="deleting()"
-            [disabled]="deleting()"
-            (buttonClick)="confirmDelete()"
-          />
-        </div>
-      </app-sticky-card>
-    </section>
-  </div>
-}
+<app-delete-confirm-modal
+  [open]="!!deleteTarget()"
+  title="Move note to trash?"
+  [itemName]="deleteTarget() ? plainText(noteTitle(deleteTarget()!)) : ''"
+  message="It will disappear from this folder."
+  supportingText="If you only want it out of the way for now, archive it instead."
+  confirmLabel="Move to trash"
+  cancelLabel="Keep note"
+  mode="trash"
+  [busy]="deleting()"
+  (confirmed)="confirmDelete()"
+  (closed)="closeDeleteDialog()"
+/>

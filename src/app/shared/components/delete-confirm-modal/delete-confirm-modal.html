@@ -1,63 +1,52 @@
-@if (open) {
-  <div class="delete-confirm-backdrop" (mousedown)="onBackdrop($event)">
-    <section
-      class="delete-confirm-modal"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="delete-confirm-title"
-      aria-describedby="delete-confirm-message"
-      (mousedown)="$event.stopPropagation()"
-    >
-      <button
-        type="button"
-        class="delete-confirm-close"
-        aria-label="Close"
-        [disabled]="busy"
-        (click)="close()"
-      >
-        <app-icon [icon]="LucideX" size="sm" />
-      </button>
-      <div
-        class="delete-confirm-icon"
-        [class.is-permanent]="mode === 'permanent'"
-        aria-hidden="true"
-      >
-        <app-icon
-          [icon]="mode === 'permanent' ? LucideTriangleAlert : LucideArchiveRestore"
-          size="md"
-        />
+<app-modal
+  [open]="open"
+  [title]="title"
+  [eyebrow]="resolvedEyebrow"
+  [icon]="headerIcon"
+  [tone]="resolvedTone"
+  size="sm"
+  [maxWidth]="maxWidth"
+  [busy]="busy"
+  [fullscreenOnMobile]="false"
+  [ariaLabel]="title"
+  (closed)="close()"
+>
+  <div modal-body class="delete-confirm-body">
+    @if (itemName) {
+      <div class="delete-confirm-item" [attr.title]="itemName">
+        {{ itemName }}
       </div>
-      <span class="delete-confirm-kicker">{{
-        mode === 'permanent' ? 'Permanent action' : 'Safe delete'
-      }}</span>
-      <h2 id="delete-confirm-title">{{ title }}</h2>
-      @if (itemName) {
-        <div class="delete-confirm-item">{{ itemName }}</div>
-      }
-      <p id="delete-confirm-message">{{ message }}</p>
-      @if (supportingText) {
-        <div class="delete-confirm-support" [class.is-permanent]="mode === 'permanent'">
-          <app-icon [icon]="mode === 'permanent' ? LucideTrash2 : LucideArchiveRestore" size="xs" />
-          <span>{{ supportingText }}</span>
-        </div>
-      }
-      <div class="delete-confirm-actions">
-        <app-button
-          [label]="cancelLabel"
-          variant="secondary"
-          size="sm"
-          [disabled]="busy"
-          (buttonClick)="close()"
-        />
-        <app-button
-          [label]="confirmLabel"
-          [variant]="confirmVariant"
-          size="sm"
-          [loading]="busy"
-          [disabled]="busy"
-          (buttonClick)="confirm()"
-        />
+    }
+
+    @if (message) {
+      <p class="delete-confirm-message">{{ message }}</p>
+    }
+
+    @if (supportingText) {
+      <div class="delete-confirm-support" [class.is-permanent]="mode === 'permanent'">
+        <span class="delete-confirm-support-icon" aria-hidden="true">
+          <app-icon [icon]="supportIcon" size="xs" />
+        </span>
+        <span class="delete-confirm-support-text">{{ supportingText }}</span>
       </div>
-    </section>
+    }
   </div>
-}
+
+  <div modal-footer class="delete-confirm-actions">
+    <app-button
+      [label]="cancelLabel"
+      variant="secondary"
+      size="sm"
+      [disabled]="busy"
+      (buttonClick)="close()"
+    />
+    <app-button
+      [label]="confirmLabel"
+      [variant]="confirmVariant"
+      size="sm"
+      [loading]="busy"
+      [disabled]="busy"
+      (buttonClick)="confirm()"
+    />
+  </div>
+</app-modal>

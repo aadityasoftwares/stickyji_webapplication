@@ -1,25 +1,23 @@
-import { UI } from '../../../shared/constants/ui.constants';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
+  effect,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
-  computed,
-  effect,
-  inject,
   signal,
+  SimpleChanges,
   untracked,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, forkJoin, map, Observable, of, Subscription, timer } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
@@ -43,10 +41,13 @@ import {
   LucideUsers,
   LucideX,
 } from '@lucide/angular';
+import { catchError, finalize, forkJoin, map, Observable, of, Subscription, timer } from 'rxjs';
+import { AuthStore } from '../../../public/auth/state/auth.store';
 import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge';
 import { BulkActionPanel } from '../../../shared/components/bulk-action-panel/bulk-action-panel';
 import { Button } from '../../../shared/components/button/button';
 import { Checkbox } from '../../../shared/components/checkbox/checkbox';
+import { DeleteConfirmModal } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { AppIcon } from '../../../shared/components/icon/icon';
 import { Input as AppInput, type InputValue } from '../../../shared/components/input/input';
 import { Loader } from '../../../shared/components/loader/loader';
@@ -60,25 +61,25 @@ import { Switch } from '../../../shared/components/switch/switch';
 import { Tabs, type TabItem, type TabValue } from '../../../shared/components/tabs/tabs';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
 import { Tooltip } from '../../../shared/components/tooltip/tooltip';
+import { GROUP_ACCENTS, USER_PREFERENCE_KEYS, VIEW_TABS } from '../../../shared/constants/common.constants';
+import { UI } from '../../../shared/constants/ui.constants';
 import { Highlight } from '../../../shared/directives/highlight.directive';
+import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
+import { toTimestamp } from '../../../shared/functions/date.function';
+import { closeAllMatMenus } from '../../../shared/functions/menu.function';
+import { humanize } from '../../../shared/functions/string.functions';
 import { UserDatePipe } from '../../../shared/pipes/user-date.pipe';
 import { UserTimePipe } from '../../../shared/pipes/user-time.pipe';
-import { extractErrorMessage, idOf } from '../../../shared/functions/common.function';
-import { humanize } from '../../../shared/functions/string.functions';
-import { toTimestamp } from '../../../shared/functions/date.function';
-import { GROUP_ACCENTS, VIEW_TABS } from '../../../shared/constants/common.constants';
-import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { UserPreferenceStore } from '../../user-preferences/services/user-preference.store';
-import { USER_PREFERENCE_KEYS } from '../../../shared/constants/common.constants';
-import { AuthStore } from '../../../public/auth/state/auth.store';
-import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
-import { AddEditPermissionSidePanel } from '../add-edit-permission-side-panel/add-edit-permission-side-panel';
-import { ViewRolePermissionsModal } from '../view-role-permissions-modal/view-role-permissions-modal';
+import { WorkspaceStore } from '../../workspace/services/workspace.store';
 import { WorkspaceRoleWrapper } from '../../workspace/workspace-role-wrapper/workspace-role-wrapper';
-import type { PermissionGroup, Permission } from '../interfaces/permission.interface';
+import { AddEditPermissionSidePanel } from '../add-edit-permission-side-panel/add-edit-permission-side-panel';
+import { AddEditWorkspaceRoleSidePanel } from '../add-edit-workspace-role-side-panel/add-edit-workspace-role-side-panel';
+import type { Permission, PermissionGroup } from '../interfaces/permission.interface';
 import type { WorkspaceRole } from '../interfaces/workspace-role.interface';
 import { PermissionApiService } from '../services/permission.service';
 import { WorkspaceRoleApiService } from '../services/workspace-role.service';
+import { ViewRolePermissionsModal } from '../view-role-permissions-modal/view-role-permissions-modal';
 
 export interface WorkspaceRoleGroup {
   id: string;
@@ -129,6 +130,7 @@ const ROLE_SORT_PREFERENCES: Record<RoleSort, string> = {
     AddEditPermissionSidePanel,
     ViewRolePermissionsModal,
     WorkspaceRoleWrapper,
+    DeleteConfirmModal,
   ],
   templateUrl: './roles-permissions.html',
   styleUrl: './roles-permissions.scss',
@@ -690,6 +692,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       return;
     }
 
+    closeAllMatMenus();
     this.editorRole.set(null);
     this.roleEditorOpen.set(true);
   }
@@ -745,6 +748,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   openRole(role: WorkspaceRole): void {
     if (this.isRoleBusy(role)) return;
+    closeAllMatMenus();
     this.selectedRoleId.set(this.canSelectRole(role) ? this.roleId(role) : null);
 
     this.editorRole.set(role);
@@ -815,6 +819,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   requestDelete(role: WorkspaceRole): void {
     if (role.isSystem || this.isRoleBusy(role)) return;
+    closeAllMatMenus();
     this.deleteTarget.set(role);
   }
 
@@ -1043,6 +1048,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       });
       return;
     }
+    closeAllMatMenus();
     this.editorPermission.set(null);
     this.permissionReadOnly.set(false);
     this.permissionEditorOpen.set(true);
@@ -1050,6 +1056,7 @@ export class RolesPermissions implements OnInit, OnChanges {
 
   openPermission(permission: Permission, readOnly = false): void {
     if (this.isPermissionBusy(permission)) return;
+    closeAllMatMenus();
     const canManage = this.canManageGlobalPermissions();
     this.editorPermission.set(permission);
     this.permissionReadOnly.set(readOnly || !canManage);
@@ -1126,6 +1133,7 @@ export class RolesPermissions implements OnInit, OnChanges {
       return;
     }
     if (permission.isSystem || this.isPermissionBusy(permission)) return;
+    closeAllMatMenus();
     this.deletePermissionTarget.set(permission);
   }
 

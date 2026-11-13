@@ -203,6 +203,11 @@
   --modal-icon: #e9def8;
 }
 
+.app-modal[data-tone='red'] {
+  --modal-accent: #{$danger};
+  --modal-icon: #fee2e2;
+}
+
 /* ==========================================================
    HEADER
    page-bg
@@ -232,29 +237,6 @@
 
   border: 0 !important;
   border-bottom: 1px solid rgba($border, 0.88) !important;
-}
-
-/* ==========================================================
-   TAPE
-   ========================================================== */
-
-.app-modal-tape {
-  position: absolute;
-  z-index: 0;
-
-  top: -0.3125rem;
-  left: 48%;
-
-  width: 3.625rem;
-  height: 0.8125rem;
-
-  background: rgba($accent, 0.13);
-
-  box-shadow: inset 0 0 0 1px rgba($accent, 0.045);
-
-  transform: rotate(3deg);
-
-  pointer-events: none;
 }
 
 /* ==========================================================

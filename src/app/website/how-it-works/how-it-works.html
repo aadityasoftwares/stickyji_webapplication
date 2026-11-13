@@ -1,0 +1,329 @@
+<app-website-header
+  (signInClick)="navigateToAuth('login')"
+  (primaryActionClick)="navigateToAuth('signup')"
+></app-website-header>
+
+<main class="how-it-works-page" id="top">
+  <!-- Hero Section -->
+  <section class="how-hero" aria-labelledby="how-hero-title">
+    <div class="how-hero-shell">
+      <span class="hero-eyebrow">The mindful 5-step framework</span>
+
+      <h1 id="how-hero-title" class="how-heading">
+        From a fleeting thought
+        <span class="heading-accent">
+          to quiet accomplishment.
+          <svg class="handdrawn-curve" viewBox="0 0 260 16" aria-hidden="true">
+            <path d="M4 12Q120-2 254 8" />
+          </svg>
+        </span>
+      </h1>
+
+      <p class="how-intro">
+        Most productivity apps demand that you adapt to their complex database machinery. Sticky Ji
+        works in reverse: it mimics the natural way human beings brainstorm, organize, and get
+        things done on paper.
+      </p>
+
+      <div class="how-hero-actions">
+        <button type="button" class="btn-start" (click)="navigateToAuth('signup')">
+          <span>Try the 5-step workflow free</span>
+          <app-icon [icon]="LucideArrowRight" [size]="18" />
+        </button>
+        <a href="#sandbox-section" class="btn-try-sandbox">
+          <span>Stick a note on the test board</span>
+          <app-icon [icon]="LucideMousePointer" [size]="16" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5-Step Visual Workflow Journey -->
+  <section class="steps-journey-section" aria-labelledby="journey-title">
+    <div class="journey-shell">
+      <header class="journey-header">
+        <span class="section-eyebrow">Step-by-step breakdown</span>
+        <h2 id="journey-title">A workflow that breathes with your day</h2>
+        <p>
+          Click any step to see how each phase is engineered for zero friction and maximum peace of
+          mind.
+        </p>
+
+        <!-- Stepper Navigation Pills -->
+        <nav class="stepper-nav" aria-label="Workflow steps">
+          @for (step of steps; track step.id) {
+            <button
+              type="button"
+              class="stepper-btn"
+              [class.is-active]="activeStep() === step.id"
+              (click)="selectStep(step.id)"
+            >
+              <span class="step-num">{{ step.number }}</span>
+              <span class="step-label"
+                >{{ step.title.split(' ')[0] }} {{ step.title.split(' ')[1] }}</span
+              >
+            </button>
+          }
+        </nav>
+      </header>
+
+      <!-- Active Step Deep Dive Card -->
+      <div class="step-card-panel">
+        <div class="step-copy-side">
+          <span class="step-badge" [class]="'badge-' + currentStepData.color">
+            {{ currentStepData.eyebrow }}
+          </span>
+          <h3 class="step-title">{{ currentStepData.title }}</h3>
+          <p class="step-tagline">{{ currentStepData.tagline }}</p>
+          <p class="step-desc">{{ currentStepData.desc }}</p>
+
+          <ul class="step-bullets">
+            @for (bullet of currentStepData.bullets; track bullet) {
+              <li>
+                <span class="bullet-check"><app-icon [icon]="LucideCheck" [size]="15" /></span>
+                <span>{{ bullet }}</span>
+              </li>
+            }
+          </ul>
+
+          <div class="step-cta-row">
+            <button type="button" class="btn-step-action" (click)="navigateToAuth('signup')">
+              <span>Experience Step {{ currentStepData.number }}</span>
+              <app-icon [icon]="LucideArrowRight" [size]="16" />
+            </button>
+          </div>
+        </div>
+
+        <div class="step-visual-side">
+          @if (activeStep() === 'color') {
+            <div class="workflow-preview color-workflow-preview">
+              <div class="workflow-preview-heading"><span>Choose a color that makes sense to you.</span><strong>Paper palette</strong></div>
+              <div class="paper-palette-preview">
+                <div class="palette-paper yellow-paper"><app-icon [icon]="LucideLightbulb" [size]="20" /><strong>Quick ideas</strong><small>Everyday thoughts</small></div>
+                <div class="palette-paper pink-paper"><app-icon [icon]="LucideClock3" [size]="20" /><strong>Time sensitive</strong><small>Things to remember</small></div>
+                <div class="palette-paper blue-paper"><app-icon [icon]="LucidePalette" [size]="20" /><strong>References</strong><small>Useful for later</small></div>
+                <div class="palette-paper green-paper"><app-icon [icon]="LucideCheck" [size]="20" /><strong>Progress</strong><small>Work in motion</small></div>
+              </div>
+              <div class="workflow-preview-footer">A gentle visual cue helps you find related notes at a glance.</div>
+            </div>
+          } @else if (activeStep() === 'columns') {
+            <div class="workflow-preview columns-workflow-preview">
+              <div class="workflow-preview-heading"><span>Project board</span><strong>Move work forward, one step at a time.</strong></div>
+              <div class="kanban-preview">
+                <div><strong>To do <small>2</small></strong><article>Sketch the first draft</article><article>Gather references</article></div>
+                <div><strong>In progress <small>1</small></strong><article class="blue-task">Write the project outline</article></div>
+                <div><strong>Done <small>1</small></strong><article class="green-task">Capture the idea</article></div>
+              </div>
+              <div class="workflow-preview-footer">Your notes move with the work, across a board that fits your flow.</div>
+            </div>
+          } @else if (activeStep() === 'today') {
+            <div class="workflow-preview today-workflow-preview">
+              <div class="workflow-preview-heading"><span>Today · a little focus</span><strong>Three priorities are enough.</strong></div>
+              <div class="focus-count"><span>2</span><small>of 3 small wins today</small><div><i></i></div></div>
+              <div class="focus-task is-complete"><span><app-icon [icon]="LucideCheck" [size]="13" /></span><strong>Review your notes</strong><small>Done</small></div>
+              <div class="focus-task is-complete"><span><app-icon [icon]="LucideCheck" [size]="13" /></span><strong>Pick a next step</strong><small>Done</small></div>
+              <div class="focus-task"><span></span><strong>Make one small start</strong><small>Up next</small></div>
+              <div class="workflow-preview-footer">Keep today’s view calm and leave the rest for later.</div>
+            </div>
+          } @else if (activeStep() === 'celebrate') {
+            <div class="workflow-preview celebrate-workflow-preview">
+              <div class="celebrate-mark"><app-icon [icon]="LucideTrophy" [size]="25" /></div>
+              <span class="celebrate-eyebrow">A moment to notice</span>
+              <strong class="celebrate-title">Look what you moved forward.</strong>
+              <div class="celebrate-summary"><span>Today’s notes</span><strong>3 completed</strong></div>
+              <div class="celebrate-progress"><i></i></div>
+              <div class="celebrate-stickers"><span>✓ Captured an idea</span><span>✓ Finished a task</span><span>✓ Made room for tomorrow</span></div>
+              <div class="workflow-preview-footer">A clear ending makes it easier to begin again.</div>
+            </div>
+          } @else {
+            <div class="visual-board-canvas">
+              <div class="visual-sticky-note" [class]="'note-' + currentStepData.color">
+                <span class="tape-piece" aria-hidden="true"></span>
+                <span class="note-step-counter">0{{ currentStepData.number }} / 05</span>
+                <h4 class="visual-note-heading">{{ currentStepData.title }}</h4>
+                <p class="visual-note-body">{{ currentStepData.tagline }}</p>
+
+                <div class="visual-note-meta">
+                  <span class="meta-tag">
+                    <app-icon [icon]="currentStepData.icon" [size]="16" />
+                    <span>Interactive Flow</span>
+                  </span>
+                  <span class="meta-author">Sticky Ji Workspace</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Sandbox Section -->
+  <section id="sandbox-section" class="sandbox-section" aria-labelledby="sandbox-title">
+    <div class="sandbox-shell">
+      <header class="sandbox-header">
+        <span class="section-eyebrow">Interactive pinboard</span>
+        <h2 id="sandbox-title">Pin a note right here. See how it feels.</h2>
+        <p>Type an idea, pick a signature color, and stick it to the live demonstration board.</p>
+      </header>
+
+      <div class="sandbox-layout">
+        <!-- Note Creator Form -->
+        <div class="sandbox-creator">
+          <h3 class="creator-title">Draft a Sticky Note</h3>
+
+          <div class="form-field">
+            <label for="note-title-input" class="field-label">Note Heading</label>
+            <input
+              id="note-title-input"
+              type="text"
+              class="field-input"
+              [value]="newNoteTitle()"
+              (input)="newNoteTitle.set($any($event.target).value)"
+              placeholder="e.g., Launch marketing campaign..."
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="note-body-input" class="field-label">Note Thoughts / Details</label>
+            <textarea
+              id="note-body-input"
+              class="field-textarea"
+              rows="3"
+              [value]="newNoteBody()"
+              (input)="newNoteBody.set($any($event.target).value)"
+              placeholder="Add quick reminders, checklists, or key thoughts..."
+            ></textarea>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Select Paper Hue</label>
+            <div class="palette-row" role="radiogroup" aria-label="Choose note color">
+              @for (c of ['yellow', 'pink', 'blue', 'green', 'purple']; track c) {
+                <button
+                  type="button"
+                  class="palette-btn"
+                  [class]="'swatch-' + c"
+                  [class.is-active]="newNoteColor() === c"
+                  (click)="setSandboxColor($any(c))"
+                >
+                  @if (newNoteColor() === c) {
+                    <app-icon [icon]="LucideCheck" [size]="15" />
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <button type="button" class="btn-stick-note" (click)="addSandboxNote()">
+            <app-icon [icon]="LucidePlus" [size]="18" />
+            <span>Stick Note to Board</span>
+          </button>
+        </div>
+
+        <!-- The Live Board Canvas -->
+        <div class="sandbox-board">
+          <div class="board-top-label">
+            <span class="board-pin-icon"><app-icon [icon]="LucidePin" [size]="16" /></span>
+            <span>YOUR LIVE PINBOARD CANVAS</span>
+          </div>
+
+          <div class="sandbox-notes-grid">
+            @for (note of sandboxNotes(); track note.id) {
+              <article
+                class="sandbox-note-card"
+                [class]="'note-' + note.color"
+                [style.transform]="'rotate(' + note.angle + 'deg)'"
+              >
+                <span class="card-tape" aria-hidden="true"></span>
+                @if (note.isCustom) {
+                  <button
+                    type="button"
+                    class="btn-delete-note"
+                    aria-label="Remove note"
+                    (click)="deleteSandboxNote(note.id)"
+                  >
+                    <app-icon [icon]="LucideTrash2" [size]="14" />
+                  </button>
+                }
+                <h4 class="card-title">{{ note.title }}</h4>
+                <p class="card-body">{{ note.body }}</p>
+                <div class="card-author-row">
+                  <span class="author-pill">{{ note.author }}</span>
+                  <span class="card-sparkle"><app-icon [icon]="LucideSparkles" [size]="12" /></span>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mindful Productivity Insights -->
+  <section class="habits-section" aria-labelledby="habits-title">
+    <div class="habits-shell">
+      <header class="section-heading">
+        <span class="section-eyebrow">Mindful habits</span>
+        <h2 id="habits-title">Three daily practices for calmer thinking</h2>
+        <p>Try these simple planning routines and adapt them to your own day.</p>
+      </header>
+
+      <div class="habits-grid">
+        <div class="habit-card note-yellow">
+          <span class="habit-num">01</span>
+          <h3>The "Rule of 3 Notes"</h3>
+          <p>
+            Never put more than 3 high-impact notes in your Today column at once. If everything is
+            urgent, nothing is. Finish three notes, then take a breather before pulling from your
+            project boards.
+          </p>
+        </div>
+
+        <div class="habit-card note-blue">
+          <span class="habit-num">02</span>
+          <h3>The 5-Minute Evening Wind-Down</h3>
+          <p>
+            At the end of your day, spend 5 minutes reviewing your board. Mark finished notes
+            complete, update due dates for remaining work, and shut your laptop knowing tomorrow has
+            a clean, organized starting place.
+          </p>
+        </div>
+
+        <div class="habit-card note-pink">
+          <span class="habit-num">03</span>
+          <h3>The Brain-Dump Parking Lot</h3>
+          <p>
+            When a distracting random thought arrives mid-deep work, don't context-switch. Create a
+            quick pink note in the "Parking Lot" folder. You protect your flow while preserving the
+            idea.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA Section -->
+  <section class="how-cta-section">
+    <div class="how-cta-shell">
+      <div class="how-cta-note">
+        <span class="washi-tape-large" aria-hidden="true"></span>
+        <h2>Your ideas deserve a calmer home.</h2>
+        <p>Start organizing with colorful sticky notes, smart boards, and the Today focus view.</p>
+
+        <div class="how-cta-buttons">
+          <button type="button" class="btn-cta-signup" (click)="navigateToAuth('signup')">
+            <span>Get started for free</span>
+            <app-icon [icon]="LucideArrowRight" [size]="18" />
+          </button>
+          <a routerLink="/features" class="btn-cta-features">Explore all features →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-website-footer
+  (primaryActionClick)="navigateToAuth('signup')"
+  (secondaryActionClick)="navigateToAuth('login')"
+></app-website-footer>

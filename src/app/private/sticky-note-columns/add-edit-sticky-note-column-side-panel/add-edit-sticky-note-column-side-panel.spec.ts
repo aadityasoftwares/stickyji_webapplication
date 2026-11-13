@@ -21,4 +21,22 @@ describe('AddEditStickyNoteColumnSidePanel', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('keeps the header and footer badges in sync when the column changes', async () => {
+    component.open = true;
+    component.saveState.set('saved');
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+    expect(
+      fixture.nativeElement.querySelector('.app-side-panel-note .app-badge-success')?.textContent,
+    ).toContain('Saved');
+    component.updateText('name', 'Updated column');
+    await fixture.whenStable();
+    expect(
+      fixture.nativeElement.querySelector('.app-side-panel-note .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+    expect(
+      fixture.nativeElement.querySelector('.column-editor-footer .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+  });
 });

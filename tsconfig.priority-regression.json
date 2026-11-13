@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/private/mynotes/add-edit-note-side-panel/add-edit-note-side-panel.spec.ts",
+    "src/app/private/sticky-note-columns/add-edit-sticky-note-column-side-panel/add-edit-sticky-note-column-side-panel.spec.ts",
+    "src/app/shared/components/side-panel/side-panel.spec.ts"
+  ]
+}

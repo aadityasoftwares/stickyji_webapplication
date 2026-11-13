@@ -1,0 +1,191 @@
+<section
+  class="attachments"
+  [class.is-readonly]="readOnly"
+  aria-label="Note attachments"
+  (click)="$event.stopPropagation()"
+  (dblclick)="$event.stopPropagation()"
+>
+  @if (!readOnly) {
+    <label
+      class="attachment-picker"
+      [class.is-dragging]="dragging() && !disabled"
+      [class.is-disabled]="disabled || busy()"
+      (dragover)="$event.preventDefault(); dragging.set(true)"
+      (dragleave)="dragging.set(false)"
+      (drop)="drop($event)"
+    >
+      <app-icon [icon]="LucidePaperclip" size="md" />
+      <strong>Choose files or drop them here</strong>
+      <span>JPG, PNG, WebP, PDF, Word, Excel, TXT or CSV</span>
+      <input
+        type="file"
+        multiple
+        [accept]="accept"
+        [disabled]="disabled || busy()"
+        aria-label="Choose note attachments"
+        (change)="choose($event)"
+      />
+    </label>
+    <p class="attachment-hint">Files upload when you save. Your plan's upload limits apply.</p>
+  }
+  @if (uploadingName()) {
+    <div class="attachment-progress" role="status" aria-live="polite">
+      <span>{{ progress() === 100 ? 'Verifying' : 'Uploading' }} {{ uploadingName() }}</span>
+      <progress [value]="progress()" max="100" aria-label="File upload progress"></progress>
+      <small>{{ progress() }}%</small>
+    </div>
+  }
+  @let items = previewItems ?? previewFiles();
+  @if (items.length) {
+    <div class="attachment-heading">
+      <app-icon [icon]="LucidePaperclip" size="xs" />
+      <strong>Attachments</strong>
+      <span>{{ previewItems !== null ? items.length : total() + pending().length }}</span>
+    </div>
+    <ul class="attachment-list">
+      @for (item of items; track item.id) {
+        <li class="attachment-card" [class.is-pending]="item.pending">
+          <button
+            type="button"
+            class="attachment-thumbnail"
+            [class.has-image]="item.previewUrl"
+            [disabled]="disabled || previewItems !== null || !item.mimeType.startsWith('image/')"
+            [attr.aria-label]="'Preview ' + item.name"
+            (click)="openPreview(item)"
+          >
+            @if (item.previewUrl) {
+              <img
+                [src]="item.previewUrl"
+                [alt]="item.name"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                (error)="thumbnailFailed(item.id)"
+              />
+              <span class="attachment-preview-cue"><app-icon [icon]="LucideEye" size="xs" /></span>
+            } @else {
+              <app-icon
+                [icon]="item.mimeType.startsWith('image/') ? LucideImage : LucideFile"
+                size="md"
+              />
+              <span>{{ fileType(item.name) }}</span>
+            }
+          </button>
+          <div class="attachment-copy">
+            <strong [title]="item.name">{{ item.name }}</strong>
+            <small>{{ fileType(item.name) }} &middot; {{ size(item.size) }}</small>
+            <span class="attachment-status" [class.is-pending]="item.pending">{{
+              item.pending ? 'Ready to upload' : 'Saved'
+            }}</span>
+          </div>
+          @if (previewItems === null) {
+            <div class="attachment-actions">
+              @if (!item.pending) {
+                <app-button
+                  [icon]="LucideDownload"
+                  [iconOnly]="true"
+                  variant="ghost"
+                  size="xs"
+                  [ariaLabel]="'Download ' + item.name"
+                  [disabled]="disabled || busy()"
+                  (buttonClick)="downloadItem(item)"
+                />
+              }
+              @if (!readOnly) {
+                <app-button
+                  [icon]="item.pending ? LucideX : LucideTrash2"
+                  [iconOnly]="true"
+                  variant="ghost"
+                  size="xs"
+                  [ariaLabel]="'Remove ' + item.name"
+                  [disabled]="disabled || busy()"
+                  (buttonClick)="removeItem(item)"
+                />
+              }
+            </div>
+          }
+          @if (!readOnly && confirmId() === item.id) {
+            <div class="attachment-confirm">
+              <span>Remove this file permanently?</span>
+              <app-button
+                label="Remove file"
+                size="xs"
+                variant="danger"
+                [disabled]="disabled || busy()"
+                (buttonClick)="confirmRemove(item.id)"
+              />
+              <app-button
+                label="Keep file"
+                size="xs"
+                variant="ghost"
+                [disabled]="disabled || busy()"
+                (buttonClick)="confirmId.set('')"
+              />
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+  @if (loading()) {
+    <p class="attachment-hint" role="status">Loading attachments...</p>
+  }
+  @if (listError()) {
+    <app-button
+      label="Retry loading attachments"
+      size="xs"
+      variant="ghost"
+      [disabled]="loading() || busy()"
+      (buttonClick)="load()"
+    />
+  } @else if (!readOnly && !loading() && !items.length) {
+    <p class="attachment-hint">No files attached yet.</p>
+  }
+  @if (hasMore() && previewItems === null) {
+    <app-button
+      label="Load more files"
+      size="xs"
+      variant="ghost"
+      [disabled]="loading() || disabled || busy()"
+      (buttonClick)="load(true)"
+    />
+  }
+</section>
+<dialog
+  #previewDialog
+  class="attachment-dialog"
+  aria-label="Attachment preview"
+  (close)="selectedPreview.set(null)"
+  (click)="$event.stopPropagation()"
+  (keydown)="$event.stopPropagation()"
+>
+  @if (selectedPreview(); as item) {
+    <header>
+      <strong>{{ item.name }}</strong>
+      <app-button
+        [icon]="LucideX"
+        [iconOnly]="true"
+        variant="ghost"
+        size="sm"
+        ariaLabel="Close attachment preview"
+        (buttonClick)="closePreview()"
+      />
+    </header>
+    <img [src]="item.previewUrl" [alt]="item.name" referrerpolicy="no-referrer" />
+    <footer>
+      <span
+        >{{ size(item.size) }} &middot;
+        {{ item.pending ? 'Ready to upload when you save' : 'Saved attachment' }}</span
+      >
+      @if (!item.pending) {
+        <app-button
+          label="Download"
+          [iconLeft]="LucideDownload"
+          size="sm"
+          variant="secondary"
+          [disabled]="busy()"
+          (buttonClick)="downloadItem(item)"
+        />
+      }
+    </footer>
+  }
+</dialog>

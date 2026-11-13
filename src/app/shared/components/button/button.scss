@@ -390,6 +390,39 @@
   @include sticky-note-button($note-button-yellow, $note-button-dark-text);
 }
 
+.app-button-websiteYellow {
+  @include sticky-note-button($note-button-yellow, $note-button-yellow-text);
+}
+
+.app-button-enroll {
+  color: $button-enroll-text;
+  background-color: $button-enroll-bg;
+  border: 2px solid color.adjust($button-enroll-bg, $lightness: -8%);
+  border-radius: 999px;
+  box-shadow:
+    0 2px 0 color.adjust($button-enroll-bg, $lightness: -15%),
+    0 5px 12px rgba(17, 17, 17, 0.12);
+
+  &::before {
+    inset: 4px;
+    border: 1px dashed $button-enroll-stitch;
+    border-radius: inherit;
+    background: none;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: $button-enroll-hover;
+    border-color: color.adjust($button-enroll-hover, $lightness: -8%);
+    box-shadow:
+      0 3px 0 color.adjust($button-enroll-hover, $lightness: -15%),
+      0 8px 16px rgba(17, 17, 17, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    background-color: color.adjust($button-enroll-bg, $lightness: -8%);
+  }
+}
+
 .app-button-noteOrange {
   @include sticky-note-button($note-button-orange, $note-button-dark-text);
 }

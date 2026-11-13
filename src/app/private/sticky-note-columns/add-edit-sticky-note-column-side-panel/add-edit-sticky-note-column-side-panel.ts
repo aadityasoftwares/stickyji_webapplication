@@ -28,7 +28,7 @@ import {
 } from '@lucide/angular';
 
 import { AppIcon } from '../../../shared/components/icon/icon';
-import { Badge } from '../../../shared/components/badge/badge';
+import { Badge, type BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Input as AppInput } from '../../../shared/components/input/input';
 import { Label } from '../../../shared/components/label/label';
@@ -36,8 +36,6 @@ import { Loader } from '../../../shared/components/loader/loader';
 import { Select, SelectOption, SelectValue } from '../../../shared/components/select/select';
 import { SidePanel, SidePanelTone } from '../../../shared/components/side-panel/side-panel';
 import { ToastService } from '../../../shared/components/toast/services/toast.service';
-import { COMMON_MESSAGES } from '../../../shared/constants/common.messages';
-
 import { extractErrorMessage, extractList, idOf } from '../../../shared/functions/common.function';
 import {
   COLUMN_LIMITS,
@@ -56,8 +54,6 @@ import {
 import { StickyNoteColumnApiService } from '../../mynotes/services/sticky-note-column.service';
 import { StickyNoteColumnStore } from '../../mynotes/services/sticky-note-column.store';
 import { WorkspaceService } from '../../workspace/services/workspace.service';
-import { WorkspaceDropdownStore } from '../../workspace/services/workspace-dropdown.store';
-import { WorkspaceFolderService } from '../../workspacefolders/services/workspace-folder.service';
 
 @Component({
   selector: 'app-add-edit-sticky-note-column-side-panel',
@@ -87,8 +83,6 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   private readonly columnApi = inject(StickyNoteColumnApiService);
   private readonly columnStore = inject(StickyNoteColumnStore);
   private readonly workspaceApi = inject(WorkspaceService);
-  private readonly workspaceDropdownStore = inject(WorkspaceDropdownStore);
-  private readonly workspaceFolderApi = inject(WorkspaceFolderService);
 
   @Input() open = false;
   @Input() mode: 'create' | 'edit' = 'create';
@@ -139,18 +133,14 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   }
 
   readonly workspaceOptions = computed<SelectOption[]>(() =>
-    (this.workspaceDropdownStore.loaded() ? this.workspaceDropdownStore.items() : this.panelWorkspaces())
+    this.panelWorkspaces()
       .filter((item) => item?.status !== 'DELETED')
       .map((item) => ({ label: item.name || 'Untitled workspace', value: idOf(item) }))
       .filter((item) => Boolean(item.value)),
   );
 
   readonly folderOptions = computed<SelectOption[]>(() => {
-    const fallback = this.panelFolders();
-    const folders = this.workspaceDropdownStore.loaded()
-      ? this.workspaceDropdownStore.items().find((workspace) => workspace.id === this.form.controls.workspaceId.value)?.folders ?? []
-      : fallback;
-    return folders
+    return this.panelFolders()
       .map((item) => ({ label: item.name || 'Untitled folder', value: idOf(item) }))
       .filter((item) => Boolean(item.value));
   });
@@ -266,6 +256,21 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
   get isSystemColumn(): boolean {
     return this.columnMeta()?.isSystem === true;
   }
+
+  readonly saveIndicatorVariant = computed<BadgeVariant>(() => {
+    switch (this.saveState()) {
+      case 'editing':
+        return 'warning';
+      case 'saving':
+        return 'info';
+      case 'saved':
+        return 'success';
+      case 'error':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  });
 
   get columnTypeLabel(): string {
     return getColumnTypeLabel(this.columnMeta()?.type);
@@ -669,16 +674,20 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
 
   private loadWorkspaces(): void {
     this.loadingWorkspaces.set(true);
-    this.workspaceDropdownStore
-      .load()
+    this.workspaceApi
+      .getWorkspaceDropdown()
       .pipe(
         finalize(() => this.loadingWorkspaces.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (items) => {
-          this.panelWorkspaces.set(items ? [...items] : []);
-          if (items === null) this.error.set(this.workspaceDropdownStore.error() || 'Unable to load workspaces.');
+        next: (response) => {
+          const items = Array.isArray(response?.data) ? response.data : [];
+          this.panelWorkspaces.set([...items]);
+          const workspaceId = this.controlString('workspaceId');
+          if (workspaceId) {
+            this.loadFolders(workspaceId, this.controlString('workspaceFolderId'));
+          }
         },
         error: (error) => {
           const message = extractErrorMessage(error, 'Unable to load workspaces.');
@@ -697,31 +706,15 @@ export class AddEditStickyNoteColumnSidePanel implements OnChanges {
       return;
     }
 
-    this.panelFolders.set([]);
-    this.loadingFolders.set(true);
-    this.workspaceFolderApi
-      .getFolderOptions(workspaceId)
-      .pipe(
-        finalize(() => this.loadingFolders.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (folders) => {
-          if (this.form.controls.workspaceId.value !== workspaceId) return;
-          this.setFoldersAndSelect(workspaceId, folders, preferredFolderId);
-        },
-        error: (error) => {
-          const message = extractErrorMessage(
-            error,
-            COMMON_MESSAGES.ERROR.LOAD_FAILED('workspace folders'),
-          );
-          this.error.set(message);
-          this.toastService.error(message, {
-            title: 'Folders error',
-            dedupeKey: 'column-folders-load-error',
-          });
-        },
-      });
+    const workspace = this.panelWorkspaces().find((item) => idOf(item) === workspaceId);
+    if (!workspace) {
+      this.panelFolders.set([]);
+      this.loadingFolders.set(false);
+      return;
+    }
+
+    const folders = Array.isArray(workspace.folders) ? workspace.folders : [];
+    this.setFoldersAndSelect(workspaceId, folders, preferredFolderId);
   }
 
   private setFoldersAndSelect(

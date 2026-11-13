@@ -37,7 +37,7 @@
       #trigger
       class="app-select-trigger"
       [id]="selectId"
-      [appTooltip]="hostTooltip ? '' : (selectedLabel || placeholder)"
+      [appTooltip]="hostTooltip ? '' : selectedLabel || placeholder"
       tooltipTone="paper"
       tooltipPosition="top"
       tooltipSize="sm"
@@ -167,7 +167,10 @@
               <app-icon [icon]="selectedOptions[0]!.icon!" size="sm" />
             </span>
           }
-          <span class="app-select-single-value">
+          <span
+            class="app-select-single-value"
+            [style.font-family]="selectedOptions[0]?.fontFamily"
+          >
             {{ selectedOptions[0]?.label }}
           </span>
         }
@@ -224,12 +227,12 @@
   (keydown)="onPanelKeydown($event)"
 >
   @if (isOpen) {
-    @if (dropdownTitle || dropdownDescription) {
+    @if (resolvedDropdownTitle) {
       <header class="app-select-dropdown-header">
         <span class="app-select-dropdown-heading-copy">
-          @if (dropdownTitle) {
+          @if (resolvedDropdownTitle) {
             <strong>
-              {{ dropdownTitle }}
+              {{ resolvedDropdownTitle }}
             </strong>
           }
           @if (dropdownDescription) {
@@ -239,7 +242,7 @@
           }
         </span>
         <app-badge
-          [label]="filteredOptions.length.toString()"
+          [count]="filteredOptions.length"
           variant="outline"
           size="xs"
           shape="pill"
@@ -256,6 +259,7 @@
           type="search"
           autocomplete="off"
           [placeholder]="searchPlaceholder"
+          [attr.aria-label]="'Search ' + resolvedDropdownTitle"
           [value]="searchTerm"
           [attr.aria-controls]="listboxId"
           [attr.aria-activedescendant]="activeOptionId"
@@ -346,7 +350,11 @@
               </span>
             }
             <span class="app-select-option-copy">
-              <strong>
+              <strong
+                [style.font-family]="option.fontFamily"
+                [style.font-size.px]="option.fontSize"
+                [style.font-weight]="option.fontFamily ? 400 : null"
+              >
                 {{ option.label }}
               </strong>
               @if (option.description) {

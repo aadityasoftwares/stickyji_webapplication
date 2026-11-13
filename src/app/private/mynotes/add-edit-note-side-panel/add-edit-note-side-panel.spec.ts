@@ -1,12 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { StickyMarkdownEditorComponent } from '../../../shared/components/sticky-markdown-editor/sticky-markdown-editor.component';
 import { restoreStickySelection } from '../../../shared/utils/sticky-markdown/markdown-selection';
 import { AddEditNoteSidePanel } from './add-edit-note-side-panel';
+import { NoteAttachments } from '../note-attachments/note-attachments';
+import { StickyNoteAttachmentService } from '../services/sticky-note-attachment.service';
+import { StickyNotePriority, StickyNoteStatus } from '../constants/sticky-note.constants';
+import { Select } from '../../../shared/components/select/select';
+import { DatepickerInput } from '../../../shared/components/datepicker-input/datepicker-input';
 import { StickyNoteApiService } from '../services/sticky-notes.service';
 import { StickyNoteChecklistApiService } from '../services/sticky-note-checklist.service';
 import { StickyNoteAssigneeApiService } from '../services/sticky-note-assignee.service';
@@ -19,6 +24,17 @@ import { WorkspaceFolderStore } from '../../workspacefolders/services/workspace-
 import { WorkspaceMemberApiService } from '../../workspace-members/services/workspace-member.service';
 
 describe('AddEditNoteSidePanel', () => {
+  const originalScrollTo = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTo');
+
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: vi.fn() });
+  });
+
+  afterAll(() => {
+    if (originalScrollTo) Object.defineProperty(HTMLElement.prototype, 'scrollTo', originalScrollTo);
+    else delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;
+  });
+
   let component: AddEditNoteSidePanel;
   let fixture: ComponentFixture<AddEditNoteSidePanel>;
   const column = {
@@ -70,6 +86,10 @@ describe('AddEditNoteSidePanel', () => {
       ],
     }).compileComponents();
 
+    vi.spyOn(TestBed.inject(StickyNoteAttachmentService), 'list').mockReturnValue(
+      of({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+    );
+
     vi.spyOn(TestBed.inject(StickyNotesFavouriteService), 'getAll').mockReturnValue(
       of({ data: [] }),
     );
@@ -103,6 +123,219 @@ describe('AddEditNoteSidePanel', () => {
     expect(component).toBeTruthy();
   });
 
+  it('queues attachments using no column ID and uploads after the note is created', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.updateText('title', 'With files');
+    component.updateText('content', 'Details');
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = fixture.debugElement.query(By.directive(NoteAttachments))
+      .componentInstance as NoteAttachments;
+    expect(attachments.noteId).toBe('');
+    attachments.addFiles([new File(['hello'], 'note.txt')]);
+    const upload = vi
+      .spyOn(TestBed.inject(StickyNoteAttachmentService), 'upload')
+      .mockReturnValue(of({ attachmentId: 'file-1' } as any));
+    const saved = vi.spyOn(component.saved, 'emit');
+    component.submit();
+    expect(upload).not.toHaveBeenCalled();
+    const create = TestBed.inject(HttpTestingController).expectOne(
+      API_ENDPOINTS.stickyNotes.create,
+    );
+    create.flush({ data: { id: 'created-note' } });
+    expect(upload).toHaveBeenCalledWith(
+      'created-note',
+      expect.objectContaining({ file: expect.any(File) }),
+      expect.any(Function),
+    );
+    expect(saved).toHaveBeenCalledWith('created-note');
+    expect(attachments.pending()).toEqual([]);
+  });
+
+  it('keeps the editor open on upload failure and updates the same note on retry', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.updateText('title', 'Retry files');
+    component.updateText('content', 'Details');
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = component.attachments!;
+    attachments.addFiles([new File(['hello'], 'note.txt')]);
+    const upload = vi
+      .spyOn(TestBed.inject(StickyNoteAttachmentService), 'upload')
+      .mockReturnValue(throwError(() => new Error('Upload failed')));
+    const saved = vi.spyOn(component.saved, 'emit');
+    component.submit();
+    TestBed.inject(HttpTestingController)
+      .expectOne(API_ENDPOINTS.stickyNotes.create)
+      .flush({ data: { id: 'created-note' } });
+    await fixture.whenStable();
+    expect(saved).not.toHaveBeenCalled();
+    expect(component.saveState()).toBe('error');
+    expect(attachments.pending()).toHaveLength(1);
+    expect(component.isBusy).toBe(false);
+    expect(component.attachmentNoteId).toBe('created-note');
+
+    upload.mockReturnValue(of({ attachmentId: 'file-1' } as any));
+    component.submit();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectNone(API_ENDPOINTS.stickyNotes.create);
+    http
+      .expectOne(API_ENDPOINTS.stickyNotes.update('created-note'))
+      .flush({ data: { id: 'created-note' } });
+    expect(saved).toHaveBeenCalledWith('created-note');
+    expect(attachments.pending()).toEqual([]);
+  });
+
+  it('updates both live note previews when attachments are queued and removed', async () => {
+    fixture.componentRef.setInput('id', 'column-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    component.addBlock('ATTACHMENT');
+    await fixture.whenStable();
+    const attachments = component.attachments!;
+    attachments.addFiles([new File(['hello'], 'preview.txt')]);
+    await fixture.whenStable();
+    expect(component.livePreviewData.attachmentPreviews[0].name).toBe('preview.txt');
+    for (const selector of ['.note-external-preview', '.note-mobile-preview']) {
+      expect(fixture.nativeElement.querySelector(selector).textContent).toContain('preview.txt');
+    }
+    attachments.removePending(attachments.pending()[0]);
+    await fixture.whenStable();
+    expect(component.livePreviewData.attachmentPreviews).toEqual([]);
+    expect(fixture.nativeElement.querySelector('.note-external-preview').textContent).not.toContain(
+      'preview.txt',
+    );
+  });
+
+  it.each(Object.values(StickyNotePriority))(
+    'creates, reloads and clears %s priority through the API',
+    async (priority) => {
+      fixture.componentRef.setInput('id', 'column-1');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.priority.value).toBe(StickyNotePriority.NONE);
+      component.updateText('title', 'Priority test');
+      component.updateText('content', 'Details');
+      const select = fixture.debugElement.query(By.css('app-select[name="note-priority"]'))
+        .componentInstance as Select;
+      select.selectOption(select.options.find((option) => option.value === priority)!);
+      await fixture.whenStable();
+      expect(component.livePreviewData.priority).toBe(priority);
+      const badge = fixture.nativeElement.querySelector(
+        '.note-external-preview .sticky-note__priority-badge',
+      );
+      expect(Boolean(badge)).toBe(priority !== StickyNotePriority.NONE);
+
+      component.submit();
+      const http = TestBed.inject(HttpTestingController);
+      const create = http.expectOne(API_ENDPOINTS.stickyNotes.create);
+      expect(create.request.method).toBe('POST');
+      expect(create.request.body.priority).toBe(priority);
+      const saved = { id: 'saved-note', ...create.request.body };
+      create.flush({ data: saved });
+      expect(component.saveState()).toBe('saved');
+
+      vi.mocked(TestBed.inject(StickyNoteApiService).getById).mockReturnValue(of({ data: saved }));
+      fixture.componentRef.setInput('open', false);
+      await fixture.whenStable();
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('id', 'saved-note');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.priority.value).toBe(priority);
+      component.updateSelect('priority', StickyNotePriority.NONE);
+      expect(component.saveIndicatorLabel()).toBe('Unsaved changes');
+      component.submit();
+      const update = http.expectOne(API_ENDPOINTS.stickyNotes.update('saved-note'));
+      expect(update.request.method).toBe('PUT');
+      expect(update.request.body.priority).toBe('NONE');
+      update.flush({ data: { ...saved, priority: 'NONE' } });
+      expect(component.saveState()).toBe('saved');
+      expect(component.livePreviewData.priority).toBe('NONE');
+    },
+  );
+
+  it('defaults older notes to NONE and resets priority when starting a new note', async () => {
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('id', 'note-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    expect(component.form.controls.priority.value).toBe('NONE');
+    component.updateSelect('priority', 'URGENT');
+    component.updateSelect('priority', 'INVALID');
+    expect(component.form.controls.priority.value).toBe('URGENT');
+    fixture.componentRef.setInput('mode', 'create');
+    fixture.componentRef.setInput('id', 'column-1');
+    await fixture.whenStable();
+    expect(component.form.controls.priority.value).toBe('NONE');
+  });
+
+  it.each(Object.values(StickyNoteStatus))(
+    'creates, reloads and updates %s status through the API',
+    async (status) => {
+      fixture.componentRef.setInput('id', 'column-1');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.status.value).toBe(StickyNoteStatus.ACTIVE);
+      component.updateText('title', 'Status test');
+      component.updateText('content', 'Details');
+      const select = fixture.debugElement.query(By.css('app-select[name="note-status"]'))
+        .componentInstance as Select;
+      select.selectOption(select.options.find((option) => option.value === status)!);
+      await fixture.whenStable();
+      expect(component.livePreviewData.status).toBe(status);
+
+      component.submit();
+      const http = TestBed.inject(HttpTestingController);
+      const create = http.expectOne(API_ENDPOINTS.stickyNotes.create);
+      expect(create.request.method).toBe('POST');
+      expect(create.request.body.status).toBe(status);
+      const saved = { id: 'saved-note-status', ...create.request.body };
+      create.flush({ data: saved });
+      expect(component.saveState()).toBe('saved');
+
+      vi.mocked(TestBed.inject(StickyNoteApiService).getById).mockReturnValue(of({ data: saved }));
+      fixture.componentRef.setInput('open', false);
+      await fixture.whenStable();
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('id', 'saved-note-status');
+      fixture.componentRef.setInput('open', true);
+      await fixture.whenStable();
+      expect(component.form.controls.status.value).toBe(status);
+      component.updateSelect('status', StickyNoteStatus.ACTIVE);
+      component.updateSelect('status', 'INVALID');
+      expect(component.form.controls.status.value).toBe(StickyNoteStatus.ACTIVE);
+      component.submit();
+      const update = http.expectOne(API_ENDPOINTS.stickyNotes.update('saved-note-status'));
+      expect(update.request.method).toBe('PUT');
+      expect(update.request.body.status).toBe('ACTIVE');
+      update.flush({ data: { ...saved, status: 'ACTIVE' } });
+      expect(component.saveState()).toBe('saved');
+    },
+  );
+
+  it('updates both save badges when the date changes', async () => {
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('id', 'note-1');
+    fixture.componentRef.setInput('open', true);
+    await fixture.whenStable();
+    const datepicker = fixture.debugElement.query(By.directive(DatepickerInput))
+      .componentInstance as DatepickerInput;
+    datepicker.valueChange.emit('2026-11-01');
+    await fixture.whenStable();
+    expect(component.form.controls.noteDate.value).toBe('2026-11-01');
+    expect(
+      fixture.nativeElement.querySelector('.app-side-panel-note .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+    expect(
+      fixture.nativeElement.querySelector('.note-editor-footer .app-badge-warning')?.textContent,
+    ).toContain('Unsaved changes');
+  });
+
   it('shows id/name-only dropdown folders and accepts empty workspaces', () => {
     const dropdown = TestBed.inject(WorkspaceDropdownStore);
     component.form.controls.workspaceId.setValue('workspace-1');
@@ -123,12 +356,14 @@ describe('AddEditNoteSidePanel', () => {
     (component as any).loadFolders('old');
     component.form.controls.workspaceId.setValue('new');
     (component as any).loadFolders('new');
-    TestBed.inject(HttpTestingController).expectOne(API_ENDPOINTS.workspaces.dropdown).flush({
-      data: [
-        { id: 'old', name: 'Old', folders: [{ id: 'old-folder', name: 'Old folder' }] },
-        { id: 'new', name: 'New', folders: [] },
-      ],
-    });
+    TestBed.inject(HttpTestingController)
+      .expectOne(API_ENDPOINTS.workspaces.dropdown)
+      .flush({
+        data: [
+          { id: 'old', name: 'Old', folders: [{ id: 'old-folder', name: 'Old folder' }] },
+          { id: 'new', name: 'New', folders: [] },
+        ],
+      });
     expect(component.folderOptions()).toEqual([]);
     expect(component.form.controls.workspaceFolderId.value).toBe('');
   });

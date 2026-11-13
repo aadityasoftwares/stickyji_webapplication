@@ -1,10 +1,11 @@
 import { Tooltip } from '../../shared/components/tooltip/tooltip';
 import {
   ChangeDetectionStrategy,
+  afterNextRender,
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
-  OnInit,
   Output,
   computed,
   inject,
@@ -12,12 +13,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { gsap } from 'gsap';
+import { prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 import {
   LucideAlertCircle,
   LucideArrowRight,
   LucideCheck,
   LucideInfo,
-  LucideLock,
   LucideMinus,
   LucideRefreshCw,
   LucideShield,
@@ -297,7 +299,7 @@ export const DEFAULT_PLANS: PlanCardDTO[] = [
   styleUrl: './subscription.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Subscription implements OnInit {
+export class Subscription {
   private readonly plansService = inject(PlansService);
   private readonly billingService = inject(BillingService);
   private readonly authStore = inject(AuthStore);
@@ -315,7 +317,6 @@ export class Subscription implements OnInit {
   readonly LucideInfo = LucideInfo;
   readonly LucideAlertCircle = LucideAlertCircle;
   readonly LucideRefreshCw = LucideRefreshCw;
-  readonly LucideLock = LucideLock;
 
   // Catalog State Signals
   readonly catalog = signal<SubscriptionCatalogResponse | null>(null);
@@ -384,8 +385,31 @@ export class Subscription implements OnInit {
     Boolean(this.userSubscription() || this.plans().some((p) => p.isCurrent)),
   );
 
-  ngOnInit(): void {
-    this.loadPlans();
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+
+  constructor() {
+    afterNextRender(() => {
+      this.loadPlans();
+      if (!prefersReducedMotion()) {
+        runInGsapContext(
+          this.element,
+          () => {
+            gsap.from('.subscription-heading', {
+              opacity: 0,
+              y: 24,
+              duration: 0.7,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 85%',
+                once: true,
+              },
+            });
+          },
+          this.destroyRef,
+        );
+      }
+    });
   }
 
   loadPlans(): void {
@@ -409,18 +433,54 @@ export class Subscription implements OnInit {
             }
           }
           this.loading.set(false);
+          this.animateCards();
         },
         error: () => {
           this.error.set(true);
           this.loading.set(false);
+          this.animateCards();
         },
       });
+  }
+
+  private animateCards(): void {
+    if (typeof window === 'undefined' || prefersReducedMotion()) return;
+    setTimeout(() => {
+      const cards = this.element.querySelectorAll('.plan-card-shell');
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 35, scale: 0.94 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: 'back.out(1.4)',
+            clearProps: 'transform,opacity',
+          },
+        );
+      }
+    }, 0);
   }
 
   onCycleChange(cycleValue: TabValue): void {
     const cycle = cycleValue as BillingInterval;
     if (cycle === 'MONTHLY' || cycle === 'YEARLY') {
       this.selectedCycle.set(cycle);
+      if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+        setTimeout(() => {
+          const prices = this.element.querySelectorAll('.plan-price-group, .price-amount');
+          if (prices.length > 0) {
+            gsap.fromTo(
+              prices,
+              { scale: 0.95, opacity: 0.6 },
+              { scale: 1, opacity: 1, duration: 0.35, ease: 'power2.out' },
+            );
+          }
+        }, 0);
+      }
     }
   }
 
@@ -494,6 +554,7 @@ export class Subscription implements OnInit {
 
   getButtonLabel(plan: PlanCardDTO): string {
     if (plan.isCurrent) return 'Current Plan';
+    if (plan.code !== 'FREE') return 'Coming soon';
     if (this.processingPlanId() === plan.id) return 'Starting checkout...';
     if (plan.buttonText) return plan.buttonText;
     if (plan.code === 'FREE') return 'Get started free';
@@ -501,6 +562,7 @@ export class Subscription implements OnInit {
   }
 
   isButtonDisabled(plan: PlanCardDTO): boolean {
+    if (plan.code !== 'FREE') return true;
     if (this.processingPlanId() !== null) return true;
     if (plan.isCurrent) return true;
     if (plan.buttonDisabled) return true;

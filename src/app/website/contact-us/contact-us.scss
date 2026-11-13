@@ -7,8 +7,15 @@ h1 span { color: #8e702c; }
 .email-panel h2 { margin: 0 0 12px; }
 .email-panel p { font-size: 14px; }
 .direct-email { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; max-width: 100%; }
-.location { display: grid; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #ddd5be; width: 100%; }
-.location span { font-size: 10px; letter-spacing: .15em; color: #807459; }.location strong { font-size: 14px; }
+.location { display: grid; gap: 8px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #ddd5be; width: 100%; }
+.location span { font-size: 10px; letter-spacing: .15em; color: #807459; margin-top: 6px; }
+.location span:first-child { margin-top: 0; }
+.location strong { font-size: 14px; }
+.location a { color: inherit; text-decoration: none; }
+.location a:hover { text-decoration: underline; }
+.contact-social-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
+.contact-social-links a { color: #526344; font-weight: 600; font-size: 13px; text-decoration: none; }
+.contact-social-links a:hover { color: #283122; text-decoration: underline; text-underline-offset: 3px; }
 .email-panel .email-hint { font-size: 12px; margin-top: 22px; }
 .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .topic-card { display: flex; flex-direction: column; padding: 24px; border-radius: 16px; text-decoration: none; border: 1px solid #00000008; }

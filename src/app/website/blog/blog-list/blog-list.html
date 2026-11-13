@@ -1,0 +1,202 @@
+<div class="stickyji-blog-page">
+  <!-- Friendly Hero Header -->
+  <header class="sticky-hero">
+    <div class="hero-container">
+      <div class="hero-pill">
+        <span class="pill-emoji">📌</span>
+        <span>StickyJi Productivity Journal</span>
+      </div>
+
+      @if (filterType() === 'category' && currentCategory()) {
+        <h1 class="hero-title">{{ currentCategory()?.name }}</h1>
+        <p class="hero-desc">{{ currentCategory()?.description || 'Tips, tutorials, and workflows for daily focus.' }}</p>
+      } @else if (filterType() === 'tag' && currentTag()) {
+        <h1 class="hero-title">Guides on #{{ currentTag()?.name }}</h1>
+        <p class="hero-desc">All articles focused on {{ currentTag()?.name }}.</p>
+      } @else if (filterType() === 'author' && currentAuthor()) {
+        <h1 class="hero-title">Articles by {{ currentAuthor()?.name }}</h1>
+        <p class="hero-desc">{{ currentAuthor()?.designation || 'Productivity Specialist' }} &bull; {{ currentAuthor()?.biography }}</p>
+      } @else {
+        <h1 class="hero-title">Work Smarter, Think Clearer</h1>
+        <p class="hero-desc">
+          Practical productivity strategies, visual note-taking routines, student hacks,
+          and time management workflows to keep you organized every day.
+        </p>
+      }
+
+      <!-- Search & Filters -->
+      <div class="filter-controls-row">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" class="search-icon"><path fill="none" stroke="currentColor" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input
+            type="text"
+            placeholder="Search productivity guides, notes tips..."
+            [value]="searchQuery()"
+            (input)="onSearch($event)"
+            class="search-field"
+          />
+        </div>
+
+        <nav class="categories-nav">
+          <a routerLink="/blog" class="cat-chip" [class.is-active]="filterType() === 'all'">All Topics</a>
+          @for (cat of categories(); track cat._id) {
+            <a
+              [routerLink]="['/blog/category', cat.slug]"
+              class="cat-chip"
+              [class.is-active]="filterType() === 'category' && filterSlug() === cat.slug"
+            >
+              {{ cat.name }}
+            </a>
+          }
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="blog-main-content">
+    <!-- Featured Article Spotlight -->
+    @if (featuredArticle(); as featured) {
+      <section class="featured-spotlight">
+        <article class="featured-sticky-card">
+          <div class="card-media">
+            <a [routerLink]="['/blog', featured.slug]">
+              <img [src]="getCoverImageUrl(featured)" [alt]="featured.featuredImageAlt || featured.title" class="media-img" />
+              <div class="featured-ribbon">⭐ Editor's Pick</div>
+            </a>
+          </div>
+
+          <div class="card-details">
+            <div class="card-meta">
+              @if (getCategory(featured); as cat) {
+                <span class="meta-cat">{{ cat.name }}</span>
+              }
+              <span class="meta-dot">&bull;</span>
+              <span class="meta-time">⏱ {{ featured.readingTime || 4 }} min read</span>
+            </div>
+
+            <h2 class="featured-heading">
+              <a [routerLink]="['/blog', featured.slug]">{{ featured.title }}</a>
+            </h2>
+
+            <p class="featured-summary">{{ featured.excerpt }}</p>
+
+            <div class="card-action-row">
+              @if (featured.authorId; as author) {
+                <div class="author-snippet">
+                  <div class="author-dot">{{ author.name.slice(0, 1) }}</div>
+                  <span class="author-label">{{ author.name }}</span>
+                </div>
+              }
+              <a [routerLink]="['/blog', featured.slug]" class="btn-read-featured">
+                <span>Read Guide</span>
+                <span>&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      </section>
+    }
+
+    <!-- Articles Grid -->
+    <section class="articles-section">
+      @if (isLoading()) {
+        <div class="loading-grid">
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <div class="skeleton-note"></div>
+          }
+        </div>
+      } @else if (articles().length === 0 && !featuredArticle()) {
+        <div class="empty-notes-box">
+          <div class="empty-emoji">📌</div>
+          <h3>No articles published yet</h3>
+          <p>We're brewing fresh productivity guides and note-taking frameworks. Check back soon!</p>
+          <a routerLink="/blog" class="btn-primary-yellow">Explore All Posts</a>
+        </div>
+      } @else {
+        <div class="notes-grid">
+          @for (article of articles(); track article._id) {
+            <article class="note-card">
+              <div class="note-thumb-wrap">
+                <a [routerLink]="['/blog', article.slug]">
+                  <img [src]="getCoverImageUrl(article)" [alt]="article.featuredImageAlt || article.title" class="note-thumb" loading="lazy" />
+                </a>
+                @if (getCategory(article); as cat) {
+                  <span class="note-cat-tag">{{ cat.name }}</span>
+                }
+              </div>
+
+              <div class="note-content">
+                <div class="note-time-row">
+                  <span>{{ article.publishedAt | date:'mediumDate' }}</span>
+                  <span>&bull;</span>
+                  <span>{{ article.readingTime || 3 }} min read</span>
+                </div>
+
+                <h3 class="note-title">
+                  <a [routerLink]="['/blog', article.slug]">{{ article.title }}</a>
+                </h3>
+
+                <p class="note-excerpt">{{ article.excerpt }}</p>
+
+                <div class="note-footer">
+                  @if (article.authorId; as author) {
+                    <span class="note-author-name">By {{ author.name }}</span>
+                  }
+                  <a [routerLink]="['/blog', article.slug]" class="note-read-link" aria-label="Read note">
+                    &rarr;
+                  </a>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <footer class="pagination-bar">
+            <button
+              class="page-btn"
+              [disabled]="currentPage() === 1"
+              (click)="goToPage(currentPage() - 1)"
+            >
+              &larr; Prev
+            </button>
+            <div class="page-numbers">
+              @for (p of [].constructor(totalPages()); track $index) {
+                <button
+                  class="page-num"
+                  [class.is-active]="currentPage() === $index + 1"
+                  (click)="goToPage($index + 1)"
+                >
+                  {{ $index + 1 }}
+                </button>
+              }
+            </div>
+            <button
+              class="page-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="goToPage(currentPage() + 1)"
+            >
+              Next &rarr;
+            </button>
+          </footer>
+        }
+      }
+    </section>
+
+    <!-- StickyJi Banner CTA -->
+    <section class="stickyji-app-banner">
+      <div class="banner-inner">
+        <div class="banner-badge">✨ Try StickyJi For Free</div>
+        <h3 class="banner-title">Never Let An Idea Or Task Slip Away Again</h3>
+        <p class="banner-desc">
+          Organize projects, color-code sticky boards, set intelligent reminders, and collaborate in real-time.
+        </p>
+        <div class="banner-actions">
+          <a routerLink="/pricing" class="btn-banner-primary">Get Started Free</a>
+          <a routerLink="/features" class="btn-banner-ghost">Explore Features</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+

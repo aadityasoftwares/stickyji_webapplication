@@ -1,0 +1,6 @@
+@use '../../styles/variables' as *;
+
+:host,
+[appScrollReveal] {
+  display: block;
+}
