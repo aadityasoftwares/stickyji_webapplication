@@ -6,7 +6,17 @@
       <h2>A hello goes a long way.</h2>
       <p>For help, feedback, or a conversation about Sticky Ji, write to us directly.</p>
       <a class="direct-email" [href]="emailLink('Sticky Ji enquiry')">{{ company.email }} ↗</a>
-      <div class="location"><span>BASED IN</span><strong>{{ company.location }}</strong></div>
+      <div class="location">
+        <span>BASED IN</span>
+        <strong>{{ company.location }}</strong>
+        <span>CALL US</span>
+        <strong><a [href]="'tel:' + company.phone.replaceAll(' ', '')">{{ company.phone }}</a></strong>
+        <span>CONNECT</span>
+        <div class="contact-social-links">
+          <a [href]="company.facebook" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
+          <a [href]="company.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        </div>
+      </div>
       <p class="email-hint">These links open your mail app. No message is sent until you send it.</p>
     </aside>
     <section class="topic-grid" aria-label="Choose your contact topic">

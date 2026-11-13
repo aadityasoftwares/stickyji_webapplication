@@ -305,10 +305,10 @@ export class WebsiteHeader {
   @Input() socialLinks: readonly HeaderSocialLink[] = [
     {
       label: 'LinkedIn',
-      href: 'https://www.linkedin.com/company/aaditya-softwares',
+      href: 'https://www.linkedin.com/company/stickyji/',
       type: 'linkedin',
     },
-    { label: 'Facebook', href: 'https://www.facebook.com', type: 'facebook' },
+    { label: 'Facebook', href: 'https://www.facebook.com/stickyji', type: 'facebook' },
     { label: 'X', href: 'https://x.com', type: 'x' },
     { label: 'Instagram', href: 'https://www.instagram.com', type: 'instagram' },
     { label: 'YouTube', href: 'https://www.youtube.com', type: 'youtube' },

@@ -220,6 +220,11 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
   }
 
+  shareOnFacebook(): void {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  }
+
   copyLink(): void {
     navigator.clipboard.writeText(window.location.href).then(() => {
       this.isCopied.set(true);

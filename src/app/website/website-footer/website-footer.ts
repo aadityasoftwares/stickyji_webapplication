@@ -20,6 +20,9 @@ import {
   LucideHeart,
   LucideHouse,
   LucideMail,
+  LucideMapPin,
+  LucideMessageSquare,
+  LucidePhone,
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
@@ -45,8 +48,41 @@ export interface FooterLinkGroup {
 export interface FooterSocialLink {
   label: string;
   href: string;
-  type: 'linkedin' | 'x' | 'instagram' | 'youtube';
+  type: 'linkedin' | 'facebook' | 'x' | 'instagram' | 'youtube' | 'discord';
 }
+
+export const DEFAULT_FOOTER_SOCIAL_LINKS: readonly FooterSocialLink[] = [
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/stickyji/',
+    type: 'linkedin',
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/stickyji',
+    type: 'facebook',
+  },
+  {
+    label: 'X (Twitter)',
+    href: 'https://x.com',
+    type: 'x',
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com',
+    type: 'instagram',
+  },
+  {
+    label: 'YouTube',
+    href: 'https://www.youtube.com',
+    type: 'youtube',
+  },
+  {
+    label: 'Discord',
+    href: 'https://discord.gg',
+    type: 'discord',
+  },
+];
 
 export const DEFAULT_FOOTER_GROUPS: readonly FooterLinkGroup[] = [
   {
@@ -115,6 +151,9 @@ export class WebsiteFooter {
   readonly LucideBookOpen = LucideBookOpen;
   readonly LucideUsers = LucideUsers;
   readonly LucideMail = LucideMail;
+  readonly LucidePhone = LucidePhone;
+  readonly LucideMapPin = LucideMapPin;
+  readonly LucideMessageSquare = LucideMessageSquare;
   readonly LucideSparkles = LucideSparkles;
 
   @Input() brandName = 'Sticky Ji';
@@ -122,6 +161,10 @@ export class WebsiteFooter {
   @Input() mascotSrc = 'StickyJiLogo.png';
   @Input() brandHref = '/#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
+  @Input() locationText = 'Vadodara, Gujarat, India';
+  @Input() emailAddress = 'contact@aadityasoftwares.in';
+  @Input() phoneNumber = '+91 88498 63872';
+  @Input() socialLinks: readonly FooterSocialLink[] = DEFAULT_FOOTER_SOCIAL_LINKS;
   @Input() ctaBadgeText = 'Ready to get organized?';
   @Input() ctaHeadingLine1 = 'Your next big idea needs';
   @Input() ctaHeadingHighlight = 'a home.';
@@ -133,7 +176,6 @@ export class WebsiteFooter {
   // Backward compatibility inputs
   @Input() ctaTitle?: string;
   @Input() statusLabel?: string;
-  @Input() socialLinks?: readonly unknown[];
 
   @Output() primaryActionClick = new EventEmitter<void>();
   @Output() secondaryActionClick = new EventEmitter<void>();

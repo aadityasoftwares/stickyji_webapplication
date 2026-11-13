@@ -15,7 +15,12 @@ export interface CompanyPageContent {
 export const COMPANY = {
   name: 'Aaditya Softwares',
   location: 'Vadodara, Gujarat, India',
-  email: 'aadityasoftware.in@gmail.com',
+  email: 'contact@aadityasoftwares.in',
+  supportEmail: 'aadityasoftware.in@gmail.com',
+  phone: '+91 88498 63872',
+  website: 'https://aadityasoftwares.in/',
+  facebook: 'https://www.facebook.com/stickyji',
+  linkedin: 'https://www.linkedin.com/company/stickyji/',
   policyVersion: '2026-10-26-draft',
   updated: '26 October 2026',
   // Keep draft notices and noindex until the operational details in LEGAL_REVIEW.md are approved.
