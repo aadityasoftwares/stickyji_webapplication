@@ -24,6 +24,10 @@ const marketingRoutes: Routes = [
     path: 'contact-us',
     loadComponent: () => import('../contact-us/contact-us').then((m) => m.ContactUs),
   },
+  {
+    path: 'blog',
+    loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
+  },
 ];
 
 const notFound = {
@@ -56,16 +60,6 @@ export const WEBSITE_ROUTES: Routes = [
         data: {
           description: 'Help improve Sticky Ji by sharing feedback with our team.',
           robots: 'noindex, follow',
-        },
-      },
-      {
-        path: 'blog',
-        title: 'Sticky Ji Blog - Productivity, Notes & Workflow Hacks',
-        loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
-        data: {
-          description:
-            'Productivity tips, digital sticky note workflows, student organization strategies, and workflow insights from Sticky Ji.',
-          canonicalUrl: '/blog',
         },
       },
       {

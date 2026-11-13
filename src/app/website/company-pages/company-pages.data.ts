@@ -15,12 +15,14 @@ export interface CompanyPageContent {
 export const COMPANY = {
   name: 'Aaditya Softwares',
   location: 'Vadodara, Gujarat, India',
-  email: 'contact@aadityasoftwares.in',
-  supportEmail: 'aadityasoftware.in@gmail.com',
+  email: 'contact@stickyji.com',
+  supportEmail: 'support@stickyji.com',
   phone: '+91 88498 63872',
   website: 'https://aadityasoftwares.in/',
   facebook: 'https://www.facebook.com/stickyji',
   linkedin: 'https://www.linkedin.com/company/stickyji/',
+  x: 'https://x.com/stickyji',
+  instagram: 'https://www.instagram.com/stickyjiapp/',
   policyVersion: '2026-10-26-draft',
   updated: '26 October 2026',
   // Keep draft notices and noindex until the operational details in LEGAL_REVIEW.md are approved.
@@ -93,7 +95,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         title: 'Business details',
         paragraphs: [
           'Business name: Aaditya Softwares. Location: Vadodara, Gujarat, India.',
-          'Our contact email is aadityasoftware.in@gmail.com. This is our current contact for support, billing, privacy, and legal enquiries. A full postal address and designated grievance contact will be added before these draft policies are finalised.',
+          'Our contact email is support@stickyji.com. This is our current contact for support, billing, privacy, and legal enquiries. A full postal address and designated grievance contact will be added before these draft policies are finalised.',
         ],
       },
     ],
@@ -109,7 +111,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         id: 'scope',
         title: '1. Who we are and what this covers',
         paragraphs: [
-          'stickyji, based in Vadodara, Gujarat, India, provides Sticky Ji. Contact aadityasoftware.in@gmail.com with privacy questions or requests. This notice covers our website and service. It does not replace the privacy notices of third-party services you choose to use.',
+          'stickyji, based in Vadodara, Gujarat, India, provides Sticky Ji. Contact support@stickyji.com with privacy questions or requests. This notice covers our website and service. It does not replace the privacy notices of third-party services you choose to use.',
           'For account administration, billing, and service operations, stickyji determines the purposes of processing. A business workspace owner may determine how information in its shared workspace is used. The roles and any required data-processing agreement must be established for that workspace.',
         ],
       },
@@ -169,7 +171,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         title: '8. Your choices, requests, and complaints',
         paragraphs: [
           'Depending on the law that applies, you may have rights to information about processing, access, correction, erasure, portability, restriction, objection, consent withdrawal, or grievance redressal. Some requests are subject to lawful exceptions and verification. Where provided by applicable Indian law, nomination rights may also apply.',
-          'Email aadityasoftware.in@gmail.com with “Privacy request” in the subject. We will handle requests within the periods required by the law applicable to them. You may complain to a competent data-protection authority or other regulator where that right is available. No contractual term removes a statutory right.',
+          'Email support@stickyji.com with “Privacy request” in the subject. We will handle requests within the periods required by the law applicable to them. You may complain to a competent data-protection authority or other regulator where that right is available. No contractual term removes a statutory right.',
         ],
       },
       {
@@ -183,7 +185,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         id: 'changes',
         title: '10. Changes and contact',
         paragraphs: [
-          'The final notice will display its effective date and version. Material changes will be communicated as required by law, and any new consent required for changed processing will be sought before that processing starts. Contact stickyji at aadityasoftware.in@gmail.com for questions.',
+          'The final notice will display its effective date and version. Material changes will be communicated as required by law, and any new consent required for changed processing will be sought before that processing starts. Contact stickyji at support@stickyji.com for questions.',
         ],
       },
     ],
@@ -240,7 +242,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         id: 'cancellation',
         title: '6. Cancellation and refunds',
         paragraphs: [
-          'To request cancellation or query a charge, contact aadityasoftware.in@gmail.com using the account email and payment reference. Deleting the app, leaving a workspace, or ceasing use does not by itself cancel a billing arrangement. Cancellation and account deletion are separate requests.',
+          'To request cancellation or query a charge, contact support@stickyji.com using the account email and payment reference. Deleting the app, leaving a workspace, or ceasing use does not by itself cancel a billing arrangement. Cancellation and account deletion are separate requests.',
           'The final refund eligibility rules, request window, cancellation effective date, and refund-processing timeline are awaiting business confirmation. They must be clearly disclosed before paid purchases rely on this policy. This draft does not impose a blanket no-refunds rule or promise a refund window that has not been approved.',
           'Nothing in the final refund policy may exclude a refund or remedy required by applicable law. Report duplicate, failed, or unauthorised charges promptly so they can be investigated through the relevant payment process.',
         ],
@@ -290,7 +292,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         title: '12. Governing law and disputes',
         paragraphs: [
           'Subject to mandatory applicable law, these terms are governed by the laws of India. Courts with competent jurisdiction in Vadodara, Gujarat, India will hear disputes, except where applicable law gives you the right to use another court, consumer forum, regulator, or remedy.',
-          'Please first contact aadityasoftware.in@gmail.com so we can try to resolve an issue. This request does not delay or restrict a statutory complaint, urgent remedy, or legal deadline. These terms do not impose mandatory arbitration or a blanket waiver of consumer rights.',
+          'Please first contact support@stickyji.com so we can try to resolve an issue. This request does not delay or restrict a statutory complaint, urgent remedy, or legal deadline. These terms do not impose mandatory arbitration or a blanket waiver of consumer rights.',
         ],
       },
       {
@@ -298,7 +300,7 @@ export const COMPANY_PAGES: Record<string, CompanyPageContent> = {
         title: '13. Changes and other provisions',
         paragraphs: [
           'The final terms will state an effective date and version. Material changes will be notified in a reasonable way, and renewed acceptance obtained where required. Changes do not retrospectively remove accrued rights. If you do not agree to a future change, you may stop using the service subject to existing payment obligations and lawful cancellation rights.',
-          'If a provision is unenforceable, the remaining provisions continue to the extent permitted by law. A failure to enforce a term is not a waiver. Neither party is responsible for a delay caused by events beyond its reasonable control, except for obligations that the law does not excuse. For notices and questions, contact stickyji at aadityasoftware.in@gmail.com.',
+          'If a provision is unenforceable, the remaining provisions continue to the extent permitted by law. A failure to enforce a term is not a waiver. Neither party is responsible for a delay caused by events beyond its reasonable control, except for obligations that the law does not excuse. For notices and questions, contact stickyji at support@stickyji.com.',
         ],
       },
     ],

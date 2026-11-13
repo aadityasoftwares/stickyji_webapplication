@@ -299,7 +299,7 @@ export class WebsiteHeader {
 
   @Input() showTopBar = true;
   @Input() locationText = 'Vadodara, Gujarat, India';
-  @Input() emailAddress = 'contact@aadityasoftwares.in';
+  @Input() emailAddress = 'contact@stickyji.com';
   @Input() phoneNumber = '+91 88498 63872';
 
   @Input() socialLinks: readonly HeaderSocialLink[] = [
@@ -309,10 +309,8 @@ export class WebsiteHeader {
       type: 'linkedin',
     },
     { label: 'Facebook', href: 'https://www.facebook.com/stickyji', type: 'facebook' },
-    { label: 'X', href: 'https://x.com', type: 'x' },
-    { label: 'Instagram', href: 'https://www.instagram.com', type: 'instagram' },
-    { label: 'YouTube', href: 'https://www.youtube.com', type: 'youtube' },
-    { label: 'Discord', href: 'https://discord.gg', type: 'discord' },
+    { label: 'X', href: 'https://x.com/stickyji', type: 'x' },
+    { label: 'Instagram', href: 'https://www.instagram.com/stickyjiapp/', type: 'instagram' },
   ];
 
   @Input() showAnnouncementBar = true;

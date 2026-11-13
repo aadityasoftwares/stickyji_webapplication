@@ -1,4 +1,27 @@
 <main class="profile-page" aria-labelledby="profile-page-title">
+  <!-- Account Navigation Subnav -->
+  <nav class="account-subnav" aria-label="Account sections">
+    <a
+      class="subnav-link is-active"
+      [routerLink]="routes.PROFILE"
+      routerLinkActive="is-active"
+      aria-current="page"
+      aria-label="Profile settings"
+    >
+      <app-icon [icon]="LucideCircleUserRound" size="xs" />
+      <span>Profile</span>
+    </a>
+    <a
+      class="subnav-link"
+      [routerLink]="routes.SECURITY"
+      routerLinkActive="is-active"
+      aria-label="Security and password settings"
+    >
+      <app-icon [icon]="LucideKeyRound" size="xs" />
+      <span>Password & Security</span>
+    </a>
+  </nav>
+
   <header class="page-header">
     <span class="page-header__mark" aria-hidden="true">
       <app-icon [icon]="LucideCircleUserRound" size="lg" />

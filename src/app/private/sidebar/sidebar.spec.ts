@@ -86,7 +86,7 @@ describe('Sidebar navigation', () => {
       ['Members', '/app/workspace/members'],
       ['Roles & permissions', '/app/workspace/roles-permissions'],
       ['Profile', '/app/account/profile'],
-      ['Preferences', '/app/account/preferences'],
+      ['Security', '/app/account/security'],
     ];
     for (const [label, route] of destinations) {
       const link = Array.from(

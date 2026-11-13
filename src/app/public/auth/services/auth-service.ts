@@ -205,17 +205,9 @@ export class AuthService {
       newPassword,
     };
 
-    return this.http
-      .post<ChangePasswordResponse>(API_ENDPOINTS.auth.changePassword, payload, {
-        withCredentials: true,
-      })
-      .pipe(
-        tap((response) => {
-          if (response?.success) {
-            this.authStore.clearSession();
-          }
-        }),
-      );
+    return this.http.post<ChangePasswordResponse>(API_ENDPOINTS.auth.changePassword, payload, {
+      withCredentials: true,
+    });
   }
 
   logout(payload?: {

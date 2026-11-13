@@ -18,6 +18,43 @@
   color: $text-primary;
 }
 
+/* ----------------------------------------------------
+   Account Sub-Navigation Tabs
+---------------------------------------------------- */
+.account-subnav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba($border, 0.7);
+
+  .subnav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+      background: rgba($sidebar-hover, 0.8);
+      color: $text-primary;
+    }
+
+    &.is-active {
+      background: $sidebar-hover;
+      color: $text-primary;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba($border, 0.8);
+    }
+  }
+}
+
 /* Page header */
 
 .page-header {

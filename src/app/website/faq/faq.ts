@@ -53,7 +53,7 @@ export class Faq {
       theme: 'yellow',
       question: 'What is Sticky Ji?',
       answer:
-        'Sticky Ji is a browser-based notes app by Aaditya Softwares. Capture ideas, add checklists, and organize daily tasks in workspaces and folders.',
+        'Sticky Ji is a modern digital sticky notes and task management web app by Aaditya Softwares. Capture ideas, create color-coded online sticky notes, build interactive checklists, and organize daily tasks in workspaces and Kanban columns.',
     },
     {
       pill: 'Desktop & web',
@@ -61,7 +61,7 @@ export class Faq {
       theme: 'blue',
       question: 'Can I use it on a desktop computer?',
       answer:
-        'Yes. Open Sticky Ji in your web browser. It is a web app, so you do not need to install a native desktop application.',
+        'Yes. You can use Sticky Ji digital sticky notes in any web browser on Windows, Mac, Linux, Chromebook, or mobile devices. It is 100% web-based with instant cloud sync, so no installation is required.',
     },
     {
       pill: 'Quick setup',
@@ -69,7 +69,7 @@ export class Faq {
       theme: 'green',
       question: 'How do I get started?',
       answer:
-        'Create an account, choose a workspace, and add your first note. Use a checklist for the next steps and columns to track progress.',
+        'Create a free Sticky Ji account, open your workspace, and create your first digital sticky note. Add color tags, checklist items, and organize your board in minutes.',
       actions: [
         { label: 'Create an account', link: '/auth/signup', primary: true },
         { label: 'Explore workflow', link: '/how-it-works' },
@@ -81,7 +81,7 @@ export class Faq {
       theme: 'pink',
       question: 'Which plan should I choose?',
       answer:
-        'Check the current plans and usage limits before signing up. Available plans and billing options come from the live catalogue.',
+        'Get started with free digital sticky notes for personal task management, or choose a team plan for shared workspaces, unlimited folders, and advanced collaboration features.',
       actions: [
         { label: 'View plans', link: '/pricing', primary: true },
         { label: 'Features', link: '/features' },
