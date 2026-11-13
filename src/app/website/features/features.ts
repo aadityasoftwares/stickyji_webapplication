@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -294,8 +304,128 @@ export class FeaturesPage {
     },
   ];
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // 1. Hero timeline
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+          tl.from('.hero-eyebrow', { opacity: 0, y: 12, duration: 0.5, ease: 'back.out(1.7)' })
+            .from('.hero-heading', { opacity: 0, y: 35, duration: 0.75 }, '-=0.3')
+            .from(
+              '.hero-subtitle',
+              { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' },
+              '-=0.4',
+            )
+            .from(
+              ['.hero-ctas', '.hero-reassurance'],
+              { opacity: 0, y: 18, duration: 0.5, stagger: 0.1 },
+              '-=0.3',
+            );
+
+          // Handwritten stroke SVG draw
+          const stroke = this.element.querySelector(
+            '.handdrawn-stroke path',
+          ) as SVGPathElement | null;
+          if (stroke) {
+            animateHandwrittenSvg(stroke, {
+              duration: 1.1,
+              delay: 0.6,
+              ease: 'power2.out',
+            });
+          }
+
+          // 2. Interactive playground
+          gsap.from('.playground-shell', {
+            opacity: 0,
+            y: 35,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.interactive-playground',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // 3. Pillar Cards ScrollTrigger
+          const pillarCards = this.element.querySelectorAll('.pillar-card');
+          pillarCards.forEach((card: Element) => {
+            const content = card.querySelector('.pillar-content');
+            const preview = card.querySelector('.feature-screen-preview, .mock-sticky-board');
+
+            if (content) {
+              gsap.from(content, {
+                opacity: 0,
+                x: -30,
+                duration: 0.7,
+                ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: card,
+                  start: 'top 85%',
+                  once: true,
+                },
+              });
+            }
+
+            if (preview) {
+              gsap.from(preview, {
+                opacity: 0,
+                scale: 0.92,
+                y: 30,
+                duration: 0.75,
+                ease: 'back.out(1.4)',
+                scrollTrigger: {
+                  trigger: card,
+                  start: 'top 85%',
+                  once: true,
+                },
+              });
+            }
+          });
+
+          // 4. Feature grid cards
+          gsap.from('.feature-grid-card', {
+            opacity: 0,
+            y: 28,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.feature-grid',
+              start: 'top 88%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
+
   setCategory(tab: FeatureTab): void {
     this.activeCategory.set(tab);
+
+    if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+      setTimeout(() => {
+        const cards = this.element.querySelectorAll('.pillar-card');
+        if (cards.length > 0) {
+          gsap.fromTo(
+            cards,
+            { opacity: 0, y: 18, scale: 0.98 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.08, ease: 'power2.out' },
+          );
+        }
+      }, 0);
+    }
   }
 
   setDemoColor(color: DemoColor): void {

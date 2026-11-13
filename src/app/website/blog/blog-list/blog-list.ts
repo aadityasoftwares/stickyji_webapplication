@@ -2,13 +2,17 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   OnInit,
   PLATFORM_ID,
+  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
 import {
   IStickyJiBlog,
   IStickyJiBlogAuthor,
@@ -16,6 +20,7 @@ import {
   IStickyJiBlogTag,
   StickyJiBlogService,
 } from '../services/stickyji-blog.service';
+import { prefersReducedMotion, runInGsapContext } from '../../gsap-utils';
 
 @Component({
   selector: 'app-stickyji-blog-list',
@@ -51,6 +56,39 @@ export class StickyJiBlogList implements OnInit {
 
   readonly filterType = signal<'all' | 'category' | 'tag' | 'author'>('all');
   readonly filterSlug = signal<string | null>(null);
+
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+          tl.from('.hero-pill', {
+            opacity: 0,
+            scale: 0.85,
+            y: 12,
+            duration: 0.5,
+            ease: 'back.out(1.7)',
+          })
+            .from('.hero-title', { opacity: 0, y: 30, duration: 0.7 }, '-=0.3')
+            .from('.hero-desc', { opacity: 0, y: 18, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+            .from(
+              ['.search-input-wrap', '.categories-nav'],
+              { opacity: 0, y: 16, duration: 0.5, stagger: 0.1 },
+              '-=0.3',
+            );
+        },
+        this.destroyRef,
+      );
+    });
+  }
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -161,12 +199,35 @@ export class StickyJiBlogList implements OnInit {
         }
 
         this.isLoading.set(false);
+        this.animateArticles();
       },
       error: () => {
         this.articles.set([]);
         this.isLoading.set(false);
       },
     });
+  }
+
+  private animateArticles(): void {
+    if (typeof window === 'undefined' || prefersReducedMotion()) return;
+    setTimeout(() => {
+      const cards = this.element.querySelectorAll('.featured-card, .note-card');
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 30, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: 'back.out(1.4)',
+            clearProps: 'transform,opacity',
+          },
+        );
+      }
+    }, 0);
   }
 
   onSearch(event: Event): void {

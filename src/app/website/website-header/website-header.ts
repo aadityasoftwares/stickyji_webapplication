@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
   HostListener,
   inject,
@@ -13,6 +14,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
+import { gsap } from 'gsap';
+import { prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -102,6 +105,7 @@ export class WebsiteHeader {
   private readonly document = inject(DOCUMENT);
   private readonly scroller = inject(ViewportScroller);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
   readonly activeSection = signal(this.router.parseUrl(this.router.url).fragment ?? 'top');
   readonly headerHidden = signal(false);
   readonly isScrolled = signal(false);
@@ -122,6 +126,21 @@ export class WebsiteHeader {
       this.previousScrollY = Math.max(0, this.document.defaultView?.scrollY ?? 0);
       this.isScrolled.set(this.previousScrollY > SCROLLED_ON_Y);
       if (!this.router.parseUrl(this.router.url).fragment) this.updateActiveSection();
+
+      if (!prefersReducedMotion()) {
+        runInGsapContext(
+          this.element,
+          () => {
+            gsap.from('.header-nav-bar', {
+              y: -18,
+              opacity: 0,
+              duration: 0.6,
+              ease: 'power2.out',
+            });
+          },
+          this.destroyRef,
+        );
+      }
     });
     this.destroyRef.onDestroy(() => {
       this.setBodyScrollLocked(false);

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Output,
+} from '@angular/core';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -9,9 +18,11 @@ import {
   LucideSparkles,
   LucideSprout,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { Avatar } from '../../shared/components/avatar/avatar';
 import { Checkbox } from '../../shared/components/checkbox/checkbox';
 import { AppIconDefinition, AppIcon } from '../../shared/components/icon/icon';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 export type ThoughtFlowStageId = 'capture' | 'organize' | 'finish';
 
@@ -78,6 +89,65 @@ export class ThoughtFlow {
     finalReview: false,
   };
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Animate handwritten underline SVG
+          const underline = this.element.querySelector(
+            '.heading-underline path',
+          ) as SVGPathElement | null;
+          if (underline) {
+            animateHandwrittenSvg(underline, {
+              duration: 1.1,
+              delay: 0.2,
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 80%',
+                once: true,
+              },
+            });
+          }
+
+          // Animate flow steps and preview panel on scroll
+          gsap.from('.flow-step', {
+            opacity: 0,
+            x: -28,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.flow-steps',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          gsap.from('.preview-wrap', {
+            opacity: 0,
+            scale: 0.96,
+            y: 30,
+            duration: 0.75,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.preview-wrap',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
+
   get activeStage(): ThoughtFlowStage {
     return this.stages.find((stage) => stage.id === this.selectedStage) ?? this.stages[0];
   }
@@ -93,6 +163,20 @@ export class ThoughtFlow {
 
     this.selectedStage = stage;
     this.stageChange.emit(stage);
+
+    if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+      // Tactile animation when switching stage
+      setTimeout(() => {
+        const preview = this.element.querySelector('.preview-stage, .preview-note');
+        if (preview) {
+          gsap.fromTo(
+            preview,
+            { opacity: 0, y: 16, scale: 0.98 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.4)' },
+          );
+        }
+      }, 0);
+    }
   }
 
   onStageKeydown(event: KeyboardEvent, currentIndex: number): void {

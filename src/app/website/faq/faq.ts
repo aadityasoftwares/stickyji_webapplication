@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideChevronDown,
@@ -7,7 +14,9 @@ import {
   LucideMonitor,
   LucideRocket,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { AppIcon, AppIconDefinition } from '../../shared/components/icon/icon';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 type FaqTheme = 'yellow' | 'blue' | 'green' | 'pink';
 
@@ -81,4 +90,69 @@ export class Faq {
       ],
     },
   ];
+
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Spark underline/accent SVG
+          const spark = this.element.querySelector('.title-note svg path') as SVGPathElement | null;
+          if (spark) {
+            animateHandwrittenSvg(spark, {
+              duration: 1.1,
+              delay: 0.2,
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 80%',
+                once: true,
+              },
+            });
+          }
+
+          // Gentle floating doodles
+          gsap.to('.faq-doodle-left', {
+            y: '+=8',
+            rotation: '+=3',
+            yoyo: true,
+            repeat: -1,
+            duration: 4.5,
+            ease: 'sine.inOut',
+          });
+
+          gsap.to('.faq-doodle-right', {
+            y: '-=8',
+            rotation: '-=4',
+            yoyo: true,
+            repeat: -1,
+            duration: 5,
+            ease: 'sine.inOut',
+          });
+
+          // FAQ sticky note cards entrance
+          gsap.from('.faq-note', {
+            opacity: 0,
+            y: 35,
+            scale: 0.95,
+            rotation: (i: number) => (i % 2 === 0 ? -1.8 : 1.8),
+            duration: 0.65,
+            stagger: 0.12,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: '.faq-list',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
 }

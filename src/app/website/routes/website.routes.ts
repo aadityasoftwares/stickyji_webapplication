@@ -61,8 +61,7 @@ export const WEBSITE_ROUTES: Routes = [
       {
         path: 'blog',
         title: 'Sticky Ji Blog - Productivity, Notes & Workflow Hacks',
-        loadComponent: () =>
-          import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
+        loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
         data: {
           description:
             'Productivity tips, digital sticky note workflows, student organization strategies, and workflow insights from Sticky Ji.',
@@ -71,18 +70,15 @@ export const WEBSITE_ROUTES: Routes = [
       },
       {
         path: 'blog/category/:slug',
-        loadComponent: () =>
-          import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
+        loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
       },
       {
         path: 'blog/tag/:slug',
-        loadComponent: () =>
-          import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
+        loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
       },
       {
         path: 'blog/author/:slug',
-        loadComponent: () =>
-          import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
+        loadComponent: () => import('../blog/blog-list/blog-list').then((m) => m.StickyJiBlogList),
       },
       {
         path: 'blog/:slug',

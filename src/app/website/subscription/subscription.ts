@@ -4,6 +4,7 @@ import {
   afterNextRender,
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
   Output,
   computed,
@@ -12,6 +13,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { gsap } from 'gsap';
+import { prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 import {
   LucideAlertCircle,
   LucideArrowRight,
@@ -382,8 +385,31 @@ export class Subscription {
     Boolean(this.userSubscription() || this.plans().some((p) => p.isCurrent)),
   );
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+
   constructor() {
-    afterNextRender(() => this.loadPlans());
+    afterNextRender(() => {
+      this.loadPlans();
+      if (!prefersReducedMotion()) {
+        runInGsapContext(
+          this.element,
+          () => {
+            gsap.from('.subscription-heading', {
+              opacity: 0,
+              y: 24,
+              duration: 0.7,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: this.element,
+                start: 'top 85%',
+                once: true,
+              },
+            });
+          },
+          this.destroyRef,
+        );
+      }
+    });
   }
 
   loadPlans(): void {
@@ -407,18 +433,54 @@ export class Subscription {
             }
           }
           this.loading.set(false);
+          this.animateCards();
         },
         error: () => {
           this.error.set(true);
           this.loading.set(false);
+          this.animateCards();
         },
       });
+  }
+
+  private animateCards(): void {
+    if (typeof window === 'undefined' || prefersReducedMotion()) return;
+    setTimeout(() => {
+      const cards = this.element.querySelectorAll('.plan-card-shell');
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 35, scale: 0.94 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: 'back.out(1.4)',
+            clearProps: 'transform,opacity',
+          },
+        );
+      }
+    }, 0);
   }
 
   onCycleChange(cycleValue: TabValue): void {
     const cycle = cycleValue as BillingInterval;
     if (cycle === 'MONTHLY' || cycle === 'YEARLY') {
       this.selectedCycle.set(cycle);
+      if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+        setTimeout(() => {
+          const prices = this.element.querySelectorAll('.plan-price-group, .price-amount');
+          if (prices.length > 0) {
+            gsap.fromTo(
+              prices,
+              { scale: 0.95, opacity: 0.6 },
+              { scale: 1, opacity: 1, duration: 0.35, ease: 'power2.out' },
+            );
+          }
+        }, 0);
+      }
     }
   }
 

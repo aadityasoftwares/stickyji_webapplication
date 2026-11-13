@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
+import { animateHandwrittenSvg, prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 import {
   LucideArrowRight,
   LucideCheck,
@@ -512,8 +522,101 @@ export class UseCasesPage {
     },
   ];
 
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // 1. Hero timeline
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+          tl.from('.hero-eyebrow', { opacity: 0, y: 12, duration: 0.5, ease: 'back.out(1.7)' })
+            .from('.hero-title', { opacity: 0, y: 35, duration: 0.75 }, '-=0.3')
+            .from('.hero-sub', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+            .from('.hero-actions', { opacity: 0, y: 18, duration: 0.5 }, '-=0.3');
+
+          // Handwritten underline SVG draw
+          const underline = this.element.querySelector(
+            '.title-underline path',
+          ) as SVGPathElement | null;
+          if (underline) {
+            animateHandwrittenSvg(underline, {
+              duration: 1.1,
+              delay: 0.6,
+              ease: 'power2.out',
+            });
+          }
+
+          // 2. Persona Tabs
+          gsap.from('.tab-btn', {
+            opacity: 0,
+            y: 18,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.persona-tabs',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // 3. Active Persona Board Preview
+          gsap.from('.persona-board-preview', {
+            opacity: 0,
+            scale: 0.94,
+            y: 30,
+            duration: 0.7,
+            ease: 'back.out(1.3)',
+            scrollTrigger: {
+              trigger: '.persona-board-preview',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // 4. Template Gallery Cards
+          gsap.from('.template-card', {
+            opacity: 0,
+            y: 30,
+            scale: 0.95,
+            rotation: (i: number) => (i % 2 === 0 ? -1.5 : 1.5),
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: '.templates-grid',
+              start: 'top 88%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
+
   setPersona(id: PersonaId): void {
     this.activePersona.set(id);
+
+    if (typeof window !== 'undefined' && !prefersReducedMotion()) {
+      setTimeout(() => {
+        const board = this.element.querySelector('.persona-board-preview, .board-columns');
+        if (board) {
+          gsap.fromTo(
+            board,
+            { opacity: 0, scale: 0.97, y: 14 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.4)' },
+          );
+        }
+      }, 0);
+    }
   }
 
   get currentPersona(): PersonaProfile {

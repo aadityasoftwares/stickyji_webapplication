@@ -9,9 +9,12 @@ export interface IStickyJiBlogAuthor {
   slug: string;
   designation?: string;
   biography?: string;
-  profileImageMediaId?: {
-    publicUrl?: string;
-  } | string | null;
+  profileImageMediaId?:
+    | {
+        publicUrl?: string;
+      }
+    | string
+    | null;
   socialLinks?: {
     website?: string;
     twitter?: string;
@@ -105,7 +108,9 @@ export class StickyJiBlogService {
     return params;
   }
 
-  getArticles(filter: Record<string, any> = {}): Observable<StickyJiPaginatedResponse<IStickyJiBlog>> {
+  getArticles(
+    filter: Record<string, any> = {},
+  ): Observable<StickyJiPaginatedResponse<IStickyJiBlog>> {
     return this.http.get<StickyJiPaginatedResponse<IStickyJiBlog>>(this.baseUrl, {
       headers: this.headers,
       params: this.buildParams(filter),
@@ -120,17 +125,23 @@ export class StickyJiBlogService {
   }
 
   getCategories(): Observable<StickyJiPaginatedResponse<IStickyJiBlogCategory>> {
-    return this.http.get<StickyJiPaginatedResponse<IStickyJiBlogCategory>>(`${this.baseUrl}/categories`, {
-      headers: this.headers,
-      params: new HttpParams().set('websiteSlug', this.websiteSlug).set('limit', '100'),
-    });
+    return this.http.get<StickyJiPaginatedResponse<IStickyJiBlogCategory>>(
+      `${this.baseUrl}/categories`,
+      {
+        headers: this.headers,
+        params: new HttpParams().set('websiteSlug', this.websiteSlug).set('limit', '100'),
+      },
+    );
   }
 
   getCategoryBySlug(slug: string): Observable<StickyJiApiResponse<IStickyJiBlogCategory>> {
-    return this.http.get<StickyJiApiResponse<IStickyJiBlogCategory>>(`${this.baseUrl}/categories/${slug}`, {
-      headers: this.headers,
-      params: new HttpParams().set('websiteSlug', this.websiteSlug),
-    });
+    return this.http.get<StickyJiApiResponse<IStickyJiBlogCategory>>(
+      `${this.baseUrl}/categories/${slug}`,
+      {
+        headers: this.headers,
+        params: new HttpParams().set('websiteSlug', this.websiteSlug),
+      },
+    );
   }
 
   getTags(): Observable<StickyJiPaginatedResponse<IStickyJiBlogTag>> {
@@ -148,23 +159,32 @@ export class StickyJiBlogService {
   }
 
   getAuthors(): Observable<StickyJiPaginatedResponse<IStickyJiBlogAuthor>> {
-    return this.http.get<StickyJiPaginatedResponse<IStickyJiBlogAuthor>>(`${this.baseUrl}/authors`, {
-      headers: this.headers,
-      params: new HttpParams().set('websiteSlug', this.websiteSlug).set('limit', '50'),
-    });
+    return this.http.get<StickyJiPaginatedResponse<IStickyJiBlogAuthor>>(
+      `${this.baseUrl}/authors`,
+      {
+        headers: this.headers,
+        params: new HttpParams().set('websiteSlug', this.websiteSlug).set('limit', '50'),
+      },
+    );
   }
 
   getAuthorBySlug(slug: string): Observable<StickyJiApiResponse<IStickyJiBlogAuthor>> {
-    return this.http.get<StickyJiApiResponse<IStickyJiBlogAuthor>>(`${this.baseUrl}/authors/${slug}`, {
-      headers: this.headers,
-      params: new HttpParams().set('websiteSlug', this.websiteSlug),
-    });
+    return this.http.get<StickyJiApiResponse<IStickyJiBlogAuthor>>(
+      `${this.baseUrl}/authors/${slug}`,
+      {
+        headers: this.headers,
+        params: new HttpParams().set('websiteSlug', this.websiteSlug),
+      },
+    );
   }
 
   getRelatedArticles(blogId: string): Observable<StickyJiApiResponse<IStickyJiBlog[]>> {
-    return this.http.get<StickyJiApiResponse<IStickyJiBlog[]>>(`${this.baseUrl}/related/${blogId}`, {
-      headers: this.headers,
-      params: new HttpParams().set('websiteSlug', this.websiteSlug),
-    });
+    return this.http.get<StickyJiApiResponse<IStickyJiBlog[]>>(
+      `${this.baseUrl}/related/${blogId}`,
+      {
+        headers: this.headers,
+        params: new HttpParams().set('websiteSlug', this.websiteSlug),
+      },
+    );
   }
 }

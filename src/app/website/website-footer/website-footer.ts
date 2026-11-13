@@ -1,8 +1,11 @@
 import { DOCUMENT, ViewportScroller } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
@@ -20,8 +23,10 @@ import {
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
+import { gsap } from 'gsap';
 import { AppIcon } from '../../shared/components/icon/icon';
 import { StickyCard } from '../../shared/components/sticky-card/sticky-card';
+import { prefersReducedMotion, runInGsapContext } from '../gsap-utils';
 
 export interface FooterLink {
   label: string;
@@ -138,6 +143,50 @@ export class WebsiteFooter {
   readonly currentYear = new Date().getFullYear();
   readonly newsletterEmail = signal('');
   readonly subscribeSuccess = signal(false);
+
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined') return;
+      if (prefersReducedMotion()) return;
+
+      runInGsapContext(
+        this.element,
+        () => {
+          // Footer CTA note card entrance
+          gsap.from('.footer-cta-container', {
+            opacity: 0,
+            y: 35,
+            scale: 0.95,
+            duration: 0.75,
+            ease: 'back.out(1.2)',
+            scrollTrigger: {
+              trigger: '.footer-cta-container',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+
+          // Nav links and brand columns
+          gsap.from(['.footer-brand-side', '.footer-nav-col', '.footer-newsletter-card'], {
+            opacity: 0,
+            y: 20,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.footer-main-grid',
+              start: 'top 88%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    });
+  }
 
   onLinkSelected(link: FooterLink): void {
     this.linkSelected.emit(link);

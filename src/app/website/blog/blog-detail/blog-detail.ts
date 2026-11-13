@@ -2,6 +2,7 @@ import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -12,12 +13,14 @@ import {
 } from '@angular/core';
 import { DomSanitizer, Meta, SafeHtml, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
 import {
   IStickyJiBlog,
   IStickyJiBlogAuthor,
   IStickyJiBlogCategory,
   StickyJiBlogService,
 } from '../services/stickyji-blog.service';
+import { prefersReducedMotion, runInGsapContext } from '../../gsap-utils';
 
 export interface StickyJiTocItem {
   id: string;
@@ -42,6 +45,8 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly element = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly article = signal<IStickyJiBlog | null>(null);
   readonly relatedArticles = signal<IStickyJiBlog[]>([]);
@@ -96,6 +101,7 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
         });
 
         this.isLoading.set(false);
+        this.animateArticle();
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -107,28 +113,77 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
     });
   }
 
+  private animateArticle(): void {
+    if (typeof window === 'undefined' || prefersReducedMotion()) return;
+    setTimeout(() => {
+      runInGsapContext(
+        this.element,
+        () => {
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+          tl.from('.detail-breadcrumbs', { opacity: 0, y: 10, duration: 0.4 })
+            .from('.detail-meta', { opacity: 0, y: 12, duration: 0.45 }, '-=0.2')
+            .from('.detail-title', { opacity: 0, y: 28, duration: 0.7 }, '-=0.25')
+            .from(
+              '.detail-lead',
+              { opacity: 0, y: 18, duration: 0.55, ease: 'power2.out' },
+              '-=0.35',
+            )
+            .from('.author-row', { opacity: 0, y: 16, duration: 0.5 }, '-=0.3')
+            .from(
+              '.banner-box',
+              { opacity: 0, scale: 0.96, duration: 0.65, ease: 'power2.out' },
+              '-=0.2',
+            )
+            .from(
+              '.article-layout',
+              { opacity: 0, y: 24, duration: 0.7, ease: 'power2.out' },
+              '-=0.3',
+            );
+
+          gsap.from('.related-card', {
+            opacity: 0,
+            y: 28,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: '.related-section',
+              start: 'top 85%',
+              once: true,
+            },
+          });
+        },
+        this.destroyRef,
+      );
+    }, 0);
+  }
+
   private processContentAndToc(html: string): { processedHtml: string; toc: StickyJiTocItem[] } {
     const toc: StickyJiTocItem[] = [];
     if (!html) return { processedHtml: '', toc: [] };
 
     let headingIndex = 0;
-    const processedHtml = html.replace(/<(h[23])([^>]*)>(.*?)<\/\1>/gi, (_match, tag, attrs, text) => {
-      headingIndex++;
-      const plainText = text.replace(/<[^>]+>/g, '').trim();
-      const slugId =
-        plainText
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/[\s_-]+/g, '-') || `section-${headingIndex}`;
+    const processedHtml = html.replace(
+      /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
+      (_match, tag, attrs, text) => {
+        headingIndex++;
+        const plainText = text.replace(/<[^>]+>/g, '').trim();
+        const slugId =
+          plainText
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-') || `section-${headingIndex}`;
 
-      toc.push({
-        id: slugId,
-        text: plainText,
-        level: tag.toLowerCase() === 'h2' ? 2 : 3,
-      });
+        toc.push({
+          id: slugId,
+          text: plainText,
+          level: tag.toLowerCase() === 'h2' ? 2 : 3,
+        });
 
-      return `<${tag} id="${slugId}"${attrs}>${text}</${tag}>`;
-    });
+        return `<${tag} id="${slugId}"${attrs}>${text}</${tag}>`;
+      },
+    );
 
     return { processedHtml, toc };
   }
@@ -176,7 +231,10 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
     const seo = blog.seo || {};
     const title = seo.title || blog.title;
     const description = seo.description || blog.excerpt;
-    const pageUrl = typeof window !== 'undefined' ? window.location.href : `https://stickyji.com/blog/${blog.slug}`;
+    const pageUrl =
+      typeof window !== 'undefined'
+        ? window.location.href
+        : `https://stickyji.com/blog/${blog.slug}`;
     const coverUrl = blog.featuredImageMediaId?.publicUrl || '';
 
     this.titleService.setTitle(`${title} | Sticky Ji`);
@@ -186,7 +244,10 @@ export class StickyJiBlogDetail implements OnInit, OnDestroy {
     // OG & Twitter
     this.metaService.updateTag({ property: 'og:type', content: 'article' });
     this.metaService.updateTag({ property: 'og:title', content: seo.ogTitle || title });
-    this.metaService.updateTag({ property: 'og:description', content: seo.ogDescription || description });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: seo.ogDescription || description,
+    });
     this.metaService.updateTag({ property: 'og:url', content: pageUrl });
     if (coverUrl) this.metaService.updateTag({ property: 'og:image', content: coverUrl });
 
