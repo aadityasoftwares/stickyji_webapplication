@@ -18,6 +18,8 @@ export const APP_ROUTES = {
   TRASH: '/app/stickynotes/trash',
   PROFILE: '/app/account/profile',
   PREFERENCES: '/app/account/preferences',
+  SECURITY: '/app/account/security',
+  CHANGE_PASSWORD: '/app/account/security',
 } as const;
 
 export const routeCommands = (path: string): string[] => [path];

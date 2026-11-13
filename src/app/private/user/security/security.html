@@ -1,0 +1,530 @@
+<main class="security-page" aria-labelledby="security-page-title">
+  <!-- Account Navigation Subnav -->
+  <nav class="account-subnav" aria-label="Account sections">
+    <a
+      class="subnav-link"
+      [routerLink]="routes.PROFILE"
+      routerLinkActive="is-active"
+      aria-label="Profile settings"
+    >
+      <app-icon [icon]="LucideCircleUserRound" size="xs" />
+      <span>Profile</span>
+    </a>
+    <a
+      class="subnav-link is-active"
+      [routerLink]="routes.SECURITY"
+      routerLinkActive="is-active"
+      aria-current="page"
+      aria-label="Security and password settings"
+    >
+      <app-icon [icon]="LucideKeyRound" size="xs" />
+      <span>Password & Security</span>
+    </a>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="page-header__copy">
+      <div class="page-header__badges">
+        <app-badge
+          label="Account Security"
+          variant="noteYellow"
+          size="sm"
+          shape="pill"
+          [icon]="LucideShieldCheck"
+        />
+        <span class="security-chip">
+          <app-icon [icon]="LucideLockKeyhole" size="xs" />
+          End-to-end Session Guard
+        </span>
+      </div>
+
+      <h1 id="security-page-title">Password & Security</h1>
+
+      <p>
+        Protect your workspace, manage your authentication credentials, and control active sessions
+        across all devices.
+      </p>
+    </div>
+  </header>
+
+  <!-- Alerts / Feedback Banners -->
+  @if (passwordChangeSuccess()) {
+    <div class="feedback-banner feedback-banner--success" role="status" aria-live="polite">
+      <app-icon [icon]="LucideCheckCircle2" size="sm" tone="success" />
+      <div class="feedback-banner__content">
+        <strong>Password changed successfully!</strong>
+        <p>
+          All other sessions have been signed out. Redirecting you to sign in in
+          {{ countdown() }} seconds…
+        </p>
+      </div>
+      <app-button label="Sign in now" variant="primary" size="sm" (buttonClick)="onSignInNow()" />
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="feedback-banner feedback-banner--error" role="alert" aria-live="assertive">
+      <app-icon [icon]="LucideAlertTriangle" size="sm" />
+      <div class="feedback-banner__content">
+        <strong>Unable to complete request</strong>
+        <p>{{ errorMessage() }}</p>
+      </div>
+      <button
+        type="button"
+        class="banner-close-btn"
+        aria-label="Dismiss error"
+        (click)="errorMessage.set(null)"
+      >
+        <app-icon [icon]="LucideX" size="xs" />
+      </button>
+    </div>
+  }
+
+  @if (emailSentMessage()) {
+    <div class="feedback-banner feedback-banner--info" role="status" aria-live="polite">
+      <app-icon [icon]="LucideMail" size="sm" />
+      <div class="feedback-banner__content">
+        <strong>Check your email</strong>
+        <p>{{ emailSentMessage() }}</p>
+      </div>
+      <button
+        type="button"
+        class="banner-close-btn"
+        aria-label="Dismiss message"
+        (click)="emailSentMessage.set(null)"
+      >
+        <app-icon [icon]="LucideX" size="xs" />
+      </button>
+    </div>
+  }
+
+  <div class="security-grid">
+    <!-- Main Left Column: Security Overview & Change Password Form -->
+    <div class="security-main-column">
+      <!-- Account Credentials Summary Card -->
+      <app-sticky-card
+        class="credential-card"
+        variant="default"
+        appearance="outlined"
+        shape="rounded"
+        shadow="sm"
+        [fullWidth]="true"
+      >
+        <section class="card-section" aria-labelledby="credentials-heading">
+          <div class="card-section__header">
+            <div class="header-icon-box">
+              <app-icon [icon]="LucideShieldCheck" size="md" />
+            </div>
+            <div class="header-text">
+              <h2 id="credentials-heading">Authentication Overview</h2>
+              <p>Primary login method associated with your account</p>
+            </div>
+          </div>
+
+          <div class="credential-info-row">
+            <div class="credential-item">
+              <span class="credential-label">Account email</span>
+              <div class="credential-value-wrapper">
+                <span class="credential-value">{{ userEmail() }}</span>
+                @if (isEmailVerified()) {
+                  <app-badge
+                    label="Verified"
+                    variant="success"
+                    size="xs"
+                    shape="pill"
+                    [icon]="LucideCheck"
+                  />
+                } @else {
+                  <app-badge
+                    label="Unverified"
+                    variant="warning"
+                    size="xs"
+                    shape="pill"
+                    [icon]="LucideAlertTriangle"
+                  />
+                }
+              </div>
+            </div>
+
+            <div class="credential-item">
+              <span class="credential-label">Sign-in method</span>
+              <div class="credential-value-wrapper">
+                @if (isSocialAccount()) {
+                  <app-badge
+                    [label]="authProvider() | titlecase"
+                    variant="noteBlue"
+                    size="xs"
+                    shape="pill"
+                  />
+                  <span class="credential-hint">Managed via third-party provider</span>
+                } @else {
+                  <app-badge
+                    label="Email & Password"
+                    variant="noteYellow"
+                    size="xs"
+                    shape="pill"
+                    [icon]="LucideKeyRound"
+                  />
+                  <span class="credential-hint">Protected with bcrypt encryption</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Email Reset Callout -->
+          <div class="email-reset-callout">
+            <div class="callout-copy">
+              <span class="callout-title">Forgot your current password?</span>
+              <p>
+                We can send a secure one-time password reset link to your verified inbox at
+                <strong>{{ userEmail() }}</strong
+                >.
+              </p>
+            </div>
+            <app-button
+              label="Send reset link"
+              variant="outline"
+              size="sm"
+              [iconLeft]="LucideMail"
+              [loading]="sendingResetEmail()"
+              loadingText="Sending link…"
+              [disabled]="sendingResetEmail() || passwordChangeSuccess()"
+              (buttonClick)="requestPasswordResetEmail()"
+            />
+          </div>
+        </section>
+      </app-sticky-card>
+
+      <!-- Change Password Form Card -->
+      <app-sticky-card
+        class="password-form-card"
+        variant="noteYellow"
+        appearance="outlined"
+        shape="rounded"
+        shadow="sm"
+        [fullWidth]="true"
+      >
+        <section class="card-section" aria-labelledby="change-password-heading">
+          <div class="card-section__header">
+            <div class="header-icon-box header-icon-box--accent">
+              <app-icon [icon]="LucideLock" size="md" />
+            </div>
+            <div class="header-text">
+              <h2 id="change-password-heading">Reset / Update Password</h2>
+              <p>
+                Set a unique, memorable password to secure your personal notes and team workspaces
+              </p>
+            </div>
+          </div>
+
+          <form
+            class="password-form"
+            [formGroup]="changePasswordForm"
+            (ngSubmit)="submitChangePassword()"
+            novalidate
+          >
+            <!-- Current Password -->
+            <div class="form-field">
+              <div class="field-label-row">
+                <label class="field-label" for="security-current-password">
+                  Current password <span class="required-mark" aria-hidden="true">*</span>
+                </label>
+                <button
+                  type="button"
+                  class="field-help-action"
+                  (click)="requestPasswordResetEmail()"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              <app-input
+                inputId="security-current-password"
+                name="currentPassword"
+                type="password"
+                label="Current password"
+                labelMode="hidden"
+                placeholder="Enter your current password"
+                autocomplete="current-password"
+                appearance="outlined"
+                shape="rounded"
+                [height]="44"
+                [leadingIcon]="LucideKeyRound"
+                [passwordToggle]="true"
+                [required]="true"
+                [fullWidth]="true"
+                [formControl]="currentPasswordControl"
+                [status]="currentPasswordError ? 'danger' : 'default'"
+                [errorText]="currentPasswordError"
+              />
+            </div>
+
+            <app-divider />
+
+            <!-- New Password -->
+            <div class="form-field">
+              <div class="field-label-row">
+                <label class="field-label" for="security-new-password">
+                  New password <span class="required-mark" aria-hidden="true">*</span>
+                </label>
+                @if (newPasswordControl.value) {
+                  <span
+                    class="strength-pill strength-pill--{{ passwordStrength.level }}"
+                    aria-live="polite"
+                  >
+                    Strength: {{ passwordStrength.label }}
+                  </span>
+                }
+              </div>
+
+              <app-input
+                inputId="security-new-password"
+                name="newPassword"
+                type="password"
+                label="New password"
+                labelMode="hidden"
+                placeholder="Enter a strong new password"
+                autocomplete="new-password"
+                appearance="outlined"
+                shape="rounded"
+                [height]="44"
+                [leadingIcon]="LucideLockKeyhole"
+                [passwordToggle]="true"
+                [required]="true"
+                [fullWidth]="true"
+                [formControl]="newPasswordControl"
+                [status]="newPasswordError ? 'danger' : 'default'"
+                [errorText]="newPasswordError"
+              />
+
+              <!-- Live Strength Progress Bar -->
+              @if (newPasswordControl.value) {
+                <div
+                  class="strength-bar-track"
+                  role="progressbar"
+                  [attr.aria-valuenow]="passwordStrength.percent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-label]="'Password strength: ' + passwordStrength.label"
+                >
+                  <div
+                    class="strength-bar-fill strength-bar-fill--{{ passwordStrength.level }}"
+                    [style.width.%]="passwordStrength.percent"
+                  ></div>
+                </div>
+              }
+
+              <!-- Interactive Requirements Checklist -->
+              <div class="criteria-list" aria-label="Password complexity requirements">
+                <div class="criteria-item" [class.is-met]="hasMinLength">
+                  <span class="criteria-icon" aria-hidden="true">
+                    @if (hasMinLength) {
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                    } @else {
+                      <span class="criteria-dot"></span>
+                    }
+                  </span>
+                  <span>At least 8 characters long</span>
+                </div>
+
+                <div class="criteria-item" [class.is-met]="hasUppercase && hasLowercase">
+                  <span class="criteria-icon" aria-hidden="true">
+                    @if (hasUppercase && hasLowercase) {
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                    } @else {
+                      <span class="criteria-dot"></span>
+                    }
+                  </span>
+                  <span>Both uppercase (A-Z) and lowercase (a-z) letters</span>
+                </div>
+
+                <div class="criteria-item" [class.is-met]="hasNumber">
+                  <span class="criteria-icon" aria-hidden="true">
+                    @if (hasNumber) {
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                    } @else {
+                      <span class="criteria-dot"></span>
+                    }
+                  </span>
+                  <span>At least one number (0-9)</span>
+                </div>
+
+                <div class="criteria-item" [class.is-met]="hasSpecialChar">
+                  <span class="criteria-icon" aria-hidden="true">
+                    @if (hasSpecialChar) {
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                    } @else {
+                      <span class="criteria-dot"></span>
+                    }
+                  </span>
+                  <span>At least one special symbol (!@#$%^&*)</span>
+                </div>
+
+                <div class="criteria-item" [class.is-met]="isDifferentFromCurrent">
+                  <span class="criteria-icon" aria-hidden="true">
+                    @if (isDifferentFromCurrent) {
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                    } @else {
+                      <span class="criteria-dot"></span>
+                    }
+                  </span>
+                  <span>Must be different from your current password</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confirm New Password -->
+            <div class="form-field">
+              <div class="field-label-row">
+                <label class="field-label" for="security-confirm-password">
+                  Confirm new password <span class="required-mark" aria-hidden="true">*</span>
+                </label>
+                @if (confirmPasswordControl.value) {
+                  @if (passwordsMatch) {
+                    <span class="match-indicator match-indicator--match">
+                      <app-icon [icon]="LucideCheck" size="xs" />
+                      Passwords match
+                    </span>
+                  } @else {
+                    <span class="match-indicator match-indicator--mismatch">
+                      Passwords do not match
+                    </span>
+                  }
+                }
+              </div>
+
+              <app-input
+                inputId="security-confirm-password"
+                name="confirmPassword"
+                type="password"
+                label="Confirm new password"
+                labelMode="hidden"
+                placeholder="Re-enter your new password"
+                autocomplete="new-password"
+                appearance="outlined"
+                shape="rounded"
+                [height]="44"
+                [leadingIcon]="LucideKeyRound"
+                [passwordToggle]="true"
+                [required]="true"
+                [fullWidth]="true"
+                [formControl]="confirmPasswordControl"
+                [status]="confirmPasswordError ? 'danger' : 'default'"
+                [errorText]="confirmPasswordError"
+              />
+            </div>
+
+            <!-- Security Notice Banner -->
+            <div class="security-advisory-box">
+              <div class="advisory-icon">
+                <app-icon [icon]="LucideInfo" size="sm" />
+              </div>
+              <div class="advisory-text">
+                <strong>Session security notice:</strong>
+                <p>
+                  To protect your account, updating your password will immediately sign out all
+                  other active sessions across your browsers and devices. You will be redirected to
+                  sign in with your new credentials.
+                </p>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions-row">
+              <app-button
+                label="Update password"
+                variant="primary"
+                size="md"
+                type="submit"
+                [iconLeft]="LucideShieldCheck"
+                [loading]="submitting()"
+                loadingText="Updating password…"
+                [disabled]="changePasswordForm.invalid || submitting() || passwordChangeSuccess()"
+              />
+
+              <app-button
+                label="Clear"
+                variant="ghost"
+                size="md"
+                type="button"
+                [disabled]="submitting() || passwordChangeSuccess()"
+                (buttonClick)="resetForm()"
+              />
+            </div>
+          </form>
+        </section>
+      </app-sticky-card>
+    </div>
+
+    <!-- Right Sidebar Column: Security Guidelines & Active Sessions -->
+    <aside class="security-sidebar-column">
+      <!-- Security Recommendations Card -->
+      <app-sticky-card
+        variant="default"
+        appearance="outlined"
+        shape="rounded"
+        shadow="sm"
+        [fullWidth]="true"
+      >
+        <section class="card-section" aria-labelledby="recommendations-heading">
+          <div class="sidebar-card-header">
+            <app-icon [icon]="LucideSparkles" size="sm" />
+            <h3 id="recommendations-heading">Password Best Practices</h3>
+          </div>
+
+          <ul class="best-practices-list">
+            <li>
+              <strong>Make it unique:</strong> Avoid reusing passwords from personal email, banking,
+              or social media.
+            </li>
+            <li>
+              <strong>Use a passphrase:</strong> A sequence of 4-5 memorable words is easy to
+              remember and hard to crack.
+            </li>
+            <li>
+              <strong>Password managers:</strong> Let tools like 1Password, Bitwarden, or Chrome
+              generate and store 16+ character credentials.
+            </li>
+            <li>
+              <strong>Beware of phishing:</strong> Sticky Ji team members will never ask you for
+              your account password via email or chat.
+            </li>
+          </ul>
+        </section>
+      </app-sticky-card>
+
+      <!-- Active Sessions & Sign-Out Card -->
+      <app-sticky-card
+        variant="default"
+        appearance="outlined"
+        shape="rounded"
+        shadow="sm"
+        [fullWidth]="true"
+      >
+        <section class="card-section" aria-labelledby="sessions-heading">
+          <div class="sidebar-card-header">
+            <app-icon [icon]="LucideLogOut" size="sm" />
+            <h3 id="sessions-heading">Session Management</h3>
+          </div>
+
+          <p class="sessions-description">
+            If you suspect unauthorized activity on your account or left yourself signed in on a
+            shared device, you can instantly terminate all active sessions.
+          </p>
+
+          <app-button
+            label="Sign out all devices"
+            variant="outline"
+            size="sm"
+            [iconLeft]="LucideLogOut"
+            [loading]="loggingOutAll()"
+            loadingText="Signing out…"
+            [fullWidth]="true"
+            (buttonClick)="signOutAllOtherSessions()"
+          />
+        </section>
+      </app-sticky-card>
+    </aside>
+  </div>
+</main>

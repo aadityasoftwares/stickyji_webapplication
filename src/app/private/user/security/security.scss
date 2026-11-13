@@ -1,0 +1,585 @@
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.security-page,
+.security-page * {
+  box-sizing: border-box;
+}
+
+.security-page {
+  width: min(100%, 1240px);
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 36px);
+  padding-bottom: 96px;
+  color: $text-primary;
+}
+
+/* ----------------------------------------------------
+   Account Sub-Navigation Tabs
+---------------------------------------------------- */
+.account-subnav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba($border, 0.7);
+
+  .subnav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+      background: rgba($sidebar-hover, 0.8);
+      color: $text-primary;
+    }
+
+    &.is-active {
+      background: $sidebar-hover;
+      color: $text-primary;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba($border, 0.8);
+    }
+  }
+}
+
+/* ----------------------------------------------------
+   Page Header
+---------------------------------------------------- */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.page-header__copy {
+  max-width: 720px;
+
+  .page-header__badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+    .security-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border: 1px solid rgba($border, 0.8);
+      border-radius: 999px;
+      background: $paper-light;
+      color: $text-secondary;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+  }
+
+  h1 {
+    margin: 8px 0 6px;
+    color: $heading;
+    font-size: clamp(1.85rem, 2.8vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+}
+
+/* ----------------------------------------------------
+   Feedback Banners
+---------------------------------------------------- */
+.feedback-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 13px 18px;
+  border: 1px solid;
+  border-radius: $radius-sm;
+  font-size: 0.88rem;
+
+  &__content {
+    flex: 1;
+
+    strong {
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.84rem;
+      opacity: 0.92;
+    }
+  }
+
+  &--success {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #166534;
+  }
+
+  &--error {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #991b1b;
+  }
+
+  &--info {
+    background: #f0f9ff;
+    border-color: #7dd3fc;
+    color: #075985;
+  }
+
+  .banner-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.65;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* ----------------------------------------------------
+   Two-Column Grid
+---------------------------------------------------- */
+.security-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 991px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.security-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.security-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ----------------------------------------------------
+   Section Inside Sticky Cards
+---------------------------------------------------- */
+.card-section {
+  padding: 24px clamp(18px, 2.5vw, 28px);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+
+    .header-icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: $radius-sm;
+      background: rgba($border, 0.4);
+      color: $text-primary;
+      flex-shrink: 0;
+
+      &--accent {
+        background: #fef08a;
+        color: #854d0e;
+      }
+    }
+
+    .header-text {
+      h2 {
+        margin: 0 0 3px;
+        color: $heading;
+        font-size: 1.18rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      p {
+        margin: 0;
+        color: $text-secondary;
+        font-size: 0.86rem;
+        line-height: 1.45;
+      }
+    }
+  }
+}
+
+/* ----------------------------------------------------
+   Credentials Info Row
+---------------------------------------------------- */
+.credential-info-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: $paper-light;
+  border: 1px solid rgba($border, 0.75);
+  border-radius: $radius-sm;
+
+  .credential-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    .credential-label {
+      color: $text-secondary;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .credential-value-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+
+      .credential-value {
+        font-size: 0.94rem;
+        font-weight: 700;
+        color: $heading;
+        word-break: break-all;
+      }
+
+      .credential-hint {
+        font-size: 0.78rem;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+/* Quick Email Reset Callout */
+.email-reset-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1px dashed rgba($border, 0.9);
+  border-radius: $radius-sm;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .callout-copy {
+    .callout-title {
+      display: block;
+      color: $heading;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    p {
+      margin: 0;
+      color: $text-secondary;
+      font-size: 0.82rem;
+      line-height: 1.4;
+
+      strong {
+        color: $text-primary;
+      }
+    }
+  }
+}
+
+/* ----------------------------------------------------
+   Password Form
+---------------------------------------------------- */
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+
+      .field-label {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: $heading;
+
+        .required-mark {
+          color: #dc2626;
+        }
+      }
+
+      .field-help-action {
+        background: none;
+        border: none;
+        padding: 0;
+        color: #2563eb;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+
+        &:hover {
+          color: #1d4ed8;
+        }
+      }
+    }
+  }
+}
+
+/* Password Strength Bar */
+.strength-pill {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+
+  &--weak {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  &--fair {
+    background: #fffbeb;
+    color: #d97706;
+  }
+
+  &--good {
+    background: #fefce8;
+    color: #ca8a04;
+  }
+
+  &--strong {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+}
+
+.strength-bar-track {
+  width: 100%;
+  height: 5px;
+  background: rgba($border, 0.6);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 3px;
+
+  .strength-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition:
+      width 0.25s ease-in-out,
+      background-color 0.25s ease-in-out;
+
+    &--weak {
+      background: #ef4444;
+    }
+
+    &--fair {
+      background: #f59e0b;
+    }
+
+    &--good {
+      background: #eab308;
+    }
+
+    &--strong {
+      background: #10b981;
+    }
+  }
+}
+
+/* Criteria List */
+.criteria-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: $paper-light;
+  border: 1px solid rgba($border, 0.65);
+  border-radius: $radius-sm;
+
+  .criteria-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $text-secondary;
+    font-size: 0.8rem;
+    transition: color 0.15s ease;
+
+    .criteria-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      color: $text-secondary;
+
+      .criteria-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba($text-secondary, 0.45);
+      }
+    }
+
+    &.is-met {
+      color: #15803d;
+      font-weight: 600;
+
+      .criteria-icon {
+        color: #16a34a;
+      }
+    }
+  }
+}
+
+/* Match Indicator */
+.match-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  &--match {
+    color: #16a34a;
+  }
+
+  &--mismatch {
+    color: #dc2626;
+  }
+}
+
+/* Security Advisory Box */
+.security-advisory-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: $radius-sm;
+  color: #713f12;
+
+  .advisory-icon {
+    color: #ca8a04;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .advisory-text {
+    strong {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.81rem;
+      line-height: 1.45;
+    }
+  }
+}
+
+/* Form Actions */
+.form-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* ----------------------------------------------------
+   Right Sidebar Cards
+---------------------------------------------------- */
+.sidebar-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  color: $heading;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+}
+
+.best-practices-list {
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: $text-secondary;
+  font-size: 0.83rem;
+  line-height: 1.5;
+
+  li {
+    strong {
+      color: $heading;
+    }
+  }
+}
+
+.sessions-description {
+  margin: 0 0 16px;
+  color: $text-secondary;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}

@@ -64,23 +64,13 @@ export const DEFAULT_FOOTER_SOCIAL_LINKS: readonly FooterSocialLink[] = [
   },
   {
     label: 'X (Twitter)',
-    href: 'https://x.com',
+    href: 'https://x.com/stickyji',
     type: 'x',
   },
   {
     label: 'Instagram',
-    href: 'https://www.instagram.com',
+    href: 'https://www.instagram.com/stickyjiapp/',
     type: 'instagram',
-  },
-  {
-    label: 'YouTube',
-    href: 'https://www.youtube.com',
-    type: 'youtube',
-  },
-  {
-    label: 'Discord',
-    href: 'https://discord.gg',
-    type: 'discord',
   },
 ];
 
@@ -162,7 +152,7 @@ export class WebsiteFooter {
   @Input() brandHref = '/#top';
   @Input() description = 'A calmer home for ideas, everyday plans, and the work people share.';
   @Input() locationText = 'Vadodara, Gujarat, India';
-  @Input() emailAddress = 'contact@aadityasoftwares.in';
+  @Input() emailAddress = 'contact@stickyji.com';
   @Input() phoneNumber = '+91 88498 63872';
   @Input() socialLinks: readonly FooterSocialLink[] = DEFAULT_FOOTER_SOCIAL_LINKS;
   @Input() ctaBadgeText = 'Ready to get organized?';

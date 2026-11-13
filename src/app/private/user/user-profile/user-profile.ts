@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { APP_ROUTES } from '../../../shared/constants/route.constants';
 
 import { filter, finalize, forkJoin, map, switchMap, tap } from 'rxjs';
 
@@ -28,6 +30,7 @@ import {
   LucideGlobe2,
   LucideGraduationCap,
   LucideInfo,
+  LucideKeyRound,
   LucideLanguages,
   LucideLoaderCircle,
   LucideMail,
@@ -88,6 +91,8 @@ type ProfileControlName =
     Tooltip,
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
+    RouterLinkActive,
     AppIcon,
     Avatar,
     Badge,
@@ -110,7 +115,9 @@ export class UserProfileComponent implements OnInit {
   private readonly authStore = inject(AuthStore);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly routes = APP_ROUTES;
 
+  readonly LucideKeyRound = LucideKeyRound;
   readonly LucideBookOpen = LucideBookOpen;
   readonly LucideBriefcaseBusiness = LucideBriefcaseBusiness;
   readonly LucideCalendarDays = LucideCalendarDays;

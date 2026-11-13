@@ -62,9 +62,7 @@ app-pricing-page .pricing-hero,
 app-reviews-page .reviews-hero,
 app-contact-us .contact-hero,
 app-stickyji-blog-list .sticky-hero,
-app-stickyji-blog-detail .detail-hero,
-app-privacy-policy .legal-hero,
-app-terms-and-conditions .legal-hero {
+app-stickyji-blog-detail .detail-hero {
   min-height: var(--website-hero-min-height);
 }
 
@@ -76,9 +74,7 @@ app-pricing-page .pricing-hero,
 app-reviews-page .reviews-hero,
 app-contact-us .contact-hero,
 app-stickyji-blog-list .sticky-hero,
-app-stickyji-blog-detail .detail-hero,
-app-privacy-policy .legal-hero,
-app-terms-and-conditions .legal-hero {
+app-stickyji-blog-detail .detail-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -342,7 +338,8 @@ p {
     thead {
       background: #fffbeb;
 
-      th, td {
+      th,
+      td {
         background: #fffbeb;
         color: #92400e;
         font-weight: 700;
@@ -470,4 +467,3 @@ p {
     }
   }
 }
-

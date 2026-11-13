@@ -38,7 +38,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     request.url.startsWith(API_ENDPOINTS.auth.logout) ||
     request.url.startsWith(API_ENDPOINTS.auth.logoutAll) ||
     request.url.includes('/auth/logout') ||
-    request.url.includes('/user/logout');
+    request.url.includes('/user/logout') ||
+    request.url.startsWith(API_ENDPOINTS.auth.changePassword);
 
   const accessToken = authStore.accessToken();
 

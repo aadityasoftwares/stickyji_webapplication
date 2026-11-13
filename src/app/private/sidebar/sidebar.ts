@@ -15,6 +15,7 @@ import {
   LucideChevronRight,
   LucideCircleUserRound,
   LucideFolderOpen,
+  LucideKeyRound,
   LucideLoaderCircle,
   LucideLogOut,
   LucidePanelLeftClose,
@@ -24,7 +25,7 @@ import {
   LucideStar,
   LucideStickyNote,
   LucideUsersRound,
-  LucideX
+  LucideX,
 } from '@lucide/angular';
 import { Button } from '../../shared/components/button/button';
 import { AppIcon, type AppIconDefinition } from '../../shared/components/icon/icon';
@@ -113,6 +114,7 @@ export class Sidebar implements OnChanges {
       label: 'Account',
       items: [
         { label: 'Profile', route: APP_ROUTES.PROFILE, icon: LucideCircleUserRound },
+        { label: 'Security', route: APP_ROUTES.SECURITY, icon: LucideKeyRound },
         // { label: 'Preferences', route: APP_ROUTES.PREFERENCES, icon: LucideSlidersHorizontal },
       ],
     },
