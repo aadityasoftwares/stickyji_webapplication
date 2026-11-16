@@ -95,7 +95,7 @@ export class Signup implements OnInit {
   @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
   @Input() redirectUrl = '/app';
-  @Input() showGoogleSignUp = true;
+  @Input() showGoogleSignUp = false;
 
   @Output()
   readonly googleSignUp = new EventEmitter<void>();

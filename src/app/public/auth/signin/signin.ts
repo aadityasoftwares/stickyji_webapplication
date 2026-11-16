@@ -79,7 +79,7 @@ export class Signin implements OnInit {
   @Input() logoAlt = 'Sticky Ji';
   @Input() initialEmail = '';
   @Input() redirectUrl = '/app';
-  @Input() showGoogleSignIn = true;
+  @Input() showGoogleSignIn = false;
 
   @Output()
   readonly googleSignIn = new EventEmitter<void>();
