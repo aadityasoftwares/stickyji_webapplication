@@ -45,14 +45,17 @@ describe('SecurityComponent', () => {
       of({ success: true, message: 'Password changed successfully.' }),
     );
     authServiceMock.forgotPassword.mockReturnValue(
-      of({ success: true, message: 'Password reset email sent.' }),
+      of({
+        success: true,
+        message: 'Password reset instructions have been dispatched to test@stickyji.com.',
+      }),
     );
     authServiceMock.logoutAll.mockReturnValue(of({ success: true }));
 
     await TestBed.configureTestingModule({
       imports: [SecurityComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'auth/login', component: SecurityComponent }]),
         { provide: AuthService, useValue: authServiceMock },
         { provide: AuthStore, useValue: authStoreMock },
         { provide: ToastService, useValue: toastMock },
